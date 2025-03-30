@@ -1,6 +1,7 @@
 #pragma once
 
 #include "IControls.h"
+#include "IVTabbedPagesControl.h"
 
 #include "faust/gui/GUI.h"
 #include "faust/gui/MetaDataUI.h"
@@ -10,14 +11,15 @@
 
 BEGIN_IPLUG_NAMESPACE
 
-class FaustPanel : public IVPanelControl
+class FaustPanelControl : public IVPanelControl
 {
 public:
-  FaustPanel(const IRECT& bounds, const char* label, const IVStyle& style, const EDirection& dir)
+  FaustPanelControl(const IRECT& bounds, const char* label, const IVStyle& style, const EDirection& dir, float padding = 10.f)
   : IVPanelControl(bounds, label, style)
   , mDirection(dir)
+  , mPadding(padding)
   {
-    SetAttachFunc([&](IContainerBase* pContainer, const IRECT& bounds) {
+    SetAttachFunc([this, label](IContainerBase* pContainer, const IRECT& bounds) {
      for (int c = 0; c < mControlsToAttach.size(); c++) {
        pContainer->AddChildControl(mControlsToAttach[c].second, mControlsToAttach[c].first, label);
      }
@@ -44,35 +46,30 @@ public:
   
   IRECT GetNextRect()
   {
-    if (mDirection == EDirection::Horizontal)
-    {
-      return mWidgetBounds.SubRectHorizontal((int) mControlsToAttach.size(), mControlIdx++);
-    }
-    else
-    {
-      return mWidgetBounds.SubRectVertical((int) mControlsToAttach.size(), mControlIdx++);
-    }
+    return mWidgetBounds.GetPadded(-mPadding).SubRect(mDirection, (int) mControlsToAttach.size(), mControlIdx++);
   }
   
 private:
+  float mPadding;
   EDirection mDirection;
   int mControlIdx = 0;
   std::vector<std::pair<int, IControl*>> mControlsToAttach;
 };
 
-using CreateControlFunc = std::function<IControl*(const IRECT& r, int paramIdx, const char* label)>;
-using SizeControlFunc = std::function<void(const IRECT& parentRect, IControl* pChild)>;
-
 class IGraphicsFaustUI : public GUI, public MetaDataUI, public Meta
 {
   friend class IPlugFaust;
   
+  using CreateControlFunc = std::function<IControl*(const IRECT& r, int paramIdx, const char* label)>;
+  using CreatePanelFunc = std::function<FaustPanelControl*(const IRECT& r, EDirection direction, const char* label)>;
+
 public:
   IGraphicsFaustUI(IPlugFaust& IPlugFaust, const IVStyle& style = DEFAULT_STYLE, int ctrlTagStart = 1000)
   : mIPlugFaust(IPlugFaust)
   , mStyle(style)
   , mCtrlTagIdx(ctrlTagStart)
   {
+#pragma mark - Default control creation funcs
     createKnobFunc = [this](const IRECT& r, int paramIdx, const char* label) -> IControl* {
       return new IVKnobControl(r, paramIdx, label, mStyle);
     };
@@ -120,49 +117,47 @@ public:
     createLedFunc = [this](const IRECT& r, int paramIdx, const char* label) -> IControl* {
       return new ILEDControl(r);
     };
-    
-//    sizeKnobFunc = [this](const IRECT& r, IControl* pControl) {
-//      pControl->SetTargetAndDrawRECTs(r.GetCentredInside(50, 70));
-//    }
+
+    createPanelFunc = [this](const IRECT& r, EDirection direction, const char* label) -> FaustPanelControl* {
+      return new FaustPanelControl(r, label, mStyle, direction);
+    };
   }
   
   ~IGraphicsFaustUI()
   {
   }
   
+#pragma mark - Faust UI
+  
   void openTabBox(const char *label) override
   {
-    
+//    AddTabbedPages(label); // Not yet working
+    AddPanel(EDirection::Horizontal, label);
   }
   
   void openHorizontalBox(const char *label) override
   {
-    auto* pNewPanel = new FaustPanel(GetNextRect().GetPadded(-mPadding), label, mStyle, EDirection::Horizontal);
-    GetTopPanel()->AddControl(pNewPanel);
-    mPanels.push(pNewPanel);
+    AddPanel(EDirection::Horizontal, label);
   }
   
   void openVerticalBox(const char *label) override
   {
-    FaustPanel* pNewPanel;
-    // Might be top level
-    if (mPanels.empty())
-    {
-      pNewPanel = new FaustPanel(mRect, label, mStyle, EDirection::Vertical);
-      mControlToAttach = pNewPanel;
-    }
-    else
-    {
-      pNewPanel = new FaustPanel(GetNextRect(), label, mStyle, EDirection::Vertical);
-      GetTopPanel()->AddControl(pNewPanel);
-    }
-    
-    mPanels.push(pNewPanel);
+    AddPanel(EDirection::Vertical, label);
   }
   
   void closeBox() override
   {
-    mPanels.pop();
+    if (!mPageMaps.empty())
+    {
+      auto pageMap = GetTopPageMap();
+      auto* pControl = new IVTabbedPagesControl(IRECT(), pageMap);
+      mPageMaps.pop();
+      GetTopPanel()->AddControl(pControl);
+    }
+    else
+    {
+      mPanels.pop();
+    }
   }
   
   void addButton(const char *label, ffloat *zone) override
@@ -172,6 +167,7 @@ public:
       auto paramIdx = GetParamIdxForZone(zone);
       auto* pControl = createButtonFunc(IRECT(), paramIdx, label);
       pControl->SetTooltip(fTooltip[zone].c_str());
+      
       GetTopPanel()->AddControl(pControl);
     }
   }
@@ -251,6 +247,8 @@ public:
     
   }
   
+#pragma mark -
+  
   IContainerBase* CreateFaustUIContainer(const IRECT&r)
   {
     mRect = r;
@@ -260,6 +258,36 @@ public:
   
 
 private:
+  void AddPanel(EDirection direction, const char* label)
+  {
+    FaustPanelControl* pNewPanel;
+    // Might be top level
+    if (mPanels.empty())
+    {
+      pNewPanel = createPanelFunc(mRect, direction, label);
+      mControlToAttach = pNewPanel;
+    }
+    else
+    {
+      pNewPanel = createPanelFunc(GetNextRect(), direction, label);
+      GetTopPanel()->AddControl(pNewPanel);
+    }
+    
+    mPanels.push(pNewPanel);
+  }
+  
+  void AddTabbedPages(const char* label)
+  {
+    if (mPageMaps.empty() || GetTopPageMap().at(label))
+    {
+      mPageMaps.push(PageMap({}));
+    }
+    
+    GetTopPageMap().insert({label, new IVTabPage([](IVTabPage* pPage, const IRECT& r) {
+      // TODO
+    })});
+  }
+  
   void AddBarGraph(const char* label, ffloat* zone, ffloat min, ffloat max, EDirection direction)
   {
     if (!isHidden(zone))
@@ -284,7 +312,7 @@ private:
 
   IRECT GetNextRect()
   {
-    return mRect.GetGridCell(mControlIdx++, 3, 1);
+    return mRect.GetGridCell(mControlIdx++, 10, 1); // TODO: need to know how many panels
   }
 
   int GetParamIdxForZone(ffloat* zone)
@@ -292,15 +320,18 @@ private:
     return mIPlugFaust.GetParamIdxForZone(zone);
   }
   
-  FaustPanel* GetTopPanel() { return mPanels.top(); }
+  FaustPanelControl* GetTopPanel() { return mPanels.top(); }
+  
+  PageMap& GetTopPageMap() { return mPageMaps.top(); }
 
-  float mPadding = 5.f;
   int mControlIdx = 0;
   IRECT mRect;
   IPlugFaust& mIPlugFaust;
   IVStyle mStyle;
-  std::stack<FaustPanel*> mPanels;
-  FaustPanel* mControlToAttach = nullptr;
+  std::stack<FaustPanelControl*> mPanels;
+  std::stack<PageMap> mPageMaps;
+
+  FaustPanelControl* mControlToAttach = nullptr;
   int mCtrlTagIdx;
 
 public:
@@ -316,7 +347,7 @@ public:
   CreateControlFunc createVBarGraphFunc;
   CreateControlFunc createLedFunc;
   CreateControlFunc createNumericalDisplayFunc;
-  SizeControlFunc sizeKnobFunc;
+  CreatePanelFunc createPanelFunc;
 };
 
 END_IPLUG_NAMESPACE

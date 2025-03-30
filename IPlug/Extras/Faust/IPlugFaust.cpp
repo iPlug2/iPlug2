@@ -110,9 +110,11 @@ void IPlugFaust::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
         IPeakAvgSender<>* pSender = *ppSender;
         auto* pZone = mSenderZones.Get(i);
         sample val = (sample) *pZone;
-        sample** tmp = new sample*[1];
-        tmp[0] = &val;
+        sample* valPtr = &val;
+        sample* tmp[1] = {valPtr};
         
+        // TODO: this is silly, but currently IPeakAvgSender is fed with blocks.
+        // This will result in nFrames of the same value in the block
         for (auto s=0;s<nFrames;s++) {
           pSender->ProcessBlock(tmp, 1, mCtrlTagStart + i);
         }
@@ -189,10 +191,10 @@ int IPlugFaust::CreateIPlugParameters(IPlugAPIBase* pPlug, int startIdx, int end
 {
   assert(pPlug != nullptr);
 
+  mPlug = pPlug;
+
   if (NParams() == 0)
     return -1;
-
-  mPlug = pPlug;
 
   int plugParamIdx = mIPlugParamStartIdx = startIdx;
 
@@ -351,7 +353,6 @@ void IPlugFaust::addNumEntry(const char *label, ffloat *zone, ffloat init, ffloa
 
 void IPlugFaust::addHorizontalBargraph(const char *label, ffloat *zone, ffloat min, ffloat max)
 {
-  //double minThresholdDb = -90.0, bool rmsMode = true, float windowSizeMs = 5.0f, float attackTimeMs = 1.0f, float decayTimeMs = 100.0f, float peakHoldTimeMs = 500.0f
   mSenders.Add(new IPeakAvgSender<>());
   mSenderZones.Add(zone);
 }

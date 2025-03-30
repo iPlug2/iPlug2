@@ -111,15 +111,18 @@ public:
   void openVerticalBox(const char *label) override {}
   void closeBox() override {}
   
+  // Mapped to parameters
   void addButton(const char *label, ffloat *zone) override;
   void addCheckButton(const char *label, ffloat *zone) override;
   void addVerticalSlider(const char *label, ffloat *zone, ffloat init, ffloat min, ffloat max, ffloat step) override;
   void addHorizontalSlider(const char *label, ffloat *zone, ffloat init, ffloat min, ffloat max, ffloat step) override;
   void addNumEntry(const char *label, ffloat *zone, ffloat init, ffloat min, ffloat max, ffloat step) override;
 
-  // TODO:
+  // Mapped to senders
   void addHorizontalBargraph(const char *label, ffloat *zone, ffloat min, ffloat max) override;
   void addVerticalBargraph(const char *label, ffloat *zone, ffloat min, ffloat max) override;
+  
+  // TODO:
   void addSoundfile(const char *label, const char *filename, Soundfile **sf_zone) override {}
 
   int GetParamIdxForZone(ffloat* zone);
