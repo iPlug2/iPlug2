@@ -1529,8 +1529,9 @@ public:
   /** @param x The X coordinate at which the mouse event occurred
    * @param y The Y coordinate at which the mouse event occurred
    * @param mod IMouseMod struct contain information about the modifiers held
-   * @param delta Delta value \todo explain */
-  void OnMouseWheel(float x, float y, const IMouseMod& mod, float delta);
+   * @param delta Delta value \todo explain
+   * @return /c true on handled */
+  bool OnMouseWheel(float x, float y, const IMouseMod& mod, float delta);
 
   /** @param x The X coordinate of the mouse cursor at the time of the key press
    * @param y The Y coordinate of the mouse cursor at the time of the key press
