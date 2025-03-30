@@ -1228,11 +1228,14 @@ bool IGraphics::OnMouseDblClick(float x, float y, const IMouseMod& mod)
   return pControl;
 }
 
-void IGraphics::OnMouseWheel(float x, float y, const IMouseMod& mod, float d)
+bool IGraphics::OnMouseWheel(float x, float y, const IMouseMod& mod, float d)
 {
   IControl* pControl = GetMouseControl(x, y, false);
+  
   if (pControl)
     pControl->OnMouseWheel(x, y, mod, d);
+  
+  return pControl;
 }
 
 bool IGraphics::OnKeyDown(float x, float y, const IKeyPress& key)
