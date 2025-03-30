@@ -142,14 +142,27 @@ protected:
 
   APIBitmap* LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location, const char* ext) override;
   APIBitmap* LoadAPIBitmap(const char* name, const void* pData, int dataSize, int scale) override;
-private:  
+  
+  // For use with inheritance where the inheriting class will handle the surface
+  
+  sk_sp<SkSurface>& GetSurface() { return mSurface; }
+  
+  void SetSurface(sk_sp<SkSurface> surface)
+  {
+    mSurface = surface;
+    UpdateCanvas();
+  }
+
+private:
   void PrepareAndMeasureText(const IText& text, const char* str, IRECT& r, double& x, double & y, SkFont& font) const;
 
   void PathTransformSetMatrix(const IMatrix& m) override;
   void SetClipRegion(const IRECT& r) override;
     
   void RenderPath(SkPaint& paint);
-    
+  
+  void UpdateCanvas();
+  
   sk_sp<SkSurface> mSurface;
   SkCanvas* mCanvas = nullptr;
   SkPath mMainPath;

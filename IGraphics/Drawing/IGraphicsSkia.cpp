@@ -511,6 +511,11 @@ void IGraphicsSkia::DrawResize()
 #endif
   }
   
+  UpdateCanvas();
+}
+
+void IGraphicsSkia::UpdateCanvas()
+{
   if (mSurface)
   {
     mCanvas = mSurface->getCanvas();
