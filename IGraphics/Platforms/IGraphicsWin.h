@@ -15,6 +15,7 @@
 #include <winuser.h>
 
 #include "IGraphics_select.h"
+#include "IGraphicsWinFonts.h"
 
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
@@ -23,9 +24,9 @@ BEGIN_IGRAPHICS_NAMESPACE
 * @ingroup PlatformClasses */
 class IGraphicsWin final : public IGRAPHICS_DRAW_CLASS
 {
-  class Font;
-  class InstalledFont;
-  struct HFontHolder;
+  using InstalledFont = InstalledWinFont;
+  using Font = WinFont;
+  
 public:
   IGraphicsWin(IGEditorDelegate& dlg, int w, int h, int fps, float scale);
   ~IGraphicsWin();

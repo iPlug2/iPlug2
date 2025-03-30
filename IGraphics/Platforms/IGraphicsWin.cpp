@@ -54,100 +54,10 @@ typedef HGLRC(WINAPI* PFNWGLCREATECONTEXTATTRIBSARBPROC) (HDC hDC, HGLRC hShareC
 #define WGL_CONTEXT_CORE_PROFILE_BIT_ARB  0x00000001
 #endif
 
-#pragma mark - Private Classes and Structs
-
-// Fonts
-
-class IGraphicsWin::InstalledFont
-{
-public:
-  InstalledFont(void* data, int resSize)
-  : mFontHandle(nullptr)
-  {
-    if (data)
-    {
-      DWORD numFonts = 0;
-      mFontHandle = AddFontMemResourceEx(data, resSize, NULL, &numFonts);
-    }
-  }
-  
-  ~InstalledFont()
-  {
-    if (IsValid())
-      RemoveFontMemResourceEx(mFontHandle);
-  }
-  
-  InstalledFont(const InstalledFont&) = delete;
-  InstalledFont& operator=(const InstalledFont&) = delete;
-    
-  bool IsValid() const { return mFontHandle; }
-  
-private:
-  HANDLE mFontHandle;
-};
-
-struct IGraphicsWin::HFontHolder
-{
-  HFontHolder(HFONT hfont) : mHFont(nullptr)
-  {
-    LOGFONTW lFont = { 0 };
-    GetObjectW(hfont, sizeof(LOGFONTW), &lFont);
-    mHFont = CreateFontIndirectW(&lFont);
-  }
-  
-  HFONT mHFont;
-};
-
-class IGraphicsWin::Font : public PlatformFont
-{
-public:
-  Font(HFONT font, const char* styleName, bool system)
-  : PlatformFont(system), mFont(font), mStyleName(styleName) {}
-  ~Font()
-  {
-    DeleteObject(mFont);
-  }
-  
-  FontDescriptor GetDescriptor() override { return mFont; }
-  IFontDataPtr GetFontData() override;
-  
-private:
-  HFONT mFont;
-  WDL_String mStyleName;
-};
-
-IFontDataPtr IGraphicsWin::Font::GetFontData()
-{
-  HDC hdc = CreateCompatibleDC(NULL);
-  IFontDataPtr fontData(new IFontData());
-  
-  if (hdc != NULL)
-  {
-    SelectObject(hdc, mFont);
-    const size_t size = ::GetFontData(hdc, 0, 0, NULL, 0);
-
-    if (size != GDI_ERROR)
-    {
-      fontData = std::make_unique<IFontData>(size);
-
-      if (fontData->GetSize() == size)
-      {
-        size_t result = ::GetFontData(hdc, 0x66637474, 0, fontData->Get(), size);
-        if (result == GDI_ERROR)
-          result = ::GetFontData(hdc, 0, 0, fontData->Get(), size);
-        if (result == size)
-          fontData->SetFaceIdx(GetFaceIdx(fontData->Get(), fontData->GetSize(), mStyleName.Get()));
-      }
-    }
-    
-    DeleteDC(hdc);
-  }
-
-  return fontData;
-}
+#pragma mark - Static storage
 
 StaticStorage<IGraphicsWin::InstalledFont> IGraphicsWin::sPlatformFontCache;
-StaticStorage<IGraphicsWin::HFontHolder> IGraphicsWin::sHFontCache;
+StaticStorage<HFontHolder> IGraphicsWin::sHFontCache;
 
 #pragma mark - Mouse and tablet helpers
 
