@@ -27,7 +27,6 @@ public:
   ISpectrumSender<2> mSender;
 #endif
 #if IPLUG_EDITOR
-  void OnParentWindowResize(int width, int height) override;
   void OnParamChangeUI(int paramIdx, EParamSource source) override;
 #endif
 };
