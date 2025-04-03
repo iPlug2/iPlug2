@@ -10,6 +10,7 @@
 #include "IPlugFaust.h"
 
 BEGIN_IPLUG_NAMESPACE
+BEGIN_IGRAPHICS_NAMESPACE
 
 class FaustPanelControl : public IVPanelControl
 {
@@ -253,7 +254,13 @@ public:
   {
     mRect = r;
     mIPlugFaust.BuildUI(this);
-    return mControlToAttach;
+    return mTopLevelControl;
+  }
+  
+  void Resize(const IRECT& r)
+  {
+    mTopLevelControl->SetTargetAndDrawRECTs(r);
+    mTopLevelControl->OnResize();
   }
   
 
@@ -265,7 +272,7 @@ private:
     if (mPanels.empty())
     {
       pNewPanel = createPanelFunc(mRect, direction, label);
-      mControlToAttach = pNewPanel;
+      mTopLevelControl = pNewPanel;
     }
     else
     {
@@ -331,7 +338,7 @@ private:
   std::stack<FaustPanelControl*> mPanels;
   std::stack<PageMap> mPageMaps;
 
-  FaustPanelControl* mControlToAttach = nullptr;
+  FaustPanelControl* mTopLevelControl = nullptr;
   int mCtrlTagIdx;
 
 public:
@@ -350,4 +357,5 @@ public:
   CreatePanelFunc createPanelFunc;
 };
 
+END_IGRAPHICS_NAMESPACE
 END_IPLUG_NAMESPACE
