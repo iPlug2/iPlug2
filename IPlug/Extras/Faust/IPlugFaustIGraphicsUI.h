@@ -32,9 +32,9 @@ public:
        for (int c = 0; c < pContainer->NChildren(); c++) {
          auto* pChildControl = pContainer->GetChild(c);
          auto bounds = GetNextRect();
-         if (auto* pKnobControl = pChildControl->As<IKnobControlBase>()) {
-           bounds = bounds.GetCentredInside(100, 70);
-         }
+//         if (auto* pKnobControl = pChildControl->As<IKnobControlBase>()) {
+//           bounds = bounds.GetCentredInside(100, 70);
+//         }
          pChildControl->SetTargetAndDrawRECTs(bounds);
        }
     });
@@ -43,6 +43,11 @@ public:
   void AddControl(IControl* pControl, int ctrlTag = -1)
   {
     mControlsToAttach.push_back({ctrlTag, pControl});
+  }
+  
+  int NControlsToAttach() const
+  {
+    return (int) mControlsToAttach.size();
   }
   
   IRECT GetNextRect()
@@ -132,30 +137,29 @@ public:
   
   void openTabBox(const char *label) override
   {
-//    AddTabbedPages(label); // Not yet working
-    AddPanel(EDirection::Horizontal, label);
+    AddTabbedPages(label);
   }
   
   void openHorizontalBox(const char *label) override
   {
-    AddPanel(EDirection::Horizontal, label);
+    AddPanelOrTabPage(EDirection::Horizontal, label);
   }
   
   void openVerticalBox(const char *label) override
   {
-    AddPanel(EDirection::Vertical, label);
+    AddPanelOrTabPage(EDirection::Vertical, label);
   }
   
   void closeBox() override
   {
-    if (!mPageMaps.empty())
+    if (!mPageMaps.empty() && !GetTopPanel()->NControlsToAttach())
     {
-      auto pageMap = GetTopPageMap();
-      auto* pControl = new IVTabbedPagesControl(IRECT(), pageMap);
+      auto* pControl = new IVTabbedPagesControl(IRECT(), GetTopPageMap(), mTabBoxName.c_str());
       mPageMaps.pop();
       GetTopPanel()->AddControl(pControl);
     }
-    else
+
+    if (!mPanels.empty())
     {
       mPanels.pop();
     }
@@ -283,16 +287,35 @@ private:
     mPanels.push(pNewPanel);
   }
   
+  void AddPanelOrTabPage(EDirection direction, const char* label)
+  {
+    if (mPageMaps.empty())
+    {
+      AddPanel(direction, label);
+    }
+    else
+    {
+      FaustPanelControl* pNewPanel = createPanelFunc(IRECT(), direction, label);
+
+      WDL_String tabLabel;
+      tabLabel.SetFormatted(64, "%zu - %s", mPageMaps.size(), label);
+      auto& pageMap = GetTopPageMap();
+      pageMap.insert({label, new IVTabPage([pNewPanel](IVTabPage* pPage, const IRECT& r) {
+        pPage->AddChildControl(pNewPanel);
+      })});
+      
+      mPanels.push(pNewPanel);
+    }
+  }
+  
   void AddTabbedPages(const char* label)
   {
-    if (mPageMaps.empty() || GetTopPageMap().at(label))
+    if (mPageMaps.empty() || mTabBoxName != std::string_view(label))
     {
+      AddPanel(EDirection::Horizontal, ""); // Don't add a label here, since the tabbed pages control has its own
       mPageMaps.push(PageMap({}));
+      mTabBoxName = label;
     }
-    
-    GetTopPageMap().insert({label, new IVTabPage([](IVTabPage* pPage, const IRECT& r) {
-      // TODO
-    })});
   }
   
   void AddBarGraph(const char* label, ffloat* zone, ffloat min, ffloat max, EDirection direction)
@@ -337,6 +360,7 @@ private:
   IVStyle mStyle;
   std::stack<FaustPanelControl*> mPanels;
   std::stack<PageMap> mPageMaps;
+  std::string mTabBoxName;
 
   FaustPanelControl* mTopLevelControl = nullptr;
   int mCtrlTagIdx;

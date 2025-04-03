@@ -160,10 +160,8 @@ void IPlugFaust::SetParameterValueNormalised(int paramIdx, double normalizedValu
 
 void IPlugFaust::SetParameterValue(int paramIdx, double nonNormalizedValue)
 {
-  if (NParams())
+  if (paramIdx < NParams())
   {
-    assert(paramIdx < NParams()); // Seems like we don't have enough parameters!
-
     mParams.Get(paramIdx)->Set(nonNormalizedValue);
 
     if (mParamZones.GetSize() == NParams())
@@ -199,12 +197,12 @@ int IPlugFaust::CreateIPlugParameters(IPlugAPIBase* pPlug, int startIdx, int end
   int plugParamIdx = mIPlugParamStartIdx = startIdx;
 
   if (endIdx == -1)
-    endIdx = pPlug->NParams();
+    endIdx = NParams();
 
   for (auto p = 0; p < endIdx; p++)
   {
     assert(plugParamIdx + p < pPlug->NParams()); // plugin needs to have enough params!
-
+    
     IParam* pPlugParam = pPlug->GetParam(plugParamIdx + p);
     const double currentValueNormalised = pPlugParam->GetNormalized();
     pPlugParam->Init(*mParams.Get(p));

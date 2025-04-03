@@ -12,6 +12,8 @@
 #define DSP_FILE ""
 #endif
 
+#include "IPlugFaustIGraphicsUI.h"
+
 enum EControlTags
 {
   kCtrlTagScope = 0,
@@ -37,5 +39,6 @@ public:
 private:
   FAUST_BLOCK(Faust1, mFaustProcessor, DSP_FILE, 1, 1);
   IBufferSender<2> mScopeSender;
+  IGraphicsFaustUI mUIBuilder;
 #endif
 };
