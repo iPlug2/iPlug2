@@ -70,6 +70,9 @@ else
   endif
 endif
 
+ifeq ($(COMPILER),CLANG)
+  CFLAGS += -Wbitwise-instead-of-logical
+endif
 
 ifdef DEBUG
 CFLAGS += -O0 -g -D_DEBUG
