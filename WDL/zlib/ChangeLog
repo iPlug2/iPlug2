@@ -1,11 +1,6 @@
 
                 ChangeLog file for zlib
 
-1.2.12-WDL
-- subset of zlib
-- added a zlib_import.h
-- contrib/minizip is included in the same path and has some very small mods
-
 Changes in 1.2.12 (27 Mar 2022)
 - Cygwin does not have _wopen(), so do not create gzopen_w() there
 - Permit a deflateParams() parameter change as soon as possible

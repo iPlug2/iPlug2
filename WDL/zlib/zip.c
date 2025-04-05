@@ -40,9 +40,6 @@
 #   include <errno.h>
 #endif
 
-#if !defined(NOCRYPT) && !defined(WANTCRYPT)
-#define NOCRYPT
-#endif
 
 #ifndef local
 #  define local static
@@ -1070,7 +1067,7 @@ extern int ZEXPORT zipOpenNewFileInZip4_64 (zipFile file, const char* filename, 
     int err = ZIP_OK;
 
 #    ifdef NOCRYPT
-//    (crcForCrypting);
+    (crcForCrypting);
     if (password != NULL)
         return ZIP_PARAMERROR;
 #    endif
