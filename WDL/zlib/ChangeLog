@@ -1,3 +1,7 @@
+1.3.1-WDL
+- subset of zlib
+- added a zlib_import.h
+- contrib/minizip is included in the same path and has some very small mods
 
                 ChangeLog file for zlib
 
