@@ -77,6 +77,14 @@ BEGIN_IPLUG_NAMESPACE
   struct LogFile
   {
     FILE* mFP;
+    static LogFile* sInstance;
+    
+    static LogFile* GetInstance()
+    {
+      if (!sInstance)
+        sInstance = new LogFile();
+      return sInstance;
+    }
     
     LogFile()
     {
@@ -95,13 +103,18 @@ BEGIN_IPLUG_NAMESPACE
     
     ~LogFile()
     {
-      fclose(mFP);
-      mFP = nullptr;
+      if (mFP)
+      {
+        fclose(mFP);
+        mFP = nullptr;
+      }
     }
     
     LogFile(const LogFile&) = delete;
     LogFile& operator=(const LogFile&) = delete;
   };
+
+  inline LogFile* LogFile::sInstance = nullptr;
 
   static bool IsWhitespace(char c)
   {
@@ -205,8 +218,8 @@ BEGIN_IPLUG_NAMESPACE
     if (sTrace++ < MAX_LOG_LINES)
     {
   #ifndef TRACETOSTDOUT
-      static LogFile sLogFile;
-      assert(sLogFile.mFP);
+      LogFile* sLogFile = LogFile::GetInstance();
+      assert(sLogFile->mFP);
   #endif
       static WDL_Mutex sLogMutex;
       char str[TXTLEN];
@@ -222,13 +235,13 @@ BEGIN_IPLUG_NAMESPACE
       {
         if(++sProcessCount > MAX_PROCESS_TRACE_COUNT)
         {
-          fflush(sLogFile.mFP);
+          fflush(sLogFile->mFP);
           return;
         }
         else if (sProcessCount == MAX_PROCESS_TRACE_COUNT)
         {
-          fprintf(sLogFile.mFP, "**************** DISABLING PROCESS TRACING AFTER %d HITS ****************\n\n", sProcessCount);
-          fflush(sLogFile.mFP);
+          fprintf(sLogFile->mFP, "**************** DISABLING PROCESS TRACING AFTER %d HITS ****************\n\n", sProcessCount);
+          fflush(sLogFile->mFP);
           return;
         }
       }
@@ -241,22 +254,22 @@ BEGIN_IPLUG_NAMESPACE
       {
         if(++sIdleCount > MAX_IDLE_TRACE_COUNT)
         {
-          fflush(sLogFile.mFP);
+          fflush(sLogFile->mFP);
           return;
         }
         else if (sIdleCount == MAX_IDLE_TRACE_COUNT)
         {
-          fprintf(sLogFile.mFP, "**************** DISABLING IDLE/MOUSEOVER TRACING AFTER %d HITS ****************\n", sIdleCount);
-          fflush(sLogFile.mFP);
+          fprintf(sLogFile->mFP, "**************** DISABLING IDLE/MOUSEOVER TRACING AFTER %d HITS ****************\n", sIdleCount);
+          fflush(sLogFile->mFP);
           return;
         }
       }
       
       if (threadID > 0)
-        fprintf(sLogFile.mFP, "*** -");
+        fprintf(sLogFile->mFP, "*** -");
       
-      fprintf(sLogFile.mFP, "[%ld:%s:%d]%s", threadID, funcName, line, str);
-      fflush(sLogFile.mFP);
+      fprintf(sLogFile->mFP, "[%ld:%s:%d]%s", threadID, funcName, line, str);
+      fflush(sLogFile->mFP);
   #endif
     }
   }
