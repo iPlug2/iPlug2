@@ -3,6 +3,10 @@
 
 IPlugFaustDSP::IPlugFaustDSP(const InstanceInfo& info)
 : Plugin(info, MakeConfig(kNumParams, 1))
+, mUIBuilder(mFaustProcessor, DEFAULT_STYLE
+                    .WithDrawShadows(false)
+                    .WithLabelText({15})
+                    .WithShowValue(false))
 {
   InitParamRange(0, kNumParams-1, 1, "Param %i", 0., 0., 1., 0.01, "", IParam::kFlagsNone); // initialize kNumParams generic iplug params
   
@@ -11,11 +15,13 @@ IPlugFaustDSP::IPlugFaustDSP(const InstanceInfo& info)
   mFaustProcessor.Init();
   mFaustProcessor.CompileCPP();
   mFaustProcessor.SetAutoRecompile(true);
- // mFaustProcessor.CreateIPlugParameters(this, 0, mFaustProcessor.NParams()); // in order to create iplug params, based on faust .dsp params, uncomment this
+  mFaustProcessor.CreateIPlugParameters(this);
 #ifndef FAUST_COMPILED
   mFaustProcessor.SetCompileFunc([&](){
+    GetUI()->RemoveAllControls();
+    LayoutUI(GetUI());
     OnParamReset(EParamSource::kRecompile);
-  });
+    mFaustProcessor.SyncFaustParams();  });
 #endif
 #endif
   
@@ -27,19 +33,19 @@ IPlugFaustDSP::IPlugFaustDSP(const InstanceInfo& info)
   mLayoutFunc = [&](IGraphics* pGraphics) {
     IRECT b = pGraphics->GetBounds().GetPadded(-20);
 
-    IRECT knobs = b.GetFromTop(100.);
-    IRECT viz = b.GetReducedFromTop(100);
-    IRECT keyb = viz.ReduceFromBottom(100);
+    IRECT ui = b.GetPadded(-10);
     pGraphics->AttachCornerResizer(EUIResizerMode::Scale);
     pGraphics->LoadFont("Roboto-Regular", ROBOTO_FN);
     pGraphics->AttachPanelBackground(COLOR_GRAY);
 
-    for (int i = 0; i < kNumParams; i++) {
-      pGraphics->AttachControl(new IVKnobControl(knobs.GetGridCell(i, 1, kNumParams).GetPadded(-5.f), i));
-    }
-    
-    pGraphics->AttachControl(new IVScopeControl<2>(viz, "", DEFAULT_STYLE.WithColor(kBG, COLOR_BLACK).WithColor(kFG, COLOR_GREEN)), kCtrlTagScope);
-    pGraphics->AttachControl(new IVKeyboardControl(keyb));
+    pGraphics->AttachControl(mUIBuilder.CreateFaustUIContainer(ui));
+
+//    for (int i = 0; i < kNumParams; i++) {
+//      pGraphics->AttachControl(new IVKnobControl(knobs.GetGridCell(i, 1, kNumParams).GetPadded(-5.f), i));
+//    }
+//    
+//    pGraphics->AttachControl(new IVScopeControl<2>(scope, "", DEFAULT_STYLE.WithColor(kBG, COLOR_BLACK).WithColor(kFG, COLOR_GREEN)), kCtrlTagScope);
+//    pGraphics->AttachControl(new IVKeyboardControl(keyb));
   };
 #endif
 }
@@ -64,11 +70,11 @@ void IPlugFaustDSP::ProcessMidiMsg(const IMidiMsg& msg)
 
 void IPlugFaustDSP::OnParamChange(int paramIdx)
 {
-  mFaustProcessor.SetParameterValueNormalised(paramIdx, GetParam(paramIdx)->GetNormalized());
+//  mFaustProcessor.SetParameterValueNormalised(paramIdx, GetParam(paramIdx)->GetNormalized());
 }
 
 void IPlugFaustDSP::OnIdle()
 {
-  mScopeSender.TransmitData(*this);
+//  mScopeSender.TransmitData(*this);
 }
 #endif
