@@ -6,11 +6,11 @@
 #include "IPlugFaustGen.h"
 #endif
 
-#include "IControls.h"
-
 #ifndef DSP_FILE
 #define DSP_FILE ""
 #endif
+
+#include "IPlugFaustIGraphicsUI.h"
 
 enum EControlTags
 {
@@ -18,7 +18,7 @@ enum EControlTags
   kNumCtrlTags
 };
 
-const int kNumParams = 8;
+const int kNumParams = 22;
 
 using namespace iplug;
 using namespace igraphics;
@@ -37,5 +37,6 @@ public:
 private:
   FAUST_BLOCK(Faust1, mFaustProcessor, DSP_FILE, 1, 1);
   IBufferSender<2> mScopeSender;
+  IGraphicsFaustUI mUIBuilder;
 #endif
 };

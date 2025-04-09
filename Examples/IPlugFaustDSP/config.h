@@ -16,7 +16,7 @@
 
 #define SHARED_RESOURCES_SUBPATH "IPlugFaustDSP"
 
-#define PLUG_CHANNEL_IO "2-2"
+#define PLUG_CHANNEL_IO "6-36"
 
 #define PLUG_LATENCY 0
 #define PLUG_TYPE 0
