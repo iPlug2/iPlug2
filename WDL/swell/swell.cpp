@@ -30,8 +30,8 @@
 #include <sys/time.h>
 #include <sys/stat.h>
 #include <sys/socket.h>
-#include <sys/poll.h>
-#include <sys/fcntl.h>
+#include <poll.h>
+#include <fcntl.h>
 #include <sys/resource.h>
 
 

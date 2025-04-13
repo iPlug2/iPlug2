@@ -48,10 +48,10 @@
     #undef WDL_WIN32_NATIVE_WRITE
   #endif
   #if !defined(WDL_NO_POSIX_FILEWRITE)
-    #include <sys/fcntl.h>
+    #include <fcntl.h>
     #include <sys/file.h>
     #include <sys/stat.h>
-    #include <sys/errno.h>
+    #include <errno.h>
     #define WDL_POSIX_NATIVE_WRITE
     extern struct stat wdl_stat_chk;
     // if this fails on linux, use CFLAGS += -D_FILE_OFFSET_BITS=64
