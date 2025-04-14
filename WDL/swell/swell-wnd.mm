@@ -5600,7 +5600,9 @@ BOOL InvalidateRect(HWND hwnd, const RECT *r, int eraseBk)
       {
         if (![hc isHiddenOrHasHiddenAncestor]) 
         {
-          swell_addMetalDirty(hc,r);
+          NSRect sz = [hc bounds];
+          if (sz.size.width != 0.0 && sz.size.height != 0.0)
+            swell_addMetalDirty(hc,r);
         }
         return TRUE;
       }
