@@ -743,7 +743,7 @@ enum { RAWMIDI_NOTESONLY=1, RAWMIDI_UNFILTERED=2, RAWMIDI_CHANNELFILTER=3 }; // 
 #define PCM_SOURCE_EXT_REMOVEFROMMIDIPOOL 0x90010 
 #define PCM_SOURCE_EXT_GETHASH 0x90011 // parm1=(WDL_UINT64*)hash (64-bit hash of the source data)
 #define PCM_SOURCE_EXT_GETIMAGE 0x90012  // parm1=(LICE_IBitmap**)image. parm2 = NULL or pointer to int, which is (w<<16)|h desired approx
-#define PCM_SOURCE_EXT_NOAUDIO 0x90013 
+#define PCM_SOURCE_EXT_NOAUDIO 0x90013 // return 1 if video file with no audio. if parm1 is non-NULL, will (int*)parm1=1 if a video file with audio and no video
 #define PCM_SOURCE_EXT_HASMIDI 0x90014 // returns 1 if contains any MIDI data, parm1=(double*)time offset of first event
 #define PCM_SOURCE_EXT_DELETEMIDINOTES 0x90015 // parm1=(double*)minlen (0.125 for 1/8 notes, etc), parm2=1 if only trailing small notes should be deleted, parm3=(bool*)true if any notes were deleted (return)
 #define PCM_SOURCE_EXT_GETGUID 0x90017 // parm1=(GUID*)guid
