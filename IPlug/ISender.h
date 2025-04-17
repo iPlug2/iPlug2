@@ -108,7 +108,7 @@ public:
     }
   }
 
-private:
+protected:
   IPlugQueue<ISenderData<MAXNC, T>> mQueue {QUEUE_SIZE};
 };
 
