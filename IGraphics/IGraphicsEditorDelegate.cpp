@@ -61,8 +61,11 @@ void IGEditorDelegate::CloseWindow()
 
 void IGEditorDelegate::OnParentWindowResize(int width, int height)
 {
-  if (GetUI())
-    GetUI()->Resize(width / GetUI()->GetPlatformWindowScale(), height / GetUI()->GetPlatformWindowScale(), 1.f, false);
+  if (auto* pGraphics = GetUI()) 
+  {
+    const auto scale = pGraphics->GetPlatformWindowScale();
+    pGraphics->Resize(width / scale, height / scale, 1.0f, false);
+  }
 }
 
 void IGEditorDelegate::SetScreenScale(float scale)
