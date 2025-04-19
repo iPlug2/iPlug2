@@ -131,8 +131,11 @@ int IPluginBase::UnserializeParams(const IByteChunk& chunk, int startPos)
     IParam* pParam = mParams.Get(i);
     double v = 0.0;
     pos = chunk.Get(&v, pos);
-    pParam->Set(v);
-    Trace(TRACELOC, "%d %s %f", i, pParam->GetName(), pParam->Value());
+    if (pos >= 0)
+    {
+      pParam->Set(v);
+      Trace(TRACELOC, "%d %s %f", i, pParam->GetName(), pParam->Value());
+    }
   }
 
   OnParamReset(kPresetRecall);
