@@ -16,9 +16,21 @@ IPlugEffect::IPlugEffect(const InstanceInfo& info)
     pGraphics->AttachCornerResizer(EUIResizerMode::Scale, false);
     pGraphics->AttachPanelBackground(COLOR_GRAY);
     pGraphics->LoadFont("Roboto-Regular", ROBOTO_FN);
+
+#ifdef AUv3_API
     const IRECT b = pGraphics->GetBounds();
-    pGraphics->AttachControl(new ITextControl(b.GetMidVPadded(50), "Hello iPlug 2!", IText(50)));
-    pGraphics->AttachControl(new IVKnobControl(b.GetCentredInside(100).GetVShifted(-100), kGain));
+    std::vector<std::string> auv3UserPresets;
+    this->GetUserPresets(auv3UserPresets);
+    pGraphics->AttachControl(new ILambdaControl(b.GetPadded(-10),
+      [auv3UserPresets](ILambdaControl* pCaller, IGraphics& g, IRECT& rect) {
+        g.FillRect(COLOR_WHITE, rect);
+        for (auto i=0; i<auv3UserPresets.size(); i++) {
+          g.DrawText(IText(20), auv3UserPresets[i].c_str(), rect.SubRectVertical(int(auv3UserPresets.size()), i));
+        }
+      
+    }, DEFAULT_ANIMATION_DURATION, false, false));
+#endif
+    
   };
 #endif
 }
