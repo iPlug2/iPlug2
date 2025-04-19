@@ -65,7 +65,7 @@ execute_cmd() {
   return 0
 }
 
-for SDK in "iphoneos" "iphonesimulator" "macosx" "appletvos"; do
+for SDK in "iphoneos" "iphonesimulator" "macosx" "appletvos" "xros"; do
   if [ $SDK = "appletvos" ]; then
     echo "* Compiling for tvOS..."
     TARGET="tvos"
@@ -84,6 +84,9 @@ for SDK in "iphoneos" "iphonesimulator" "macosx" "appletvos"; do
     elif [ $SDK = "macosx" ]; then
       echo "* Compiling for macOS..."
       TARGET="macos"
+    elif [ $SDK = "xros" ]; then
+      echo "* Compiling for visionOS..."
+      TARGET="xros"
     fi
 
     execute_cmd $SDK $TARGET
