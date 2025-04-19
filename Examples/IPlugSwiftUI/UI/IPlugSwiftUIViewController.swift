@@ -56,8 +56,12 @@ func floatValue(data: Data) -> Float {
     let hostingController = PlatformHostingController(rootView: contentView)
     state.bundleID = getBundleID()
     BundleLocator.shared.initialize(with: state.bundleID)
-
     view.addSubview(hostingController.view)
+    
+    #if !os(macOS)
+    hostingController.didMove(toParent: self)
+    #endif
+    
     hostingController.view.pinToSuperviewEdges()
   }
   
