@@ -108,3 +108,7 @@ void IWebView::GetWebRoot(WDL_String& path) const
 {
   mpImpl->GetWebRoot(path);
 }
+
+void IWebView::ForceScreenScale(float scale) {
+  mpImpl->SetScreenScale(scale);
+}

@@ -65,6 +65,8 @@ public:
   void GetWebRoot(WDL_String& path) const { path.Set(mWebRoot.Get()); }
   void GetLocalDownloadPathForFile(const char* fileName, WDL_String& downloadPath);
 
+  void SetScreenScale(float scale);
+
 private:
   RECT GetScaledRect(float x, float y, float w, float h, float scale)
   {
@@ -503,6 +505,69 @@ void IWebViewImpl::GetLocalDownloadPathForFile(const char* fileName, WDL_String&
 {
   DesktopPath(downloadPath);
   downloadPath.Append(fileName);
+}
+
+
+extern float GetScaleForHWND(HWND hWnd);
+
+// Helper function to check if a window is a child window
+static bool IsChildWindow(HWND pWnd)
+{
+  if (pWnd)
+  {
+    int style = GetWindowLongW(pWnd, GWL_STYLE);
+    int exStyle = GetWindowLongW(pWnd, GWL_EXSTYLE);
+    return ((style & WS_CHILD) && !(exStyle & WS_EX_MDICHILD));
+  }
+  return false;
+}
+
+
+void IWebViewImpl::SetScreenScale(float scale)
+{
+
+  if (auto hwnd = (HWND)mParentWnd)
+  {
+    RECT rect;
+    GetWindowRect(hwnd, &rect);
+    int parentWidth = rect.right - rect.left;
+    int parentHeight = rect.bottom - rect.top;
+
+    // Get the DPI scaling factor for the window
+    float scale = GetScaleForHWND(hwnd);
+
+    // Calculate the desired dimensions with scaling
+    int desiredWidth = static_cast<int>(600 * scale);
+    int desiredHeight = static_cast<int>(600 * scale);
+
+    // Calculate the difference in dimensions
+    int dw = desiredWidth - parentWidth;
+    int dh = desiredHeight - parentHeight;
+
+    //// Check if parent has a parent (grandparent)
+    //if (IsChildWindow(hwnd))
+    //{
+    //  hwndGrandparent = GetParent(hwndParent);
+    //  if (hwndGrandparent)
+    //  {
+    //    GetWindowRect(hwndGrandparent, &rect);
+    //    int grandparentWidth = rect.right - rect.left;
+    //    int grandparentHeight = rect.bottom - rect.top;
+
+    //    // Resize the grandparent window if needed
+    //    if (dw != 0 || dh != 0)
+    //    {
+    //      SetWindowPos(hwndGrandparent, 0, 0, 0, grandparentWidth + dw, grandparentHeight + dh, SWP_NOMOVE | SWP_NOZORDER);
+    //    }
+    //  }
+    //}
+
+    // Resize the parent window
+    if (dw != 0 || dh != 0)
+    {
+      SetWindowPos(hwnd, 0, 0, 0, parentWidth + dw, parentHeight + dh, SWP_NOMOVE | SWP_NOZORDER);
+    }
+  }
 }
 
 #include "IPlugWebView.cpp"

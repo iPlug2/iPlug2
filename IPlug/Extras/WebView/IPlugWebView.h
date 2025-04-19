@@ -103,6 +103,8 @@ public:
   
   /** Used to toggle devtools after the IWebView has been contstructed. Will only have an effect after close/reopen */
   void SetEnableDevTools(bool enable) { mEnableDevTools = enable; }
+
+  void ForceScreenScale(float scale);
   
 #pragma mark -
   
