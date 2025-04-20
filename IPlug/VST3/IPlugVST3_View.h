@@ -56,13 +56,14 @@ public:
   {
     TRACE
     
-    if (pSize)
+    if (pSize && mOwner.GetHostResizeEnabled())
     {
       rect = *pSize;
       mOwner.OnParentWindowResize(rect.getWidth(), rect.getHeight());
+      return Steinberg::kResultTrue;
     }
-    
-    return Steinberg::kResultTrue;
+
+    return Steinberg::kResultFalse;
   }
   
   Steinberg::tresult PLUGIN_API getSize(Steinberg::ViewRect* pSize) override

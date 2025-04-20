@@ -81,14 +81,6 @@ void IPlugVisualizer::OnReset()
 #endif
 
 #if IPLUG_EDITOR
-void IPlugVisualizer::OnParentWindowResize(int width, int height)
-{
-  if (GetUI())
-  {
-    GetUI()->Resize(width, height, 1.f, false);
-  }
-}
-
 void IPlugVisualizer::OnParamChangeUI(int paramIdx, EParamSource source)
 {
   if (paramIdx == kOctaveGain)

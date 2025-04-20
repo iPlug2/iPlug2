@@ -35,7 +35,7 @@ def main():
   if config['PLUG_SHARED_RESOURCES']:
     dst = os.path.expanduser("~") + "/Music/" + config['BUNDLE_NAME'] + "/Resources"
   else:
-    dst = os.environ["TARGET_BUILD_DIR"] + os.environ["UNLOCALIZED_RESOURCES_FOLDER_PATH"]
+    dst = os.path.join(os.environ["TARGET_BUILD_DIR"], os.environ["UNLOCALIZED_RESOURCES_FOLDER_PATH"].lstrip('/'))
 
   if os.path.exists(dst) == False:
     os.makedirs(dst + "/", 0o0755 )

@@ -517,14 +517,6 @@ WDL_DLGRET IPlugAPPHost::PreferencesDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wPar
 
 static void ClientResize(HWND hWnd, int width, int height)
 {
-  #if defined OS_WIN
-  #if defined NO_IGRAPHICS || PLUG_HOST_RESIZE 
-  float ss = GetScaleForHWND(hWnd);
-  width = int(float(width) * ss);
-  height = int(float(height) * ss);
-  #endif
-  #endif
-
   RECT rcClient, rcWindow;
   POINT ptDiff;
   int screenwidth, screenheight;
@@ -776,11 +768,7 @@ WDL_DLGRET IPlugAPPHost::MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
       {
         RECT r;
         GetClientRect(hwndDlg, &r);
-        float scale = 1.f;
-        #ifdef OS_WIN 
-        scale = GetScaleForHWND(hwndDlg);
-        #endif
-        pPlug->OnParentWindowResize(static_cast<int>(r.right / scale), static_cast<int>(r.bottom / scale));
+        pPlug->OnParentWindowResize(static_cast<int>(r.right), static_cast<int>(r.bottom));
         return 1;
       }
       default:
