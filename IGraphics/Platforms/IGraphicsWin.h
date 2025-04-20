@@ -119,7 +119,6 @@ private:
   void CachePlatformFont(const char* fontID, const PlatformFontPtr& font) override;
 
   inline IMouseInfo GetMouseInfo(LPARAM lParam, WPARAM wParam);
-  inline IMouseInfo GetMouseInfoDeltas(float& dX, float& dY, LPARAM lParam, WPARAM wParam);
   bool MouseCursorIsLocked();
 
 #ifdef IGRAPHICS_GL
