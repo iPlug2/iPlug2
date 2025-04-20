@@ -116,4 +116,28 @@
   return false;
 }
 
+- (BOOL)acceptsFirstResponder {
+    return YES;
+}
+
+- (BOOL)performKeyEquivalent:(NSEvent *)event {
+    if (([event modifierFlags] & NSEventModifierFlagCommand) && 
+        !([event modifierFlags] & NSEventModifierFlagShift) && 
+        !([event modifierFlags] & NSEventModifierFlagOption) && 
+        !([event modifierFlags] & NSEventModifierFlagControl)) {
+        
+        NSString *characters = [event charactersIgnoringModifiers];
+        if ([characters length] == 1) {
+            unichar character = [characters characterAtIndex:0];
+            if (character == 'q' || character == 'w' || character == 'h' || 
+                character == 's' || character == 'a' || character == 'z' || 
+                character == 'x' || character == 'c' || character == 'v' ||
+                character == ',') {
+                return NO;
+            }
+        }
+    }
+    
+    return YES;
+}
 @end
