@@ -178,6 +178,8 @@ public:
     }
   }
 
+  void SetScreenScale(float scale);
+
   void Resize(int width, int height);
   
   void OnParentWindowResize(int width, int height) override;
