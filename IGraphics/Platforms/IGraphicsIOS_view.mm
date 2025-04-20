@@ -230,6 +230,10 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationWillEnterForegroundNotification:) name:UIApplicationWillEnterForegroundNotification object:nil];
   mColorPickerHandlerFunc = nullptr;
   
+  UIHoverGestureRecognizer* hoverGestureRecognizer =
+      [[UIHoverGestureRecognizer alloc] initWithTarget:self action:@selector(onHoverGesture:)];
+  [self addGestureRecognizer: hoverGestureRecognizer];
+  
   return self;
 }
 
@@ -830,6 +834,20 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   info.type = EGestureType::Rotate;
 
   mGraphics->OnGestureRecognized(info);
+}
+
+- (void) onHoverGesture: (UIHoverGestureRecognizer*) recognizer
+{
+  CGPoint pos = [recognizer locationInView:self];
+
+  IMouseInfo info;
+  
+  auto ds = mGraphics->GetDrawScale();  
+  info.x = pos.x / ds;
+  info.y = pos.y / ds;
+  
+  if (mGraphics)
+    mGraphics->OnMouseOver(info.x, info.y, info.ms);
 }
 
 -(BOOL) gestureRecognizer:(UIGestureRecognizer*) gestureRecognizer shouldReceiveTouch:(UITouch*) touch
