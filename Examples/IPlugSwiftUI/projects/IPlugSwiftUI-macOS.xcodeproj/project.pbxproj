@@ -702,6 +702,20 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		4FC8BDBD2DB519A100325646 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4FC8BDBE2DB519B500325646 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		4FFBB93620863B0E00DDD0E7 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -1450,6 +1464,7 @@
 				4F2A098B267A6E3100098867 /* Sources */,
 				4F2A09B4267A6E7900098867 /* Embed Framework */,
 				4F2A09B0267A6E5300098867 /* Embed Appex */,
+				4FC8BDBE2DB519B500325646 /* Frameworks */,
 			);
 			buildRules = (
 			);
@@ -1599,6 +1614,7 @@
 				4FBCC1B21FD5AE8500EFE550 /* Run Script - prepare_resources-mac.py */,
 				4FD16A0513B63081001D0217 /* Resources */,
 				4FD16A0613B63081001D0217 /* Sources */,
+				4FC8BDBD2DB519A100325646 /* Frameworks */,
 			);
 			buildRules = (
 			);
