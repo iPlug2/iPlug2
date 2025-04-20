@@ -9,7 +9,7 @@ set OUT_DIR=%OUT_DIR:"=%
 set ICON_SOURCE=%6
 set AAX_BUNDLE=%7
 
-if %PLATFORM% == "Win32" (
+if %PLATFORM% == "ARM64EC" (
 )
 
 if %PLATFORM% == "x64" (
