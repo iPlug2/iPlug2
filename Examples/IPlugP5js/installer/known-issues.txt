@@ -1,4 +1,0 @@
-IPlugP5js changelog
-www.thedeveloperswebsite.com
-
-00/00/00 - v1.00 initial release
