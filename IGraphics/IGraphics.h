@@ -1587,8 +1587,8 @@ public:
   /** Used to tell the graphics context to stop tracking mouse interaction with a control */
   void ReleaseMouseCapture();
 
-  /** @return \c true if the context can handle mouse overs */
-  bool CanEnableMouseOver() const { return mEnableMouseOver; }
+  /** @return \c true if the context has mouse overs enabled */
+  bool MouseOverEnabled() const { return mEnableMouseOver; }
 
   /** @return An integer representing the control index in IGraphics::mControls which the mouse is over, or -1 if it is not */
   inline int GetMouseOver() const { return mMouseOverIdx; }
