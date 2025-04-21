@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 47;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -44,6 +44,12 @@
 		4FDF6D792267CE540007B686 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDF6D742267CE540007B686 /* main.m */; };
 		4FDF6D7B2267CE540007B686 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDF6D752267CE540007B686 /* AppDelegate.m */; };
 		4FDF6D7F2267CEBA0007B686 /* IPlugAUPlayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FDF6D7D2267CEBA0007B686 /* IPlugAUPlayer.mm */; };
+		6F03835F2DB698D0007CD4E5 /* LibFaust.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6F03835E2DB698D0007CD4E5 /* LibFaust.xcframework */; };
+		6F0383612DB6A77E007CD4E5 /* IPlugAUAudioUnit.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FFF105420A0E57000D3092F /* IPlugAUAudioUnit.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		6F0383622DB6B646007CD4E5 /* IPlugFaustGen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F977D4C20CC9DD800D19F46 /* IPlugFaustGen.cpp */; };
+		6F03851A2DB6BDCB007CD4E5 /* libraries in Resources */ = {isa = PBXBuildFile; fileRef = 6F0385182DB6BD41007CD4E5 /* libraries */; };
+		6F03851B2DB6BDE3007CD4E5 /* IPlugFaustDSP.dsp in Resources */ = {isa = PBXBuildFile; fileRef = 4FF262AF232008270076F5D4 /* IPlugFaustDSP.dsp */; };
+		6F03851D2DB6BF3E007CD4E5 /* IPlugFaustDSP.dsp in Resources */ = {isa = PBXBuildFile; fileRef = 4FF262AF232008270076F5D4 /* IPlugFaustDSP.dsp */; };
 		91236D811B08F59300734C5E /* IPlugFaustDSPAppExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 91236D771B08F59300734C5E /* IPlugFaustDSPAppExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
@@ -118,7 +124,8 @@
 		4F63699120A463AF0022C370 /* IGraphicsIOS_view.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = IGraphicsIOS_view.mm; sourceTree = "<group>"; };
 		4F63699220A463AF0022C370 /* IGraphicsPopupMenu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsPopupMenu.h; sourceTree = "<group>"; };
 		4F63699320A463AF0022C370 /* IGraphicsUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsUtilities.h; sourceTree = "<group>"; };
-		4F63699420A463AF0022C370 /* IGraphics.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphics.cpp; sourceTree = "<group>"; };		4F63699F20A463AF0022C370 /* IGraphicsStructs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsStructs.h; sourceTree = "<group>"; };
+		4F63699420A463AF0022C370 /* IGraphics.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphics.cpp; sourceTree = "<group>"; };
+		4F63699F20A463AF0022C370 /* IGraphicsStructs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsStructs.h; sourceTree = "<group>"; };
 		4F6369A020A463AF0022C370 /* IGraphicsConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsConstants.h; sourceTree = "<group>"; };
 		4F6369A120A463AF0022C370 /* IGraphicsLiveEdit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsLiveEdit.h; sourceTree = "<group>"; };
 		4F6369A220A463AF0022C370 /* IGraphics_select.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphics_select.h; sourceTree = "<group>"; };
@@ -144,7 +151,6 @@
 		4F977D3E20CC9DD800D19F46 /* PolyphaseIIR2Designer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PolyphaseIIR2Designer.h; sourceTree = "<group>"; };
 		4F977D3F20CC9DD800D19F46 /* FPUUpsampler2x.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FPUUpsampler2x.h; sourceTree = "<group>"; };
 		4F977D4020CC9DD800D19F46 /* PolyphaseIIR2Designer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PolyphaseIIR2Designer.cpp; sourceTree = "<group>"; };
-		4F977D4120CC9DD800D19F46 /* Array.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Array.h; sourceTree = "<group>"; };
 		4F977D4220CC9DD800D19F46 /* FPUStageProc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FPUStageProc.h; sourceTree = "<group>"; };
 		4F977D4320CC9DD800D19F46 /* readme.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = readme.txt; sourceTree = "<group>"; };
 		4F977D4420CC9DD800D19F46 /* FPUDownsampler2x.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FPUDownsampler2x.h; sourceTree = "<group>"; };
@@ -235,6 +241,8 @@
 		4FFF108420A1036200D3092F /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = config.h; path = ../config.h; sourceTree = "<group>"; };
 		4FFF108720A1036200D3092F /* IPlugFaustDSP.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugFaustDSP.cpp; path = ../IPlugFaustDSP.cpp; sourceTree = "<group>"; };
 		4FFF108820A1036200D3092F /* IPlugFaustDSP.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugFaustDSP.h; path = ../IPlugFaustDSP.h; sourceTree = "<group>"; };
+		6F03835E2DB698D0007CD4E5 /* LibFaust.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = LibFaust.xcframework; path = /Users/ola/Dev/Personal/iPlug2/Dependencies/Build/xcframeworks/LibFaust.xcframework; sourceTree = "<absolute>"; };
+		6F0385182DB6BD41007CD4E5 /* libraries */ = {isa = PBXFileReference; lastKnownFileType = folder; name = libraries; path = ../resources/libraries; sourceTree = SOURCE_ROOT; };
 		91236D0D1B08F42B00734C5E /* IPlugFaustDSP.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = IPlugFaustDSP.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		91236D771B08F59300734C5E /* IPlugFaustDSPAppExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = IPlugFaustDSPAppExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -244,6 +252,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6F03835F2DB698D0007CD4E5 /* LibFaust.xcframework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -394,6 +403,7 @@
 				4F3E0F6520A0BC4000A9C2BE /* IPlugFaustDSP-iOS-AUv3-Info.plist */,
 				4FA61F7A22E89A2700A92C58 /* IPlugFaustDSP-iOS-AUv3Framework-Info.plist */,
 				4FA61F7B22E89A5900A92C58 /* AUv3Framework.h */,
+				6F0385182DB6BD41007CD4E5 /* libraries */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -433,7 +443,6 @@
 				4F977D3E20CC9DD800D19F46 /* PolyphaseIIR2Designer.h */,
 				4F977D3F20CC9DD800D19F46 /* FPUUpsampler2x.h */,
 				4F977D4020CC9DD800D19F46 /* PolyphaseIIR2Designer.cpp */,
-				4F977D4120CC9DD800D19F46 /* Array.h */,
 				4F977D4220CC9DD800D19F46 /* FPUStageProc.h */,
 				4F977D4320CC9DD800D19F46 /* readme.txt */,
 				4F977D4420CC9DD800D19F46 /* FPUDownsampler2x.h */,
@@ -546,6 +555,7 @@
 				4F67D51620A121F60061FB8E /* Other Sources */,
 				4F3E0F9B20A0C64100A9C2BE /* Frameworks */,
 				91D3DA171B023C1E008FFFBB /* Products */,
+				6F03835E2DB698D0007CD4E5 /* LibFaust.xcframework */,
 			);
 			sourceTree = "<group>";
 		};
@@ -567,6 +577,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4FA61F7C22E89A5900A92C58 /* AUv3Framework.h in Headers */,
+				6F0383612DB6A77E007CD4E5 /* IPlugAUAudioUnit.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -701,7 +712,9 @@
 				4F1115CF2296DA95000CFCBF /* IPlugFaustDSP-iOS-MainInterface.storyboard in Resources */,
 				4F3E0F6B20A0BCE300A9C2BE /* Images.xcassets in Resources */,
 				4FB2269720A0D3A800614769 /* IPlugFaustDSP-iOS-LaunchScreen.storyboard in Resources */,
+				6F03851A2DB6BDCB007CD4E5 /* libraries in Resources */,
 				4F3E0F6A20A0BCD900A9C2BE /* IPlugFaustDSP-iOS.storyboard in Resources */,
+				6F03851B2DB6BDE3007CD4E5 /* IPlugFaustDSP.dsp in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -710,6 +723,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4F10E7C020B17EDB00F5B09B /* IPlugFaustDSP-iOS-MainInterface.storyboard in Resources */,
+				6F03851D2DB6BF3E007CD4E5 /* IPlugFaustDSP.dsp in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -761,6 +775,7 @@
 				4FA61F7F22E89AFF00A92C58 /* IPlugAPIBase.cpp in Sources */,
 				4FA61F9222E8A2B500A92C58 /* IPlugFaustDSP.cpp in Sources */,
 				4FA61F8A22E89B3700A92C58 /* IPopupMenuControl.cpp in Sources */,
+				6F0383622DB6B646007CD4E5 /* IPlugFaustGen.cpp in Sources */,
 				4FD6898F2562FB9200CD4C11 /* IPlugFaust.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -838,13 +853,19 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = "$(SRCROOT)/../resources/IPlugFaustDSP-iOS-AUv3Framework-Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.IPlugFaustDSP.AUv3Framework;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "appletvos appletvsimulator iphoneos iphonesimulator macosx xros xrsimulator";
+				SUPPORTS_MACCATALYST = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
@@ -888,13 +909,19 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = "$(SRCROOT)/../resources/IPlugFaustDSP-iOS-AUv3Framework-Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.IPlugFaustDSP.AUv3Framework;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "appletvos appletvsimulator iphoneos iphonesimulator macosx xros xrsimulator";
+				SUPPORTS_MACCATALYST = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -939,15 +966,21 @@
 				GCC_WARN_UNUSED_FUNCTION = NO;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = "$(SRCROOT)/../resources/IPlugFaustDSP-iOS-Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.IPlugFaustDSP;
 				PRODUCT_NAME = IPlugFaustDSP;
 				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator xros xrsimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 4.2;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1,2,7";
 			};
 			name = Debug;
 		};
@@ -986,14 +1019,21 @@
 				GCC_WARN_UNUSED_FUNCTION = NO;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = "$(SRCROOT)/../resources/IPlugFaustDSP-iOS-Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.IPlugFaustDSP;
 				PRODUCT_NAME = IPlugFaustDSP;
 				SDKROOT = iphoneos;
-				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator xros xrsimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 4.2;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1,2,7";
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
@@ -1034,15 +1074,22 @@
 				GCC_WARN_UNUSED_FUNCTION = NO;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = "$(SRCROOT)/../resources/IPlugFaustDSP-iOS-AUv3-Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.IPlugFaustDSP.AUv3;
 				PRODUCT_NAME = IPlugFaustDSPAppExtension;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "appletvos appletvsimulator iphoneos iphonesimulator macosx xros xrsimulator";
+				SUPPORTS_MACCATALYST = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 4.2;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
@@ -1080,14 +1127,22 @@
 				GCC_WARN_UNUSED_FUNCTION = NO;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = "$(SRCROOT)/../resources/IPlugFaustDSP-iOS-AUv3-Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.IPlugFaustDSP.AUv3;
 				PRODUCT_NAME = IPlugFaustDSPAppExtension;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
-				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				SUPPORTED_PLATFORMS = "appletvos appletvsimulator iphoneos iphonesimulator macosx xros xrsimulator";
+				SUPPORTS_MACCATALYST = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 4.2;
+				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
@@ -1096,6 +1151,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4FDA600520B5868D00C49ABA /* IPlugFaustDSP-ios.xcconfig */;
 			buildSettings = {
+				ALLOW_TARGET_PLATFORM_SPECIALIZATION = YES;
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
@@ -1140,6 +1196,8 @@
 					$AUv3_FRAMEWORKS,
 					"$(EXTRA_LNK_FLAGS)",
 				);
+				SUPPORTED_PLATFORMS = "xrsimulator xros watchsimulator watchos macosx iphonesimulator iphoneos driverkit appletvsimulator appletvos";
+				SUPPORTS_MACCATALYST = YES;
 				SWIFT_VERSION = 4.0;
 				SYMROOT = "../build-ios";
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -1150,6 +1208,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4FDA600520B5868D00C49ABA /* IPlugFaustDSP-ios.xcconfig */;
 			buildSettings = {
+				ALLOW_TARGET_PLATFORM_SPECIALIZATION = YES;
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
@@ -1192,7 +1251,10 @@
 					$AUv3_FRAMEWORKS,
 					"$(EXTRA_LNK_FLAGS)",
 				);
-				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				SUPPORTED_PLATFORMS = "xrsimulator xros watchsimulator watchos macosx iphonesimulator iphoneos driverkit appletvsimulator appletvos";
+				SUPPORTS_MACCATALYST = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 4.0;
 				SYMROOT = "../build-ios";
 				TARGETED_DEVICE_FAMILY = "1,2";

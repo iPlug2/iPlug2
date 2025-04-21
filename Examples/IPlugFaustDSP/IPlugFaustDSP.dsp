@@ -17,5 +17,5 @@ g = vslider("/h:[1]sine/Gain", 0, 0., 1, 0.1);
 f1 = vslider("/h:[1]sine/Freq1", 440, 100., 1000, 0.1);
 f2 = vslider("/h:[1]sine/Freq2", 441, 100., 1000, 0.1);
 
-process = os.osc(f1) * g, os.osc(f2) * g;
+process = os.osc(f1), os.osc(f2);
 

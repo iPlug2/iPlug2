@@ -35,8 +35,9 @@ public:
   void OnParamChange(int paramIdx) override;
   void OnIdle() override;
 private:
-  FAUST_BLOCK(Faust1, mFaustProcessor, DSP_FILE, 1, 1);
+//  FAUST_BLOCK(Faust1, mFaustProcessor, DSP_FILE, 1, 1);
+  std::unique_ptr<FaustGen> mFaustProcessor;
+  std::unique_ptr<IGraphicsFaustUI> mUIBuilder;
   IBufferSender<2> mScopeSender;
-  IGraphicsFaustUI mUIBuilder;
 #endif
 };

@@ -252,9 +252,9 @@ public:
     ::dsp* tmpDsp = new FAUSTCLASS();
     
     // Polyphony handling
-    bool midiSync = false;
+    bool midi, midiSync = false;
     int nvoices = 0;
-    MidiMeta::analyse(tmpDsp, midiSync, nvoices);
+    MidiMeta::analyse(tmpDsp, midi, midiSync, nvoices);
     
     if (nvoices > 0)
     {
