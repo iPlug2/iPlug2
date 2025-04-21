@@ -35,8 +35,9 @@ IF EXIST %BundleDir%\PlugIn.ico GOTO ICON_EXISTS
 copy /Y %IconSource% %BundleDir%\PlugIn.ico > NUL
 :ICON_EXISTS
 
+IF EXIST %BundleDir%\desktop.ini attrib -h -r -s %BundleDir%\desktop.ini
+
 attrib -r %BundleDir%
-attrib -h -r -s %BundleDir%\desktop.ini
 echo [.ShellClassInfo] > %BundleDir%\desktop.ini 
 echo IconResource=PlugIn.ico,0 >> %BundleDir%\desktop.ini 
 echo ;For compatibility with Windows XP >> %BundleDir%\desktop.ini 
