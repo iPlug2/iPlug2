@@ -14,7 +14,6 @@
 #include "IPlugUtilities.h"
 
 #include "faust/dsp/libfaust.h"
-#define LLVM_DSP
 
 #include "fileread.h"
 

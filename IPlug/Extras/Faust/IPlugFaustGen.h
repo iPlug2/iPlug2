@@ -33,7 +33,20 @@ using FaustGen = iplug::IPlugFaust; // not used, except for CompileCPP();
 
 #include <sys/stat.h>
 
-#if defined OS_MAC || defined OS_LINUX
+#if defined OS_WIN
+typedef struct _stat64i32 StatType;
+typedef time_t StatTime;
+
+static inline int GetStat(const char* path, StatType* pStatbuf)
+{
+  wchar_t utf16str[MAX_PATH];
+  iplug::UTF8ToUTF16(utf16str, path, MAX_PATH);
+  return _wstat(utf16str, pStatbuf);
+}
+static inline StatTime GetModifiedTime(StatType &s) { return s.st_mtime; }
+static inline bool Equal(StatTime a, StatTime b) { return a == b; }
+static inline StatTime TimeZero() { return (StatTime) 0; }
+#else
 typedef struct stat StatType;
 typedef timespec StatTime;
 
@@ -47,19 +60,6 @@ static inline StatTime TimeZero()
   ts.tv_nsec = 0;
   return ts;
 }
-#else //OS_WIN
-typedef struct _stat64i32 StatType;
-typedef time_t StatTime;
-
-static inline int GetStat(const char* path, StatType* pStatbuf)
-{
-  wchar_t utf16str[MAX_PATH];
-  iplug::UTF8ToUTF16(utf16str, path, MAX_PATH);
-  return _wstat(utf16str, pStatbuf);
-}
-static inline StatTime GetModifiedTime(StatType &s) { return s.st_mtime; }
-static inline bool Equal(StatTime a, StatTime b) { return a == b; }
-static inline StatTime TimeZero() { return (StatTime) 0; }
 #endif
 
 #include "faust/dsp/interpreter-dsp.h"
