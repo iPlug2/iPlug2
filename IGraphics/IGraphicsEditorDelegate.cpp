@@ -26,15 +26,27 @@ IGEditorDelegate::~IGEditorDelegate()
 
 void* IGEditorDelegate::OpenWindow(void* pParent)
 {
-  if(!mGraphics)
+  if (!mGraphics)
   {
     mGraphics = std::unique_ptr<IGraphics>(CreateGraphics());
     if (mLastWidth && mLastHeight && mLastScale)
+    {
       GetUI()->Resize(mLastWidth, mLastHeight, mLastScale);
+    }
   }
   
-  if(mGraphics)
-    return mGraphics->OpenWindow(pParent);
+  if (mGraphics)
+  {
+    if (void* pWindow = mGraphics->OpenWindow(pParent))
+    {
+      return pWindow;
+    }
+    else
+    {
+      mGraphics = nullptr;
+      return nullptr;
+    }
+  }
   else
     return nullptr;
 }
@@ -76,14 +88,14 @@ void IGEditorDelegate::SetScreenScale(float scale)
 
 void IGEditorDelegate::SendControlValueFromDelegate(int ctrlTag, double normalizedValue)
 {
-  if(!mGraphics)
+  if (!mGraphics)
     return;
 
   IControl* pControl = mGraphics->GetControlWithTag(ctrlTag);
   
   assert(pControl);
   
-  if(pControl)
+  if (pControl)
   {
     pControl->SetValueFromDelegate(normalizedValue);
   }
@@ -91,7 +103,7 @@ void IGEditorDelegate::SendControlValueFromDelegate(int ctrlTag, double normaliz
 
 void IGEditorDelegate::SendControlMsgFromDelegate(int ctrlTag, int msgTag, int dataSize, const void* pData)
 {
-  if(!mGraphics)
+  if (!mGraphics)
     return;
   
   IControl* pControl = mGraphics->GetControlWithTag(ctrlTag);

@@ -120,7 +120,8 @@ public:
       else // Carbon
         return Steinberg::kResultFalse;
 #endif
-      return Steinberg::kResultTrue;
+
+      return pView ? Steinberg::kResultTrue : Steinberg::kResultFalse;
     }
     
     return Steinberg::kResultFalse;

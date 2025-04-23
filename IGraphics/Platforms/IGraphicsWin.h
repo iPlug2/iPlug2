@@ -122,7 +122,7 @@ private:
   bool MouseCursorIsLocked();
 
 #ifdef IGRAPHICS_GL
-  void CreateGLContext(); // OpenGL context management - TODO: RAII instead ?
+  bool CreateGLContext();
   void DestroyGLContext();
   void ActivateGLContext() override;
   void DeactivateGLContext() override;

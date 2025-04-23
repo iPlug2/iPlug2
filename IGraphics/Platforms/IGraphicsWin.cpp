@@ -649,32 +649,22 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
           addDrawRect(rects, r);
         }
 
-#if defined IGRAPHICS_GL //|| IGRAPHICS_D2D
+#ifdef IGRAPHICS_GL
         PAINTSTRUCT ps;
         BeginPaint(hWnd, &ps);
-#endif
-
-#ifdef IGRAPHICS_GL
         pGraphics->ActivateGLContext();
 #endif
 
         pGraphics->Draw(rects);
 
-        #ifdef IGRAPHICS_GL
+#ifdef IGRAPHICS_GL
         SwapBuffers((HDC) pGraphics->GetPlatformContext());
         pGraphics->DeactivateGLContext();
-        #endif
-
-#if defined IGRAPHICS_GL || IGRAPHICS_D2D
         EndPaint(hWnd, &ps);
 #endif
       }
 
-      // For the D2D if we don't call endpaint, then you really need to call ValidateRect otherwise
-      // we are just going to get another WM_PAINT to handle.  Bad!  It also exibits the odd property
-      // that windows will be popped under the window.
       ValidateRect(hWnd, 0);
-
       DeleteObject(region);
 
       return 0;
@@ -1040,8 +1030,10 @@ void IGraphicsWin::GetMouseLocation(float& x, float&y) const
 }
 
 #ifdef IGRAPHICS_GL
-void IGraphicsWin::CreateGLContext()
+bool IGraphicsWin::CreateGLContext()
 {
+  bool success = false;
+
   PIXELFORMATDESCRIPTOR pfd =
   {
     sizeof(PIXELFORMATDESCRIPTOR),
@@ -1087,16 +1079,46 @@ void IGraphicsWin::CreateGLContext()
     mHGLRC = wglCreateContextAttribsARB(dc, 0, attribList);
     wglMakeCurrent(dc, mHGLRC);
   }
-
 #endif
 
-  //TODO: return false if GL init fails?
-  if (!gladLoadGL())
-    DBGMSG("Error initializing glad");
+  success = gladLoadGL();
 
-  glGetError();
+  if (!success)
+  {
+    DBGMSG("Failed to initialize OpenGL");
+
+    GLenum err = glGetError();
+    if (err != GL_NO_ERROR) 
+    {
+      DBGMSG("OpenGL error %08x\n", err);
+    }
+  }
+
+  auto checkGLVersion = [](int major, int minor) {
+    const char* versionString = reinterpret_cast<const char*>(glGetString(GL_VERSION));
+
+    int glMajor, glMinor;
+    sscanf_s(versionString, "%d.%d", &glMajor, &glMinor);
+
+    bool result = (glMajor > major || (glMajor == major && glMinor >= minor));
+
+    if (!result)
+    {
+      DBGMSG("OpenGL version %d.%d is not supported.", glMajor, glMinor);
+    }
+
+    return result;
+  };
+
+  #if defined IGRAPHICS_GL2
+  success &= checkGLVersion(2, 1);
+  #elif defined IGRAPHICS_GL3
+  success &= checkGLVersion(3, 3);
+  #endif
 
   ReleaseDC(mPlugWnd, dc);
+
+  return success;
 }
 
 void IGraphicsWin::DestroyGLContext()
@@ -1163,7 +1185,10 @@ void* IGraphicsWin::OpenWindow(void* pParent)
   ReleaseDC(mPlugWnd, dc);
 
 #ifdef IGRAPHICS_GL
-  CreateGLContext();
+  if (!CreateGLContext())
+  {
+    return nullptr;
+  }
 #endif
 
   OnViewInitialized((void*) dc);
