@@ -74,6 +74,7 @@ public:
   
   EUIAppearance GetUIAppearance() const override;
 
+  RawBitmapData DrawAttributedText(const char* str, const IText& text, float& width, float& height) override;
 protected:
   PlatformFontPtr LoadPlatformFont(const char* fontID, const char* fileNameOrResID) override;
   PlatformFontPtr LoadPlatformFont(const char* fontID, const char* fontName, ETextStyle style) override;

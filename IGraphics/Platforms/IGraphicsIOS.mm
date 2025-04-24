@@ -365,6 +365,61 @@ EUIAppearance IGraphicsIOS::GetUIAppearance() const
   }
 }
 
+RawBitmapData IGraphicsIOS::DrawAttributedText(const char* str, const IText& text, float& width, float& height)
+{
+  auto scaleFactor = GetTotalScale();
+  CFStringRef string = CFStringCreateWithCString(NULL, str, kCFStringEncodingUTF8);
+  CFMutableAttributedStringRef attrString = CFAttributedStringCreateMutable(kCFAllocatorDefault, 0);
+  CFAttributedStringReplaceString(attrString, CFRangeMake(0, 0), string);
+  CFRelease(string);
+
+  CFStringRef fontName = CFStringCreateWithCString(NULL, text.mFont, kCFStringEncodingUTF8);
+  CoreTextFontDescriptor* CTFontDescriptor = CoreTextHelpers::GetCTFontDescriptor(text, sFontDescriptorCache);
+  double ratio = CTFontDescriptor->GetEMRatio()/* * GetDrawScale()*/;
+  CTFontRef font = CTFontCreateWithName(fontName, text.mSize * ratio, NULL);
+  CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
+  CGFloat components[] = {text.mFGColor.R / 255.0, text.mFGColor.G / 255.0, text.mFGColor.B / 255.0, text.mFGColor.A / 255.0}; // RGBA
+  CGColorRef color = CGColorCreate(colorSpace, components);
+  CFAttributedStringSetAttribute(attrString, CFRangeMake(0, CFAttributedStringGetLength(attrString)), kCTFontAttributeName, font);
+  CFAttributedStringSetAttribute(attrString, CFRangeMake(0, CFAttributedStringGetLength(attrString)), kCTForegroundColorAttributeName, color);
+  CFRelease(color);
+  CGColorSpaceRelease(colorSpace);
+  CFRelease(font);
+  CFRelease(fontName);
+
+  CTFramesetterRef framesetter = CTFramesetterCreateWithAttributedString(attrString);
+  CGSize textSize = CTFramesetterSuggestFrameSizeWithConstraints(framesetter, CFRangeMake(0, CFAttributedStringGetLength(attrString)), NULL, CGSizeMake(CGFLOAT_MAX, CGFLOAT_MAX), NULL);
+
+  CGMutablePathRef path = CGPathCreateMutable();
+  CGRect bounds = CGRectMake(0, 0, textSize.width, textSize.height); // Create bounds according to the text size
+  CGPathAddRect(path, NULL, bounds);
+
+  CTFrameRef frame = CTFramesetterCreateFrame(framesetter, CFRangeMake(0, CFAttributedStringGetLength(attrString)), path, NULL);
+
+  CFRelease(framesetter);
+  CFRelease(attrString);
+
+  width = textSize.width;
+  height = textSize.height;
+  int bitmapWidth = ceil(width * scaleFactor);
+  int bitmapHeight = ceil(height * scaleFactor);
+  
+  RawBitmapData imageData;
+  imageData.Resize(4 * bitmapWidth * bitmapHeight);
+  imageData.SetToZero();
+  CGContextRef bitmapContext = CGBitmapContextCreate(imageData.Get(), bitmapWidth, bitmapHeight, 8, bitmapWidth * 4, CGColorSpaceCreateDeviceRGB(), kCGImageAlphaPremultipliedLast);
+  CGContextScaleCTM(bitmapContext, scaleFactor, scaleFactor);
+  CTFrameDraw(frame, bitmapContext);
+  CGContextFlush(bitmapContext);
+
+  CFRelease(frame);
+  CGPathRelease(path);
+  CGContextRelease(bitmapContext);
+  
+  return imageData;
+}
+
+
 #if defined IGRAPHICS_NANOVG
   #include "IGraphicsNanoVG.cpp"
 #elif defined IGRAPHICS_SKIA
