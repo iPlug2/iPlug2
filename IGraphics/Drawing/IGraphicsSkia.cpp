@@ -1161,7 +1161,9 @@ const char* IGraphicsSkia::GetDrawingAPIStr()
   }
   else
   {
-#if defined IGRAPHICS_GL2
+#if defined IGRAPHICS_CPU
+    return "SKIA | CPU";
+#elif defined IGRAPHICS_GL2
     return "SKIA | GL2";
 #elif defined IGRAPHICS_GL3
     return "SKIA | GL3";
