@@ -45,7 +45,8 @@ enum EIPlugPluginType
 {
   kEffect = 0,
   kInstrument = 1,
-  kMIDIEffect = 2
+  kMIDIEffect = 2,
+  kGenerator = 3
 };
 
 enum EVST3ParamIDs

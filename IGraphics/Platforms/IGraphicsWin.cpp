@@ -1726,11 +1726,14 @@ void IGraphicsWin::ShowTooltip()
 {
   if (mTooltipIdx > -1)
   {
-    const char* tooltip = GetControl(mTooltipIdx)->GetTooltip();
-    if (tooltip)
+    if (auto* pTooltipControl = GetControl(mTooltipIdx))
     {
-      SetTooltip(tooltip);
-      mShowingTooltip = true;
+      const char* tooltipStr = pTooltipControl->GetTooltip();
+      if (tooltipStr)
+      {
+        SetTooltip(tooltipStr);
+        mShowingTooltip = true;
+      }
     }
   }
 }

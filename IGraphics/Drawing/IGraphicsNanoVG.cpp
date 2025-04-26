@@ -359,7 +359,7 @@ APIBitmap* IGraphicsNanoVG::LoadAPIBitmap(const char* name, const void* pData, i
     int nvgImageFlags = 0;
 
     ActivateGLContext();
-    idx = idx = nvgCreateImageMem(mVG, nvgImageFlags, (unsigned char*)pData, dataSize);
+    idx = nvgCreateImageMem(mVG, nvgImageFlags, (unsigned char*)pData, dataSize);
     DeactivateGLContext();
 
     pBitmap = new Bitmap(mVG, name, scale, idx, false);

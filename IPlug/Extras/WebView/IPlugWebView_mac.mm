@@ -148,13 +148,13 @@ void* IWebViewImpl::OpenWebView(void* pParent, float x, float y, float w, float 
   
   // this script receives global key down events and forwards them to the C++ side
   [controller addUserScript:[[WKUserScript alloc] initWithSource:
-                             @"document.addEventListener('keydown', function(e) { if(document.activeElement.type != \"text\") { IPlugSendMsg({'msg': 'SKPFUI', 'keyCode': e.keyCode, 'utf8': e.key, 'S': e.shiftKey, 'C': e.ctrlKey, 'A': e.altKey, 'isUp': false}); e.preventDefault(); }});"
+                             @"document.addEventListener('keydown', function(e) { if(document.activeElement.type != \"text\" && e.keyCode !== 32) { IPlugSendMsg({'msg': 'SKPFUI', 'keyCode': e.keyCode, 'utf8': e.key, 'S': e.shiftKey, 'C': e.ctrlKey, 'A': e.altKey, 'isUp': false}); e.preventDefault(); }});"
                              injectionTime:WKUserScriptInjectionTimeAtDocumentStart
                              forMainFrameOnly:YES]];
   
   // this script receives global key up events and forwards them to the C++ side
   [controller addUserScript:[[WKUserScript alloc] initWithSource:
-                             @"document.addEventListener('keyup', function(e) { if(document.activeElement.type != \"text\") { IPlugSendMsg({'msg': 'SKPFUI', 'keyCode': e.keyCode, 'utf8': e.key, 'S': e.shiftKey, 'C': e.ctrlKey, 'A': e.altKey, 'isUp': true}); e.preventDefault(); }});"
+                             @"document.addEventListener('keyup', function(e) { if(document.activeElement.type != \"text\" && e.keyCode !== 32) { IPlugSendMsg({'msg': 'SKPFUI', 'keyCode': e.keyCode, 'utf8': e.key, 'S': e.shiftKey, 'C': e.ctrlKey, 'A': e.altKey, 'isUp': true}); e.preventDefault(); }});"
                              injectionTime:WKUserScriptInjectionTimeAtDocumentStart
                              forMainFrameOnly:YES]];
   
