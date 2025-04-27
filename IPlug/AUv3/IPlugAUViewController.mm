@@ -32,6 +32,13 @@
   return self.audioUnit;
 }
 
+#ifdef OS_VISIONOS
+- (UIContainerBackgroundStyle) preferredContainerBackgroundStyle
+{
+  return UIContainerBackgroundStyleHidden;
+}
+#endif
+
 #ifdef OS_IOS
 - (void) viewDidLayoutSubviews
 {
