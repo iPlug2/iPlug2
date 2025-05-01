@@ -984,7 +984,7 @@ void IGraphicsSkia::ApplyLayerDropShadow(ILayerPtr& layer, const IShadow& shadow
 #ifdef IGRAPHICS_CPU
   bool useFilter = false;
 #else
-  bool useFilter = shadow.mPattern.mNStops <= 1;;
+  bool useFilter = shadow.mPattern.mNStops <= 1;
 #endif
   
   if (useFilter)
