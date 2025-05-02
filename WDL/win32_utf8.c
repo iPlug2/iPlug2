@@ -976,6 +976,33 @@ int statUTF8(const char *filename, struct stat *buffer)
   return _stat(filename,(struct _stat*)buffer);
 }
 
+size_t strftimeUTF8(char *buf, size_t maxsz, const char *fmt, const struct tm *timeptr)
+{
+  if (buf && fmt && maxsz>0 AND_IS_NOT_WIN9X)
+  {
+    MBTOWIDE(wfmt, fmt);
+    WIDETOMB_ALLOC(wbuf,maxsz);
+    if (wfmt_ok && wbuf)
+    {
+      wbuf[0]=0;
+      if (!wcsftime(wbuf,wbuf_size / sizeof(WCHAR), wfmt, timeptr)) buf[0]=0;
+      else if (!WideCharToMultiByte(CP_UTF8,0,wbuf,-1,buf,maxsz,NULL,NULL))
+        buf[maxsz-1]=0;
+
+      MBTOWIDE_FREE(wfmt);
+      WIDETOMB_FREE(wbuf);
+      return (int)strlen(buf);
+    }
+    MBTOWIDE_FREE(wfmt);
+    WIDETOMB_FREE(wbuf);
+  }
+#ifdef strftime
+#undef strftime
+#endif
+  return strftime(buf,maxsz,fmt,timeptr);
+#define strftime(a,b,c,d) strftimeUTF8(a,b,c,d)
+}
+
 LPSTR GetCommandParametersUTF8()
 {
   char *buf;
