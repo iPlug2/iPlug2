@@ -243,6 +243,15 @@ public:
    * @param style The styling of this vector control \see IVStyle
    * @param shape The shape of the button */
   IVMenuButtonControl(const IRECT& bounds, int paramIdx, const char* label = "", const IVStyle& style = DEFAULT_STYLE, EVShape shape = EVShape::Rectangle);
+
+  /** Constructs a vector menu button control, with an action function (no parameter)
+   * @param bounds The control's bounds
+   * @param aF An action function to execute when a menu item is selected is clicked \see IActionFunction
+   * @param options An vector of CStrings for the button labels. The size of the list decides the number of buttons.
+   * @param label The IVControl label CString
+   * @param style The styling of this vector control \see IVStyle
+   * @param shape The shape of the button \see IVShape */
+  IVMenuButtonControl(const IRECT& bounds, IActionFunction aF, const std::vector<const char*>& options, const char* label = "", const IVStyle& style = DEFAULT_STYLE, EVShape shape = EVShape::Rectangle, const char* menuTitle = "");
   
   void OnPopupMenuSelection(IPopupMenu* pSelectedMenu, int valIdx) override;
   void SetValueFromUserInput(double value, int valIdx) override;
@@ -251,6 +260,7 @@ public:
   void SetStyle(const IVStyle& style) override;
 
 private:
+  IPopupMenu mMenu;
   IVButtonControl* mButtonControl = nullptr;
 };
 
