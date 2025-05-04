@@ -44,7 +44,7 @@ generate_build_files() {
   if [ "$arch" = "arm64" ]; then
     extra_args="
       target_cpu = \"arm64\"
-      extra_cflags = [\"-mmacosx-version-min=11.0\"]
+      extra_cflags += [\"-mmacosx-version-min=11.0\"]
       extra_asmflags = [\"-mmacosx-version-min=11.0\"]
     "
   else
@@ -70,11 +70,13 @@ generate_build_files() {
     skia_use_expat = true
     skia_use_icu = true
     skia_use_dawn = false
+    skia_use_angle = true
     skia_enable_skottie = true
     skia_enable_svg = true
     skia_enable_pdf = false
     skia_enable_gpu = true
     skia_use_metal = true
+    skia_use_egl = true
     skia_enable_graphite = true
     skia_enable_skparagraph = true
     skia_enable_skunicode = true
@@ -82,6 +84,7 @@ generate_build_files() {
     cxx = \"clang++\"
     target_os = \"mac\"
     extra_cflags_c = [\"-Wno-error\"]
+    extra_cflags = [\"-I$SKIA_SRC_DIR/third_party/externals/egl-registry/api\", \"-I$SKIA_SRC_DIR/third_party/externals/angle2/include\"]
     $extra_args
   "
 }
