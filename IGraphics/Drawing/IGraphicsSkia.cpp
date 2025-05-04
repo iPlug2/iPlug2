@@ -38,6 +38,8 @@
     #error SKIA doesn't work correctly with IGRAPHICS_GL2
   #elif defined IGRAPHICS_GL3
     #include <OpenGL/gl3.h>
+  #elif defined IGRAPHICS_GLES2 || IGRAPHICS_GLES3
+    #include <libGLESv2/angle_gl.h>
   #elif defined IGRAPHICS_METAL
     // even though this is a .cpp we are in an objc(pp) compilation unit
     #import <Metal/Metal.h>
@@ -71,11 +73,15 @@
   #include "include/gpu/ganesh/gl/GrGLDirectContext.h"
   #include "include/gpu/ganesh/gl/GrGLBackendSurface.h"
 
-  #if defined OS_MAC
-    #include "include/gpu/ganesh/gl/mac/GrGLMakeMacInterface.h"
-  #elif defined OS_WIN
-    #include "include/gpu/ganesh/gl/win/GrGLMakeWinInterface.h"
-    #pragma comment(lib, "opengl32.lib")
+  #if defined IGRAPHICS_GLES2 || IGRAPHICS_GLES3
+    #include "include/gpu/ganesh/gl/egl/GrGLMakeEGLInterface.h"
+  #else
+    #if defined OS_MAC
+      #include "include/gpu/ganesh/gl/mac/GrGLMakeMacInterface.h"
+    #elif defined OS_WIN
+      #include "include/gpu/ganesh/gl/win/GrGLMakeWinInterface.h"
+      #pragma comment(lib, "opengl32.lib")
+    #endif
   #endif
 
 #endif
@@ -416,10 +422,14 @@ APIBitmap* IGraphicsSkia::LoadAPIBitmap(const char* name, const void* pData, int
 void IGraphicsSkia::OnViewInitialized(void* pContext)
 {
 #if defined IGRAPHICS_GL
+#if defined IGRAPHICS_GLES2 || defined IGRAPHICS_GLES3
+  auto glInterface = GrGLInterfaces::MakeEGL();
+#else
 #if defined OS_MAC
   auto glInterface = GrGLInterfaces::MakeMac();
 #elif defined OS_WIN
   auto glInterface = GrGLInterfaces::MakeWin();
+#endif
 #endif
   mGrContext = GrDirectContexts::MakeGL(glInterface);
 #elif defined IGRAPHICS_METAL
@@ -1175,6 +1185,10 @@ const char* IGraphicsSkia::GetDrawingAPIStr()
   return "SKIA | GL2";
 #elif defined IGRAPHICS_GL3
   return "SKIA | GL3";
+#elif defined IGRAPHICS_GLES2
+  return "SKIA | GLES2";
+#elif defined IGRAPHICS_GLES3
+  return "SKIA | GLES3";
 #elif defined IGRAPHICS_METAL
   return "SKIA | Metal";
 #endif
