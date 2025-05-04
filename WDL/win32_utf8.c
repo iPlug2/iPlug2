@@ -805,27 +805,24 @@ HANDLE CreateFileUTF8(LPCTSTR lpFileName,DWORD dwDesiredAccess,DWORD dwShareMode
 }
 
 
-int DrawTextUTF8(HDC hdc, LPCTSTR str, int nc, LPRECT lpRect, UINT format)
+// expects bytelen when UTF8
+int DrawTextUTF8(HDC hdc, LPCTSTR str, int len, LPRECT lpRect, UINT format)
 {
   WDL_ASSERT((format & DT_SINGLELINE) || !(format & (DT_BOTTOM|DT_VCENTER))); // if DT_BOTTOM or DT_VCENTER used, must have DT_SINGLELINE
 
   if (WDL_HasUTF8(str) AND_IS_NOT_WIN9X)
   {
-    if (nc<0) nc=(int)strlen(str);
-
+    MBTOWIDE(wstr, str);
+    if (wstr_ok)
     {
-      MBTOWIDE(wstr, str);
-      if (wstr_ok)
-      {
-        int rv=DrawTextW(hdc,wstr,-1,lpRect,format);;
-        MBTOWIDE_FREE(wstr);
-        return rv;
-      }
+      const int lenuse = len > 0 ? WDL_utf8_bytepos_to_charpos(str, len) : len;
+      int rv=DrawTextW(hdc,wstr,lenuse < 0 ? lenuse : wdl_min(wcslen(wstr), lenuse),lpRect,format);
       MBTOWIDE_FREE(wstr);
+      return rv;
     }
-
+    MBTOWIDE_FREE(wstr);
   }
-  return DrawTextA(hdc,str,nc,lpRect,format);
+  return DrawTextA(hdc,str,len,lpRect,format);
 }
 
 
