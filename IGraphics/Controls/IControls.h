@@ -162,7 +162,7 @@ public:
   /** Constructs a vector tab switch control, with an action function (no parameter)
    * @param bounds The control's bounds
    * @param aF An action function to execute when a button is clicked \see IActionFunction
-   * @param options An initializer list of CStrings for the button labels. The size of the list decides the number of buttons.
+   * @param options An vector of CStrings for the button labels. The size of the list decides the number of buttons.
    * @param label The IVControl label CString
    * @param style The styling of this vector control \see IVStyle
    * @param shape The buttons shape \see IVShape
