@@ -666,8 +666,6 @@
 		4F8F61A7202807B9003F2573 /* IPlugProcessor.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.h; name = IPlugProcessor.h; path = ../../../IPlug/IPlugProcessor.h; sourceTree = "<group>"; tabWidth = 2; };
 		4F8F61A8202807B9003F2573 /* IPlugProcessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugProcessor.cpp; path = ../../../IPlug/IPlugProcessor.cpp; sourceTree = "<group>"; tabWidth = 2; };
 		4F9313232315CA1100DB2383 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
-		4F97BD89213760E200541A17 /* IGraphicsCanvas.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IGraphicsCanvas.h; sourceTree = "<group>"; };
-		4F97BD8A213760E200541A17 /* IGraphicsCanvas.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsCanvas.cpp; sourceTree = "<group>"; };
 		4F97BD8B2137629600541A17 /* IFPSDisplayControl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IFPSDisplayControl.h; sourceTree = "<group>"; };
 		4F9828E0140A9EB700F3FCC1 /* IGraphicsStressTest.vst3 */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IGraphicsStressTest.vst3; sourceTree = BUILT_PRODUCTS_DIR; };
 		4F98C32C20A7678800F120A9 /* IPlugAUViewController_vIGraphicsStressTest.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = IPlugAUViewController_vIGraphicsStressTest.xib; path = ../resources/IPlugAUViewController_vIGraphicsStressTest.xib; sourceTree = "<group>"; };
@@ -959,8 +957,6 @@
 				4F03A55020A4621000EBDFFB /* IGraphicsNanoVG.h */,
 				4F03A55420A4621000EBDFFB /* IGraphicsNanoVG.cpp */,
 				4F6369DC20A464BB0022C370 /* IGraphicsNanoVG_src.m */,
-				4F97BD8A213760E200541A17 /* IGraphicsCanvas.cpp */,
-				4F97BD89213760E200541A17 /* IGraphicsCanvas.h */,
 			);
 			name = Drawing;
 			path = ../../../IGraphics/Drawing;
