@@ -14,11 +14,6 @@ enum EParam
   kNumParams
 };
 
-enum EControlTags
-{
-  kCtrlTagTestControl = 0
-};
-
 IGraphicsTest::IGraphicsTest(const InstanceInfo& info)
 : Plugin(info, MakeConfig(kNumParams, 1))
 {
@@ -26,32 +21,30 @@ IGraphicsTest::IGraphicsTest(const InstanceInfo& info)
   
 #if IPLUG_EDITOR
   mMakeGraphicsFunc = [&]() {
-    return MakeGraphics(*this, PLUG_WIDTH, PLUG_HEIGHT, PLUG_FPS, GetScaleForScreen(PLUG_WIDTH, PLUG_HEIGHT));
+    return MakeGraphics(*this, PLUG_WIDTH, PLUG_HEIGHT, PLUG_FPS);
   };
   
   mLayoutFunc = [&](IGraphics* pGraphics) {
-    
-    if(pGraphics->NControls())
+    IRECT bounds = pGraphics->GetBounds();
+    IRECT innerBounds = bounds.GetPadded(-20.f);
+
+    if (pGraphics->NControls())
     {
-      IRECT bounds = pGraphics->GetBounds();
-      pGraphics->GetBackgroundControl()->SetRECT(bounds);
-//      pGraphics->GetControlWithTag(kCtrlTagSize)->SetRECT(bounds);
-      DBGMSG("SELECTED: W %i, H%i\n", pGraphics->Width(), pGraphics->Height());
-      
+      pGraphics->GetBackgroundControl()->SetTargetAndDrawRECTs(bounds);
+      pGraphics->GetControl(1)->SetTargetAndDrawRECTs(innerBounds);
       return;
     }
 
     pGraphics->EnableMouseOver(true);
     pGraphics->EnableTooltips(true);
     pGraphics->EnableMultiTouch(true);
-    
-    pGraphics->AttachCornerResizer(EUIResizerMode::Scale, true);
-    
+    pGraphics->SetLayoutOnResize(true);
+        
     pGraphics->SetKeyHandlerFunc([&](const IKeyPress& key, bool isUp) {
-      if(!isUp) {
+      if (!isUp) {
         switch (key.VK) {
           case kVK_TAB:
-            GetUI()->GetBackgroundControl()->As<IPanelControl>()->SetPattern(IColor::GetRandomColor());
+            // TODO: tab through pages
             break;
             
           default:
@@ -69,45 +62,9 @@ IGraphicsTest::IGraphicsTest(const InstanceInfo& info)
       pGraphics->LoadFont("Alternative Font", MONTSERRAT_FN);
     }
     pGraphics->LoadFont("Montserrat-LightItalic", MONTSERRAT_FN);
-
-    IRECT bounds = pGraphics->GetBounds().GetPadded(-20.f);
-    auto testRect = bounds.GetFromTop(480.f).GetCentredInside(480.f);
-
     pGraphics->AttachPanelBackground(COLOR_GRAY);
-    
-    auto testNames = {
-    "Gradient",
-    "Multi-stop gradient",
-    "Polygon",
-    "Arcs",
-    "Beziers",
-    "MultiPath",
-    "Text",
-    "Animation",
-    "Draw contexts",
-    "SVG",
-    "Image",
-    "Layer",
-    "Blend modes",
-    "DropShadow",
-    "Cursor",
-    "Keyboard",
-    "ShadowGradient",
-    "Font",
-    "TextOrientation",
-    "TextSize",
-    "MPS (NanoVG MTL only)",
-    "Custom Shader (NanoVG only)",
-    "Gesture Recognizers (iOS only)",
-    "MultiTouch (iOS/Win/Web only)",
-    "FlexBox",
-    "Mask",
-    "DirBrowse",
-    "DragNDrop",
-    };
-    
-    WDL_String resourcePath;
 
+    WDL_String resourcePath;
     #ifdef OS_MAC
     BundleResourcePath(resourcePath, BUNDLE_ID);
     #else
@@ -117,77 +74,60 @@ IGraphicsTest::IGraphicsTest(const InstanceInfo& info)
     resourcePath.Set(imgResourcesPath.string().c_str());
     #endif
 
-    auto chooseTestControl = [&, pGraphics, testRect, resourcePath](int idx) {
-      
-      IControl* pNewControl = nullptr;
-      
-      switch (idx) {
-        case 0: pNewControl = new TestGradientControl(testRect, kParamDummy); break;
-        case 1: pNewControl = new TestColorControl(testRect); break;
-        case 2: pNewControl = new TestPolyControl(testRect, kParamDummy); break;
-        case 3: pNewControl = new TestArcControl(testRect, kParamDummy); break;
-        case 4: pNewControl = new TestBezierControl(testRect); break;
-        case 5: pNewControl = new TestMultiPathControl(testRect, kParamDummy); break;
-        case 6: pNewControl = new TestTextControl(testRect); break;
-        case 7: pNewControl = new TestAnimationControl(testRect); break;
-        case 8: pNewControl = new TestDrawContextControl(testRect); break;
-        case 9: pNewControl = new TestSVGControl(testRect, pGraphics->LoadSVG(TIGER_FN)); break;
-        case 10: pNewControl = new TestImageControl(testRect, pGraphics->LoadBitmap(IPLUG_FN)); break;
-        case 11: pNewControl = new TestLayerControl(testRect, kParamDummy); break;
-        case 12: pNewControl = new TestBlendControl(testRect, pGraphics->LoadBitmap(SRC_FN), pGraphics->LoadBitmap(DST_FN), kParamDummy); break;
-        case 13: pNewControl = new TestDropShadowControl(testRect, pGraphics->LoadSVG(ORBS_FN)); break;
-        case 14: pNewControl = new TestCursorControl(testRect); break;
-        case 15: pNewControl = new TestKeyboardControl(testRect); break;
-        case 16: pNewControl = new TestShadowGradientControl(testRect); break;
-        case 17: pNewControl = new TestFontControl(testRect); break;
-        case 18: pNewControl = new TestTextOrientationControl(testRect, kParamDummy); break;
-        case 19: pNewControl = new TestTextSizeControl(testRect, kParamDummy); break;
-        case 20: pNewControl = new TestMPSControl(testRect, pGraphics->LoadBitmap(SMILEY_FN), kParamDummy); break;
-        case 21: pNewControl = new TestCustomShaderControl(testRect, kParamDummy); break;
-        case 22: pNewControl = new TestGesturesControl(testRect); break;
-        case 23: pNewControl = new TestMTControl(testRect); pNewControl->SetWantsMultiTouch(true); break;
-        case 24: pNewControl = new TestFlexBoxControl(testRect); break;
-        case 25: pNewControl = new TestMaskControl(testRect, pGraphics->LoadBitmap(SMILEY_FN)); break;
-        case 26: pNewControl = new TestDirBrowseControl(testRect, "png", resourcePath.Get()); break;
-        case 27: pNewControl = new TestDragAndDropControl(testRect); break;
-      }
-      
-      if(pNewControl)
-        pGraphics->AttachControl(pNewControl, kCtrlTagTestControl);
-      
-      SendCurrentParamValuesFromDelegate();
-    };
-    
-    pGraphics->AttachControl(new IVRadioButtonControl(bounds.FracRectHorizontal(0.2f),
-                                                      [pGraphics, chooseTestControl](IControl* pCaller) {
-                                                        pGraphics->RemoveControlWithTag(kCtrlTagTestControl);
-                                                        SplashClickActionFunc(pCaller);
-                                                        int selectedTest = pCaller->As<IVRadioButtonControl>()->GetSelectedIdx();
-                                                        chooseTestControl(selectedTest);
-                                                      },
-                                                      testNames
-                                                      ));
-    
-    pGraphics->AttachControl(new IVSliderControl(bounds.FracRectHorizontal(0.2f, true).GetCentredInside(100, 200), kParamDummy, "Value"));
+#define ADD_TEST_PAGE(name, control) {name, \
+    new IVTabPage([&](IVTabPage* pPage, const IRECT& r) { \
+                      pPage->AddChildControl(control); \
+    }, \
+    [&](IContainerBase* pTab, const IRECT& r) { \
+      if (pTab->NChildren() == 1) { \
+        const auto dim = r.W() < r. H() ? r.W() : r.H(); \
+        const auto controlBounds = r.GetCentredInside(dim).GetPadded(-10); \
+        pTab->GetChild(0)->SetTargetAndDrawRECTs(controlBounds); \
+      } \
+    } \
+    )}
 
-    pGraphics->AttachControl(new GFXLabelControl(bounds.GetFromTRHC(230, 50)));//.GetTranslated(25, -25)));
-    
-    chooseTestControl(0);
+    PageMap pages = {
+      ADD_TEST_PAGE("Gradient", new TestGradientControl(r, kParamDummy)),
+      ADD_TEST_PAGE("Multi-stop gradient", new TestColorControl(r)),
+      ADD_TEST_PAGE("Polygon", new TestPolyControl(r, kParamDummy)),
+      ADD_TEST_PAGE("Arcs", new TestArcControl(r, kParamDummy)),
+      ADD_TEST_PAGE("Beziers", new TestBezierControl(r)),
+      ADD_TEST_PAGE("MultiPath", new TestMultiPathControl(r, kParamDummy)),
+      ADD_TEST_PAGE("Text", new TestTextControl(r)),
+      ADD_TEST_PAGE("Animation", new TestAnimationControl(r)),
+      ADD_TEST_PAGE("Draw contexts", new TestDrawContextControl(r)),
+      ADD_TEST_PAGE("SVG", new TestSVGControl(r, pGraphics->LoadSVG(TIGER_FN))),
+      ADD_TEST_PAGE("Image", new TestImageControl(r, pGraphics->LoadBitmap(IPLUG_FN))),
+      ADD_TEST_PAGE("Layer", new TestLayerControl(r, kParamDummy)),
+      ADD_TEST_PAGE("Blend modes", new TestBlendControl(r, pGraphics->LoadBitmap(SRC_FN), pGraphics->LoadBitmap(DST_FN), kParamDummy)),
+      ADD_TEST_PAGE("DropShadow", new TestDropShadowControl(r, pGraphics->LoadSVG(ORBS_FN))),
+      ADD_TEST_PAGE("Cursor", new TestCursorControl(r)),
+      ADD_TEST_PAGE("Keyboard", new TestKeyboardControl(r)),
+      ADD_TEST_PAGE("ShadowGradient", new TestShadowGradientControl(r)),
+      ADD_TEST_PAGE("Font", new TestFontControl(r)),
+      ADD_TEST_PAGE("TextOrientation", new TestTextOrientationControl(r, kParamDummy)),
+      ADD_TEST_PAGE("TextSize", new TestTextSizeControl(r, kParamDummy)),
+      ADD_TEST_PAGE("MPS", new TestMPSControl(r, pGraphics->LoadBitmap(SMILEY_FN), kParamDummy)),
+      // TODO: fix crash
+//      ADD_TEST_PAGE("Custom Shader", new TestCustomShaderControl(r, kParamDummy)),
+      ADD_TEST_PAGE("Gesture Recognizers", new TestGesturesControl(r)),
+      {"MultiTouch", new IVTabPage([&](IVTabPage* pPage, const IRECT& r) {
+        auto* pControl = new TestMTControl(r);
+        pControl->SetWantsMultiTouch(true);
+        pPage->AddChildControl(pControl);
+      })},
+      ADD_TEST_PAGE("FlexBox", new TestFlexBoxControl(r)),
+      ADD_TEST_PAGE("Mask", new TestMaskControl(r, pGraphics->LoadBitmap(SMILEY_FN))),
+      ADD_TEST_PAGE("DirBrowse", new TestDirBrowseControl(r, "png", resourcePath.Get())),
+      ADD_TEST_PAGE("DragNDrop", new TestDragAndDropControl(r))
+    };
+
+    #undef ADD_TEST_PAGE
+
+    pGraphics->AttachControl(new IVTabbedPagesControl(innerBounds, pages, "Test Controls", DEFAULT_STYLE.WithShowLabel(false).WithValueText(DEFAULT_LABEL_TEXT), 50.0f, 1.f, EAlign::Near, EVAlign::Bottom));
   };
   
 #endif
 }
 
-void IGraphicsTest::OnHostSelectedViewConfiguration(int width, int height)
-{
-  DBGMSG("SELECTED: W %i, H%i\n", width, height);
-//  const float scale = (float) height / (float) PLUG_HEIGHT;
-  
-//  if(GetUI())
-//    GetUI()->Resize(width, height, 1);
-}
-
-bool IGraphicsTest::OnHostRequestingSupportedViewConfiguration(int width, int height)
-{
-  DBGMSG("SUPPORTED: W %i, H%i\n", width, height); return true;
-}
