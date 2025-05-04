@@ -236,7 +236,7 @@ class IVMenuButtonControl : public IContainerBase
                           , public IVectorBase
 {
 public:
-  /** Constructs a vector button control, with an action function
+  /** Constructs a vector menu button control linked to a parameter
    * @param bounds The control's bounds
    * @param paramIdx The parameter index to link this control to
    * @param label The label for the vector control, leave empty for no label
