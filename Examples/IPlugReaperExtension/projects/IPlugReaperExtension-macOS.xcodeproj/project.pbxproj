@@ -62,10 +62,8 @@
 		4FBA83C920ECD9DA00423B90 /* swell-types.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "swell-types.h"; path = "../../../WDL/swell/swell-types.h"; sourceTree = "<group>"; };
 		4FBA83CA20ECD9DA00423B90 /* swell-functions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "swell-functions.h"; path = "../../../WDL/swell/swell-functions.h"; sourceTree = "<group>"; };
 		4FBB8C2121EA55BD00C1EF1B /* IGraphicsNanoVG.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsNanoVG.h; sourceTree = "<group>"; };
-		4FBB8C2221EA55BD00C1EF1B /* IGraphicsCanvas.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsCanvas.cpp; sourceTree = "<group>"; };
 		4FBB8C2521EA55BD00C1EF1B /* IGraphicsNanoVG_src.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IGraphicsNanoVG_src.m; sourceTree = "<group>"; };
 		4FBB8C2721EA55BD00C1EF1B /* IGraphicsNanoVG.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsNanoVG.cpp; sourceTree = "<group>"; };
-		4FBB8C2821EA55BD00C1EF1B /* IGraphicsCanvas.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsCanvas.h; sourceTree = "<group>"; };
 		4FBB8C2A21EA55BD00C1EF1B /* IGraphics_include_in_plug_hdr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphics_include_in_plug_hdr.h; sourceTree = "<group>"; };
 		4FBB8C2C21EA55BD00C1EF1B /* IGraphicsIOS_view.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsIOS_view.h; sourceTree = "<group>"; };
 		4FBB8C2D21EA55BD00C1EF1B /* IGraphicsWeb.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsWeb.cpp; sourceTree = "<group>"; };
@@ -272,10 +270,8 @@
 				4F4A44B722D361A400A9D1A1 /* IGraphicsSkia.cpp */,
 				4F4A44B822D361A400A9D1A1 /* IGraphicsSkia.h */,
 				4FBB8C2121EA55BD00C1EF1B /* IGraphicsNanoVG.h */,
-				4FBB8C2221EA55BD00C1EF1B /* IGraphicsCanvas.cpp */,
 				4FBB8C2521EA55BD00C1EF1B /* IGraphicsNanoVG_src.m */,
 				4FBB8C2721EA55BD00C1EF1B /* IGraphicsNanoVG.cpp */,
-				4FBB8C2821EA55BD00C1EF1B /* IGraphicsCanvas.h */,
 			);
 			path = Drawing;
 			sourceTree = "<group>";

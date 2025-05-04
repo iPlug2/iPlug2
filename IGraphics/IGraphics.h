@@ -1740,9 +1740,6 @@ protected:
    * @param font Valid PlatformFontPtr, loaded via LoadPlatformFont
    * @return bool \c true if the font was loaded successfully */
   virtual bool LoadAPIFont(const char* fontID, const PlatformFontPtr& font) = 0;
-
-  /** Specialized in IGraphicsCanvas drawing backend */
-  virtual bool AssetsLoaded() { return true; }
     
   /** @return int The index of the alpha component in a drawing backend's pixel (RGBA or ARGB) */
   virtual int AlphaChannel() const = 0;
