@@ -1349,6 +1349,9 @@ public:
   
   /* Called by controls to display text in the bubble control */
   void ShowBubbleControl(IControl* pCaller, float x, float y, const char* str, EDirection dir = EDirection::Horizontal, IRECT minimumContentBounds = IRECT());
+  
+  /* Sets the region of the IGraphics context that should be used for the FPS display */
+  void SetFPSDisplayBounds(const IRECT& bounds) { mPerfDisplayBounds = bounds; }
 
   /** Shows a control to display the frame rate of drawing
    * @param enable \c true to show */
@@ -1816,6 +1819,8 @@ private:
   std::unique_ptr<IControl> mLiveEdit;
   
   IPopupMenu mPromptPopupMenu;
+  
+  IRECT mPerfDisplayBounds;
   
   WDL_String mSharedResourcesSubPath;
   
