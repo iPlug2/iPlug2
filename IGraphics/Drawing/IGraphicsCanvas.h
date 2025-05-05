@@ -86,7 +86,7 @@ private:
     return canvas.call<val>("getContext", std::string("2d"));
   }
     
-  void GetFontMetrics(const char* font, const char* style, double& ascenderRatio, double& EMRatio);
+  void GetFontMetrics(const char* font, const char* style, double& ascender, double& descender);
   bool CompareFontMetrics(const char* style, const char* font1, const char* font2);
   bool FontExists(const char* font, const char* style);
     

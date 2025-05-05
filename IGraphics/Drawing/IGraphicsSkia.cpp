@@ -699,31 +699,16 @@ void IGraphicsSkia::PrepareAndMeasureText(const IText& text, const char* str, IR
   font.setHinting(SkFontHinting::kSlight);
   font.setForceAutoHinting(false);
   font.setSubpixel(true);
-  font.setSize(text.mSize * pFont->mData->GetHeightEMRatio());
+  font.setSize(text.mSize);
   
   // Draw / measure
-  const double textWidth = font.measureText(str, strlen(str), SkTextEncoding::kUTF8, nullptr/* &bounds*/);
+  const double width = font.measureText(str, strlen(str), SkTextEncoding::kUTF8, nullptr/* &bounds*/);
   font.getMetrics(&metrics);
   
-  const double textHeight = text.mSize;
-  const double ascender = metrics.fAscent;
+  const double ascender = -metrics.fAscent;
   const double descender = metrics.fDescent;
-  
-  switch (text.mAlign)
-  {
-    case EAlign::Near:     x = r.L;                          break;
-    case EAlign::Center:   x = r.MW() - (textWidth / 2.0);   break;
-    case EAlign::Far:      x = r.R - textWidth;              break;
-  }
-  
-  switch (text.mVAlign)
-  {
-    case EVAlign::Top:      y = r.T - ascender;                            break;
-    case EVAlign::Middle:   y = r.MH() - descender + (textHeight / 2.0);   break;
-    case EVAlign::Bottom:   y = r.B - descender;                           break;
-  }
-  
-  r = IRECT((float) x, (float) y + ascender, (float) (x + textWidth), (float) (y + ascender + textHeight));
+
+  CalculateTextPositions(text, r, x, y, width, ascender, descender);
 }
 
 float IGraphicsSkia::DoMeasureText(const IText& text, const char* str, IRECT& bounds) const

@@ -70,9 +70,8 @@ private:
 class CoreTextFontDescriptor
 {
 public:
-  CoreTextFontDescriptor(CTFontDescriptorRef descriptor, double EMRatio)
+  CoreTextFontDescriptor(CTFontDescriptorRef descriptor)
   : mDescriptor(descriptor)
-  , mEMRatio(EMRatio)
   {
     CFRetain(mDescriptor);
   }
@@ -86,11 +85,9 @@ public:
   CoreTextFontDescriptor& operator=(const CoreTextFontDescriptor&) = delete;
     
   CTFontDescriptorRef GetDescriptor() const { return mDescriptor; }
-  double GetEMRatio() const { return mEMRatio; }
     
 private:
   CTFontDescriptorRef mDescriptor;
-  double mEMRatio;
 };
 
 namespace CoreTextHelpers

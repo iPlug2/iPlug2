@@ -204,8 +204,6 @@ public:
   bool IsCondensed() const  { return mMacStyle & (1 << 5); }
   bool IsExpanded() const   { return mMacStyle & (1 << 6); }
   
-  double GetHeightEMRatio() const { return mUnitsPerEM / static_cast<double>(mAscender - mDescender); }
-
   uint16_t GetUnitsPerEM() const { return mUnitsPerEM; }
   int16_t GetAscender() const    { return mAscender; }
   int16_t GetDescender() const   { return mDescender; }

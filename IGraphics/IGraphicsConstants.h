@@ -58,7 +58,7 @@ static const char* DEFAULT_PATH = "~/Desktop";
 const char* const DEFAULT_FONT = "Roboto-Regular";
 #endif
 
-static constexpr float DEFAULT_TEXT_SIZE = 14.f;
+static constexpr float DEFAULT_TEXT_SIZE = 11.f;
 static constexpr int FONT_LEN = 64;
 
 /** @enum EBlend Porter-Duff blend mode/compositing operators */
@@ -90,7 +90,7 @@ enum class ETextStyle { Normal, Bold, Italic };
 enum class EAlign { Near, Center, Far };
 
 /** Constants to specify vertical alignment */
-enum class EVAlign { Top, Middle, Bottom };
+enum class EVAlign { Top, Middle, Bottom, Baseline };
 
 /** Constants for layout orientation e.g. location of labels in a IVControl */
 enum class EOrientation { North, East, South, West };
