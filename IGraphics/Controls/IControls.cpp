@@ -465,20 +465,20 @@ const char* IVTabSwitchControl::GetSelectedLabelStr() const
   return mTabLabels.Get(GetSelectedIdx())->Get();
 }
 
-IVRadioButtonControl::IVRadioButtonControl(const IRECT& bounds, int paramIdx, const std::initializer_list<const char*>& options, const char* label, const IVStyle& style, EVShape shape, EDirection direction, float buttonSize)
+IVRadioButtonControl::IVRadioButtonControl(const IRECT& bounds, int paramIdx, const std::initializer_list<const char*>& options, const char* label, const IVStyle& style, EVShape shape, EDirection direction, float buttonSize, float buttonAreaWidthFactor)
 : IVTabSwitchControl(bounds, paramIdx, options, label, style, shape, direction)
 , mButtonSize(buttonSize)
 {
-  mButtonAreaWidth = buttonSize * 3.f;
+  mButtonAreaWidth = buttonSize * buttonAreaWidthFactor;
   mText.mAlign = mStyle.valueText.mAlign = EAlign::Near;
   mText.mVAlign = mStyle.valueText.mVAlign = EVAlign::Middle;
 }
 
-IVRadioButtonControl::IVRadioButtonControl(const IRECT& bounds, IActionFunction aF, const std::initializer_list<const char*>& options, const char* label, const IVStyle& style, EVShape shape, EDirection direction, float buttonSize)
+IVRadioButtonControl::IVRadioButtonControl(const IRECT& bounds, IActionFunction aF, const std::initializer_list<const char*>& options, const char* label, const IVStyle& style, EVShape shape, EDirection direction, float buttonSize, float buttonAreaWidthFactor)
 : IVTabSwitchControl(bounds, aF, options, label, style, shape, direction)
 , mButtonSize(buttonSize)
 {
-  mButtonAreaWidth = buttonSize * 3.f;
+  mButtonAreaWidth = buttonSize * buttonAreaWidthFactor;
   mText.mAlign = mStyle.valueText.mAlign = EAlign::Near;
   mText.mVAlign = mStyle.valueText.mVAlign = EVAlign::Middle;
 }
