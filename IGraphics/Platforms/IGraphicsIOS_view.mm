@@ -542,7 +542,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   mGraphics->ClearInTextEntryControl();
 }
 
-- (void) showMessageBox: (const char*) str : (const char*) title : (EMsgBoxType) type : (IMsgBoxCompletionHandlerFunc) completionHandler
+- (void) showMessageBox: (const char*) str : (const char*) title : (EMsgBoxType) type : (IMsgBoxCompletionHandlerFunc) completionHandler : (bool) withTextEntry
 {
   [self endUserInput];
 
@@ -569,7 +569,8 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
       if ([action.title isEqualToString:@"Retry"])
         result = EMsgBoxResult::kRETRY;
       
-      completionHandler(result);
+      UITextField* textField = alertController.textFields.firstObject;
+      completionHandler(result, withTextEntry ? [[textField text] UTF8String] : nullptr);
     }
     
   };
@@ -599,6 +600,13 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   {
     UIAlertAction* cancelAction = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:handlerBlock];
     [alertController addAction:cancelAction];
+  }
+  
+  if (withTextEntry)
+  {
+    [alertController addTextFieldWithConfigurationHandler:^(UITextField* aTextField) {
+      aTextField.placeholder = [NSString stringWithUTF8String:str];
+    }];
   }
   
   [[NSOperationQueue mainQueue] addOperationWithBlock:^{
