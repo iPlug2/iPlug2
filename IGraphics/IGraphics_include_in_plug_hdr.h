@@ -22,15 +22,15 @@
 #ifndef NO_IGRAPHICS
 
 #if defined IGRAPHICS_GLES2
-  #if defined OS_IOS
+  #if defined OS_IOS || defined OS_MAC
     #include <libGLESv2/angle_gl.h>
-  #elif defined OS_WEB
+  #elif defined OS_WEB || defined OS_WIN
     #include <GLES2/gl2.h>
   #endif
 #elif defined IGRAPHICS_GLES3
-  #if defined OS_IOS
+  #if defined OS_IOS || defined OS_MAC
     #include <libGLESv2/angle_gl.h>
-  #elif defined OS_WEB
+  #elif defined OS_WEB || defined OS_WIN
     #include <GLES3/gl3.h>
   #endif
 #elif defined IGRAPHICS_GL2 || defined IGRAPHICS_GL3

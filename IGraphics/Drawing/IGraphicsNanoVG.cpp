@@ -38,13 +38,21 @@
       #error Define either IGRAPHICS_GLES2 or IGRAPHICS_GLES3 for IGRAPHICS_NANOVG with OS_IOS
     #endif
   #elif defined OS_WIN
-    #pragma comment(lib, "opengl32.lib")
     #if defined IGRAPHICS_GL2
+      #pragma comment(lib, "opengl32.lib")
       #define NANOVG_GL2_IMPLEMENTATION
     #elif defined IGRAPHICS_GL3
+      #pragma comment(lib, "opengl32.lib")
       #define NANOVG_GL3_IMPLEMENTATION
+    #elif defined IGRAPHICS_GLES2
+      #pragma comment(lib, "libGLESv2.dll.lib")
+      #define NANOVG_GLES2_IMPLEMENTATION
+    #elif defined IGRAPHICS_GLES3
+      #include <GLES3/gl3.h>
+      #pragma comment(lib, "libGLESv2.dll.lib")
+      #define NANOVG_GLES3_IMPLEMENTATION
     #else
-      #error Define either IGRAPHICS_GL2 or IGRAPHICS_GL3 when using IGRAPHICS_GL and IGRAPHICS_NANOVG with OS_WIN
+      #error Define either IGRAPHICS_GL2, IGRAPHICS_GL3, IGRAPHICS_GLES2, IGRAPHICS_GLES3 when using IGRAPHICS_GL and IGRAPHICS_NANOVG with OS_WIN
     #endif
   #elif defined OS_LINUX
     #error NOT IMPLEMENTED
