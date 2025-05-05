@@ -417,7 +417,6 @@
 			containerPortal = 089C1669FE841209C02AAC07 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 4F9828AA140A9EB700F3FCC1;
-			remoteInfo = "VST3_32&64_intel";
 		};
 		4FC3EFD22086C46800BD11FA /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
