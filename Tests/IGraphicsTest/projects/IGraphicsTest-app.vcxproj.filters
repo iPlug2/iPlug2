@@ -318,9 +318,6 @@
     <ClInclude Include="..\..\..\IGraphics\Controls\Test\TestTextControl.h">
       <Filter>IGraphics\Controls\Test</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\IGraphics\Controls\Test\TestGLControl.h">
-      <Filter>IGraphics\Controls\Test</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\IGraphics\Drawing\IGraphicsSkia.h">
       <Filter>IGraphics\Drawing</Filter>
     </ClInclude>

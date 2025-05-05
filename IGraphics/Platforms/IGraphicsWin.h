@@ -17,6 +17,12 @@
 #include "IGraphics_select.h"
 #include "IGraphicsWinFonts.h"
 
+#if defined IGRAPHICS_GLES2 || defined IGRAPHICS_GLES3
+  #include <EGL/egl.h>
+  #include <EGL/eglext.h>
+#endif
+
+
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
 
@@ -118,15 +124,23 @@ private:
   inline IMouseInfo GetMouseInfo(LPARAM lParam, WPARAM wParam);
   bool MouseCursorIsLocked();
 
+  void CreateGLContext();
+  void DestroyGLContext();
   void ActivateGLContext() override;
   void DeactivateGLContext() override;
+  void SwapBuffers();
   
-#ifdef IGRAPHICS_GL
-  void CreateGLContext(); // OpenGL context management - TODO: RAII instead ?
-  void DestroyGLContext();
+#if defined IGRAPHICS_GL2 || defined IGRAPHICS_GL3
   HGLRC mHGLRC = nullptr;
   HGLRC mStartHGLRC = nullptr;
   HDC mStartHDC = nullptr;
+#endif
+
+#if defined IGRAPHICS_GLES2 || defined IGRAPHICS_GLES3
+  EGLDisplay mEGLDisplay = EGL_NO_DISPLAY;
+  EGLSurface mEGLSurface = EGL_NO_SURFACE;
+  EGLContext mEGLContext = EGL_NO_CONTEXT;
+  EGLConfig mEGLConfig;
 #endif
 
   HINSTANCE mHInstance = nullptr;

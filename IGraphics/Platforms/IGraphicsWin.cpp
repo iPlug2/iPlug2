@@ -23,6 +23,11 @@
 #include <wininet.h>
 #include <VersionHelpers.h>
 
+#if defined IGRAPHICS_GLES2 || defined IGRAPHICS_GLES3
+  #pragma comment(lib, "libEGL.dll.lib")
+  #pragma comment(lib, "libGLESv2.dll.lib")
+#endif
+
 #if defined __clang__
 #undef CCSIZEOF_STRUCT
 #define CCSIZEOF_STRUCT(structname, member) (__builtin_offsetof(structname, member) + sizeof(((structname*)0)->member))
@@ -567,7 +572,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
         {
           ScopedGLContext scopedGLCtx {pGraphics};
           pGraphics->Draw(rects);
-          SwapBuffers((HDC) pGraphics->GetPlatformContext());
+          pGraphics->SwapBuffers();
         }
 
 #if defined IGRAPHICS_GL || IGRAPHICS_D2D
@@ -935,9 +940,9 @@ void IGraphicsWin::GetMouseLocation(float& x, float&y) const
   y = p.y / scale;
 }
 
-#ifdef IGRAPHICS_GL
 void IGraphicsWin::CreateGLContext()
 {
+  #if defined IGRAPHICS_GL2 || defined IGRAPHICS_GL3
   PIXELFORMATDESCRIPTOR pfd =
   {
     sizeof(PIXELFORMATDESCRIPTOR),
@@ -987,24 +992,26 @@ void IGraphicsWin::CreateGLContext()
 #endif
 
   //TODO: return false if GL init fails?
-  if (!gladLoadGL())
-    DBGMSG("Error initializing glad");
+  //if (!gladLoadGL())
+  //  DBGMSG("Error initializing glad");
 
   glGetError();
 
   ReleaseDC(mPlugWnd, dc);
+  #endif
 }
 
 void IGraphicsWin::DestroyGLContext()
 {
+#if defined IGRAPHICS_GL2 || defined IGRAPHICS_GL3
   wglMakeCurrent(NULL, NULL);
   wglDeleteContext(mHGLRC);
-}
 #endif
+}
 
 void IGraphicsWin::ActivateGLContext()
 {
-#ifdef IGRAPHICS_GL
+#if defined IGRAPHICS_GL2 || defined IGRAPHICS_GL3
   mStartHDC = wglGetCurrentDC();
   mStartHGLRC = wglGetCurrentContext();
   HDC dc = GetDC(mPlugWnd);
@@ -1014,9 +1021,18 @@ void IGraphicsWin::ActivateGLContext()
 
 void IGraphicsWin::DeactivateGLContext()
 {
-#ifdef IGRAPHICS_GL
+#if defined IGRAPHICS_GL2 || defined IGRAPHICS_GL3
   ReleaseDC(mPlugWnd, (HDC) GetPlatformContext());
   wglMakeCurrent(mStartHDC, mStartHGLRC); // return current ctxt to start
+#endif
+}
+
+void IGraphicsWin::SwapBuffers()
+{
+#if defined IGRAPHICS_GLES2 || defined IGRAPHICS_GLES3
+  eglSwapBuffers(mEGLDisplay, mEGLSurface);
+#elif defined IGRAPHICS_GL2 || defined IGRAPHICS_GL3
+  ::SwapBuffers((HDC) GetPlatformContext());
 #endif
 }
 
@@ -1106,7 +1122,7 @@ void* IGraphicsWin::OpenWindow(void* pParent)
     if (!mTooltipWnd)
       EnableTooltips(false);
 
-#ifdef IGRAPHICS_GL
+#if defined IGRAPHICS_GL2 || defined IGRAPHICS_GL3
     wglMakeCurrent(NULL, NULL);
 #endif
   }
@@ -1135,7 +1151,7 @@ BOOL CALLBACK IGraphicsWin::FindMainWindow(HWND hWnd, LPARAM lParam)
     if (wPID == pGraphics->mPID && !strcmp(str.Get(), pGraphics->mMainWndClassName.Get()))
     {
       pGraphics->mMainWnd = hWnd;
-      return FALSE;   // Stop enumerating.
+      return FALSE; // Stop enumerating.
     }
   }
   return TRUE;
