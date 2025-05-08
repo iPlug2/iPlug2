@@ -1212,6 +1212,8 @@ finish_up_native_render:
   RECT use_rect=*rect;
   int xpos=use_rect.left;
   int ypos=use_rect.top;
+  int orig_right=use_rect.right;
+  int orig_bott=use_rect.bottom;
 
   bool isVertRev = false;
   if ((m_flags&(LICE_FONT_FLAG_VERTICAL|LICE_FONT_FLAG_VERTICAL_BOTTOMUP)) == (LICE_FONT_FLAG_VERTICAL|LICE_FONT_FLAG_VERTICAL_BOTTOMUP))
@@ -1349,7 +1351,7 @@ finish_up_native_render:
           }
           if (!next_break)
           {
-            next_break=NextWordBreak(str, strcnt, use_rect.bottom-ypos);
+            next_break=NextWordBreak(str, strcnt, orig_bott-ypos);
           }
         }
         else
@@ -1362,7 +1364,7 @@ finish_up_native_render:
           }
           if (!next_break)
           {
-            next_break=NextWordBreak(str, strcnt, use_rect.right-xpos);
+            next_break=NextWordBreak(str, strcnt, orig_right-xpos);
           }
         }
       }
