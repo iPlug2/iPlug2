@@ -835,6 +835,7 @@ int LICE_CachedFont::DrawTextImpl(LICE_IBitmap *bm, const char *str, int strcnt,
       !(dtFlags & DT_WORDBREAK) &&
 #endif
       !(dtFlags & LICE_DT_USEFGALPHA) &&
+      fabs(m_alpha-1.0) < 0.01 &&
       !(m_flags&LICE_FONT_FLAG_PRECALCALL) && !LICE_FONT_FLAGS_HAS_FX(m_flags) &&
       (!lsadj || (dtFlags&DT_SINGLELINE))) ||
       (m_line_height >= USE_NATIVE_RENDERING_FOR_FONTS_HIGHER_THAN) ) 
