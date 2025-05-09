@@ -834,7 +834,7 @@ int LICE_CachedFont::DrawTextImpl(LICE_IBitmap *bm, const char *str, int strcnt,
       // swell does not support DT_WORDBREAK at the moment
       !(dtFlags & DT_WORDBREAK) &&
 #endif
-      !(dtFlags & LICE_DT_USEFGALPHA) &&
+      (!(dtFlags & LICE_DT_USEFGALPHA) || LICE_GETA(m_fg) == 255) &&
       fabs(m_alpha-1.0) < 0.01 &&
       !(m_flags&LICE_FONT_FLAG_PRECALCALL) && !LICE_FONT_FLAGS_HAS_FX(m_flags) &&
       (!lsadj || (dtFlags&DT_SINGLELINE))) ||
