@@ -1988,6 +1988,8 @@ void IGraphics::EndDragResize()
     ForAllControls(&IControl::OnRescale);
     SetAllControlsDirty();
   }
+  else if (mCornerResizer)
+    mCornerResizer->SetDirty(false);
 }
 
 void IGraphics::StartLayer(IControl* pControl, const IRECT& r, bool cacheable)
