@@ -74,6 +74,9 @@ public:
   float MeasureText(const IText& text, const char* str, IRECT& bounds) const override;
 
   EUIAppearance GetUIAppearance() const override;
+  
+  bool IsViewPreventedFromCallingCloseWindow() { return mPreventViewCallingCloseWindow; }
+  
 protected:
 
   IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT bounds, bool& isAsync) override;
@@ -95,6 +98,7 @@ private:
   void StoreCursorPosition();
   
   void* mView = nullptr;
+  bool mPreventViewCallingCloseWindow = false;
   CGPoint mCursorLockPosition;
   WDL_String mBundleID, mAppGroupID;
   friend int GetMouseOver(IGraphicsMac* pGraphics);
