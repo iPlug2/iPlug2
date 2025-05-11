@@ -72,6 +72,8 @@ generate_build_files() {
     skia_use_dng_sdk = false
     skia_use_expat = true
     skia_use_metal = true
+    skia_use_angle = true
+    skia_use_egl = true
     skia_use_icu = true
     skia_enable_svg = true
     skia_enable_skottie = true
@@ -83,7 +85,7 @@ generate_build_files() {
     cxx = \"clang++\"
     target_os = \"ios\"
     target_cpu = \"$cpu_type\"
-    extra_cflags = [\"$min_version_flag\", \"-I../../../src/skia/third_party/externals/expat/lib\"]
+    extra_cflags = [\"$min_version_flag\", \"-I../../../src/skia/third_party/externals/expat/lib\", \"-I$SKIA_SRC_DIR/third_party/externals/egl-registry/api\", \"-I$SKIA_SRC_DIR/third_party/externals/angle2/include\"]
     extra_cflags_c = [\"-Wno-error\"]
     $simulator_arg
   "
