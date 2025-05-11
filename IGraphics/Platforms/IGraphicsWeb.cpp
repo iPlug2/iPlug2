@@ -725,9 +725,7 @@ PlatformFontPtr IGraphicsWeb::LoadPlatformFont(const char* fontID, void* pData, 
   return PlatformFontPtr(new MemoryFont(fontID, "", pData, dataSize));
 }
 
-#if defined IGRAPHICS_CANVAS
-#include "IGraphicsCanvas.cpp"
-#elif defined IGRAPHICS_NANOVG
+#if defined IGRAPHICS_NANOVG
 #include "IGraphicsNanoVG.cpp"
 
 #ifdef IGRAPHICS_FREETYPE
