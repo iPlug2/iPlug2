@@ -24,6 +24,9 @@ static void (*importedLocalizeInitializeDialog)(HWND hwnd, const char *d);
 
 const char *__localizeFunc(const char *str, const char *subctx, int flags)
 {
+#ifdef LOCALIZE_IMPORT_FORCE_NOCACHE
+  flags |= 2/*LOCALIZE_FLAG_NOCACHE*/;
+#endif
   if (WDL_NORMALLY(importedLocalizeFunc)) return importedLocalizeFunc(str,subctx,flags);
   return str;
 }
