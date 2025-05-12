@@ -75,7 +75,7 @@ public:
 
   EUIAppearance GetUIAppearance() const override;
   
-  bool IsViewPreventedFromCallingCloseWindow() { return mPreventViewCallingCloseWindow; }
+  bool IsViewPreventedFromCallingCloseWindow() const { return mPreventViewCallingCloseWindow; }
   
 protected:
 
