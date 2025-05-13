@@ -1,4 +1,4 @@
-#if defined(_WIN32) && !defined(WDL_WIN32_UTF8_NO_UI_IMPL)
+#if defined(_WIN32) && !defined(WDL_WIN32_UTF8_NO_UI_IMPL) && !defined(WDL_WIN32_UTF8_MINI_UI_IMPL)
 #include <shlobj.h>
 #include <commctrl.h>
 #endif
@@ -370,7 +370,7 @@ WCHAR *WDL_UTF8ToWC(const char *buf, BOOL doublenull, int minsize, DWORD *sizeou
   }
 }
 
-#ifndef WDL_WIN32_UTF8_NO_UI_IMPL
+#if !defined(WDL_WIN32_UTF8_NO_UI_IMPL) && !defined(WDL_WIN32_UTF8_MINI_UI_IMPL)
 static BOOL GetOpenSaveFileNameUTF8(LPOPENFILENAME lpofn, BOOL save)
 {
 
