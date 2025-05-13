@@ -167,7 +167,9 @@ WDL_UINT64 outputLine(const char *strv, int casemode)
     else if (c == '\\' && strv[0] == 'x' && strv[1] == 'e' && strv[2] == '9')
     {
       strv+=3;
-      c = 0xe9;
+      // encode 0xe9 as utf-8
+      printf("%c",0xc3);
+      c = 0xa9;
     }
     else if (casemode == 2)
     {
