@@ -9,19 +9,21 @@ IPlugFaustDSP::IPlugFaustDSP(const InstanceInfo& info)
 #if IPLUG_DSP
   // Get the path to the libraries folder inside the bundle's resources
   WDL_String bundlePath;
-  #if defined(__APPLE__)
-    CFBundleRef bundle = CFBundleGetMainBundle();
-    if (bundle) {
-      CFURLRef resourcesURL = CFBundleCopyResourcesDirectoryURL(bundle);
-      if (resourcesURL) {
-        char resourcesPath[PATH_MAX];
-        if (CFURLGetFileSystemRepresentation(resourcesURL, true, (UInt8*)resourcesPath, PATH_MAX)) {
-          bundlePath.Set(resourcesPath);
-        }
-        CFRelease(resourcesURL);
-      }
-    }
-  #endif
+//  #if defined(__APPLE__)
+//    CFBundleRef bundle = CFBundleGetMainBundle();
+//    if (bundle) {
+//      CFURLRef resourcesURL = CFBundleCopyResourcesDirectoryURL(bundle);
+//      if (resourcesURL) {
+//        char resourcesPath[PATH_MAX];
+//        if (CFURLGetFileSystemRepresentation(resourcesURL, true, (UInt8*)resourcesPath, PATH_MAX)) {
+//          bundlePath.Set(resourcesPath);
+//        }
+//        CFRelease(resourcesURL);
+//      }
+//    }
+//  #endif
+  
+  BundleResourcePath(bundlePath, GetBundleID());
   
   WDL_String filePath, libraryPath;
   libraryPath = bundlePath;

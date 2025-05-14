@@ -8,7 +8,6 @@
 #define PLUG_EMAIL_STR "spam@me.com"
 #define PLUG_COPYRIGHT_STR "Copyright 2020 Acme Inc"
 #define PLUG_CLASS_NAME IPlugFaustDSP
-#define PLUG_HOST_RESIZE 0
 
 #define BUNDLE_NAME "IPlugFaustDSP"
 #define BUNDLE_MFR "AcmeInc"
@@ -16,7 +15,7 @@
 
 #define SHARED_RESOURCES_SUBPATH "IPlugFaustDSP"
 
-#define PLUG_CHANNEL_IO "6-36"
+#define PLUG_CHANNEL_IO "1-2"
 
 #define PLUG_LATENCY 0
 #define PLUG_TYPE 0

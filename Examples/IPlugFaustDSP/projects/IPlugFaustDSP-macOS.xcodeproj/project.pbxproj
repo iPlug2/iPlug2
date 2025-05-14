@@ -332,6 +332,29 @@
 		4FFBB93020863B0E00DDD0E7 /* fbuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8158C1205D50EB00393585 /* fbuffer.cpp */; };
 		4FFBB93420863B0E00DDD0E7 /* coreiids.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8158E0205D50EB00393585 /* coreiids.cpp */; };
 		4FFBB93520863B0E00DDD0E7 /* vstnoteexpressiontypes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F81588E205D50EB00393585 /* vstnoteexpressiontypes.cpp */; };
+		6FE654282DD1C8D700FFCA23 /* LibFaust.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6FE654272DD1C8D700FFCA23 /* LibFaust.xcframework */; };
+		6FE654292DD1C8D700FFCA23 /* LibFaust.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6FE654272DD1C8D700FFCA23 /* LibFaust.xcframework */; };
+		6FE6542A2DD1C8D700FFCA23 /* LibFaust.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6FE654272DD1C8D700FFCA23 /* LibFaust.xcframework */; };
+		6FE6542B2DD1C8D700FFCA23 /* LibFaust.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6FE654272DD1C8D700FFCA23 /* LibFaust.xcframework */; };
+		6FE6542C2DD1C8D700FFCA23 /* LibFaust.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6FE654272DD1C8D700FFCA23 /* LibFaust.xcframework */; };
+		6FE6542D2DD1C8D700FFCA23 /* LibFaust.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6FE654272DD1C8D700FFCA23 /* LibFaust.xcframework */; };
+		6FE6542E2DD1C8D700FFCA23 /* LibFaust.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6FE654272DD1C8D700FFCA23 /* LibFaust.xcframework */; };
+		6FE6542F2DD1C8D700FFCA23 /* LibFaust.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6FE654272DD1C8D700FFCA23 /* LibFaust.xcframework */; };
+		6FE654312DD1C91700FFCA23 /* LibFaust.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6FE654272DD1C8D700FFCA23 /* LibFaust.xcframework */; };
+		6FE6544F2DD1D3E000FFCA23 /* IPlugFaustDSP.dsp in Resources */ = {isa = PBXBuildFile; fileRef = 4FF262AE232008200076F5D4 /* IPlugFaustDSP.dsp */; };
+		6FE654B52DD1D44B00FFCA23 /* libraries in Resources */ = {isa = PBXBuildFile; fileRef = 6FE654B42DD1D44500FFCA23 /* libraries */; };
+		6FE654B62DD1D47900FFCA23 /* libraries in Resources */ = {isa = PBXBuildFile; fileRef = 6FE654B42DD1D44500FFCA23 /* libraries */; };
+		6FE654B72DD1D47900FFCA23 /* libraries in Resources */ = {isa = PBXBuildFile; fileRef = 6FE654B42DD1D44500FFCA23 /* libraries */; };
+		6FE654B82DD1D47900FFCA23 /* libraries in Resources */ = {isa = PBXBuildFile; fileRef = 6FE654B42DD1D44500FFCA23 /* libraries */; };
+		6FE654B92DD1D47900FFCA23 /* libraries in Resources */ = {isa = PBXBuildFile; fileRef = 6FE654B42DD1D44500FFCA23 /* libraries */; };
+		6FE654BA2DD1D47900FFCA23 /* libraries in Resources */ = {isa = PBXBuildFile; fileRef = 6FE654B42DD1D44500FFCA23 /* libraries */; };
+		6FE654BB2DD1D47900FFCA23 /* libraries in Resources */ = {isa = PBXBuildFile; fileRef = 6FE654B42DD1D44500FFCA23 /* libraries */; };
+		6FE654BC2DD1D49500FFCA23 /* IPlugFaustDSP.dsp in Resources */ = {isa = PBXBuildFile; fileRef = 4FF262AE232008200076F5D4 /* IPlugFaustDSP.dsp */; };
+		6FE654BD2DD1D49500FFCA23 /* IPlugFaustDSP.dsp in Resources */ = {isa = PBXBuildFile; fileRef = 4FF262AE232008200076F5D4 /* IPlugFaustDSP.dsp */; };
+		6FE654BE2DD1D49500FFCA23 /* IPlugFaustDSP.dsp in Resources */ = {isa = PBXBuildFile; fileRef = 4FF262AE232008200076F5D4 /* IPlugFaustDSP.dsp */; };
+		6FE654BF2DD1D49500FFCA23 /* IPlugFaustDSP.dsp in Resources */ = {isa = PBXBuildFile; fileRef = 4FF262AE232008200076F5D4 /* IPlugFaustDSP.dsp */; };
+		6FE654C02DD1D49500FFCA23 /* IPlugFaustDSP.dsp in Resources */ = {isa = PBXBuildFile; fileRef = 4FF262AE232008200076F5D4 /* IPlugFaustDSP.dsp */; };
+		6FE654C12DD1D49500FFCA23 /* IPlugFaustDSP.dsp in Resources */ = {isa = PBXBuildFile; fileRef = 4FF262AE232008200076F5D4 /* IPlugFaustDSP.dsp */; };
 		B885CBC52304AE7300D73128 /* IPlugProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8F61A8202807B9003F2573 /* IPlugProcessor.cpp */; };
 		B8E22A0C220268C4007CBF4C /* IPlugVST3_ProcessorBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B8E22A0A220268C4007CBF4C /* IPlugVST3_ProcessorBase.cpp */; };
 		B8E22A0D220268C4007CBF4C /* IPlugVST3_ProcessorBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B8E22A0A220268C4007CBF4C /* IPlugVST3_ProcessorBase.cpp */; };
@@ -799,10 +822,6 @@
 		4FC3EFEC2086CE5600BD11FA /* stringconvert.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = stringconvert.cpp; sourceTree = "<group>"; };
 		4FC3EFED2086CE5600BD11FA /* stringconvert.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stringconvert.h; sourceTree = "<group>"; };
 		4FC3EFEE2086CE5600BD11FA /* uid.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = uid.h; sourceTree = "<group>"; };
-		4FC44B9920F151B90062F870 /* IWebsocketServer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IWebsocketServer.h; sourceTree = "<group>"; };
-		4FC44B9A20F151B90062F870 /* IWebsocketEditorDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IWebsocketEditorDelegate.h; sourceTree = "<group>"; };
-		4FC44B9C20F151B90062F870 /* IWebsocketEditorDelegate.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = IWebsocketEditorDelegate.cpp; sourceTree = "<group>"; };
-		4FC44B9E20F16B200062F870 /* IWebsocketServer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IWebsocketServer.cpp; sourceTree = "<group>"; };
 		4FC46E57231440B4000045E7 /* web */ = {isa = PBXFileReference; lastKnownFileType = folder; name = web; path = ../resources/web; sourceTree = "<group>"; };
 		4FC82B4520BD522B00722133 /* img */ = {isa = PBXFileReference; lastKnownFileType = folder; name = img; path = ../resources/img; sourceTree = "<group>"; };
 		4FC82B4620BD522B00722133 /* fonts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = fonts; path = ../resources/fonts; sourceTree = "<group>"; };
@@ -862,6 +881,8 @@
 		4FFBB94120863E9300DDD0E7 /* IPlugVST3_Parameter.h */ = {isa = PBXFileReference; indentWidth = 2; lastKnownFileType = sourcecode.c.h; name = IPlugVST3_Parameter.h; path = ../../../IPlug/VST3/IPlugVST3_Parameter.h; sourceTree = "<group>"; tabWidth = 2; };
 		4FFF72B8214BB71400839091 /* main.rc */ = {isa = PBXFileReference; lastKnownFileType = text; name = main.rc; path = ../resources/main.rc; sourceTree = "<group>"; };
 		52FBBED30D0CF143001C8B8A /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.h; name = config.h; path = ../config.h; sourceTree = "<group>"; tabWidth = 2; usesTabs = 0; };
+		6FE654272DD1C8D700FFCA23 /* LibFaust.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = LibFaust.xcframework; path = /Users/oli/Dev/iPlug2/Dependencies/Build/frameworks/LibFaust.xcframework; sourceTree = "<absolute>"; };
+		6FE654B42DD1D44500FFCA23 /* libraries */ = {isa = PBXFileReference; lastKnownFileType = folder; name = libraries; path = ../resources/libraries; sourceTree = SOURCE_ROOT; };
 		B8E22A0A220268C4007CBF4C /* IPlugVST3_ProcessorBase.cpp */ = {isa = PBXFileReference; indentWidth = 2; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugVST3_ProcessorBase.cpp; path = ../../../IPlug/VST3/IPlugVST3_ProcessorBase.cpp; sourceTree = "<group>"; tabWidth = 2; };
 		B8E22A0B220268C4007CBF4C /* IPlugVST3_ProcessorBase.h */ = {isa = PBXFileReference; indentWidth = 2; lastKnownFileType = sourcecode.c.h; name = IPlugVST3_ProcessorBase.h; path = ../../../IPlug/VST3/IPlugVST3_ProcessorBase.h; sourceTree = "<group>"; tabWidth = 2; };
 		B8EA6B932203868500D23A86 /* IPlugVST3_Common.h */ = {isa = PBXFileReference; indentWidth = 2; lastKnownFileType = sourcecode.c.h; name = IPlugVST3_Common.h; path = ../../../IPlug/VST3/IPlugVST3_Common.h; sourceTree = "<group>"; tabWidth = 2; };
@@ -872,6 +893,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6FE6542D2DD1C8D700FFCA23 /* LibFaust.xcframework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -888,6 +910,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4F3EE1E7231438D000004786 /* AUv3Framework.framework in Frameworks */,
+				6FE6542A2DD1C8D700FFCA23 /* LibFaust.xcframework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -895,6 +918,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6FE6542C2DD1C8D700FFCA23 /* LibFaust.xcframework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -902,6 +926,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6FE654292DD1C8D700FFCA23 /* LibFaust.xcframework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -910,6 +935,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4F815999205D525A00393585 /* libAAXLibrary_libcpp.a in Frameworks */,
+				6FE654282DD1C8D700FFCA23 /* LibFaust.xcframework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -917,6 +943,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6FE6542B2DD1C8D700FFCA23 /* LibFaust.xcframework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -924,6 +951,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6FE6542F2DD1C8D700FFCA23 /* LibFaust.xcframework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -932,6 +960,15 @@
 			buildActionMask = 2147483647;
 			files = (
 				4FC3EFD42086C49D00BD11FA /* IPlugFaustDSPVST3Controller.a in Frameworks */,
+				6FE6542E2DD1C8D700FFCA23 /* LibFaust.xcframework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6FE654302DD1C90F00FFCA23 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6FE654312DD1C91700FFCA23 /* LibFaust.xcframework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -951,6 +988,7 @@
 				32C88E010371C26100C91783 /* Other Sources */,
 				089C1671FE841209C02AAC07 /* Frameworks */,
 				19C28FB8FE9D52D311CA2CBB /* Products */,
+				6FE654272DD1C8D700FFCA23 /* LibFaust.xcframework */,
 			);
 			name = IPlugExample;
 			sourceTree = "<group>";
@@ -988,6 +1026,7 @@
 				4F23BA1313B647E50097A67E /* IPlugFaustDSP-AU-Info.plist */,
 				4F4CC3811549B8A700A9EA21 /* IPlugFaustDSP-AAX-Info.plist */,
 				4FD290A8137C34D700CEBE7E /* IPlugFaustDSP.icns */,
+				6FE654B42DD1D44500FFCA23 /* libraries */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -1158,7 +1197,6 @@
 			isa = PBXGroup;
 			children = (
 				4F6E673C21C5614C005991A9 /* Synth */,
-				4FC44B9820F151B90062F870 /* WebSocket */,
 				4F5369BC20C446430089212E /* Easing.h */,
 				4F5369BD20C446430089212E /* NChanDelay.h */,
 				4F800152252F0A9F00432412 /* LFO.h */,
@@ -1652,17 +1690,6 @@
 			path = hosting;
 			sourceTree = "<group>";
 		};
-		4FC44B9820F151B90062F870 /* WebSocket */ = {
-			isa = PBXGroup;
-			children = (
-				4FC44B9920F151B90062F870 /* IWebsocketServer.h */,
-				4FC44B9E20F16B200062F870 /* IWebsocketServer.cpp */,
-				4FC44B9A20F151B90062F870 /* IWebsocketEditorDelegate.h */,
-				4FC44B9C20F151B90062F870 /* IWebsocketEditorDelegate.cpp */,
-			);
-			path = WebSocket;
-			sourceTree = "<group>";
-		};
 		4FD16CF713B6343B001D0217 /* SWELL */ = {
 			isa = PBXGroup;
 			children = (
@@ -1919,6 +1946,7 @@
 				4FD16A0513B63081001D0217 /* Resources */,
 				4FD16A0613B63081001D0217 /* Sources */,
 				4FD3B63E23201230007EE42B /* CopyFiles */,
+				6FE654302DD1C90F00FFCA23 /* Frameworks */,
 			);
 			buildRules = (
 			);
@@ -2068,6 +2096,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6FE654B62DD1D47900FFCA23 /* libraries in Resources */,
+				6FE654BC2DD1D49500FFCA23 /* IPlugFaustDSP.dsp in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2075,6 +2105,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6FE654B82DD1D47900FFCA23 /* libraries in Resources */,
+				6FE654BE2DD1D49500FFCA23 /* IPlugFaustDSP.dsp in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2090,7 +2122,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				4F3EE1BF231438D000004786 /* IPlugFaustDSP.icns in Resources */,
+				6FE654C12DD1D49500FFCA23 /* IPlugFaustDSP.dsp in Resources */,
 				4F3EE1C0231438D000004786 /* IPlugFaustDSP-macOS-MainMenu.xib in Resources */,
+				6FE654BB2DD1D47900FFCA23 /* libraries in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2106,6 +2140,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6FE654B72DD1D47900FFCA23 /* libraries in Resources */,
+				6FE654BD2DD1D49500FFCA23 /* IPlugFaustDSP.dsp in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2113,6 +2149,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6FE654B92DD1D47900FFCA23 /* libraries in Resources */,
+				6FE654BF2DD1D49500FFCA23 /* IPlugFaustDSP.dsp in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2122,6 +2160,8 @@
 			files = (
 				4F78D88613B6382B0032E0F3 /* IPlugFaustDSP.icns in Resources */,
 				4F1B4AE42014D33600BC64D4 /* IPlugFaustDSP-macOS-MainMenu.xib in Resources */,
+				6FE654B52DD1D44B00FFCA23 /* libraries in Resources */,
+				6FE6544F2DD1D3E000FFCA23 /* IPlugFaustDSP.dsp in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2129,6 +2169,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6FE654BA2DD1D47900FFCA23 /* libraries in Resources */,
+				6FE654C02DD1D49500FFCA23 /* IPlugFaustDSP.dsp in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2705,7 +2747,7 @@
 			baseConfigurationReference = 4FDA600620B586AC00C49ABA /* IPlugFaustDSP-mac.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = arm64;
+				ARCHS = "$(ARCHS_STANDARD)";
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
@@ -2726,7 +2768,7 @@
 				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)";
 				COPY_PHASE_STRIP = NO;
 				DEPLOYMENT_LOCATION = YES;
-				DEVELOPMENT_TEAM = "$(DEVELOPMENT_TEAM)";
+				DEVELOPMENT_TEAM = 686EDA2T8T;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				EXECUTABLE_EXTENSION = "";
@@ -2784,7 +2826,7 @@
 			baseConfigurationReference = 4FDA600620B586AC00C49ABA /* IPlugFaustDSP-mac.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = arm64;
+				ARCHS = "$(ARCHS_STANDARD)";
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
@@ -2805,7 +2847,7 @@
 				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)";
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEPLOYMENT_LOCATION = YES;
-				DEVELOPMENT_TEAM = "$(DEVELOPMENT_TEAM)";
+				DEVELOPMENT_TEAM = 686EDA2T8T;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				EXECUTABLE_EXTENSION = "";
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
@@ -3951,7 +3993,7 @@
 			baseConfigurationReference = 4FDA600620B586AC00C49ABA /* IPlugFaustDSP-mac.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = arm64;
+				ARCHS = "$(ARCHS_STANDARD)";
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
@@ -3971,7 +4013,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)";
 				DEPLOYMENT_LOCATION = YES;
-				DEVELOPMENT_TEAM = "$(DEVELOPMENT_TEAM)";
+				DEVELOPMENT_TEAM = 686EDA2T8T;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				EXECUTABLE_EXTENSION = "";
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
