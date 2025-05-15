@@ -1604,6 +1604,15 @@ LONG_PTR GetWindowLong(HWND hwnd, int idx)
       }
       else ret |= BS_AUTOCHECKBOX; 
     }
+    if ([pid isKindOfClass:[NSTextField class]])
+    {
+      NSCell *cell = [pid cell];
+      if (cell) switch ([cell alignment])
+      {
+        case NSTextAlignmentRight: ret |= SS_RIGHT; break;
+        case NSTextAlignmentCenter: ret |= SS_CENTER; break;
+      }
+    }
     
     if ([pid isKindOfClass:[NSView class]])
     {
