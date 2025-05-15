@@ -1261,8 +1261,9 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
     NSPoint point = [sender draggingLocation];
     NSPoint relativePoint = [self convertPoint: point fromView:nil];
     // TODO - fix or remove these values
-    float x = relativePoint.x;// - 2.f;
-    float y = relativePoint.y;// - 3.f;
+    const float scale = mGraphics->GetDrawScale();
+    float x = relativePoint.x / scale; // OnDrop expects unscaled coordinates
+    float y = relativePoint.y / scale;
     if ([pFiles count] == 1)
     {
       NSString* pFirstFile = [pFiles firstObject];
