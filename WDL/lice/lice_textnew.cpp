@@ -791,6 +791,10 @@ int LICE_CachedFont::DrawTextImpl(LICE_IBitmap *bm, const char *str, int strcnt,
   WDL_ASSERT((dtFlags & DT_SINGLELINE) || !(dtFlags & (DT_BOTTOM|DT_VCENTER))); // if DT_BOTTOM or DT_VCENTER used, must have DT_SINGLELINE
   if (!bm && !(dtFlags&DT_CALCRECT)) return 0;
 
+  // if DT_CALCRECT and DT_WORDBREAK, rect must be provided
+  WDL_ASSERT((dtFlags&(DT_CALCRECT|DT_WORDBREAK)) != (DT_CALCRECT|DT_WORDBREAK) ||
+    (rect && rect->right > rect->left && rect->bottom > rect->top));
+
   const int __sc = bm ? (int)bm->Extended(LICE_EXT_GET_SCALING,NULL) : 0;
   int bm_w = bm ? bm->getWidth() : 0;
   int bm_h = bm ? bm->getHeight() : 0;

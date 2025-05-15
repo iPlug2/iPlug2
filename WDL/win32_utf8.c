@@ -810,6 +810,10 @@ int DrawTextUTF8(HDC hdc, LPCTSTR str, int len, LPRECT lpRect, UINT format)
 {
   WDL_ASSERT((format & DT_SINGLELINE) || !(format & (DT_BOTTOM|DT_VCENTER))); // if DT_BOTTOM or DT_VCENTER used, must have DT_SINGLELINE
 
+  // if DT_CALCRECT and DT_WORDBREAK, rect must be provided
+  WDL_ASSERT((format&(DT_CALCRECT|DT_WORDBREAK)) != (DT_CALCRECT|DT_WORDBREAK) ||
+    (lpRect && lpRect->right > lpRect->left && lpRect->bottom > lpRect->top));
+
   if (WDL_HasUTF8(str) AND_IS_NOT_WIN9X)
   {
     MBTOWIDE(wstr, str);
