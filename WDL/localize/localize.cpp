@@ -549,11 +549,16 @@ static BOOL CALLBACK xlateGetRects(HWND hwnd, LPARAM lParam)
   }
   else if (!strcmp(buf,"Static"))
   {
-    t.mode = windowReorgEnt::WRET_SIZEADJ;
+    if (!(GetWindowLong(hwnd,GWL_STYLE)&(SS_RIGHT|SS_CENTER)))
+      t.mode = windowReorgEnt::WRET_SIZEADJ;
   }
 #else
   if (SWELL_IsGroupBox(hwnd)) t.mode = windowReorgEnt::WRET_GROUP;
-  else if (SWELL_IsButton(hwnd)||SWELL_IsStaticText(hwnd)) t.mode = windowReorgEnt::WRET_SIZEADJ;
+  else if (SWELL_IsButton(hwnd)) t.mode = windowReorgEnt::WRET_SIZEADJ;
+  else if (SWELL_IsStaticText(hwnd))
+  {
+    if (!(GetWindowLong(hwnd,GWL_STYLE)&(SS_RIGHT|SS_CENTER))) t.mode = windowReorgEnt::WRET_SIZEADJ;
+  }
 #endif
 
   if (t.mode == windowReorgEnt::WRET_GROUP)
