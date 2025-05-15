@@ -1260,9 +1260,10 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
     NSArray* pFiles = [pPasteBoard propertyListForType:NSFilenamesPboardType];
     NSPoint point = [sender draggingLocation];
     NSPoint relativePoint = [self convertPoint: point fromView:nil];
-    // TODO - fix or remove these values
-    float x = relativePoint.x;// - 2.f;
-    float y = relativePoint.y;// - 3.f;
+
+    const float scale = mGraphics->GetDrawScale();
+    const float x = relativePoint.x / scale;
+    const float y = relativePoint.y / scale;
     if ([pFiles count] == 1)
     {
       NSString* pFirstFile = [pFiles firstObject];
