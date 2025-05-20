@@ -618,6 +618,11 @@ static int rippleControlsRight(HWND hwnd, const RECT *srcR, windowReorgEnt *ent,
   return dSize;
 }
 
+struct ctl_scale_info
+{
+  float xsc;
+};
+
 static void localize_dialog(HWND hwnd, WDL_KeyedArray<WDL_UINT64, char *> *sec)
 {
 #ifdef _DEBUG
@@ -632,7 +637,7 @@ static void localize_dialog(HWND hwnd, WDL_KeyedArray<WDL_UINT64, char *> *sec)
 */
   bool auto_expand = false;
   float scx = 1.0, scy = 1.0;
-  WDL_IntKeyedArray<float> ctl_scales;
+  WDL_IntKeyedArray<ctl_scale_info> ctl_scales;
   if (sc_str)
   {
     while (*sc_str && (*sc_str == ' ' || *sc_str == '\t')) sc_str++;
@@ -674,7 +679,12 @@ static void localize_dialog(HWND hwnd, WDL_KeyedArray<WDL_UINT64, char *> *sec)
 #endif
           if (id > 0 && v > 0.1 && v < 8.0)
           {
-            ctl_scales.AddUnsorted(id,v);
+            ctl_scale_info inf = { v };
+            while (*sc_str && *sc_str != ' ' && *sc_str != '\t')
+            {
+              sc_str++;
+            }
+            ctl_scales.AddUnsorted(id,inf);
           }
         }
       }
@@ -704,15 +714,15 @@ static void localize_dialog(HWND hwnd, WDL_KeyedArray<WDL_UINT64, char *> *sec)
     if (rec->hwnd)
     {
       const char *newText=xlateWindow(rec->hwnd,sec,buf,sizeof(buf), rec->mode != windowReorgEnt::WRET_MISC);
-      const float *this_sc_ptr = ctl_scales.GetPtr(rec->wnd_id);
+      const ctl_scale_info *this_sc_ptr = ctl_scales.GetPtr(rec->wnd_id);
       int dSize = 0;
       if (this_sc_ptr)
       {
-        if (*this_sc_ptr > 1.0)
+        if (this_sc_ptr->xsc > 1.0)
         {
           RECT r1;
           GetClientRect(rec->hwnd,&r1);
-          dSize = (int) floor(r1.right * *this_sc_ptr + 0.5) - r1.right;
+          dSize = (int) floor(r1.right * this_sc_ptr->xsc + 0.5) - r1.right;
           if (dSize>0)
             rec->mode = windowReorgEnt::WRET_SIZEADJ;
         }
