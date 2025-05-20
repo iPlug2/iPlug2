@@ -679,7 +679,7 @@ static void localize_dialog(HWND hwnd, WDL_KeyedArray<WDL_UINT64, char *> *sec)
 #else
           v = (float)atof(sc_str+1);
 #endif
-          if (id > 0 && v > 0.1 && v < 8.0)
+          if (id > 0)
           {
             ctl_scale_info inf = { v };
             while (*sc_str && *sc_str != ' ' && *sc_str != '\t')
@@ -720,34 +720,32 @@ static void localize_dialog(HWND hwnd, WDL_KeyedArray<WDL_UINT64, char *> *sec)
       const char *newText=xlateWindow(rec->hwnd,sec,buf,sizeof(buf), rec->mode != windowReorgEnt::WRET_MISC);
       const ctl_scale_info *this_sc_ptr = ctl_scales.GetPtr(rec->wnd_id);
       int dSize = 0;
-      if (this_sc_ptr)
+      if (this_sc_ptr && this_sc_ptr->ysc > 1.0)
+      {
+        const int addh = (int)floor(this_sc_ptr->ysc * (rec->r.bottom-rec->r.top) + 0.5) - (rec->r.bottom - rec->r.top);
+        if (addh > 0)
+        {
+          rec->r.top -= addh/2;
+          rec->r.bottom += (addh+1)/2;
+        }
+      }
+
+      if (this_sc_ptr && this_sc_ptr->xsc != 1.0 && this_sc_ptr->xsc > 0.1 && this_sc_ptr->xsc < 8.0)
       {
         const int xadj = (int) floor(this_sc_ptr->xadj * (rec->orig_r.right-rec->orig_r.left) + 0.5);
         rec->r.right += xadj;
         rec->r.left += xadj;
-        if (this_sc_ptr->ysc > 1.0)
+        RECT r1;
+        GetClientRect(rec->hwnd,&r1);
+        dSize = (int) floor(r1.right * this_sc_ptr->xsc + 0.5) - r1.right;
+        if (dSize > 0 && xadj < 0)
         {
-          const int addh = (int)floor(this_sc_ptr->ysc * (rec->r.bottom-rec->r.top) + 0.5) - (rec->r.bottom - rec->r.top);
-          if (addh > 0)
-          {
-            rec->r.top -= addh/2;
-            rec->r.bottom += (addh+1)/2;
-          }
+          const int amt = wdl_min(-xadj,dSize);
+          rec->r.right += amt;
+          dSize -= amt;
         }
-        if (this_sc_ptr->xsc != 1.0 && this_sc_ptr->xsc > 0.1)
-        {
-          RECT r1;
-          GetClientRect(rec->hwnd,&r1);
-          dSize = (int) floor(r1.right * this_sc_ptr->xsc + 0.5) - r1.right;
-          if (dSize > 0 && xadj < 0)
-          {
-            const int amt = wdl_min(-xadj,dSize);
-            rec->r.right += amt;
-            dSize -= amt;
-          }
-          if (dSize!=0)
-            rec->mode = windowReorgEnt::WRET_SIZEADJ;
-        }
+        if (dSize!=0)
+          rec->mode = windowReorgEnt::WRET_SIZEADJ;
       }
       else
       {
@@ -763,7 +761,15 @@ static void localize_dialog(HWND hwnd, WDL_KeyedArray<WDL_UINT64, char *> *sec)
           SWELL_GetDesiredControlSize(rec->hwnd,&r2);
 #endif
           if (r2.right > r1.right)
-            dSize=r2.right-r1.right;
+          {
+            if (this_sc_ptr && this_sc_ptr->xadj < 0.0)
+            {
+              // if specified no xsc, but a negative dx, then we should grow to the left
+              rec->r.left -= r2.right-r1.right;
+            }
+            else
+              dSize=r2.right-r1.right;
+          }
         }
       }
 
