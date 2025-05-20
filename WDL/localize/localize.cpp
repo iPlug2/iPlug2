@@ -720,18 +720,21 @@ static void localize_dialog(HWND hwnd, WDL_KeyedArray<WDL_UINT64, char *> *sec)
       int dSize = 0;
       if (this_sc_ptr)
       {
-        if (this_sc_ptr->xadj != 0.0)
-        {
-          const int xadj = (int) floor(this_sc_ptr->xadj * (rec->orig_r.right-rec->orig_r.left) + 0.5);
-          rec->r.right += xadj;
-          rec->r.left += xadj;
-        }
-        if (this_sc_ptr->xsc > 1.0)
+        const int xadj = (int) floor(this_sc_ptr->xadj * (rec->orig_r.right-rec->orig_r.left) + 0.5);
+        rec->r.right += xadj;
+        rec->r.left += xadj;
+        if (this_sc_ptr->xsc != 1.0 && this_sc_ptr->xsc > 0.1)
         {
           RECT r1;
           GetClientRect(rec->hwnd,&r1);
           dSize = (int) floor(r1.right * this_sc_ptr->xsc + 0.5) - r1.right;
-          if (dSize>0)
+          if (dSize > 0 && xadj < 0)
+          {
+            const int amt = wdl_min(-xadj,dSize);
+            rec->r.right += amt;
+            dSize -= amt;
+          }
+          if (dSize!=0)
             rec->mode = windowReorgEnt::WRET_SIZEADJ;
         }
       }
@@ -748,15 +751,17 @@ static void localize_dialog(HWND hwnd, WDL_KeyedArray<WDL_UINT64, char *> *sec)
           GetClientRect(rec->hwnd,&r1);
           SWELL_GetDesiredControlSize(rec->hwnd,&r2);
 #endif
-          dSize=r2.right-r1.right;
+          if (r2.right > r1.right)
+            dSize=r2.right-r1.right;
         }
       }
 
-      if (dSize>0)
+      if (dSize!=0)
       {
-        rec->wantsizeincrease = ++dSize;
+        if (dSize>0) dSize++;
+        rec->wantsizeincrease = dSize;
 
-        if (do_columns)
+        if (do_columns && dSize>0)
         {
           const int v = (rec->r.right<<16) | (rec->r.left&0xffff);
           int *diff = s.columns.GetPtr(v);
@@ -787,7 +792,12 @@ static void localize_dialog(HWND hwnd, WDL_KeyedArray<WDL_UINT64, char *> *sec)
     for (int x=0;x<s.cws.GetSize();x++)
     {
       windowReorgEnt *trec=s.cws.Get()+x;
-      if (trec->wantsizeincrease>0)
+      if (trec->wantsizeincrease<0)
+      {
+        trec->r.right += trec->wantsizeincrease;
+        trec->wantsizeincrease = 0;
+      }
+      else if (trec->wantsizeincrease>0)
       {
         int amt = rippleControlsRight(trec->hwnd,&trec->r,trec+1,s.cws.GetSize() - (x+1),trec->wantsizeincrease,
             (auto_expand?2000:0)+s.par_cr.right);
