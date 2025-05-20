@@ -621,6 +621,7 @@ static int rippleControlsRight(HWND hwnd, const RECT *srcR, windowReorgEnt *ent,
 struct ctl_scale_info
 {
   float xsc;
+  float xadj;
 };
 
 static void localize_dialog(HWND hwnd, WDL_KeyedArray<WDL_UINT64, char *> *sec)
@@ -682,6 +683,7 @@ static void localize_dialog(HWND hwnd, WDL_KeyedArray<WDL_UINT64, char *> *sec)
             ctl_scale_info inf = { v };
             while (*sc_str && *sc_str != ' ' && *sc_str != '\t')
             {
+              if (!strnicmp(sc_str,",dx=",4)) inf.xadj = (float)atof(sc_str+4);
               sc_str++;
             }
             ctl_scales.AddUnsorted(id,inf);
@@ -718,6 +720,12 @@ static void localize_dialog(HWND hwnd, WDL_KeyedArray<WDL_UINT64, char *> *sec)
       int dSize = 0;
       if (this_sc_ptr)
       {
+        if (this_sc_ptr->xadj != 0.0)
+        {
+          const int xadj = (int) floor(this_sc_ptr->xadj * (rec->orig_r.right-rec->orig_r.left) + 0.5);
+          rec->r.right += xadj;
+          rec->r.left += xadj;
+        }
         if (this_sc_ptr->xsc > 1.0)
         {
           RECT r1;
