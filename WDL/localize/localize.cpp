@@ -622,6 +622,7 @@ struct ctl_scale_info
 {
   float xsc;
   float xadj;
+  float ysc;
 };
 
 static void localize_dialog(HWND hwnd, WDL_KeyedArray<WDL_UINT64, char *> *sec)
@@ -684,6 +685,7 @@ static void localize_dialog(HWND hwnd, WDL_KeyedArray<WDL_UINT64, char *> *sec)
             while (*sc_str && *sc_str != ' ' && *sc_str != '\t')
             {
               if (!strnicmp(sc_str,",dx=",4)) inf.xadj = (float)atof(sc_str+4);
+              else if (!strnicmp(sc_str,",ysc=",5)) inf.ysc = (float)atof(sc_str+5);
               sc_str++;
             }
             ctl_scales.AddUnsorted(id,inf);
@@ -723,6 +725,15 @@ static void localize_dialog(HWND hwnd, WDL_KeyedArray<WDL_UINT64, char *> *sec)
         const int xadj = (int) floor(this_sc_ptr->xadj * (rec->orig_r.right-rec->orig_r.left) + 0.5);
         rec->r.right += xadj;
         rec->r.left += xadj;
+        if (this_sc_ptr->ysc > 1.0)
+        {
+          const int addh = (int)floor(this_sc_ptr->ysc * (rec->r.bottom-rec->r.top) + 0.5) - (rec->r.bottom - rec->r.top);
+          if (addh > 0)
+          {
+            rec->r.top -= addh/2;
+            rec->r.bottom += (addh+1)/2;
+          }
+        }
         if (this_sc_ptr->xsc != 1.0 && this_sc_ptr->xsc > 0.1)
         {
           RECT r1;
@@ -852,8 +863,9 @@ static void localize_dialog(HWND hwnd, WDL_KeyedArray<WDL_UINT64, char *> *sec)
     windowReorgEnt *rec=s.cws.Get()+x;
     if (rec->hwnd)
     {
-      bool wantMove = rec->r.left != rec->orig_r.left;
-      bool wantSize = (rec->r.right-rec->r.left) != (rec->orig_r.right-rec->orig_r.left);
+      bool wantMove = rec->r.left != rec->orig_r.left || rec->r.top != rec->orig_r.top;
+      bool wantSize = (rec->r.right-rec->r.left) != (rec->orig_r.right-rec->orig_r.left) ||
+                      (rec->r.bottom-rec->r.top) != (rec->orig_r.bottom-rec->orig_r.top) ;
       if (wantMove||wantSize)
       {
         SetWindowPos(rec->hwnd,NULL,rec->r.left,rec->r.top,rec->r.right-rec->r.left,rec->r.bottom-rec->r.top,
