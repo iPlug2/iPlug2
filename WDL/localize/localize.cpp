@@ -730,11 +730,15 @@ static void localize_dialog(HWND hwnd, WDL_KeyedArray<WDL_UINT64, char *> *sec)
         }
       }
 
-      if (this_sc_ptr && this_sc_ptr->xsc != 1.0 && this_sc_ptr->xsc > 0.1 && this_sc_ptr->xsc < 8.0)
+      int xadj = 0;
+      if (this_sc_ptr && this_sc_ptr->xadj != 0.0)
       {
-        const int xadj = (int) floor(this_sc_ptr->xadj * (rec->orig_r.right-rec->orig_r.left) + 0.5);
+        xadj = (int) floor(this_sc_ptr->xadj * (rec->orig_r.right-rec->orig_r.left) + 0.5);
         rec->r.right += xadj;
         rec->r.left += xadj;
+      }
+      if (this_sc_ptr && this_sc_ptr->xsc != 1.0 && this_sc_ptr->xsc > 0.1 && this_sc_ptr->xsc < 8.0)
+      {
         RECT r1;
         GetClientRect(rec->hwnd,&r1);
         dSize = (int) floor(r1.right * this_sc_ptr->xsc + 0.5) - r1.right;
