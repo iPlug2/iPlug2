@@ -1061,8 +1061,13 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
   
   mGraphics->SetPlatformContext(nullptr);
     
-  //For some APIs (AUv2) this is where we know about the window being closed, close via delegate
-  mGraphics->GetDelegate()->CloseWindow();
+  // For some APIs (AUv2) this is where we know about the window being closed, close via delegate
+  // We must not call this if the window is opening (when IsViewPreventedFromCallingCloseWindow() will return true)
+  if (!mGraphics->IsViewPreventedFromCallingCloseWindow())
+  {
+    mGraphics->GetDelegate()->CloseWindow();
+  }
+  
   [super removeFromSuperview];
 }
 
