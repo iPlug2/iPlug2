@@ -3578,6 +3578,7 @@ STANDARD_CONTROL_NEEDSDISPLAY_IMPL([self isSelectable] ? "Edit" : "Static")
     m_disable_menu = false;
     m_ctlcolor_set = false;
     m_last_dark_mode = false;
+    m_need_alphachg = false;
     m_userdata = 0;
   }
   return self;
@@ -3614,8 +3615,7 @@ STANDARD_CONTROL_NEEDSDISPLAY_IMPL([self isSelectable] ? "Edit" : "Static")
   }
   else if (![self isBordered] && ![self drawsBackground]) // looks like a static text control
   {
-    const float alpha = ([self isEnabled] ? 1.0f : 0.5f);
-    [self setTextColor:[[self textColor] colorWithAlphaComponent:alpha]];
+    m_need_alphachg = true;
   }
   else
   {
@@ -3632,6 +3632,12 @@ STANDARD_CONTROL_NEEDSDISPLAY_IMPL([self isSelectable] ? "Edit" : "Static")
   {
     const bool m = SWELL_osx_is_dark_mode(0);
     if (m != m_last_dark_mode) [self initColors:m];
+  }
+  if (m_need_alphachg)
+  {
+    m_need_alphachg = false;
+    const float alpha = ([self isEnabled] ? 1.0f : 0.5f);
+    [self setTextColor:[[self textColor] colorWithAlphaComponent:alpha]];
   }
   [super drawRect:r];
 }
