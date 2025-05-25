@@ -64,6 +64,7 @@ static constexpr int FONT_LEN = 64;
 /** @enum EBlend Porter-Duff blend mode/compositing operators */
 enum class EBlend
 {
+  Clear,
   SrcOver,
   SrcIn,
   SrcOut,

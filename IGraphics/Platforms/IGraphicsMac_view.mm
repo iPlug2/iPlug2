@@ -399,6 +399,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   
   #if defined IGRAPHICS_METAL
   self.layer = [CAMetalLayer new];
+  self.layer.opaque = NO;
   [(CAMetalLayer*)[self layer] setPixelFormat:MTLPixelFormatBGRA8Unorm];
   ((CAMetalLayer*) self.layer).device = MTLCreateSystemDefaultDevice();
   

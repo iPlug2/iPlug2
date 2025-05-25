@@ -934,6 +934,11 @@ void IGraphics::DrawControl(IControl* pControl, const IRECT& bounds, float scale
 
 void IGraphics::Draw(const IRECT& bounds, float scale)
 {
+  PrepareRegion(bounds);
+  IBlend blend(EBlend::Clear);
+  FillRect(COLOR_TRANSPARENT, bounds, &blend);
+  CompleteRegion(bounds);
+    
   ForAllControlsFunc([this, bounds, scale](IControl* pControl) { DrawControl(pControl, bounds, scale); });
 
 #ifndef NDEBUG

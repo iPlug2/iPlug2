@@ -188,6 +188,7 @@ SkBlendMode SkiaBlendMode(const IBlend* pBlend)
     
   switch (pBlend->mMethod)
   {
+    case EBlend::Clear:        return SkBlendMode::kClear;
     case EBlend::SrcOver:      return SkBlendMode::kSrcOver;
     case EBlend::SrcIn:        return SkBlendMode::kSrcIn;
     case EBlend::SrcOut:       return SkBlendMode::kSrcOut;
@@ -571,7 +572,9 @@ void IGraphicsSkia::EndFrame()
     #error NOT IMPLEMENTED
   #endif
 #else // GPU
-  mSurface->draw(mScreenSurface->getCanvas(), 0.0, 0.0, nullptr);
+  SkPaint paint;
+  paint.setBlendMode(SkBlendMode::kSrc);
+  mSurface->draw(mScreenSurface->getCanvas(), 0.0, 0.0, &paint);
 
   if (auto dContext = GrAsDirectContext(mScreenSurface->getCanvas()->recordingContext())) {
     dContext->flushAndSubmit();
