@@ -36,16 +36,6 @@ steps:
     displayName: (Optionally) clone ${{ parameters.name }} repo
 
   - bash: |
-      graphics=${{parameters.graphics}}
-      if [ $graphics = "CANVAS" ]
-      then
-        cd ./${{ parameters.path }}/${{ parameters.name }}/config
-        sed -i.bu 's/-DIGRAPHICS_NANOVG -DIGRAPHICS_GLES2/-DIGRAPHICS_CANVAS/' ${{ parameters.name }}-web.mk
-        sed -i.bu 's/WEB_LDFLAGS += $(NANOVG_LDFLAGS)/\/\/WEB_LDFLAGS += $(NANOVG_LDFLAGS)/' ${{ parameters.name }}-web.mk
-      fi
-    displayName: Set graphics string to ${{parameters.graphics}}
-
-  - bash: |
       cd emsdk
       source ./emsdk_env.sh
       cd ..

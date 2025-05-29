@@ -63,10 +63,6 @@
     sk_sp<SkSurface> mSurface;
   };
   #define BITMAP_DATA_TYPE SkiaDrawable*
-#elif defined IGRAPHICS_CANVAS
-  #include <emscripten.h>
-  #include <emscripten/val.h>
-  #define BITMAP_DATA_TYPE emscripten::val*
 #else // NO_IGRAPHICS
   #define BITMAP_DATA_TYPE void*;
 #endif
