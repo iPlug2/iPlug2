@@ -1612,6 +1612,9 @@ public:
    * @param y Where the Y position will be stored */
   void GetMouseDownPoint(float& x, float&y) const { x = mMouseDownX; y = mMouseDownY; }
   
+  /** Get the current mouse down state. */
+  bool GetMouseIsDown() const { return mMouseIsDown; }
+  
   /**  Set by the platform class if the mouse input is coming from a tablet/stylus
    * @param tablet \c true means input is from a tablet */
   void SetTabletInput(bool tablet) { mTabletInput = tablet; }
@@ -1844,6 +1847,7 @@ private:
   int mMouseOverIdx = -1;
   float mMouseDownX = -1.f;
   float mMouseDownY = -1.f;
+  bool mMouseIsDown = false;
   float mMinScale;
   float mMaxScale;
   int mLastClickedParam = kNoParameter;
