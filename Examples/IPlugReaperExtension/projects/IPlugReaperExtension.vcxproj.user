@@ -10,12 +10,12 @@
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
     <LocalDebuggerCommand>$(ProgramW6432)\REAPER (x64)\reaper.exe</LocalDebuggerCommand>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64EC'">
     <LocalDebuggerCommand>$(ProgramW6432)\REAPER (x64)\reaper.exe</LocalDebuggerCommand>
     <LocalDebuggerCommandArguments>"$(SolutionDir)$(SolutionName).RPP"</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64EC'">
     <LocalDebuggerCommand>$(ProgramW6432)\REAPER (x64)\reaper.exe</LocalDebuggerCommand>
     <LocalDebuggerCommandArguments>"$(SolutionDir)$(SolutionName).RPP"</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>

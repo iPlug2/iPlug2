@@ -15,19 +15,19 @@
     <LocalDebuggerCommandArguments>$(VST3_64_COMMAND_ARGS)</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LocalDebuggerCommand>$(VST3_32_HOST_PATH)</LocalDebuggerCommand>
-    <LocalDebuggerCommandArguments>$(VST3_32_COMMAND_ARGS)</LocalDebuggerCommandArguments>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64EC'">
+    <LocalDebuggerCommand>$(VST3_ARM64EC_HOST_PATH)</LocalDebuggerCommand>
+    <LocalDebuggerCommandArguments>$(VST3_ARM64EC_COMMAND_ARGS)</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <LocalDebuggerCommand>$(VST3_32_HOST_PATH)</LocalDebuggerCommand>
-    <LocalDebuggerCommandArguments>$(VST3_32_COMMAND_ARGS)</LocalDebuggerCommandArguments>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64EC'">
+    <LocalDebuggerCommand>$(VST3_ARM64EC_HOST_PATH)</LocalDebuggerCommand>
+    <LocalDebuggerCommandArguments>$(VST3_ARM64EC_COMMAND_ARGS)</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Tracer|Win32'">
-    <LocalDebuggerCommand>$(VST3_32_HOST_PATH)</LocalDebuggerCommand>
-    <LocalDebuggerCommandArguments>$(VST3_32_COMMAND_ARGS)</LocalDebuggerCommandArguments>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Tracer|ARM64EC'">
+    <LocalDebuggerCommand>$(VST3_ARM64EC_HOST_PATH)</LocalDebuggerCommand>
+    <LocalDebuggerCommandArguments>$(VST3_ARM64EC_COMMAND_ARGS)</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
 </Project>

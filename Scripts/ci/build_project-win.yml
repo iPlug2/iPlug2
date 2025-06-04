@@ -6,6 +6,7 @@ parameters:
   artifactName: ''
   srcRepo: 'none'
   srcBranch: 'master'
+  architecture: 'x64'  # New parameter for architecture
 
 steps:
   - bash: |
@@ -38,94 +39,94 @@ steps:
     inputs:
       solution: '${{parameters.path}}/${{parameters.name}}/${{parameters.name}}.sln'
       vsVersion: '17.0'
-      platform: x64
+      platform: ${{parameters.architecture}}
       msbuildArgs: /t:${{parameters.name}}-vst2
       configuration: '${{parameters.configuration}}'
-    displayName: Compile ${{parameters.name}} VST2 x64
+    displayName: Compile ${{parameters.name}} VST2 ${{parameters.architecture}}
     condition: eq(variables.build_vst2, True) 
 
   - task: VSBuild@1
     inputs:
       solution: '${{parameters.path}}/${{parameters.name}}/${{parameters.name}}.sln'
       vsVersion: '17.0'
-      platform: x64
+      platform: ${{parameters.architecture}}
       msbuildArgs: /t:${{parameters.name}}-vst3
       configuration: '${{parameters.configuration}}'
-    displayName: Compile ${{parameters.name}} VST3 x64
+    displayName: Compile ${{parameters.name}} VST3 ${{parameters.architecture}}
     condition: eq(variables.build_vst3, True) 
 
   - task: VSBuild@1
     inputs:
       solution: '${{parameters.path}}/${{parameters.name}}/${{parameters.name}}.sln'
       vsVersion: '17.0'
-      platform: x64
+      platform: ${{parameters.architecture}}
       msbuildArgs: /t:${{parameters.name}}-aax
       configuration: '${{parameters.configuration}}'
-    displayName: Compile ${{parameters.name}} AAX x64
+    displayName: Compile ${{parameters.name}} AAX ${{parameters.architecture}}
     condition: eq(variables.build_aax, True) 
 
   - task: VSBuild@1
     inputs:
       solution: '${{parameters.path}}/${{parameters.name}}/${{parameters.name}}.sln'
       vsVersion: '17.0'
-      platform: x64
+      platform: ${{parameters.architecture}}
       msbuildArgs: /t:${{parameters.name}}-app
       configuration: '${{parameters.configuration}}'
-    displayName: Compile ${{parameters.name}} APP x64
+    displayName: Compile ${{parameters.name}} APP ${{parameters.architecture}}
     condition: eq(variables.build_app, True) 
 
   - bash: |
-      mkdir -p $BUILD_ARTIFACTSTAGINGDIRECTORY/APP/${{parameters.name}}
-      mv ${{parameters.path}}/${{parameters.name}}/build-win/${{parameters.name}}_x64.exe $BUILD_ARTIFACTSTAGINGDIRECTORY/APP/${{parameters.name}}
-      mv ${{parameters.path}}/${{parameters.name}}/build-win/pdbs/${{parameters.name}}-app_x64.pdb $BUILD_ARTIFACTSTAGINGDIRECTORY/APP/${{parameters.name}} 
+      mkdir -p $BUILD_ARTIFACTSTAGINGDIRECTORY/APP/${{parameters.name}}/${{parameters.architecture}}
+      mv ${{parameters.path}}/${{parameters.name}}/build-win/${{parameters.name}}_${{parameters.architecture}}.exe $BUILD_ARTIFACTSTAGINGDIRECTORY/APP/${{parameters.name}}/${{parameters.architecture}}
+      mv ${{parameters.path}}/${{parameters.name}}/build-win/pdbs/${{parameters.name}}-app_${{parameters.architecture}}.pdb $BUILD_ARTIFACTSTAGINGDIRECTORY/APP/${{parameters.name}}/${{parameters.architecture}}
     displayName: Organize APP artifact
     condition: eq(variables.build_app, True) 
 
   - bash: |
-      mkdir -p $BUILD_ARTIFACTSTAGINGDIRECTORY/VST3/${{parameters.name}}
-      mv ${{parameters.path}}/${{parameters.name}}/build-win/${{parameters.name}}.vst3* $BUILD_ARTIFACTSTAGINGDIRECTORY/VST3/${{parameters.name}} # must move VST3 first
-      mv ${{parameters.path}}/${{parameters.name}}/build-win/pdbs/${{parameters.name}}-vst3_x64.pdb $BUILD_ARTIFACTSTAGINGDIRECTORY/VST3/${{parameters.name}}
+      mkdir -p $BUILD_ARTIFACTSTAGINGDIRECTORY/VST3/${{parameters.name}}/${{parameters.architecture}}
+      mv ${{parameters.path}}/${{parameters.name}}/build-win/${{parameters.name}}.vst3* $BUILD_ARTIFACTSTAGINGDIRECTORY/VST3/${{parameters.name}}/${{parameters.architecture}}
+      mv ${{parameters.path}}/${{parameters.name}}/build-win/pdbs/${{parameters.name}}-vst3_${{parameters.architecture}}.pdb $BUILD_ARTIFACTSTAGINGDIRECTORY/VST3/${{parameters.name}}/${{parameters.architecture}}
     displayName: Organize VST3 artifact
     condition: eq(variables.build_vst3, True) 
 
   - bash: |
-      mkdir -p $BUILD_ARTIFACTSTAGINGDIRECTORY/VST2/${{parameters.name}}
-      mv ${{parameters.path}}/${{parameters.name}}/build-win/${{parameters.name}}_x64.dll $BUILD_ARTIFACTSTAGINGDIRECTORY/VST2/${{parameters.name}}
-      mv ${{parameters.path}}/${{parameters.name}}/build-win/pdbs/${{parameters.name}}-vst2_x64.pdb $BUILD_ARTIFACTSTAGINGDIRECTORY/VST2/${{parameters.name}}
+      mkdir -p $BUILD_ARTIFACTSTAGINGDIRECTORY/VST2/${{parameters.name}}/${{parameters.architecture}}
+      mv ${{parameters.path}}/${{parameters.name}}/build-win/${{parameters.name}}_${{parameters.architecture}}.dll $BUILD_ARTIFACTSTAGINGDIRECTORY/VST2/${{parameters.name}}/${{parameters.architecture}}
+      mv ${{parameters.path}}/${{parameters.name}}/build-win/pdbs/${{parameters.name}}-vst2_${{parameters.architecture}}.pdb $BUILD_ARTIFACTSTAGINGDIRECTORY/VST2/${{parameters.name}}/${{parameters.architecture}}
     displayName: Organize VST2 artifact
     condition: eq(variables.build_vst2, True)     
 
   - bash: |
-      mkdir -p $BUILD_ARTIFACTSTAGINGDIRECTORY/AAX/${{parameters.name}}
-      mv ${{parameters.path}}/${{parameters.name}}/build-win/${{parameters.name}}.aaxplugin* $BUILD_ARTIFACTSTAGINGDIRECTORY/AAX/${{parameters.name}}
-      mv ${{parameters.path}}/${{parameters.name}}/build-win/pdbs/${{parameters.name}}-aax_x64.pdb $BUILD_ARTIFACTSTAGINGDIRECTORY/AAX/${{parameters.name}}
+      mkdir -p $BUILD_ARTIFACTSTAGINGDIRECTORY/AAX/${{parameters.name}}/${{parameters.architecture}}
+      mv ${{parameters.path}}/${{parameters.name}}/build-win/${{parameters.name}}.aaxplugin* $BUILD_ARTIFACTSTAGINGDIRECTORY/AAX/${{parameters.name}}/${{parameters.architecture}}
+      mv ${{parameters.path}}/${{parameters.name}}/build-win/pdbs/${{parameters.name}}-aax_${{parameters.architecture}}.pdb $BUILD_ARTIFACTSTAGINGDIRECTORY/AAX/${{parameters.name}}/${{parameters.architecture}}
     displayName: Organize AAX artifact
     condition: eq(variables.build_aax, True)    
 
   - task: PublishPipelineArtifact@0
     inputs:
-      artifactName: 'WIN_VST2_${{parameters.artifactName}}'
-      targetPath: '$(Build.ArtifactStagingDirectory)/VST2/${{parameters.name}}'
-    displayName: Publish ${{parameters.name}} VST2
+      artifactName: 'WIN_VST2_${{parameters.artifactName}}_${{parameters.architecture}}'
+      targetPath: '$(Build.ArtifactStagingDirectory)/VST2/${{parameters.name}}/${{parameters.architecture}}'
+    displayName: Publish ${{parameters.name}} VST2 ${{parameters.architecture}}
     condition: eq(variables.build_vst2, True) 
 
   - task: PublishPipelineArtifact@0
     inputs:
-      artifactName: 'WIN_VST3_${{parameters.artifactName}}'
-      targetPath: '$(Build.ArtifactStagingDirectory)/VST3/${{parameters.name}}'
-    displayName: Publish ${{parameters.name}} VST3
+      artifactName: 'WIN_VST3_${{parameters.artifactName}}_${{parameters.architecture}}'
+      targetPath: '$(Build.ArtifactStagingDirectory)/VST3/${{parameters.name}}/${{parameters.architecture}}'
+    displayName: Publish ${{parameters.name}} VST3 ${{parameters.architecture}}
     condition: eq(variables.build_vst3, True) 
 
   - task: PublishPipelineArtifact@0
     inputs:
-      artifactName: 'WIN_AAX_${{parameters.artifactName}}'
-      targetPath: '$(Build.ArtifactStagingDirectory)/AAX/${{parameters.name}}'
-    displayName: Publish ${{parameters.name}} AAX
+      artifactName: 'WIN_AAX_${{parameters.artifactName}}_${{parameters.architecture}}'
+      targetPath: '$(Build.ArtifactStagingDirectory)/AAX/${{parameters.name}}/${{parameters.architecture}}'
+    displayName: Publish ${{parameters.name}} AAX ${{parameters.architecture}}
     condition: eq(variables.build_aax, True) 
 
   - task: PublishPipelineArtifact@0
     inputs:
-      artifactName: 'WIN_APP_${{parameters.artifactName}}'
-      targetPath: '$(Build.ArtifactStagingDirectory)/APP/${{parameters.name}}'
-    displayName: Publish ${{parameters.name}} APP
+      artifactName: 'WIN_APP_${{parameters.artifactName}}_${{parameters.architecture}}'
+      targetPath: '$(Build.ArtifactStagingDirectory)/APP/${{parameters.name}}/${{parameters.architecture}}'
+    displayName: Publish ${{parameters.name}} APP ${{parameters.architecture}}
     condition: eq(variables.build_app, True) 

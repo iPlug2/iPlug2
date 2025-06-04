@@ -58,10 +58,12 @@ jobs:
 
   strategy:
     matrix:
-      NANOVG:
+      x64_NANOVG:
         graphics: 'NANOVG'
-      SKIA:
-        graphics: 'SKIA'
+        architecture: 'x64'
+      ARM64EC_NANOVG:
+        graphics: 'NANOVG'
+        architecture: 'ARM64EC'
 
   pool:
     vmImage: 'windows-2022'
@@ -81,6 +83,7 @@ jobs:
     parameters:
       platform: build_project-win.yml
       graphics: $(graphics)
+      architecture: $(architecture)
 
 - job: BUILD_WEB_PROJECTS
   condition: and(eq(variables.build_deps, false), eq(variables.build_web, true))
