@@ -684,14 +684,18 @@ static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
   }
 }
 
-- (IMouseInfo) getMouseLeft: (NSEvent*) pEvent
-{
-  IMouseInfo info;
-  [self getMouseXY:pEvent : info.x : info.y];
-  int mods = (int) [pEvent modifierFlags];
-  info.ms = IMouseMod(true, (mods & NSCommandKeyMask), (mods & NSShiftKeyMask), (mods & NSControlKeyMask), (mods & NSAlternateKeyMask));
+- (IMouseInfo) getMouseLeft: (NSEvent*) pEvent {
+    IMouseInfo info;
+    [self getMouseXY:pEvent : info.x : info.y];
+    int mods = (int) [pEvent modifierFlags];
 
-  return info;
+    info.ms = IMouseMod(([pEvent type] == NSEventTypeLeftMouseDown) || ([pEvent type] == NSEventTypeLeftMouseDragged),
+                        (mods & NSCommandKeyMask),
+                        (mods & NSShiftKeyMask),
+                        (mods & NSControlKeyMask),
+                        (mods & NSAlternateKeyMask));
+
+    return info;
 }
 
 - (IMouseInfo) getMouseRight: (NSEvent*) pEvent
