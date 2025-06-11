@@ -1854,7 +1854,7 @@ int EEL_Editor::onChar(int c)
           (c == '\r' && (m_suggestion_hwnd_sel>=0 || SHIFT_KEY_DOWN)))
       {
         char buf[512];
-        int sug_mode;
+        int sug_mode = 0;
         const char *ptr = m_suggestion_list.get(wdl_max(m_suggestion_hwnd_sel,0), &sug_mode);
         lstrcpyn_safe(buf,ptr?ptr:"",sizeof(buf));
 
