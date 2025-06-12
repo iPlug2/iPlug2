@@ -1,0 +1,172 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// Neutral (Default) (unknown sub-lang: 0x3) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ZZZ)
+LANGUAGE LANG_NEUTRAL, 0x3
+#pragma code_page(936)
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDB_HSLIDER             BITMAP                  "..\\standalone-helpers\\cockos_hslider.bmp"
+#endif    // Neutral (Default) (unknown sub-lang: 0x3) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// English (United States) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_SXUI DIALOGEX 0, 0, 326, 278
+STYLE DS_SETFONT | DS_FIXEDSYS | DS_CONTROL | WS_CHILD
+FONT 8, "MS Shell Dlg", 0, 0, 0x0
+BEGIN
+    CTEXT           "Effect name",IDC_EFFECTNAME,19,0,242,12,SS_NOPREFIX | SS_CENTERIMAGE | SS_SUNKEN
+    PUSHBUTTON      "+",IDC_BUTTON1,265,0,12,12
+    PUSHBUTTON      "Edit...",IDC_EDITFX,279,0,26,12
+    LTEXT           "Triggers:",IDC_TRIGLBL,21,16,28,8
+    PUSHBUTTON      "&0",IDC_TRIG0,53,13,14,14
+    PUSHBUTTON      "&1",IDC_TRIG1,71,13,14,14
+    PUSHBUTTON      "&2",IDC_TRIG2,89,13,14,14
+    PUSHBUTTON      "&3",IDC_TRIG3,107,13,14,14
+    PUSHBUTTON      "&4",IDC_TRIG4,125,13,14,14
+    PUSHBUTTON      "&5",IDC_TRIG5,143,13,14,14
+    PUSHBUTTON      "&6",IDC_TRIG6,161,13,14,14
+    PUSHBUTTON      "&7",IDC_TRIG7,179,13,14,14
+    PUSHBUTTON      "&8",IDC_TRIG8,197,13,14,14
+    PUSHBUTTON      "&9",IDC_TRIG9,215,13,14,14
+    CONTROL         "",IDC_INVU,"jsfx_meter",WS_TABSTOP,1,1,16,275
+    CONTROL         "",IDC_OUTVU,"jsfx_meter",WS_TABSTOP,308,1,16,275
+END
+
+IDD_VST_CFG DIALOG 0, 0, 337, 334
+STYLE DS_SETFONT | DS_CONTROL | WS_CHILD
+FONT 8, "MS Shell Dlg"
+BEGIN
+    LTEXT           "Effect:",IDC_CUREFFECT,6,11,283,11,SS_SUNKEN
+    CONTROL         "",IDC_RECT,"Static",SS_BLACKFRAME | NOT WS_VISIBLE,6,26,325,299
+    GROUPBOX        "ReaJS",IDC_FRAME,0,0,335,332
+    PUSHBUTTON      "Load",IDC_BUTTON1,291,10,39,14
+END
+
+IDD_JSDEBUG DIALOG 0, 0, 505, 239
+STYLE DS_SETFONT | WS_MAXIMIZEBOX | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
+CAPTION "JS Development Environment"
+FONT 8, "MS Shell Dlg"
+BEGIN
+    CONTROL         "",IDC_EDIT_RECT,"WDLCursesWindow",WS_TABSTOP,0,3,342,236
+    PUSHBUTTON      "Full recompile/reset",IDC_BUTTON2,344,1,72,14
+    PUSHBUTTON      "Refresh now",IDC_BUTTON1,344,225,57,14
+    CONTROL         "Auto-refresh",IDC_CHECK2,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,405,229,54,10
+    CONTROL         "List1",IDC_LIST1,"SysListView32",LVS_REPORT | LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP,345,18,160,193
+    PUSHBUTTON      "Open in external editor",IDC_BUTTON3,420,1,85,14
+    EDITTEXT        IDC_WATCH_FILTER,345,212,160,12,ES_AUTOHSCROLL
+END
+
+IDD_VST_CFG2 DIALOG 0, 0, 337, 334
+STYLE DS_SETFONT | DS_CONTROL | WS_CHILD
+FONT 8, "MS Shell Dlg"
+BEGIN
+    CONTROL         "",IDC_RECT,"Static",SS_BLACKFRAME | NOT WS_VISIBLE,6,9,325,316
+    GROUPBOX        "ReaJS",IDC_FRAME,0,0,335,332
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO
+BEGIN
+    IDD_SXUI, DIALOG
+    BEGIN
+        BOTTOMMARGIN, 276
+    END
+
+    IDD_VST_CFG, DIALOG
+    BEGIN
+        RIGHTMARGIN, 335
+        BOTTOMMARGIN, 332
+    END
+
+    IDD_JSDEBUG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        TOPMARGIN, 7
+    END
+
+    IDD_VST_CFG2, DIALOG
+    BEGIN
+        RIGHTMARGIN, 335
+        BOTTOMMARGIN, 332
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+#endif    // English (United States) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+
