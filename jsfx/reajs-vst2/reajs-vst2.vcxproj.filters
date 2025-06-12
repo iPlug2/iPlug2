@@ -1,0 +1,513 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Source Files\WDL">
+      <UniqueIdentifier>{ee586c5e-3523-4085-a83f-c6a52f766bf3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Source Files\WDL\eel2">
+      <UniqueIdentifier>{063dde63-445c-41cd-be3e-a4b701c6c639}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\WDL\lice">
+      <UniqueIdentifier>{9e473a0d-c398-4db8-bd42-fc17a499d1b1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\WDL\zlib">
+      <UniqueIdentifier>{0a64726c-22b0-4e15-82fc-d811e1bba462}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\WDL\libpng">
+      <UniqueIdentifier>{f13e9a7c-7daa-457d-9498-2993aff6f308}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\WDL\jpeglib">
+      <UniqueIdentifier>{c6fa19e0-0ce9-49b3-9d6c-0408389868c9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\jsfx">
+      <UniqueIdentifier>{0b4c8116-2290-4d92-ab2c-1beeff3a4d18}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\jsfx\standalone-helpers">
+      <UniqueIdentifier>{35a6f1eb-5866-4b1a-9a17-287dfa35c289}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="vstframe.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\effectload.cpp">
+      <Filter>Source Files\jsfx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\effectproc.cpp">
+      <Filter>Source Files\jsfx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\miscfunc.cpp">
+      <Filter>Source Files\jsfx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\sfx_edit.cpp">
+      <Filter>Source Files\jsfx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\sfxui.cpp">
+      <Filter>Source Files\jsfx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\fft.c">
+      <Filter>Source Files\WDL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\wingui\wndsize.cpp">
+      <Filter>Source Files\WDL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\eel2\nseel-caltab.c">
+      <Filter>Source Files\WDL\eel2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\eel2\nseel-cfunc.c">
+      <Filter>Source Files\WDL\eel2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\eel2\nseel-compiler.c">
+      <Filter>Source Files\WDL\eel2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\eel2\nseel-eval.c">
+      <Filter>Source Files\WDL\eel2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\eel2\nseel-lextab.c">
+      <Filter>Source Files\WDL\eel2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\eel2\nseel-ram.c">
+      <Filter>Source Files\WDL\eel2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\eel2\nseel-yylex.c">
+      <Filter>Source Files\WDL\eel2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\lice\lice_arc.cpp">
+      <Filter>Source Files\WDL\lice</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\lice\lice_bmp.cpp">
+      <Filter>Source Files\WDL\lice</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\lice\lice_colorspace.cpp">
+      <Filter>Source Files\WDL\lice</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\lice\lice_ico.cpp">
+      <Filter>Source Files\WDL\lice</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\lice\lice_image.cpp">
+      <Filter>Source Files\WDL\lice</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\lice\lice_jpg.cpp">
+      <Filter>Source Files\WDL\lice</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\lice\lice_line.cpp">
+      <Filter>Source Files\WDL\lice</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\lice\lice_lvg.cpp">
+      <Filter>Source Files\WDL\lice</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\lice\lice_pcx.cpp">
+      <Filter>Source Files\WDL\lice</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\lice\lice_png.cpp">
+      <Filter>Source Files\WDL\lice</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\lice\lice_text.cpp">
+      <Filter>Source Files\WDL\lice</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\lice\lice_textnew.cpp">
+      <Filter>Source Files\WDL\lice</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\libpng\png.c">
+      <Filter>Source Files\WDL\libpng</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\libpng\pngerror.c">
+      <Filter>Source Files\WDL\libpng</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\libpng\pngget.c">
+      <Filter>Source Files\WDL\libpng</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\libpng\pngmem.c">
+      <Filter>Source Files\WDL\libpng</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\libpng\pngpread.c">
+      <Filter>Source Files\WDL\libpng</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\libpng\pngread.c">
+      <Filter>Source Files\WDL\libpng</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\libpng\pngrio.c">
+      <Filter>Source Files\WDL\libpng</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\libpng\pngrtran.c">
+      <Filter>Source Files\WDL\libpng</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\libpng\pngrutil.c">
+      <Filter>Source Files\WDL\libpng</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\libpng\pngset.c">
+      <Filter>Source Files\WDL\libpng</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\libpng\pngtrans.c">
+      <Filter>Source Files\WDL\libpng</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\jpeglib\jcapimin.c">
+      <Filter>Source Files\WDL\jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\jpeglib\jcapistd.c">
+      <Filter>Source Files\WDL\jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\jpeglib\jccoefct.c">
+      <Filter>Source Files\WDL\jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\jpeglib\jccolor.c">
+      <Filter>Source Files\WDL\jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\jpeglib\jcdctmgr.c">
+      <Filter>Source Files\WDL\jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\jpeglib\jchuff.c">
+      <Filter>Source Files\WDL\jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\jpeglib\jcinit.c">
+      <Filter>Source Files\WDL\jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\jpeglib\jcmainct.c">
+      <Filter>Source Files\WDL\jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\jpeglib\jcmarker.c">
+      <Filter>Source Files\WDL\jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\jpeglib\jcmaster.c">
+      <Filter>Source Files\WDL\jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\jpeglib\jcomapi.c">
+      <Filter>Source Files\WDL\jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\jpeglib\jcparam.c">
+      <Filter>Source Files\WDL\jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\jpeglib\jcphuff.c">
+      <Filter>Source Files\WDL\jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\jpeglib\jcprepct.c">
+      <Filter>Source Files\WDL\jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\jpeglib\jcsample.c">
+      <Filter>Source Files\WDL\jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\jpeglib\jctrans.c">
+      <Filter>Source Files\WDL\jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\jpeglib\jdapimin.c">
+      <Filter>Source Files\WDL\jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\jpeglib\jdapistd.c">
+      <Filter>Source Files\WDL\jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\jpeglib\jdatadst.c">
+      <Filter>Source Files\WDL\jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\jpeglib\jdatasrc.c">
+      <Filter>Source Files\WDL\jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\jpeglib\jdcoefct.c">
+      <Filter>Source Files\WDL\jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\jpeglib\jdcolor.c">
+      <Filter>Source Files\WDL\jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\jpeglib\jddctmgr.c">
+      <Filter>Source Files\WDL\jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\jpeglib\jdhuff.c">
+      <Filter>Source Files\WDL\jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\jpeglib\jdinput.c">
+      <Filter>Source Files\WDL\jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\jpeglib\jdmainct.c">
+      <Filter>Source Files\WDL\jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\jpeglib\jdmarker.c">
+      <Filter>Source Files\WDL\jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\jpeglib\jdmaster.c">
+      <Filter>Source Files\WDL\jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\jpeglib\jdmerge.c">
+      <Filter>Source Files\WDL\jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\jpeglib\jdphuff.c">
+      <Filter>Source Files\WDL\jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\jpeglib\jdpostct.c">
+      <Filter>Source Files\WDL\jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\jpeglib\jdsample.c">
+      <Filter>Source Files\WDL\jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\jpeglib\jdtrans.c">
+      <Filter>Source Files\WDL\jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\jpeglib\jerror.c">
+      <Filter>Source Files\WDL\jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\jpeglib\jfdctflt.c">
+      <Filter>Source Files\WDL\jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\jpeglib\jfdctfst.c">
+      <Filter>Source Files\WDL\jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\jpeglib\jfdctint.c">
+      <Filter>Source Files\WDL\jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\jpeglib\jidctflt.c">
+      <Filter>Source Files\WDL\jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\jpeglib\jidctfst.c">
+      <Filter>Source Files\WDL\jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\jpeglib\jidctint.c">
+      <Filter>Source Files\WDL\jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\jpeglib\jidctred.c">
+      <Filter>Source Files\WDL\jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\jpeglib\jmemmgr.c">
+      <Filter>Source Files\WDL\jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\jpeglib\jmemnobs.c">
+      <Filter>Source Files\WDL\jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\jpeglib\jquant1.c">
+      <Filter>Source Files\WDL\jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\jpeglib\jquant2.c">
+      <Filter>Source Files\WDL\jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\jpeglib\jutils.c">
+      <Filter>Source Files\WDL\jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\zlib\adler32.c">
+      <Filter>Source Files\WDL\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\zlib\compress.c">
+      <Filter>Source Files\WDL\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\zlib\crc32.c">
+      <Filter>Source Files\WDL\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\zlib\deflate.c">
+      <Filter>Source Files\WDL\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\zlib\infback.c">
+      <Filter>Source Files\WDL\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\zlib\inffast.c">
+      <Filter>Source Files\WDL\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\zlib\inflate.c">
+      <Filter>Source Files\WDL\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\zlib\inftrees.c">
+      <Filter>Source Files\WDL\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\zlib\trees.c">
+      <Filter>Source Files\WDL\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\zlib\uncompr.c">
+      <Filter>Source Files\WDL\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\zlib\zutil.c">
+      <Filter>Source Files\WDL\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\win32_curses\curses_win32.cpp">
+      <Filter>Source Files\WDL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\win32_curses\curses_editor.cpp">
+      <Filter>Source Files\WDL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\win32_curses\eel_edit.cpp">
+      <Filter>Source Files\WDL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\localize\localize.cpp">
+      <Filter>Source Files\WDL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WDL\lice\lice.cpp">
+      <Filter>Source Files\WDL\lice</Filter>
+    </ClCompile>
+    <ClCompile Include="..\standalone-helpers\meter-control.cpp">
+      <Filter>Source Files\jsfx\standalone-helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\standalone-helpers\slider-control.cpp">
+      <Filter>Source Files\jsfx\standalone-helpers</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\effectlist.h">
+      <Filter>Source Files\jsfx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\effectproc.h">
+      <Filter>Source Files\jsfx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\miscfunc.h">
+      <Filter>Source Files\jsfx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\sfxui.h">
+      <Filter>Source Files\jsfx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\WDL\wingui\wndsize.h">
+      <Filter>Source Files\WDL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\WDL\eel2\eel_fft.h">
+      <Filter>Source Files\WDL\eel2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\WDL\eel2\eel_lice.h">
+      <Filter>Source Files\WDL\eel2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\WDL\eel2\eel_mdct.h">
+      <Filter>Source Files\WDL\eel2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\WDL\eel2\eel_misc.h">
+      <Filter>Source Files\WDL\eel2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\WDL\eel2\eel_strings.h">
+      <Filter>Source Files\WDL\eel2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\WDL\eel2\glue_port.h">
+      <Filter>Source Files\WDL\eel2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\WDL\eel2\glue_ppc.h">
+      <Filter>Source Files\WDL\eel2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\WDL\eel2\glue_x86.h">
+      <Filter>Source Files\WDL\eel2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\WDL\eel2\glue_x86_64.h">
+      <Filter>Source Files\WDL\eel2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\WDL\eel2\ns-eel.h">
+      <Filter>Source Files\WDL\eel2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\WDL\eel2\ns-eel-addfuncs.h">
+      <Filter>Source Files\WDL\eel2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\WDL\eel2\ns-eel-int.h">
+      <Filter>Source Files\WDL\eel2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\WDL\lice\lice_combine.h">
+      <Filter>Source Files\WDL\lice</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\WDL\lice\lice_extended.h">
+      <Filter>Source Files\WDL\lice</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\WDL\lice\lice_text.h">
+      <Filter>Source Files\WDL\lice</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\WDL\libpng\png.h">
+      <Filter>Source Files\WDL\libpng</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\WDL\libpng\pngconf.h">
+      <Filter>Source Files\WDL\libpng</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\WDL\libpng\pngdebug.h">
+      <Filter>Source Files\WDL\libpng</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\WDL\libpng\pnginfo.h">
+      <Filter>Source Files\WDL\libpng</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\WDL\libpng\pnglibconf.h">
+      <Filter>Source Files\WDL\libpng</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\WDL\libpng\pngpriv.h">
+      <Filter>Source Files\WDL\libpng</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\WDL\libpng\pngstruct.h">
+      <Filter>Source Files\WDL\libpng</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\WDL\jpeglib\jchuff.h">
+      <Filter>Source Files\WDL\jpeglib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\WDL\jpeglib\jconfig.h">
+      <Filter>Source Files\WDL\jpeglib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\WDL\jpeglib\jdct.h">
+      <Filter>Source Files\WDL\jpeglib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\WDL\jpeglib\jdhuff.h">
+      <Filter>Source Files\WDL\jpeglib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\WDL\jpeglib\jerror.h">
+      <Filter>Source Files\WDL\jpeglib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\WDL\jpeglib\jinclude.h">
+      <Filter>Source Files\WDL\jpeglib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\WDL\jpeglib\jmemsys.h">
+      <Filter>Source Files\WDL\jpeglib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\WDL\jpeglib\jmorecfg.h">
+      <Filter>Source Files\WDL\jpeglib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\WDL\jpeglib\jpegint.h">
+      <Filter>Source Files\WDL\jpeglib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\WDL\jpeglib\jpeglib.h">
+      <Filter>Source Files\WDL\jpeglib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\WDL\jpeglib\jversion.h">
+      <Filter>Source Files\WDL\jpeglib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\WDL\zlib\crc32.h">
+      <Filter>Source Files\WDL\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\WDL\zlib\deflate.h">
+      <Filter>Source Files\WDL\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\WDL\zlib\inffast.h">
+      <Filter>Source Files\WDL\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\WDL\zlib\inffixed.h">
+      <Filter>Source Files\WDL\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\WDL\zlib\inflate.h">
+      <Filter>Source Files\WDL\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\WDL\zlib\inftrees.h">
+      <Filter>Source Files\WDL\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\WDL\zlib\trees.h">
+      <Filter>Source Files\WDL\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\WDL\zlib\zconf.h">
+      <Filter>Source Files\WDL\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\WDL\zlib\zlib.h">
+      <Filter>Source Files\WDL\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\WDL\zlib\zutil.h">
+      <Filter>Source Files\WDL\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Object Include="..\..\WDL\eel2\asm-nseel-x64.obj">
+      <Filter>Source Files\WDL\eel2</Filter>
+    </Object>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="res.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\standalone-helpers\cockos_hslider.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
+</Project>

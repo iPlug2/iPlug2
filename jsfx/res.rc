@@ -1,0 +1,162 @@
+//Microsoft Developer Studio generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_SXUI DIALOG DISCARDABLE  0, 0, 326, 278
+STYLE DS_CONTROL | WS_CHILD
+FONT 8, "MS Shell Dlg"
+BEGIN
+    COMBOBOX        IDC_COMBO1,19,1,175,145,CBS_DROPDOWNLIST | WS_VSCROLL | 
+                    WS_TABSTOP
+    PUSHBUTTON      "+",IDC_BUTTON1,197,1,12,12
+    PUSHBUTTON      "Param",IDC_LASTPARM,211,1,30,12,BS_CENTER
+    PUSHBUTTON      "I/O",IDC_IO,243,1,37,12
+    CONTROL         "",IDC_KNOB,"REAPERknob",0x0,281,0,14,14
+    CONTROL         "",IDC_BYPASS_FX,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
+                    297,3,10,8
+    CTEXT           "Effect name",IDC_EFFECTNAME,19,19,252,12,SS_NOPREFIX | 
+                    SS_CENTERIMAGE | SS_SUNKEN
+    PUSHBUTTON      "Edit...",IDC_EDITFX,274,19,31,12
+    LTEXT           "Triggers:",IDC_TRIGLBL,21,35,28,8
+    PUSHBUTTON      "&0",IDC_TRIG0,53,32,14,14
+    PUSHBUTTON      "&1",IDC_TRIG1,71,32,14,14
+    PUSHBUTTON      "&2",IDC_TRIG2,89,32,14,14
+    PUSHBUTTON      "&3",IDC_TRIG3,107,32,14,14
+    PUSHBUTTON      "&4",IDC_TRIG4,125,32,14,14
+    PUSHBUTTON      "&5",IDC_TRIG5,143,32,14,14
+    PUSHBUTTON      "&6",IDC_TRIG6,161,32,14,14
+    PUSHBUTTON      "&7",IDC_TRIG7,179,32,14,14
+    PUSHBUTTON      "&8",IDC_TRIG8,197,32,14,14
+    PUSHBUTTON      "&9",IDC_TRIG9,215,32,14,14
+    CONTROL         "",IDC_INVU,"REAPERvertvu",WS_TABSTOP,1,1,16,275
+    CONTROL         "",IDC_OUTVU,"REAPERvertvu",WS_TABSTOP,308,1,16,275
+END
+
+IDD_JSDEBUG DIALOG DISCARDABLE  0, 0, 505, 239
+STYLE WS_MAXIMIZEBOX | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
+CAPTION "JS Development Environment"
+FONT 8, "MS Shell Dlg"
+BEGIN
+    CONTROL         "",IDC_EDIT_RECT,"WDLCursesWindow",WS_TABSTOP,0,3,342,
+                    236
+    PUSHBUTTON      "Full recompile/reset",IDC_BUTTON2,344,1,72,14
+    PUSHBUTTON      "Refresh now",IDC_BUTTON1,344,225,57,14
+    CONTROL         "Auto-refresh",IDC_CHECK2,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,405,229,54,10
+    CONTROL         "List1",IDC_LIST1,"SysListView32",LVS_REPORT | 
+                    LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP,345,18,160,193
+    PUSHBUTTON      "Open in external editor",IDC_BUTTON3,420,1,85,14
+    EDITTEXT        IDC_WATCH_FILTER,345,212,160,12,ES_AUTOHSCROLL
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    IDD_SXUI, DIALOG
+    BEGIN
+        BOTTOMMARGIN, 276
+    END
+
+    IDD_JSDEBUG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        TOPMARGIN, 7
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_MENU2 MENU DISCARDABLE 
+BEGIN
+    POPUP "PresetButton"
+    BEGIN
+        MENUITEM "Save preset...",              IDC_SAVE_PRESET
+        MENUITEM "Save preset as default...",   IDC_SAVE_PRESET_ASDEFAULT
+        MENUITEM "Delete preset",               IDC_DELETE_PRESET
+        MENUITEM "Rename preset...",            IDC_RENAME_PRESET
+        MENUITEM "Move up",                     IDC_MOVE_UP_PRESET
+        MENUITEM "Move down",                   IDC_MOVE_DOWN_PRESET
+        MENUITEM SEPARATOR
+        MENUITEM "Import preset library (.rpl)...", ID_IMPORT_RPL
+        MENUITEM "Export preset library (.rpl)...", ID_EXPORT_RPL
+        MENUITEM SEPARATOR
+        MENUITEM "Send all keyboard input to plug-in", ID_FX_WANTALLKB
+    END
+END
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+
