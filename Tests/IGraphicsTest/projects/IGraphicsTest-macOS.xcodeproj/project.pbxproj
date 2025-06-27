@@ -350,6 +350,38 @@
 		4FFBB93020863B0E00DDD0E7 /* fbuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8158C1205D50EB00393585 /* fbuffer.cpp */; };
 		4FFBB93420863B0E00DDD0E7 /* coreiids.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8158E0205D50EB00393585 /* coreiids.cpp */; };
 		4FFBB93520863B0E00DDD0E7 /* vstnoteexpressiontypes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F81588E205D50EB00393585 /* vstnoteexpressiontypes.cpp */; };
+		6FD408DC2DC7AB0300B81D0F /* libEGL.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6FD408D82DC7AB0300B81D0F /* libEGL.xcframework */; };
+		6FD408DD2DC7AB0300B81D0F /* libGLESv2.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6FD408D92DC7AB0300B81D0F /* libGLESv2.xcframework */; };
+		6FD408E42DC7AB0300B81D0F /* libEGL.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6FD408D82DC7AB0300B81D0F /* libEGL.xcframework */; };
+		6FD408E52DC7AB0300B81D0F /* libGLESv2.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6FD408D92DC7AB0300B81D0F /* libGLESv2.xcframework */; };
+		6FD409142DC823E600B81D0F /* libEGL.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6FD408D82DC7AB0300B81D0F /* libEGL.xcframework */; };
+		6FD409152DC823E700B81D0F /* libEGL.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 6FD408D82DC7AB0300B81D0F /* libEGL.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		6FD409172DC823E800B81D0F /* libGLESv2.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6FD408D92DC7AB0300B81D0F /* libGLESv2.xcframework */; };
+		6FD409182DC823E800B81D0F /* libGLESv2.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 6FD408D92DC7AB0300B81D0F /* libGLESv2.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		6FD409192DC8243400B81D0F /* libEGL.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6FD408D82DC7AB0300B81D0F /* libEGL.xcframework */; };
+		6FD4091A2DC8243400B81D0F /* libEGL.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 6FD408D82DC7AB0300B81D0F /* libEGL.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		6FD4091C2DC8243500B81D0F /* libGLESv2.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6FD408D92DC7AB0300B81D0F /* libGLESv2.xcframework */; };
+		6FD4091D2DC8243500B81D0F /* libGLESv2.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 6FD408D92DC7AB0300B81D0F /* libGLESv2.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		6FD4091E2DC8244000B81D0F /* libEGL.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6FD408D82DC7AB0300B81D0F /* libEGL.xcframework */; };
+		6FD4091F2DC8244000B81D0F /* libEGL.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 6FD408D82DC7AB0300B81D0F /* libEGL.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		6FD409212DC8244300B81D0F /* libGLESv2.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6FD408D92DC7AB0300B81D0F /* libGLESv2.xcframework */; };
+		6FD409222DC8244300B81D0F /* libGLESv2.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 6FD408D92DC7AB0300B81D0F /* libGLESv2.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		6FD409232DC8244600B81D0F /* libEGL.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6FD408D82DC7AB0300B81D0F /* libEGL.xcframework */; };
+		6FD409242DC8244600B81D0F /* libEGL.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 6FD408D82DC7AB0300B81D0F /* libEGL.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		6FD409262DC8244700B81D0F /* libGLESv2.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6FD408D92DC7AB0300B81D0F /* libGLESv2.xcframework */; };
+		6FD409272DC8244700B81D0F /* libGLESv2.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 6FD408D92DC7AB0300B81D0F /* libGLESv2.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		6FD409282DC8244A00B81D0F /* libEGL.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6FD408D82DC7AB0300B81D0F /* libEGL.xcframework */; };
+		6FD409292DC8244A00B81D0F /* libEGL.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 6FD408D82DC7AB0300B81D0F /* libEGL.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		6FD4092B2DC8244B00B81D0F /* libGLESv2.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6FD408D92DC7AB0300B81D0F /* libGLESv2.xcframework */; };
+		6FD4092C2DC8244B00B81D0F /* libGLESv2.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 6FD408D92DC7AB0300B81D0F /* libGLESv2.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		6FD4092D2DC8244F00B81D0F /* libEGL.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6FD408D82DC7AB0300B81D0F /* libEGL.xcframework */; };
+		6FD4092E2DC8244F00B81D0F /* libEGL.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 6FD408D82DC7AB0300B81D0F /* libEGL.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		6FD409302DC8245100B81D0F /* libGLESv2.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6FD408D92DC7AB0300B81D0F /* libGLESv2.xcframework */; };
+		6FD409312DC8245100B81D0F /* libGLESv2.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 6FD408D92DC7AB0300B81D0F /* libGLESv2.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		6FD409322DC8246400B81D0F /* libEGL.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6FD408D82DC7AB0300B81D0F /* libEGL.xcframework */; };
+		6FD409332DC8246400B81D0F /* libEGL.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 6FD408D82DC7AB0300B81D0F /* libEGL.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		6FD409342DC8246500B81D0F /* libGLESv2.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6FD408D92DC7AB0300B81D0F /* libGLESv2.xcframework */; };
+		6FD409352DC8246500B81D0F /* libGLESv2.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 6FD408D92DC7AB0300B81D0F /* libGLESv2.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		B885CBC52304AE7300D73128 /* IPlugProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8F61A8202807B9003F2573 /* IPlugProcessor.cpp */; };
 		B8E22A0C220268C4007CBF4C /* IPlugVST3_ProcessorBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B8E22A0A220268C4007CBF4C /* IPlugVST3_ProcessorBase.cpp */; };
 		B8E22A0D220268C4007CBF4C /* IPlugVST3_ProcessorBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B8E22A0A220268C4007CBF4C /* IPlugVST3_ProcessorBase.cpp */; };
@@ -435,6 +467,8 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				6FD409332DC8246400B81D0F /* libEGL.xcframework in Embed Frameworks */,
+				6FD409352DC8246500B81D0F /* libGLESv2.xcframework in Embed Frameworks */,
 				4F3EE1E9231438D000004786 /* AUv3Framework.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
@@ -449,6 +483,78 @@
 				4F3EE1EB231438D000004786 /* IGraphicsTest.appex in Embed AUv3 App Extension */,
 			);
 			name = "Embed AUv3 App Extension";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6FD409162DC823E700B81D0F /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				6FD409182DC823E800B81D0F /* libGLESv2.xcframework in Embed Frameworks */,
+				6FD409152DC823E700B81D0F /* libEGL.xcframework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6FD4091B2DC8243400B81D0F /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				6FD4091D2DC8243500B81D0F /* libGLESv2.xcframework in Embed Frameworks */,
+				6FD4091A2DC8243400B81D0F /* libEGL.xcframework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6FD409202DC8244000B81D0F /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				6FD409222DC8244300B81D0F /* libGLESv2.xcframework in Embed Frameworks */,
+				6FD4091F2DC8244000B81D0F /* libEGL.xcframework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6FD409252DC8244600B81D0F /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				6FD409272DC8244700B81D0F /* libGLESv2.xcframework in Embed Frameworks */,
+				6FD409242DC8244600B81D0F /* libEGL.xcframework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6FD4092A2DC8244A00B81D0F /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				6FD4092C2DC8244B00B81D0F /* libGLESv2.xcframework in Embed Frameworks */,
+				6FD409292DC8244A00B81D0F /* libEGL.xcframework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6FD4092F2DC8244F00B81D0F /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				6FD409312DC8245100B81D0F /* libGLESv2.xcframework in Embed Frameworks */,
+				6FD4092E2DC8244F00B81D0F /* libEGL.xcframework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
@@ -838,6 +944,8 @@
 		4FFBB94120863E9300DDD0E7 /* IPlugVST3_Parameter.h */ = {isa = PBXFileReference; indentWidth = 2; lastKnownFileType = sourcecode.c.h; name = IPlugVST3_Parameter.h; path = ../../../IPlug/VST3/IPlugVST3_Parameter.h; sourceTree = "<group>"; tabWidth = 2; };
 		4FFF72B8214BB71400839091 /* main.rc */ = {isa = PBXFileReference; lastKnownFileType = text; name = main.rc; path = ../resources/main.rc; sourceTree = "<group>"; };
 		52FBBED30D0CF143001C8B8A /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.h; name = config.h; path = ../config.h; sourceTree = "<group>"; tabWidth = 2; usesTabs = 0; };
+		6FD408D82DC7AB0300B81D0F /* libEGL.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = libEGL.xcframework; path = ../../../Dependencies/Build/xcframeworks/libEGL.xcframework; sourceTree = SOURCE_ROOT; };
+		6FD408D92DC7AB0300B81D0F /* libGLESv2.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = libGLESv2.xcframework; path = ../../../Dependencies/Build/xcframeworks/libGLESv2.xcframework; sourceTree = SOURCE_ROOT; };
 		B8E22A0A220268C4007CBF4C /* IPlugVST3_ProcessorBase.cpp */ = {isa = PBXFileReference; indentWidth = 2; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugVST3_ProcessorBase.cpp; path = ../../../IPlug/VST3/IPlugVST3_ProcessorBase.cpp; sourceTree = "<group>"; tabWidth = 2; };
 		B8E22A0B220268C4007CBF4C /* IPlugVST3_ProcessorBase.h */ = {isa = PBXFileReference; indentWidth = 2; lastKnownFileType = sourcecode.c.h; name = IPlugVST3_ProcessorBase.h; path = ../../../IPlug/VST3/IPlugVST3_ProcessorBase.h; sourceTree = "<group>"; tabWidth = 2; };
 		B8EA6B932203868500D23A86 /* IPlugVST3_Common.h */ = {isa = PBXFileReference; indentWidth = 2; lastKnownFileType = sourcecode.c.h; name = IPlugVST3_Common.h; path = ../../../IPlug/VST3/IPlugVST3_Common.h; sourceTree = "<group>"; tabWidth = 2; };
@@ -848,6 +956,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6FD4091C2DC8243500B81D0F /* libGLESv2.xcframework in Frameworks */,
+				6FD409192DC8243400B81D0F /* libEGL.xcframework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -863,6 +973,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6FD409322DC8246400B81D0F /* libEGL.xcframework in Frameworks */,
+				6FD409342DC8246500B81D0F /* libGLESv2.xcframework in Frameworks */,
 				4F3EE1E7231438D000004786 /* AUv3Framework.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -871,6 +983,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6FD408DC2DC7AB0300B81D0F /* libEGL.xcframework in Frameworks */,
+				6FD408DD2DC7AB0300B81D0F /* libGLESv2.xcframework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -878,6 +992,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6FD409212DC8244300B81D0F /* libGLESv2.xcframework in Frameworks */,
+				6FD4091E2DC8244000B81D0F /* libEGL.xcframework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -885,6 +1001,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6FD409282DC8244A00B81D0F /* libEGL.xcframework in Frameworks */,
+				6FD4092B2DC8244B00B81D0F /* libGLESv2.xcframework in Frameworks */,
 				4F815999205D525A00393585 /* libAAXLibrary_libcpp.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -893,6 +1011,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6FD409262DC8244700B81D0F /* libGLESv2.xcframework in Frameworks */,
+				6FD409232DC8244600B81D0F /* libEGL.xcframework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -900,6 +1020,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6FD408E42DC7AB0300B81D0F /* libEGL.xcframework in Frameworks */,
+				6FD408E52DC7AB0300B81D0F /* libGLESv2.xcframework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -907,7 +1029,18 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6FD4092D2DC8244F00B81D0F /* libEGL.xcframework in Frameworks */,
+				6FD409302DC8245100B81D0F /* libGLESv2.xcframework in Frameworks */,
 				4FC3EFD42086C49D00BD11FA /* IGraphicsTestVST3Controller.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6F69FD192D862CEE006D55CE /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6FD409172DC823E800B81D0F /* libGLESv2.xcframework in Frameworks */,
+				6FD409142DC823E600B81D0F /* libEGL.xcframework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -925,6 +1058,8 @@
 				32C88E010371C26100C91783 /* Other Sources */,
 				089C1671FE841209C02AAC07 /* Frameworks */,
 				19C28FB8FE9D52D311CA2CBB /* Products */,
+				6FD408D82DC7AB0300B81D0F /* libEGL.xcframework */,
+				6FD408D92DC7AB0300B81D0F /* libGLESv2.xcframework */,
 			);
 			name = IPlugExample;
 			sourceTree = "<group>";
@@ -1768,6 +1903,7 @@
 				4F20EEC9132C69FE0030E34C /* Resources */,
 				4F20EECA132C69FE0030E34C /* Sources */,
 				4F20EF2C132C69FE0030E34C /* Frameworks */,
+				6FD4091B2DC8243400B81D0F /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -1808,6 +1944,7 @@
 				4F3AE1DA12C0E5E2001FD7A4 /* Rez */,
 				4F744D4C14005ADA002FAD90 /* Run Script - clear_audiounit_caches.sh */,
 				4FBDD26520A319580054B111 /* Frameworks */,
+				6FD409252DC8244600B81D0F /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -1866,6 +2003,7 @@
 				4F9828AF140A9EB700F3FCC1 /* Resources */,
 				4F9828B5140A9EB700F3FCC1 /* Sources */,
 				4F9828D7140A9EB700F3FCC1 /* Frameworks */,
+				6FD409202DC8244000B81D0F /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -1885,6 +2023,7 @@
 				4FB600151567CB0A0020189A /* Resources */,
 				4FB600171567CB0A0020189A /* Sources */,
 				4FB6002A1567CB0A0020189A /* Frameworks */,
+				6FD4092A2DC8244A00B81D0F /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -1921,6 +2060,8 @@
 				4FBCC1B21FD5AE8500EFE550 /* Run Script - prepare_resources-mac.py */,
 				4FD16A0513B63081001D0217 /* Resources */,
 				4FD16A0613B63081001D0217 /* Sources */,
+				6F69FD192D862CEE006D55CE /* Frameworks */,
+				6FD409162DC823E700B81D0F /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -1939,6 +2080,7 @@
 				4FFBB8FA20863B0E00DDD0E7 /* Resources */,
 				4FFBB90420863B0E00DDD0E7 /* Sources */,
 				4FFBB93620863B0E00DDD0E7 /* Frameworks */,
+				6FD4092F2DC8244F00B81D0F /* Embed Frameworks */,
 			);
 			buildRules = (
 			);

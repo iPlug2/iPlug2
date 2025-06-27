@@ -106,6 +106,8 @@
   UIView* view = pluginVC.view;
   view.frame = auView.bounds;
   [auView addSubview: view];
+  self.view.opaque = false;
+  self.view.backgroundColor = UIColor.clearColor;
 
   view.translatesAutoresizingMaskIntoConstraints = NO;
 
@@ -120,6 +122,12 @@
 - (UIRectEdge) preferredScreenEdgesDeferringSystemGestures
 {
   return UIRectEdgeAll;
+}
+
+
+- (UIContainerBackgroundStyle) preferredContainerBackgroundStyle
+{
+  return UIContainerBackgroundStyleHidden;
 }
 @end
 

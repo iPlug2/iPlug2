@@ -10,7 +10,7 @@
 
 #import <QuartzCore/QuartzCore.h>
 
-#if defined IGRAPHICS_METAL
+#if defined IGRAPHICS_METAL || defined IGRAPHICS_GLES2 || defined IGRAPHICS_GLES3
 #import <Metal/Metal.h>
 #endif
 
@@ -381,6 +381,15 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 
 @implementation IGRAPHICS_VIEW
 
+- (CALayer *)makeBackingLayer
+{
+#if defined IGRAPHICS_METAL || defined IGRAPHICS_GLES2 || defined IGRAPHICS_GLES3
+  return [[CAMetalLayer alloc] init];
+#else
+  return [[CALayer alloc] init];
+#endif
+}
+
 - (id) initWithIGraphics: (IGraphicsMac*) pGraphics
 {
   TRACE
@@ -391,18 +400,18 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   
   mMouseOutDuringDrag = false;
 
+  self.layer.frame = r;
   self.wantsLayer = YES;
   self.layer.opaque = YES;
   self.layerContentsRedrawPolicy = NSViewLayerContentsRedrawDuringViewResize;
-  
   [self registerForDraggedTypes:[NSArray arrayWithObjects: NSFilenamesPboardType, nil]];
   
-  #if defined IGRAPHICS_METAL
-  self.layer = [CAMetalLayer new];
-  [(CAMetalLayer*)[self layer] setPixelFormat:MTLPixelFormatBGRA8Unorm];
-  ((CAMetalLayer*) self.layer).device = MTLCreateSystemDefaultDevice();
-  
-  #elif defined IGRAPHICS_GL
+  #if defined IGRAPHICS_METAL || defined IGRAPHICS_GLES2 || defined IGRAPHICS_GLES3
+  CAMetalLayer* mtlLayer = (CAMetalLayer*) self.layer;
+  [mtlLayer setPixelFormat:MTLPixelFormatBGRA8Unorm];
+  mtlLayer.device = MTLCreateSystemDefaultDevice();
+  mtlLayer.framebufferOnly = YES;
+  #elif defined IGRAPHICS_GL2 || defined IGRAPHICS_GL3
   NSOpenGLPixelFormatAttribute profile = NSOpenGLProfileVersionLegacy;
   #if defined IGRAPHICS_GL3
     profile = (NSOpenGLPixelFormatAttribute)NSOpenGLProfileVersion3_2Core;
@@ -428,16 +437,76 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   self.pixelFormat = pPixelFormat;
   self.openGLContext = pGLContext;
   self.wantsBestResolutionOpenGLSurface = YES;
-  #endif // IGRAPHICS_GL
+  #endif // IGRAPHICS_GL2 || defined IGRAPHICS_GL3
+  
+  #if defined IGRAPHICS_GLES2 || defined IGRAPHICS_GLES3
+  EGLDisplay display = eglGetPlatformDisplay(EGLenum(EGL_PLATFORM_ANGLE_ANGLE), 0, 0);
+  
+  if (!display) {
+    DBGMSG("eglGetPlatformDisplay() returned error %i", eglGetError());
+  }
+  
+  if (eglInitialize(display, nil, nil) == 0) {
+    DBGMSG("eglInitialize() returned error %i", eglGetError());
+  }
+  
+  const EGLint confgiAttribs[9] = {
+    EGL_BLUE_SIZE, 8,
+    EGL_GREEN_SIZE, 8,
+    EGL_RED_SIZE, 8,
+    EGL_DEPTH_SIZE, 24,
+    EGL_NONE};
+  EGLint numConfigs = 0;
+  EGLConfig configs[1];
+  
+  if (eglChooseConfig(display, confgiAttribs, configs, 1, &numConfigs) == 0) {
+    DBGMSG("eglChooseConfig() returned error %i", eglGetError());
+  }
+  
+  if (!configs[0]) {
+    DBGMSG("Empty config returned in eglChooseConfig()");
+  }
+  
+  #if defined IGRAPHICS_GLES2
+  const EGLint contextAttribs [5] = {
+    EGL_CONTEXT_MAJOR_VERSION, 2,
+    EGL_CONTEXT_MINOR_VERSION, 0,
+    EGL_NONE,
+  };
+  #elif defined IGRAPHICS_GLES3
+  const EGLint contextAttribs [5] = {
+    EGL_CONTEXT_MAJOR_VERSION, 3,
+    EGL_CONTEXT_MINOR_VERSION, 0,
+    EGL_NONE,
+  };
+  #endif
+  
+  EGLContext context = eglCreateContext(display, configs[0], nullptr, contextAttribs);
+  
+  if (!context) {
+    DBGMSG("eglCreateContext() returned error \(eglGetError())");
+  }
+  
+  EGLSurface surface = eglCreateWindowSurface(display, configs[0], (__bridge EGLNativeWindowType) [self layer], nullptr);
+  
+  if (!surface) {
+    DBGMSG("eglCreateWindowSurface() returned error \(eglGetError())");
+  }
 
-  #if !defined IGRAPHICS_GL
+  mEGLSurface = surface;
+  mEGLDisplay = display;
+  mEGLContext = context;
+  #endif
+
+
+  #if !defined IGRAPHICS_GL2 && !defined IGRAPHICS_GL3
   [self setTimer];
   #endif
   
   return self;
 }
 
-#ifdef IGRAPHICS_GL
+#if defined IGRAPHICS_GL2 || defined IGRAPHICS_GL3
 - (void) prepareOpenGL
 {
   [super prepareOpenGL];
@@ -483,7 +552,7 @@ static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
   cvReturn = CVDisplayLinkSetOutputCallback(mDisplayLink, &displayLinkCallback, (void*) mDisplaySource);
   assert(cvReturn == kCVReturnSuccess);
 
-  #ifdef IGRAPHICS_GL
+  #if defined IGRAPHICS_GL2 || defined IGRAPHICS_GL3
   CGLContextObj cglContext = [[self openGLContext] CGLContextObj];
   CGLPixelFormatObj cglPixelFormat = [[self pixelFormat] CGLPixelFormatObj];
   CVDisplayLinkSetCurrentCGDisplayFromOpenGLContext(mDisplayLink, cglContext, cglPixelFormat);
@@ -572,13 +641,14 @@ static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
     if (mGraphics)
       mGraphics->SetScreenScale(newScale);
     
-    #ifdef IGRAPHICS_METAL
+    #if defined IGRAPHICS_METAL || defined IGRAPHICS_GLES2 || defined IGRAPHICS_GLES3
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(frameDidChange:)
                                                  name:NSViewFrameDidChangeNotification
                                                object:self];
     #endif
-    #ifdef IGRAPHICS_GL
+    
+    #if defined IGRAPHICS_GL2 || defined IGRAPHICS_GL3
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(frameDidChange:)
                                                  name:NSViewGlobalFrameDidChangeNotification
@@ -613,9 +683,11 @@ static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
   if (newScale != mGraphics->GetScreenScale())
     mGraphics->SetScreenScale(newScale);
 
-#if defined IGRAPHICS_GL
+  self.layer.contentsScale = [[self window] backingScaleFactor];
+
+#if defined IGRAPHICS_GL2 || defined IGRAPHICS_GL3
   self.layer.contentsScale = 1./newScale;
-#elif defined IGRAPHICS_METAL
+#elif defined IGRAPHICS_METAL || defined IGRAPHICS_GLES2 || defined IGRAPHICS_GLES3
   [(CAMetalLayer*)[self layer] setDrawableSize:CGSizeMake(self.frame.size.width * newScale,
                                                           self.frame.size.height * newScale)];
 #endif
@@ -630,7 +702,7 @@ static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
 // not called for layer backed views
 - (void) drawRect: (NSRect) bounds
 {
-  #if !defined IGRAPHICS_GL && !defined IGRAPHICS_METAL
+  #if defined IGRAPHICS_CPU
   if (mGraphics)
   {
     mGraphics->SetPlatformContext([self getCGContextRef]);
@@ -1288,7 +1360,7 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
   return NSDragOperationCopy;
 }
 
-#ifdef IGRAPHICS_METAL
+#if defined IGRAPHICS_METAL || defined IGRAPHICS_GLES2 || defined IGRAPHICS_GLES3
 - (void) frameDidChange:(NSNotification*) pNotification
 {
   CGFloat scale = [[self window] backingScaleFactor];
@@ -1347,6 +1419,9 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
   [[self openGLContext] makeCurrentContext];
 #endif
   
+#if defined IGRAPHICS_GLES2 || defined IGRAPHICS_GLES3
+  eglMakeCurrent(mEGLDisplay, mEGLSurface, mEGLSurface, mEGLContext);
+#endif
 }
 
 - (void) deactivateGLContext
@@ -1355,6 +1430,9 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
   [NSOpenGLContext clearCurrentContext];
 #endif
 
+#if defined IGRAPHICS_GLES2 || defined IGRAPHICS_GLES3
+  eglMakeCurrent(mEGLDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+#endif
 }
 
 - (void) swapBuffers
@@ -1363,6 +1441,9 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
   [[self openGLContext] flushBuffer];
 #endif
   
+#if defined IGRAPHICS_GLES2 || defined IGRAPHICS_GLES3
+  eglSwapBuffers(mEGLDisplay, mEGLSurface);
+#endif
 }
 
 @end
