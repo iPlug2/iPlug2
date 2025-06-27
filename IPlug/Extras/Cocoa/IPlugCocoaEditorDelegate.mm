@@ -35,7 +35,15 @@ void* CocoaEditorDelegate::OpenWindow(void* pParent)
 
 void CocoaEditorDelegate::CloseWindow()
 {
-  mViewController = nil;
+  IPlugCocoaViewController* vc = (IPlugCocoaViewController*) mViewController;
+  
+  if (vc)
+  {
+    [vc willMoveToParentViewController:nil];
+    [vc.view removeFromSuperview];
+    [vc removeFromParentViewController];
+    mViewController = nil;
+  }
 }
 
 bool CocoaEditorDelegate::OnMessage(int msgTag, int ctrlTag, int dataSize, const void* pData)
