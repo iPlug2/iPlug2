@@ -380,6 +380,12 @@ int EEL_Editor::do_draw_line(const char *p, int *c_comment_state, int last_attr)
     {
       while (tok[toklen] < 0) {p++; toklen++; } // utf-8 skip
     }
+    if (ignoreSyntaxState == -2 && tok && tok[0] == '/' && toklen > 1 && (tok[1] == '*' || tok[1] == '/'))
+    {
+      p -= toklen-1;
+      toklen = 1;
+    }
+
     bool is_pp = toklen == 2 && is_preproc_token(tok);
     if (!is_pp && (last_comment_state>0 || *c_comment_state == STATE_BEFORE_CODE)) // if in a multi-line string or comment
     {
@@ -415,7 +421,7 @@ int EEL_Editor::do_draw_line(const char *p, int *c_comment_state, int last_attr)
     {
       attr = SYNTAX_COMMENT;
     }
-    else if (tok[0] > 0 && (isalpha_safe(tok[0]) || tok[0] == '_' || tok[0] == '#'))
+    else if (tok[0] > 0 && (isalpha_safe(tok[0]) || tok[0] == '_' || (ignoreSyntaxState != -2 && tok[0] == '#')))
     {
       int def_attr = A_NORMAL;
       bool isf=true;
@@ -468,7 +474,11 @@ int EEL_Editor::do_draw_line(const char *p, int *c_comment_state, int last_attr)
                 break;
         }
       }
-      if (x<toklen) err_right=toklen-x;
+      if (x<toklen && ignoreSyntaxState != -2) err_right=toklen-x;
+    }
+    else if (ignoreSyntaxState == -2)
+    {
+      attr = SYNTAX_HIGHLIGHT1;
     }
     else if (tok[0] == '\'' || tok[0] == '\"')
     {
