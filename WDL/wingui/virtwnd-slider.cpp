@@ -1057,22 +1057,32 @@ bool WDL_VirtualSlider::OnMouseWheelInternal(int xpos, int ypos, int amt, int sc
 {
   if (m_grayed) return false;
 
+  double amtgain = 16.0;
   if (xpos != -100 || ypos != -100) // xpos=ypos=-100 used by virtwnd-nsaccessibility
   {
-    if (!WDL_STYLE_AllowSliderMouseWheel()) return false;
+    int v = WDL_STYLE_AllowSliderMouseWheel(this, &amtgain);
+    if (v == 0) return false;
+    if (v < 0) return true;
+  }
+  else
+  {
+    if (GetAsyncKeyState(VK_CONTROL)&0x8000) amtgain = 1.0;
   }
 
   bool isVert = GetIsVert();
-  int l=amt;
-  if (!(GetAsyncKeyState(VK_CONTROL)&0x8000)) l *= 16;
-  l *= (m_maxr-m_minr);
-  l/=120000;
-  if (!l) { if (amt<0)l=-1; else if (amt>0) l=1; }
+  int l;
 
   if (sc==10000)
+  {
     l = amt<0 ? -m_pos : m_maxr - m_pos;
-  else if (sc>0)
-    l *= sc;
+  }
+  else
+  {
+    if (sc>1) amtgain *= sc;
+    l = (int) floor(amt/120000.0 * (m_maxr-m_minr) * fabs(amtgain) + 0.5);
+    if (!l) { if (amt<0)l=-1; else if (amt>0) l=1; }
+    if (amtgain<0) l = -l;
+  }
 
   int pos=m_pos+l;
   if (pos < m_minr) pos=m_minr;
