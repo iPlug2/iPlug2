@@ -383,11 +383,18 @@ struct windowReorgEnt
     WRET_MISC, // dont analyze for size changes, but move around
 
   };
+  enum subMode {
+    SUBMODE_NONE=0,
+    SUBMODE_STATIC,
+    SUBMODE_BUTTON,
+    SUBMODE_CHECKBOX,
+  };
   windowReorgEnt(HWND _hwnd, RECT _r, int wc)
   {
     hwnd=_hwnd;
     orig_r=r=_r;
     mode=WRET_MISC;
+    submode=SUBMODE_NONE;
     move_amt=0;
     wantsizeincrease=0;
     scaled_width_change = wc;
@@ -398,6 +405,7 @@ struct windowReorgEnt
   HWND hwnd;
   RECT r,orig_r;
   windowReorgEntType mode;
+  subMode submode;
   int move_amt;
   int wantsizeincrease;
   int scaled_width_change;
@@ -544,13 +552,25 @@ static BOOL CALLBACK xlateGetRects(HWND hwnd, LPARAM lParam)
   if (!strcmp(buf,"Button"))
   {
     LONG style=GetWindowLong(hwnd,GWL_STYLE);
-    if (LOWORD(style)==BS_GROUPBOX) t.mode = windowReorgEnt::WRET_GROUP;
-    else t.mode = windowReorgEnt::WRET_SIZEADJ;
+    if ((style&BS_TYPEMASK)==BS_GROUPBOX) t.mode = windowReorgEnt::WRET_GROUP;
+    else
+    {
+      t.mode = windowReorgEnt::WRET_SIZEADJ;
+      if (((style&BS_TYPEMASK) >= BS_CHECKBOX && 
+             (style&BS_TYPEMASK) <= BS_AUTO3STATE) ||
+          (style&BS_TYPEMASK) == BS_AUTORADIOBUTTON)
+      {
+        t.submode = windowReorgEnt::SUBMODE_CHECKBOX;
+      }
+      else
+        t.submode = windowReorgEnt::SUBMODE_BUTTON;
+    }
   }
   else if (!strcmp(buf,"Static"))
   {
     if (!(GetWindowLong(hwnd,GWL_STYLE)&(SS_RIGHT|SS_CENTER)))
       t.mode = windowReorgEnt::WRET_SIZEADJ;
+    t.submode = windowReorgEnt::SUBMODE_STATIC;
   }
 #else
   if (SWELL_IsGroupBox(hwnd)) t.mode = windowReorgEnt::WRET_GROUP;
@@ -755,13 +775,19 @@ static void localize_dialog(HWND hwnd, WDL_KeyedArray<WDL_UINT64, char *> *sec)
       {
         if (newText && rec->mode == windowReorgEnt::WRET_SIZEADJ)
         {
-          RECT r1={0},r2={0};
-#ifdef _WIN32
-          DrawTextUTF8(hdc,buf,-1,&r1,DT_CALCRECT);
-          DrawTextUTF8(hdc,newText,-1,&r2,DT_CALCRECT);
-          r1.right += rec->scaled_width_change;
-#else
+          RECT r1,r2={0};
           GetClientRect(rec->hwnd,&r1);
+#ifdef _WIN32
+          DrawTextUTF8(hdc,newText,-1,&r2,DT_CALCRECT);
+          if (rec->submode == windowReorgEnt::SUBMODE_BUTTON)
+            r2.right += 4;
+          else if (rec->submode == windowReorgEnt::SUBMODE_CHECKBOX)
+          {
+            r2.right += 4 + (r1.bottom-r1.top); // use height as a rough approximation of width of checkbox element
+          }
+          else
+            r2.right += 2;
+#else
           SWELL_GetDesiredControlSize(rec->hwnd,&r2);
 #endif
           if (r2.right > r1.right)
