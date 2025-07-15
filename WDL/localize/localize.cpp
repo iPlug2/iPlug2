@@ -757,8 +757,8 @@ static void localize_dialog(HWND hwnd, WDL_KeyedArray<WDL_UINT64, char *> *sec)
         {
           RECT r1={0},r2={0};
 #ifdef _WIN32
-          DrawText(hdc,buf,-1,&r1,DT_CALCRECT);
-          DrawText(hdc,newText,-1,&r2,DT_CALCRECT);
+          DrawTextUTF8(hdc,buf,-1,&r1,DT_CALCRECT);
+          DrawTextUTF8(hdc,newText,-1,&r2,DT_CALCRECT);
           r1.right += rec->scaled_width_change;
 #else
           GetClientRect(rec->hwnd,&r1);

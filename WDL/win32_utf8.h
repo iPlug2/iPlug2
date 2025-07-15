@@ -292,10 +292,14 @@ WDL_WIN32_UTF8_IMPL BOOL CreateProcessUTF8( LPCTSTR lpApplicationName, LPTSTR lp
 #define stat(fn,s) statUTF8(fn,s)
 typedef char wdl_utf8_chk_stat_types_assert_failed[sizeof(struct stat) == sizeof(struct _stat) ? 1 : -1];
 
-#ifdef strftime
-#undef strftime
+
+#if !defined(_MSC_VER) || _MSC_VER >= 1800
+  // old MSVC versions wcsftime() does not work properly, do not use if MSVC and older than VS2013
+  #ifdef strftime
+  #undef strftime
+  #endif
+  #define strftime(a,b,c,d) strftimeUTF8(a,b,c,d)
 #endif
-#define strftime(a,b,c,d) strftimeUTF8(a,b,c,d)
 
 #else
 

@@ -4248,7 +4248,12 @@ HWND SWELL_MakeCombo(int idx, int x, int y, int w, int h, int flags)
     [obj setTag:idx];
     [obj setFont:[NSFont systemFontOfSize:10.0f]];
     NSRect rc=MakeCoords(x,y,w,(g_swell_osx_style&1) ? 24 : 18,true,true);
-    if (g_swell_osx_style&1) rc.origin.y -= 2;
+    if (g_swell_osx_style&1)
+    {
+      rc.origin.y -= 2;
+      rc.origin.x -= 3;
+      rc.size.width += 3;
+    }
         
     [obj setSwellStyle:flags];
     [obj setFrame:rc];
