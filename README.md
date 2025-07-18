@@ -1,5 +1,10 @@
-# iPlug 2
-### C++ audio plug-in framework for desktop, mobile (iOS) and web
+<div align="center">
+<h1>
+  <img src="https://github.com/iPlug2/iPlug2/blob/master/Examples/IPlugSvelteUI/web-ui/src/assets/iplug.png" width="250" alt="iPlug 2 Logo"><br />
+  iPlug 2
+</h1>
+
+### C++ audio plug-in framework for desktop, mobile (iOS) and web</p>
 
 [![Build Status](https://dev.azure.com/iplug2/iPlug2/_apis/build/status/iPlug2?branchName=master)](https://dev.azure.com/iplug2/iPlug2/_build/latest?definitionId=2&branchName=master)
 
