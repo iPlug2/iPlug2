@@ -3,10 +3,10 @@
   <img src="https://github.com/iPlug2/iPlug2/blob/master/Examples/IPlugSvelteUI/web-ui/src/assets/iplug.png" width="250" alt="iPlug 2 Logo"><br />
   iPlug 2
 </h1>
-
+  
 ### C++ audio plug-in framework for desktop, mobile (iOS) and web</p>
-
 [![Build Status](https://dev.azure.com/iplug2/iPlug2/_apis/build/status/iPlug2?branchName=master)](https://dev.azure.com/iplug2/iPlug2/_build/latest?definitionId=2&branchName=master)
+</div>
 
 iPlug 2 is a simple-to-use C++ framework for developing cross-platform audio plug-ins/apps and targeting multiple plug-in APIs with the same minimalistic code. It abstracts an audio plug-in (IPlug) and its drawing engine/GUI toolkit (IGraphics). IGraphics is a simple graphics abstraction layer with good performance which contains a collection of common controls well suited for audio plug-ins, either using bitmap or vector graphics. IGraphics can use [NanoVG](https://github.com/memononen/nanovg) or [Skia](https://skia.org/) as the drawing backend, providing many options depending on your requirements. Alternatively, iPlug2 can be used with other UI toolkits. [Examples](https://github.com/iPlug2/iPlug2/tree/master/Examples) are included showing how you can use technologies such as HTML/CSS or SwiftUI on top of a C++ DSP layer.
 
