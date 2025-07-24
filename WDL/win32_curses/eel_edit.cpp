@@ -423,6 +423,7 @@ int EEL_Editor::do_draw_line(const char *p, int *c_comment_state, int last_attr)
     }
     else if (tok[0] > 0 && (isalpha_safe(tok[0]) || tok[0] == '_' || (ignoreSyntaxState != -2 && tok[0] == '#')))
     {
+      if (ignoreSyntaxState == -2) goto dostr;
       int def_attr = A_NORMAL;
       bool isf=true;
       if (tok[0] == '#')
@@ -529,6 +530,7 @@ int EEL_Editor::do_draw_line(const char *p, int *c_comment_state, int last_attr)
         if (tok[0] < 0) while (err_left < toklen && tok[err_left]<0) err_left++; // utf-8 skip
       }
     }
+dostr:
 
     if (ignoreSyntaxState) err_left = err_right = 0;
 
@@ -546,7 +548,7 @@ int EEL_Editor::do_draw_line(const char *p, int *c_comment_state, int last_attr)
     if (err_right > 0)
       draw_string(&skipcnt,tok+toklen-err_right,err_right,&last_attr,SYNTAX_ERROR);
 
-    if (ignoreSyntaxState == -1 && tok[0] == '>')
+    if (tok[0] == '>' && (ignoreSyntaxState == -2 || ignoreSyntaxState == -1))
     {
       draw_string(&skipcnt,p,strlen(p),&last_attr,ignoreSyntaxState==2 ? SYNTAX_COMMENT : A_NORMAL);
       break;
