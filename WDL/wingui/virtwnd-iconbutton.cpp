@@ -560,6 +560,11 @@ static void GenSubMenu(HMENU menu, int *x, WDL_PtrList<char> *items, int curitem
 
     if (!strcmp(mi.dwTypeData,"<SEP>")) mi.fType=MFT_SEPARATOR;
     else if (!strcmp(mi.dwTypeData,"</SUB>")) break; // done!
+    if (!strncmp(mi.dwTypeData,"<GRAY>",6))
+    {
+      mi.dwTypeData += 6;
+      mi.fState |= MF_GRAYED;
+    }
     else if (!strncmp(mi.dwTypeData,"<SUB>",5))
     {
       mi.hSubMenu= CreatePopupMenu();
