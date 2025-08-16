@@ -350,7 +350,8 @@ template<class PTRTYPE> class WDL_TypedBuf
       const int sz=GetSize();
       if (idx >= 0 && idx < sz)
       {
-        memmove(p+idx, p+idx+1, (sz-idx-1)*sizeof(PTRTYPE));
+        if (idx != sz-1)
+          memmove(p+idx, p+idx+1, (sz-idx-1)*sizeof(PTRTYPE));
         Resize(sz-1,false);
       }
     }
