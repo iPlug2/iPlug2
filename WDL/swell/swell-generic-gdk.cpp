@@ -3016,7 +3016,7 @@ void SWELL_InitiateDragDrop(HWND hwnd, RECT* srcrect, const char* srcfn, void (*
   dropSourceWndProc(h,WM_CREATE,0,0);
   while (GetCapture()==h)
   {
-    SWELL_RunEvents();
+    SWELL_RunMessageLoop();
     Sleep(10);
     if (swell_dragsrc_timeout_start && (GetTickCount()-swell_dragsrc_timeout_start) > 500) ReleaseCapture();
   }
@@ -3048,7 +3048,7 @@ void SWELL_InitiateDragDropOfFileList(HWND hwnd, RECT *srcrect, const char **src
   dropSourceWndProc(h,WM_CREATE,0,0);
   while (GetCapture()==h)
   {
-    SWELL_RunEvents();
+    SWELL_RunMessageLoop();
     Sleep(10);
     if (swell_dragsrc_timeout_start && (GetTickCount()-swell_dragsrc_timeout_start) > 500) ReleaseCapture();
   }
