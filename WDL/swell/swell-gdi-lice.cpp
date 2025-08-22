@@ -167,9 +167,13 @@ static void ScanFontDirectory(const char *path, int maxrec=3)
   } while (!ds.Next());
 }
 
-static int sortByFilePart(const char **a, const char **b)
+static int sortByFilePart(const char *a, const char *b)
 {
-  return stricmp(WDL_get_filepart(*a),WDL_get_filepart(*b));
+  return stricmp(WDL_get_filepart(a),WDL_get_filepart(b));
+}
+static int sortByFilePartDeref(const void *a, const void *b)
+{
+  return stricmp(WDL_get_filepart(*(const char **)a),WDL_get_filepart(*(const char **)b));
 }
 
 struct fontScoreMatched {
@@ -407,7 +411,7 @@ HFONT CreateFont(int lfHeight, int lfWidth, int lfEscapement, int lfOrientation,
 #else
       ScanFontDirectory("/usr/share/fonts");
 
-      qsort(s_freetype_fontlist.GetList(),s_freetype_fontlist.GetSize(),sizeof(const char *),(int (*)(const void *,const void*))sortByFilePart);
+      qsort(s_freetype_fontlist.GetList(),s_freetype_fontlist.GetSize(),sizeof(const char *),sortByFilePartDeref);
 #endif
     }
   }
