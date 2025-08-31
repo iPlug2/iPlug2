@@ -204,7 +204,6 @@ const char *__localizeFunc(const char *str, const char *subctx, int flags)
 
   char *newptr = NULL;
 
-  int trycnt;
   size_t len = strlen(str)+1;
 
   if (flags & LOCALIZE_FLAG_DOUBLENULL)
@@ -229,7 +228,8 @@ const char *__localizeFunc(const char *str, const char *subctx, int flags)
   else
     hash = WDL_FNV64(WDL_FNV64_IV,(const unsigned char *)str,(int)len);
 
-  for (trycnt=0;trycnt<2 && !newptr;trycnt++)
+  const int ntry = (flags & LOCALIZE_FLAG_NOCOMMON) ? 1 : 2;
+  for (int trycnt=0; trycnt<ntry && !newptr;trycnt++)
   {
     WDL_KeyedArray<WDL_UINT64, char *> *section = trycnt == 1 ? g_translations_commonsec : g_translations.Get(subctx);
 

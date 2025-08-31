@@ -23,6 +23,7 @@ void WDL_SetLangpackFallbackEntry(const char *src_sec, WDL_UINT64 src_v, const c
 #define LOCALIZE_FLAG_NOCACHE 2     // must use this if the string passed is not a persistent static string, or if in another thread
 #define LOCALIZE_FLAG_PAIR 4        // one \0 in string needed -- this is not doublenull terminated but just a special case
 #define LOCALIZE_FLAG_DOUBLENULL 8  // doublenull terminated string
+#define LOCALIZE_FLAG_NOCOMMON 16
 
 
 #ifdef LOCALIZE_DISABLE
