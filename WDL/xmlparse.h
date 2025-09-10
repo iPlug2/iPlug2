@@ -92,10 +92,15 @@ class wdl_xml_parser {
       if (!m_tok.ResizeOK(256)) return "token buffer malloc fail";
 
       const char *p = parse_element_body(NULL);
-      if (!m_err) return p;
+      if (!m_err)
+      {
+        if (!p) return NULL;
+        snprintf(m_errbuf,sizeof(m_errbuf),"%s at %d:%d",p,m_line,m_col);
+        return m_errbuf;
+      }
       if (!*m_err) m_err="unexpected end of file";
       if (!p) return m_err;
-      snprintf(m_errbuf,sizeof(m_errbuf),"%s: %s",p,m_err);
+      snprintf(m_errbuf,sizeof(m_errbuf),"%s: %s at %d:%d",p,m_err,m_line,m_col);
       return m_errbuf;
     }
 
