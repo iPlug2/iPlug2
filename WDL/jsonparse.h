@@ -40,9 +40,8 @@ class wdl_json_element
     }
     ~wdl_json_element()
     {
-      free(m_value);
       if (m_array) m_array->Empty(true);
-      if (m_object_names) m_object_names->Empty(true,free);
+      if (m_object_names) m_object_names->Empty();
       delete m_array;
       delete m_object_names;
     }
@@ -68,8 +67,8 @@ class wdl_json_element
     // either m_value or m_array will be valid
     // if m_array is valid, m_object_names will be set if it is an object rather than array
     WDL_PtrList<wdl_json_element> *m_array;
-    WDL_PtrList<char> *m_object_names;
-    char *m_value; // de-escaped string value, or raw value (true/false/null, 1, 1.234)
+    WDL_PtrList<const char> *m_object_names;
+    const char *m_value; // de-escaped string value, or raw value (true/false/null, 1, 1.234)
 
     bool m_value_string; // true if m_value was a string value
 };
@@ -77,14 +76,21 @@ class wdl_json_element
 class wdl_json_parser
 {
   public:
-    wdl_json_parser() : m_err(NULL), m_err_rdptr(NULL) { }
+    wdl_json_parser() : m_err(NULL), m_err_rdptr(NULL), m_stringstore_pos(0) { }
 
     const char *m_err;
     const char *m_err_rdptr;
     WDL_FastString m_tmp;
 
+    // if caller wants to take ownership of its wdl_json_element tree, it will need to create a heapbuf and use
+    // hb.SwapContentsWith(&parser.m_stringstore)
+    WDL_HeapBuf m_stringstore;
+    int m_stringstore_pos;
+
     wdl_json_element *parse(const char *rdptr, int rdptr_len)
     {
+      m_stringstore.ResizeOK(rdptr_len,false);
+      m_stringstore_pos = 0;
       m_err = m_err_rdptr = NULL;
       wdl_json_element *elem = NULL;
       parse_internal(rdptr,rdptr+rdptr_len,&elem);
@@ -152,7 +158,7 @@ private:
             rdptr = parse_internal(rdptr, rdptr_end, &obj2);
             if (!rdptr) { delete obj1; delete obj2; return NULL; }
             if (!obj2) { delete obj1; break; }
-            obj->m_object_names->Add(strdup(obj1->m_value));
+            obj->m_object_names->Add(obj1->m_value);
             obj->m_array->Add(obj2);
           }
           else obj->m_array->Add(obj1);
@@ -239,12 +245,20 @@ syntax_error:
       wdl_json_element *e = new wdl_json_element;
       e->m_value_string = (lc == '"');
       e->m_array = lc == '[' || lc == '{' ? new WDL_PtrList<wdl_json_element> : NULL;
-      e->m_object_names = lc == '{' ? new WDL_PtrList<char> : NULL;
-      e->m_value = (char*) (v ? malloc(vlen+1) : NULL);
-      if (e->m_value)
+      e->m_object_names = lc == '{' ? new WDL_PtrList<const char> : NULL;
+      if (v)
       {
-        memcpy(e->m_value,v,vlen);
-        e->m_value[vlen]=0;
+        if (WDL_NORMALLY(vlen>=0) &&
+            WDL_NORMALLY(m_stringstore_pos + vlen + 1 <= m_stringstore.GetSize()))
+        {
+          char *wr = (char*)m_stringstore.Get() + m_stringstore_pos;
+          m_stringstore_pos += vlen + 1;
+          memcpy(wr,v,vlen);
+          wr[vlen]=0;
+          e->m_value = wr;
+        }
+        else
+          e->m_value = "__error";
       }
       return e;
     }
