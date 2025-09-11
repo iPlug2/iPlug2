@@ -289,7 +289,7 @@ class wdl_xml_parser {
         else if (tmp[0] == '#')
         {
           if (tmp[1] >= '0' && tmp[1] <= '9') byteval = atoi(tmp+1);
-          if (tmp[1] == 'x') byteval = strtol(tmp+1,NULL,16);
+          if (tmp[1] == 'x') byteval = strtol(tmp+2,NULL,16);
         }
       }
       if (!byteval) return false;
