@@ -34,17 +34,9 @@
 class wdl_json_element
 {
   public:
-    wdl_json_element(char lc, const char *v=NULL, int vlen=0) :
-        m_array(NULL), m_object_names(NULL), m_value_string(lc == '"')
+    wdl_json_element() : m_array(NULL), m_object_names(NULL), m_value(NULL), m_value_string(false)
     {
-      m_array = lc == '[' || lc == '{' ? new WDL_PtrList<wdl_json_element> : NULL;
-      m_object_names = lc == '{' ? new WDL_PtrList<char> : NULL;
-      m_value = (char*) (v ? malloc(vlen+1) : NULL);
-      if (m_value)
-      {
-        memcpy(m_value,v,vlen);
-        m_value[vlen]=0;
-      }
+      // caller must init
     }
     ~wdl_json_element()
     {
@@ -133,7 +125,7 @@ private:
       if (*rdptr == '[' || *rdptr == '{')
       {
         const char endchar = *rdptr == '[' ? ']' : '}';
-        wdl_json_element *obj = *elem = new wdl_json_element(*rdptr);
+        wdl_json_element *obj = *elem = new_element(*rdptr);
 
         for (;;)
         {
@@ -181,7 +173,7 @@ private:
           if (rdptr >= rdptr_end) goto eof;
           if (*rdptr == endchar_str)
           {
-            *elem = new wdl_json_element(endchar_str, m_tmp.Get(), m_tmp.GetLength());
+            *elem = new_element(endchar_str, m_tmp.Get(), m_tmp.GetLength());
             return rdptr+1;
           }
           if (*rdptr == '\r' || *rdptr == '\n') break;
@@ -232,7 +224,7 @@ private:
         // does not validate the number/string/whatever
         while (rdptr+l < rdptr_end && token_char(rdptr[l])) l++;
         if (rdptr+l >= rdptr_end) goto eof;
-        *elem = new wdl_json_element(0, rdptr, l);
+        *elem = new_element(0, rdptr, l);
         return rdptr+l;
       }
 
@@ -240,6 +232,21 @@ syntax_error:
       m_err_rdptr=rdptr;
       m_err="Syntax error";
       return NULL;
+    }
+
+    wdl_json_element *new_element(char lc, const char *v=NULL, int vlen=0)
+    {
+      wdl_json_element *e = new wdl_json_element;
+      e->m_value_string = (lc == '"');
+      e->m_array = lc == '[' || lc == '{' ? new WDL_PtrList<wdl_json_element> : NULL;
+      e->m_object_names = lc == '{' ? new WDL_PtrList<char> : NULL;
+      e->m_value = (char*) (v ? malloc(vlen+1) : NULL);
+      if (e->m_value)
+      {
+        memcpy(e->m_value,v,vlen);
+        e->m_value[vlen]=0;
+      }
+      return e;
     }
 };
 
