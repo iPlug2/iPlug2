@@ -1164,6 +1164,11 @@ WDL_KeyedArray<WDL_UINT64, char *> *WDL_GetLangpackSection(const char *sec)
   return g_translations.Get(sec);
 }
 
+WDL_KeyedArray<WDL_UINT64, char *> *WDL_EnumLangpackSections(int idx, const char **secname)
+{
+  return g_translations.Enumerate(idx,secname);
+}
+
 WDL_KeyedArray<WDL_UINT64, char *> *WDL_LoadLanguagePackInternal(const char *fn,
     WDL_StringKeyedArray< WDL_KeyedArray<WDL_UINT64, char *> * > *dest,
     const char *onlySec_name,
