@@ -116,10 +116,14 @@ int length_of_quoted_string(char *p, bool convertRCquotesToSlash)
 }
 
 #define HACK_WILDCARD_ENTRY 2
-static int isLocalizeCall(const char *p)
+static int isLocalizeCall(const char *p, const char *strstart)
 {
   int rv = 0;
-  if (!strncmp(p,"__LOCALIZE",10)) { p+=10; rv = 1; }
+  if (!strncmp(p,"__LOCALIZE",10))
+  {
+    if (p-8 >= strstart && !strncmp(p-8,"#define ",8)) return 0; // #define __LOCALIZE, ignore
+    p+=10; rv = 1;
+  }
   else if (!strncmp(p,"ADD_WILDCARD_ENTRY",18)) { p+=18; rv = HACK_WILDCARD_ENTRY; }
   else return 0;
 
@@ -399,7 +403,7 @@ void processCPPfile(FILE *fp, const char *filename)
         }
         p += l+2;
       }
-      else if ((p==(char*)fs.Get() || (!isalnum_safe(p[-1]) && p[-1] != '_')) && (hm=isLocalizeCall(p)))
+      else if ((p==(char*)fs.Get() || (!isalnum_safe(p[-1]) && p[-1] != '_')) && (hm=isLocalizeCall(p,fs.Get())))
       {
         while (*p != '(') p++;
         p++;
