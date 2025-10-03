@@ -299,7 +299,7 @@ char *WDL_ChooseFileForOpen2(HWND parent,
 #ifdef WDL_FILEBROWSE_WIN7VISTAMODE
   if (!wdl_use_legacy_filebrowse && allowmul!=1)
   {
-    Win7FileDialog fd(text);
+    Win7FileDialog fd(text, 0);
     if(fd.inited())
     {
       //vista+ file open dialog
@@ -475,7 +475,36 @@ bool WDL_ChooseDirectory(HWND parent,
 {
   char olddir[2048];
   GetCurrentDirectory(sizeof(olddir), olddir);
+
 #ifdef _WIN32
+#ifdef WDL_FILEBROWSE_WIN7VISTAMODE
+
+  if (!wdl_use_legacy_filebrowse)
+  {
+    WDL_FileBrowse_Dis win32disfix(parent);
+
+    Win7FileDialog fd(text, 2);
+    if (fd.inited())
+    {
+      if (initialdir && !initialdir[0]) initialdir=NULL;
+      fd.setFolder(initialdir ? initialdir : olddir, 0);
+      if (initialdir)
+      {
+        char temp[4096];
+        lstrcpyn_safe(temp, initialdir, sizeof(temp));
+        WDL_fixfnforopenfn(temp);
+        fd.setFolder(temp, 0);
+      }
+
+      bool ret=fd.show(parent);
+      if (ret) fd.getResult(fn, fnsize);
+      if (preservecwd) SetCurrentDirectory(olddir);
+      return ret;
+    }
+  }
+
+#endif
+
   char name[4096];
   lstrcpyn_safe(name, initialdir ? initialdir : "", sizeof(name));
   BROWSEINFO bi={parent,NULL, name, text, BIF_RETURNONLYFSDIRS|BIF_NEWDIALOGSTYLE, WDL_BrowseCallbackProc, (LPARAM)name,};
