@@ -486,14 +486,16 @@ bool WDL_ChooseDirectory(HWND parent,
     Win7FileDialog fd(text, 2);
     if (fd.inited())
     {
-      if (initialdir && !initialdir[0]) initialdir=NULL;
-      fd.setFolder(initialdir ? initialdir : olddir, 0);
-      if (initialdir)
+      if (initialdir && initialdir[0])
       {
         char temp[4096];
         lstrcpyn_safe(temp, initialdir, sizeof(temp));
         WDL_fixfnforopenfn(temp);
         fd.setFolder(temp, 0);
+      }
+      else
+      {
+        fd.setFolder(olddir, 0);
       }
 
       bool ret=fd.show(parent);
