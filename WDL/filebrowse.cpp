@@ -91,33 +91,6 @@ static int CALLBACK WINAPI WDL_BrowseCallbackProc( HWND hwnd, UINT uMsg, LPARAM 
 #endif
 
 
-bool WDL_ChooseDirectory(HWND parent, const char *text, const char *initialdir, char *fn, int fnsize, bool preservecwd)
-{
-  char olddir[2048];
-  GetCurrentDirectory(sizeof(olddir),olddir);
-#ifdef _WIN32
-  char name[4096];
-  lstrcpyn_safe(name,initialdir?initialdir:"",sizeof(name));
-  BROWSEINFO bi={parent,NULL, name, text, BIF_RETURNONLYFSDIRS|BIF_NEWDIALOGSTYLE, WDL_BrowseCallbackProc, (LPARAM)name,};
-  LPITEMIDLIST idlist = SHBrowseForFolderUTF8( &bi );
-  if (idlist && SHGetPathFromIDListUTF8(idlist, name, sizeof(name)))
-  {
-    IMalloc *m;
-    SHGetMalloc(&m);
-    m->Free(idlist);
-    lstrcpyn_safe(fn,name,fnsize);
-    return true;
-  }
-  return false;
-
-#else
-  bool r = BrowseForDirectory(text,initialdir,fn,fnsize);
-  if (preservecwd) SetCurrentDirectory(olddir);
-  return r;
-#endif
-}
-
-
 #ifdef _WIN32
 struct WDL_FileBrowse_Dis {
   enum { DLSZ = 10 };
@@ -490,4 +463,38 @@ char *WDL_ChooseFileForOpen(HWND parent,
                                         reshead
 #endif
                                         );
+}
+
+
+bool WDL_ChooseDirectory(HWND parent,
+  const char *text,
+  const char *initialdir,
+  char *fn,
+  int fnsize,
+  bool preservecwd)
+{
+  char olddir[2048];
+  GetCurrentDirectory(sizeof(olddir), olddir);
+#ifdef _WIN32
+  char name[4096];
+  lstrcpyn_safe(name, initialdir ? initialdir : "", sizeof(name));
+  BROWSEINFO bi={parent,NULL, name, text, BIF_RETURNONLYFSDIRS|BIF_NEWDIALOGSTYLE, WDL_BrowseCallbackProc, (LPARAM)name,};
+  LPITEMIDLIST idlist = SHBrowseForFolderUTF8( &bi );
+  if (idlist && SHGetPathFromIDListUTF8(idlist, name, sizeof(name)))
+  {
+    IMalloc *m;
+    SHGetMalloc(&m);
+    m->Free(idlist);
+    lstrcpyn_safe(fn, name, fnsize);
+    return true;
+  }
+  return false;
+
+#else
+
+  bool r = BrowseForDirectory(text,initialdir,fn,fnsize);
+  if (preservecwd) SetCurrentDirectory(olddir);
+  return r;
+
+#endif
 }
