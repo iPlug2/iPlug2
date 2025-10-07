@@ -191,6 +191,11 @@ typedef bool WDL_bool;
   #define WDL_NOT_NORMALLY(x) WDL_unlikely(x)
 #endif
 
+// asserts that buf1/buf2 do not overlap. must be the same type, also NULL or zero-sized buffers are assumed to never overlap
+#define WDL_ASSERT_NO_OVERLAP(buf1, buf1sz, buf2, buf2sz) \
+  WDL_ASSERT(!(buf1) || !(buf2) || (buf1sz)==0 || (buf2sz)==0 || (buf1) + (buf1sz) <= (buf2) || (buf1) >= (buf2) + (buf2sz))
+
+
 #if __GNUC__ >= 7 || __clang_major__ > 9
   #if __has_attribute(__fallthrough__)
     #define WDL_FALLTHROUGH __attribute__((__fallthrough__))
