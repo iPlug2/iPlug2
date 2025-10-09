@@ -23,14 +23,42 @@ public:
     Report("final");
   }
 
+  static void _format_big_integer(double usec, char *buf, int buflen)
+  {
+    char tmp[256];
+#ifdef _MSC_VER
+    _snprintf(tmp, sizeof(tmp), "%.0f", usec);
+#else
+    snprintf(tmp, sizeof(tmp), "%.0f", usec);
+#endif
+    int len = strlen(tmp);
+    char *from = tmp, *to = buf;
+    if (len*4/3 < buflen)
+    {
+      while (len--)
+      {
+        *to++ = *from++;
+        if (len && len%3 == 0) *to++ = ',';
+      }
+      *to = 0;
+    }
+    else
+    {
+      lstrcpyn(to, from, buflen);
+    }
+  }
+
   void Report(const char *caption=NULL) const
   {
     if (m_cnt)
     {
       const double usec=1000000.0;
-      wdl_log_force("timing %s%s%s%s: %.0f calls, %.0f usec/call, %.0f usec total\n",
+      char buf1[256], buf2[256];
+      _format_big_integer(m_tot*usec/(double)m_cnt, buf1, sizeof(buf1));
+      _format_big_integer(m_tot*usec, buf2, sizeof(buf2));
+      wdl_log_force("timing %s%s%s%s: %.0f calls, %s usec/call, %s usec total\n",
         m_name, caption ? " (" : "", caption ? caption : "", caption ? ")" : "",
-        (double)m_cnt, m_tot*usec/(double)m_cnt, m_tot*usec);
+        (double)m_cnt, buf1, buf2);
     }
   }
 
