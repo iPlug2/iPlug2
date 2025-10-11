@@ -994,6 +994,7 @@ int DrawText(HDC ctx, const char *buf, int buflen, RECT *r, int align)
     int ypos=0;
 
     r->bottom=r->top;
+    r->right=r->left;
     bool in_prefix=false;
     while (buflen && *buf) // if buflen<0, go forever
     {
