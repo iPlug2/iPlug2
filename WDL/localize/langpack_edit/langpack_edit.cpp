@@ -189,7 +189,11 @@ struct editor_instance {
         const char *p = get_row_value(i, COL_ID);
         int idx = 0;
         while (p[idx] && p[idx] != ':') idx++;
-        fprintf(fp,"%.*s/", idx,p);
+        int idx2 = idx;
+        while (p[idx2] && p[idx2] != ';') idx2++;
+        if (p[idx2]) idx2++;
+        while (p[idx2] == ' ') idx2++;
+        fprintf(fp,"%.*s%s%s/", idx,p,p[idx2]?";":"",p+idx2);
       }
       fprintf(fp,"%s\n", get_row_value(i, col));
     }
@@ -477,7 +481,7 @@ bool editor_instance::import_for_view(FILE *fp, bool want_sec)
     if (want_sec)
     {
       int secl = 0;
-      while (linebuf[secl] && linebuf[secl] != '/') secl++;
+      while (linebuf[secl] && linebuf[secl] != '/' && linebuf[secl] != ';') secl++;
       if (!linebuf[secl]) secmiss++;
       else if (lcnt < m_display_order.GetSize())
       {
