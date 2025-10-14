@@ -313,5 +313,39 @@ static void WDL_STATICFUNC_UNUSED wdl_utf8_set_char_case(char *p, int upper) // 
   }
 }
 
+static void WDL_STATICFUNC_UNUSED WDL_utf8_cleanup_truncation(char *buf, size_t bufsz)
+{
+  unsigned char * const ubuf = (unsigned char *)buf;
+  unsigned char *ep = ubuf + bufsz - 2; // point to the last byte before the NUL terminator
+  int contcnt = 1;
+
+  // only does anything if strlen(buf)==bufsz-1, removes any trailing partial UTF-8 sequences
+  if (!buf || bufsz<2 || strlen(buf) != bufsz-1) return;
+
+  if (*ep < 0x80) return; // last byte is normal ASCII, done
+  if (*ep >= 0xC0)
+  {
+    // last byte could be the start of a UTF-8 sequence, remove it
+    *ep = 0;
+    return;
+  }
+
+  // last byte is a UTF-8 continuation byte
+  for (;;)
+  {
+    unsigned char c;
+    if (--ep < ubuf) return; // continuation bytes at start of string, do nothing
+    c = *ep;
+    if (c >= 0xC0)
+    {
+      const int needcont = c < 0xE0 ? 1 : c < 0xF0 ? 2 : c < 0xF8 ? 3 : 0;
+      if (contcnt < needcont) // insufficient continuation bytes, truncate
+        *ep = 0;
+      return;
+    }
+    if (c < 0x80 || ++contcnt > 3) return; // if ascii or more than 3 continuation bytes, not valid UTF-8, do nothing
+  }
+}
+
 
 #endif
