@@ -75,8 +75,6 @@ WDL_WIN32_UTF8_IMPL int GetKeyNameTextUTF8(LONG lParam, LPTSTR lpString, int nMa
 
 WDL_WIN32_UTF8_IMPL WCHAR *WDL_UTF8ToWC(const char *buf, BOOL doublenull, int minsize, DWORD *sizeout);  // only converts UTF-8 if all 8-bit bytes are valid UTF-8 sequences
 
-WDL_WIN32_UTF8_IMPL BOOL WDL_HasUTF8(const char *_str); // only returns TRUE if any/all 8-bit bytes are valid UTF-8 sequences
-
 WDL_WIN32_UTF8_IMPL void WDL_UTF8_HookComboBox(HWND h);
 WDL_WIN32_UTF8_IMPL void WDL_UTF8_HookListView(HWND h);
 WDL_WIN32_UTF8_IMPL void WDL_UTF8_HookListBox(HWND h);

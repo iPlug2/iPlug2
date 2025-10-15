@@ -43,11 +43,6 @@ extern "C" {
 
 #define WIDETOMB_FREE(symbase) if (symbase != symbase##_buf) free(symbase)
 
-BOOL WDL_HasUTF8(const char *_str)
-{
-  return WDL_DetectUTF8(_str) > 0;
-}
-
 static BOOL WDL_HasUTF8_FILENAME(const char *_str)
 {
   return WDL_DetectUTF8(_str) > 0 || (_str && strlen(_str)>=256);
@@ -533,7 +528,7 @@ struct _ITEMIDLIST *SHBrowseForFolderUTF8(struct _browseinfoA *bi)
 
 int WDL_UTF8_SendBFFM_SETSEL(HWND hwnd, const char *str)
 {
-  if (IS_NOT_WIN9X_AND WDL_HasUTF8(str))
+  if (IS_NOT_WIN9X_AND WDL_DetectUTF8(str) > 0)
   {
     MBTOWIDE(wc, str);
     if (wc_ok)
@@ -738,7 +733,7 @@ UINT GetTempFileNameUTF8(LPCTSTR lpPathName, LPCTSTR lpPrefixString, UINT uUniqu
   if (WDL_NOT_NORMALLY(!lpPathName || !lpPrefixString || !lpTempFileName)) return 0;
 #endif
   if (lpPathName && lpPrefixString && lpTempFileName AND_IS_NOT_WIN9X
-      && (WDL_HasUTF8(lpPathName) || WDL_HasUTF8(lpPrefixString)))
+      && (WDL_DetectUTF8(lpPathName) > 0 || WDL_DetectUTF8(lpPrefixString) > 0))
   {
     MBTOWIDE(sbuf1,lpPathName);
     if (sbuf1_ok)
@@ -1067,7 +1062,10 @@ int GetKeyNameTextUTF8(LONG lParam, LPTSTR lpString, int nMaxCount)
 HINSTANCE ShellExecuteUTF8(HWND hwnd, LPCTSTR lpOp, LPCTSTR lpFile, LPCTSTR lpParm, LPCTSTR lpDir, INT nShowCmd)
 {
   // wdl_utf8_correctlongpath?
-  if (IS_NOT_WIN9X_AND (WDL_HasUTF8(lpOp)||WDL_HasUTF8(lpFile)||WDL_HasUTF8(lpParm)||WDL_HasUTF8(lpDir)))
+  if (IS_NOT_WIN9X_AND (WDL_DetectUTF8(lpOp) > 0 ||
+                        WDL_DetectUTF8(lpFile) > 0 ||
+                        WDL_DetectUTF8(lpParm) > 0 ||
+                        WDL_DetectUTF8(lpDir) > 0))
   {
     DWORD sz;
     WCHAR *p1=lpOp ? WDL_UTF8ToWC(lpOp,0,0,&sz) : NULL;
@@ -1152,7 +1150,7 @@ BOOL GetComputerNameUTF8(LPTSTR lpString, LPDWORD nMaxCount)
 // these only bother using Wide versions if the filename has wide chars
 // (for now)
 #define PROFILESTR_COMMON_BEGIN(ret_type) \
-  if (IS_NOT_WIN9X_AND fnStr && WDL_HasUTF8(fnStr)) \
+  if (IS_NOT_WIN9X_AND fnStr && WDL_DetectUTF8(fnStr) > 0) \
   { \
     BOOL do_rv = 0; \
     ret_type rv = 0; \
@@ -1277,9 +1275,9 @@ BOOL CreateProcessUTF8(LPCTSTR lpApplicationName,
 
   // special case ver
   if (IS_NOT_WIN9X_AND (
-        WDL_HasUTF8(lpApplicationName) ||
-        WDL_HasUTF8(lpCommandLine) ||
-        WDL_HasUTF8(lpCurrentDirectory)
+        WDL_DetectUTF8(lpApplicationName) > 0 ||
+        WDL_DetectUTF8(lpCommandLine) > 0 ||
+        WDL_DetectUTF8(lpCurrentDirectory) > 0
         )
       )
   {
