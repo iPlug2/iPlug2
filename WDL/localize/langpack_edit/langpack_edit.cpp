@@ -193,7 +193,7 @@ struct editor_instance {
         while (p[idx2] && p[idx2] != ';') idx2++;
         if (p[idx2]) idx2++;
         while (p[idx2] == ' ') idx2++;
-        fprintf(fp,"%.*s%s%s/", idx,p,p[idx2]?";":"",p+idx2);
+        fprintf(fp,"%.*s%s%s|", idx,p,p[idx2]?";":"",p+idx2);
       }
       fprintf(fp,"%s\n", get_row_value(i, col));
     }
@@ -481,7 +481,7 @@ bool editor_instance::import_for_view(FILE *fp, bool want_sec)
     if (want_sec)
     {
       int secl = 0;
-      while (linebuf[secl] && linebuf[secl] != '/' && linebuf[secl] != ';') secl++;
+      while (linebuf[secl] && linebuf[secl] != '|' && linebuf[secl] != ';') secl++;
       if (!linebuf[secl]) secmiss++;
       else if (lcnt < m_display_order.GetSize())
       {
@@ -520,7 +520,7 @@ bool editor_instance::import_for_view(FILE *fp, bool want_sec)
     WDL_remove_trailing_crlf(linebuf);
     if (want_sec)
     {
-      while (*linebufp && *linebufp != '/') linebufp++;
+      while (*linebufp && *linebufp != '|') linebufp++;
       if (!*linebufp) linebufp = linebuf;
       else linebufp++;
     }

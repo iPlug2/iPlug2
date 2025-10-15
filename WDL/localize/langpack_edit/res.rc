@@ -137,9 +137,9 @@ BEGIN
             MENUITEM "Export localized lines for current view as text", IDC_PACK_EXPORT_CURVIEW_LOCALIZED
             MENUITEM "Import localized lines to current view from text", IDC_PACK_IMPORT_CURVIEW
             MENUITEM SEPARATOR
-            MENUITEM "Export template lines for current view as text (section/text format)", IDC_PACK_EXPORT_CURVIEW2_TEMPLATE
-            MENUITEM "Export localized lines for current view as text (section/text format)", IDC_PACK_EXPORT_CURVIEW2_LOCALIZED
-            MENUITEM "Import localized lines to current view from text (section/text format)", IDC_PACK_IMPORT_CURVIEW2
+            MENUITEM "Export template lines for current view as text (section|text format)", IDC_PACK_EXPORT_CURVIEW2_TEMPLATE
+            MENUITEM "Export localized lines for current view as text (section|text format)", IDC_PACK_EXPORT_CURVIEW2_LOCALIZED
+            MENUITEM "Import localized lines to current view from text (section|text format)", IDC_PACK_IMPORT_CURVIEW2
         END
         MENUITEM SEPARATOR
         MENUITEM "&Quit\tCtrl+Q",               ID_QUIT
