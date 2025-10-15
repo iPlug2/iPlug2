@@ -23,9 +23,7 @@ misrepresented as being the original software.
 #ifndef _WDLUTF8_H_
 #define _WDLUTF8_H_
 
-/* todo: handle overlongs?
- * todo: handle multi-byte (make WideStr support UTF-16)
- */
+/* todo: handle overlongs differently? */
 
 #include "wdltypes.h"
 
@@ -141,6 +139,7 @@ static int WDL_STATICFUNC_UNUSED wdl_utf8_makechar(int c, char *dest, int dest_l
 
 
 // invalid UTF-8 are now treated as ANSI characters for this function
+// always writes utf-16, even if WDL_WCHAR is 4 bytes
 static int WDL_STATICFUNC_UNUSED WDL_MBtoWideStr(WDL_WCHAR *dest, const char *src, int destlenbytes)
 {
   WDL_WCHAR *w = dest, *dest_endp = dest+(size_t)destlenbytes/sizeof(WDL_WCHAR)-1;
@@ -149,7 +148,14 @@ static int WDL_STATICFUNC_UNUSED WDL_MBtoWideStr(WDL_WCHAR *dest, const char *sr
   if (src) for (; *src && w < dest_endp; )
   {
     int c,sz=wdl_utf8_parsechar(src,&c);
-    *w++ = c;
+    if (c >= 0x10000 && c < 0x10FFFF)
+    {
+      if (w+1 >= dest_endp) break;
+      *w++ = 0xD800 + (((c-0x10000)>>10)&0x3FF);
+      *w++ = 0xDC00 + (((c-0x10000)&0x3FF));
+    }
+    else
+      *w++ = c;
     src+=sz;
   }
   *w=0; 
@@ -187,7 +193,13 @@ static int WDL_STATICFUNC_UNUSED WDL_WideToMBStr(char *dest, const WDL_WCHAR *sr
 
   if (src) while (*src && p < dest_endp)
   {
-    const int v = wdl_utf8_makechar(*src++,p,(int)(dest_endp-p));
+    int ch = *src++, v;
+    if (ch >= 0xD800 && ch <= 0xD800 + 0x3FF && *src >= 0xDC00 && *src <= 0xDC00 + 0x3FF)
+    {
+      // surrogate pair
+      ch = 0x10000 + ((ch-0xD800)<<10) + (*src++ - 0xDC00);
+    }
+    v = wdl_utf8_makechar(ch,p,(int)(dest_endp-p));
     if (v > 0)
     {
       p += v;
