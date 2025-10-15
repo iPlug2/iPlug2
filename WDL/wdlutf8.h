@@ -347,5 +347,51 @@ static void WDL_STATICFUNC_UNUSED WDL_utf8_cleanup_truncation(char *buf, size_t 
   }
 }
 
+static char *WDL_utf8_cleanup_bad_codepoints(const char *str, char *tmpbuf, int tmpbufsz, int flags)
+{
+  // flags&1= force
+  // drops invalid codepoints if either 'force' is specified or if the ratio of UTF-8 characters to invalid
+  // bytes is high enough. returns either buf or a malloc'd buffer (or NULL if no fixing is necessary)
+
+  int utf8bytes = 0, dropbytes = 0, slen = 0, wpos = 0, spos = 0, wbuf_sz;
+  char *wbuf = tmpbuf;
+  while (str[slen])
+  {
+    int l;
+    if (str[slen] > 0) { slen++; continue; } // skip ascii
+    l = wdl_utf8_parsechar(str+slen,NULL);
+    if (l == 1 || l > 4) dropbytes += l;
+    else utf8bytes += l;
+    slen += l;
+  }
+  if (!dropbytes) return NULL;
+
+  if (!(flags&1) && utf8bytes < dropbytes*5 && utf8bytes < slen*3/4)
+    return NULL;
+
+  wbuf_sz = (slen-dropbytes) + 1;
+  if (wbuf_sz >= tmpbufsz || !tmpbuf) wbuf = (char *)malloc(wbuf_sz);
+  if (WDL_NOT_NORMALLY(!wbuf)) return NULL;
+
+  while (str[spos])
+  {
+    int addl = 1;
+    if (str[spos] < 0)
+    {
+      addl = wdl_utf8_parsechar(str+spos,NULL);
+      spos += addl;
+      if (addl == 1 || addl > 4) continue;
+    }
+    else spos++;
+
+    if (WDL_NOT_NORMALLY(wpos+addl >= wbuf_sz)) break;
+    memcpy(wbuf+wpos, str+spos-addl, addl);
+    wpos += addl;
+  }
+  wbuf[wpos] = 0;
+  WDL_ASSERT(wpos == wbuf_sz-1);
+  return wbuf;
+}
+
 
 #endif
