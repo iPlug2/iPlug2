@@ -394,4 +394,74 @@ static char *WDL_utf8_cleanup_bad_codepoints(const char *str, char *tmpbuf, int 
 }
 
 
+static WDL_WCHAR *WDL_utf8_to_utf16(const char *str, WDL_WCHAR *tmpbuf, int tmpbufsz_bytes, int flags)
+{
+  // flags&1= force utf-8 even if likely ansi
+  // flagS&2= do not malloc()
+  // drops invalid codepoints if either 'force' is specified or if the ratio of UTF-8 characters to invalid
+  // bytes is high enough.
+  //
+  // may return tmpbuf, or a malloc()'d buffer, or NULL.
+  //
+  // if determines that source is unlikely be to UTF-8, returns NULL (!)
+
+  int utf8bytes = 0, dropbytes = 0, slen = 0, wpos = 0, spos = 0, wbuf_sz = 0;
+  WDL_WCHAR *wbuf = tmpbuf;
+  while (str[slen])
+  {
+    int c,l;
+    if (str[slen] > 0) { wbuf_sz++; slen++; continue; } // skip ascii
+    l = wdl_utf8_parsechar(str+slen,&c);
+    if (l == 1 || l > 4) dropbytes += l;
+    else
+    {
+      utf8bytes += l;
+      wbuf_sz += c>=0x10000 ? 2 : 1;
+    }
+    slen += l;
+  }
+
+  if (!(flags&1) && utf8bytes < dropbytes*5 && utf8bytes < slen*3/4) // if this passes, string is probably not UTF-8!
+    return NULL;
+
+  wbuf_sz++; // terminating nul
+  if (wbuf_sz*sizeof(WDL_WCHAR) >= tmpbufsz_bytes || !tmpbuf)
+  {
+    if (!(flags&2))
+      wbuf = (WDL_WCHAR *)malloc(wbuf_sz * sizeof(WDL_WCHAR));
+    else
+      wbuf_sz = tmpbufsz_bytes / sizeof(WDL_WCHAR);
+  }
+  if (WDL_NOT_NORMALLY(!wbuf)) return NULL;
+
+  while (str[spos])
+  {
+    int c = str[spos], addl = 1;
+    if (c < 0)
+    {
+      addl = wdl_utf8_parsechar(str+spos,&c);
+      spos += addl;
+      if (addl == 1 || addl > 4) continue;
+      addl = c >= 0x10000 ? 2 : 1;
+    }
+    else spos++;
+
+    if (wpos+addl >= wbuf_sz)
+    {
+      WDL_ASSERT(flags & 2);
+      break;
+    }
+    if (addl == 1) wbuf[wpos] = c;
+    else
+    {
+      wbuf[wpos] = 0xD800 + (((c-0x10000)>>10)&0x3FF);
+      wbuf[wpos+1] = 0xDC00 + (((c-0x10000)&0x3FF));
+    }
+    wpos += addl;
+  }
+  wbuf[wpos] = 0;
+  WDL_ASSERT(wpos == wbuf_sz-1);
+  return wbuf;
+}
+
 #endif
