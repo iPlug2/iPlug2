@@ -382,7 +382,7 @@ static char *WDL_utf8_cleanup_bad_codepoints(const char *str, char *tmpbuf, int 
     return NULL;
 
   wbuf_sz = (slen-dropbytes) + 1;
-  if (wbuf_sz >= tmpbufsz || !tmpbuf) wbuf = (char *)malloc(wbuf_sz);
+  if (wbuf_sz > tmpbufsz || !tmpbuf) wbuf = (char *)malloc(wbuf_sz);
   if (WDL_NOT_NORMALLY(!wbuf)) return NULL;
 
   while (str[spos])
@@ -437,7 +437,7 @@ static WDL_WCHAR *WDL_utf8_to_utf16(const char *str, WDL_WCHAR *tmpbuf, int tmpb
     return NULL;
 
   wbuf_sz++; // terminating nul
-  if (wbuf_sz*sizeof(WDL_WCHAR) >= tmpbufsz_bytes || !tmpbuf)
+  if (wbuf_sz*(int)sizeof(WDL_WCHAR) > tmpbufsz_bytes || !tmpbuf)
   {
     if (!(flags&2))
       wbuf = (WDL_WCHAR *)malloc(wbuf_sz * sizeof(WDL_WCHAR));
