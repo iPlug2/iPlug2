@@ -27,6 +27,7 @@
 #include "swell.h"
 #define SWELL_IMPLEMENT_GETOSXVERSION
 #include "swell-internal.h"
+#include "../wdlutf8.h"
 
 #include "../mutex.h"
 
@@ -92,6 +93,16 @@ void *SWELL_CStringToCFString(const char *str)
   
   ret=(void *)CFStringCreateWithCString(NULL,str,kCFStringEncodingUTF8);
   if (ret) return ret;
+
+  char tmp[2048];
+  char *fixedstr = WDL_utf8_cleanup_bad_codepoints(str,tmp,sizeof(tmp),0);
+  if (fixedstr)
+  {
+    ret=(void *)CFStringCreateWithCString(NULL,fixedstr,kCFStringEncodingUTF8);
+    if (fixedstr != tmp) free(fixedstr);
+    if (ret) return ret;
+  }
+
   ret=(void*)CFStringCreateWithCString(NULL,str,kCFStringEncodingASCII);
   return ret;
 }
