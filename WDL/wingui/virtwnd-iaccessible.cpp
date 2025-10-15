@@ -22,7 +22,7 @@ static BSTR SysAllocStringUTF8(const char *str)
   if (!wstr) return NULL;
 
   wstr[0]=0;
-  int a=MultiByteToWideChar(CP_UTF8,MB_ERR_INVALID_CHARS,str,slen,wstr, slen<1000?1024:slen+16);
+  int a=MultiByteToWideChar(CP_UTF8,0,str,slen,wstr, slen<1000?1024:slen+16);
   if (!a)
   {
     wstr[0]=0;
