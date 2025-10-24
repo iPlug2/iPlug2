@@ -94,35 +94,31 @@ WDL_HASSTRINGS_EXPORT int hasStrings_utf8cmp(const unsigned char * const a, cons
     {
       if (cb != 'a'-'A')
       {
-        if (ca == 0xE2 && cb == ('\''-0xE2) && a[aidx+1] == 0x80 && (a[aidx+2]&~1) == 0x98)
-        {
-          aidx+=3;
-          ++b;
-          --n;
-          continue;
-        }
-        const int skipl = WDL_IS_UTF8_SKIPPABLE(ca,a[aidx+1]);
-        if (skipl)
-        {
-          aidx += skipl;
-          continue;
-        }
+        if (ca < 0x80) return -ca;
 
-        if (WDL_IS_UTF8_2BYTE_PREFIX(ca) && WDL_IS_UTF8_CONTINUATION_BYTE(a[aidx+1]))
+        if (WDL_IS_UTF8_2BYTE_PREFIX(ca))
         {
           unsigned char b1 = ca, b2 = a[aidx+1];
 
           wdl_utf8_2byte_casefold(b1,b2);
-          if (b1 != b[0]) return -ca;
+          if (b1 != b[0]) // folded, or non-folded, no match
+          {
+            const int skipl = WDL_IS_UTF8_SKIPPABLE(b1,b2); // if WDL_IS_UTF8_SKIPPABLE ever updated for 3 byte skips, need to move this out of here
+            if (skipl)
+            {
+              aidx += skipl;
+              continue;
+            }
+            return -ca;
+          }
+          aidx+=2;
           if (!b2)
           {
-            aidx+=2;
             b++;
             n--;
             continue;
           }
           if (n < 2 || b2 != b[1]) return -ca;
-          aidx+=2;
           b+=2;
           n-=2;
           continue;
@@ -134,12 +130,12 @@ WDL_HASSTRINGS_EXPORT int hasStrings_utf8cmp(const unsigned char * const a, cons
           wdl_utf8_2byte_casefold(b1,b2);
           WDL_ASSERT(b[-1] == lc);
           if (!b2 || lc != b1 || b[0] != b2) return -1;
-          aidx++;
-          b++;
-          n--;
-          continue;
         }
-        return -ca;
+        else if (ca == 0xE2 && cb == ('\''-0xE2) && a[aidx+1] == 0x80 && (a[aidx+2]&~1) == 0x98)
+        {
+          aidx+=2;
+        }
+        else return -ca;
       }
       else if (ca < 'A' || ca > 'Z') return -ca;
     }
