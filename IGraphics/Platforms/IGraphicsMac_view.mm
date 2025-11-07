@@ -572,6 +572,16 @@ static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
     if (mGraphics)
       mGraphics->SetScreenScale(newScale);
     
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(windowDidResign:)
+                                                 name:NSWindowDidResignKeyNotification
+                                               object:pWindow];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(windowDidResign:)
+                                                 name:NSWindowDidResignMainNotification
+                                               object:pWindow];
+    
     #ifdef IGRAPHICS_METAL
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(frameDidChange:)
@@ -1303,6 +1313,19 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
   [self activateGLContext];
 }
 #endif
+
+
+- (void) windowDidResign: (NSNotification*)notification
+{
+  mGraphics->OnLostFocus();
+}
+
+- (BOOL) resignFirstResponder
+{
+  mGraphics->OnLostFocus();
+  return YES;
+}
+
 
 //- (void) windowResized: (NSNotification*) notification;
 //{

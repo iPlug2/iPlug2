@@ -641,6 +641,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
     }
     case WM_KILLFOCUS:
     {
+      pGraphics->OnLostFocus();
       return 0;
     }
   }
