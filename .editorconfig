@@ -1,14 +1,14 @@
-# top-most EditorConfig for IPlugQuake
+# Top-most EditorConfig for iPlug2
 root = true
 
-[*.*]
-
+[*]
 end_of_line = lf
-
 charset = utf-8
-
 indent_style = space
-
 indent_size = 2
-
+insert_final_newline = true
 trim_trailing_whitespace = true
+
+# Windows shell scripts
+[*.{bat,ps1}]
+end_of_line = crlf

@@ -14,6 +14,7 @@
 
 *.bat    text eol=crlf
 *.cmd    text eol=crlf
+*.ps1    text eol=crlf
 
 *.dsp               text eol=crlf
 *.dsw               text eol=crlf
@@ -24,6 +25,7 @@
 *.props             text eol=crlf
 *.rc                text eol=crlf
 
+*.cmake             text eol=lf
 *.command           text eol=lf
 *.sh                text eol=lf
 *.pbxproj           text eol=lf
