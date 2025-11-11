@@ -147,7 +147,11 @@ static HANDLE s_clipboard_getstate, s_clipboard_setstate;
 static GdkAtom s_clipboard_getstate_fmt, s_clipboard_setstate_fmt;
 
 static WDL_IntKeyedArray<HANDLE> m_clip_recs(GlobalFree);
-static WDL_PtrList<char> m_clip_curfmts;
+struct clip_fmt {
+  const char *str;
+  GdkAtom atom;
+};
+static WDL_TypedBuf<clip_fmt> s_clip_curfmts;
 static HWND s_clip_hwnd;
 
 static void swell_gdkEventHandler(GdkEvent *event, gpointer data);
@@ -851,15 +855,9 @@ static GdkAtom urilistatom()
 
 static bool atom_from_clipboard_type(int type, GdkAtom *atom)
 {
-  if (type == CF_TEXT) { *atom = utf8atom(); return true; }
-  if (type == CF_HDROP) { *atom = urilistatom(); return true; }
-
-  const char *t = m_clip_curfmts.Get(type - 1);
-  if (!t) return false;
-
-  char tmp[512];
-  snprintf(tmp,sizeof(tmp),"application/swell-%s",t);
-  *atom = gdk_atom_intern(tmp, 0);
+  type--;
+  if (type < 0 || type >= s_clip_curfmts.GetSize()) return false;
+  *atom = s_clip_curfmts.Get()[type].atom;
   return true;
 }
 
@@ -2277,19 +2275,27 @@ void SetClipboardData(UINT type, HANDLE h)
 
 UINT RegisterClipboardFormat(const char *desc)
 {
-  if (!m_clip_curfmts.GetSize())
+  if (!s_clip_curfmts.GetSize())
   {
-    m_clip_curfmts.Add(strdup("SWELL__CF_TEXT"));
-    m_clip_curfmts.Add(strdup("SWELL__CF_HDROP"));
+    clip_fmt c[2] = {
+      { "SWELL__CF_TEXT", utf8atom() },
+      { "SWELL__CF_HDROP", urilistatom() },
+    };
+    s_clip_curfmts.Add(c,sizeof(c)/sizeof(c[0]));
   }
 
   if (!desc || !*desc) return 0;
-  int x;
-  const int n = m_clip_curfmts.GetSize();
-  for(x=0;x<n;x++) 
-    if (!strcmp(m_clip_curfmts.Get(x),desc)) return x + 1;
-  m_clip_curfmts.Add(strdup(desc));
-  return n+1;
+
+  for (int x = 0; x < s_clip_curfmts.GetSize(); x++)
+    if (!strcmp(s_clip_curfmts.Get()[x].str,desc)) return x + 1;
+
+  char tmp[512];
+  snprintf(tmp,sizeof(tmp),"application/swell-%s",desc);
+
+  clip_fmt c1 = { strdup(desc), gdk_atom_intern(tmp, 0) };
+  s_clip_curfmts.Add(c1);
+
+  return s_clip_curfmts.GetSize();
 }
 
 
