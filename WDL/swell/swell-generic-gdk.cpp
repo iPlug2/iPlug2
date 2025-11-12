@@ -143,26 +143,25 @@ static bool g_swell_mouse_relmode;
 static int g_swell_mouse_relmode_curpos_x;
 static int g_swell_mouse_relmode_curpos_y;
 
-static HANDLE s_clipboard_getstate, s_clipboard_enumstate;
+
+//// clipboard state
+static HANDLE s_clipboard_getstate; // currently retrieving data/format via req_clipboard() (either GetClipboardData() or EnumClipboardFormats(0))
 static GdkAtom s_clipboard_getstate_fmt;
 
-static WDL_TypedBuf<GdkAtom> s_clipboard_setstate; // stored as separate lists so we can easily pass to properties
-static WDL_TypedBuf<HANDLE> s_clipboard_setstate_data;
-static HANDLE *find_clipboard_setstate(GdkAtom a)
-{
-  for (int x = 0; x < s_clipboard_setstate.GetSize(); x ++)
-    if (s_clipboard_setstate.Get()[x] == a)
-      return s_clipboard_setstate_data.Get() + x;
-  return NULL;
-}
+static HANDLE s_clipboard_enumstate; // list of clipboard GdkAtoms populated on first EnumClipboardFormats() call
 
 struct clip_fmt {
   const char *str;
   GdkAtom atom;
 };
-static WDL_TypedBuf<clip_fmt> s_clip_curfmts;
+static WDL_TypedBuf<clip_fmt> s_clip_fmts; // mapping of UINT clipboard types, offset by 1 (s_clip_fmts.Get()[0] is CF_TEXT=1, etc)
+
 static HWND s_clip_hwnd;
-static bool s_clipboard_written;
+
+// clipboard data added by SetClipboardData():
+static WDL_TypedBuf<GdkAtom> s_clipboard_setstate; // stored as separate lists so we can easily pass to properties
+static WDL_TypedBuf<HANDLE> s_clipboard_setstate_data;
+static bool s_clipboard_written; // has clipboard data been written-to since opening
 
 static void swell_gdkEventHandler(GdkEvent *event, gpointer data);
 
@@ -872,17 +871,26 @@ static GdkAtom urilistatom()
 static bool atom_from_clipboard_type(int type, GdkAtom *atom)
 {
   type--;
-  if (type < 0 || type >= s_clip_curfmts.GetSize()) return false;
-  *atom = s_clip_curfmts.Get()[type].atom;
+  if (type < 0 || type >= s_clip_fmts.GetSize()) return false;
+  *atom = s_clip_fmts.Get()[type].atom;
   return true;
 }
 
 static UINT clipboard_type_from_atom(GdkAtom atom)
 {
-  for (int x = 0; x < s_clip_curfmts.GetSize(); x++)
-    if (s_clip_curfmts.Get()[x].atom == atom) return x+1;
+  for (int x = 0; x < s_clip_fmts.GetSize(); x++)
+    if (s_clip_fmts.Get()[x].atom == atom) return x+1;
   return 0;
 }
+
+static HANDLE *find_clipboard_setstate(GdkAtom a)
+{
+  for (int x = 0; x < s_clipboard_setstate.GetSize(); x ++)
+    if (s_clipboard_setstate.Get()[x] == a)
+      return s_clipboard_setstate_data.Get() + x;
+  return NULL;
+}
+
 
 static void OnSelectionRequestEvent(GdkEventSelection *b)
 {
@@ -2339,27 +2347,27 @@ void SetClipboardData(UINT type, HANDLE h)
 
 UINT RegisterClipboardFormat(const char *desc)
 {
-  if (!s_clip_curfmts.GetSize())
+  if (!s_clip_fmts.GetSize())
   {
     clip_fmt c[2] = {
       { "SWELL__CF_TEXT", utf8atom() },
       { "SWELL__CF_HDROP", urilistatom() },
     };
-    s_clip_curfmts.Add(c,sizeof(c)/sizeof(c[0]));
+    s_clip_fmts.Add(c,sizeof(c)/sizeof(c[0]));
   }
 
   if (!desc || !*desc) return 0;
 
-  for (int x = 0; x < s_clip_curfmts.GetSize(); x++)
-    if (!strcmp(s_clip_curfmts.Get()[x].str,desc)) return x + 1;
+  for (int x = 0; x < s_clip_fmts.GetSize(); x++)
+    if (!strcmp(s_clip_fmts.Get()[x].str,desc)) return x + 1;
 
   char tmp[512];
   snprintf(tmp,sizeof(tmp),"application/swell-%s",desc);
 
   clip_fmt c1 = { strdup(desc), gdk_atom_intern(tmp, 0) };
-  s_clip_curfmts.Add(c1);
+  s_clip_fmts.Add(c1);
 
-  return s_clip_curfmts.GetSize();
+  return s_clip_fmts.GetSize();
 }
 
 
