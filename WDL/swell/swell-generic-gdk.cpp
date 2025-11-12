@@ -2329,7 +2329,7 @@ void SetClipboardData(UINT type, HANDLE h)
       attr.window_type = GDK_WINDOW_TOPLEVEL;
       w = gdk_window_new(NULL,&attr,0);
     }
-    if (w)
+    if (w && !s_clipboard_written)
     {
       s_clipboard_written = true;
       gdk_selection_owner_set(w,GDK_SELECTION_CLIPBOARD,GDK_CURRENT_TIME,TRUE);
