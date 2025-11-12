@@ -1617,8 +1617,9 @@ static void OnSelectionNotifyEvent(GdkEventSelection *b)
       if (fmt == GDK_TARGET_STRING || fmt == utf8atom())
       {
         int lastc=0;
-        while (sz-->0)
+        while (sz >= unitsz/8)
         {
+          sz -= unitsz/8;
           int c;
           if (unitsz==32) { c = *(unsigned int *)ptr; ptr+=4; }
           else if (unitsz==16)  { c = *(unsigned short *)ptr; ptr+=2; }
@@ -1645,7 +1646,6 @@ static void OnSelectionNotifyEvent(GdkEventSelection *b)
         ptr = (guchar*)str.Get();
         sz=str.GetLength()+1;
       }
-      else if (unitsz>8) sz *= (unitsz/8);
 
       s_clipboard_getstate = GlobalAlloc(0,sz);
       if (s_clipboard_getstate)
