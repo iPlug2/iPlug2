@@ -1597,7 +1597,8 @@ static void OnSelectionNotifyEvent(GdkEventSelection *b)
 
   s_ddrop_hwnd=NULL;
 
-  if (s_clipboard_getstate) { GlobalFree(s_clipboard_getstate); s_clipboard_getstate=NULL; }
+  GlobalFree(s_clipboard_getstate);
+  s_clipboard_getstate=NULL;
   guchar *gptr=NULL;
   GdkAtom fmt;
   gint unitsz=0;
@@ -2148,11 +2149,8 @@ bool OpenClipboard(HWND hwndDlg)
 {
   RegisterClipboardFormat(NULL);
   s_clip_hwnd=hwndDlg ? hwndDlg : SWELL_topwindows; 
-  if (s_clipboard_getstate)
-  {
-    GlobalFree(s_clipboard_getstate);
-    s_clipboard_getstate = NULL;
-  }
+  GlobalFree(s_clipboard_getstate);
+  s_clipboard_getstate = NULL;
   s_clipboard_getstate_fmt = NULL;
 
   return true; 
@@ -2167,11 +2165,8 @@ static HANDLE req_clipboard(GdkAtom type)
 
   if (h && SWELL_gdk_active > 0)
   {
-    if (s_clipboard_getstate)
-    {
-      GlobalFree(s_clipboard_getstate);
-      s_clipboard_getstate=NULL;
-    }
+    GlobalFree(s_clipboard_getstate);
+    s_clipboard_getstate=NULL;
     gdk_selection_convert(h->m_oswindow,GDK_SELECTION_CLIPBOARD,type,GDK_CURRENT_TIME);
  
     GMainContext *ctx=g_main_context_default();
