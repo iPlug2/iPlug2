@@ -579,12 +579,12 @@ bool IPlugAPPHost::InitAudio(uint32_t inId, uint32_t outId, uint32_t sr, uint32_
 
   RtAudio::StreamParameters iParams, oParams;
   iParams.deviceId = inId;
-  iParams.nChannels = GetPlug()->MaxNChannels(ERoute::kInput); // TODO: flexible channel count
-  iParams.firstChannel = 0; // TODO: flexible channel count
+  iParams.nChannels = GetPlug()->MaxNChannels(ERoute::kInput);
+  iParams.firstChannel = mState.mAudioInChanL - 1; // Use selected input channel (convert from 1-based to 0-based)
 
   oParams.deviceId = outId;
-  oParams.nChannels = GetPlug()->MaxNChannels(ERoute::kOutput); // TODO: flexible channel count
-  oParams.firstChannel = 0; // TODO: flexible channel count
+  oParams.nChannels = GetPlug()->MaxNChannels(ERoute::kOutput);
+  oParams.firstChannel = mState.mAudioOutChanL - 1; // Use selected output channel (convert from 1-based to 0-based)
 
   mBufferSize = iovs; // mBufferSize may get changed by stream
 
