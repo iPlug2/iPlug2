@@ -2210,6 +2210,10 @@ static HANDLE req_clipboard(GdkAtom type)
           {
             case GDK_SELECTION_NOTIFY:
             case GDK_SELECTION_REQUEST:
+            case GDK_EXPOSE:
+            case GDK_CONFIGURE:
+            case GDK_WINDOW_STATE:
+            case GDK_GRAB_BROKEN:
               swell_gdkEventHandler(evt,(gpointer)1);
             break;
             default:
