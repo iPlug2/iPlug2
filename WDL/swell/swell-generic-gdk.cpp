@@ -2206,8 +2206,16 @@ static HANDLE req_clipboard(GdkAtom type)
         GdkEvent *evt;
         while (!s_clipboard_getstate && gdk_events_pending() && (evt = gdk_event_get()))
         {
-          if (evt->type == GDK_SELECTION_NOTIFY || evt->type == GDK_SELECTION_REQUEST)
-            swell_gdkEventHandler(evt,(gpointer)1);
+          switch (evt->type)
+          {
+            case GDK_SELECTION_NOTIFY:
+            case GDK_SELECTION_REQUEST:
+              swell_gdkEventHandler(evt,(gpointer)1);
+            break;
+            default:
+              // not ideal to drop events, but hm
+            break;
+          }
           gdk_event_free(evt);
         }
       }
