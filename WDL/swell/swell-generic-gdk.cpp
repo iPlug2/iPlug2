@@ -2195,6 +2195,15 @@ static HANDLE req_clipboard(GdkAtom type)
   {
     GlobalFree(s_clipboard_getstate);
     s_clipboard_getstate=NULL;
+
+    GdkDisplay *disp = gdk_window_get_display(h->m_oswindow);
+    if (WDL_NORMALLY(disp) &&
+        None == XGetSelectionOwner(gdk_x11_display_get_xdisplay(disp),
+                                   gdk_x11_atom_to_xatom_for_display(disp, GDK_SELECTION_CLIPBOARD)))
+    {
+      return NULL;
+    }
+
     gdk_selection_convert(h->m_oswindow,GDK_SELECTION_CLIPBOARD,type,GDK_CURRENT_TIME);
  
     GMainContext *ctx=g_main_context_default();
