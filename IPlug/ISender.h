@@ -726,4 +726,204 @@ private:
   float mScalingFactor = 0.0f;
 };
 
+/** ITimeInfoSender is a utility class which can be used to defer DAW time/beat information from the DSP to the UI */
+template <int MAXNC = 1, int QUEUE_SIZE = 16>
+class ITimeInfoSender : public ISender<MAXNC, QUEUE_SIZE, ITimeInfo>
+{
+public:
+  ITimeInfoSender()
+  : ISender<MAXNC, QUEUE_SIZE, ITimeInfo>()
+  {
+  }
+  
+  /** Process time info. This can be called on the realtime audio thread.
+   @param timeInfo The current time info from the DAW
+   @param ctrlTag a control tag to indicate which control to send the info to. Note: if you don't supply the control tag here, you must use TransmitDataToControlsWithTags() and specify one or more tags there */
+  void Process(const ITimeInfo& timeInfo, int ctrlTag = kNoTag)
+  {
+    ISenderData<MAXNC, ITimeInfo> d{ctrlTag, 1, 0};
+    d.vals[0] = timeInfo;
+    
+    ISender<MAXNC, QUEUE_SIZE, ITimeInfo>::PushData(d);
+  }
+};
+
+/** Struct containing beat pulse information to be sent to the UI */
+#pragma pack(push,1)
+struct BeatPulseInfo
+{
+//  double phase = 0.0;     // Current phase (0.0 to 1.0)
+  int beatCount = 0;      // Beat counter (increments on each pulse)
+//  double beatScalar = 1.0; // Current beat scalar value
+  
+  BeatPulseInfo() {}
+  
+  BeatPulseInfo(int beatCount) : beatCount(beatCount) {}
+
+//
+//  BeatPulseInfo(double phase, int beatCount, double beatScalar)
+//  : phase(phase)
+//  , beatCount(beatCount)
+//  , beatScalar(beatScalar)
+//  {
+//  }
+};
+#pragma pack(pop)
+
+/** IBeatPulseSender is a utility class which can be used to detect beat-synced pulses and send them to the UI
+ * Useful for step sequencers and other tempo-synced UI elements */
+template <int MAXNC = 1, int QUEUE_SIZE = 16>
+class IBeatPulseSender : public ISender<MAXNC, QUEUE_SIZE, BeatPulseInfo>
+{
+public:
+  IBeatPulseSender(double beatScalar = 1.0)
+  : ISender<MAXNC, QUEUE_SIZE, BeatPulseInfo>()
+  , mBeatScalar(beatScalar)
+  , mPrevPhase(1.0)
+  , mFreeRunning(false)
+  , mFreeRunningBPM(120.0)
+  , mFreeRunningPhase(0.0)
+  , mLastTimeMS(0.0)
+  {
+  }
+  
+  /** Set the beat scalar. For example, 0.25 = 16th notes, 0.5 = 8th notes, 1.0 = quarter notes, etc. */
+  void SetBeatScalar(double scalar)
+  {
+    mBeatScalar = scalar;
+  }
+  
+  double GetBeatScalar() const
+  {
+    return mBeatScalar;
+  }
+  
+  /** Enable or disable free running mode when transport is not running */
+  void SetFreeRunning(bool enable)
+  {
+    mFreeRunning = enable;
+  }
+  
+  bool GetFreeRunning() const
+  {
+    return mFreeRunning;
+  }
+  
+  /** Set the BPM to use when in free running mode */
+  void SetFreeRunningBPM(double bpm)
+  {
+    mFreeRunningBPM = bpm;
+  }
+  
+  double GetFreeRunningBPM() const
+  {
+    return mFreeRunningBPM;
+  }
+  
+  /** Process time info and check for beat pulses. This can be called on the realtime audio thread.
+   @param timeInfo The current time info from the DAW
+   @param ctrlTag a control tag to indicate which control to send the pulse to. Note: if you don't supply the control tag here, you must use TransmitDataToControlsWithTags() and specify one or more tags there 
+   @param sampleRate The current sample rate
+   @param nFrames The number of samples in the current processing block */
+  void Process(const ITimeInfo& timeInfo, int ctrlTag = kNoTag, double sampleRate = DEFAULT_SAMPLE_RATE, int nFrames = 0)
+  {
+    bool pulseDetected = false;
+    double beatPhase = 0.0;
+    
+    // Process with DAW transport when running
+    if (timeInfo.mTransportIsRunning && timeInfo.mPPQPos >= 0.0)
+    {
+      auto oneOverBS = 1.0 / mBeatScalar;
+      
+      // Calculate beat phase (0.0 to 1.0 over one beat interval)
+      beatPhase = std::fmod(timeInfo.mPPQPos, oneOverBS) / oneOverBS;
+      
+      // Wrap to 0.0-1.0 range
+      while (beatPhase >= 1.0) beatPhase -= 1.0;
+      while (beatPhase < 0.0) beatPhase += 1.0;
+      
+      // Detect beat boundary crossings (phase wrapping from high to low)
+      pulseDetected = (beatPhase - mPrevPhase) < -0.5;
+      
+      mPrevPhase = beatPhase;
+      mFreeRunningPhase = beatPhase; // Sync free running phase to transport when running
+      mLastTimeMS = timeInfo.mSamplePos * 1000.0 / sampleRate;
+    }
+    // Use free running mode when transport not running
+    else if (mFreeRunning)
+    {
+      // Calculate elapsed time since last block
+      double currentTimeMS = 0.0;
+      
+//      if (timeInfo.mSamplePos >= 0.0)
+//      {
+//        currentTimeMS = timeInfo.mSamplePos * 1000.0 / sampleRate;
+//      }
+//      else if (nFrames > 0 && sampleRate > 0.0)
+//      {
+        // If we don't have valid sample position, increment based on block size
+        currentTimeMS = mLastTimeMS + (nFrames * 1000.0 / sampleRate);
+//      }
+      
+      if (currentTimeMS > mLastTimeMS)
+      {
+        // Calculate phase increment based on elapsed time and BPM
+        double beatsPerSecond = mFreeRunningBPM / 60.0;
+        double beatsPerMilli = beatsPerSecond / 1000.0;
+        double elapsedMS = currentTimeMS - mLastTimeMS;
+        
+        // Scale by beat scalar to get appropriate subdivision
+        double phaseIncrement = (beatsPerMilli * elapsedMS) * mBeatScalar;
+        
+        // Update phase
+        mFreeRunningPhase += phaseIncrement;
+        
+        // Wrap phase and detect beat boundaries
+        double prevPhase = mFreeRunningPhase - phaseIncrement;
+        
+        // Wrap to 0.0-1.0 range
+        while (mFreeRunningPhase >= 1.0) mFreeRunningPhase -= 1.0;
+        while (mFreeRunningPhase < 0.0) mFreeRunningPhase += 1.0;
+        
+        // Check if we crossed a boundary
+        if (prevPhase >= 0.0 && prevPhase < 1.0)
+        {
+          pulseDetected = (mFreeRunningPhase < prevPhase);
+        }
+        
+        beatPhase = mFreeRunningPhase;
+      }
+      mLastTimeMS = currentTimeMS;
+    }
+    
+    if (pulseDetected)
+    {
+      ISenderData<MAXNC, BeatPulseInfo> d{ctrlTag, 1, 0};
+//      d.vals[0] = BeatPulseInfo(beatPhase, mBeatCount, mBeatScalar);
+      d.vals[0] = BeatPulseInfo(mBeatCount);
+      ISender<MAXNC, QUEUE_SIZE, BeatPulseInfo>::PushData(d);
+      mBeatCount++;
+    }
+  }
+  
+  /** Reset the beat counter and free running phase */
+  void Reset()
+  {
+    mBeatCount = 0;
+    mFreeRunningPhase = 0.0;
+    mPrevPhase = 1.0;
+  }
+  
+private:
+  double mBeatScalar = 1.0;
+  double mPrevPhase = 1.0;
+  int mBeatCount = 0;
+  
+  // Free running mode parameters
+  bool mFreeRunning = false;
+  double mFreeRunningBPM = 120.0;
+  double mFreeRunningPhase = 0.0;
+  double mLastTimeMS = 0.0;
+};
+
 END_IPLUG_NAMESPACE
