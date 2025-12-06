@@ -87,6 +87,7 @@ public:
       assert(d.ctrlTag != kNoTag && "You must supply a control tag");
       PrepareDataForUI(d);
       dlg.SendControlMsgFromDelegate(d.ctrlTag, kUpdateMessage, sizeof(ISenderData<MAXNC, T>), (void*) &d);
+      mLastData = d;
     }
   }
   
@@ -108,8 +109,12 @@ public:
     }
   }
 
+  /** Gets the last data item sent to the UI  */
+  ISenderData<MAXNC, T> GetLastData() { return mLastData; }
+  
 protected:
   IPlugQueue<ISenderData<MAXNC, T>> mQueue {QUEUE_SIZE};
+  ISenderData<MAXNC, T> mLastData;
 };
 
 /** IPeakSender is a utility class which can be used to defer peak data from sample buffers for sending to the GUI
