@@ -1033,7 +1033,17 @@ HWND __localizeDialog(HINSTANCE hInstance, const char *lpTemplate, HWND hwndPare
   switch (mode)
   {
     case 0: return CreateDialogParam(hInstance,lpTemplate,hwndParent,dlgProc,lParam);
-    case 1: return (HWND) (INT_PTR)DialogBoxParam(hInstance,lpTemplate,hwndParent,dlgProc,lParam);
+    case 1:
+    {
+#ifdef WDL_LOCALIZE_HOOK_DIALOGBOX_BEGIN
+      WDL_LOCALIZE_HOOK_DIALOGBOX_BEGIN
+#endif
+      HWND ret = (HWND) (INT_PTR)DialogBoxParam(hInstance,lpTemplate,hwndParent,dlgProc,lParam);
+#ifdef WDL_LOCALIZE_HOOK_DIALOGBOX_END
+      WDL_LOCALIZE_HOOK_DIALOGBOX_END
+#endif
+      return ret;
+    }
   }
   return 0;
 }
