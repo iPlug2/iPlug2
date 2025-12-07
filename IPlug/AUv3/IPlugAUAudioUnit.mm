@@ -797,6 +797,11 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
   });
 }
 
+- (id<AUMessageChannel>)messageChannelFor:(NSString *)channelName
+{
+  return (__bridge id<AUMessageChannel>) self->mPlug->GetNamedMessageChannel([channelName UTF8String]);
+}
+
 #pragma mark - IPlugAUAudioUnit
 
 - (void) beginInformHostOfParamChange: (uint64_t) address;
