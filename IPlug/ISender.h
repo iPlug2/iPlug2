@@ -608,7 +608,16 @@ public:
   {
     return mOverlap;
   }
-    
+
+  int GetHopSize() const
+  {
+    return TBufferSender::GetBufferSize();
+  }
+
+  EWindowType GetWindowType() const
+  {
+    return mWindowType;
+  }
 
 private:
   void InitSTFTFrames()
