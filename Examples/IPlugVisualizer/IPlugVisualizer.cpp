@@ -2,6 +2,7 @@
 #include "IPlug_include_in_plug_src.h"
 #include "IControls.h"
 #include "IVBarGraphSpectrumAnalyzerControl.h"
+#include "IVSpectrogramControl.h"
 
 constexpr int kCtrlTagSpectrumAnalyzer = 0;
 
@@ -36,7 +37,11 @@ IPlugVisualizer::IPlugVisualizer(const InstanceInfo& info)
       .WithColor(kFG, {255, 128, 128, 128})
       .WithLabelText(DEFAULT_LABEL_TEXT.WithFGColor(COLOR_WHITE))
       .WithValueText(DEFAULT_VALUE_TEXT.WithFGColor(COLOR_WHITE));
-    pGraphics->AttachControl(new IVSpectrumAnalyzerControl<2>(b, "Spectrum", style), kCtrlTagSpectrumAnalyzer);
+
+    // Spectrogram control
+    pGraphics->AttachControl(new IVSpectrogramControl<2>(b, "Spectrogram", style), kCtrlTagSpectrumAnalyzer);
+
+//    pGraphics->AttachControl(new IVSpectrumAnalyzerControl<2>(b, "Spectrum", style), kCtrlTagSpectrumAnalyzer);
     
 //    auto* pControl = new IVBarGraphSpectrumAnalyzerControl<2>(
 //       b, "Spectrum", DEFAULT_STYLE, 32, 16,
