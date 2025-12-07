@@ -530,7 +530,7 @@ public:
     MagPhase,
   };
   
-  ISpectrumSender(int fftSize = 1024, int overlap = 2, EWindowType window = EWindowType::Hann, EOutputType outputType = EOutputType::MagPhase, double minThresholdDb = -100.0)
+  ISpectrumSender(int fftSize = 1024, int overlap = 1, EWindowType window = EWindowType::Hann, EOutputType outputType = EOutputType::MagPhase, double minThresholdDb = -100.0)
   : TBufferSender(minThresholdDb, fftSize / overlap)
   , mWindowType(window)
   , mOutputType(outputType)
@@ -731,7 +731,7 @@ private:
   };
 
   int mFFTSize = 1024;
-  int mOverlap = 2;
+  int mOverlap = 1;
   EWindowType mWindowType;
   EOutputType mOutputType;
   std::array<float, MAX_FFT_SIZE> mWindow;
