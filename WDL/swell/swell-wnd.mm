@@ -2731,6 +2731,7 @@ BOOL SetDlgItemText(HWND hwnd, int idx, const char *text)
   else if ([obj isKindOfClass:[NSBox class]])
   {
     [(NSBox *)obj setTitle:lbl];
+    [obj setNeedsDisplay:YES];
   }
   else
   {
