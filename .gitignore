@@ -48,3 +48,6 @@ Examples/*/EBWebView
 Examples/*/packages
 Examples/IPlugConvoEngine/r8brain
 **/node_modules
+
+.gemini/
+gha-creds-*.json
