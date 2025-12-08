@@ -18,6 +18,7 @@
     #import <UIKit/UIKit.h>
     #define PLATFORM_VIEW UIView
   #else
+    #import <Cocoa/Cocoa.h>
     #define PLATFORM_VIEW NSView
   #endif
 #endif
