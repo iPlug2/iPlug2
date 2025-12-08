@@ -35,7 +35,14 @@ namespace iplug {
 class IWebView;
 }
 
+#import <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
+
+#ifdef OS_IOS
+#import <UIKit/UIKit.h>
+@interface IPLUG_WKWEBVIEW_UI_DELEGATE : NSObject <WKUIDelegate, UIDocumentPickerDelegate>
+#else
 @interface IPLUG_WKWEBVIEW_UI_DELEGATE : NSObject <WKUIDelegate>
+#endif
 NS_ASSUME_NONNULL_BEGIN
 {
   iplug::IWebView* mIWebView;
@@ -43,9 +50,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (id)initWithIWebView:(iplug::IWebView*)webView;
 
-- (void)webView:(WKWebView*)webView runOpenPanelWithParameters:(WKOpenPanelParameters*)parameters 
-                                              initiatedByFrame:(WKFrameInfo*)frame 
-                                             completionHandler:(void (^)(NSArray<NSURL*>* _Nullable URLs))completionHandler;
+- (void)webView:(WKWebView*)webView runOpenPanelWithParameters:(WKOpenPanelParameters*)parameters
+                                              initiatedByFrame:(WKFrameInfo*)frame
+                                             completionHandler:(void (^)(NSArray<NSURL*>* _Nullable URLs))completionHandler
+    API_AVAILABLE(macos(10.12), ios(18.4));
 
 NS_ASSUME_NONNULL_END
 @end

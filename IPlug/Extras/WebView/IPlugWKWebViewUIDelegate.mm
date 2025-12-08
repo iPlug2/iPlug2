@@ -36,6 +36,16 @@
 
 using namespace iplug;
 
+#ifdef OS_IOS
+@interface IPLUG_WKWEBVIEW_UI_DELEGATE () <UIDocumentPickerDelegate>
+{
+  void (^mOpenPanelCompletionHandler)(NSArray<NSURL*>* _Nullable URLs);
+}
+@end
+#endif
+
+NS_ASSUME_NONNULL_BEGIN
+
 @implementation IPLUG_WKWEBVIEW_UI_DELEGATE
 
 - (id)initWithIWebView:(IWebView*)webView
@@ -50,14 +60,14 @@ using namespace iplug;
 
 - (void)webView:(WKWebView *)webView runOpenPanelWithParameters:(WKOpenPanelParameters *)parameters initiatedByFrame:(WKFrameInfo *)frame completionHandler:(void (^)(NSArray<NSURL *> *URLs))completionHandler
 {
-#ifdef OS_MAC
+#if defined(OS_MAC)
   NSOpenPanel* openPanel = [NSOpenPanel openPanel];
   openPanel.allowsMultipleSelection = parameters.allowsMultipleSelection;
-  
+
   [openPanel setCanChooseFiles:YES];
   [openPanel setCanChooseDirectories:NO];
   [openPanel setAllowsMultipleSelection:parameters.allowsMultipleSelection];
-  
+
   [openPanel beginSheetModalForWindow:webView.window completionHandler:^(NSInteger result) {
     if (result == NSModalResponseOK) {
       completionHandler(openPanel.URLs);
@@ -65,10 +75,49 @@ using namespace iplug;
       completionHandler(nil);
     }
   }];
+#elif defined(OS_IOS)
+  mOpenPanelCompletionHandler = [completionHandler copy];
+
+  NSArray<UTType*>* contentTypes = @[UTTypeItem];
+  UIDocumentPickerViewController* picker = [[UIDocumentPickerViewController alloc] initForOpeningContentTypes:contentTypes];
+  picker.allowsMultipleSelection = parameters.allowsMultipleSelection;
+  picker.delegate = self;
+
+  // Find the view controller to present from
+  UIResponder* responder = webView;
+  while (responder && ![responder isKindOfClass:[UIViewController class]]) {
+    responder = [responder nextResponder];
+  }
+
+  UIViewController* viewController = (UIViewController*)responder;
+  if (viewController) {
+    [viewController presentViewController:picker animated:YES completion:nil];
+  } else {
+    mOpenPanelCompletionHandler(nil);
+    mOpenPanelCompletionHandler = nil;
+  }
 #endif
 }
 
-- (WKWebView *)webView:(WKWebView *)webView createWebViewWithConfiguration:(WKWebViewConfiguration *)configuration forNavigationAction:(WKNavigationAction *)navigationAction windowFeatures:(WKWindowFeatures *)windowFeatures
+#ifdef OS_IOS
+- (void)documentPicker:(UIDocumentPickerViewController *)controller didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls
+{
+  if (mOpenPanelCompletionHandler) {
+    mOpenPanelCompletionHandler(urls);
+    mOpenPanelCompletionHandler = nil;
+  }
+}
+
+- (void)documentPickerWasCancelled:(UIDocumentPickerViewController *)controller
+{
+  if (mOpenPanelCompletionHandler) {
+    mOpenPanelCompletionHandler(nil);
+    mOpenPanelCompletionHandler = nil;
+  }
+}
+#endif
+
+- (nullable WKWebView *)webView:(WKWebView *)webView createWebViewWithConfiguration:(WKWebViewConfiguration *)configuration forNavigationAction:(WKNavigationAction *)navigationAction windowFeatures:(WKWindowFeatures *)windowFeatures
 {
   // Open URLs in the browser
 #if defined OS_MAC
@@ -88,3 +137,5 @@ using namespace iplug;
 }
 
 @end
+
+NS_ASSUME_NONNULL_END
