@@ -120,6 +120,7 @@
     return YES;
 }
 
+#ifdef OS_MAC
 - (BOOL)performKeyEquivalent:(NSEvent *)event {
     if (([event modifierFlags] & NSEventModifierFlagCommand) && 
         !([event modifierFlags] & NSEventModifierFlagShift) && 
@@ -140,4 +141,5 @@
     
     return YES;
 }
+#endif
 @end
