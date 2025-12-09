@@ -2,6 +2,25 @@
 #include "IPlug_include_in_plug_src.h"
 #include "IControls.h"
 
+#if IPLUG_EDITOR
+  #include "IShaderControl.h"
+  #include "IPlugEffect_shaders.h"
+
+  #if defined(IGRAPHICS_SKIA)
+    #define IPLUGEFFECT_SHADER_CONTROL(bounds, animate) \
+      new IUnifiedShaderControl(bounds, kIPlugEffectShader, animate)
+  #elif defined(IGRAPHICS_NANOVG) && defined(IGRAPHICS_GL)
+    #define IPLUGEFFECT_SHADER_CONTROL(bounds, animate) \
+      new IUnifiedShaderControl(bounds, kIPlugEffectShader, nullptr, animate)
+  #elif defined(IGRAPHICS_NANOVG) && defined(IGRAPHICS_METAL)
+    #define IPLUGEFFECT_SHADER_CONTROL(bounds, animate) \
+      new IShaderControl(bounds, kIPlugEffectMetalShader, kIPlugEffectVertexFunc, kIPlugEffectFragmentFunc, animate)
+  #else
+    #define IPLUGEFFECT_SHADER_CONTROL(bounds, animate) nullptr
+  #endif
+#endif
+
+
 IPlugEffect::IPlugEffect(const InstanceInfo& info)
 : iplug::Plugin(info, MakeConfig(kNumParams, kNumPresets))
 {
