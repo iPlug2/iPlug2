@@ -20,6 +20,7 @@
 include(${CMAKE_CURRENT_LIST_DIR}/IPlug.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/IGraphics.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/Deploy.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/CLI.cmake)
 
 # Include iOS platform configuration if building for iOS
 if(CMAKE_SYSTEM_NAME STREQUAL "iOS")
