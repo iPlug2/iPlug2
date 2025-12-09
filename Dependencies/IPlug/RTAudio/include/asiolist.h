@@ -39,6 +39,9 @@ public:
 	// or use directly access
 	LPASIODRVSTRUCT	lpdrvlist;
 	int				numdrv;
+
+private:
+	bool coInitialized_;
 };
 
 typedef class AsioDriverList *LPASIODRIVERLIST;

@@ -37,15 +37,13 @@ void IPlugAPPHost::PopulateSampleRateList(HWND hwndDlg, RtAudio::DeviceInfo* inp
 
   std::vector<int> matchedSRs;
 
-  if (inputDevInfo->probed && outputDevInfo->probed)
+  // In RtAudio 6.x, devices returned by getDeviceIds() are already probed
+  for (size_t i=0; i<inputDevInfo->sampleRates.size(); i++)
   {
-    for (int i=0; i<inputDevInfo->sampleRates.size(); i++)
+    for (size_t j=0; j<outputDevInfo->sampleRates.size(); j++)
     {
-      for (int j=0; j<outputDevInfo->sampleRates.size(); j++)
-      {
-        if(inputDevInfo->sampleRates[i] == outputDevInfo->sampleRates[j])
-          matchedSRs.push_back(inputDevInfo->sampleRates[i]);
-      }
+      if(inputDevInfo->sampleRates[i] == outputDevInfo->sampleRates[j])
+        matchedSRs.push_back(inputDevInfo->sampleRates[i]);
     }
   }
 
@@ -65,9 +63,7 @@ void IPlugAPPHost::PopulateSampleRateList(HWND hwndDlg, RtAudio::DeviceInfo* inp
 
 void IPlugAPPHost::PopulateAudioInputList(HWND hwndDlg, RtAudio::DeviceInfo* info)
 {
-  if(!info->probed)
-    return;
-
+  // In RtAudio 6.x, devices returned by getDeviceIds() are already probed
   WDL_String buf;
 
   SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_IN_L,CB_RESETCONTENT,0,0);
@@ -92,9 +88,7 @@ void IPlugAPPHost::PopulateAudioInputList(HWND hwndDlg, RtAudio::DeviceInfo* inf
 
 void IPlugAPPHost::PopulateAudioOutputList(HWND hwndDlg, RtAudio::DeviceInfo* info)
 {
-  if(!info->probed)
-    return;
-
+  // In RtAudio 6.x, devices returned by getDeviceIds() are already probed
   WDL_String buf;
 
   SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_OUT_L,CB_RESETCONTENT,0,0);

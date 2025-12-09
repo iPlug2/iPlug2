@@ -1,3 +1,49 @@
+//------------------------------------------------------------------------
+// Project     : ASIO SDK
+//
+// Category    : Helpers
+// Filename    : host/pc/asiolist.cpp
+// Created by  : Steinberg, 05/1996
+// Description : Steinberg Audio Stream I/O Helpers
+// a simple Windows ASIO host example
+//		- instantiates the driver
+// 		- get the information from the driver
+// 		- built up some audio channels
+// 		- plays silence for 20 seconds
+// 		- destruct the driver
+// Note: This sample cannot work with the "ASIO DirectX Driver" as it does
+//       not have a valid Application Window handle, which is used as sysRef
+//       on the Windows platform.
+//	**** Windows specific ****
+//
+//-----------------------------------------------------------------------------
+// LICENSE
+// (c) 2025, Steinberg Media Technologies GmbH, All Rights Reserved
+//-----------------------------------------------------------------------------
+// Redistribution and use in source and binary forms, with or without modification,
+// are permitted provided that the following conditions are met:
+// 
+//   * Redistributions of source code must retain the above copyright notice, 
+//     this list of conditions and the following disclaimer.
+//   * Redistributions in binary form must reproduce the above copyright notice,
+//     this list of conditions and the following disclaimer in the documentation 
+//     and/or other materials provided with the distribution.
+//   * Neither the name of the Steinberg Media Technologies nor the names of its
+//     contributors may be used to endorse or promote products derived from this 
+//     software without specific prior written permission.
+// 
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+// ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
+// WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
+// IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+// INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
+// BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
+// LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
+// OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE  OF THIS SOFTWARE, EVEN IF ADVISED
+// OF THE POSSIBILITY OF SUCH DAMAGE.
+//-----------------------------------------------------------------------------
+
 #include <windows.h>
 #include "iasiodrv.h"
 #include "asiolist.h"
@@ -21,48 +67,17 @@ static LONG findDrvPath (char *clsidstr,char *dllpath,int dllpathsize)
 	HFILE			hfile;
 	BOOL			found = FALSE;
 
-#ifdef UNICODE
-	CharLowerBuffA(clsidstr,strlen(clsidstr));
-	if ((cr = RegOpenKeyA(HKEY_CLASSES_ROOT,COM_CLSID,&hkEnum)) == ERROR_SUCCESS) {
-
-		index = 0;
-		while (cr == ERROR_SUCCESS && !found) {
-			cr = RegEnumKeyA(hkEnum,index++,databuf,512);
-			if (cr == ERROR_SUCCESS) {
-				CharLowerBuffA(databuf,strlen(databuf));
-				if (!(strcmp(databuf,clsidstr))) {
-					if ((cr = RegOpenKeyExA(hkEnum,databuf,0,KEY_READ,&hksub)) == ERROR_SUCCESS) {
-						if ((cr = RegOpenKeyExA(hksub,INPROC_SERVER,0,KEY_READ,&hkpath)) == ERROR_SUCCESS) {
-							datatype = REG_SZ; datasize = (DWORD)dllpathsize;
-							cr = RegQueryValueEx(hkpath,0,0,&datatype,(LPBYTE)dllpath,&datasize);
-							if (cr == ERROR_SUCCESS) {
-								memset(&ofs,0,sizeof(OFSTRUCT));
-								ofs.cBytes = sizeof(OFSTRUCT); 
-								hfile = OpenFile(dllpath,&ofs,OF_EXIST);
-								if (hfile) rc = 0; 
-							}
-							RegCloseKey(hkpath);
-						}
-						RegCloseKey(hksub);
-					}
-					found = TRUE;	// break out 
-				}
-			}
-		}				
-		RegCloseKey(hkEnum);
-	}
-#else
 	CharLowerBuff(clsidstr,strlen(clsidstr));
 	if ((cr = RegOpenKey(HKEY_CLASSES_ROOT,COM_CLSID,&hkEnum)) == ERROR_SUCCESS) {
 
 		index = 0;
 		while (cr == ERROR_SUCCESS && !found) {
-			cr = RegEnumKey(hkEnum,index++,databuf,512);
+			cr = RegEnumKey(hkEnum,index++,(LPTSTR)databuf,512);
 			if (cr == ERROR_SUCCESS) {
 				CharLowerBuff(databuf,strlen(databuf));
 				if (!(strcmp(databuf,clsidstr))) {
-					if ((cr = RegOpenKeyEx(hkEnum,databuf,0,KEY_READ,&hksub)) == ERROR_SUCCESS) {
-						if ((cr = RegOpenKeyEx(hksub,INPROC_SERVER,0,KEY_READ,&hkpath)) == ERROR_SUCCESS) {
+					if ((cr = RegOpenKeyEx(hkEnum,(LPCTSTR)databuf,0,KEY_READ,&hksub)) == ERROR_SUCCESS) {
+						if ((cr = RegOpenKeyEx(hksub,(LPCTSTR)INPROC_SERVER,0,KEY_READ,&hkpath)) == ERROR_SUCCESS) {
 							datatype = REG_SZ; datasize = (DWORD)dllpathsize;
 							cr = RegQueryValueEx(hkpath,0,0,&datatype,(LPBYTE)dllpath,&datasize);
 							if (cr == ERROR_SUCCESS) {
@@ -81,7 +96,6 @@ static LONG findDrvPath (char *clsidstr,char *dllpath,int dllpathsize)
 		}				
 		RegCloseKey(hkEnum);
 	}
-#endif
 	return rc;
 }
 
@@ -97,10 +111,10 @@ static LPASIODRVSTRUCT newDrvStruct (HKEY hkey,char *keyname,int drvID,LPASIODRV
 	LONG	cr,rc;
 
 	if (!lpdrv) {
-		if ((cr = RegOpenKeyExA(hkey,keyname,0,KEY_READ,&hksub)) == ERROR_SUCCESS) {
+		if ((cr = RegOpenKeyEx(hkey,(LPCTSTR)keyname,0,KEY_READ,&hksub)) == ERROR_SUCCESS) {
 
 			datatype = REG_SZ; datasize = 256;
-			cr = RegQueryValueExA(hksub,COM_CLSID,0,&datatype,(LPBYTE)databuf,&datasize);
+			cr = RegQueryValueEx(hksub,COM_CLSID,0,&datatype,(LPBYTE)databuf,&datasize);
 			if (cr == ERROR_SUCCESS) {
 				rc = findDrvPath (databuf,dllpath,MAXPATHLEN);
 				if (rc == 0) {
@@ -114,7 +128,7 @@ static LPASIODRVSTRUCT newDrvStruct (HKEY hkey,char *keyname,int drvID,LPASIODRV
 						}
 
 						datatype = REG_SZ; datasize = 256;
-						cr = RegQueryValueExA(hksub,ASIODRV_DESC,0,&datatype,(LPBYTE)databuf,&datasize);
+						cr = RegQueryValueEx(hksub,ASIODRV_DESC,0,&datatype,(LPBYTE)databuf,&datasize);
 						if (cr == ERROR_SUCCESS) {
 							strcpy(lpdrv->drvname,databuf);
 						}
@@ -140,8 +154,7 @@ static void deleteDrvStruct (LPASIODRVSTRUCT lpdrv)
 			iasio = (IASIO *)lpdrv->asiodrv;
 			iasio->Release();
 		}
-		//delete lpdrv;
-    delete[] lpdrv; // correction from Axel Holzinger
+		delete lpdrv;
 	}
 }
 
@@ -167,23 +180,17 @@ AsioDriverList::AsioDriverList ()
 	LPASIODRVSTRUCT	pdl;
 	LONG 			cr;
 	DWORD			index = 0;
+	BOOL			fin = FALSE;
 
 	numdrv		= 0;
 	lpdrvlist	= 0;
 
-#ifdef UNICODE
-	cr = RegOpenKeyA(HKEY_LOCAL_MACHINE,ASIO_PATH,&hkEnum);
-#else
 	cr = RegOpenKey(HKEY_LOCAL_MACHINE,ASIO_PATH,&hkEnum);
-#endif
 	while (cr == ERROR_SUCCESS) {
-#ifdef UNICODE
-		if ((cr = RegEnumKeyA(hkEnum,index++,keyname,MAXDRVNAMELEN))== ERROR_SUCCESS) {
-#else
-		if ((cr = RegEnumKey(hkEnum,index++,keyname,MAXDRVNAMELEN))== ERROR_SUCCESS) {
-#endif
+		if ((cr = RegEnumKey(hkEnum,index++,(LPTSTR)keyname,MAXDRVNAMELEN))== ERROR_SUCCESS) {
 			lpdrvlist = newDrvStruct (hkEnum,keyname,0,lpdrvlist);
 		}
+		else fin = TRUE;
 	}
 	if (hkEnum) RegCloseKey(hkEnum);
 
@@ -193,18 +200,14 @@ AsioDriverList::AsioDriverList ()
 		pdl = pdl->next;
 	}
 
-	coInitialized_ = false;
-	if (numdrv)	{
-		HRESULT hr = CoInitialize(0);	// initialize COM
-		if( !FAILED( hr ) ) coInitialized_ = true;
-	}
+	if (numdrv) CoInitialize(0);	// initialize COM
 }
 
 AsioDriverList::~AsioDriverList ()
 {
 	if (numdrv) {
 		deleteDrvStruct(lpdrvlist);
-		if( coInitialized_ ) CoUninitialize(); // balanced call.
+		CoUninitialize();
 	}
 }
 

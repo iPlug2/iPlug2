@@ -199,19 +199,22 @@ void IPlugAPPHost::UpdateINI()
   WritePrivateProfileString("midi", "outchan", buf, ini);
 }
 
-std::string IPlugAPPHost::GetAudioDeviceName(int idx) const
+std::string IPlugAPPHost::GetAudioDeviceName(int deviceId) const
 {
-  return mAudioIDDevNames.at(idx);
+  auto it = mAudioIDDevNames.find(deviceId);
+  if (it != mAudioIDDevNames.end())
+    return it->second;
+  return "";
 }
 
 int IPlugAPPHost::GetAudioDeviceIdx(const char* deviceNameToTest) const
 {
-  for(int i = 0; i < mAudioIDDevNames.size(); i++)
+  for (const auto& pair : mAudioIDDevNames)
   {
-    if(!strcmp(deviceNameToTest, mAudioIDDevNames.at(i).c_str() ))
-      return i;
+    if (!strcmp(deviceNameToTest, pair.second.c_str()))
+      return pair.first;
   }
-  
+
   return -1;
 }
 
@@ -263,13 +266,13 @@ void IPlugAPPHost::ProbeAudioIO()
   mAudioOutputDevs.clear();
   mAudioIDDevNames.clear();
 
-  uint32_t nDevices = mDAC->getDeviceCount();
+  std::vector<unsigned int> deviceIds = mDAC->getDeviceIds();
 
-  for (int i=0; i<nDevices; i++)
+  for (unsigned int id : deviceIds)
   {
-    info = mDAC->getDeviceInfo(i);
+    info = mDAC->getDeviceInfo(id);
     std::string deviceName = info.name;
-    
+
 #ifdef OS_MAC
     size_t colonIdx = deviceName.rfind(": ");
 
@@ -277,26 +280,24 @@ void IPlugAPPHost::ProbeAudioIO()
       deviceName = deviceName.substr(colonIdx + 2, deviceName.length() - colonIdx - 2);
 
 #endif
-    
-    mAudioIDDevNames.push_back(deviceName);
 
-    if ( info.probed == false )
-      std::cout << deviceName << ": Probe Status = Unsuccessful\n";
-    else if ( !strcmp("Generic Low Latency ASIO Driver", deviceName.c_str() ))
+    mAudioIDDevNames[id] = deviceName;
+
+    if ( !strcmp("Generic Low Latency ASIO Driver", deviceName.c_str() ))
       std::cout << deviceName << ": Probe Status = Unsuccessful\n";
     else
     {
       if(info.inputChannels > 0)
-        mAudioInputDevs.push_back(i);
+        mAudioInputDevs.push_back(id);
 
       if(info.outputChannels > 0)
-        mAudioOutputDevs.push_back(i);
+        mAudioOutputDevs.push_back(id);
 
       if (info.isDefaultInput)
-        mDefaultInputDev = i;
+        mDefaultInputDev = id;
 
       if (info.isDefaultOutput)
-        mDefaultOutputDev = i;
+        mDefaultOutputDev = id;
     }
   }
 }
@@ -555,20 +556,17 @@ void IPlugAPPHost::CloseAudio()
     if (mDAC->isStreamRunning())
     {
       mAudioEnding = true;
-    
+
       while (!mAudioDone)
         Sleep(10);
-      
-      try
+
+      RtAudioErrorType err = mDAC->abortStream();
+      if (err != RTAUDIO_NO_ERROR)
       {
-        mDAC->abortStream();
-      }
-      catch (RtAudioError& e)
-      {
-        e.printMessage();
+        std::cerr << mDAC->getErrorText() << std::endl;
       }
     }
-    
+
     mDAC->closeStream();
   }
 }
@@ -606,29 +604,33 @@ bool IPlugAPPHost::InitAudio(uint32_t inId, uint32_t outId, uint32_t sr, uint32_
   mIPlug->SetSampleRate(mSampleRate);
   mIPlug->OnReset();
 
-  try
-  {
-    mDAC->openStream(&oParams, iParams.nChannels > 0 ? &iParams : nullptr, RTAUDIO_FLOAT64, sr, &mBufferSize, &AudioCallback, this, &options /*, &ErrorCallback */);
-    
-    for (int i = 0; i < iParams.nChannels; i++)
-    {
-      mInputBufPtrs.Add(nullptr); //will be set in callback
-    }
-    
-    for (int i = 0; i < oParams.nChannels; i++)
-    {
-      mOutputBufPtrs.Add(nullptr); //will be set in callback
-    }
-    
-    mDAC->startStream();
+  RtAudioErrorType err = mDAC->openStream(&oParams, iParams.nChannels > 0 ? &iParams : nullptr, RTAUDIO_FLOAT64, sr, &mBufferSize, &AudioCallback, this, &options);
 
-    mActiveState = mState;
-  }
-  catch (RtAudioError& e)
+  if (err != RTAUDIO_NO_ERROR)
   {
-    e.printMessage();
+    std::cerr << mDAC->getErrorText() << std::endl;
     return false;
   }
+
+  for (int i = 0; i < iParams.nChannels; i++)
+  {
+    mInputBufPtrs.Add(nullptr); //will be set in callback
+  }
+
+  for (int i = 0; i < oParams.nChannels; i++)
+  {
+    mOutputBufPtrs.Add(nullptr); //will be set in callback
+  }
+
+  err = mDAC->startStream();
+
+  if (err != RTAUDIO_NO_ERROR)
+  {
+    std::cerr << mDAC->getErrorText() << std::endl;
+    return false;
+  }
+
+  mActiveState = mState;
 
   return true;
 }
@@ -779,7 +781,7 @@ void IPlugAPPHost::MIDICallback(double deltatime, std::vector<uint8_t>* pMsg, vo
 }
 
 // static
-void IPlugAPPHost::ErrorCallback(RtAudioError::Type type, const std::string &errorText )
+void IPlugAPPHost::ErrorCallback(RtAudioErrorType type, const std::string &errorText )
 {
   //TODO:
 }

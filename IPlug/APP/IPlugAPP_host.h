@@ -31,6 +31,7 @@
 #include <cstdlib>
 #include <string>
 #include <vector>
+#include <map>
 #include <limits>
 #include <memory>
 
@@ -209,7 +210,7 @@ public:
   
   static int AudioCallback(void* pOutputBuffer, void* pInputBuffer, uint32_t nFrames, double streamTime, RtAudioStreamStatus status, void* pUserData);
   static void MIDICallback(double deltatime, std::vector<uint8_t>* pMsg, void* pUserData);
-  static void ErrorCallback(RtAudioError::Type type, const std::string& errorText);
+  static void ErrorCallback(RtAudioErrorType type, const std::string& errorText);
 
   static WDL_DLGRET PreferencesDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
   static WDL_DLGRET MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
@@ -248,7 +249,7 @@ private:
   
   std::vector<uint32_t> mAudioInputDevs;
   std::vector<uint32_t> mAudioOutputDevs;
-  std::vector<std::string> mAudioIDDevNames;
+  std::map<uint32_t, std::string> mAudioIDDevNames;
   std::vector<std::string> mMidiInputDevNames;
   std::vector<std::string> mMidiOutputDevNames;
   
