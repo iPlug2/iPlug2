@@ -19,7 +19,7 @@ iplug_add_plugin(<name>
   [EXCLUDE_FORMATS <format1> [format2 ...]]
   [LINK <library1> [library2 ...]]       # Extra dependencies
   [DEFINES <def1> [def2 ...]]
-  [UI <IGRAPHICS|WEBVIEW|NONE>]          # Defaults to IGRAPHICS
+  [UI <IGRAPHICS|WEBVIEW|VISAGE|NONE>]          # Defaults to IGRAPHICS
   [WAM_SITE_ORIGIN <origin>]             # Defaults to "/"
 )
 
@@ -421,7 +421,7 @@ macro(iplug_add_plugin plugin_name)
   endif()
 
   # Validate UI type
-  set(_iplug_valid_ui_types IGRAPHICS WEBVIEW NONE)
+  set(_iplug_valid_ui_types IGRAPHICS WEBVIEW VISAGE NONE)
   if(PLUGIN_UI AND NOT PLUGIN_UI IN_LIST _iplug_valid_ui_types)
     message(FATAL_ERROR "iplug_add_plugin(${plugin_name}): Invalid UI type '${PLUGIN_UI}'\n"
       "Valid UI types: ${_iplug_valid_ui_types}")
@@ -467,6 +467,9 @@ macro(iplug_add_plugin plugin_name)
   # Determine UI library and include necessary modules
   if(PLUGIN_UI STREQUAL "IGRAPHICS")
     set(_iplug_ui_lib ${IGRAPHICS_LIB})
+  elseif(PLUGIN_UI STREQUAL "VISAGE")
+    include(${IPLUG2_CMAKE_DIR}/Visage.cmake)
+    set(_iplug_ui_lib iPlug2::Visage)
   elseif(PLUGIN_UI STREQUAL "WEBVIEW")
     include(${IPLUG2_CMAKE_DIR}/WebView.cmake)
     set(_iplug_ui_lib iPlug2::WebView)

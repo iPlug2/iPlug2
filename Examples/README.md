@@ -25,3 +25,4 @@ The following examples are more specialized:
 * **IPlugWebUI** : An example showing how UI can written in HTML/CSS/JS, using a platform web view
 * **IPlugP5js** : Another platform web view project this time using p5js to render using WebGL
 * **IPlugSvelteUI** : An example showing how to use [Svelte](https://svelte.dev/) to build the UI.
+* **IPlugVisage** : A gain effect using the Visage editor delegate
