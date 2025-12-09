@@ -12,13 +12,17 @@
 #include "config.h"
 #include "resource.h"
 
+#include <ctime>
+
 #ifdef OS_WIN
 #include "asio.h"
 #include "win32_utf8.h"
 extern float GetScaleForHWND(HWND hWnd);
 #define GET_MENU() GetMenu(gHWND)
+extern bool SaveWindowScreenshot(HWND hwnd, const char* path);
 #elif defined OS_MAC
 #define GET_MENU() SWELL_GetCurrentMenu()
+extern "C" bool SaveWindowScreenshot(void* hwnd, const char* path);
 #endif
 
 using namespace iplug;
@@ -27,6 +31,8 @@ using namespace iplug;
 #include "IGraphics.h"
 using namespace igraphics;
 #endif
+
+#define IDT_SCREENSHOT_TIMER 1001
 
 
 // check the input and output devices, find matching srs
@@ -558,7 +564,28 @@ WDL_DLGRET IPlugAPPHost::MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
       ClientResize(hwndDlg, pPlug->GetEditorWidth(), pPlug->GetEditorHeight());
 
       ShowWindow(hwndDlg, SW_SHOW);
+
+      // If in screenshot mode, start timer to take screenshot after UI initializes
+      if (pAppHost->IsScreenshotMode())
+      {
+        SetTimer(hwndDlg, IDT_SCREENSHOT_TIMER, 500, nullptr); // 500ms delay
+      }
+
       return 1;
+    }
+    case WM_TIMER:
+    {
+      if (wParam == IDT_SCREENSHOT_TIMER)
+      {
+        KillTimer(hwndDlg, IDT_SCREENSHOT_TIMER);
+
+        SaveWindowScreenshot(gHWND, pAppHost->GetScreenshotPath());
+
+        // Exit the application
+        DestroyWindow(hwndDlg);
+        return 0;
+      }
+      break;
     }
     case WM_DESTROY:
       pAppHost->CloseWindow();
@@ -619,6 +646,56 @@ WDL_DLGRET IPlugAPPHost::MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
 
           return 0;
         }
+#ifdef ID_SCREENSHOT
+        case ID_SCREENSHOT:
+        {
+          // Generate filename with timestamp
+          WDL_String path;
+          char timestamp[32];
+          time_t now = time(nullptr);
+          strftime(timestamp, sizeof(timestamp), "%Y%m%d_%H%M%S", localtime(&now));
+
+          // Get temp directory
+          #ifdef OS_WIN
+          char tempPath[MAX_PATH];
+          GetTempPathA(MAX_PATH, tempPath);
+          path.SetFormatted(512, "%s%s_screenshot_%s.png",
+                            tempPath,
+                            PLUG_NAME,
+                            timestamp);
+          #elif defined OS_MAC
+          const char* tmpDir = getenv("TMPDIR");
+          path.SetFormatted(512, "%s%s_screenshot_%s.png",
+                            tmpDir ? tmpDir : "/tmp/",
+                            PLUG_NAME,
+                            timestamp);
+          #endif
+
+          if (SaveWindowScreenshot(gHWND, path.Get()))
+          {
+            WDL_String msg;
+            msg.SetFormatted(512, "Screenshot saved to:\n%s\n\nOpen it?", path.Get());
+            int result = MessageBox(hwndDlg, msg.Get(), "Screenshot Saved", MB_YESNO);
+
+            if (result == IDYES)
+            {
+              #ifdef OS_WIN
+              ShellExecuteA(NULL, "open", path.Get(), NULL, NULL, SW_SHOWNORMAL);
+              #elif defined OS_MAC
+              WDL_String cmd;
+              cmd.SetFormatted(1024, "open \"%s\"", path.Get());
+              system(cmd.Get());
+              #endif
+            }
+          }
+          else
+          {
+            MessageBox(hwndDlg, "Failed to save screenshot", "Error", MB_OK);
+          }
+
+          return 0;
+        }
+#endif
 #if defined _DEBUG && !defined NO_IGRAPHICS
         case ID_LIVE_EDIT:
         {

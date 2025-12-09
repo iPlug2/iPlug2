@@ -275,12 +275,15 @@ int IPlugAPPHost::GetMIDIPortNumber(ERoute direction, const char* nameToTest) co
 
 void IPlugAPPHost::ProbeAudioIO()
 {
+  mAudioInputDevIDs.clear();
+  mAudioOutputDevIDs.clear();
+
+  if (!mDAC)
+    return;
+
   DBGMSG("\nRtAudio Version %s", RtAudio::getVersion().c_str());
 
   RtAudio::DeviceInfo info;
-
-  mAudioInputDevIDs.clear();
-  mAudioOutputDevIDs.clear();
 
   auto deviceIDs = mDAC->getDeviceIds();
 
@@ -374,11 +377,15 @@ bool IPlugAPPHost::MIDISettingsInStateAreEqual(AppState& os, AppState& ns)
 bool IPlugAPPHost::TryToChangeAudioDriverType()
 {
   CloseAudio();
-  
+
   if (mDAC)
   {
     mDAC = nullptr;
   }
+
+  // Skip RtAudio initialization in no-I/O mode or screenshot mode
+  if (mNoIO || IsScreenshotMode())
+    return true;
 
 #if defined OS_WIN
   if (mState.mAudioDriverType == kDeviceASIO)
@@ -405,6 +412,10 @@ bool IPlugAPPHost::TryToChangeAudioDriverType()
 
 bool IPlugAPPHost::TryToChangeAudio()
 {
+  // Skip audio initialization in no-I/O mode or screenshot mode
+  if (mNoIO || IsScreenshotMode())
+    return true;
+
 #if defined OS_WIN
   // ASIO has one device, use the output for the input ID
   auto inputID = GetAudioDeviceID(mState.mAudioDriverType == kDeviceASIO ? mState.mAudioOutDev.Get() : mState.mAudioInDev.Get());
@@ -635,6 +646,10 @@ bool IPlugAPPHost::InitAudio(uint32_t inID, uint32_t outID, uint32_t sr, uint32_
 
 bool IPlugAPPHost::InitMidi()
 {
+  // Skip MIDI initialization in no-I/O mode or screenshot mode
+  if (mNoIO || IsScreenshotMode())
+    return true;
+
   try
   {
     mMidiIn = std::make_unique<RtMidiIn>();

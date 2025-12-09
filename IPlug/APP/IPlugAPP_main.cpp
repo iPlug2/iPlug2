@@ -24,12 +24,112 @@ using namespace iplug;
 #if defined OS_WIN
 #include <windows.h>
 #include <commctrl.h>
+#include <shellapi.h>
+
+// Include stb_image_write for PNG saving
+// Only define implementation if IGraphics is not being used (to avoid duplicate symbols)
+#ifdef NO_IGRAPHICS
+  #define STB_IMAGE_WRITE_IMPLEMENTATION
+#endif
+#include "../../Dependencies/IGraphics/STB/stb_image_write.h"
 
 extern WDL_DLGRET MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 HWND gHWND;
 extern HINSTANCE gHINSTANCE;
 UINT gScrollMessage;
+
+// Save a screenshot of the given HWND to a PNG file using Win32 API
+bool SaveWindowScreenshot(HWND hwnd, const char* path)
+{
+  if (!hwnd || !path)
+    return false;
+
+  // Get client area dimensions
+  RECT clientRect;
+  if (!GetClientRect(hwnd, &clientRect))
+    return false;
+
+  int width = clientRect.right - clientRect.left;
+  int height = clientRect.bottom - clientRect.top;
+
+  if (width <= 0 || height <= 0)
+    return false;
+
+  // Create a compatible DC and bitmap
+  HDC hdcWindow = GetDC(hwnd);
+  if (!hdcWindow)
+    return false;
+
+  HDC hdcMem = CreateCompatibleDC(hdcWindow);
+  if (!hdcMem)
+  {
+    ReleaseDC(hwnd, hdcWindow);
+    return false;
+  }
+
+  // Create a 32-bit DIB section for the screenshot
+  BITMAPINFO bmi = {};
+  bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+  bmi.bmiHeader.biWidth = width;
+  bmi.bmiHeader.biHeight = -height; // Top-down DIB
+  bmi.bmiHeader.biPlanes = 1;
+  bmi.bmiHeader.biBitCount = 32;
+  bmi.bmiHeader.biCompression = BI_RGB;
+
+  void* pBits = nullptr;
+  HBITMAP hBitmap = CreateDIBSection(hdcMem, &bmi, DIB_RGB_COLORS, &pBits, nullptr, 0);
+
+  if (!hBitmap || !pBits)
+  {
+    DeleteDC(hdcMem);
+    ReleaseDC(hwnd, hdcWindow);
+    return false;
+  }
+
+  HGDIOBJ hOldBitmap = SelectObject(hdcMem, hBitmap);
+
+  // Use PrintWindow to capture the window content
+  // PW_CLIENTONLY captures only the client area
+  // PW_RENDERFULLCONTENT (0x00000002) renders the window fully, including layered content
+  const UINT PW_RENDERFULLCONTENT = 0x00000002;
+  BOOL captured = PrintWindow(hwnd, hdcMem, PW_CLIENTONLY | PW_RENDERFULLCONTENT);
+
+  if (!captured)
+  {
+    // Fallback to BitBlt if PrintWindow fails
+    captured = BitBlt(hdcMem, 0, 0, width, height, hdcWindow, 0, 0, SRCCOPY);
+  }
+
+  SelectObject(hdcMem, hOldBitmap);
+  DeleteDC(hdcMem);
+  ReleaseDC(hwnd, hdcWindow);
+
+  if (!captured)
+  {
+    DeleteObject(hBitmap);
+    return false;
+  }
+
+  // Convert BGRA to RGBA for stb_image_write
+  uint8_t* pixels = static_cast<uint8_t*>(pBits);
+  for (int i = 0; i < width * height; i++)
+  {
+    // Swap B and R channels (BGRA -> RGBA)
+    uint8_t temp = pixels[i * 4 + 0];
+    pixels[i * 4 + 0] = pixels[i * 4 + 2];
+    pixels[i * 4 + 2] = temp;
+    // Set alpha to 255 (opaque) since Windows DIB may have garbage in alpha
+    pixels[i * 4 + 3] = 255;
+  }
+
+  // Use stb_image_write to save as PNG
+  int result = stbi_write_png(path, width, height, 4, pixels, width * 4);
+
+  DeleteObject(hBitmap);
+
+  return result != 0;
+}
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdParam, int nShowCmd)
 {
@@ -53,6 +153,33 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
     gScrollMessage = RegisterWindowMessage("MSWHEEL_ROLLMSG");
 
     IPlugAPPHost* pAppHost = IPlugAPPHost::Create();
+
+    // Parse command line arguments
+    if (lpszCmdParam && lpszCmdParam[0])
+    {
+      char* args = _strdup(lpszCmdParam);
+      char* token = strtok(args, " ");
+      while (token)
+      {
+        if (strcmp(token, "--screenshot") == 0)
+        {
+          token = strtok(nullptr, " ");
+          if (token)
+            pAppHost->SetScreenshotPath(token);
+        }
+        else if (strcmp(token, "--no-io") == 0)
+        {
+          pAppHost->SetNoIO(true);
+        }
+        token = strtok(nullptr, " ");
+      }
+      free(args);
+    }
+
+    // Screenshot mode implies --no-io
+    if (pAppHost->IsScreenshotMode())
+      pAppHost->SetNoIO(true);
+
     pAppHost->Init();
     pAppHost->TryToChangeAudio();
 
@@ -143,17 +270,79 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
 #pragma mark - MAC
 #elif defined(OS_MAC)
 #import <Cocoa/Cocoa.h>
+#include <dlfcn.h>
+#include <cstring>
 #include "IPlugSWELL.h"
 #include "IPlugPaths.h"
 
 HWND gHWND;
+
+// Function pointer type for CGWindowListCreateImage
+typedef CGImageRef (*CGWindowListCreateImageFunc)(CGRect, uint32_t, uint32_t, uint32_t);
+
+// Save a screenshot of the given HWND (NSView*) to a PNG file
+extern "C" bool SaveWindowScreenshot(void* hwnd, const char* path)
+{
+  if (!hwnd || !path)
+    return false;
+
+  NSView* view = (__bridge NSView*)hwnd;
+  NSWindow* window = [view window];
+
+  if (!window)
+    return false;
+
+  // Get CGWindowListCreateImage via dlsym to bypass availability check
+  // The function still exists and works in the runtime
+  static CGWindowListCreateImageFunc pCGWindowListCreateImage = nullptr;
+  if (!pCGWindowListCreateImage)
+  {
+    void* handle = dlopen("/System/Library/Frameworks/CoreGraphics.framework/CoreGraphics", RTLD_LAZY);
+    if (handle)
+      pCGWindowListCreateImage = (CGWindowListCreateImageFunc)dlsym(handle, "CGWindowListCreateImage");
+  }
+
+  if (!pCGWindowListCreateImage)
+    return false;
+
+  // Get the window's CGWindowID
+  CGWindowID windowID = (CGWindowID)[window windowNumber];
+
+  // Capture the window content at full resolution (high DPI)
+  CGImageRef cgImage = pCGWindowListCreateImage(
+    CGRectNull,  // Capture the whole window
+    kCGWindowListOptionIncludingWindow,
+    windowID,
+    kCGWindowImageBoundsIgnoreFraming  // Exclude window frame, capture at screen resolution
+  );
+
+  if (!cgImage)
+    return false;
+
+  // Create NSBitmapImageRep from CGImage and save as PNG
+  NSBitmapImageRep* bitmap = [[NSBitmapImageRep alloc] initWithCGImage:cgImage];
+  CGImageRelease(cgImage);
+
+  if (!bitmap)
+    return false;
+
+  NSData* pngData = [bitmap representationUsingType:NSBitmapImageFileTypePNG properties:@{}];
+  if (!pngData)
+    return false;
+
+  NSString* filePath = [NSString stringWithUTF8String:path];
+  return [pngData writeToFile:filePath atomically:YES];
+}
 extern HMENU SWELL_app_stocksysmenu;
+
+static WDL_String gScreenshotPath;
+static bool gNoIO = false;
 
 int main(int argc, char *argv[])
 {
 #if APP_COPY_AUV3
   //if invoked with an argument registerauv3 use plug-in kit to explicitly register auv3 app extension (doesn't happen from debugger)
-  if (std::string_view(argv[2]) == "registerauv3")
+  if (argc > 2 && std::string_view(argv[2]) == "registerauv3")
   {
     WDL_String appexPath;
     appexPath.SetFormatted(1024, "pluginkit -a %s%s%s.appex", argv[0], "/../../Plugins/", appexPath.get_filepart());
@@ -163,7 +352,21 @@ int main(int argc, char *argv[])
       NSLog(@"Failed to register audiounit app extension\n");
   }
 #endif
-  
+
+  // Parse command line arguments
+  for (int i = 1; i < argc; i++)
+  {
+    if (strcmp(argv[i], "--screenshot") == 0 && i + 1 < argc)
+    {
+      gScreenshotPath.Set(argv[i + 1]);
+      i++; // Skip the path argument
+    }
+    else if (strcmp(argv[i], "--no-io") == 0)
+    {
+      gNoIO = true;
+    }
+  }
+
   if (AppIsSandboxed())
     DBGMSG("App is sandboxed, file system access etc restricted!\n");
   
@@ -179,6 +382,18 @@ INT_PTR SWELLAppMain(int msg, INT_PTR parm1, INT_PTR parm2)
     case SWELLAPP_ONLOAD:
     {
       pAppHost = IPlugAPPHost::Create();
+
+      // Set CLI options
+      if (gScreenshotPath.GetLength() > 0)
+      {
+        pAppHost->SetScreenshotPath(gScreenshotPath.Get());
+        pAppHost->SetNoIO(true); // Implicit --no-io for screenshot mode
+      }
+      else if (gNoIO)
+      {
+        pAppHost->SetNoIO(true);
+      }
+
       pAppHost->Init();
       pAppHost->TryToChangeAudio();
       break;
@@ -227,11 +442,15 @@ INT_PTR SWELLAppMain(int msg, INT_PTR parm1, INT_PTR parm2)
         
         DeleteMenu(menu, 1, MF_BYPOSITION); // delete file menu
       }
+      // Always set up screenshot shortcut
+      SetMenuItemModifier(menu, ID_SCREENSHOT, MF_BYCOMMAND, 'S', FCONTROL | FSHIFT);
+
 #if !defined _DEBUG || defined NO_IGRAPHICS
       if (menu)
       {
         HMENU sm = GetSubMenu(menu, 1);
         DeleteMenu(sm, ID_LIVE_EDIT, MF_BYCOMMAND);
+        DeleteMenu(sm, ID_SHOW_BOUNDS, MF_BYCOMMAND);
         DeleteMenu(sm, ID_SHOW_DRAWN, MF_BYCOMMAND);
         DeleteMenu(sm, ID_SHOW_FPS, MF_BYCOMMAND);
         
@@ -240,8 +459,10 @@ INT_PTR SWELLAppMain(int msg, INT_PTR parm1, INT_PTR parm2)
         
         while (a > 0 && GetMenuItemID(sm, a-1) == 0)
           DeleteMenu(sm, --a, MF_BYPOSITION);
-        
-        DeleteMenu(menu, 1, MF_BYPOSITION); // delete debug menu
+
+        // Only delete debug menu if it's now empty (screenshot should remain)
+        if (GetMenuItemCount(sm) == 0)
+          DeleteMenu(menu, 1, MF_BYPOSITION);
       }
 #else
       SetMenuItemModifier(menu, ID_LIVE_EDIT, MF_BYCOMMAND, 'E', FCONTROL);
