@@ -38,15 +38,17 @@ public:
   
   bool EditorResizeFromUI(int viewWidth, int viewHeight, bool needsPlatformResize) override;
 
-  /** \todo */
+  /** Called during idle processing - override to perform periodic tasks */
   virtual void OnIdle() {}; // NO-OP
-  
-  /** \todo
-   * @param actionName \todo
-   * @param func \todo */
+
+  /** Registers an action with the REAPER extension system
+   * @param actionName The name of the action to register
+   * @param func The function to call when the action is executed
+   * @param addMenuItem If true, adds a menu item for this action
+   * @param pToggle Optional pointer to an int for toggle state */
   void RegisterAction(const char* actionName, std::function<void()> func, bool addMenuItem = false, int* pToggle = nullptr/*, IKeyPress keyCmd*/);
-  
-  /** \todo */
+
+  /** Toggles the visibility of the main extension window */
   void ShowHideMainWindow();
   
   void ToggleDocking();

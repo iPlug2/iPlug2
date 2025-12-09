@@ -510,29 +510,28 @@ struct IOConfig
     mBusInfo[1].Empty(true);
   }
   
-  /** \todo 
-   * @param direction \todo
-   * @param NChans \todo
-   * @param label \todo */
+  /** Adds bus information for this IOConfig
+   * @param direction The signal direction (kInput or kOutput)
+   * @param NChans The number of channels on this bus */
   void AddBusInfo(ERoute direction, int NChans)
   {
     mBusInfo[direction].Add(new IBusInfo(direction, NChans));
   }
   
-  /** \todo
-   * @param direction \todo
-   * @param index \todo
-   * @return IBusInfo* \todo */
+  /** Gets bus information for a specific bus
+   * @param direction The signal direction (kInput or kOutput)
+   * @param index The bus index
+   * @return Pointer to the bus information */
   const IBusInfo* GetBusInfo(ERoute direction, int index) const
   {
     assert(index >= 0 && index < mBusInfo[direction].GetSize());
     return mBusInfo[direction].Get(index);
   }
   
-  /** \todo 
-   * @param direction \todo
-   * @param index \todo
-   * @return int \todo */
+  /** Gets the number of channels on a bus with bounds checking
+   * @param direction The signal direction (kInput or kOutput)
+   * @param index The bus index
+   * @return The number of channels on the bus, or 0 if index is out of bounds */
   int NChansOnBusSAFE(ERoute direction, int index) const
   {
     int NChans = 0;
@@ -543,17 +542,17 @@ struct IOConfig
     return NChans;
   }
   
-  /** \todo  
-   * @param direction \todo
-   * @return int \todo */
+  /** Gets the number of buses for a given direction
+   * @param direction The signal direction (kInput or kOutput)
+   * @return The number of buses */
   int NBuses(ERoute direction) const
   {
     return mBusInfo[direction].GetSize();
   }
   
-  /** Get the total number of channels across all direction buses for this IOConfig
-   * @param direction \todo
-   * @return int \todo */
+  /** Get the total number of channels across all buses for this IOConfig
+   * @param direction The signal direction (kInput or kOutput)
+   * @return The total number of channels across all buses in the given direction */
   int GetTotalNChannels(ERoute direction) const
   {
     int total = 0;
@@ -564,10 +563,10 @@ struct IOConfig
     return total;
   }
   
-  /** \todo  
-   * @param direction \todo
-   * @return true \todo
-   * @return false \todo */
+  /** Checks if any bus in the given direction has a wildcard channel count
+   * @param direction The signal direction (kInput or kOutput)
+   * @return true if any bus has a wildcard (negative) channel count
+   * @return false if all buses have explicit channel counts */
   bool ContainsWildcard(ERoute direction) const
   {
     for(auto i = 0; i < mBusInfo[direction].GetSize(); i++)
