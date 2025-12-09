@@ -410,7 +410,7 @@ private:
 /** IFontDataPtr is a managed pointer for transferring the ownership of font data */
 using IFontDataPtr = std::unique_ptr<IFontData>;
 
-/** \todo */
+/** Base class for platform-specific font implementations */
 class PlatformFont
 {
 public:
@@ -524,7 +524,7 @@ public:
   StaticStorage& operator=(const StaticStorage&) = delete;
     
 private:
-  /** \todo */
+  /** Internal structure for storing cached data with a string key and scale factor */
   struct DataKey
   {
     // N.B. - hashID is not guaranteed to be unique
@@ -534,19 +534,19 @@ private:
     std::unique_ptr<T> data;
   };
   
-  /** \todo 
-   * @param str \todo
-   * @return size_t \todo */
+  /** Computes a hash value for a string key
+   * @param str The string to hash
+   * @return The hash value */
   size_t Hash(const char* str)
   {
     std::string string(str);
     return std::hash<std::string>()(string);
   }
 
-  /** \todo 
-   * @param str \todo
-   * @param scale \todo
-   * @return T* \todo */
+  /** Finds cached data by name and scale
+   * @param str The key string to search for
+   * @param scale The scale factor to match
+   * @return Pointer to the cached data, or nullptr if not found */
   T* Find(const char* str, double scale = 1.)
   {
     WDL_String cacheName(str);
@@ -566,10 +566,10 @@ private:
     return nullptr;
   }
 
-  /** \todo 
-   * @param pData \todo
-   * @param str \todo
-   * @param scale \todo scale where 2x = retina, omit if not needed */
+  /** Adds data to the cache
+   * @param pData Pointer to the data to cache (takes ownership)
+   * @param str The key string to associate with the data
+   * @param scale The scale factor (e.g. 2.0 for retina) */
   void Add(T* pData, const char* str, double scale = 1.)
   {
     DataKey* pKey = mDatas.Add(new DataKey);
@@ -585,7 +585,8 @@ private:
     //DBGMSG("adding %s to the static storage at %.1fx the original scale\n", str, scale);
   }
 
-  /** \todo @param pData \todo */
+  /** Removes data from the cache
+   * @param pData Pointer to the data to remove */
   void Remove(T* pData)
   {
     for (int i = 0; i < mDatas.GetSize(); ++i)
@@ -598,19 +599,19 @@ private:
     }
   }
 
-  /** \todo  */
+  /** Clears all cached data */
   void Clear()
   {
     mDatas.Empty(true);
   };
 
-  /** \todo  */
+  /** Increments the reference count for this storage */
   void Retain()
   {
     mCount++;
   }
   
-  /** \todo  */
+  /** Decrements the reference count, clearing the cache when it reaches zero */
   void Release()
   {
     if (--mCount == 0)

@@ -142,34 +142,34 @@ static const char* kVColorStrs[kNumVColors] =
   "extra3"
 };
 
-/** \todo */
+/** Defines shape types for IVControls */
 enum class EVShape { Rectangle, Ellipse, Triangle, EndsRounded, AllRounded };
 
-/** \todo */
+/** Defines winding direction for drawing paths */
 enum class EWinding { CW, CCW };
 
-/** \todo */
+/** Defines fill rules for complex paths */
 enum class EFillRule { Winding, EvenOdd, Preserve };
 
-/** \todo */
+/** Defines line cap styles for strokes */
 enum class ELineCap { Butt, Round, Square };
 
-/** \todo */
+/** Defines line join styles for strokes */
 enum class ELineJoin { Miter, Round, Bevel };
 
-/** \todo */
+/** Defines pattern types for fills and strokes */
 enum class EPatternType { Solid, Linear, Radial, Sweep };
 
-/** \todo */
+/** Defines how patterns extend beyond their bounds */
 enum class EPatternExtend { None, Pad, Reflect, Repeat };
 
-/** \todo */
+/** Defines which colors to replace when rendering SVGs */
 enum class EColorReplacement { None, Fill, Stroke };
 
-/** \todo */
+/** Defines how the UI resizer behaves: Scale maintains aspect ratio, Size allows free resizing */
 enum class EUIResizerMode { Scale, Size };
 
-/** \todo */
+/** Mouse cursor types */
 enum class ECursor
 {
   ARROW,
@@ -188,7 +188,7 @@ enum class ECursor
   HELP
 };
 
-/** \todo */
+/** Touch event states for multi-touch handling */
 enum class ETouchEvent { Began, Moved, Ended, Cancelled, Invalid };
 
 // This enumeration must match win32 message box options
