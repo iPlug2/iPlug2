@@ -373,7 +373,7 @@ CLAP_EXPORT const clap_plugin_entry_t clap_entry = {
   clap_get_factory,
 };
 
-#elif defined AUv3_API || defined AAX_API || defined APP_API
+#elif defined AUv3_API || defined AAX_API || defined APP_API || defined CLI_API
 // Nothing to do here
 #else
   #error "No API defined!"
@@ -386,7 +386,7 @@ BEGIN_IPLUG_NAMESPACE
 #pragma mark -
 #pragma mark VST2, VST3, AAX, AUv3, APP, WAM, WEB, CLAP
 
-#if defined VST2_API || defined VST3_API || defined AAX_API || defined AUv3_API || defined APP_API  || defined WAM_API || defined WEB_API || defined CLAP_API
+#if defined VST2_API || defined VST3_API || defined AAX_API || defined AUv3_API || defined APP_API || defined CLI_API || defined WAM_API || defined WEB_API || defined CLAP_API
 
 Plugin* MakePlug(const iplug::InstanceInfo& info)
 {
