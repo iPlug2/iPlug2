@@ -832,12 +832,12 @@ public:
     return oldCursorType;
   }
 
-  /** Call to force end text entry (will cancel any half input text \todo check) */
+  /** Call to force end text entry (will cancel any partial text input) */
   virtual void ForceEndUserEdit() = 0;
     
   /** Open a new platform view for this graphics context
-   * @param pParentWnd void pointer to parent platform window or view handle (if applicable) \todo check
-   * @return void pointer to newly created IGraphics platform view */
+   * @param pParentWnd Pointer to parent platform window or view handle (HWND on Windows, NSView* on macOS)
+   * @return Pointer to the newly created IGraphics platform view */
   virtual void* OpenWindow(void* pParentWnd) = 0;
 
   /** Close the platform view for this graphics context */
@@ -871,7 +871,7 @@ public:
    * @return /c true on success */
   virtual bool InitiateExternalFileDragDrop(const char* path, const IRECT& iconBounds) { return false; };
 
-  /** Call this if you modify control tool tips at runtime. \todo explain */
+  /** Call this if you modify control tool tips at runtime to refresh the platform tooltip state */
   virtual void UpdateTooltips() = 0;
 
   /** Pop up a modal platform message box dialog.
@@ -902,11 +902,11 @@ public:
    * @return /c true if prompt completed successfully */
   virtual bool PromptForColor(IColor& color, const char* str = "", IColorPickerHandlerFunc func = nullptr) = 0;
 
-  /** Open a URL in the platform’s default browser
+  /** Open a URL in the platform's default browser
    * @param url CString specifying the URL to open
-   * @param msgWindowTitle \todo ?
-   * @param confirmMsg \todo ?
-   * @param errMsgOnFailure \todo ?
+   * @param msgWindowTitle Title for any confirmation dialog (platform-specific)
+   * @param confirmMsg Confirmation message to display before opening (platform-specific)
+   * @param errMsgOnFailure Error message to display on failure (platform-specific)
    * @return /c true on success */
   virtual bool OpenURL(const char* url, const char* msgWindowTitle = 0, const char* confirmMsg = 0, const char* errMsgOnFailure = 0) = 0;
 
@@ -1077,15 +1077,16 @@ public:
    * @param hi The maxiumum scalar that the IGraphics context can be scaled up to */
   void SetScaleConstraints(float lo, float hi);
   
-  /** \todo detailed description of how this works
+  /** Resizes the graphics context to new dimensions and scale
    * @param w New width in pixels
    * @param h New height in pixels
    * @param scale New scale ratio
-   * @param needsPlatformResize This should be true for a "manual" resize from the plug-in UI and false
-   * if being called from IEditorDelegate::OnParentWindowResize(), in order to avoid feedback */
+   * @param needsPlatformResize Set true for manual resize from plug-in UI, false when called from
+   * IEditorDelegate::OnParentWindowResize() to avoid feedback loops */
   void Resize(int w, int h, float scale, bool needsPlatformResize = true);
   
-  /** Enables strict drawing mode. \todo explain strict drawing
+  /** Enables strict drawing mode. When enabled, only dirty controls are redrawn.
+   * When disabled, all controls are redrawn on each frame.
    * @param strict Set /c true to enable strict drawing mode */
   void SetStrictDrawing(bool strict);
 
@@ -1237,21 +1238,22 @@ public:
 
 private:
   
-  /** \todo */
+  /** Called to perform platform-specific resize operations
+   * @param parentHasResized True if the parent window has already been resized */
   virtual void PlatformResize(bool parentHasResized) {}
   
-  /** \todo */
+  /** Called to update the drawing surface after a resize */
   virtual void DrawResize() {}
   
   /** Draw a region of the graphics (redrawing all contained items)
-   * @param bounds \todo
-   * @param scale \todo */
+   * @param bounds The rectangular region to redraw
+   * @param scale The current draw scale */
   void Draw(const IRECT& bounds, float scale);
   
-  /** \todo
-   * @param pControl \todo
-   * @param bounds \todo
-   * @param scale \todo */
+  /** Draws a single control within the specified bounds
+   * @param pControl Pointer to the control to draw
+   * @param bounds The clipping bounds for the draw operation
+   * @param scale The current draw scale */
   void DrawControl(IControl* pControl, const IRECT& bounds, float scale);
   
   /** Shows a pop up/contextual menu in relation to a rectangular region of the graphics context
@@ -1543,7 +1545,7 @@ public:
   /** @param x The X coordinate at which the mouse event occurred
    * @param y The Y coordinate at which the mouse event occurred
    * @param mod IMouseMod struct contain information about the modifiers held
-   * @param delta Delta value \todo explain
+   * @param delta Scroll amount (positive = up/forward, negative = down/backward)
    * @return /c true on handled */
   bool OnMouseWheel(float x, float y, const IMouseMod& mod, float delta);
 
@@ -1685,7 +1687,7 @@ public:
    * @param name CString name to associate with the SVG
    * @param pData Pointer to the SVG file data
    * @param dataSize Size (in bytes) of the data at \c pData
-   * @param units \todo
+   * @param units The length units used in the SVG (e.g. "px", "pt", "mm")
    * @param dpi The dots per inch of the SVG file
    * @return An ISVG representing the image */
   virtual ISVG LoadSVG(const char* name, const void* pData, int dataSize, const char* units = "px", float dpi = 72.f);
@@ -1730,7 +1732,7 @@ protected:
    * @param width The desired width
    * @param height The desired height
    * @param scale The scale in relation to 1:1 pixels
-   * @param drawScale \todo
+   * @param drawScale The current draw scale for the graphics context
    * @param cacheable Used to make sure the underlying bitmap can be shared between plug-in instances
    * @return APIBitmap* The new API Bitmap */
   virtual APIBitmap* CreateAPIBitmap(int width, int height, float scale, double drawScale, bool cacheable = false) = 0;
@@ -1747,51 +1749,51 @@ protected:
   /** @return bool \c true if the drawing backend flips images (e.g. OpenGL) */
   virtual bool FlippedBitmap() const = 0;
 
-  /** Search for a bitmap image resource matching the target scale 
-   * @param fileName \todo
-   * @param type \todo 
-   * @param result \todo
-   * @param targetScale \todo
-   * @param sourceScale \todo
-   * @return EResourceLocation \todo */
+  /** Search for a bitmap image resource matching the target scale
+   * @param fileName The base filename to search for
+   * @param type The file extension (e.g. "png", "jpg")
+   * @param result Output string to receive the found resource path
+   * @param targetScale The desired scale factor to find
+   * @param sourceScale Output parameter set to the actual scale of the found resource
+   * @return EResourceLocation::kNotFound if not found, kAbsolutePath for file system paths, or kWinBinary/kPreloadedTexture for embedded resources */
   EResourceLocation SearchImageResource(const char* fileName, const char* type, WDL_String& result, int targetScale, int& sourceScale);
 
   /** Search the static storage cache for a bitmap image resource matching the target scale
-   * @param fileName \todo
-   * @param targetScale \todo
-   * @param sourceScale \todo
-   * @return  pointer to the bitmap in the cache,  or null pointer if not found */
+   * @param fileName The filename key to search for
+   * @param targetScale The desired scale factor
+   * @param sourceScale Output parameter set to the actual scale of the found bitmap
+   * @return Pointer to the bitmap in the cache, or nullptr if not found */
   APIBitmap* SearchBitmapInCache(const char* fileName, int targetScale, int& sourceScale);
 
-  /** \todo
-   * @param text \todo
-   * @param str \todo
-   * @param bounds \todo
-   * @return The width of the text */
+  /** Internal method to measure text dimensions
+   * @param text The text style to use for measurement
+   * @param str The string to measure
+   * @param bounds Output rectangle updated with the measured text bounds
+   * @return The width of the measured text */
   virtual float DoMeasureText(const IText& text, const char* str, IRECT& bounds) const = 0;
     
-  /** \todo
-   * @param text \todo
-   * @param str \todo
-   * @param bounds \todo
-   * @param pBlend \todo */
+  /** Internal method to draw text
+   * @param text The text style to use for drawing
+   * @param str The string to draw
+   * @param bounds The bounding rectangle for the text
+   * @param pBlend Optional blend mode */
   virtual void DoDrawText(const IText& text, const char* str, const IRECT& bounds, const IBlend* pBlend = nullptr) = 0;
 
-  /** \todo
-   * @param text \todo
-   * @param bounds \todo
-   * @param rect \todo */
+  /** Measures text bounds accounting for rotation
+   * @param text The text style containing rotation angle
+   * @param bounds The original bounding rectangle
+   * @param rect Output rectangle updated with rotated text bounds */
   void DoMeasureTextRotation(const IText& text, const IRECT& bounds, IRECT& rect) const;
   
-  /** \todo
-   * @param text \todo
-   * @param bounds \todo
-   * @param rect \todo
-   * @param tx \todo
-   * @param ty \todo */
+  /** Calculates rotation parameters for text drawing
+   * @param text The text style containing rotation angle
+   * @param bounds The bounding rectangle for the text
+   * @param rect The text measurement rectangle
+   * @param tx Output x translation for rotation center
+   * @param ty Output y translation for rotation center */
   void CalculateTextRotation(const IText& text, const IRECT& bounds, IRECT& rect, double& tx, double& ty) const;
   
-  /** @return float \todo */
+  /** @return The combined scale factor for backing pixels (screen scale * draw scale) */
   virtual float GetBackingPixelScale() const { return GetScreenScale() * GetDrawScale(); };
 
   IMatrix GetTransformMatrix() const { return mTransform; }
