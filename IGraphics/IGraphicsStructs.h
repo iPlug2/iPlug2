@@ -340,8 +340,8 @@ struct IColor
     l /= 100.f;
   }
 
-  /** Gets the luminosity (brightness) of the color
-   * @return The luminosity value (0-255) */
+  /** Gets the lightness of the color (HSL lightness component)
+   * @return The lightness value (0-255), calculated as (min(R,G,B) + max(R,G,B)) / 2 */
   int GetLuminosity() const
   {
     int min = R < G ? (R < B ? R : B) : (G < B ? G : B);

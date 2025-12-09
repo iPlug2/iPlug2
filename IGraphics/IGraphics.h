@@ -1755,7 +1755,7 @@ protected:
    * @param result Output string to receive the found resource path
    * @param targetScale The desired scale factor to find
    * @param sourceScale Output parameter set to the actual scale of the found resource
-   * @return The location type of the found resource */
+   * @return EResourceLocation::kNotFound if not found, kAbsolutePath for file system paths, or kWinBinary/kPreloadedTexture for embedded resources */
   EResourceLocation SearchImageResource(const char* fileName, const char* type, WDL_String& result, int targetScale, int& sourceScale);
 
   /** Search the static storage cache for a bitmap image resource matching the target scale

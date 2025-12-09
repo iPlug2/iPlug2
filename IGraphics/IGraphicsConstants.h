@@ -166,7 +166,9 @@ enum class EPatternExtend { None, Pad, Reflect, Repeat };
 /** Defines which colors to replace when rendering SVGs */
 enum class EColorReplacement { None, Fill, Stroke };
 
-/** Defines how the UI resizer behaves: Scale maintains aspect ratio, Size allows free resizing */
+/** Defines how the UI resizer behaves
+ * - Scale: Uniformly scales the UI, maintaining aspect ratio
+ * - Size: Allows free resizing without maintaining aspect ratio */
 enum class EUIResizerMode { Scale, Size };
 
 /** Mouse cursor types */
