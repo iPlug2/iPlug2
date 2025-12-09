@@ -387,7 +387,10 @@ bool IPlugAPPHost::TryToChangeAudioDriverType()
 #endif
 
   if(mDAC)
+  {
+    mDAC->setErrorCallback(&ErrorCallback);
     return true;
+  }
   else
     return false;
 }
