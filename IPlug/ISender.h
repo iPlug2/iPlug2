@@ -726,4 +726,142 @@ private:
   float mScalingFactor = 0.0f;
 };
 
+/** IGoniometerData represents a packet of stereo sample pairs for goniometer visualization,
+ * along with computed stereo correlation coefficient */
+template <int MAXPOINTS = 512>
+struct IGoniometerData
+{
+  int ctrlTag = kNoTag;
+  int nPoints = 0;
+  float correlation = 0.0f; // -1 (out of phase) to 1 (mono/in phase)
+  std::array<std::pair<float, float>, MAXPOINTS> points; // L/R sample pairs
+
+  IGoniometerData() : points{} {}
+};
+
+/** IGoniometerSender is a utility class for sending stereo sample pairs and correlation data
+ * to a goniometer/vectorscope display. It collects L/R sample pairs and computes the
+ * stereo correlation coefficient over a configurable window.
+ *
+ * The correlation coefficient indicates phase coherence:
+ * - +1.0 = mono (L and R identical)
+ * - 0.0 = uncorrelated (independent L and R)
+ * - -1.0 = out of phase (L and R are inverted)
+ */
+template <int MAXPOINTS = 512, int QUEUE_SIZE = 64>
+class IGoniometerSender : public ISender<1, QUEUE_SIZE, IGoniometerData<MAXPOINTS>>
+{
+public:
+  using TDataPacket = IGoniometerData<MAXPOINTS>;
+  using TSender = ISender<1, QUEUE_SIZE, TDataPacket>;
+
+  /** Construct an IGoniometerSender
+   * @param windowSizeMs Time window for computing correlation coefficient
+   * @param decimation Decimation factor - only every Nth sample pair is sent to reduce UI load */
+  IGoniometerSender(float windowSizeMs = 50.0f, int decimation = 4)
+  : TSender()
+  , mWindowSizeMs(windowSizeMs)
+  , mDecimation(decimation)
+  {
+    Reset(DEFAULT_SAMPLE_RATE);
+  }
+
+  void Reset(double sampleRate)
+  {
+    mSampleRate = sampleRate;
+    mWindowSize = static_cast<int>(mWindowSizeMs * 0.001 * sampleRate);
+    mSampleCount = 0;
+    mPointCount = 0;
+    mSumL = mSumR = mSumL2 = mSumR2 = mSumLR = 0.0;
+  }
+
+  /** Set the time window for correlation computation
+   * @param windowSizeMs Window size in milliseconds */
+  void SetWindowSizeMs(float windowSizeMs)
+  {
+    mWindowSizeMs = windowSizeMs;
+    mWindowSize = static_cast<int>(windowSizeMs * 0.001 * mSampleRate);
+  }
+
+  /** Set decimation factor
+   * @param decimation Only every Nth sample is stored for display */
+  void SetDecimation(int decimation)
+  {
+    mDecimation = std::max(1, decimation);
+  }
+
+  /** Process a block of stereo audio and queue data for the goniometer
+   * @param inputs Array of input buffers (must have at least 2 channels)
+   * @param nFrames Number of sample frames
+   * @param ctrlTag Control tag for the target goniometer control
+   * @param leftChan Index of the left channel (default 0)
+   * @param rightChan Index of the right channel (default 1) */
+  void ProcessBlock(sample** inputs, int nFrames, int ctrlTag = kNoTag, int leftChan = 0, int rightChan = 1)
+  {
+    for (int s = 0; s < nFrames; s++)
+    {
+      const float L = static_cast<float>(inputs[leftChan][s]);
+      const float R = static_cast<float>(inputs[rightChan][s]);
+
+      // Accumulate for correlation calculation
+      mSumL += L;
+      mSumR += R;
+      mSumL2 += L * L;
+      mSumR2 += R * R;
+      mSumLR += L * R;
+
+      // Store decimated sample pairs
+      if ((mSampleCount % mDecimation) == 0 && mPointCount < MAXPOINTS)
+      {
+        mBuffer.vals[0].points[mPointCount] = std::make_pair(L, R);
+        mPointCount++;
+      }
+
+      mSampleCount++;
+
+      // When window is complete, compute correlation and send data
+      if (mSampleCount >= mWindowSize)
+      {
+        // Compute Pearson correlation coefficient
+        const double n = static_cast<double>(mWindowSize);
+        const double numerator = n * mSumLR - mSumL * mSumR;
+        const double denomL = n * mSumL2 - mSumL * mSumL;
+        const double denomR = n * mSumR2 - mSumR * mSumR;
+        const double denom = std::sqrt(denomL * denomR);
+
+        if (denom > 1e-10)
+          mBuffer.vals[0].correlation = static_cast<float>(numerator / denom);
+        else
+          mBuffer.vals[0].correlation = 0.0f;
+
+        mBuffer.ctrlTag = ctrlTag;
+        mBuffer.vals[0].nPoints = mPointCount;
+
+        TSender::PushData(mBuffer);
+
+        // Reset accumulators
+        mSampleCount = 0;
+        mPointCount = 0;
+        mSumL = mSumR = mSumL2 = mSumR2 = mSumLR = 0.0;
+      }
+    }
+  }
+
+private:
+  ISenderData<1, TDataPacket> mBuffer;
+  double mSampleRate = DEFAULT_SAMPLE_RATE;
+  float mWindowSizeMs = 50.0f;
+  int mWindowSize = 2205;
+  int mDecimation = 4;
+  int mSampleCount = 0;
+  int mPointCount = 0;
+
+  // Running sums for correlation calculation
+  double mSumL = 0.0;
+  double mSumR = 0.0;
+  double mSumL2 = 0.0;
+  double mSumR2 = 0.0;
+  double mSumLR = 0.0;
+};
+
 END_IPLUG_NAMESPACE
