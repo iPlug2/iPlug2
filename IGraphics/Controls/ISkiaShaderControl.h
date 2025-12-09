@@ -123,7 +123,7 @@ public:
     }
 
     mRTEffect = effect;
-    UpdateShader();
+    RebuildShader();
     return true;
   }
 
@@ -135,42 +135,50 @@ public:
 protected:
   void OnShaderResize(int w, int h) override
   {
-    // Shader will use updated uniform values on next draw
+    // Shader references mUniformData directly, no rebuild needed
   }
 
 private:
-  /** Rebuild the shader with current uniform values */
-  void UpdateShader()
+  /** Uniform data structure matching the expected SkSL layout.
+   * The shader references this memory directly via MakeWithoutCopy,
+   * so uniform updates are automatic without per-frame allocations. */
+  struct alignas(4) UniformData
+  {
+    float time = 0.f;
+    float resolution[2] = {0.f, 0.f};
+    float mouse[2] = {0.f, 0.f};
+    float mouseButtons[2] = {0.f, 0.f};
+  };
+
+  /** Rebuild shader instance - only needed when shader source changes */
+  void RebuildShader()
   {
     if (!mRTEffect)
       return;
 
-    // Build uniform data matching our standard layout
-    struct UniformData
-    {
-      float time;
-      float resolution[2];
-      float mouse[2];
-      float mouseButtons[2];
-    } data;
-
-    data.time = mUniforms[static_cast<int>(EShaderUniform::Time)];
-    data.resolution[0] = mUniforms[static_cast<int>(EShaderUniform::Width)];
-    data.resolution[1] = mUniforms[static_cast<int>(EShaderUniform::Height)];
-    data.mouse[0] = mUniforms[static_cast<int>(EShaderUniform::MouseX)];
-    data.mouse[1] = mUniforms[static_cast<int>(EShaderUniform::MouseY)];
-    data.mouseButtons[0] = mUniforms[static_cast<int>(EShaderUniform::MouseL)];
-    data.mouseButtons[1] = mUniforms[static_cast<int>(EShaderUniform::MouseR)];
-
-    auto uniformData = SkData::MakeWithCopy(&data, sizeof(data));
+    // Use MakeWithoutCopy so shader reads directly from mUniformData
+    // This avoids allocations on every frame - just update mUniformData
+    auto uniformData = SkData::MakeWithoutCopy(&mUniformData, sizeof(mUniformData));
     auto shader = mRTEffect->makeShader(std::move(uniformData), nullptr, 0);
     mPaint.setShader(std::move(shader));
+  }
+
+  /** Sync base class uniforms to our packed struct before drawing */
+  void SyncUniforms()
+  {
+    mUniformData.time = mUniforms[static_cast<int>(EShaderUniform::Time)];
+    mUniformData.resolution[0] = mUniforms[static_cast<int>(EShaderUniform::Width)];
+    mUniformData.resolution[1] = mUniforms[static_cast<int>(EShaderUniform::Height)];
+    mUniformData.mouse[0] = mUniforms[static_cast<int>(EShaderUniform::MouseX)];
+    mUniformData.mouse[1] = mUniforms[static_cast<int>(EShaderUniform::MouseY)];
+    mUniformData.mouseButtons[0] = mUniforms[static_cast<int>(EShaderUniform::MouseL)];
+    mUniformData.mouseButtons[1] = mUniforms[static_cast<int>(EShaderUniform::MouseR)];
   }
 
   /** Draw the shader to the given bounds */
   void DrawShader(IGraphics& g, const IRECT& r)
   {
-    UpdateShader();
+    SyncUniforms();
 
     SkCanvas* canvas = static_cast<SkCanvas*>(g.GetDrawContext());
     canvas->save();
@@ -182,6 +190,7 @@ private:
   SkPaint mPaint;
   SkString mShaderStr;
   sk_sp<SkRuntimeEffect> mRTEffect;
+  UniformData mUniformData;  // Persistent buffer - shader reads directly from here
   bool mAnimate = false;
 };
 
