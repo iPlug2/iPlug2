@@ -21,6 +21,9 @@
 #elif defined WEBVIEW_EDITOR_DELEGATE
   #include "IPlugWebViewEditorDelegate.h"
   using EDITOR_DELEGATE_CLASS = iplug::WebViewEditorDelegate;
+#elif defined VISAGE_EDITOR_DELEGATE
+  #include "IPlugVisageEditorDelegate.h"
+  using EDITOR_DELEGATE_CLASS = iplug::VisageEditorDelegate;
 #elif defined NO_IGRAPHICS
   #include "IPlugEditorDelegate.h"
   using EDITOR_DELEGATE_CLASS = iplug::IEditorDelegate;
