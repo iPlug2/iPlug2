@@ -781,8 +781,8 @@ void IPlugAPPHost::MIDICallback(double deltatime, std::vector<uint8_t>* pMsg, vo
 }
 
 // static
-void IPlugAPPHost::ErrorCallback(RtAudioErrorType type, const std::string &errorText )
+void IPlugAPPHost::ErrorCallback(RtAudioErrorType type, const std::string &errorText)
 {
-  //TODO:
+  DBGMSG("RtAudio Error [%d]: %s\n", static_cast<int>(type), errorText.c_str());
 }
 
