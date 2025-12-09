@@ -14,6 +14,9 @@
 #pragma warning(disable:4244) // float conversion
 #include "nanosvg.h"
 
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "stb_image_write.h"
+
 #if defined VST3_API
 #include "pluginterfaces/base/ustring.h"
 #include "IPlugVST3.h"
@@ -2088,6 +2091,91 @@ void IGraphics::DrawRotatedLayer(const ILayerPtr& layer, double angle)
   IRECT bounds = layer->Bounds();
   DrawRotatedBitmap(bitmap, bounds.MW(), bounds.MH(), angle);
   PathTransformRestore();
+}
+
+bool IGraphics::SaveScreenshot(const char* path)
+{
+  IRECT bounds = GetBounds();
+
+  // Create a layer covering the entire UI
+  StartLayer(nullptr, bounds, false);
+
+  // Draw all controls to the layer
+  Draw(bounds, GetDrawScale());
+
+  ILayerPtr layer = EndLayer();
+
+  if (!layer)
+    return false;
+
+  // Get pixel data from the layer
+  RawBitmapData data;
+  GetLayerBitmapData(layer, data);
+
+  if (data.GetSize() == 0)
+    return false;
+
+  // Get dimensions from the layer's bitmap
+  const APIBitmap* pBitmap = layer->GetAPIBitmap();
+  int width = pBitmap->GetWidth();
+  int height = pBitmap->GetHeight();
+
+  // Calculate stride - stb_image_write needs the stride in bytes
+  int stride = data.GetSize() / height;
+
+  // Handle vertical flip for OpenGL-based backends
+  bool flipped = FlippedBitmap();
+
+  // Prepare output buffer - may need to flip vertically and/or swap channels
+  RawBitmapData outputData;
+  outputData.Resize(width * height * 4);
+
+  uint8_t* src = data.Get();
+  uint8_t* dst = outputData.Get();
+
+  // The pixel format from GetLayerBitmapData may be BGRA (Skia N32) or RGBA (NanoVG)
+  // We need RGBA for PNG. Also handle vertical flip for OpenGL backends.
+  // AlphaChannel() returns 3 for both backends, but Skia's N32 format is platform-dependent.
+  // On macOS/iOS with Metal or most platforms, N32 is typically BGRA.
+
+#ifdef IGRAPHICS_SKIA
+  bool swapRB = true;  // Skia N32 is typically BGRA, need to swap to RGBA
+#else
+  bool swapRB = false; // NanoVG returns RGBA
+#endif
+
+  for (int y = 0; y < height; y++)
+  {
+    int srcY = flipped ? (height - 1 - y) : y;
+    uint8_t* srcRow = src + srcY * stride;
+    uint8_t* dstRow = dst + y * width * 4;
+
+    for (int x = 0; x < width; x++)
+    {
+      if (swapRB)
+      {
+        // BGRA -> RGBA
+        dstRow[x * 4 + 0] = srcRow[x * 4 + 2]; // R from B
+        dstRow[x * 4 + 1] = srcRow[x * 4 + 1]; // G
+        dstRow[x * 4 + 2] = srcRow[x * 4 + 0]; // B from R
+        dstRow[x * 4 + 3] = srcRow[x * 4 + 3]; // A
+      }
+      else
+      {
+        // RGBA -> RGBA (just copy)
+        dstRow[x * 4 + 0] = srcRow[x * 4 + 0];
+        dstRow[x * 4 + 1] = srcRow[x * 4 + 1];
+        dstRow[x * 4 + 2] = srcRow[x * 4 + 2];
+        dstRow[x * 4 + 3] = srcRow[x * 4 + 3];
+      }
+    }
+  }
+
+  // Write PNG file using stb_image_write
+  // Data is RGBA, 4 bytes per pixel, tightly packed
+  int result = stbi_write_png(path, width, height, 4, outputData.Get(), width * 4);
+
+  return result != 0;
 }
 
 void IGraphics::ApplyLayerDropShadow(ILayerPtr& layer, const IShadow& shadow)
