@@ -12,12 +12,16 @@
 #include "config.h"
 #include "resource.h"
 
+#include <ctime>
+
 #ifdef OS_WIN
 #include "asio.h"
 extern float GetScaleForHWND(HWND hWnd);
 #define GET_MENU() GetMenu(gHWND)
 #elif defined OS_MAC
 #define GET_MENU() SWELL_GetCurrentMenu()
+// Implemented in IPlugAPP_screenshot.mm
+extern "C" bool SaveWindowScreenshot(void* hwnd, const char* path);
 #endif
 
 using namespace iplug;
@@ -609,6 +613,73 @@ WDL_DLGRET IPlugAPPHost::MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
 
           if (ret == IDOK)
             pAppHost->UpdateINI();
+
+          return 0;
+        }
+        case ID_SCREENSHOT:
+        {
+          // Generate filename with timestamp
+          WDL_String path;
+          char timestamp[32];
+          time_t now = time(nullptr);
+          strftime(timestamp, sizeof(timestamp), "%Y%m%d_%H%M%S", localtime(&now));
+
+          // Get temp directory (works with sandbox)
+          #ifdef OS_MAC
+          const char* tmpDir = getenv("TMPDIR");
+          path.SetFormatted(512, "%s%s_screenshot_%s.png",
+                            tmpDir ? tmpDir : "/tmp/",
+                            PLUG_NAME,
+                            timestamp);
+          #else
+          char tempPath[MAX_PATH];
+          GetTempPathA(MAX_PATH, tempPath);
+          path.SetFormatted(512, "%s%s_screenshot_%s.png",
+                            tempPath,
+                            PLUG_NAME,
+                            timestamp);
+          #endif
+
+          bool success = false;
+
+          // Try IGraphics::SaveScreenshot first (works with Metal/GPU backends)
+          #if !defined NO_IGRAPHICS
+          IGEditorDelegate* pPlug = dynamic_cast<IGEditorDelegate*>(pAppHost->GetPlug());
+          if (pPlug)
+          {
+            IGraphics* pGraphics = pPlug->GetUI();
+            if (pGraphics)
+              success = pGraphics->SaveScreenshot(path.Get());
+          }
+          #endif
+
+          // Fall back to native API for non-IGraphics UIs
+          #ifdef OS_MAC
+          if (!success)
+            success = SaveWindowScreenshot(gHWND, path.Get());
+          #endif
+
+          if (success)
+          {
+            WDL_String msg;
+            msg.SetFormatted(512, "Screenshot saved to:\n%s\n\nOpen it?", path.Get());
+            int result = MessageBox(hwndDlg, msg.Get(), "Screenshot Saved", MB_YESNO);
+
+            if (result == IDYES)
+            {
+              #ifdef OS_MAC
+              WDL_String cmd;
+              cmd.SetFormatted(1024, "open \"%s\"", path.Get());
+              system(cmd.Get());
+              #else
+              ShellExecuteA(NULL, "open", path.Get(), NULL, NULL, SW_SHOWNORMAL);
+              #endif
+            }
+          }
+          else
+          {
+            MessageBox(hwndDlg, "Failed to save screenshot", "Error", MB_OK);
+          }
 
           return 0;
         }
