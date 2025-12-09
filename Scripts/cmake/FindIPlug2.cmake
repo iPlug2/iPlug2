@@ -13,6 +13,7 @@
 include(${CMAKE_CURRENT_LIST_DIR}/IPlug.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/IGraphics.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/Deploy.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/CLI.cmake)
 
 # Include plugin format modules to set up targets and availability checks
 # These are included early so that iPlug2::* targets exist when projects link to them
