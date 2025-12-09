@@ -526,7 +526,7 @@ public:
   };
   
   ISpectrumSender(int fftSize = 1024, int overlap = 2, EWindowType window = EWindowType::Hann, EOutputType outputType = EOutputType::MagPhase, double minThresholdDb = -100.0)
-  : TBufferSender(minThresholdDb, fftSize)
+  : TBufferSender(minThresholdDb, fftSize / overlap)
   , mWindowType(window)
   , mOutputType(outputType)
   {
@@ -536,17 +536,16 @@ public:
 
   void SetFFTSize(int fftSize)
   {
-    TBufferSender::SetBufferSize(fftSize);
-    SetFFTSize();
-    CalculateWindow();
-    CalculateScalingFactors();
+    SetFFTSizeAndOverlap(fftSize, mOverlap);
   }
-  
+
   void SetFFTSizeAndOverlap(int fftSize, int overlap)
   {
+    mFFTSize = fftSize;
     mOverlap = overlap;
-    TBufferSender::SetBufferSize(fftSize);
-    SetFFTSize();
+    int hopSize = fftSize / overlap;
+    TBufferSender::SetBufferSize(hopSize);
+    InitSTFTFrames();
     CalculateWindow();
     CalculateScalingFactors();
   }
@@ -564,31 +563,31 @@ public:
   
   void PrepareDataForUI(ISenderData<MAXNC, TDataPacket>& d) override
   {
-    auto fftSize = TBufferSender::GetBufferSize();
+    int hopSize = TBufferSender::GetBufferSize();
 
-    for (auto s = 0; s < fftSize; s++)
+    for (auto s = 0; s < hopSize; s++)
     {
       for (auto stftFrameIdx = 0; stftFrameIdx < mOverlap; stftFrameIdx++)
       {
         auto& stftFrame = mSTFTFrames[stftFrameIdx];
-        
+
         for (auto ch = 0; ch < MAXNC; ch++)
         {
           auto windowedValue = (float) d.vals[ch][s] * mWindow[stftFrame.pos];
           stftFrame.bins[ch][stftFrame.pos].re = windowedValue;
           stftFrame.bins[ch][stftFrame.pos].im = 0.0f;
         }
-        
+
         stftFrame.pos++;
 
-        if (stftFrame.pos >= fftSize)
+        if (stftFrame.pos >= mFFTSize)
         {
           stftFrame.pos = 0;
-          
+
           for (auto ch = 0; ch < MAXNC; ch++)
           {
             Permute(ch, stftFrameIdx);
-            memcpy(d.vals[ch].data(), mSTFTOutput[ch].data(), fftSize * sizeof(float));
+            memcpy(d.vals[ch].data(), mSTFTOutput[ch].data(), mFFTSize * sizeof(float));
           }
         }
       }
@@ -597,7 +596,7 @@ public:
 
   int GetFFTSize() const
   {
-    return TBufferSender::GetBufferSize();
+    return mFFTSize;
   }
 
   int GetOverlap() const
@@ -605,24 +604,28 @@ public:
     return mOverlap;
   }
     
+
 private:
-  void SetFFTSize()
+  void InitSTFTFrames()
   {
     if (mSTFTFrames.size() != mOverlap)
     {
       mSTFTFrames.resize(mOverlap);
     }
-    
-    for (auto&& frame : mSTFTFrames)
+
+    int hopSize = mFFTSize / mOverlap;
+
+    for (int i = 0; i < mOverlap; i++)
     {
+      auto& frame = mSTFTFrames[i];
       for (auto ch = 0; ch < MAXNC; ch++)
       {
         std::fill(frame.bins[ch].begin(), frame.bins[ch].end(), WDL_FFT_COMPLEX{0.0f, 0.0f});
       }
-      
-      frame.pos = 0;
+      // Stagger frame positions so FFTs are computed at different times
+      frame.pos = i * hopSize;
     }
-    
+
     for (auto ch = 0; ch < MAXNC; ch++)
     {
       std::fill(mSTFTOutput[ch].begin(), mSTFTOutput[ch].end(), 0.0f);
@@ -631,27 +634,25 @@ private:
   
   void CalculateWindow()
   {
-    const auto fftSize = TBufferSender::GetBufferSize();
+    const float M = static_cast<float>(mFFTSize - 1);
 
-    const float M = static_cast<float>(fftSize - 1);
-    
     switch (mWindowType)
     {
       case EWindowType::Hann:
-        for (auto i = 0; i < fftSize; i++) { mWindow[i] = 0.5f * (1.0f - std::cos(PI * 2.0f * i / M)); }
+        for (auto i = 0; i < mFFTSize; i++) { mWindow[i] = 0.5f * (1.0f - std::cos(PI * 2.0f * i / M)); }
         break;
       case EWindowType::BlackmanHarris:
-        for (auto i = 0; i < fftSize; i++) {
+        for (auto i = 0; i < mFFTSize; i++) {
           mWindow[i] = 0.35875 - (0.48829f * std::cos(2.0f * PI * i / M)) +
                                  (0.14128f * std::cos(4.0f * PI * i / M)) -
                                  (0.01168f * std::cos(6.0f * PI * i / M));
         }
         break;
       case EWindowType::Hamming:
-        for (auto i = 0; i < fftSize; i++) { mWindow[i] = 0.54f - 0.46f * std::cos(2.0f * PI * i / M); }
+        for (auto i = 0; i < mFFTSize; i++) { mWindow[i] = 0.54f - 0.46f * std::cos(2.0f * PI * i / M); }
         break;
       case EWindowType::Flattop:
-        for (auto i = 0; i < fftSize; i++) {
+        for (auto i = 0; i < mFFTSize; i++) {
           mWindow[i] = 0.21557895f - 0.41663158f * std::cos(2.0f * PI * i / M) +
                                     0.277263158f * std::cos(4.0f * PI * i / M) -
                                     0.083578947f * std::cos(6.0f * PI * i / M) +
@@ -665,44 +666,42 @@ private:
         break;
     }
   }
-  
+
   void CalculateScalingFactors()
   {
-    const auto fftSize = TBufferSender::GetBufferSize();
-    const float M = static_cast<float>(fftSize - 1);
+    const float M = static_cast<float>(mFFTSize - 1);
 
     auto scaling = 0.0f;
-    
-    for (auto i = 0; i < fftSize; i++)
+
+    for (auto i = 0; i < mFFTSize; i++)
     {
       auto v = 0.5f * (1.0f - std::cos(2.0f * PI * i / M));
       scaling += v;
     }
-    
+
     mScalingFactor = scaling * scaling;
   }
-  
+
   void Permute(int ch, int frameIdx)
   {
-    const auto fftSize = TBufferSender::GetBufferSize();
-    WDL_fft(mSTFTFrames[frameIdx].bins[ch].data(), fftSize, false);
+    WDL_fft(mSTFTFrames[frameIdx].bins[ch].data(), mFFTSize, false);
 
     if (mOutputType == EOutputType::Complex)
     {
-      auto nBins = fftSize/2;
+      auto nBins = mFFTSize / 2;
       for (auto i = 0; i < nBins; ++i)
       {
-        int sortIdx = WDL_fft_permute(fftSize, i);
+        int sortIdx = WDL_fft_permute(mFFTSize, i);
         mSTFTOutput[ch][i] = mSTFTFrames[frameIdx].bins[ch][sortIdx].re;
         mSTFTOutput[ch][i + nBins] = mSTFTFrames[frameIdx].bins[ch][sortIdx].im;
       }
     }
     else // magPhase
     {
-      auto nBins = fftSize/2;
+      auto nBins = mFFTSize / 2;
       for (auto i = 0; i < nBins; ++i)
       {
-        int sortIdx = WDL_fft_permute(fftSize, i);
+        int sortIdx = WDL_fft_permute(mFFTSize, i);
         auto re = mSTFTFrames[frameIdx].bins[ch][sortIdx].re;
         auto im = mSTFTFrames[frameIdx].bins[ch][sortIdx].im;
         mSTFTOutput[ch][i] = std::sqrt(2.0f * (re * re + im * im) / mScalingFactor);
@@ -716,7 +715,8 @@ private:
     int pos;
     std::array<std::array<WDL_FFT_COMPLEX, MAX_FFT_SIZE>, MAXNC> bins;
   };
-  
+
+  int mFFTSize = 1024;
   int mOverlap = 2;
   EWindowType mWindowType;
   EOutputType mOutputType;
