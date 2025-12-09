@@ -132,8 +132,8 @@ public:
     
     , mAudioInChanL(obj.mAudioInChanL)
     , mAudioInChanR(obj.mAudioInChanR)
-    , mAudioOutChanL(obj.mAudioInChanL)
-    , mAudioOutChanR(obj.mAudioInChanR)
+    , mAudioOutChanL(obj.mAudioOutChanL)
+    , mAudioOutChanR(obj.mAudioOutChanR)
     {
     }
     
