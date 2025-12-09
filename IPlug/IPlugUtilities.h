@@ -154,9 +154,9 @@ void CastCopy(DEST* pDest, SRC* pSrc, int n)
   }
 }
 
-/** \todo  
- * @param cDest \todo
- * @param cSrc \todo */
+/** Converts a C string to lowercase
+ * @param cDest Destination buffer for the lowercase string (must be pre-allocated)
+ * @param cSrc Source string to convert */
 static void ToLower(char* cDest, const char* cSrc)
 {
   int i, n = (int) strlen(cSrc);
@@ -290,11 +290,11 @@ static void GetHostNameStr(EHost host, WDL_String& str)
   }
 }
 
-/** \todo 
- * @param midiPitch \todo
- * @param noteName \todo
- * @param cents \todo
- * @param middleCisC4 \todo */
+/** Converts a MIDI pitch number to a human-readable note name
+ * @param midiPitch The MIDI pitch (0-127, fractional values supported)
+ * @param noteName Output string to store the note name
+ * @param cents If true, includes cent deviation from the nearest pitch
+ * @param middleCisC4 If true, uses C4 as middle C; if false, uses C3 as middle C */
 static void MidiNoteName(double midiPitch, WDL_String& noteName, bool cents = false, bool middleCisC4 = false)
 {
   static const char noteNames[12][3] = {"C ","C#","D ","D#","E ","F ","F#","G ","G#","A ","A#","B "};

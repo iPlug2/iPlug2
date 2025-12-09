@@ -203,10 +203,12 @@ private:
   virtual void InformHostOfParamChange(int paramIdx, double normalizedValue) {}
   
   //DISTRIBUTED ONLY (Currently only VST3)
-  /** \todo */
+  /** Transmits a MIDI message from processor to controller in distributed architectures
+   * @param msg The MIDI message to transmit */
   virtual void TransmitMidiMsgFromProcessor(const IMidiMsg& msg) {}
-  
-  /** \todo */
+
+  /** Transmits SysEx data from processor to controller in distributed architectures
+   * @param data The SysEx data to transmit */
   virtual void TransmitSysExDataFromProcessor(const SysExData& data) {}
 
   void OnTimer(Timer& t);

@@ -49,8 +49,8 @@ public:
   };
     
   /** IPlugProcessor constructor
-   * @param config \todo
-   * @param plugAPI \todo */
+   * @param config The plugin configuration struct containing compile-time options
+   * @param plugAPI The plugin API type (VST2, VST3, AU, etc.) */
   IPlugProcessor(const Config& config, EAPI plugAPI);
   virtual ~IPlugProcessor();
 
