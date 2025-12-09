@@ -90,6 +90,8 @@ BEGIN
         MENUITEM "&Show Control Bounds\tCtrl+B", ID_SHOW_BOUNDS
         MENUITEM "&Show Drawn Area\tCtrl+D",    ID_SHOW_DRAWN
         MENUITEM "&Show FPS\tCtrl+F",           ID_SHOW_FPS
+        MENUITEM SEPARATOR
+        MENUITEM "&Save Screenshot\tCtrl+Shift+S", ID_SCREENSHOT
     END
     POPUP "&Help"
     BEGIN
@@ -194,6 +196,7 @@ BEGIN
     "D",            ID_SHOW_DRAWN,          VIRTKEY, CONTROL, NOINVERT
     "F",            ID_SHOW_FPS,            VIRTKEY, CONTROL, NOINVERT
     "E",            ID_LIVE_EDIT,           VIRTKEY, CONTROL, NOINVERT
+    "S",            ID_SCREENSHOT,          VIRTKEY, CONTROL, SHIFT, NOINVERT
 END
 
 
