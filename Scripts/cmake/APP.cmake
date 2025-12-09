@@ -20,9 +20,9 @@ if(NOT TARGET iPlug2::APP)
   set(RTMIDI_DIR ${IPLUG_DEPS_DIR}/RTMidi)
   
   set(APP_SRC
-    ${IPLUG2_DIR}/IPlug/APP/IPlugAPP.cpp 
-    ${IPLUG2_DIR}/IPlug/APP/IPlugAPP_dialog.cpp 
-    ${IPLUG2_DIR}/IPlug/APP/IPlugAPP_host.cpp 
+    ${IPLUG2_DIR}/IPlug/APP/IPlugAPP.cpp
+    ${IPLUG2_DIR}/IPlug/APP/IPlugAPP_dialog.cpp
+    ${IPLUG2_DIR}/IPlug/APP/IPlugAPP_host.cpp
     ${IPLUG2_DIR}/IPlug/APP/IPlugAPP_main.cpp
     ${RTAUDIO_DIR}/RtAudio.cpp
     ${RTMIDI_DIR}/RtMidi.cpp

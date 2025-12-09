@@ -143,10 +143,68 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
 #pragma mark - MAC
 #elif defined(OS_MAC)
 #import <Cocoa/Cocoa.h>
+#include <dlfcn.h>
 #include "IPlugSWELL.h"
 #include "IPlugPaths.h"
 
 HWND gHWND;
+
+// Function pointer type for CGWindowListCreateImage
+typedef CGImageRef (*CGWindowListCreateImageFunc)(CGRect, uint32_t, uint32_t, uint32_t);
+
+// Save a screenshot of the given HWND (NSView*) to a PNG file
+extern "C" bool SaveWindowScreenshot(void* hwnd, const char* path)
+{
+  if (!hwnd || !path)
+    return false;
+
+  NSView* view = (__bridge NSView*)hwnd;
+  NSWindow* window = [view window];
+
+  if (!window)
+    return false;
+
+  // Get CGWindowListCreateImage via dlsym to bypass availability check
+  // The function still exists and works in the runtime
+  static CGWindowListCreateImageFunc pCGWindowListCreateImage = nullptr;
+  if (!pCGWindowListCreateImage)
+  {
+    void* handle = dlopen("/System/Library/Frameworks/CoreGraphics.framework/CoreGraphics", RTLD_LAZY);
+    if (handle)
+      pCGWindowListCreateImage = (CGWindowListCreateImageFunc)dlsym(handle, "CGWindowListCreateImage");
+  }
+
+  if (!pCGWindowListCreateImage)
+    return false;
+
+  // Get the window's CGWindowID
+  CGWindowID windowID = (CGWindowID)[window windowNumber];
+
+  // Capture the window content at full resolution (high DPI)
+  CGImageRef cgImage = pCGWindowListCreateImage(
+    CGRectNull,  // Capture the whole window
+    kCGWindowListOptionIncludingWindow,
+    windowID,
+    kCGWindowImageBoundsIgnoreFraming  // Exclude window frame, capture at screen resolution
+  );
+
+  if (!cgImage)
+    return false;
+
+  // Create NSBitmapImageRep from CGImage and save as PNG
+  NSBitmapImageRep* bitmap = [[NSBitmapImageRep alloc] initWithCGImage:cgImage];
+  CGImageRelease(cgImage);
+
+  if (!bitmap)
+    return false;
+
+  NSData* pngData = [bitmap representationUsingType:NSBitmapImageFileTypePNG properties:@{}];
+  if (!pngData)
+    return false;
+
+  NSString* filePath = [NSString stringWithUTF8String:path];
+  return [pngData writeToFile:filePath atomically:YES];
+}
 extern HMENU SWELL_app_stocksysmenu;
 
 int main(int argc, char *argv[])
@@ -227,21 +285,27 @@ INT_PTR SWELLAppMain(int msg, INT_PTR parm1, INT_PTR parm2)
         
         DeleteMenu(menu, 1, MF_BYPOSITION); // delete file menu
       }
+      // Always set up screenshot shortcut
+      SetMenuItemModifier(menu, ID_SCREENSHOT, MF_BYCOMMAND, 'S', FCONTROL | FSHIFT);
+
 #if !defined _DEBUG || defined NO_IGRAPHICS
       if (menu)
       {
         HMENU sm = GetSubMenu(menu, 1);
         DeleteMenu(sm, ID_LIVE_EDIT, MF_BYCOMMAND);
+        DeleteMenu(sm, ID_SHOW_BOUNDS, MF_BYCOMMAND);
         DeleteMenu(sm, ID_SHOW_DRAWN, MF_BYCOMMAND);
         DeleteMenu(sm, ID_SHOW_FPS, MF_BYCOMMAND);
-        
+
         // remove any trailing separators
         int a = GetMenuItemCount(sm);
-        
+
         while (a > 0 && GetMenuItemID(sm, a-1) == 0)
           DeleteMenu(sm, --a, MF_BYPOSITION);
-        
-        DeleteMenu(menu, 1, MF_BYPOSITION); // delete debug menu
+
+        // Only delete debug menu if it's now empty (screenshot should remain)
+        if (GetMenuItemCount(sm) == 0)
+          DeleteMenu(menu, 1, MF_BYPOSITION);
       }
 #else
       SetMenuItemModifier(menu, ID_LIVE_EDIT, MF_BYCOMMAND, 'E', FCONTROL);
