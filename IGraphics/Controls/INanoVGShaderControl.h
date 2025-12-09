@@ -1,0 +1,482 @@
+/*
+ ==============================================================================
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
+ See LICENSE.txt for  more info.
+
+ ==============================================================================
+*/
+
+#pragma once
+
+#ifndef IGRAPHICS_NANOVG
+#error INanoVGShaderControl requires the NanoVG graphics backend
+#endif
+
+/**
+ * @file
+ * @brief NanoVG implementation of shader control for OpenGL and Metal
+ * @copydoc INanoVGShaderControl
+ */
+
+#include "IShaderControlBase.h"
+#include "IGraphicsNanoVG.h"
+
+#if defined(IGRAPHICS_GL)
+  #if defined(IGRAPHICS_GL2) || defined(IGRAPHICS_GLES2)
+    #include "glad/glad.h"
+  #elif defined(IGRAPHICS_GL3) || defined(IGRAPHICS_GLES3)
+    #include "glad/glad.h"
+  #endif
+#endif
+
+BEGIN_IPLUG_NAMESPACE
+BEGIN_IGRAPHICS_NAMESPACE
+
+#if defined(IGRAPHICS_GL)
+
+/** Default GLSL fragment shader */
+static const char* kDefaultGLSLFragmentShader_GL2 = R"(
+#ifdef GL_ES
+precision mediump float;
+#endif
+uniform float uTime;
+uniform vec2 uResolution;
+uniform vec2 uMouse;
+uniform vec2 uMouseButtons;
+varying vec2 vTexCoord;
+
+void main() {
+  vec2 uv = gl_FragCoord.xy / uResolution;
+  vec2 mouse = uMouse / uResolution;
+
+  // Simple gradient based on position and mouse
+  vec3 col = vec3(uv.x, uv.y, 0.5 + 0.5 * sin(uTime));
+  col = mix(col, vec3(1.0, 0.5, 0.2), smoothstep(0.2, 0.0, length(uv - mouse)));
+
+  gl_FragColor = vec4(col, 1.0);
+}
+)";
+
+static const char* kDefaultGLSLFragmentShader_GL3 = R"(
+#version 330 core
+uniform float uTime;
+uniform vec2 uResolution;
+uniform vec2 uMouse;
+uniform vec2 uMouseButtons;
+in vec2 vTexCoord;
+out vec4 FragColor;
+
+void main() {
+  vec2 uv = gl_FragCoord.xy / uResolution;
+  vec2 mouse = uMouse / uResolution;
+
+  // Simple gradient based on position and mouse
+  vec3 col = vec3(uv.x, uv.y, 0.5 + 0.5 * sin(uTime));
+  col = mix(col, vec3(1.0, 0.5, 0.2), smoothstep(0.2, 0.0, length(uv - mouse)));
+
+  FragColor = vec4(col, 1.0);
+}
+)";
+
+static const char* kDefaultGLSLVertexShader_GL2 = R"(
+attribute vec2 aPosition;
+attribute vec2 aTexCoord;
+varying vec2 vTexCoord;
+
+void main() {
+  vTexCoord = aTexCoord;
+  gl_Position = vec4(aPosition, 0.0, 1.0);
+}
+)";
+
+static const char* kDefaultGLSLVertexShader_GL3 = R"(
+#version 330 core
+in vec2 aPosition;
+in vec2 aTexCoord;
+out vec2 vTexCoord;
+
+void main() {
+  vTexCoord = aTexCoord;
+  gl_Position = vec4(aPosition, 0.0, 1.0);
+}
+)";
+
+/** Shader control implementation for NanoVG with OpenGL backend.
+ *
+ * Uses OpenGL shader programs with GLSL. Renders to an FBO then composites
+ * the result back to the NanoVG canvas.
+ *
+ * ## GLSL Shader Format (GL2/GLES2)
+ *
+ * ```glsl
+ * #ifdef GL_ES
+ * precision mediump float;
+ * #endif
+ * uniform float uTime;           // Time in seconds
+ * uniform vec2 uResolution;      // Viewport size
+ * uniform vec2 uMouse;           // Mouse position in pixels
+ * uniform vec2 uMouseButtons;    // (left, right) button state
+ * varying vec2 vTexCoord;        // Texture coordinate (0-1)
+ *
+ * void main() {
+ *   gl_FragColor = vec4(r, g, b, a);
+ * }
+ * ```
+ *
+ * ## GLSL Shader Format (GL3/GLES3)
+ *
+ * ```glsl
+ * #version 330 core
+ * uniform float uTime;
+ * uniform vec2 uResolution;
+ * uniform vec2 uMouse;
+ * uniform vec2 uMouseButtons;
+ * in vec2 vTexCoord;
+ * out vec4 FragColor;
+ *
+ * void main() {
+ *   FragColor = vec4(r, g, b, a);
+ * }
+ * ```
+ *
+ * @see IShaderControlBase for the common interface
+ * @ingroup IControls
+ */
+class INanoVGGLShaderControl : public IShaderControlBase
+{
+public:
+  /** Constructor with optional fragment shader
+   * @param bounds The control's rectangular area
+   * @param fragmentShaderStr GLSL fragment shader (nullptr for default)
+   * @param vertexShaderStr GLSL vertex shader (nullptr for default fullscreen quad)
+   * @param animate If true, continuously animates */
+  INanoVGGLShaderControl(const IRECT& bounds,
+                         const char* fragmentShaderStr = nullptr,
+                         const char* vertexShaderStr = nullptr,
+                         bool animate = false)
+  : IShaderControlBase(bounds, animate)
+  , mVertexShaderStr(vertexShaderStr)
+  , mFragmentShaderStr(fragmentShaderStr)
+  {
+  }
+
+  ~INanoVGGLShaderControl()
+  {
+    CleanupGL();
+  }
+
+  void OnAttached() override
+  {
+    // Defer shader compilation until first draw when GL context is available
+    mNeedsCompile = true;
+  }
+
+  void Draw(IGraphics& g) override
+  {
+    if (mAnimate || IsDirty())
+      UpdateTime();
+
+    NVGcontext* vg = static_cast<NVGcontext*>(g.GetDrawContext());
+    int w = static_cast<int>(mRECT.W() * g.GetDrawScale());
+    int h = static_cast<int>(mRECT.H() * g.GetDrawScale());
+
+    // Handle FBO recreation on resize
+    if (mInvalidateFBO || !mFBO)
+    {
+      if (mFBO)
+        nvgDeleteFramebuffer(mFBO);
+      mFBO = nvgCreateFramebuffer(vg, w, h, 0);
+      mInvalidateFBO = false;
+    }
+
+    // Compile shader on first draw
+    if (mNeedsCompile)
+    {
+      WDL_String err;
+      #if defined(IGRAPHICS_GL2) || defined(IGRAPHICS_GLES2)
+        const char* defaultVS = kDefaultGLSLVertexShader_GL2;
+        const char* defaultFS = kDefaultGLSLFragmentShader_GL2;
+      #else
+        const char* defaultVS = kDefaultGLSLVertexShader_GL3;
+        const char* defaultFS = kDefaultGLSLFragmentShader_GL3;
+      #endif
+
+      if (!CompileShader(mVertexShaderStr ? mVertexShaderStr : defaultVS,
+                         mFragmentShaderStr ? mFragmentShaderStr : defaultFS,
+                         err))
+      {
+        DBGMSG("INanoVGGLShaderControl: Shader compile error: %s\n", err.Get());
+      }
+      mNeedsCompile = false;
+    }
+
+    // Draw background
+    g.DrawDottedRect(COLOR_BLACK, mRECT);
+
+    if (!mProgram || !mFBO)
+      return;
+
+    // End NanoVG frame to access raw GL
+    nvgEndFrame(vg);
+
+    // Save GL state
+    GLint prevFBO;
+    glGetIntegerv(GL_FRAMEBUFFER_BINDING, &prevFBO);
+    GLint viewport[4];
+    glGetIntegerv(GL_VIEWPORT, viewport);
+
+    // Bind our FBO and set viewport
+    nvgBindFramebuffer(mFBO);
+    glViewport(0, 0, w, h);
+    glScissor(0, 0, w, h);
+    glClearColor(0.f, 0.f, 0.f, 0.f);
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    // Use our shader program
+    glUseProgram(mProgram);
+
+    // Set uniforms
+    UpdateUniforms(w, h);
+
+    // Draw fullscreen quad
+    DrawFullscreenQuad();
+
+    // Restore GL state
+    glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
+    nvgEndFrame(vg);
+    glBindFramebuffer(GL_FRAMEBUFFER, prevFBO);
+
+    // Resume NanoVG and draw FBO as bitmap
+    nvgBeginFrame(vg, static_cast<float>(g.WindowWidth()),
+                  static_cast<float>(g.WindowHeight()),
+                  static_cast<float>(g.GetScreenScale()));
+
+    APIBitmap apibmp{mFBO->image, w, h, 1, 1.};
+    IBitmap bmp{&apibmp, 1, false};
+    g.DrawFittedBitmap(bmp, mRECT);
+  }
+
+  bool SetShaderStr(const char* shaderStr, WDL_String& error) override
+  {
+    mFragmentShaderStr = shaderStr;
+    mNeedsCompile = true;
+    SetDirty(true);
+    return true; // Actual compilation deferred to Draw
+  }
+
+  /** Set both vertex and fragment shaders
+   * @param vertexShaderStr GLSL vertex shader source
+   * @param fragmentShaderStr GLSL fragment shader source
+   * @param error Output: error message if compilation fails
+   * @return true (compilation is deferred) */
+  bool SetShaderStr(const char* vertexShaderStr, const char* fragmentShaderStr, WDL_String& error)
+  {
+    mVertexShaderStr = vertexShaderStr;
+    mFragmentShaderStr = fragmentShaderStr;
+    mNeedsCompile = true;
+    SetDirty(true);
+    return true;
+  }
+
+  bool IsShaderValid() const override
+  {
+    return mProgram != 0;
+  }
+
+  void OnResize() override
+  {
+    IShaderControlBase::OnResize();
+    mInvalidateFBO = true;
+  }
+
+  void OnRescale() override
+  {
+    mInvalidateFBO = true;
+  }
+
+protected:
+  void OnShaderResize(int w, int h) override
+  {
+    mInvalidateFBO = true;
+  }
+
+private:
+  bool CompileShader(const char* vertexSrc, const char* fragmentSrc, WDL_String& error)
+  {
+    CleanupGL();
+
+    // Compile vertex shader
+    GLuint vs = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(vs, 1, &vertexSrc, nullptr);
+    glCompileShader(vs);
+
+    GLint success;
+    glGetShaderiv(vs, GL_COMPILE_STATUS, &success);
+    if (!success)
+    {
+      char log[512];
+      glGetShaderInfoLog(vs, sizeof(log), nullptr, log);
+      error.SetFormatted(512, "Vertex shader: %s", log);
+      glDeleteShader(vs);
+      return false;
+    }
+
+    // Compile fragment shader
+    GLuint fs = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fs, 1, &fragmentSrc, nullptr);
+    glCompileShader(fs);
+
+    glGetShaderiv(fs, GL_COMPILE_STATUS, &success);
+    if (!success)
+    {
+      char log[512];
+      glGetShaderInfoLog(fs, sizeof(log), nullptr, log);
+      error.SetFormatted(512, "Fragment shader: %s", log);
+      glDeleteShader(vs);
+      glDeleteShader(fs);
+      return false;
+    }
+
+    // Link program
+    mProgram = glCreateProgram();
+    glAttachShader(mProgram, vs);
+    glAttachShader(mProgram, fs);
+    glBindAttribLocation(mProgram, 0, "aPosition");
+    glBindAttribLocation(mProgram, 1, "aTexCoord");
+    glLinkProgram(mProgram);
+
+    glGetProgramiv(mProgram, GL_LINK_STATUS, &success);
+    if (!success)
+    {
+      char log[512];
+      glGetProgramInfoLog(mProgram, sizeof(log), nullptr, log);
+      error.SetFormatted(512, "Link: %s", log);
+      glDeleteShader(vs);
+      glDeleteShader(fs);
+      glDeleteProgram(mProgram);
+      mProgram = 0;
+      return false;
+    }
+
+    // Get uniform locations
+    mLocTime = glGetUniformLocation(mProgram, "uTime");
+    mLocResolution = glGetUniformLocation(mProgram, "uResolution");
+    mLocMouse = glGetUniformLocation(mProgram, "uMouse");
+    mLocMouseButtons = glGetUniformLocation(mProgram, "uMouseButtons");
+
+    glDeleteShader(vs);
+    glDeleteShader(fs);
+
+    // Create VAO and VBO for fullscreen quad
+    SetupQuadGeometry();
+
+    return true;
+  }
+
+  void SetupQuadGeometry()
+  {
+    static const float quadVertices[] = {
+      // Position    // TexCoord
+      -1.f, -1.f,    0.f, 0.f,
+       1.f, -1.f,    1.f, 0.f,
+       1.f,  1.f,    1.f, 1.f,
+      -1.f,  1.f,    0.f, 1.f,
+    };
+
+    #if !defined(IGRAPHICS_GL2) && !defined(IGRAPHICS_GLES2)
+    glGenVertexArrays(1, &mVAO);
+    glBindVertexArray(mVAO);
+    #endif
+
+    glGenBuffers(1, &mVBO);
+    glBindBuffer(GL_ARRAY_BUFFER, mVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+
+    #if !defined(IGRAPHICS_GL2) && !defined(IGRAPHICS_GLES2)
+    glBindVertexArray(0);
+    #endif
+  }
+
+  void UpdateUniforms(int w, int h)
+  {
+    if (mLocTime >= 0)
+      glUniform1f(mLocTime, mUniforms[static_cast<int>(EShaderUniform::Time)]);
+    if (mLocResolution >= 0)
+      glUniform2f(mLocResolution, static_cast<float>(w), static_cast<float>(h));
+    if (mLocMouse >= 0)
+      glUniform2f(mLocMouse,
+                  mUniforms[static_cast<int>(EShaderUniform::MouseX)],
+                  mUniforms[static_cast<int>(EShaderUniform::MouseY)]);
+    if (mLocMouseButtons >= 0)
+      glUniform2f(mLocMouseButtons,
+                  mUniforms[static_cast<int>(EShaderUniform::MouseL)],
+                  mUniforms[static_cast<int>(EShaderUniform::MouseR)]);
+  }
+
+  void DrawFullscreenQuad()
+  {
+    #if !defined(IGRAPHICS_GL2) && !defined(IGRAPHICS_GLES2)
+    glBindVertexArray(mVAO);
+    #else
+    glBindBuffer(GL_ARRAY_BUFFER, mVBO);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+    #endif
+
+    glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+
+    #if !defined(IGRAPHICS_GL2) && !defined(IGRAPHICS_GLES2)
+    glBindVertexArray(0);
+    #endif
+  }
+
+  void CleanupGL()
+  {
+    if (mProgram)
+    {
+      glDeleteProgram(mProgram);
+      mProgram = 0;
+    }
+    #if !defined(IGRAPHICS_GL2) && !defined(IGRAPHICS_GLES2)
+    if (mVAO)
+    {
+      glDeleteVertexArrays(1, &mVAO);
+      mVAO = 0;
+    }
+    #endif
+    if (mVBO)
+    {
+      glDeleteBuffers(1, &mVBO);
+      mVBO = 0;
+    }
+  }
+
+  NVGframebuffer* mFBO = nullptr;
+  GLuint mProgram = 0;
+  GLuint mVAO = 0;
+  GLuint mVBO = 0;
+  GLint mLocTime = -1;
+  GLint mLocResolution = -1;
+  GLint mLocMouse = -1;
+  GLint mLocMouseButtons = -1;
+
+  const char* mVertexShaderStr = nullptr;
+  const char* mFragmentShaderStr = nullptr;
+  bool mNeedsCompile = false;
+  bool mInvalidateFBO = true;
+  bool mAnimate = false;
+};
+
+#endif // IGRAPHICS_GL
+
+END_IGRAPHICS_NAMESPACE
+END_IPLUG_NAMESPACE

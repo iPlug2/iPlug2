@@ -17,6 +17,10 @@
 /**
  * @file
  * @copydoc IShaderControl
+ * @note For new projects, consider using IUnifiedShaderControl.h which provides
+ *       a cross-backend shader control interface supporting Skia, NanoVG+GL, and NanoVG+Metal.
+ * @see IUnifiedShaderControl.h
+ * @see ISkiaShaderControl
  */
 
 #include "IControl.h"
@@ -25,7 +29,16 @@
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
 
-/** This control allows you to draw to the UI via a shader written using the Skia shading language, which is similar to GLSL */
+/** Legacy Skia shader control.
+ *
+ * This control allows you to draw to the UI via a shader written using the
+ * Skia shading language (SkSL), which is similar to GLSL.
+ *
+ * @note For new projects, consider using ISkiaShaderControl (from IUnifiedShaderControl.h)
+ *       which provides a more consistent interface across all graphics backends.
+ *
+ * @deprecated Use ISkiaShaderControl for new code.
+ */
 class IShaderControl : public IControl
 {
 public:
