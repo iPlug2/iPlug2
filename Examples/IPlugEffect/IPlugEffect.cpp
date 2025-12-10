@@ -2,6 +2,10 @@
 #include "IPlug_include_in_plug_src.h"
 #include "IControls.h"
 
+#if defined(IGRAPHICS_SKIA) || defined(IGRAPHICS_NANOVG)
+#include "IUnifiedShaderControl.h"
+#endif
+
 IPlugEffect::IPlugEffect(const InstanceInfo& info)
 : iplug::Plugin(info, MakeConfig(kNumParams, kNumPresets))
 {
@@ -19,6 +23,32 @@ IPlugEffect::IPlugEffect(const InstanceInfo& info)
     const IRECT b = pGraphics->GetBounds();
     pGraphics->AttachControl(new ITextControl(b.GetMidVPadded(50), "Hello iPlug 2!", IText(50)));
     pGraphics->AttachControl(new IVKnobControl(b.GetCentredInside(100).GetVShifted(-100), kGain));
+
+#if defined(IGRAPHICS_SKIA)
+    const char* shaderCode = R"(
+      uniform float uTime;
+      uniform float2 uResolution;
+      half4 main(float2 fragCoord) {
+        float2 uv = fragCoord / uResolution;
+        return half4(uv.x, uv.y, sin(uTime) * 0.5 + 0.5, 1.0);
+      }
+    )";
+    pGraphics->AttachControl(new IUnifiedShaderControl(b.GetFromBottom(100), shaderCode, true));
+#elif defined(IGRAPHICS_NANOVG) && defined(IGRAPHICS_GL)
+    const char* shaderCode = R"(#version 150
+      uniform float uTime;
+      uniform vec2 uResolution;
+      out vec4 FragColor;
+      void main() {
+        vec2 uv = gl_FragCoord.xy / uResolution;
+        FragColor = vec4(uv.x, uv.y, sin(uTime) * 0.5 + 0.5, 1.0);
+      }
+    )";
+    pGraphics->AttachControl(new IUnifiedShaderControl(b.GetFromBottom(100), shaderCode, nullptr, true));
+#elif defined(IGRAPHICS_NANOVG) && defined(IGRAPHICS_METAL)
+    // Metal shaders are pre-compiled in IPlugEffect.metal
+    pGraphics->AttachControl(new IUnifiedShaderControl(b.GetFromBottom(100), nullptr, nullptr, true));
+#endif
   };
 #endif
 }
