@@ -1,6 +1,7 @@
 #include "IPlugVisualizer.h"
 #include "IPlug_include_in_plug_src.h"
 #include "IControls.h"
+#include "IVBarGraphSpectrumAnalyzerControl.h"
 
 constexpr int kCtrlTagSpectrumAnalyzer = 0;
 
@@ -26,7 +27,6 @@ IPlugVisualizer::IPlugVisualizer(const InstanceInfo& info)
     
     pGraphics->AttachPanelBackground(COLOR_GRAY);
     pGraphics->LoadFont("Roboto-Regular", ROBOTO_FN);
-    pGraphics->ShowFPSDisplay(true);
     pGraphics->EnableMouseOver(true);
     pGraphics->SetLayoutOnResize(true);
 
@@ -47,6 +47,18 @@ bool IPlugVisualizer::OnMessage(int msgTag, int ctrlTag, int dataSize, const voi
   {
     int fftSize = *reinterpret_cast<const int*>(pData);
     mSender.SetFFTSize(fftSize);
+    return true;
+  }
+  else if (msgTag == IVSpectrumAnalyzerControl<>::kMsgTagOverlap)
+  {
+    int overlap = *reinterpret_cast<const int*>(pData);
+    mSender.SetFFTSizeAndOverlap(mSender.GetFFTSize(), overlap);
+    return true;
+  }
+  else if (msgTag == IVSpectrumAnalyzerControl<>::kMsgTagWindowType)
+  {
+    int idx = *reinterpret_cast<const int*>(pData);
+    mSender.SetWindowType(static_cast<ISpectrumSender<2>::EWindowType>(idx));
     return true;
   }
 
@@ -72,10 +84,7 @@ void IPlugVisualizer::ProcessBlock(sample** inputs, sample** outputs, int nFrame
 
 void IPlugVisualizer::OnReset()
 {
-  auto sr = GetSampleRate();
-  auto fftSize = mSender.GetFFTSize();
-  SendControlMsgFromDelegate(kCtrlTagSpectrumAnalyzer, IVSpectrumAnalyzerControl<>::kMsgTagSampleRate, sizeof(double), &sr);
-  SendControlMsgFromDelegate(kCtrlTagSpectrumAnalyzer, IVSpectrumAnalyzerControl<>::kMsgTagFFTSize, sizeof(int), &fftSize);
+  SyncUIControl();
 }
 
 #endif
@@ -89,4 +98,48 @@ void IPlugVisualizer::OnParamChangeUI(int paramIdx, EParamSource source)
     SendControlMsgFromDelegate(kCtrlTagSpectrumAnalyzer, IVSpectrumAnalyzerControl<>::kMsgTagOctaveGain, sizeof(double), &octaveGain);
   }
 }
+
+bool IPlugVisualizer::SerializeState(IByteChunk &chunk) const
+{
+  int fftSize = mSender.GetFFTSize();
+  int overlap = mSender.GetOverlap();
+  int windowType = static_cast<int>(mSender.GetWindowType());
+  chunk.Put(&fftSize);
+  chunk.Put(&overlap);
+  chunk.Put(&windowType);
+
+  return SerializeParams(chunk); // must remember to call SerializeParams at the end
+}
+
+int IPlugVisualizer::UnserializeState(const IByteChunk &chunk, int startPos)
+{
+  int fftSize, overlap, windowType;
+
+  startPos = chunk.Get(&fftSize, startPos);
+  startPos = chunk.Get(&overlap, startPos);
+  startPos = chunk.Get(&windowType, startPos);
+
+  return UnserializeParams(chunk, startPos);
+}
+
+void IPlugVisualizer::SyncUIControl()
+{
+  if (GetUI())
+  {
+    auto sr = GetSampleRate();
+    auto fftSize = mSender.GetFFTSize();
+    auto overlap = mSender.GetOverlap();
+    auto windowType = static_cast<int>(mSender.GetWindowType());
+    SendControlMsgFromDelegate(kCtrlTagSpectrumAnalyzer, IVSpectrumAnalyzerControl<>::kMsgTagSampleRate, sizeof(double), &sr);
+    SendControlMsgFromDelegate(kCtrlTagSpectrumAnalyzer, IVSpectrumAnalyzerControl<>::kMsgTagFFTSize, sizeof(int), &fftSize);
+    SendControlMsgFromDelegate(kCtrlTagSpectrumAnalyzer, IVSpectrumAnalyzerControl<>::kMsgTagOverlap, sizeof(int), &overlap);
+    SendControlMsgFromDelegate(kCtrlTagSpectrumAnalyzer, IVSpectrumAnalyzerControl<>::kMsgTagWindowType, sizeof(int), &windowType);
+  }
+}
+
+void IPlugVisualizer::OnUIOpen()
+{
+  SyncUIControl();
+}
+
 #endif

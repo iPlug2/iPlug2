@@ -603,7 +603,16 @@ public:
   {
     return mOverlap;
   }
-    
+
+  int GetHopSize() const
+  {
+    return TBufferSender::GetBufferSize();
+  }
+
+  EWindowType GetWindowType() const
+  {
+    return mWindowType;
+  }
 
 private:
   void InitSTFTFrames()
@@ -717,7 +726,7 @@ private:
   };
 
   int mFFTSize = 1024;
-  int mOverlap = 2;
+  int mOverlap = 1;
   EWindowType mWindowType;
   EOutputType mOutputType;
   std::array<float, MAX_FFT_SIZE> mWindow;
