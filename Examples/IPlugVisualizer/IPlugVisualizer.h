@@ -8,6 +8,10 @@ const int kNumPresets = 1;
 enum EParams
 {
   kOctaveGain = 0,
+  kOscFreq,
+  kPhaseOffset,
+  kNoiseLevel,
+  kOscLevel,
   kNumParams
 };
 
@@ -25,6 +29,10 @@ public:
   void ProcessBlock(sample** inputs, sample** outputs, int nFrames) override;
   bool OnMessage(int msgTag, int ctrlTag, int dataSize, const void* pData) override;
   ISpectrumSender<2> mSender;
+  IGoniometerSender<512> mGoniometerSender {50.0f, 4}; // 50ms window, 4x decimation
+
+  double mPhase = 0.0;
+  double mSampleRate = DEFAULT_SAMPLE_RATE;
 #endif
 #if IPLUG_EDITOR
   void OnParamChangeUI(int paramIdx, EParamSource source) override;
