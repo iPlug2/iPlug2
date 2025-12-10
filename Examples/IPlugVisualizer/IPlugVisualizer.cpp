@@ -27,7 +27,6 @@ IPlugVisualizer::IPlugVisualizer(const InstanceInfo& info)
     
     pGraphics->AttachPanelBackground(COLOR_GRAY);
     pGraphics->LoadFont("Roboto-Regular", ROBOTO_FN);
-//    pGraphics->ShowFPSDisplay(true);
     pGraphics->EnableMouseOver(true);
     pGraphics->SetLayoutOnResize(true);
 
@@ -37,42 +36,6 @@ IPlugVisualizer::IPlugVisualizer(const InstanceInfo& info)
       .WithLabelText(DEFAULT_LABEL_TEXT.WithFGColor(COLOR_WHITE))
       .WithValueText(DEFAULT_VALUE_TEXT.WithFGColor(COLOR_WHITE));
     pGraphics->AttachControl(new IVSpectrumAnalyzerControl<2>(b, "Spectrum", style), kCtrlTagSpectrumAnalyzer);
-    
-//    auto* pControl = new IVBarGraphSpectrumAnalyzerControl<2>(
-//       b, "Spectrum", DEFAULT_STYLE, 32, 16,
-//       IVBarGraphSpectrumAnalyzerControl<2>::EFrequencyScale::Log,
-//       IVBarGraphSpectrumAnalyzerControl<2>::EColorMode::Smooth,
-//       IVBarGraphSpectrumAnalyzerControl<2>::EChannelMode::Sum,
-//       IPattern::CreateLinearGradient(b, EDirection::Vertical,
-//                               {{IColor(255, 0, 200, 0), 0.0f},      // Green at bottom
-//                                {IColor(255, 0, 200, 0), 0.85f},     // Green until near 0dB
-//                                {IColor(255, 200, 200, 0), 0.90f}}), // Yellow just before clip
-//       {},        // ledRanges
-//       0.2f,      // gapRatio
-//       0.1f,      // segGapRatio
-//       5.0f,      // attackTimeMs
-//       50.0f,     // decayTimeMs
-//       -60.f,     // lowRangeDB
-//       6.f        // highRangeDB
-//    );
-//
-//    // Enable clip indicator at 0dB with red color
-//    pControl->SetClipIndicator(0.f, COLOR_RED);
-//
-//    pGraphics->AttachControl(pControl, kCtrlTagSpectrumAnalyzer);
-    
-//    pGraphics->AttachControl(new IVBarGraphSpectrumAnalyzerControl<2>(
-//       b, "Spectrum", DEFAULT_STYLE, 32, 16,
-//       IVBarGraphSpectrumAnalyzerControl<2>::EFrequencyScale::Log,
-//       IVBarGraphSpectrumAnalyzerControl<2>::EColorMode::Segments,
-//       IVBarGraphSpectrumAnalyzerControl<2>::EChannelMode::Split,
-//       IPattern::CreateLinearGradient(b, EDirection::Vertical,
-//                               {{SPEC_LED1, 0.0f},
-//                                {SPEC_LED2, 0.3f},
-//                                {SPEC_LED3, 0.5f},
-//                                {SPEC_LED4, 0.7f},
-//                                {SPEC_LED5, 1.0f}})
-//     ), kCtrlTagSpectrumAnalyzer);
   };
 #endif
 }

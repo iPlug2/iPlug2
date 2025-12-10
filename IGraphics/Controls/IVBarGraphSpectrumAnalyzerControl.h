@@ -73,6 +73,8 @@ public:
   enum class EColorMode { Segments, Smooth };
   enum class EChannelMode { Left, Right, Sum, SideBySide, Split };
 
+  static constexpr float kPeakDecayRate = 0.95f;
+
   /** Create a bar graph spectrum analyzer
    * @param bounds The rectangular area that the control occupies
    * @param label A CString to label the control
@@ -188,7 +190,7 @@ public:
     {
       mMenu.Clear(true);
       auto* pFftSizeMenu = mMenu.AddItem("FFT Size", new IPopupMenu("FFT Size", { "64", "128", "256", "512", "1024", "2048", "4096" }))->GetSubmenu();
-      auto* pChansMenu = mMenu.AddItem("Channels", new IPopupMenu("Channels", { "L", "R", "Sum", "L + R" }))->GetSubmenu();
+      auto* pChansMenu = mMenu.AddItem("Channels", new IPopupMenu("Channels", { "L", "R", "Sum", "L + R", "L | R" }))->GetSubmenu();
       auto* pFreqScaleMenu = mMenu.AddItem("Freq Scaling", new IPopupMenu("Freq Scaling", { "Linear", "Log", "1/3 Octave" }))->GetSubmenu();
       auto* pOverlapMenu = mMenu.AddItem("Overlap", new IPopupMenu("Overlap", { "1x", "2x", "4x", "8x" }))->GetSubmenu();
       auto* pWindowMenu = mMenu.AddItem("Window", new IPopupMenu("Window", { "Hann", "Blackman Harris", "Hamming", "Flattop", "Rectangular" }))->GetSubmenu();
@@ -205,6 +207,7 @@ public:
       pChansMenu->CheckItem(1, mChannelMode == EChannelMode::Right);
       pChansMenu->CheckItem(2, mChannelMode == EChannelMode::Sum);
       pChansMenu->CheckItem(3, mChannelMode == EChannelMode::SideBySide);
+      pChansMenu->CheckItem(4, mChannelMode == EChannelMode::Split);
 
       pFreqScaleMenu->CheckItem(0, mFreqScale == EFrequencyScale::Linear);
       pFreqScaleMenu->CheckItem(1, mFreqScale == EFrequencyScale::Log);
@@ -246,6 +249,7 @@ public:
           case 1: SetChannelMode(EChannelMode::Right); break;
           case 2: SetChannelMode(EChannelMode::Sum); break;
           case 3: SetChannelMode(EChannelMode::SideBySide); break;
+          case 4: SetChannelMode(EChannelMode::Split); break;
         }
       }
       else if (strcmp(title, "Freq Scaling") == 0)
@@ -705,6 +709,7 @@ private:
 
         for (int ch = 0; ch < 2; ch++)
         {
+          if (d.nChans <= 0) break; // Protect against invalid channel count
           const int channelIdx = d.chanOffset + std::min(ch, d.nChans - 1);
           const int barIdx = bar * 2 + ch;
 
@@ -767,7 +772,10 @@ private:
     if (mOctaveGain > 0.f)
     {
       const float centerFreqNorm = 500.f / (mSampleRate * 0.5f);
-      maxMag *= (freqNorm / centerFreqNorm) * mOctaveGain;
+      if (centerFreqNorm > 1e-6f) // Protect against division by zero
+      {
+        maxMag *= (freqNorm / centerFreqNorm) * mOctaveGain;
+      }
     }
 
     // Convert to dB and normalize
@@ -795,11 +803,12 @@ private:
       }
       else if (mPeakHoldCounters[barIdx] > 0)
       {
-        mPeakHoldCounters[barIdx] -= static_cast<int>(1000.f * mFFTSize / mSampleRate);
+        const int hopSize = mFFTSize / std::max(1, mOverlap);
+        mPeakHoldCounters[barIdx] -= static_cast<int>(1000.f * hopSize / mSampleRate);
       }
       else
       {
-        mPeakValues[barIdx] *= 0.95f; // Decay peak
+        mPeakValues[barIdx] *= kPeakDecayRate;
       }
     }
   }
