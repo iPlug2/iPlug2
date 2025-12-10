@@ -208,6 +208,14 @@
 		4FA81B1D2EE99BC200D281C9 /* INanoVGMTLShaderControl.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FA81B102EE99BC200D281C9 /* INanoVGMTLShaderControl.mm */; };
 		4FA81B1E2EE99BC200D281C9 /* INanoVGMTLShaderControl.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FA81B102EE99BC200D281C9 /* INanoVGMTLShaderControl.mm */; };
 		4FA81B1F2EE99BC200D281C9 /* INanoVGMTLShaderControl.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FA81B102EE99BC200D281C9 /* INanoVGMTLShaderControl.mm */; };
+		4FA81B292EE9B48500D281C9 /* IPlugEffect.frag in Resources */ = {isa = PBXBuildFile; fileRef = 4FA81B282EE9B48500D281C9 /* IPlugEffect.frag */; };
+		4FA81B2A2EE9B48500D281C9 /* IPlugEffect.frag in Resources */ = {isa = PBXBuildFile; fileRef = 4FA81B282EE9B48500D281C9 /* IPlugEffect.frag */; };
+		4FA81B2B2EE9B48500D281C9 /* IPlugEffect.frag in Resources */ = {isa = PBXBuildFile; fileRef = 4FA81B282EE9B48500D281C9 /* IPlugEffect.frag */; };
+		4FA81B2C2EE9B48500D281C9 /* IPlugEffect.frag in Resources */ = {isa = PBXBuildFile; fileRef = 4FA81B282EE9B48500D281C9 /* IPlugEffect.frag */; };
+		4FA81B2D2EE9B48500D281C9 /* IPlugEffect.frag in Resources */ = {isa = PBXBuildFile; fileRef = 4FA81B282EE9B48500D281C9 /* IPlugEffect.frag */; };
+		4FA81B2E2EE9B48500D281C9 /* IPlugEffect.frag in Resources */ = {isa = PBXBuildFile; fileRef = 4FA81B282EE9B48500D281C9 /* IPlugEffect.frag */; };
+		4FA81B2F2EE9B48500D281C9 /* IPlugEffect.frag in Resources */ = {isa = PBXBuildFile; fileRef = 4FA81B282EE9B48500D281C9 /* IPlugEffect.frag */; };
+		4FA81B302EE9B48500D281C9 /* IPlugEffect.frag in Resources */ = {isa = PBXBuildFile; fileRef = 4FA81B282EE9B48500D281C9 /* IPlugEffect.frag */; };
 		4FAFFE5821495A4800A6E72D /* RtAudio.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F10D3D3203A6711003EF82A /* RtAudio.cpp */; settings = {COMPILER_FLAGS = "-Wno-unreachable-code -Wno-shorten-64-to-32 -Wno-deprecated-implementations"; }; };
 		4FB1F58920E4B004004157C8 /* IGraphicsMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FB1F58120E4AFEE004157C8 /* IGraphicsMac.mm */; };
 		4FB1F58A20E4B005004157C8 /* IGraphicsMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FB1F58120E4AFEE004157C8 /* IGraphicsMac.mm */; };
@@ -621,6 +629,8 @@
 		4FA81B112EE99BC200D281C9 /* INanoVGShaderControl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = INanoVGShaderControl.h; sourceTree = "<group>"; };
 		4FA81B122EE99BC200D281C9 /* IShaderControl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IShaderControl.h; sourceTree = "<group>"; };
 		4FA81B132EE99BC200D281C9 /* IShaderControlBase.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IShaderControlBase.h; sourceTree = "<group>"; };
+		4FA81B282EE9B48500D281C9 /* IPlugEffect.frag */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = IPlugEffect.frag; sourceTree = "<group>"; };
+		4FA81B592EE9BAA300D281C9 /* IPlugEffect_shaders.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IPlugEffect_shaders.h; path = ../IPlugEffect_shaders.h; sourceTree = SOURCE_ROOT; };
 		4FB1F57B20E4AFEE004157C8 /* IGraphicsIOS_view.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = IGraphicsIOS_view.mm; path = ../../../IGraphics/Platforms/IGraphicsIOS_view.mm; sourceTree = "<group>"; };
 		4FB1F57C20E4AFEE004157C8 /* IGraphicsWeb.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IGraphicsWeb.cpp; path = ../../../IGraphics/Platforms/IGraphicsWeb.cpp; sourceTree = "<group>"; };
 		4FB1F57D20E4AFEE004157C8 /* IGraphicsLinux.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IGraphicsLinux.cpp; path = ../../../IGraphics/Platforms/IGraphicsLinux.cpp; sourceTree = "<group>"; };
@@ -861,6 +871,8 @@
 				52FBBED30D0CF143001C8B8A /* config.h */,
 				4F3862EE2014BBEC0009F402 /* IPlugEffect.h */,
 				4F3862ED2014BBEC0009F402 /* IPlugEffect.cpp */,
+				4FA81B282EE9B48500D281C9 /* IPlugEffect.frag */,
+				4FA81B592EE9BAA300D281C9 /* IPlugEffect_shaders.h */,
 				4F9313232315CA1100DB2383 /* README.md */,
 				089C167CFE841241C02AAC07 /* Resources */,
 				32C88E010371C26100C91783 /* Other Sources */,
@@ -2070,6 +2082,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4FA81B292EE9B48500D281C9 /* IPlugEffect.frag in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2077,6 +2090,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4FA81B2F2EE9B48500D281C9 /* IPlugEffect.frag in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2092,6 +2106,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4F3EE1BF231438D000004786 /* IPlugEffect.icns in Resources */,
+				4FA81B2C2EE9B48500D281C9 /* IPlugEffect.frag in Resources */,
 				4F3EE1C0231438D000004786 /* IPlugEffect-macOS-MainMenu.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2100,6 +2115,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4FA81B2A2EE9B48500D281C9 /* IPlugEffect.frag in Resources */,
 				4F78BE3C22E74CD000AD537E /* IPlugAUViewController_vIPlugEffect.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2108,6 +2124,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4FA81B2E2EE9B48500D281C9 /* IPlugEffect.frag in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2115,6 +2132,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4FA81B2B2EE9B48500D281C9 /* IPlugEffect.frag in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2123,6 +2141,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4F78D88613B6382B0032E0F3 /* IPlugEffect.icns in Resources */,
+				4FA81B2D2EE9B48500D281C9 /* IPlugEffect.frag in Resources */,
 				4F1B4AE42014D33600BC64D4 /* IPlugEffect-macOS-MainMenu.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2131,6 +2150,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4FA81B302EE9B48500D281C9 /* IPlugEffect.frag in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
