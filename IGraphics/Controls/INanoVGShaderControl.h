@@ -24,9 +24,14 @@
 #include "IGraphicsNanoVG.h"
 
 #if defined(IGRAPHICS_GL)
-  #if defined(IGRAPHICS_GL2) || defined(IGRAPHICS_GLES2)
-    #include "glad/glad.h"
-  #elif defined(IGRAPHICS_GL3) || defined(IGRAPHICS_GLES3)
+  #if defined(__APPLE__)
+    #include <TargetConditionals.h>
+    #if TARGET_OS_IOS
+      #include <OpenGLES/ES3/gl.h>
+    #else
+      #include <OpenGL/gl3.h>
+    #endif
+  #else
     #include "glad/glad.h"
   #endif
 #endif
