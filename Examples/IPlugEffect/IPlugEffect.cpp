@@ -8,10 +8,10 @@
 
   #if defined(IGRAPHICS_SKIA)
     #define IPLUGEFFECT_SHADER_CONTROL(bounds, animate) \
-      new IUnifiedShaderControl(bounds, kIPlugEffectShader, animate)
+      new IShaderControl(bounds, kIPlugEffectShader, animate)
   #elif defined(IGRAPHICS_NANOVG) && defined(IGRAPHICS_GL)
     #define IPLUGEFFECT_SHADER_CONTROL(bounds, animate) \
-      new IUnifiedShaderControl(bounds, kIPlugEffectShader, nullptr, animate)
+      new IShaderControl(bounds, kIPlugEffectShader, nullptr, animate)
   #elif defined(IGRAPHICS_NANOVG) && defined(IGRAPHICS_METAL)
     #define IPLUGEFFECT_SHADER_CONTROL(bounds, animate) \
       new IShaderControl(bounds, kIPlugEffectMetalShader, kIPlugEffectVertexFunc, kIPlugEffectFragmentFunc, animate)
@@ -30,19 +30,24 @@ IPlugEffect::IPlugEffect(const InstanceInfo& info)
   mMakeGraphicsFunc = [&]() {
     return MakeGraphics(*this, PLUG_WIDTH, PLUG_HEIGHT, PLUG_FPS, GetScaleForScreen(PLUG_WIDTH, PLUG_HEIGHT));
   };
-  
+
   mLayoutFunc = [&](IGraphics* pGraphics) {
     pGraphics->AttachCornerResizer(EUIResizerMode::Scale, false);
     pGraphics->AttachPanelBackground(COLOR_GRAY);
     pGraphics->LoadFont("Roboto-Regular", ROBOTO_FN);
-    const IRECT bounds = pGraphics->GetBounds();
-    const IRECT innerBounds = bounds.GetPadded(-10.f);
-    const IRECT versionBounds = innerBounds.GetFromTRHC(300, 20);
-    pGraphics->AttachControl(new ITextControl(innerBounds.GetMidVPadded(50), "Hello iPlug 2!", IText(50)));
-    pGraphics->AttachControl(new IVKnobControl(innerBounds.GetCentredInside(100).GetVShifted(-100), kGain));
-    WDL_String buildInfoStr;
-    GetBuildInfoStr(buildInfoStr, __DATE__, __TIME__);
-    pGraphics->AttachControl(new ITextControl(versionBounds, buildInfoStr.Get(), DEFAULT_TEXT.WithAlign(EAlign::Far)));
+    const IRECT b = pGraphics->GetBounds();
+    pGraphics->AttachControl(new ITextControl(b.GetMidVPadded(50), "Hello iPlug 2!", IText(50)));
+    pGraphics->AttachControl(new IVKnobControl(b.GetCentredInside(100).GetVShifted(-100), kGain));
+
+    // Create multiple shader controls to demonstrate shader caching
+    // All instances share the same compiled shader program
+    const int nShaders = 4;
+    IRECT shaderArea = b.GetFromBottom(100);
+    for (int i = 0; i < nShaders; i++)
+    {
+      IRECT shaderBounds = shaderArea.GetGridCell(i, 1, nShaders);
+      pGraphics->AttachControl(IPLUGEFFECT_SHADER_CONTROL(shaderBounds, true));
+    }
   };
 #endif
 }
