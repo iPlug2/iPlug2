@@ -30,12 +30,6 @@ struct ShaderUniforms
   float mouseButtons[2];
 };
 
-/** Default vertex function name */
-constexpr const char* kDefaultVertexFunc = "shaderVertexFunc";
-
-/** Default fragment function name */
-constexpr const char* kDefaultFragmentFunc = "shaderFragmentFunc";
-
 } // anonymous namespace
 
 INanoVGMTLShaderControl::INanoVGMTLShaderControl(const IRECT& bounds,
@@ -43,10 +37,25 @@ INanoVGMTLShaderControl::INanoVGMTLShaderControl(const IRECT& bounds,
                                                    const char* fragmentFuncName,
                                                    bool animate)
 : IShaderControlBase(bounds, animate)
-, mVertexFuncName(vertexFuncName ? vertexFuncName : kDefaultVertexFunc)
-, mFragmentFuncName(fragmentFuncName ? fragmentFuncName : kDefaultFragmentFunc)
+, mVertexFuncName(vertexFuncName)
+, mFragmentFuncName(fragmentFuncName)
 , mAnimate(animate)
+, mUseSourceString(false)
 {
+}
+
+INanoVGMTLShaderControl::INanoVGMTLShaderControl(const IRECT& bounds,
+                                                   const char* shaderSource,
+                                                   const char* vertexFuncName,
+                                                   const char* fragmentFuncName,
+                                                   bool animate)
+: IShaderControlBase(bounds, animate)
+, mVertexFuncName(vertexFuncName)
+, mFragmentFuncName(fragmentFuncName)
+, mAnimate(animate)
+, mUseSourceString(true)
+{
+  mShaderSource.Set(shaderSource);
 }
 
 INanoVGMTLShaderControl::~INanoVGMTLShaderControl()
@@ -97,15 +106,34 @@ bool INanoVGMTLShaderControl::SetupPipeline(WDL_String& error)
   }
 
   id<MTLDevice> device = (__bridge id<MTLDevice>)mDevice;
-
-  // Get default library (compiled from .metal files in bundle)
   NSError* nsError = nil;
-  id<MTLLibrary> library = [device newDefaultLibrary];
+  id<MTLLibrary> library = nil;
 
-  if (!library)
+  if (mUseSourceString && mShaderSource.GetLength() > 0)
   {
-    error.Set("Failed to load default Metal library");
-    return false;
+    // Compile shader from source string at runtime
+    NSString* source = [NSString stringWithUTF8String:mShaderSource.Get()];
+    MTLCompileOptions* options = [[MTLCompileOptions alloc] init];
+    library = [device newLibraryWithSource:source options:options error:&nsError];
+    [options release];
+
+    if (!library)
+    {
+      error.SetFormatted(1024, "Metal shader compilation failed: %s",
+                         [[nsError localizedDescription] UTF8String]);
+      return false;
+    }
+  }
+  else
+  {
+    // Get default library (compiled from .metal files in bundle)
+    library = [device newDefaultLibrary];
+
+    if (!library)
+    {
+      error.Set("Failed to load default Metal library");
+      return false;
+    }
   }
 
   // Get shader functions
@@ -177,15 +205,20 @@ bool INanoVGMTLShaderControl::SetupPipeline(WDL_String& error)
 
 void INanoVGMTLShaderControl::Draw(IGraphics& g)
 {
+  // No shader loaded - show placeholder
+  if (!mVertexFuncName || !mFragmentFuncName)
+  {
+    g.FillRect(COLOR_DARK_GRAY, mRECT);
+    g.DrawText(IText(14, COLOR_GRAY), "No shader", mRECT);
+    return;
+  }
+
   if (mAnimate || IsDirty())
     UpdateTime();
 
   NVGcontext* vg = static_cast<NVGcontext*>(g.GetDrawContext());
   int w = static_cast<int>(mRECT.W() * g.GetTotalScale());
   int h = static_cast<int>(mRECT.H() * g.GetTotalScale());
-
-  // Draw background
-  g.DrawDottedRect(COLOR_BLACK, mRECT);
 
   // Get Metal device from NanoVG context
   if (!mDevice)
@@ -205,9 +238,19 @@ void INanoVGMTLShaderControl::Draw(IGraphics& g)
     {
       DBGMSG("INanoVGMTLShaderControl: %s\n", err.Get());
       mNeedsSetup = false;
+      mSetupFailed = true;
       return;
     }
     mNeedsSetup = false;
+    mSetupFailed = false;
+  }
+
+  // Shader failed to load
+  if (mSetupFailed)
+  {
+    g.FillRect(COLOR_DARK_GRAY, mRECT);
+    g.DrawText(IText(14, COLOR_RED), "Shader error", mRECT);
+    return;
   }
 
   // Recreate FBO if needed
@@ -292,16 +335,14 @@ void INanoVGMTLShaderControl::Draw(IGraphics& g)
 
 bool INanoVGMTLShaderControl::SetShaderStr(const char* shaderStr, WDL_String& error)
 {
-  error.Set("Metal shaders must be pre-compiled. Use SetShaderFunctions() instead.");
-  return false;
-}
+  if (!shaderStr || strlen(shaderStr) == 0)
+  {
+    error.Set("Empty shader source");
+    return false;
+  }
 
-bool INanoVGMTLShaderControl::SetShaderFunctions(const char* vertexFuncName,
-                                                   const char* fragmentFuncName,
-                                                   WDL_String& error)
-{
-  mVertexFuncName = vertexFuncName ? vertexFuncName : kDefaultVertexFunc;
-  mFragmentFuncName = fragmentFuncName ? fragmentFuncName : kDefaultFragmentFunc;
+  mShaderSource.Set(shaderStr);
+  mUseSourceString = true;
 
   // Clear existing pipeline to force recreation
   if (mRenderPipeline)
@@ -312,6 +353,28 @@ bool INanoVGMTLShaderControl::SetShaderFunctions(const char* vertexFuncName,
   }
 
   mNeedsSetup = true;
+  mSetupFailed = false;
+  SetDirty(true);
+  return true;
+}
+
+bool INanoVGMTLShaderControl::SetShaderFunctions(const char* vertexFuncName,
+                                                   const char* fragmentFuncName,
+                                                   WDL_String& error)
+{
+  mVertexFuncName = vertexFuncName;
+  mFragmentFuncName = fragmentFuncName;
+
+  // Clear existing pipeline to force recreation
+  if (mRenderPipeline)
+  {
+    id<MTLRenderPipelineState> old = (__bridge_transfer id<MTLRenderPipelineState>)mRenderPipeline;
+    mRenderPipeline = nullptr;
+    (void)old;
+  }
+
+  mNeedsSetup = true;
+  mSetupFailed = false;
   SetDirty(true);
   return true;
 }

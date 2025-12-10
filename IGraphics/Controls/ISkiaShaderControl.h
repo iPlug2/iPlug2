@@ -27,25 +27,6 @@
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
 
-/** Default SkSL shader - gradient based on mouse position */
-static const char* kDefaultSkSLShader = R"(
-uniform float uTime;
-uniform float2 uResolution;
-uniform float2 uMouse;
-uniform float2 uMouseButtons;
-
-half4 main(float2 fragCoord) {
-  float2 uv = fragCoord / uResolution;
-  float2 mouse = uMouse / uResolution;
-
-  // Simple gradient based on position and mouse
-  half3 col = half3(uv.x, uv.y, 0.5 + 0.5 * sin(uTime));
-  col = mix(col, half3(1.0, 0.5, 0.2), smoothstep(0.2, 0.0, length(uv - mouse)));
-
-  return half4(col, 1.0);
-}
-)";
-
 /** Shader control implementation for the Skia backend.
  *
  * Uses Skia's SkRuntimeEffect to compile and execute shaders written in
@@ -88,25 +69,43 @@ class ISkiaShaderControl : public IShaderControlBase
 public:
   /** Constructor with optional shader string
    * @param bounds The control's rectangular area
-   * @param shaderStr SkSL shader source (nullptr for default shader)
+   * @param shaderStr SkSL shader source (nullptr for no shader)
    * @param animate If true, continuously animates */
   ISkiaShaderControl(const IRECT& bounds, const char* shaderStr = nullptr, bool animate = false)
   : IShaderControlBase(bounds, animate)
   {
-    WDL_String err;
-    if (!SetShaderStr(shaderStr ? shaderStr : kDefaultSkSLShader, err))
+    if (shaderStr)
     {
-      DBGMSG("ISkiaShaderControl: Shader compile error: %s\n", err.Get());
+      WDL_String err;
+      if (!SetShaderStr(shaderStr, err))
+      {
+        DBGMSG("ISkiaShaderControl: Shader compile error: %s\n", err.Get());
+      }
     }
   }
 
   void Draw(IGraphics& g) override
   {
+    // No shader loaded - show placeholder
+    if (mShaderStr.isEmpty())
+    {
+      g.FillRect(COLOR_DARK_GRAY, mRECT);
+      g.DrawText(IText(14, COLOR_GRAY), "No shader", mRECT);
+      return;
+    }
+
+    // Shader failed to compile
+    if (!mRTEffect)
+    {
+      g.FillRect(COLOR_DARK_GRAY, mRECT);
+      g.DrawText(IText(14, COLOR_RED), "Shader error", mRECT);
+      return;
+    }
+
     if (mAnimate || IsDirty())
       UpdateTime();
 
-    if (mRTEffect)
-      DrawShader(g, GetShaderBounds());
+    DrawShader(g, GetShaderBounds());
   }
 
   bool SetShaderStr(const char* shaderStr, WDL_String& error) override

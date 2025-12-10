@@ -85,23 +85,36 @@ BEGIN_IGRAPHICS_NAMESPACE
 class INanoVGMTLShaderControl : public IShaderControlBase
 {
 public:
-  /** Constructor
+  /** Constructor with function names (uses pre-compiled shaders from bundle)
    * @param bounds The control's rectangular area
    * @param vertexFuncName Metal vertex function name (nullptr for default)
    * @param fragmentFuncName Metal fragment function name (nullptr for default)
    * @param animate If true, continuously animates */
   INanoVGMTLShaderControl(const IRECT& bounds,
-                          const char* vertexFuncName = nullptr,
-                          const char* fragmentFuncName = nullptr,
-                          bool animate = false);
+                          const char* vertexFuncName,
+                          const char* fragmentFuncName,
+                          bool animate);
+
+  /** Constructor with shader source (compiles at runtime)
+   * @param bounds The control's rectangular area
+   * @param shaderSource MSL source code containing vertex and fragment functions
+   * @param vertexFuncName Name of vertex function in source
+   * @param fragmentFuncName Name of fragment function in source
+   * @param animate If true, continuously animates */
+  INanoVGMTLShaderControl(const IRECT& bounds,
+                          const char* shaderSource,
+                          const char* vertexFuncName,
+                          const char* fragmentFuncName,
+                          bool animate);
 
   ~INanoVGMTLShaderControl();
 
   void Draw(IGraphics& g) override;
 
-  /** Not supported for Metal - shaders must be pre-compiled.
-   * This method exists for interface compatibility but always returns false.
-   * Use SetShaderFunctions() instead. */
+  /** Set shader from MSL source string (compiles at runtime).
+   * @param shaderStr MSL source code containing vertex and fragment functions
+   * @param error Output: error message if compilation fails
+   * @return true if compilation succeeded */
   bool SetShaderStr(const char* shaderStr, WDL_String& error) override;
 
   /** Set the Metal shader function names to use.
@@ -136,8 +149,11 @@ private:
 
   const char* mVertexFuncName = nullptr;
   const char* mFragmentFuncName = nullptr;
+  WDL_String mShaderSource;  // Runtime-compiled shader source
 
   bool mNeedsSetup = true;
+  bool mUseSourceString = false;  // true if using runtime compilation
+  bool mSetupFailed = false;
   bool mInvalidateFBO = true;
   bool mAnimate = false;
 };
