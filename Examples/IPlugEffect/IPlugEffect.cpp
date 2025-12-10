@@ -2,6 +2,23 @@
 #include "IPlug_include_in_plug_src.h"
 #include "IControls.h"
 
+#include "IUnifiedShaderControl.h"
+#include "IPlugEffect_shaders.h"
+
+#if defined(IGRAPHICS_SKIA)
+  #define IPLUGEFFECT_SHADER_CONTROL(bounds, animate) \
+    new IUnifiedShaderControl(bounds, kIPlugEffectShader, animate)
+#elif defined(IGRAPHICS_NANOVG) && defined(IGRAPHICS_GL)
+  #define IPLUGEFFECT_SHADER_CONTROL(bounds, animate) \
+    new IUnifiedShaderControl(bounds, kIPlugEffectShader, nullptr, animate)
+#elif defined(IGRAPHICS_NANOVG) && defined(IGRAPHICS_METAL)
+  #define IPLUGEFFECT_SHADER_CONTROL(bounds, animate) \
+    new IUnifiedShaderControl(bounds, kIPlugEffectMetalShader, kIPlugEffectVertexFunc, kIPlugEffectFragmentFunc, animate)
+#else
+  #define IPLUGEFFECT_SHADER_CONTROL(bounds, animate) nullptr
+#endif
+
+
 IPlugEffect::IPlugEffect(const InstanceInfo& info)
 : iplug::Plugin(info, MakeConfig(kNumParams, kNumPresets))
 {
@@ -11,7 +28,7 @@ IPlugEffect::IPlugEffect(const InstanceInfo& info)
   mMakeGraphicsFunc = [&]() {
     return MakeGraphics(*this, PLUG_WIDTH, PLUG_HEIGHT, PLUG_FPS, GetScaleForScreen(PLUG_WIDTH, PLUG_HEIGHT));
   };
-  
+
   mLayoutFunc = [&](IGraphics* pGraphics) {
     pGraphics->AttachCornerResizer(EUIResizerMode::Scale, false);
     pGraphics->AttachPanelBackground(COLOR_GRAY);
@@ -19,6 +36,8 @@ IPlugEffect::IPlugEffect(const InstanceInfo& info)
     const IRECT b = pGraphics->GetBounds();
     pGraphics->AttachControl(new ITextControl(b.GetMidVPadded(50), "Hello iPlug 2!", IText(50)));
     pGraphics->AttachControl(new IVKnobControl(b.GetCentredInside(100).GetVShifted(-100), kGain));
+
+    pGraphics->AttachControl(IPLUGEFFECT_SHADER_CONTROL(b.GetFromBottom(100), true));
   };
 #endif
 }
