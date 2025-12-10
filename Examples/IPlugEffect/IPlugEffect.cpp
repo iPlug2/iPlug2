@@ -7,7 +7,6 @@ IPlugEffect::IPlugEffect(const InstanceInfo& info)
 {
   GetParam(kGain)->InitDouble("Gain", 0., 0., 100.0, 0.01, "%");
 
-#if IPLUG_EDITOR // http://bit.ly/2S64BDd
   mMakeGraphicsFunc = [&]() {
     return MakeGraphics(*this, PLUG_WIDTH, PLUG_HEIGHT, PLUG_FPS, GetScaleForScreen(PLUG_WIDTH, PLUG_HEIGHT));
   };
@@ -25,10 +24,8 @@ IPlugEffect::IPlugEffect(const InstanceInfo& info)
     GetBuildInfoStr(buildInfoStr, __DATE__, __TIME__);
     pGraphics->AttachControl(new ITextControl(versionBounds, buildInfoStr.Get(), DEFAULT_TEXT.WithAlign(EAlign::Far)));
   };
-#endif
 }
 
-#if IPLUG_DSP
 void IPlugEffect::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
 {
   const double gain = GetParam(kGain)->Value() / 100.;
@@ -40,4 +37,3 @@ void IPlugEffect::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
     }
   }
 }
-#endif

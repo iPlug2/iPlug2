@@ -1,0 +1,213 @@
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <!-- COOP/COEP headers required for SharedArrayBuffer - must be set by server -->
+    <!-- Cross-Origin-Opener-Policy: same-origin -->
+    <!-- Cross-Origin-Embedder-Policy: require-corp -->
+    <title>NAME_PLACEHOLDER</title>
+    <link href="styles/style.css" rel="stylesheet" type="text/css"/>
+    <script src="scripts/IPlugController.js"></script>
+    <script async src="fonts.js"></script>
+    <script async src="svgs.js"></script>
+    <script async src="imgs.js"></script>
+    <script async src="imgs@2x.js"></script>
+    <script async src="scripts/NAME_PLACEHOLDER-em.js"></script>
+  </head>
+  <body>
+    <div id="main"></div>
+      <div id="buttons">
+        <button type="button" id="startWebAudioButton" onclick="startWebAudio()" disabled>Start web audio!</button>
+        <button type="button" id="fullScreenButton" onclick="toggleFullScreen()">Fullscreen</button>
+        <select id="midiInSelect" disabled="true"><option value="default">Midi input</option></select>
+        <select id="midiOutSelect" disabled="true"><option value="default">Midi output</option></select>
+        <progress value="0" max="100" id="progress"></progress>
+      </div>
+      <div id="greyout">
+        <div id="status">downloading...</div>
+      </div>
+      <div id="wam" hidden=true>
+        <canvas class="pluginArea" id="canvas" oncontextmenu="event.preventDefault()"></canvas>
+      </div>
+    <script type='text/javascript'>
+      let pluginController = null;
+      const PLUGIN_NAME = "NAME_PLACEHOLDER";
+      const NUM_INPUTS = MAXNINPUTS_PLACEHOLDER;
+      const NUM_OUTPUTS = MAXNOUTPUTS_PLACEHOLDER;
+
+      document.addEventListener("keydown", function(e) { if(e.keyCode == 9) {e.preventDefault(); }});
+      document.addEventListener("touchmove", function(e) { e.preventDefault(); }, {passive: false});
+
+      function toggleFullScreen() {
+        if ((document.fullScreenElement && document.fullScreenElement !== null) ||
+        (!document.mozFullScreen && !document.webkitIsFullScreen)) {
+          if (document.documentElement.requestFullScreen) {
+            document.documentElement.requestFullScreen();
+          } else if (document.documentElement.mozRequestFullScreen) {
+            document.documentElement.mozRequestFullScreen();
+          } else if (document.documentElement.webkitRequestFullScreen) {
+            document.documentElement.webkitRequestFullScreen(Element.ALLOW_KEYBOARD_INPUT);
+          }
+        } else {
+          if (document.cancelFullScreen) {
+            document.cancelFullScreen();
+          } else if (document.mozCancelFullScreen) {
+            document.mozCancelFullScreen();
+          } else if (document.webkitCancelFullScreen) {
+            document.webkitCancelFullScreen();
+          }
+        }
+      }
+
+      function initMidiComboBox(isOutput, element) {
+        let combo = document.querySelector(element);
+        combo.options.length = 0;
+
+        if (navigator.requestMIDIAccess) {
+          navigator.requestMIDIAccess().then((midiIF) => {
+            if(isOutput) {
+              for (let output of midiIF.outputs.values()) {
+                let option = new Option(output.name);
+                option.port = output;
+                combo.appendChild(option);
+              }
+
+              combo.onchange = e => {
+                // Store midi output for later use
+                pluginController.midiOut = e.target.options[e.target.selectedIndex].port;
+              }
+            } else {
+              for (let input of midiIF.inputs.values()) {
+                let option = new Option(input.name);
+                option.port = input;
+                combo.appendChild(option);
+              }
+
+              combo.onchange = e => {
+                // Connect MIDI input to plugin
+                const port = e.target.options[e.target.selectedIndex].port;
+                port.onmidimessage = (msg) => {
+                  if (pluginController) {
+                    pluginController.sendMidi(msg.data[0], msg.data[1] || 0, msg.data[2] || 0);
+                  }
+                };
+              }
+            }
+
+            if (combo.options.length > 0)
+              combo.onchange({ target: combo });
+          })
+          combo.removeAttribute("disabled");
+        }
+      }
+
+      function connectionsDone() {
+        document.getElementById("wam").style.left = ((window.innerWidth/2) - (parseInt(document.getElementById("canvas").style.width) / 2)) + "px";
+        document.getElementById("wam").style.top = ((window.innerHeight/2) - (parseInt(document.getElementById("canvas").style.height) / 2)) + "px";
+        document.getElementById('wam').hidden = false;
+        document.getElementById('startWebAudioButton').setAttribute("disabled", "true");
+        initMidiComboBox(false, "#midiInSelect");
+        initMidiComboBox(true, "#midiOutSelect");
+      }
+
+      async function startWebAudio() {
+        pluginController = new IPlugController(PLUGIN_NAME);
+
+        pluginController.onReadyCallback = () => {
+          console.log("AudioWorklet ready!");
+
+          // Handle audio input if needed
+          if (NUM_INPUTS > 0) {
+            navigator.mediaDevices.getUserMedia({ audio: true, video: false })
+              .then((stream) => {
+                // Create media stream source and connect to worklet
+                // Module.audioContext and Module.workletNode are set by C++ code
+                if (Module.audioContext && Module.workletNode) {
+                  const audioSource = Module.audioContext.createMediaStreamSource(stream);
+                  audioSource.connect(Module.workletNode);
+                }
+                pluginController.startAudio();
+                connectionsDone();
+              })
+              .catch((err) => {
+                console.log('Error initializing user media stream: ' + err);
+                // Still try to start audio without input
+                pluginController.startAudio();
+                connectionsDone();
+              });
+          } else {
+            pluginController.startAudio();
+            connectionsDone();
+          }
+        };
+
+        // Initialize the plugin
+        try {
+          await pluginController.init({ sampleRate: 0 });
+        } catch (err) {
+          console.error("Failed to initialize plugin:", err);
+        }
+      }
+
+      // Helper method for sending an "arbitrary" message to the processor
+      function SendMessageToPlugin(msgTag, ctrlTag = -1, data = 0) {
+        if (pluginController) {
+          pluginController.sendMessage('SAMFUI', msgTag + ':' + ctrlTag, data);
+        }
+      }
+
+      var statusElement = document.getElementById('status');
+      var progressElement = document.getElementById('progress');
+
+      var Module = {
+        printErr: function(text) { console.error('stderr: ' + text); },
+        preRun: [],
+        postRun: function() {
+          document.getElementById('startWebAudioButton').removeAttribute("disabled");
+          document.getElementById('greyout').style.display = 'none';
+        },
+        onRuntimeInitialized: function() {
+          console.log("WASM runtime initialized");
+        },
+        setStatus: function(text) {
+          if (!Module.setStatus.last) Module.setStatus.last = { time: Date.now(), text: '' };
+          if (text === Module.setStatus.text) return;
+          var m = text.match(/([^(]+)\((\d+(\.\d+)?)\/(\d+)\)/);
+          var now = Date.now();
+          if (m && now - Date.now() < 30) return;
+          if (m) {
+            text = m[1];
+            progressElement.value = parseInt(m[2])*100;
+            progressElement.max = parseInt(m[4])*100;
+            progressElement.hidden = false;
+          } else {
+            progressElement.value = null;
+            progressElement.max = null;
+            progressElement.hidden = true;
+          }
+          statusElement.innerHTML = text;
+        },
+        canvas: (function() {
+          var canvas = document.getElementById('canvas');
+          canvas.addEventListener("webglcontextlost", function(e) {
+            alert('WebGL context lost. You will need to reload the page.');
+            e.preventDefault();
+          }, false);
+          return canvas;
+        })(),
+        totalDependencies: 0,
+        monitorRunDependencies: function(left) {
+          this.totalDependencies = Math.max(this.totalDependencies, left);
+          Module.setStatus(left ? 'Preparing... (' + (this.totalDependencies-left) + '/' + this.totalDependencies + ')' : 'All downloads complete.');
+        }
+      };
+      Module.setStatus('Downloading...');
+      window.onerror = function(event) {
+        Module.setStatus('Exception thrown, see JavaScript console');
+        Module.setStatus = function(text) {
+          if (text) console.error('[post-exception status] ' + text);
+        };
+      };
+    </script>
+  </body>
+</html>

@@ -233,7 +233,7 @@
         }
       });
     }
-    
+
     EMSCRIPTEN_KEEPALIVE void iplug_fsready()
     {
       gPlug = std::unique_ptr<iplug::IPlugWeb>(iplug::MakePlug(iplug::InstanceInfo()));
@@ -264,7 +264,76 @@
 
     // TODO: this code never runs, so when do we delete?!
     gPlug = nullptr;
-    
+
+    return 0;
+  }
+
+#pragma mark - Emscripten AudioWorklet
+#elif defined EM_AUDIOWORKLET_API
+#include <memory>
+#include "config.h"
+#include <emscripten/webaudio.h>
+
+  std::unique_ptr<iplug::IPlugEmAudioWorklet> gPlugAudioWorklet;
+  extern void StartMainLoopTimer();
+
+  extern "C"
+  {
+    EMSCRIPTEN_KEEPALIVE void iplug_syncfs()
+    {
+      EM_ASM({
+        if(Module.syncdone == 1) {
+          Module.syncdone = 0;
+          FS.syncfs(false, function (err) {
+            assert(!err);
+            console.log("Synced to IDBFS...");
+            Module.syncdone = 1;
+          });
+        }
+      });
+    }
+
+    EMSCRIPTEN_KEEPALIVE void iplug_fsready()
+    {
+      gPlugAudioWorklet = std::unique_ptr<iplug::IPlugEmAudioWorklet>(iplug::MakePlug(iplug::InstanceInfo()));
+      gPlugAudioWorklet->SetHost("www", 0);
+      gPlugAudioWorklet->OpenWindow(nullptr);
+      iplug_syncfs();
+
+      // Initialize the AudioWorklet after the plugin is created
+      gPlugAudioWorklet->InitAudioWorklet(0);
+    }
+
+    EMSCRIPTEN_KEEPALIVE void initAudioWorklet(int sampleRate)
+    {
+      if (gPlugAudioWorklet)
+      {
+        gPlugAudioWorklet->InitAudioWorklet(sampleRate);
+      }
+    }
+  }
+
+  int main()
+  {
+    // Create persistent data file system and synchronize
+    EM_ASM(
+           var name = '/' + UTF8ToString($0) + '_data';
+           FS.mkdir(name);
+           FS.mount(IDBFS, {}, name);
+
+           Module.syncdone = 0;
+           FS.syncfs(true, function (err) {
+            assert(!err);
+            console.log("Synced from IDBFS...");
+            Module.syncdone = 1;
+            ccall('iplug_fsready', 'v');
+          });
+        , PLUG_NAME);
+
+    StartMainLoopTimer();
+
+    gPlugAudioWorklet = nullptr;
+
     return 0;
   }
 
@@ -386,7 +455,7 @@ BEGIN_IPLUG_NAMESPACE
 #pragma mark -
 #pragma mark VST2, VST3, AAX, AUv3, APP, WAM, WEB, CLAP
 
-#if defined VST2_API || defined VST3_API || defined AAX_API || defined AUv3_API || defined APP_API  || defined WAM_API || defined WEB_API || defined CLAP_API
+#if defined VST2_API || defined VST3_API || defined AAX_API || defined AUv3_API || defined APP_API  || defined WAM_API || defined WEB_API || defined EM_AUDIOWORKLET_API || defined CLAP_API
 
 Plugin* MakePlug(const iplug::InstanceInfo& info)
 {
