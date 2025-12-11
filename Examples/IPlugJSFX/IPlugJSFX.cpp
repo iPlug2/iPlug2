@@ -2,16 +2,10 @@
 #include "IPlug_include_in_plug_src.h"
 #include "IControls.h"
 
-// Include JSFX headers - these bring in the SX_Instance class and sx_* functions
-// Note: This requires the jsfx source files to be compiled and linked
-// Build system should add jsfx/ and Dependencies/IPlug/REAPER_SDK to include paths
 #include "sfxui.h"
 
-// Provide the required global for JSFX
 HINSTANCE g_hInst = nullptr;
 const char* g_config_slider_classname = "IPlugJSFXSlider";
-
-// Default get_eel_funcdesc implementation required by JSFX
 const char* default_get_eel_funcdesc(const char* name) { return nullptr; }
 const char* (*get_eel_funcdesc)(const char* name) = default_get_eel_funcdesc;
 
