@@ -1,4 +1,4 @@
-#if defined(_WIN32) && !defined(WDL_WIN32_UTF8_NO_UI_IMPL)
+#if defined(_WIN32) && !defined(WDL_WIN32_UTF8_NO_UI_IMPL) && !defined(WDL_WIN32_UTF8_MINI_UI_IMPL)
 #include <shlobj.h>
 #include <commctrl.h>
 #endif
@@ -370,7 +370,7 @@ WCHAR *WDL_UTF8ToWC(const char *buf, BOOL doublenull, int minsize, DWORD *sizeou
   }
 }
 
-#ifndef WDL_WIN32_UTF8_NO_UI_IMPL
+#if !defined(WDL_WIN32_UTF8_NO_UI_IMPL) && !defined(WDL_WIN32_UTF8_MINI_UI_IMPL)
 static BOOL GetOpenSaveFileNameUTF8(LPOPENFILENAME lpofn, BOOL save)
 {
 
@@ -805,27 +805,28 @@ HANDLE CreateFileUTF8(LPCTSTR lpFileName,DWORD dwDesiredAccess,DWORD dwShareMode
 }
 
 
-int DrawTextUTF8(HDC hdc, LPCTSTR str, int nc, LPRECT lpRect, UINT format)
+// expects bytelen when UTF8
+int DrawTextUTF8(HDC hdc, LPCTSTR str, int len, LPRECT lpRect, UINT format)
 {
   WDL_ASSERT((format & DT_SINGLELINE) || !(format & (DT_BOTTOM|DT_VCENTER))); // if DT_BOTTOM or DT_VCENTER used, must have DT_SINGLELINE
 
+  // if DT_CALCRECT and DT_WORDBREAK, rect must be provided
+  WDL_ASSERT((format&(DT_CALCRECT|DT_WORDBREAK)) != (DT_CALCRECT|DT_WORDBREAK) ||
+    (lpRect && lpRect->right > lpRect->left && lpRect->bottom > lpRect->top));
+
   if (WDL_HasUTF8(str) AND_IS_NOT_WIN9X)
   {
-    if (nc<0) nc=(int)strlen(str);
-
+    MBTOWIDE(wstr, str);
+    if (wstr_ok)
     {
-      MBTOWIDE(wstr, str);
-      if (wstr_ok)
-      {
-        int rv=DrawTextW(hdc,wstr,-1,lpRect,format);;
-        MBTOWIDE_FREE(wstr);
-        return rv;
-      }
+      const int lenuse = len > 0 ? WDL_utf8_bytepos_to_charpos(str, len) : len;
+      int rv=DrawTextW(hdc,wstr,lenuse < 0 ? lenuse : wdl_min(wcslen(wstr), lenuse),lpRect,format);
       MBTOWIDE_FREE(wstr);
+      return rv;
     }
-
+    MBTOWIDE_FREE(wstr);
   }
-  return DrawTextA(hdc,str,nc,lpRect,format);
+  return DrawTextA(hdc,str,len,lpRect,format);
 }
 
 
@@ -977,6 +978,33 @@ int statUTF8(const char *filename, struct stat *buffer)
     }
   }
   return _stat(filename,(struct _stat*)buffer);
+}
+
+size_t strftimeUTF8(char *buf, size_t maxsz, const char *fmt, const struct tm *timeptr)
+{
+  if (buf && fmt && maxsz>0 AND_IS_NOT_WIN9X)
+  {
+    MBTOWIDE(wfmt, fmt);
+    WIDETOMB_ALLOC(wbuf,maxsz);
+    if (wfmt_ok && wbuf)
+    {
+      wbuf[0]=0;
+      if (!wcsftime(wbuf,wbuf_size / sizeof(WCHAR), wfmt, timeptr)) buf[0]=0;
+      else if (!WideCharToMultiByte(CP_UTF8,0,wbuf,-1,buf,maxsz,NULL,NULL))
+        buf[maxsz-1]=0;
+
+      MBTOWIDE_FREE(wfmt);
+      WIDETOMB_FREE(wbuf);
+      return (int)strlen(buf);
+    }
+    MBTOWIDE_FREE(wfmt);
+    WIDETOMB_FREE(wbuf);
+  }
+#ifdef strftime
+#undef strftime
+#endif
+  return strftime(buf,maxsz,fmt,timeptr);
+#define strftime(a,b,c,d) strftimeUTF8(a,b,c,d)
 }
 
 LPSTR GetCommandParametersUTF8()

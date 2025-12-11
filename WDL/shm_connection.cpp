@@ -243,8 +243,8 @@ int WDL_SHM_Connection::Run()
 #include <sys/un.h>
 #include <sys/types.h>
 #include <sys/time.h>
-#include <sys/errno.h>
-#include <sys/fcntl.h>
+#include <errno.h>
+#include <fcntl.h>
 #ifndef __APPLE__
 #include <sys/file.h>
 #endif

@@ -15,6 +15,7 @@ extern "C" {
 #include <windows.h>
 #include <sys/stat.h>
 #include <stdio.h>
+#include <time.h>
 
 #define LB_GETTEXTUTF8 (LB_GETTEXT|0x8000)
 #define LB_GETTEXTLENUTF8 (LB_GETTEXTLEN|0x8000)
@@ -67,6 +68,7 @@ WDL_WIN32_UTF8_IMPL BOOL GetMenuItemInfoUTF8(HMENU hMenu, UINT uItem,BOOL fByPos
    
 WDL_WIN32_UTF8_IMPL int statUTF8(const char *filename, struct stat *buffer);
 WDL_WIN32_UTF8_IMPL FILE *fopenUTF8(const char *filename, const char *mode);
+WDL_WIN32_UTF8_IMPL size_t strftimeUTF8(char *buf, size_t maxsz, const char *fmt, const struct tm *timeptr);
 
 WDL_WIN32_UTF8_IMPL int GetKeyNameTextUTF8(LONG lParam, LPTSTR lpString, int nMaxCount);
 
@@ -290,6 +292,15 @@ WDL_WIN32_UTF8_IMPL BOOL CreateProcessUTF8( LPCTSTR lpApplicationName, LPTSTR lp
 #define stat(fn,s) statUTF8(fn,s)
 typedef char wdl_utf8_chk_stat_types_assert_failed[sizeof(struct stat) == sizeof(struct _stat) ? 1 : -1];
 
+
+#if !defined(_MSC_VER) || _MSC_VER >= 1800
+  // old MSVC versions wcsftime() does not work properly, do not use if MSVC and older than VS2013
+  #ifdef strftime
+  #undef strftime
+  #endif
+  #define strftime(a,b,c,d) strftimeUTF8(a,b,c,d)
+#endif
+
 #else
 
 #if defined(WDL_CHECK_FOR_NON_UTF8_FOPEN) && defined(fopen)
@@ -300,6 +311,7 @@ typedef char wdl_utf8_chk_stat_types_assert_failed[sizeof(struct stat) == sizeof
 #define DrawTextUTF8 DrawText
 #define statUTF8 stat
 #define fopenUTF8 fopen
+#define strftimeUTF8 strftime
 #define WDL_UTF8_HookComboBox(x) do { if (WDL_NORMALLY(x)) { } } while(0)
 #define WDL_UTF8_HookListView(x) do { if (WDL_NORMALLY(x)) { } } while(0)
 #define WDL_UTF8_HookListBox(x) do { if (WDL_NORMALLY(x)) { } } while(0)

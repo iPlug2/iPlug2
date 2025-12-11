@@ -58,6 +58,7 @@ public:
 
   int GetStatus(); // returns 0 if connected/connecting, >0 if disconnected, -1 if failed connect (or other error) from the start
   void GetStatusText(char *buf, int bufsz); // gets status text
+  const char *GetStatusText2(unsigned int *bytesOut);
 
   void SetCurTitle(const char *title);
 

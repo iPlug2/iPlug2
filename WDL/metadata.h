@@ -472,6 +472,23 @@ bool HasScheme(const char *scheme, WDL_StringKeyedArray<char*> *metadata)
   return false;
 }
 
+bool DeleteScheme(const char *scheme, WDL_StringKeyedArray<char*> *metadata)
+{
+  if (!scheme || !scheme[0] || !metadata) return false;
+
+  bool ismatch=false, did_del=false;
+  int idx=metadata->LowerBound(scheme, &ismatch);
+  for (int i=idx; i < metadata->GetSize(); ++i)
+  {
+    const char *key=NULL;
+    metadata->Enumerate(idx, &key);
+    if (!key || strnicmp(key, scheme, strlen(scheme))) break;
+    metadata->DeleteByIndex(i--);
+    did_del=true;
+  }
+  return did_del;
+}
+
 
 WDL_INT64 _ATOI64(const char *str)
 {
@@ -559,6 +576,7 @@ int PackIXMLChunk(WDL_HeapBuf *hb, WDL_StringKeyedArray<char*> *metadata, int pa
     if (!strcmp(key, "BWF_TIME_REFERENCE"))
     {
       WDL_UINT64 pos=_ATOI64(val);
+      if (!pos) continue;
       int hi=pos>>32, lo=(pos&0xFFFFFFFF);
       ixml.AppendFormatted(4096, "<%s_HIGH>%d</%s_HIGH>", key, hi, key);
       ixml.AppendFormatted(4096, "<%s_LOW>%d</%s_LOW>", key, lo, key);
@@ -584,6 +602,7 @@ int PackIXMLChunk(WDL_HeapBuf *hb, WDL_StringKeyedArray<char*> *metadata, int pa
     XMLCompliantAppend(&ixml, key, false);
     ixml.Append(">");
     XMLCompliantAppend(&ixml, val, true);
+    if (!strcmp(key,"BWF_ORIGINATION_TIME") && strlen(val) == 5) ixml.Append(":00");
     ixml.Append("</");
     XMLCompliantAppend(&ixml, key, false);
     ixml.Append(">");
@@ -2248,61 +2267,84 @@ bool PackFlacPicBase64(WDL_StringKeyedArray<char*> *metadata,
   return false;
 }
 
-bool ExportMetadataImageToTmpFile(const char *srcfn, const char *infostr,
-  WDL_FastString *imgdesc, WDL_FastString *imgtype, WDL_FastString *imgfn)
+bool ExportMetadataImageToTmpFile(const char *srcfn, const char *infostr, WDL_FastString *imgfn)
 {
   if (!srcfn || !srcfn[0] || !infostr || !infostr[0] || !imgfn) return false;
 
-  WDL_HeapBuf tmp;
-  int tmplen=strlen(infostr);
-  if (!tmp.ResizeOK(tmplen+1)) return false;
-  memcpy(tmp.Get(), infostr, tmplen+1);
+  const char *offs = strstr(infostr,"offset:");
+  const char *len = strstr(infostr,"length:");
+  if (!offs || !len) return false;
 
-  const char *ext=NULL, *mime=NULL, *desc=NULL, *type=NULL, *offs=NULL, *len=NULL;
-  char *p=(char*)tmp.Get();
-  for (int i=0; i < tmplen; ++i)
+  const WDL_INT64 ioffs = (WDL_INT64)atof(offs+7);
+  const int ilen = atoi(len+7);
+  if (ioffs<1 || ilen < 1) return false;
+
+  int mimelen = 0;
+  const char *mime = strstr(infostr,"mime:");
+  if (mime)
   {
-    if (!strncmp(p+i, "ext:", 4)) { if (i) p[i-1]=0; i += 4; ext=p+i; }
-    else if (!strncmp(p+i, "mime:", 5)) { if (i) p[i-1]=0; i += 5; mime=p+i; }
-    else if (!strncmp(p+i, "desc:", 5)) { if (i) p[i-1]=0; i += 5; desc=p+i; }
-    else if (!strncmp(p+i, "type:", 5)) { if (i) p[i-1]=0; i += 5; type=p+i; }
-    else if (!strncmp(p+i, "offset:", 7)) { if (i) p[i-1]=0; i += 7; offs=p+i; }
-    else if (!strncmp(p+i, "length:", 7)) { if (i) p[i-1]=0; i += 7; len=p+i; }
+    mime += 5;
+    while (mime[mimelen] != ' ' && mime[mimelen]) mimelen++;
   }
 
-  WDL_INT64 ioffs = offs ? (WDL_INT64)atof(offs) : 0;
-  int ilen = len ? atoi(len) : 0;
-
-  bool ok=false;
-  if ((ext || mime) && ioffs > 0 && ilen > 0)
+  int extlen = 0;
+  const char *ext = strstr(infostr,"ext:");
+  if (ext)
   {
-    WDL_FileRead fr(srcfn);
-    if (fr.IsOpen() && fr.GetSize() >= ioffs+ilen)
+    ext += 4;
+    while (ext[extlen] != ' ' && ext[extlen]) extlen++;
+  }
+
+  if (!extlen && !mimelen) return false;
+
+  WDL_FileRead fr(srcfn);
+  if (fr.IsOpen() && fr.GetSize() >= ioffs+ilen)
+  {
+    fr.SetPosition(ioffs);
+
+    char tmppath[2048];
+    tmppath[0]=0;
+    GetTempPath(sizeof(tmppath), tmppath);
+    imgfn->Set(tmppath);
+    imgfn->Append(WDL_get_filepart(srcfn));
+    imgfn->Append(".");
+    if (extlen) imgfn->Append(ext,extlen);
+    else if (mimelen>6 && !strncmp(mime, "image/", 6)) imgfn->Append(mime+6,mimelen-6);
+
+    WDL_FileWrite fw(imgfn->Get());
+    if (fw.IsOpen() && CopyFileData(&fr, &fw, ilen))
     {
-      fr.SetPosition(ioffs);
-
-      char tmppath[2048];
-      tmppath[0]=0;
-      GetTempPath(sizeof(tmppath), tmppath);
-      imgfn->Set(tmppath);
-      imgfn->Append(WDL_get_filepart(srcfn));
-      imgfn->Append(".");
-      if (ext) imgfn->Append(ext);
-      else if (mime && !strncmp(mime, "image/", 6)) imgfn->Append(mime+6);
-
-      WDL_FileWrite fw(imgfn->Get());
-      if (fw.IsOpen() && CopyFileData(&fr, &fw, ilen))
-      {
-        if (desc && imgdesc) imgdesc->Set(desc);
-        if (type && imgtype) imgtype->Set(type);
-        ok=true;
-      }
+      return true;
     }
   }
 
-  return ok;
+  return false;
 }
 
+struct MetadataFilesToDelete
+{
+  WDL_PtrList<char> list;
+  ~MetadataFilesToDelete() {
+    for (int x = 0; x < list.GetSize(); x ++)
+    {
+      DeleteFile(list.Get(x));
+      free(list.Get(x));
+    }
+  }
+};
 
+void ImportMetadataPictureBlobs(const char *fn, WDL_StringKeyedArray<char*> *metadata, WDL_PtrList<char> *filelist)
+{
+  WDL_FastString fs;
+  int v = 0;
+  const char *apic = metadata->Get("ID3:APIC");
+  if (!apic) { v++; apic = metadata->Get("FLACPIC:APIC"); }
+  if (!apic) return;
+  if (!ExportMetadataImageToTmpFile(fn,apic,&fs)) return;
+  metadata->Delete("ID3:APIC");
+  metadata->Delete("FLACPIC:APIC");
+  metadata->Insert(v ? "FLACPIC:APIC_FILE" : "ID3:APIC_FILE", strdup(fs.Get()));
+  filelist->Add(strdup(fs.Get()));
+}
 
 #endif // _METADATA_H_

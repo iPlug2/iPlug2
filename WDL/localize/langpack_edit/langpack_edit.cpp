@@ -484,6 +484,7 @@ bool editor_instance::import_for_view(FILE *fp)
   {
     WDL_fgets_as_utf8(linebuf,sizeof(linebuf),fp,&utf8flag);
     if (!linebuf[0]) break;
+    WDL_remove_trailing_crlf(linebuf);
     if (lcnt < m_display_order.GetSize())
     {
       int rec_idx = m_display_order.Get()[lcnt];
@@ -543,7 +544,11 @@ void editor_instance::refresh_list(bool refilter)
   HWND list = WDL_NORMALLY(m_hwnd) ? GetDlgItem(m_hwnd,IDC_LIST) : NULL;
   if (!refilter)
   {
-    if (list) ListView_RedrawItems(list, 0, m_display_order.GetSize());
+    if (list)
+    {
+      ListView_SetItemCount(list, m_display_order.GetSize());
+      ListView_RedrawItems(list, 0, m_display_order.GetSize());
+    }
     return;
   }
   WDL_IntKeyedArray<bool> selState;
@@ -806,6 +811,7 @@ bool editor_instance::edit_row(int row, int other_action)
               if (!m_recs.GetPtr(sec))
               {
                 pack_rec newr = { 0 };
+                newr.common_idx = -1;
                 m_recs.Insert(sec,newr);
                 int idx = m_recs.GetIdx(sec);
                 if (WDL_NORMALLY(idx>=0))
@@ -1219,9 +1225,9 @@ WDL_DLGRET mainProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
               const int nn = ListView_GetItemCount(list);
               if (n < nn)
               {
-                ListView_EnsureVisible(list,n,false);
                 for (int i = n; i < nn; i ++)
                   ListView_SetItemState(list,i,LVIS_SELECTED,LVIS_SELECTED);
+                ListView_EnsureVisible(list,nn-1,false);
               }
             }
           }

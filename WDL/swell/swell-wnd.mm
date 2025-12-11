@@ -1604,6 +1604,15 @@ LONG_PTR GetWindowLong(HWND hwnd, int idx)
       }
       else ret |= BS_AUTOCHECKBOX; 
     }
+    if ([pid isKindOfClass:[NSTextField class]])
+    {
+      NSCell *cell = [pid cell];
+      if (cell) switch ([cell alignment])
+      {
+        case NSTextAlignmentRight: ret |= SS_RIGHT; break;
+        case NSTextAlignmentCenter: ret |= SS_CENTER; break;
+      }
+    }
     
     if ([pid isKindOfClass:[NSView class]])
     {
@@ -3578,6 +3587,7 @@ STANDARD_CONTROL_NEEDSDISPLAY_IMPL([self isSelectable] ? "Edit" : "Static")
     m_disable_menu = false;
     m_ctlcolor_set = false;
     m_last_dark_mode = false;
+    m_need_alphachg = false;
     m_userdata = 0;
   }
   return self;
@@ -3614,8 +3624,7 @@ STANDARD_CONTROL_NEEDSDISPLAY_IMPL([self isSelectable] ? "Edit" : "Static")
   }
   else if (![self isBordered] && ![self drawsBackground]) // looks like a static text control
   {
-    const float alpha = ([self isEnabled] ? 1.0f : 0.5f);
-    [self setTextColor:[[self textColor] colorWithAlphaComponent:alpha]];
+    m_need_alphachg = true;
   }
   else
   {
@@ -3632,6 +3641,12 @@ STANDARD_CONTROL_NEEDSDISPLAY_IMPL([self isSelectable] ? "Edit" : "Static")
   {
     const bool m = SWELL_osx_is_dark_mode(0);
     if (m != m_last_dark_mode) [self initColors:m];
+  }
+  if (m_need_alphachg)
+  {
+    m_need_alphachg = false;
+    const float alpha = ([self isEnabled] ? 1.0f : 0.5f);
+    [self setTextColor:[[self textColor] colorWithAlphaComponent:alpha]];
   }
   [super drawRect:r];
 }
@@ -4233,7 +4248,12 @@ HWND SWELL_MakeCombo(int idx, int x, int y, int w, int h, int flags)
     [obj setTag:idx];
     [obj setFont:[NSFont systemFontOfSize:10.0f]];
     NSRect rc=MakeCoords(x,y,w,(g_swell_osx_style&1) ? 24 : 18,true,true);
-    if (g_swell_osx_style&1) rc.origin.y -= 2;
+    if (g_swell_osx_style&1)
+    {
+      rc.origin.y -= 2;
+      rc.origin.x -= 3;
+      rc.size.width += 3;
+    }
         
     [obj setSwellStyle:flags];
     [obj setFrame:rc];
@@ -4661,12 +4681,14 @@ int ListView_InsertItem(HWND h, const LVITEM *item)
   nr->add_col((item->mask & LVIF_TEXT) ? item->pszText : "");
   if (item->mask & LVIF_PARAM) nr->m_param = item->lParam;
   tv->m_items->Insert(a,nr);
-  
 
-  
   if ((item->mask&LVIF_STATE) && (item->stateMask & (0xff<<16)))
   {
     nr->set_img_idx(0,(item->state>>16)&0xff);
+  }
+  if ((item->mask&LVIF_IMAGE) && item->iImage >= 0)
+  {
+    nr->set_img_idx(0, item->iImage+1);
   }
   
   [tv reloadData];
@@ -5598,7 +5620,9 @@ BOOL InvalidateRect(HWND hwnd, const RECT *r, int eraseBk)
       {
         if (![hc isHiddenOrHasHiddenAncestor]) 
         {
-          swell_addMetalDirty(hc,r);
+          NSRect sz = [hc bounds];
+          if (sz.size.width != 0.0 && sz.size.height != 0.0)
+            swell_addMetalDirty(hc,r);
         }
         return TRUE;
       }

@@ -174,6 +174,7 @@ typedef struct WindowPropRec
   bool m_last_dark_mode;
   bool m_ctlcolor_set;
   bool m_disable_menu;
+  bool m_need_alphachg;
   LONG_PTR m_userdata;
 }
 - (id) init;

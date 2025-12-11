@@ -1560,7 +1560,7 @@ yyreduce:
     {
           if (!((yyval) = nseel_resolve_named_symbol(context, (yyvsp[(1) - (1)]), -1, NULL))) /* convert from purely named to namespace-relative, etc */
           {
-            yyerror(&yyloc, context, ""); 
+            yyerror(&yyloc, context, ""); if (nseelnerrs) { }
             YYERROR;
           }
         }
