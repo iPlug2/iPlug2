@@ -4,7 +4,8 @@
 
 // Include JSFX headers - these bring in the SX_Instance class and sx_* functions
 // Note: This requires the jsfx source files to be compiled and linked
-#include "../../jsfx/sfxui.h"
+// Build system should add jsfx/ and Dependencies/IPlug/REAPER_SDK to include paths
+#include "sfxui.h"
 
 // Provide the required global for JSFX
 HINSTANCE g_hInst = nullptr;

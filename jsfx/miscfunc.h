@@ -17,7 +17,7 @@
 
 
 #include "../WDL/heapbuf.h"
-#include "../Dependencies/IPlug/REAPER_SDK/reaper_plugin.h"
+#include "reaper_plugin.h"
 
 void eel_js_register();
 
