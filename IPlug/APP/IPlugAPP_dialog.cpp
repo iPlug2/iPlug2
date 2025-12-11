@@ -12,12 +12,18 @@
 #include "config.h"
 #include "resource.h"
 
+#include <ctime>
+
 #ifdef OS_WIN
 #include "asio.h"
 extern float GetScaleForHWND(HWND hWnd);
 #define GET_MENU() GetMenu(gHWND)
+// Implemented in IPlugAPP_main.cpp
+extern bool SaveWindowScreenshot(HWND hwnd, const char* path);
 #elif defined OS_MAC
 #define GET_MENU() SWELL_GetCurrentMenu()
+// Implemented in IPlugAPP_main.cpp
+extern "C" bool SaveWindowScreenshot(void* hwnd, const char* path);
 #endif
 
 using namespace iplug;
@@ -617,6 +623,73 @@ WDL_DLGRET IPlugAPPHost::MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
 
           return 0;
         }
+#ifdef ID_SCREENSHOT
+        case ID_SCREENSHOT:
+        {
+          // Generate filename with timestamp
+          WDL_String path;
+          char timestamp[32];
+          time_t now = time(nullptr);
+          strftime(timestamp, sizeof(timestamp), "%Y%m%d_%H%M%S", localtime(&now));
+
+          // Get temp directory
+          #ifdef OS_WIN
+          char tempPath[MAX_PATH];
+          GetTempPathA(MAX_PATH, tempPath);
+          path.SetFormatted(512, "%s%s_screenshot_%s.png",
+                            tempPath,
+                            PLUG_NAME,
+                            timestamp);
+          #elif defined OS_MAC
+          const char* tmpDir = getenv("TMPDIR");
+          path.SetFormatted(512, "%s%s_screenshot_%s.png",
+                            tmpDir ? tmpDir : "/tmp/",
+                            PLUG_NAME,
+                            timestamp);
+          #endif
+
+          bool success = false;
+
+          // Try IGraphics::SaveScreenshot first (works with Metal/GPU backends)
+          #if !defined NO_IGRAPHICS
+          IGEditorDelegate* pPlug = dynamic_cast<IGEditorDelegate*>(pAppHost->GetPlug());
+          if (pPlug)
+          {
+            IGraphics* pGraphics = pPlug->GetUI();
+            if (pGraphics)
+              success = pGraphics->SaveScreenshot(path.Get());
+          }
+          #endif
+
+          // Fall back to native API for non-IGraphics UIs
+          if (!success)
+            success = SaveWindowScreenshot(gHWND, path.Get());
+
+          if (success)
+          {
+            WDL_String msg;
+            msg.SetFormatted(512, "Screenshot saved to:\n%s\n\nOpen it?", path.Get());
+            int result = MessageBox(hwndDlg, msg.Get(), "Screenshot Saved", MB_YESNO);
+
+            if (result == IDYES)
+            {
+              #ifdef OS_WIN
+              ShellExecuteA(NULL, "open", path.Get(), NULL, NULL, SW_SHOWNORMAL);
+              #elif defined OS_MAC
+              WDL_String cmd;
+              cmd.SetFormatted(1024, "open \"%s\"", path.Get());
+              system(cmd.Get());
+              #endif
+            }
+          }
+          else
+          {
+            MessageBox(hwndDlg, "Failed to save screenshot", "Error", MB_OK);
+          }
+
+          return 0;
+        }
+#endif
 #if defined _DEBUG && !defined NO_IGRAPHICS
         case ID_LIVE_EDIT:
         {

@@ -24,12 +24,113 @@ using namespace iplug;
 #if defined OS_WIN
 #include <windows.h>
 #include <commctrl.h>
+#include <shellapi.h>
+
+// Include stb_image_write for PNG saving
+// Only define implementation if IGraphics is not being used (to avoid duplicate symbols)
+#ifdef NO_IGRAPHICS
+  #define STB_IMAGE_WRITE_IMPLEMENTATION
+#endif
+#include "../../Dependencies/IGraphics/STB/stb_image_write.h"
 
 extern WDL_DLGRET MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 HWND gHWND;
 extern HINSTANCE gHINSTANCE;
 UINT gScrollMessage;
+
+// Save a screenshot of the given HWND to a PNG file using Win32 API
+// This works with any UI framework (GDI, DirectX, OpenGL, etc.)
+bool SaveWindowScreenshot(HWND hwnd, const char* path)
+{
+  if (!hwnd || !path)
+    return false;
+
+  // Get client area dimensions
+  RECT clientRect;
+  if (!GetClientRect(hwnd, &clientRect))
+    return false;
+
+  int width = clientRect.right - clientRect.left;
+  int height = clientRect.bottom - clientRect.top;
+
+  if (width <= 0 || height <= 0)
+    return false;
+
+  // Create a compatible DC and bitmap
+  HDC hdcWindow = GetDC(hwnd);
+  if (!hdcWindow)
+    return false;
+
+  HDC hdcMem = CreateCompatibleDC(hdcWindow);
+  if (!hdcMem)
+  {
+    ReleaseDC(hwnd, hdcWindow);
+    return false;
+  }
+
+  // Create a 32-bit DIB section for the screenshot
+  BITMAPINFO bmi = {};
+  bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+  bmi.bmiHeader.biWidth = width;
+  bmi.bmiHeader.biHeight = -height; // Top-down DIB
+  bmi.bmiHeader.biPlanes = 1;
+  bmi.bmiHeader.biBitCount = 32;
+  bmi.bmiHeader.biCompression = BI_RGB;
+
+  void* pBits = nullptr;
+  HBITMAP hBitmap = CreateDIBSection(hdcMem, &bmi, DIB_RGB_COLORS, &pBits, nullptr, 0);
+
+  if (!hBitmap || !pBits)
+  {
+    DeleteDC(hdcMem);
+    ReleaseDC(hwnd, hdcWindow);
+    return false;
+  }
+
+  HGDIOBJ hOldBitmap = SelectObject(hdcMem, hBitmap);
+
+  // Use PrintWindow to capture the window content
+  // PW_CLIENTONLY captures only the client area
+  // PW_RENDERFULLCONTENT (0x00000002) renders the window fully, including layered content
+  const UINT PW_RENDERFULLCONTENT = 0x00000002;
+  BOOL captured = PrintWindow(hwnd, hdcMem, PW_CLIENTONLY | PW_RENDERFULLCONTENT);
+
+  if (!captured)
+  {
+    // Fallback to BitBlt if PrintWindow fails
+    captured = BitBlt(hdcMem, 0, 0, width, height, hdcWindow, 0, 0, SRCCOPY);
+  }
+
+  SelectObject(hdcMem, hOldBitmap);
+  DeleteDC(hdcMem);
+  ReleaseDC(hwnd, hdcWindow);
+
+  if (!captured)
+  {
+    DeleteObject(hBitmap);
+    return false;
+  }
+
+  // Convert BGRA to RGBA for stb_image_write
+  uint8_t* pixels = static_cast<uint8_t*>(pBits);
+  for (int i = 0; i < width * height; i++)
+  {
+    // Swap B and R channels (BGRA -> RGBA)
+    uint8_t temp = pixels[i * 4 + 0];
+    pixels[i * 4 + 0] = pixels[i * 4 + 2];
+    pixels[i * 4 + 2] = temp;
+    // Set alpha to 255 (opaque) since Windows DIB may have garbage in alpha
+    pixels[i * 4 + 3] = 255;
+  }
+
+  // Use stb_image_write to save as PNG
+  int result = stbi_write_png(path, width, height, 4, pixels, width * 4);
+
+  DeleteObject(hBitmap);
+
+  return result != 0;
+}
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdParam, int nShowCmd)
 {
