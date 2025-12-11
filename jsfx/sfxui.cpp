@@ -38,7 +38,7 @@
 #include "../WDL/fft.h"
 #include "../WDL/db2val.h"
 
-#include "../jmde/reaper_plugin_fx_embed.h"
+#include "reaper_plugin_fx_embed.h"
 
 #define EEL_LICE_STANDALONE_NOINITQUIT
 #define EEL_LICE_WANT_STANDALONE
