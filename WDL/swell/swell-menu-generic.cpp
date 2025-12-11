@@ -424,7 +424,16 @@ static LRESULT WINAPI submenuWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
       SetWindowLongPtr(hwnd,GWLP_USERDATA,lParam);
 
       if (m_trackingPar && !(m_trackingFlags&TPM_NONOTIFY))
+      {
+        hwnd->Retain();
         SendMessage(m_trackingPar,WM_INITMENUPOPUP,(WPARAM)lParam,0);
+        if (hwnd->m_hashaddestroy)
+        {
+          hwnd->Release();
+          return 0;
+        }
+        hwnd->Release();
+      }
 
       {
         HDC hdc = GetDC(hwnd);

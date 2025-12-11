@@ -23,9 +23,7 @@ misrepresented as being the original software.
 #ifndef _WDLUTF8_H_
 #define _WDLUTF8_H_
 
-/* todo: handle overlongs?
- * todo: handle multi-byte (make WideStr support UTF-16)
- */
+/* todo: handle overlongs differently? */
 
 #include "wdltypes.h"
 
@@ -141,6 +139,7 @@ static int WDL_STATICFUNC_UNUSED wdl_utf8_makechar(int c, char *dest, int dest_l
 
 
 // invalid UTF-8 are now treated as ANSI characters for this function
+// always writes utf-16, even if WDL_WCHAR is 4 bytes
 static int WDL_STATICFUNC_UNUSED WDL_MBtoWideStr(WDL_WCHAR *dest, const char *src, int destlenbytes)
 {
   WDL_WCHAR *w = dest, *dest_endp = dest+(size_t)destlenbytes/sizeof(WDL_WCHAR)-1;
@@ -149,7 +148,14 @@ static int WDL_STATICFUNC_UNUSED WDL_MBtoWideStr(WDL_WCHAR *dest, const char *sr
   if (src) for (; *src && w < dest_endp; )
   {
     int c,sz=wdl_utf8_parsechar(src,&c);
-    *w++ = c;
+    if (c >= 0x10000 && c < 0x10FFFF)
+    {
+      if (w+1 >= dest_endp) break;
+      *w++ = 0xD800 + (((c-0x10000)>>10)&0x3FF);
+      *w++ = 0xDC00 + (((c-0x10000)&0x3FF));
+    }
+    else
+      *w++ = c;
     src+=sz;
   }
   *w=0; 
@@ -187,7 +193,13 @@ static int WDL_STATICFUNC_UNUSED WDL_WideToMBStr(char *dest, const WDL_WCHAR *sr
 
   if (src) while (*src && p < dest_endp)
   {
-    const int v = wdl_utf8_makechar(*src++,p,(int)(dest_endp-p));
+    int ch = *src++, v;
+    if (ch >= 0xD800 && ch <= 0xD800 + 0x3FF && *src >= 0xDC00 && *src <= 0xDC00 + 0x3FF)
+    {
+      // surrogate pair
+      ch = 0x10000 + ((ch-0xD800)<<10) + (*src++ - 0xDC00);
+    }
+    v = wdl_utf8_makechar(ch,p,(int)(dest_endp-p));
     if (v > 0)
     {
       p += v;
@@ -313,5 +325,155 @@ static void WDL_STATICFUNC_UNUSED wdl_utf8_set_char_case(char *p, int upper) // 
   }
 }
 
+static void WDL_STATICFUNC_UNUSED WDL_utf8_cleanup_truncation(char *buf, size_t bufsz)
+{
+  unsigned char * const ubuf = (unsigned char *)buf;
+  unsigned char *ep = ubuf + bufsz - 2; // point to the last byte before the NUL terminator
+  int contcnt = 1;
+
+  // only does anything if strlen(buf)==bufsz-1, removes any trailing partial UTF-8 sequences
+  if (!buf || bufsz<2 || strlen(buf) != bufsz-1) return;
+
+  if (*ep < 0x80) return; // last byte is normal ASCII, done
+  if (*ep >= 0xC0)
+  {
+    // last byte could be the start of a UTF-8 sequence, remove it
+    *ep = 0;
+    return;
+  }
+
+  // last byte is a UTF-8 continuation byte
+  for (;;)
+  {
+    unsigned char c;
+    if (--ep < ubuf) return; // continuation bytes at start of string, do nothing
+    c = *ep;
+    if (c >= 0xC0)
+    {
+      const int needcont = c < 0xE0 ? 1 : c < 0xF0 ? 2 : c < 0xF8 ? 3 : 0;
+      if (contcnt < needcont) // insufficient continuation bytes, truncate
+        *ep = 0;
+      return;
+    }
+    if (c < 0x80 || ++contcnt > 3) return; // if ascii or more than 3 continuation bytes, not valid UTF-8, do nothing
+  }
+}
+
+static char *WDL_utf8_cleanup_bad_codepoints(const char *str, char *tmpbuf, int tmpbufsz, int flags)
+{
+  // flags&1= force
+  // drops invalid codepoints if either 'force' is specified or if the ratio of UTF-8 characters to invalid
+  // bytes is high enough. returns either buf or a malloc'd buffer (or NULL if no fixing is necessary)
+
+  int utf8bytes = 0, dropbytes = 0, slen = 0, wpos = 0, spos = 0, wbuf_sz;
+  char *wbuf = tmpbuf;
+  while (str[slen])
+  {
+    int l;
+    if (str[slen] > 0) { slen++; continue; } // skip ascii
+    l = wdl_utf8_parsechar(str+slen,NULL);
+    if (l == 1 || l > 4) dropbytes += l;
+    else utf8bytes += l;
+    slen += l;
+  }
+  if (!dropbytes) return NULL;
+
+  if (!(flags&1) && utf8bytes < dropbytes*5 && utf8bytes < slen*3/4)
+    return NULL;
+
+  wbuf_sz = (slen-dropbytes) + 1;
+  if (wbuf_sz > tmpbufsz || !tmpbuf) wbuf = (char *)malloc(wbuf_sz);
+  if (WDL_NOT_NORMALLY(!wbuf)) return NULL;
+
+  while (str[spos])
+  {
+    int addl = 1;
+    if (str[spos] < 0)
+    {
+      addl = wdl_utf8_parsechar(str+spos,NULL);
+      spos += addl;
+      if (addl == 1 || addl > 4) continue;
+    }
+    else spos++;
+
+    if (WDL_NOT_NORMALLY(wpos+addl >= wbuf_sz)) break;
+    memcpy(wbuf+wpos, str+spos-addl, addl);
+    wpos += addl;
+  }
+  wbuf[wpos] = 0;
+  WDL_ASSERT(wpos == wbuf_sz-1);
+  return wbuf;
+}
+
+
+static WDL_WCHAR *WDL_utf8_to_utf16(const char *str, WDL_WCHAR *tmpbuf, int tmpbufsz_bytes, int flags)
+{
+  // flags&1= force utf-8 even if likely ansi
+  // flagS&2= do not malloc()
+  // drops invalid codepoints if either 'force' is specified or if the ratio of UTF-8 characters to invalid
+  // bytes is high enough.
+  //
+  // may return tmpbuf, or a malloc()'d buffer, or NULL.
+  //
+  // if determines that source is unlikely be to UTF-8, returns NULL (!)
+
+  int utf8bytes = 0, dropbytes = 0, slen = 0, wpos = 0, spos = 0, wbuf_sz = 0;
+  WDL_WCHAR *wbuf = tmpbuf;
+  while (str[slen])
+  {
+    int c,l;
+    if (str[slen] > 0) { wbuf_sz++; slen++; continue; } // skip ascii
+    l = wdl_utf8_parsechar(str+slen,&c);
+    if (l == 1 || l > 4) dropbytes += l;
+    else
+    {
+      utf8bytes += l;
+      wbuf_sz += c>=0x10000 ? 2 : 1;
+    }
+    slen += l;
+  }
+
+  if (!(flags&1) && utf8bytes < dropbytes*5 && utf8bytes < slen*3/4) // if this passes, string is probably not UTF-8!
+    return NULL;
+
+  wbuf_sz++; // terminating nul
+  if (wbuf_sz*(int)sizeof(WDL_WCHAR) > tmpbufsz_bytes || !tmpbuf)
+  {
+    if (!(flags&2))
+      wbuf = (WDL_WCHAR *)malloc(wbuf_sz * sizeof(WDL_WCHAR));
+    else
+      wbuf_sz = tmpbufsz_bytes / sizeof(WDL_WCHAR);
+  }
+  if (WDL_NOT_NORMALLY(!wbuf)) return NULL;
+
+  while (str[spos])
+  {
+    int c = str[spos], addl = 1;
+    if (c < 0)
+    {
+      addl = wdl_utf8_parsechar(str+spos,&c);
+      spos += addl;
+      if (addl == 1 || addl > 4) continue;
+      addl = c >= 0x10000 ? 2 : 1;
+    }
+    else spos++;
+
+    if (wpos+addl >= wbuf_sz)
+    {
+      WDL_ASSERT(flags & 2);
+      break;
+    }
+    if (addl == 1) wbuf[wpos] = c;
+    else
+    {
+      wbuf[wpos] = 0xD800 + (((c-0x10000)>>10)&0x3FF);
+      wbuf[wpos+1] = 0xDC00 + (((c-0x10000)&0x3FF));
+    }
+    wpos += addl;
+  }
+  wbuf[wpos] = 0;
+  WDL_ASSERT(wpos == wbuf_sz-1);
+  return wbuf;
+}
 
 #endif

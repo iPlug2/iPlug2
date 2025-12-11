@@ -34,23 +34,14 @@
 class wdl_json_element
 {
   public:
-    wdl_json_element(char lc, const char *v=NULL, int vlen=0) :
-        m_array(NULL), m_object_names(NULL), m_value_string(lc == '"')
+    wdl_json_element() : m_array(NULL), m_object_names(NULL), m_value(NULL), m_value_string(false)
     {
-      m_array = lc == '[' || lc == '{' ? new WDL_PtrList<wdl_json_element> : NULL;
-      m_object_names = lc == '{' ? new WDL_PtrList<char> : NULL;
-      m_value = (char*) (v ? malloc(vlen+1) : NULL);
-      if (m_value)
-      {
-        memcpy(m_value,v,vlen);
-        m_value[vlen]=0;
-      }
+      // caller must init
     }
     ~wdl_json_element()
     {
-      free(m_value);
       if (m_array) m_array->Empty(true);
-      if (m_object_names) m_object_names->Empty(true,free);
+      if (m_object_names) m_object_names->Empty();
       delete m_array;
       delete m_object_names;
     }
@@ -76,8 +67,8 @@ class wdl_json_element
     // either m_value or m_array will be valid
     // if m_array is valid, m_object_names will be set if it is an object rather than array
     WDL_PtrList<wdl_json_element> *m_array;
-    WDL_PtrList<char> *m_object_names;
-    char *m_value; // de-escaped string value, or raw value (true/false/null, 1, 1.234)
+    WDL_PtrList<const char> *m_object_names;
+    const char *m_value; // de-escaped string value, or raw value (true/false/null, 1, 1.234)
 
     bool m_value_string; // true if m_value was a string value
 };
@@ -85,20 +76,56 @@ class wdl_json_element
 class wdl_json_parser
 {
   public:
-    wdl_json_parser() : m_err(NULL), m_err_rdptr(NULL) { }
+    wdl_json_parser() : m_err(NULL), m_err_rdptr(NULL), m_stringstore_pos(0) { }
+    ~wdl_json_parser()
+    {
+      m_spare_elements.Empty(true);
+      m_spare_arrays.Empty(true);
+      m_spare_object_names.Empty(true);
+    }
 
     const char *m_err;
     const char *m_err_rdptr;
     WDL_FastString m_tmp;
 
+    // if caller wants to take ownership of its wdl_json_element tree, it will need to create a heapbuf and use
+    // hb.SwapContentsWith(&parser.m_stringstore)
+    WDL_HeapBuf m_stringstore;
+    int m_stringstore_pos;
+
     wdl_json_element *parse(const char *rdptr, int rdptr_len)
     {
+      m_stringstore.ResizeOK(rdptr_len,false);
+      m_stringstore_pos = 0;
       m_err = m_err_rdptr = NULL;
       wdl_json_element *elem = NULL;
       parse_internal(rdptr,rdptr+rdptr_len,&elem);
       return elem;
     }
+
+    void dispose_element(wdl_json_element *elem)
+    {
+      if (!elem) return;
+      if (elem->m_array)
+      {
+        for (int x = 0; x < elem->m_array->GetSize(); x ++)
+          dispose_element(elem->m_array->Get(x));
+        m_spare_arrays.Add(elem->m_array);
+        elem->m_array = NULL;
+      }
+      if (elem->m_object_names)
+      {
+        m_spare_object_names.Add(elem->m_object_names);
+        elem->m_object_names = NULL;
+      }
+      m_spare_elements.Add(elem);
+    }
+
 private:
+    WDL_PtrList<wdl_json_element> m_spare_elements;
+    WDL_PtrList<WDL_PtrList<wdl_json_element> > m_spare_arrays;
+    WDL_PtrList<WDL_PtrList<const char> > m_spare_object_names;
+
     const char *skip_whitespace(const char *rdptr, const char *rdptr_end)
     {
       for (;;)
@@ -133,7 +160,7 @@ private:
       if (*rdptr == '[' || *rdptr == '{')
       {
         const char endchar = *rdptr == '[' ? ']' : '}';
-        wdl_json_element *obj = *elem = new wdl_json_element(*rdptr);
+        wdl_json_element *obj = *elem = new_element(*rdptr);
 
         for (;;)
         {
@@ -145,22 +172,22 @@ private:
           wdl_json_element *obj1 = NULL, *obj2 = NULL;
           const char *prevrdptr = rdptr;
           rdptr = parse_internal(rdptr, rdptr_end, &obj1);
-          if (!rdptr) { delete obj1; return NULL; }
+          if (!rdptr) { dispose_element(obj1); return NULL; }
           if (!obj1) break;
-          if (endchar == '}' && !obj1->m_value) { rdptr = prevrdptr; delete obj1; break; }
+          if (endchar == '}' && !obj1->m_value) { rdptr = prevrdptr; dispose_element(obj1); break; }
 
           rdptr = skip_whitespace(rdptr,rdptr_end);
-          if (rdptr >= rdptr_end) { delete obj1; goto eof; }
+          if (rdptr >= rdptr_end) { dispose_element(obj1); goto eof; }
 
           if (endchar == '}')
           {
-            if (*rdptr != ':') { delete obj1; break; }
+            if (*rdptr != ':') { dispose_element(obj1); break; }
             rdptr = skip_whitespace(rdptr+1,rdptr_end);
-            if (rdptr >= rdptr_end) { delete obj1; goto eof; }
+            if (rdptr >= rdptr_end) { dispose_element(obj1); goto eof; }
             rdptr = parse_internal(rdptr, rdptr_end, &obj2);
-            if (!rdptr) { delete obj1; delete obj2; return NULL; }
-            if (!obj2) { delete obj1; break; }
-            obj->m_object_names->Add(strdup(obj1->m_value));
+            if (!rdptr) { dispose_element(obj1); dispose_element(obj2); return NULL; }
+            if (!obj2) { dispose_element(obj1); break; }
+            obj->m_object_names->Add(obj1->m_value);
             obj->m_array->Add(obj2);
           }
           else obj->m_array->Add(obj1);
@@ -181,7 +208,7 @@ private:
           if (rdptr >= rdptr_end) goto eof;
           if (*rdptr == endchar_str)
           {
-            *elem = new wdl_json_element(endchar_str, m_tmp.Get(), m_tmp.GetLength());
+            *elem = new_element(endchar_str, m_tmp.Get(), m_tmp.GetLength());
             return rdptr+1;
           }
           if (*rdptr == '\r' || *rdptr == '\n') break;
@@ -232,7 +259,7 @@ private:
         // does not validate the number/string/whatever
         while (rdptr+l < rdptr_end && token_char(rdptr[l])) l++;
         if (rdptr+l >= rdptr_end) goto eof;
-        *elem = new wdl_json_element(0, rdptr, l);
+        *elem = new_element(0, rdptr, l);
         return rdptr+l;
       }
 
@@ -240,6 +267,45 @@ syntax_error:
       m_err_rdptr=rdptr;
       m_err="Syntax error";
       return NULL;
+    }
+
+    wdl_json_element *new_element(char lc, const char *v=NULL, int vlen=0)
+    {
+      wdl_json_element *e = m_spare_elements.Pop();
+      if (!e) e = new wdl_json_element;
+      e->m_value_string = (lc == '"');
+      e->m_value = NULL;
+      e->m_array = NULL;
+      e->m_object_names = NULL;
+      if (lc == '[' || lc == '{')
+      {
+        e->m_array = m_spare_arrays.Pop();
+        if (e->m_array) e->m_array->Empty();
+        else e->m_array = new WDL_PtrList<wdl_json_element>;
+
+        if (lc == '{')
+        {
+          e->m_object_names = m_spare_object_names.Pop();
+          if (e->m_object_names) e->m_object_names->Empty();
+          else e->m_object_names = new WDL_PtrList<const char>;
+        }
+      }
+
+      if (v)
+      {
+        if (WDL_NORMALLY(vlen>=0) &&
+            WDL_NORMALLY(m_stringstore_pos + vlen + 1 <= m_stringstore.GetSize()))
+        {
+          char *wr = (char*)m_stringstore.Get() + m_stringstore_pos;
+          m_stringstore_pos += vlen + 1;
+          memcpy(wr,v,vlen);
+          wr[vlen]=0;
+          e->m_value = wr;
+        }
+        else
+          e->m_value = "__error";
+      }
+      return e;
     }
 };
 

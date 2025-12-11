@@ -953,6 +953,7 @@ static int DrawTextATSUI(HDC ctx, CFStringRef strin, RECT *r, int align, bool *e
     
   if (fabs(font->font_rotation)<45.0)
   {
+    // this does not handle multiline text correctly, meh ATSUI is so old live with it
     if (align & DT_RIGHT) l = r->right-w;
     else if (align & DT_CENTER) l = (r->right+r->left)/2 - w/2;      
   }
@@ -989,6 +990,9 @@ static int DrawTextATSUI(HDC ctx, CFStringRef strin, RECT *r, int align, bool *e
 int DrawText(HDC ctx, const char *buf, int buflen, RECT *r, int align)
 {
   WDL_ASSERT((align & DT_SINGLELINE) || !(align & (DT_VCENTER | DT_BOTTOM)));
+  // if DT_CALCRECT and DT_WORDBREAK, rect must be provided
+  WDL_ASSERT((align&(DT_CALCRECT|DT_WORDBREAK)) != (DT_CALCRECT|DT_WORDBREAK) ||
+    (r && r->right > r->left && r->bottom > r->top));
 
   HDC__ *ct=(HDC__ *)ctx;
   if (!HDC_VALID(ct)) return 0;
@@ -1112,8 +1116,11 @@ int DrawText(HDC ctx, const char *buf, int buflen, RECT *r, int align)
     }
 
     float xo=r->left,yo=r->top;
-    if (align & DT_RIGHT) xo += (r->right-r->left) - line_w;
-    else if (align & DT_CENTER) xo += (r->right-r->left)/2 - line_w/2;
+    if (align & DT_SINGLELINE)
+    {
+      if (align & DT_RIGHT) xo += (r->right-r->left) - line_w;
+      else if (align & DT_CENTER) xo += (r->right-r->left)/2 - line_w/2;
+    }
 
     if (align & DT_BOTTOM) yo += (r->bottom-r->top) - line_h;
     else if (align & DT_VCENTER) yo += (r->bottom-r->top)/2 - line_h/2;
@@ -1158,12 +1165,19 @@ int DrawText(HDC ctx, const char *buf, int buflen, RECT *r, int align)
           asc=0.0;
           float lw=CTLineGetTypographicBounds(l,&asc,&desc,&lead);
 
+          float xou = xo;
+          if (!(align&DT_SINGLELINE))
+          {
+            if (align & DT_RIGHT) xou += (r->right-r->left) - lw;
+            else if (align & DT_CENTER) xou += (r->right-r->left)/2 - lw/2;
+          }
+
           if (bgc)
           {
             CGContextSetFillColorWithColor(ct->ctx, bgc);
-            CGContextFillRect(ct->ctx, CGRectMake(xo,yo,lw,asc+desc+lead));
+            CGContextFillRect(ct->ctx, CGRectMake(xou,yo,lw,asc+desc+lead));
           }
-          CGContextSetTextPosition(ct->ctx, xo, yo + asc);
+          CGContextSetTextPosition(ct->ctx, xou, yo + asc);
           CTLineDraw(l,ct->ctx);
           
           yo += floor(asc+desc+lead+0.5);          

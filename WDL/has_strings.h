@@ -70,7 +70,11 @@ WDL_HASSTRINGS_EXPORT int hasStrings_isNonWordChar(const char *cptr)
   return 0;
 }
 
+#define WDL_IS_UTF8_CONTINUATION_BYTE(x) ((x)>=0x80 && (x)<0xC0)
+#define WDL_IS_UTF8_2BYTE_PREFIX(x) ((x)>=0xC2 && (x)<0xe0)
+
 #include "utf8_extended.h"
+#include "utf8_casefold.h"
 
 // returns negative if does not match but more of a is available to search
 // returns 0 if done searching without match
@@ -90,75 +94,48 @@ WDL_HASSTRINGS_EXPORT int hasStrings_utf8cmp(const unsigned char * const a, cons
     {
       if (cb != 'a'-'A')
       {
-        if (ca < 0xc3 || ca > 0xc5)
+        if (ca < 0x80) return -ca;
+
+        if (WDL_IS_UTF8_2BYTE_PREFIX(ca))
         {
-          if (ca == 0xE2 && cb == ('\''-0xE2) && a[aidx+1] == 0x80 && (a[aidx+2]&~1) == 0x98)
+          unsigned char b1 = ca, b2 = a[aidx+1];
+
+          wdl_utf8_2byte_casefold(b1,b2);
+          if (b1 != b[0]) // folded, or non-folded, no match
           {
-            aidx+=3;
-            ++b;
-            --n;
+            const int skipl = WDL_IS_UTF8_SKIPPABLE(b1,b2); // if WDL_IS_UTF8_SKIPPABLE ever updated for 3 byte skips, need to move this out of here
+            if (skipl)
+            {
+              aidx += skipl;
+              continue;
+            }
+            return -ca;
+          }
+          aidx+=2;
+          if (!b2)
+          {
+            b++;
+            n--;
             continue;
           }
-          const int skipl = WDL_IS_UTF8_SKIPPABLE(ca,a[aidx+1]);
-          if (skipl)
-          {
-            aidx += skipl;
-            continue;
-          }
-          return -ca;
+          if (n < 2 || b2 != b[1]) return -ca;
+          b+=2;
+          n-=2;
+          continue;
         }
-
-        const int ccf = a[++aidx];
-        if (ccf < 0x80) return -ca;
-
-        if (ca == 0xc3)
+        else if (WDL_IS_UTF8_CONTINUATION_BYTE(ca) && aidx > 0 && WDL_IS_UTF8_2BYTE_PREFIX(a[aidx-1]))
         {
-          // latin-1 supplemental
-          const int cc = ccf & ~0x20;
-          switch (*b)
-          {
-#define SCAN(ch, CH) case ch: if (!WDL_IS_UTF8_BYTE2_LATIN1S_##CH(cc,ccf)) return -ca; break;
-          SCAN('a',A)
-          SCAN('c',C)
-          SCAN('e',E)
-          SCAN('i',I)
-          SCAN('n',N)
-          SCAN('o',O)
-          SCAN('u',U)
-          SCAN('y',Y)
-          default: return -ca; break;
-#undef SCAN
-          }
+          // characters differ only by continuation byte, fold this to see if it matches
+          unsigned char lc = a[aidx-1], b1 = lc, b2 = ca;
+          wdl_utf8_2byte_casefold(b1,b2);
+          WDL_ASSERT(b[-1] == lc);
+          if (!b2 || lc != b1 || b[0] != b2) return -1;
         }
-        else
+        else if (ca == 0xE2 && cb == ('\''-0xE2) && a[aidx+1] == 0x80 && (a[aidx+2]&~1) == 0x98)
         {
-          // latin extended A
-          switch (*b)
-          {
-#define SCAN(ch, CH) case ch: if (!WDL_IS_UTF8_EXT1A_##CH(ca,ccf)) return -ca; break;
-          SCAN('a',A)
-          SCAN('c',C)
-          SCAN('d',D)
-          SCAN('e',E)
-          SCAN('g',G)
-          SCAN('h',H)
-          SCAN('i',I)
-          SCAN('j',J)
-          SCAN('k',K)
-          SCAN('l',L)
-          SCAN('n',N)
-          SCAN('o',O)
-          SCAN('r',R)
-          SCAN('s',S)
-          SCAN('t',T)
-          SCAN('u',U)
-          SCAN('w',W)
-          SCAN('y',Y)
-          SCAN('z',Z)
-          default: return -ca; break;
-#undef SCAN
-          }
+          aidx+=2;
         }
+        else return -ca;
       }
       else if (ca < 'A' || ca > 'Z') return -ca;
     }
@@ -171,83 +148,7 @@ WDL_HASSTRINGS_EXPORT int hasStrings_utf8cmp(const unsigned char * const a, cons
 
 static const char *hasStrings_scan_for_char_match(const char *p, char v)
 {
-  if (v < 'a' || v > 'z')
-    for (;;)
-    {
-      char c = *p;
-      if (!c) return NULL;
-      if (c == v) return p;
-      p++;
-    }
-
-  switch (v)
-  {
-    case '\'':
-      for (;;) {
-        unsigned char c = *(const unsigned char *)p;
-        if (!c) return NULL;
-        if (c == '\'') return p;
-        if (c == 0xE2 && ((unsigned char*)p)[1] == 0x80 && (((unsigned char*)p)[2]&~1) == 0x98)
-          return p;
-        p++;
-      }
-
-#define SCAN(ch, CH) case (ch): for (;;) { \
-      unsigned char c = *(const unsigned char *)p; \
-      if (!c) return NULL; \
-      if ((c|0x20) == (ch)) return p; \
-      if (c >= 0xc3) { \
-        if (c == 0xc3) { \
-          const unsigned char ccf = ((const unsigned char*)p)[1]; \
-          const unsigned char cc = ccf & ~0x20; \
-          if (WDL_IS_UTF8_BYTE2_LATIN1S_##CH(cc,ccf)) return p; \
-        } else { \
-          if (WDL_IS_UTF8_EXT1A_##CH(c, ((const unsigned char*)p)[1])) return p; \
-        } \
-      } \
-      p++; \
-    }
-    SCAN('a',A)
-    SCAN('c',C)
-    SCAN('e',E)
-    SCAN('i',I)
-    SCAN('n',N)
-    SCAN('o',O)
-    SCAN('u',U)
-    SCAN('y',Y)
-#undef SCAN
-
-    // latin extended A only
-#define SCAN(ch, CH) case (ch): for (;;) { \
-      unsigned char c = *(const unsigned char *)p; \
-      if (!c) return NULL; \
-      if ((c|0x20) == (ch)) return p; \
-      if (WDL_IS_UTF8_EXT1A_##CH(c, ((const unsigned char*)p)[1])) return p; \
-      p++; \
-    }
-
-    SCAN('d',D)
-    SCAN('g',G)
-    SCAN('h',H)
-    SCAN('j',J)
-    SCAN('k',K)
-    SCAN('l',L)
-    SCAN('r',R)
-    SCAN('s',S)
-    SCAN('t',T)
-    SCAN('w',W)
-    SCAN('z',Z)
-#undef SCAN
-
-  }
-
-  for (;;)
-  {
-    char c = *p;
-    if (!c) return NULL;
-    if ((c|0x20) == v) return p;
-    p++;
-  }
+  return (const char *)wdl_utf8_scan_unfolded((const unsigned char *)p,(unsigned char)v);
 }
 
 WDL_HASSTRINGS_EXPORT const char *hasStrings_skipSkippable(const char *cptr)
@@ -487,21 +388,6 @@ WDL_HASSTRINGS_EXPORT char *WDL_hasstrings_preproc_searchitem(char *wr, const ch
   {
     unsigned char c = *(unsigned char*)src++;
     if (c >= 'A' && c <= 'Z') c+='a'-'A';
-    else if (c == 0xC3)
-    {
-      const unsigned char ccf = *(unsigned char*)src;
-      const unsigned char cc = ccf & ~0x20;
-      if (WDL_IS_UTF8_BYTE2_LATIN1S_A(cc,ccf)) c = 'a';
-      else if (WDL_IS_UTF8_BYTE2_LATIN1S_C(cc,ccf)) c = 'c';
-      else if (WDL_IS_UTF8_BYTE2_LATIN1S_E(cc,ccf)) c = 'e';
-      else if (WDL_IS_UTF8_BYTE2_LATIN1S_I(cc,ccf)) c = 'i';
-      else if (WDL_IS_UTF8_BYTE2_LATIN1S_N(cc,ccf)) c = 'n';
-      else if (WDL_IS_UTF8_BYTE2_LATIN1S_O(cc,ccf)) c = 'o';
-      else if (WDL_IS_UTF8_BYTE2_LATIN1S_U(cc,ccf)) c = 'u';
-      else if (WDL_IS_UTF8_BYTE2_LATIN1S_Y(cc,ccf)) c = 'y';
-
-      if (c != 0xC3) src++;
-    }
     else if (c == 0xE2)
     {
       // convert u+2018/2019 to '
@@ -519,9 +405,21 @@ WDL_HASSTRINGS_EXPORT char *WDL_hasstrings_preproc_searchitem(char *wr, const ch
         src += skipl-1;
         continue;
       }
+      if (WDL_IS_UTF8_2BYTE_PREFIX(c))
+      {
+        const unsigned char c2 = *(unsigned char*)src;
+        unsigned char newc = c, newc2 = c2;
+        wdl_utf8_2byte_casefold(newc,newc2);
+        if (newc != c || newc2 != c2)
+        {
+          *wr++ = newc;
+          if (newc2) *wr++ = newc2;
+          src++;
+          continue;
+        }
+      }
     }
 
-    // we could also convert latin extended A characters to ascii here, but meh
     *wr++ = c;
   }
   *wr=0;

@@ -339,7 +339,7 @@ private:
 };
 
 
-// WDL_AssocArray adds useful functions but cannot contain structs for keys or values
+// WDL_AssocArray adds useful functions but requires assignment operator for keys and values
 template <class KEY, class VAL> class WDL_AssocArray : public WDL_AssocArrayImpl<KEY, VAL>
 {
 public:

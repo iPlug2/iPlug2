@@ -1858,7 +1858,7 @@ static LRESULT WINAPI swellFontChooserProc(HWND hwnd, UINT uMsg, WPARAM wParam, 
               FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH, buf);
 
           HGDIOBJ oldFont = SelectObject(di->hDC,font);
-          DrawText(di->hDC,buf,-1,&di->rcItem,DT_VCENTER|DT_LEFT|DT_NOPREFIX);
+          DrawText(di->hDC,buf,-1,&di->rcItem,DT_VCENTER|DT_LEFT|DT_SINGLELINE|DT_NOPREFIX);
           wchar_t tmp[] = {'a','A','z','Z'};
           unsigned short ind[4];
           GetGlyphIndicesW(di->hDC,tmp,4,ind,0);
@@ -1870,7 +1870,7 @@ static LRESULT WINAPI swellFontChooserProc(HWND hwnd, UINT uMsg, WPARAM wParam, 
           {
             RECT r = di->rcItem;
             r.right-=4;
-            DrawText(di->hDC,buf,-1,&r,DT_VCENTER|DT_RIGHT|DT_NOPREFIX);
+            DrawText(di->hDC,buf,-1,&r,DT_VCENTER|DT_RIGHT|DT_SINGLELINE|DT_NOPREFIX);
           }
           DeleteObject(font);
 

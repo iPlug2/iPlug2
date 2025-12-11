@@ -22,9 +22,39 @@ static void (*importedLocalizeMenu)(const char *rescat, HMENU hMenu, LPCSTR lpMe
 static DLGPROC (*importedLocalizePrepareDialog)(const char *rescat, HINSTANCE hInstance, const char *lpTemplate, DLGPROC dlgProc, LPARAM lPAram, void **ptrs, int nptrs);
 static void (*importedLocalizeInitializeDialog)(HWND hwnd, const char *d);
 
+#ifdef LOCALIZE_IMPORT_FORCE_NOCACHE
+#include "../assocarray.h"
+#include "../mutex.h"
+struct localizeCacheRec { const char *ptrs[2]; };
+#endif
+
 const char *__localizeFunc(const char *str, const char *subctx, int flags)
 {
-  if (WDL_NORMALLY(importedLocalizeFunc)) return importedLocalizeFunc(str,subctx,flags);
+  if (WDL_NORMALLY(importedLocalizeFunc))
+  {
+#ifdef LOCALIZE_IMPORT_FORCE_NOCACHE
+    const int NOCACHE = 2/*LOCALIZE_FLAG_NOCACHE*/;
+    static WDL_MemKeyedArray<localizeCacheRec, const char *> s_cache;
+    static WDL_Mutex s_mutex;
+    if (!(flags & NOCACHE))
+    {
+      const localizeCacheRec cr = { { str, subctx } };
+      WDL_MutexLock lock(&s_mutex);
+      const char *p = s_cache.Get(cr);
+      if (p) return p;
+    }
+    const char *ret = importedLocalizeFunc(str,subctx,flags|NOCACHE);
+    if (!(flags & NOCACHE) && (ret != str || s_cache.GetSize()))
+    {
+      const localizeCacheRec cr = { { str, subctx } };
+      WDL_MutexLock lock(&s_mutex);
+      s_cache.Insert(cr,ret);
+    }
+    return ret;
+#else
+    return importedLocalizeFunc(str,subctx,flags);
+#endif
+  }
   return str;
 }
 

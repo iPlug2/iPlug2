@@ -1,4 +1,4 @@
-#if defined(_WIN32) && !defined(WDL_WIN32_UTF8_NO_UI_IMPL)
+#if defined(_WIN32) && !defined(WDL_WIN32_UTF8_NO_UI_IMPL) && !defined(WDL_WIN32_UTF8_MINI_UI_IMPL)
 #include <shlobj.h>
 #include <commctrl.h>
 #endif
@@ -30,6 +30,11 @@ extern "C" {
 
 #define MBTOWIDE_FREE(symbase) if (symbase != symbase##_buf) free(symbase)
 
+#define MBTOWIDE_UI(symbase, src) \
+                WCHAR symbase##_buf[1024]; \
+                WCHAR * const symbase = WDL_utf8_to_utf16(src,symbase##_buf,sizeof(symbase##_buf),0); \
+                const int symbase##_ok = !!symbase
+
 
 #define WIDETOMB_ALLOC(symbase, length) \
             WCHAR symbase##_buf[1024]; \
@@ -37,11 +42,6 @@ extern "C" {
             WCHAR *symbase = (length) > 1000 ? (WCHAR *)malloc(symbase##_size = (sizeof(WCHAR)*(length) + 10)) : symbase##_buf
 
 #define WIDETOMB_FREE(symbase) if (symbase != symbase##_buf) free(symbase)
-
-BOOL WDL_HasUTF8(const char *_str)
-{
-  return WDL_DetectUTF8(_str) > 0;
-}
 
 static BOOL WDL_HasUTF8_FILENAME(const char *_str)
 {
@@ -190,9 +190,9 @@ BOOL SetDlgItemTextUTF8(HWND hDlg, int nIDDlgItem, LPCTSTR lpString)
   if (WDL_NOT_NORMALLY(!lpString)) return FALSE;
 #endif
 
-  if (WDL_HasUTF8(lpString) AND_IS_NOT_WIN9X)
+  if (WDL_DetectUTF8(lpString)!=0 AND_IS_NOT_WIN9X)
   {
-    MBTOWIDE(wbuf,lpString);
+    MBTOWIDE_UI(wbuf,lpString);
     if (wbuf_ok)
     {
       BOOL rv = SetWindowTextW(h, wbuf);
@@ -211,7 +211,7 @@ static LRESULT WINAPI __forceUnicodeWndProc(HWND hwnd, UINT uMsg, WPARAM wParam,
 {
   if (uMsg == WM_SETTEXT && lParam)
   {
-    MBTOWIDE(wbuf,(const char *)lParam);
+    MBTOWIDE_UI(wbuf,(const char *)lParam);
     if (wbuf_ok)
     {
       LRESULT rv = DefWindowProcW(hwnd, uMsg, wParam, (LPARAM)wbuf);
@@ -228,7 +228,7 @@ BOOL SetWindowTextUTF8(HWND hwnd, LPCTSTR str)
 #ifdef _DEBUG
   if (WDL_NOT_NORMALLY(!hwnd || !str)) return FALSE;
 #endif
-  if (WDL_HasUTF8(str) AND_IS_NOT_WIN9X)
+  if (WDL_DetectUTF8(str) AND_IS_NOT_WIN9X)
   {
     DWORD pid;
     if (GetWindowThreadProcessId(hwnd,&pid) == GetCurrentThreadId() && 
@@ -244,7 +244,7 @@ BOOL SetWindowTextUTF8(HWND hwnd, LPCTSTR str)
     }
     else
     {
-      MBTOWIDE(wbuf,str);
+      MBTOWIDE_UI(wbuf,str);
       if (wbuf_ok)
       {
         BOOL rv = SetWindowTextW(hwnd, wbuf);
@@ -261,12 +261,12 @@ BOOL SetWindowTextUTF8(HWND hwnd, LPCTSTR str)
 
 int MessageBoxUTF8(HWND hwnd, LPCTSTR lpText, LPCTSTR lpCaption, UINT fl)
 {
-  if ((WDL_HasUTF8(lpText)||WDL_HasUTF8(lpCaption)) AND_IS_NOT_WIN9X)
+  if ((WDL_DetectUTF8(lpText)||WDL_DetectUTF8(lpCaption)) AND_IS_NOT_WIN9X)
   {
-    MBTOWIDE(wbuf,lpText);
+    MBTOWIDE_UI(wbuf,lpText);
     if (wbuf_ok)
     {
-      MBTOWIDE(wcap,lpCaption?lpCaption:"");
+      MBTOWIDE_UI(wcap,lpCaption?lpCaption:"");
       if (wcap_ok)
       {
         int ret=MessageBoxW(hwnd,wbuf,lpCaption?wcap:NULL,fl);
@@ -370,7 +370,7 @@ WCHAR *WDL_UTF8ToWC(const char *buf, BOOL doublenull, int minsize, DWORD *sizeou
   }
 }
 
-#ifndef WDL_WIN32_UTF8_NO_UI_IMPL
+#if !defined(WDL_WIN32_UTF8_NO_UI_IMPL) && !defined(WDL_WIN32_UTF8_MINI_UI_IMPL)
 static BOOL GetOpenSaveFileNameUTF8(LPOPENFILENAME lpofn, BOOL save)
 {
 
@@ -505,12 +505,12 @@ struct _ITEMIDLIST *SHBrowseForFolderUTF8(struct _browseinfoA *bi)
 #ifdef _DEBUG
   if (WDL_NOT_NORMALLY(!bi)) return NULL;
 #endif
-  if (bi && (WDL_HasUTF8(bi->pszDisplayName) || WDL_HasUTF8(bi->lpszTitle)) AND_IS_NOT_WIN9X)
+  if (bi && (WDL_DetectUTF8(bi->pszDisplayName) || WDL_DetectUTF8(bi->lpszTitle)) AND_IS_NOT_WIN9X)
   {
-    MBTOWIDE(wfn,bi->pszDisplayName);
+    MBTOWIDE_UI(wfn,bi->pszDisplayName);
     if (wfn_ok)
     {
-      MBTOWIDE(wtxt,bi->lpszTitle);
+      MBTOWIDE_UI(wtxt,bi->lpszTitle);
       if (wtxt_ok)
       {
         BROWSEINFOW biw ={ bi->hwndOwner,bi->pidlRoot,wfn,wtxt,bi->ulFlags,bi->lpfn,(LPARAM)bi->lParam,bi->iImage };
@@ -528,7 +528,7 @@ struct _ITEMIDLIST *SHBrowseForFolderUTF8(struct _browseinfoA *bi)
 
 int WDL_UTF8_SendBFFM_SETSEL(HWND hwnd, const char *str)
 {
-  if (IS_NOT_WIN9X_AND WDL_HasUTF8(str))
+  if (IS_NOT_WIN9X_AND WDL_DetectUTF8(str) > 0)
   {
     MBTOWIDE(wc, str);
     if (wc_ok)
@@ -733,7 +733,7 @@ UINT GetTempFileNameUTF8(LPCTSTR lpPathName, LPCTSTR lpPrefixString, UINT uUniqu
   if (WDL_NOT_NORMALLY(!lpPathName || !lpPrefixString || !lpTempFileName)) return 0;
 #endif
   if (lpPathName && lpPrefixString && lpTempFileName AND_IS_NOT_WIN9X
-      && (WDL_HasUTF8(lpPathName) || WDL_HasUTF8(lpPrefixString)))
+      && (WDL_DetectUTF8(lpPathName) > 0 || WDL_DetectUTF8(lpPrefixString) > 0))
   {
     MBTOWIDE(sbuf1,lpPathName);
     if (sbuf1_ok)
@@ -805,35 +805,36 @@ HANDLE CreateFileUTF8(LPCTSTR lpFileName,DWORD dwDesiredAccess,DWORD dwShareMode
 }
 
 
-int DrawTextUTF8(HDC hdc, LPCTSTR str, int nc, LPRECT lpRect, UINT format)
+// expects bytelen when UTF8
+int DrawTextUTF8(HDC hdc, LPCTSTR str, int len, LPRECT lpRect, UINT format)
 {
   WDL_ASSERT((format & DT_SINGLELINE) || !(format & (DT_BOTTOM|DT_VCENTER))); // if DT_BOTTOM or DT_VCENTER used, must have DT_SINGLELINE
 
-  if (WDL_HasUTF8(str) AND_IS_NOT_WIN9X)
+  // if DT_CALCRECT and DT_WORDBREAK, rect must be provided
+  WDL_ASSERT((format&(DT_CALCRECT|DT_WORDBREAK)) != (DT_CALCRECT|DT_WORDBREAK) ||
+    (lpRect && lpRect->right > lpRect->left && lpRect->bottom > lpRect->top));
+
+  if (WDL_DetectUTF8(str) AND_IS_NOT_WIN9X)
   {
-    if (nc<0) nc=(int)strlen(str);
-
+    MBTOWIDE_UI(wstr, str);
+    if (wstr_ok)
     {
-      MBTOWIDE(wstr, str);
-      if (wstr_ok)
-      {
-        int rv=DrawTextW(hdc,wstr,-1,lpRect,format);;
-        MBTOWIDE_FREE(wstr);
-        return rv;
-      }
+      const int lenuse = len > 0 ? WDL_utf8_bytepos_to_charpos(str, len) : len;
+      int rv=DrawTextW(hdc,wstr,lenuse < 0 ? lenuse : wdl_min(wcslen(wstr), lenuse),lpRect,format);
       MBTOWIDE_FREE(wstr);
+      return rv;
     }
-
+    MBTOWIDE_FREE(wstr);
   }
-  return DrawTextA(hdc,str,nc,lpRect,format);
+  return DrawTextA(hdc,str,len,lpRect,format);
 }
 
 
 BOOL InsertMenuUTF8(HMENU hMenu, UINT uPosition, UINT uFlags, UINT_PTR uIDNewItem, LPCTSTR str)
 {
-  if (!(uFlags&(MF_BITMAP|MF_SEPARATOR)) && str && WDL_HasUTF8(str) AND_IS_NOT_WIN9X)
+  if (!(uFlags&(MF_BITMAP|MF_SEPARATOR)) && str && WDL_DetectUTF8(str) AND_IS_NOT_WIN9X)
   {
-    MBTOWIDE(wbuf,str);
+    MBTOWIDE_UI(wbuf,str);
     if (wbuf_ok)
     {
       BOOL rv=InsertMenuW(hMenu,uPosition,uFlags,uIDNewItem,wbuf);
@@ -847,11 +848,11 @@ BOOL InsertMenuUTF8(HMENU hMenu, UINT uPosition, UINT uFlags, UINT_PTR uIDNewIte
 BOOL InsertMenuItemUTF8( HMENU hMenu,UINT uItem, BOOL fByPosition, LPMENUITEMINFO lpmii)
 {
   if (!lpmii) return FALSE;
-  if ((lpmii->fMask & MIIM_TYPE) && (lpmii->fType&(MFT_SEPARATOR|MFT_STRING|MFT_BITMAP)) == MFT_STRING && lpmii->dwTypeData && WDL_HasUTF8(lpmii->dwTypeData) AND_IS_NOT_WIN9X)
+  if ((lpmii->fMask & MIIM_TYPE) && (lpmii->fType&(MFT_SEPARATOR|MFT_STRING|MFT_BITMAP)) == MFT_STRING && lpmii->dwTypeData && WDL_DetectUTF8(lpmii->dwTypeData) AND_IS_NOT_WIN9X)
   {
     BOOL rv;
     MENUITEMINFOW tmp = *(MENUITEMINFOW*)lpmii;
-    MBTOWIDE(wbuf,lpmii->dwTypeData);
+    MBTOWIDE_UI(wbuf,lpmii->dwTypeData);
     if (wbuf_ok)
     {
 
@@ -869,11 +870,11 @@ BOOL InsertMenuItemUTF8( HMENU hMenu,UINT uItem, BOOL fByPosition, LPMENUITEMINF
 BOOL SetMenuItemInfoUTF8( HMENU hMenu,UINT uItem, BOOL fByPosition, LPMENUITEMINFO lpmii)
 {
   if (!lpmii) return FALSE;
-  if ((lpmii->fMask & MIIM_TYPE) && (lpmii->fType&(MFT_SEPARATOR|MFT_STRING|MFT_BITMAP)) == MFT_STRING && lpmii->dwTypeData && WDL_HasUTF8(lpmii->dwTypeData) AND_IS_NOT_WIN9X)
+  if ((lpmii->fMask & MIIM_TYPE) && (lpmii->fType&(MFT_SEPARATOR|MFT_STRING|MFT_BITMAP)) == MFT_STRING && lpmii->dwTypeData && WDL_DetectUTF8(lpmii->dwTypeData) AND_IS_NOT_WIN9X)
   {
     BOOL rv;
     MENUITEMINFOW tmp = *(MENUITEMINFOW*)lpmii;
-    MBTOWIDE(wbuf,lpmii->dwTypeData);
+    MBTOWIDE_UI(wbuf,lpmii->dwTypeData);
     if (wbuf_ok)
     {
       tmp.cbSize=sizeof(tmp);
@@ -979,6 +980,33 @@ int statUTF8(const char *filename, struct stat *buffer)
   return _stat(filename,(struct _stat*)buffer);
 }
 
+size_t strftimeUTF8(char *buf, size_t maxsz, const char *fmt, const struct tm *timeptr)
+{
+  if (buf && fmt && maxsz>0 AND_IS_NOT_WIN9X)
+  {
+    MBTOWIDE(wfmt, fmt);
+    WIDETOMB_ALLOC(wbuf,maxsz);
+    if (wfmt_ok && wbuf)
+    {
+      wbuf[0]=0;
+      if (!wcsftime(wbuf,wbuf_size / sizeof(WCHAR), wfmt, timeptr)) buf[0]=0;
+      else if (!WideCharToMultiByte(CP_UTF8,0,wbuf,-1,buf,maxsz,NULL,NULL))
+        buf[maxsz-1]=0;
+
+      MBTOWIDE_FREE(wfmt);
+      WIDETOMB_FREE(wbuf);
+      return (int)strlen(buf);
+    }
+    MBTOWIDE_FREE(wfmt);
+    WIDETOMB_FREE(wbuf);
+  }
+#ifdef strftime
+#undef strftime
+#endif
+  return strftime(buf,maxsz,fmt,timeptr);
+#define strftime(a,b,c,d) strftimeUTF8(a,b,c,d)
+}
+
 LPSTR GetCommandParametersUTF8()
 {
   char *buf;
@@ -1034,7 +1062,10 @@ int GetKeyNameTextUTF8(LONG lParam, LPTSTR lpString, int nMaxCount)
 HINSTANCE ShellExecuteUTF8(HWND hwnd, LPCTSTR lpOp, LPCTSTR lpFile, LPCTSTR lpParm, LPCTSTR lpDir, INT nShowCmd)
 {
   // wdl_utf8_correctlongpath?
-  if (IS_NOT_WIN9X_AND (WDL_HasUTF8(lpOp)||WDL_HasUTF8(lpFile)||WDL_HasUTF8(lpParm)||WDL_HasUTF8(lpDir)))
+  if (IS_NOT_WIN9X_AND (WDL_DetectUTF8(lpOp) > 0 ||
+                        WDL_DetectUTF8(lpFile) > 0 ||
+                        WDL_DetectUTF8(lpParm) > 0 ||
+                        WDL_DetectUTF8(lpDir) > 0))
   {
     DWORD sz;
     WCHAR *p1=lpOp ? WDL_UTF8ToWC(lpOp,0,0,&sz) : NULL;
@@ -1119,7 +1150,7 @@ BOOL GetComputerNameUTF8(LPTSTR lpString, LPDWORD nMaxCount)
 // these only bother using Wide versions if the filename has wide chars
 // (for now)
 #define PROFILESTR_COMMON_BEGIN(ret_type) \
-  if (IS_NOT_WIN9X_AND fnStr && WDL_HasUTF8(fnStr)) \
+  if (IS_NOT_WIN9X_AND fnStr && WDL_DetectUTF8(fnStr) > 0) \
   { \
     BOOL do_rv = 0; \
     ret_type rv = 0; \
@@ -1244,9 +1275,9 @@ BOOL CreateProcessUTF8(LPCTSTR lpApplicationName,
 
   // special case ver
   if (IS_NOT_WIN9X_AND (
-        WDL_HasUTF8(lpApplicationName) ||
-        WDL_HasUTF8(lpCommandLine) ||
-        WDL_HasUTF8(lpCurrentDirectory)
+        WDL_DetectUTF8(lpApplicationName) > 0 ||
+        WDL_DetectUTF8(lpCommandLine) > 0 ||
+        WDL_DetectUTF8(lpCurrentDirectory) > 0
         )
       )
   {
@@ -1314,9 +1345,9 @@ static LRESULT WINAPI cb_newProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPar
            msg == LB_INSERTSTRING)
   {
     char *str=(char*)lParam;
-    if (lParam && WDL_HasUTF8(str))
+    if (lParam && WDL_DetectUTF8(str))
     {
-      MBTOWIDE(wbuf,str);
+      MBTOWIDE_UI(wbuf,str);
       if (wbuf_ok)
       {
         WNDPROC oldprocW = (WNDPROC)GetProp(hwnd,WDL_UTF8_OLDPROCPROP "W");
@@ -1460,9 +1491,9 @@ static LRESULT WINAPI tc_newProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPar
   {
     LPTCITEM pItem = (LPTCITEM) lParam;
     char *str;
-    if (pItem && (str=pItem->pszText) && (pItem->mask&TCIF_TEXT) && WDL_HasUTF8(str))
+    if (pItem && (str=pItem->pszText) && (pItem->mask&TCIF_TEXT) && WDL_DetectUTF8(str))
     {
-      MBTOWIDE(wbuf,str);
+      MBTOWIDE_UI(wbuf,str);
       if (wbuf_ok)
       {
         LRESULT rv;
@@ -1496,9 +1527,9 @@ static LRESULT WINAPI tv_newProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPar
   {
     LPTVITEM pItem = msg == TVM_INSERTITEMA ? &((LPTVINSERTSTRUCT)lParam)->item : (LPTVITEM) lParam;
     char *str;
-    if (pItem && (str=pItem->pszText) && (pItem->mask&TVIF_TEXT) && WDL_HasUTF8(str))
+    if (pItem && (str=pItem->pszText) && (pItem->mask&TVIF_TEXT) && WDL_DetectUTF8(str))
     {
-      MBTOWIDE(wbuf,str);
+      MBTOWIDE_UI(wbuf,str);
       if (wbuf_ok)
       {
         LRESULT rv;
@@ -1571,9 +1602,9 @@ static LRESULT WINAPI lv_newProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPar
   {
     LPLVCOLUMNA pCol = (LPLVCOLUMNA) lParam;
     char *str;
-    if (pCol && (str=pCol->pszText) && (pCol->mask & LVCF_TEXT) && WDL_HasUTF8(str))
+    if (pCol && (str=pCol->pszText) && (pCol->mask & LVCF_TEXT) && WDL_DetectUTF8(str))
     {
-      MBTOWIDE(wbuf,str);
+      MBTOWIDE_UI(wbuf,str);
       if (wbuf_ok)
       {
         LRESULT rv;
@@ -1616,9 +1647,9 @@ static LRESULT WINAPI lv_newProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPar
         pItem->pszText != LPSTR_TEXTCALLBACK &&
         (str=pItem->pszText) &&
         (msg==LVM_SETITEMTEXTA || (pItem->mask&LVIF_TEXT)) &&
-        WDL_HasUTF8(str))
+        WDL_DetectUTF8(str))
     {
-      MBTOWIDE(wbuf,str);
+      MBTOWIDE_UI(wbuf,str);
       if (wbuf_ok)
       {
         LRESULT rv;
@@ -1726,17 +1757,10 @@ void WDL_UTF8_ListViewConvertDispInfoToW(void *_di)
 
     di->item.pszText = (char*)sb->buf;
 
-    if (!MultiByteToWideChar(CP_UTF8,MB_ERR_INVALID_CHARS,src,-1,sb->buf,sb->buf_sz))
+    if (!WDL_utf8_to_utf16(src,sb->buf,sb->buf_sz*sizeof(WCHAR),2 /* force in-place */))
     {
-      if (WDL_NOT_NORMALLY(GetLastError()==ERROR_INSUFFICIENT_BUFFER))
-      {
+      if (!MultiByteToWideChar(CP_ACP,MB_ERR_INVALID_CHARS,src,-1,sb->buf,sb->buf_sz))
         sb->buf[sb->buf_sz-1] = 0;
-      }
-      else
-      {
-        if (!MultiByteToWideChar(CP_ACP,MB_ERR_INVALID_CHARS,src,-1,sb->buf,sb->buf_sz))
-          sb->buf[sb->buf_sz-1] = 0;
-      }
     }   
   }
 }

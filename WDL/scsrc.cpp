@@ -153,18 +153,28 @@ int WDL_ShoutcastSource::GetStatus() // returns 0 if connected/connecting, >0 if
   return 0;
 }
 
+const char *WDL_ShoutcastSource::GetStatusText2(unsigned int *bytesOut)
+{
+  *bytesOut = m_bytesout;
+  switch (m_state)
+  {
+    case ST_OK: return "Connected. Sent %u bytes";
+    case ST_CONNECTING: return "Connecting...";
+    case ERR_DISCONNECTED_AFTER_SUCCESS: return "Disconnected after sending %u bytes";
+    case ERR_AUTH: return "Error authenticating with server";
+    case ERR_CONNECT: return "Error connecting to server";
+    case ERR_TIMEOUT: return "Timed out connecting to server";
+    case ERR_CREATINGENCODER: return "Error creating encoder";
+    case ERR_NOLAME: return "Error loading libmp3lame";
+  }
+  return "Error creating encoder";
+}
+
 void WDL_ShoutcastSource::GetStatusText(char *buf, int bufsz) // gets status text
 {
-  if (m_state == ST_OK) snprintf(buf,bufsz,"Connected. Sent %u bytes",m_bytesout);
-  else if (m_state == ST_CONNECTING) lstrcpyn_safe(buf,"Connecting...",bufsz);
-  else if (m_state == ERR_DISCONNECTED_AFTER_SUCCESS) snprintf(buf,bufsz,"Disconnected after sending %u bytes",m_bytesout);
-  else if (m_state == ERR_AUTH) lstrcpyn_safe(buf,"Error authenticating with server",bufsz);
-  else if (m_state == ERR_CONNECT) lstrcpyn_safe(buf,"Error connecting to server",bufsz);
-  else if (m_state == ERR_TIMEOUT) lstrcpyn_safe(buf,"Timed out connecting to server",bufsz);
-  else if (m_state == ERR_CREATINGENCODER) lstrcpyn_safe(buf,"Error creating encoder",bufsz);
-  else if (m_state == ERR_NOLAME) lstrcpyn_safe(buf,"Error loading libmp3lame",bufsz);
-  else lstrcpyn_safe(buf,"Error creating encoder",bufsz);
-
+  unsigned int bytes;
+  const char *fmt = GetStatusText2(&bytes);
+  snprintf(buf,bufsz,fmt,bytes);
 }
 
 void WDL_ShoutcastSource::SetCurTitle(const char *title)

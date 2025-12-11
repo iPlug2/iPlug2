@@ -91,33 +91,6 @@ static int CALLBACK WINAPI WDL_BrowseCallbackProc( HWND hwnd, UINT uMsg, LPARAM 
 #endif
 
 
-bool WDL_ChooseDirectory(HWND parent, const char *text, const char *initialdir, char *fn, int fnsize, bool preservecwd)
-{
-  char olddir[2048];
-  GetCurrentDirectory(sizeof(olddir),olddir);
-#ifdef _WIN32
-  char name[4096];
-  lstrcpyn_safe(name,initialdir?initialdir:"",sizeof(name));
-  BROWSEINFO bi={parent,NULL, name, text, BIF_RETURNONLYFSDIRS|BIF_NEWDIALOGSTYLE, WDL_BrowseCallbackProc, (LPARAM)name,};
-  LPITEMIDLIST idlist = SHBrowseForFolderUTF8( &bi );
-  if (idlist && SHGetPathFromIDListUTF8(idlist, name, sizeof(name)))
-  {
-    IMalloc *m;
-    SHGetMalloc(&m);
-    m->Free(idlist);
-    lstrcpyn_safe(fn,name,fnsize);
-    return true;
-  }
-  return false;
-
-#else
-  bool r = BrowseForDirectory(text,initialdir,fn,fnsize);
-  if (preservecwd) SetCurrentDirectory(olddir);
-  return r;
-#endif
-}
-
-
 #ifdef _WIN32
 struct WDL_FileBrowse_Dis {
   enum { DLSZ = 10 };
@@ -326,7 +299,7 @@ char *WDL_ChooseFileForOpen2(HWND parent,
 #ifdef WDL_FILEBROWSE_WIN7VISTAMODE
   if (!wdl_use_legacy_filebrowse && allowmul!=1)
   {
-    Win7FileDialog fd(text);
+    Win7FileDialog fd(text, 0);
     if(fd.inited())
     {
       //vista+ file open dialog
@@ -490,4 +463,69 @@ char *WDL_ChooseFileForOpen(HWND parent,
                                         reshead
 #endif
                                         );
+}
+
+
+bool WDL_ChooseDirectory(HWND parent,
+  const char *text,
+  const char *initialdir,
+  char *fn,
+  int fnsize,
+  bool preservecwd)
+{
+  char olddir[2048];
+  GetCurrentDirectory(sizeof(olddir), olddir);
+
+#ifdef _WIN32
+#ifdef WDL_FILEBROWSE_WIN7VISTAMODE
+
+  if (!wdl_use_legacy_filebrowse)
+  {
+    WDL_FileBrowse_Dis win32disfix(parent);
+
+    Win7FileDialog fd(text, 2);
+    if (fd.inited())
+    {
+      if (initialdir && initialdir[0])
+      {
+        char temp[4096];
+        lstrcpyn_safe(temp, initialdir, sizeof(temp));
+        WDL_fixfnforopenfn(temp);
+        fd.setFolder(temp, 0);
+      }
+      else
+      {
+        fd.setFolder(olddir, 0);
+      }
+
+      bool ret=fd.show(parent);
+      if (ret) fd.getResult(fn, fnsize);
+      if (preservecwd) SetCurrentDirectory(olddir);
+      return ret;
+    }
+  }
+
+#endif
+
+  char name[4096];
+  lstrcpyn_safe(name, initialdir ? initialdir : "", sizeof(name));
+  BROWSEINFO bi={parent,NULL, name, text, BIF_RETURNONLYFSDIRS|BIF_NEWDIALOGSTYLE, WDL_BrowseCallbackProc, (LPARAM)name,};
+  LPITEMIDLIST idlist = SHBrowseForFolderUTF8( &bi );
+  if (idlist && SHGetPathFromIDListUTF8(idlist, name, sizeof(name)))
+  {
+    IMalloc *m;
+    SHGetMalloc(&m);
+    m->Free(idlist);
+    lstrcpyn_safe(fn, name, fnsize);
+    return true;
+  }
+  return false;
+
+#else
+
+  bool r = BrowseForDirectory(text,initialdir,fn,fnsize);
+  if (preservecwd) SetCurrentDirectory(olddir);
+  return r;
+
+#endif
 }

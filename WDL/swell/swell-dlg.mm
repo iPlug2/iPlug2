@@ -474,7 +474,8 @@ static int DelegateMouseMove(NSView *view, NSEvent *theEvent)
     for (NSInteger x = kw ? -1 : 0; x < cnt; x ++)
     {
       NSWindow *wnd = x < 0 ? kw : [windows objectAtIndex:x];
-      if (wnd && [wnd isVisible])
+      if (wnd && [wnd isVisible] && HTTRANSPARENT != SendMessage((HWND)wnd, WM_NCHITTEST, 0,
+            MAKELPARAM((int)floor(screen_p.x+0.5), (int)floor(screen_p.y+0.5))))
       {
         NSRect fr=[wnd frame];
         if (screen_p.x >= fr.origin.x && screen_p.x < fr.origin.x + fr.size.width &&

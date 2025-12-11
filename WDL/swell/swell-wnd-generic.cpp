@@ -1842,7 +1842,7 @@ struct __SWELL_editControlState
   void onMouseDown(int &capmode_state, int last_cursor);
   void onMouseDrag(int &capmode_state, int p);
 
-  void autoScrollToOffset(HWND hwnd, int charpos, bool is_multiline, bool word_wrap);
+  void autoScrollToOffset(HWND hwnd, int charpos, bool is_multiline, bool word_wrap, int right_pad=0);
 };
 
 
@@ -2091,7 +2091,7 @@ void __SWELL_editControlState::onMouseDrag(int &capmode_state, int p)
     }
 }
 
-void __SWELL_editControlState::autoScrollToOffset(HWND hwnd, int charpos, bool is_multiline, bool word_wrap)
+void __SWELL_editControlState::autoScrollToOffset(HWND hwnd, int charpos, bool is_multiline, bool word_wrap, int right_pad)
 {
     if (!hwnd) return;
     HDC hdc = GetDC(hwnd);
@@ -2105,6 +2105,7 @@ void __SWELL_editControlState::autoScrollToOffset(HWND hwnd, int charpos, bool i
       tmp.right -= g_swell_ctheme.scrollbar_width;
       if (!word_wrap) tmp.bottom -= g_swell_ctheme.scrollbar_width;
     }
+    tmp.right -= right_pad;
 
     int wwrap = word_wrap?tmp.right:0;
     POINT pt={0,};
@@ -2164,6 +2165,7 @@ static int scanWord(const char *buf, int bytepos, int dir)
 static LRESULT OnEditKeyDown(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, 
     bool wantReturn, bool isMultiLine, __SWELL_editControlState *es, bool isEditCtl)
 {
+  const int style = isEditCtl ? hwnd->m_style : ES_AUTOHSCROLL;
   if (lParam & (FCONTROL|FALT|FLWIN))
   {
     if (lParam == (FVIRTKEY | FCONTROL))
@@ -2174,7 +2176,7 @@ static LRESULT OnEditKeyDown(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam,
         int slen = es->getSelection(&hwnd->m_title,&s);
         if (slen > 0 && s)
         {
-          if (!isEditCtl || !(hwnd->m_style & ES_PASSWORD))
+          if (!(style & ES_PASSWORD))
           {
             OpenClipboard(hwnd);
             HANDLE h = GlobalAlloc(0,slen+1);
@@ -2185,7 +2187,7 @@ static LRESULT OnEditKeyDown(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam,
               SetClipboardData(CF_TEXT,h);
             }
             CloseClipboard();
-            if (h && wParam == 'X' && (!isEditCtl || !(hwnd->m_style & ES_READONLY)))
+            if (h && wParam == 'X' && !(style & ES_READONLY))
             {
               es->deleteSelection(&hwnd->m_title);
               return 7;
@@ -2193,7 +2195,7 @@ static LRESULT OnEditKeyDown(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam,
           }
         }
       }
-      else if (wParam == 'V' && !(hwnd->m_style & ES_READONLY))
+      else if (wParam == 'V' && !(style & ES_READONLY))
       {
         OpenClipboard(hwnd);
         HANDLE h = GetClipboardData(CF_TEXT);
@@ -2206,7 +2208,7 @@ static LRESULT OnEditKeyDown(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam,
             es->deleteSelection(&hwnd->m_title);
             int bytepos = utf8fs_charpos_to_bytepos(&hwnd->m_title,es->cursor_pos);
             hwnd->m_title.Insert(s,bytepos);
-            if (!(hwnd->m_style&ES_MULTILINE))
+            if (!(style&ES_MULTILINE))
             {
               char *p = (char *)hwnd->m_title.Get() + bytepos;
               char *ep = p + strlen(s);
@@ -2248,7 +2250,7 @@ static LRESULT OnEditKeyDown(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam,
         }
       }
 
-      if (hwnd->m_style & ES_READONLY) return 1;
+      if (style & ES_READONLY) return 1;
 
       char b[8];
       WDL_MakeUTFChar(b,wParam,sizeof(b));
@@ -2276,7 +2278,7 @@ static LRESULT OnEditKeyDown(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam,
           const int line_h = DrawText(hdc," ",1,&tmp,DT_SINGLELINE|DT_NOPREFIX|DT_CALCRECT);
           POINT pt;
           GetClientRect(hwnd,&tmp);
-          const int wwrap = (hwnd->m_style & ES_AUTOHSCROLL) ? 0 : tmp.right - g_swell_ctheme.scrollbar_width;
+          const int wwrap = (style & ES_AUTOHSCROLL) ? 0 : tmp.right - g_swell_ctheme.scrollbar_width;
           if (editGetCharPos(hdc, hwnd->m_title.Get(), -1, es->cursor_pos, line_h, &pt, wwrap, isEditCtl ? es : NULL, hwnd))
           {
             if (wParam == VK_UP) pt.y -= line_h/2;
@@ -2307,7 +2309,7 @@ static LRESULT OnEditKeyDown(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam,
         const char *buf = hwnd->m_title.Get();
         int lpos = 0, wwrap=0;
         HDC hdc=NULL;
-        if (!(hwnd->m_style & ES_AUTOHSCROLL))
+        if (!(style & ES_AUTOHSCROLL))
         {
           hdc = GetDC(hwnd);
           RECT r;
@@ -2371,7 +2373,7 @@ static LRESULT OnEditKeyDown(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam,
       }
     return 3;
     case VK_DELETE:
-      if (hwnd->m_style & ES_READONLY) return 1;
+      if (style & ES_READONLY) return 1;
       if (hwnd->m_title.GetLength())
       {
         if (es->deleteSelection(&hwnd->m_title)) return 7;
@@ -2387,7 +2389,7 @@ static LRESULT OnEditKeyDown(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam,
     return 1;
 
     case VK_BACK:
-      if (hwnd->m_style & ES_READONLY) return 1;
+      if (style & ES_READONLY) return 1;
       if (hwnd->m_title.GetLength())
       {
         if (es->deleteSelection(&hwnd->m_title)) return 7;
@@ -2409,7 +2411,7 @@ static LRESULT OnEditKeyDown(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam,
     case VK_RETURN:
       if (wantReturn)
       {
-        if (hwnd->m_style & ES_READONLY) return 1;
+        if (style & ES_READONLY) return 1;
         if (es->deleteSelection(&hwnd->m_title)) return 7;
         int bytepos = utf8fs_charpos_to_bytepos(&hwnd->m_title,es->cursor_pos);
         hwnd->m_title.Insert("\r\n",bytepos);
@@ -3608,7 +3610,7 @@ static LRESULT WINAPI comboWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
           ReleaseDC(hwnd,hdc);
 
           s->editstate.onMouseDrag(s_capmode_state,p);
-          s->editstate.autoScrollToOffset(hwnd,p,false,false);
+          s->editstate.autoScrollToOffset(hwnd,p,false,false, SWELL_UI_SCALE(buttonwid+2));
 
           InvalidateRect(hwnd,NULL,FALSE);
         }
@@ -3666,7 +3668,7 @@ popupMenu:
       {
         if (s) s->selidx=-1; // lookup from text?
         SendMessage(GetParent(hwnd),WM_COMMAND,(CBN_EDITCHANGE<<16) | (hwnd->m_id&0xffff),(LPARAM)hwnd);
-        s->editstate.autoScrollToOffset(hwnd,s->editstate.cursor_pos,false,false);
+        s->editstate.autoScrollToOffset(hwnd,s->editstate.cursor_pos,false,false, SWELL_UI_SCALE(buttonwid+2));
         InvalidateRect(hwnd,NULL,FALSE);
         return 0;
       }
@@ -3751,6 +3753,7 @@ popupMenu:
           if ((hwnd->m_style & CBS_DROPDOWNLIST) != CBS_DROPDOWNLIST)
           {
             r.right -= SWELL_UI_SCALE(buttonwid+2);
+            r.left -= s->editstate.scroll_x;
             editControlPaintLine(ps.hdc, hwnd->m_title.Get(), hwnd->m_title.GetLength(),
                 s->editstate.cursor_state!=0 ? cursor_pos : -1,
                 focused ? s->editstate.sel1 : -1, focused ? s->editstate.sel2 : -1, &r, DT_VCENTER);
@@ -3796,7 +3799,7 @@ popupMenu:
         if (!s->editstate.sel1 && s->editstate.sel2 == -1)
           s->editstate.sel2 = WDL_utf8_get_charlen(hwnd->m_title.Get());
         if (s->editstate.sel2>=0)
-          s->editstate.autoScrollToOffset(hwnd,s->editstate.sel2, false, false);
+          s->editstate.autoScrollToOffset(hwnd,s->editstate.sel2, false, false, SWELL_UI_SCALE(buttonwid+2));
         InvalidateRect(hwnd,NULL,FALSE);
       }
     return 0;
@@ -4706,7 +4709,8 @@ forceMouseMove:
               }
               else 
               {
-                bool changed = lvs->clear_sel() | lvs->set_sel(offs,true);
+                bool changed = lvs->clear_sel();
+                if (lvs->set_sel(offs,true)) changed = true;
                 lvs->m_selitem = offs;
 
                 if (lvs->m_is_listbox)
@@ -8401,7 +8405,7 @@ BOOL SWELL_IsStaticText(HWND hwnd)
 
 BOOL ShellExecute(HWND hwndDlg, const char *action,  const char *content1, const char *content2, const char *content3, int blah)
 {
-  const char *xdg = "/usr/bin/xdg-open";
+  const char *xdg = "xdg-open";
   const char *argv[3] = { NULL };
   char *tmp=NULL;
 
@@ -8451,7 +8455,7 @@ BOOL ShellExecute(HWND hwndDlg, const char *action,  const char *content1, const
   if (pid == 0) 
   {
     for (int x=0;argv[x];x++) argv[x] = strdup(argv[x]);
-    execv(argv[0],(char *const*)argv);
+    execvp(argv[0],(char *const*)argv);
     exit(0); // if execv fails for some reason
   }
   free(tmp);

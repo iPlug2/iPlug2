@@ -34,7 +34,9 @@
 #define WDL_IS_UTF8_EXT1A_Z(b1, b2) ((b1)==0xc5 && (b2) >= 0xb9 && (b2) <= 0xbe)
 
 // U+300..U+36F are combining accents and get filtered/ignored
+// U+484..U+488 " " "
 #define WDL_IS_UTF8_SKIPPABLE(ca, nextc) \
-       (((((ca)&~1) == 0xCC) && ((nextc) >= 0x80 && (nextc) < ((ca) == 0xCD ? 0xAF : 0xc0))) ? 2 : 0)
+       (((((ca)&~1) == 0xCC) && ((nextc) >= 0x80 && (nextc) < ((ca) == 0xCD ? 0xAF : 0xc0))) || \
+        (((ca) == 0xd2) && ((nextc) >= 0x83 && (nextc) <= 0x88)) ? 2 : 0)
 
 #endif

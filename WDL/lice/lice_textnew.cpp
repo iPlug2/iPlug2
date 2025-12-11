@@ -791,6 +791,10 @@ int LICE_CachedFont::DrawTextImpl(LICE_IBitmap *bm, const char *str, int strcnt,
   WDL_ASSERT((dtFlags & DT_SINGLELINE) || !(dtFlags & (DT_BOTTOM|DT_VCENTER))); // if DT_BOTTOM or DT_VCENTER used, must have DT_SINGLELINE
   if (!bm && !(dtFlags&DT_CALCRECT)) return 0;
 
+  // if DT_CALCRECT and DT_WORDBREAK, rect must be provided
+  WDL_ASSERT((dtFlags&(DT_CALCRECT|DT_WORDBREAK)) != (DT_CALCRECT|DT_WORDBREAK) ||
+    (rect && rect->right > rect->left && rect->bottom > rect->top));
+
   const int __sc = bm ? (int)bm->Extended(LICE_EXT_GET_SCALING,NULL) : 0;
   int bm_w = bm ? bm->getWidth() : 0;
   int bm_h = bm ? bm->getHeight() : 0;
@@ -834,7 +838,8 @@ int LICE_CachedFont::DrawTextImpl(LICE_IBitmap *bm, const char *str, int strcnt,
       // swell does not support DT_WORDBREAK at the moment
       !(dtFlags & DT_WORDBREAK) &&
 #endif
-      !(dtFlags & LICE_DT_USEFGALPHA) &&
+      (!(dtFlags & LICE_DT_USEFGALPHA) || LICE_GETA(m_fg) == 255) &&
+      fabs(m_alpha-1.0) < 0.01 &&
       !(m_flags&LICE_FONT_FLAG_PRECALCALL) && !LICE_FONT_FLAGS_HAS_FX(m_flags) &&
       (!lsadj || (dtFlags&DT_SINGLELINE))) ||
       (m_line_height >= USE_NATIVE_RENDERING_FOR_FONTS_HIGHER_THAN) ) 
@@ -1212,6 +1217,8 @@ finish_up_native_render:
   RECT use_rect=*rect;
   int xpos=use_rect.left;
   int ypos=use_rect.top;
+  int orig_right=use_rect.right;
+  int orig_bott=use_rect.bottom;
 
   bool isVertRev = false;
   if ((m_flags&(LICE_FONT_FLAG_VERTICAL|LICE_FONT_FLAG_VERTICAL_BOTTOMUP)) == (LICE_FONT_FLAG_VERTICAL|LICE_FONT_FLAG_VERTICAL_BOTTOMUP))
@@ -1349,7 +1356,7 @@ finish_up_native_render:
           }
           if (!next_break)
           {
-            next_break=NextWordBreak(str, strcnt, use_rect.bottom-ypos);
+            next_break=NextWordBreak(str, strcnt, orig_bott-ypos);
           }
         }
         else
@@ -1362,7 +1369,7 @@ finish_up_native_render:
           }
           if (!next_break)
           {
-            next_break=NextWordBreak(str, strcnt, use_rect.right-xpos);
+            next_break=NextWordBreak(str, strcnt, orig_right-xpos);
           }
         }
       }

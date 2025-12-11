@@ -179,11 +179,24 @@ struct editor_instance {
 
   void load_file(const char *filename, bool is_template);
   void save_file(const char *filename, bool verbose=false);
-  bool import_for_view(FILE *fp);
-  void export_for_view(FILE *fp, int col)
+  bool import_for_view(FILE *fp, bool want_sec);
+  void export_for_view(FILE *fp, int col, bool want_sec)
   {
     for (int i = 0; i < m_display_order.GetSize(); i ++)
+    {
+      if (want_sec)
+      {
+        const char *p = get_row_value(i, COL_ID);
+        int idx = 0;
+        while (p[idx] && p[idx] != ':') idx++;
+        int idx2 = idx;
+        while (p[idx2] && p[idx2] != ';') idx2++;
+        if (p[idx2]) idx2++;
+        while (p[idx2] == ' ') idx2++;
+        fprintf(fp,"%.*s%s%s|", idx,p,p[idx2]?";":"",p+idx2);
+      }
       fprintf(fp,"%s\n", get_row_value(i, col));
+    }
   }
 
   void cull_recs();
@@ -456,19 +469,38 @@ void editor_instance::load_file(const char *filename, bool is_template)
   }
 }
 
-bool editor_instance::import_for_view(FILE *fp)
+bool editor_instance::import_for_view(FILE *fp, bool want_sec)
 {
   char linebuf[16384];
-  int utf8flag = -1, lcnt=0;
+  int utf8flag = -1, lcnt=0, secerr = 0, secmiss = 0;
   for (;;)
   {
     WDL_fgets_as_utf8(linebuf,sizeof(linebuf),fp,&utf8flag);
     if (!linebuf[0]) break;
+
+    if (want_sec)
+    {
+      int secl = 0;
+      while (linebuf[secl] && linebuf[secl] != '|' && linebuf[secl] != ';') secl++;
+      if (!linebuf[secl]) secmiss++;
+      else if (lcnt < m_display_order.GetSize())
+      {
+        int rec_idx = m_display_order.Get()[lcnt];
+        const char *k;
+        pack_rec *r = m_recs.EnumeratePtr(rec_idx,&k);
+        if (WDL_NORMALLY(k && r) && (strnicmp(k,linebuf,secl) || k[secl]!=':'))
+          secerr++;
+      }
+    }
+
     lcnt++;
   }
-  if (lcnt != m_display_order.GetSize())
+  if (lcnt != m_display_order.GetSize() || secmiss || secerr)
   {
-    snprintf(linebuf,sizeof(linebuf),__LOCALIZE_VERFMT("Text file has %d lines, editor view %d lines. Import anyway?","langpackedit"),
+    linebuf[0]=0;
+    if (secmiss || secerr)
+      snprintf_append(linebuf,sizeof(linebuf),__LOCALIZE_VERFMT("Importing with section names: %d sections had incorrect names, %d were missing section names.\r\n\r\n","langpackedit"),secerr,secmiss);
+    snprintf_append(linebuf,sizeof(linebuf),__LOCALIZE_VERFMT("Text file has %d lines, editor view %d lines. Import anyway?","langpackedit"),
         lcnt, m_display_order.GetSize());
     if (MessageBox(m_hwnd,linebuf, __LOCALIZE("Error","langpackedit"),MB_YESNO) == IDNO)
     {
@@ -484,6 +516,14 @@ bool editor_instance::import_for_view(FILE *fp)
   {
     WDL_fgets_as_utf8(linebuf,sizeof(linebuf),fp,&utf8flag);
     if (!linebuf[0]) break;
+    const char *linebufp = linebuf;
+    WDL_remove_trailing_crlf(linebuf);
+    if (want_sec)
+    {
+      while (*linebufp && *linebufp != '|') linebufp++;
+      if (!*linebufp) linebufp = linebuf;
+      else linebufp++;
+    }
     if (lcnt < m_display_order.GetSize())
     {
       int rec_idx = m_display_order.Get()[lcnt];
@@ -492,7 +532,7 @@ bool editor_instance::import_for_view(FILE *fp)
       if (WDL_NORMALLY(k && r))
       {
         free(r->pack_str);
-        r->pack_str = strdup(linebuf);
+        r->pack_str = strdup(linebufp);
       }
       else
         errcnt++;
@@ -543,7 +583,11 @@ void editor_instance::refresh_list(bool refilter)
   HWND list = WDL_NORMALLY(m_hwnd) ? GetDlgItem(m_hwnd,IDC_LIST) : NULL;
   if (!refilter)
   {
-    if (list) ListView_RedrawItems(list, 0, m_display_order.GetSize());
+    if (list)
+    {
+      ListView_SetItemCount(list, m_display_order.GetSize());
+      ListView_RedrawItems(list, 0, m_display_order.GetSize());
+    }
     return;
   }
   WDL_IntKeyedArray<bool> selState;
@@ -806,6 +850,7 @@ bool editor_instance::edit_row(int row, int other_action)
               if (!m_recs.GetPtr(sec))
               {
                 pack_rec newr = { 0 };
+                newr.common_idx = -1;
                 m_recs.Insert(sec,newr);
                 int idx = m_recs.GetIdx(sec);
                 if (WDL_NORMALLY(idx>=0))
@@ -1056,6 +1101,7 @@ WDL_DLGRET mainProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
           }
         break;
         case IDC_PACK_IMPORT_CURVIEW:
+        case IDC_PACK_IMPORT_CURVIEW2:
           {
             char vbuf[2048];
             GetPrivateProfileString("LangPackEdit","lastexpl","",vbuf,sizeof(vbuf),g_ini_file.Get());
@@ -1073,7 +1119,7 @@ WDL_DLGRET mainProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
               if (fp)
               {
-                if (g_editor.import_for_view(fp))
+                if (g_editor.import_for_view(fp, LOWORD(wParam) == IDC_PACK_IMPORT_CURVIEW2))
                   WritePrivateProfileString("LangPackEdit","lastexpl",f,g_ini_file.Get());
                 fclose(fp);
               }
@@ -1090,6 +1136,8 @@ WDL_DLGRET mainProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
         case IDC_PACK_EXPORT_CURVIEW_TEMPLATE:
         case IDC_PACK_EXPORT_CURVIEW_LOCALIZED:
+        case IDC_PACK_EXPORT_CURVIEW2_TEMPLATE:
+        case IDC_PACK_EXPORT_CURVIEW2_LOCALIZED:
           {
             char newfn[2048], vbuf[2048];
             const char *inikey = LOWORD(wParam)==IDC_PACK_EXPORT_CURVIEW_TEMPLATE ? "lastexpt" : "lastexpl";
@@ -1107,7 +1155,12 @@ WDL_DLGRET mainProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
             FILE *fp = fopenUTF8(newfn,"wb");
             if (fp)
             {
-              g_editor.export_for_view(fp,LOWORD(wParam) == IDC_PACK_EXPORT_CURVIEW_TEMPLATE ? COL_TEMPLATE : COL_LOCALIZED);
+              g_editor.export_for_view(fp,
+                  LOWORD(wParam) == IDC_PACK_EXPORT_CURVIEW_TEMPLATE ||
+                  LOWORD(wParam) == IDC_PACK_EXPORT_CURVIEW2_TEMPLATE ? COL_TEMPLATE : COL_LOCALIZED,
+                  LOWORD(wParam) == IDC_PACK_EXPORT_CURVIEW2_TEMPLATE ||
+                  LOWORD(wParam) == IDC_PACK_EXPORT_CURVIEW2_LOCALIZED
+                  );
               fclose(fp);
               WritePrivateProfileString("LangPackEdit",inikey,newfn,g_ini_file.Get());
             }
@@ -1219,9 +1272,9 @@ WDL_DLGRET mainProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
               const int nn = ListView_GetItemCount(list);
               if (n < nn)
               {
-                ListView_EnsureVisible(list,n,false);
                 for (int i = n; i < nn; i ++)
                   ListView_SetItemState(list,i,LVIS_SELECTED,LVIS_SELECTED);
+                ListView_EnsureVisible(list,nn-1,false);
               }
             }
           }

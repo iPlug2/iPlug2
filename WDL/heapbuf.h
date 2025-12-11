@@ -44,6 +44,7 @@ class WDL_HeapBuf
 #ifdef WDL_HEAPBUF_INTF_ONLY
     void *Resize(int newsize, bool resizedown=true);
     void CopyFrom(const WDL_HeapBuf *hb, bool exactCopyOfConfig=false);
+    void SwapContentsWith(WDL_HeapBuf *hb); // swaps members, avoids memcpy() of underlying data
 #endif
     void *Get() const { return m_size?m_buf:NULL; } // returns NULL if size is 0
     void *GetFast() const { return m_buf; } // returns last buffer if size is 0
@@ -232,6 +233,23 @@ class WDL_HeapBuf
           else memcpy(Get(),hb->Get(),newsz);
         }
       }
+    #ifdef WDL_HEAPBUF_IMPL_ONLY
+      void WDL_HeapBuf::SwapContentsWith(WDL_HeapBuf *hb) // swaps members, avoids memcpy() of underlying data
+    #else
+      void SwapContentsWith(WDL_HeapBuf *hb)
+    #endif
+      {
+        // does not swap granul
+        if (WDL_NOT_NORMALLY(!hb || hb == this)) return;
+        void * const b = hb->m_buf;
+        const int a = hb->m_alloc, sz = hb->m_size;
+        hb->m_buf = m_buf;
+        hb->m_alloc = m_alloc;
+        hb->m_size = m_size;
+        m_buf = b;
+        m_alloc = a;
+        m_size = sz;
+      }
 
 #endif // ! WDL_HEAPBUF_INTF_ONLY
 
@@ -332,7 +350,8 @@ template<class PTRTYPE> class WDL_TypedBuf
       const int sz=GetSize();
       if (idx >= 0 && idx < sz)
       {
-        memmove(p+idx, p+idx+1, (sz-idx-1)*sizeof(PTRTYPE));
+        if (idx != sz-1)
+          memmove(p+idx, p+idx+1, (sz-idx-1)*sizeof(PTRTYPE));
         Resize(sz-1,false);
       }
     }
@@ -386,6 +405,8 @@ template<class PTRTYPE> class WDL_TypedBuf
       if (cnt < sz) Resize(cnt,false);
       return sz - cnt;
     }
+
+    void SwapContentsWith(WDL_TypedBuf<PTRTYPE> *b) { m_hb.SwapContentsWith(&b->m_hb); }
 
     const PTRTYPE *begin() const { return Get(); }
     const PTRTYPE *end() const { return Get() + GetSize(); }
