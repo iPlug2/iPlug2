@@ -1,0 +1,33 @@
+name: 'Build Web Project'
+description: 'Build an iPlug2 project as a Web Audio Module using Emscripten'
+
+inputs:
+  project:
+    description: 'Project name (e.g., IPlugEffect)'
+    required: true
+  path:
+    description: 'Path to project folder (e.g., Examples or Tests)'
+    required: true
+  graphics:
+    description: 'Graphics backend (NANOVG or CANVAS)'
+    required: true
+    default: 'NANOVG'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Build WAM
+      shell: bash
+      run: |
+        cd ./${{ inputs.path }}/${{ inputs.project }}/scripts
+        chmod +x *.sh
+        ./makedist-web.sh off
+
+    - name: Organize artifacts
+      shell: bash
+      run: |
+        mkdir -p artifacts/WEB/${{ inputs.project }}_${{ inputs.graphics }}
+
+        if [ -d "${{ inputs.path }}/${{ inputs.project }}/build-web" ]; then
+          cp -r "${{ inputs.path }}/${{ inputs.project }}/build-web/"* artifacts/WEB/${{ inputs.project }}_${{ inputs.graphics }}/
+        fi
