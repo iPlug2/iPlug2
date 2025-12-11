@@ -6,10 +6,10 @@
     MIDI input/output subclasses RtMidiIn and RtMidiOut.
 
     RtMidi GitHub site: https://github.com/thestk/rtmidi
-    RtMidi WWW site: http://www.music.mcgill.ca/~gary/rtmidi/
+    RtMidi WWW site: https://caml.music.mcgill.ca/~gary/rtmidi/
 
     RtMidi: realtime MIDI i/o C++ classes
-    Copyright (c) 2003-2019 Gary P. Scavone
+    Copyright (c) 2003-2023 Gary P. Scavone
 
     Permission is hereby granted, free of charge, to any person
     obtaining a copy of this software and associated documentation files
@@ -58,12 +58,32 @@
   #endif
 #endif
 
-#define RTMIDI_VERSION "4.0.0"
+#define RTMIDI_VERSION_MAJOR 6
+#define RTMIDI_VERSION_MINOR 0
+#define RTMIDI_VERSION_PATCH 0
+#define RTMIDI_VERSION_BETA  0
+
+#define RTMIDI_TOSTRING2(n) #n
+#define RTMIDI_TOSTRING(n) RTMIDI_TOSTRING2(n)
+
+#if RTMIDI_VERSION_BETA > 0
+    #define RTMIDI_VERSION RTMIDI_TOSTRING(RTMIDI_VERSION_MAJOR) \
+                        "." RTMIDI_TOSTRING(RTMIDI_VERSION_MINOR) \
+                        "." RTMIDI_TOSTRING(RTMIDI_VERSION_PATCH) \
+                     "beta" RTMIDI_TOSTRING(RTMIDI_VERSION_BETA)
+#else
+    #define RTMIDI_VERSION RTMIDI_TOSTRING(RTMIDI_VERSION_MAJOR) \
+                        "." RTMIDI_TOSTRING(RTMIDI_VERSION_MINOR) \
+                        "." RTMIDI_TOSTRING(RTMIDI_VERSION_PATCH)
+#endif
 
 #include <exception>
 #include <iostream>
 #include <string>
 #include <vector>
+
+namespace rt {
+namespace midi {
 
 /************************************************************************/
 /*! \class RtMidiError
@@ -85,12 +105,12 @@ class RTMIDI_DLL_PUBLIC RtMidiError : public std::exception
     UNSPECIFIED,       /*!< The default, unspecified error type. */
     NO_DEVICES_FOUND,  /*!< No devices found on system. */
     INVALID_DEVICE,    /*!< An invalid device ID was specified. */
-    MEMORY_ERROR,      /*!< An error occured during memory allocation. */
+    MEMORY_ERROR,      /*!< An error occurred during memory allocation. */
     INVALID_PARAMETER, /*!< An invalid parameter was specified to a function. */
     INVALID_USE,       /*!< The function was called incorrectly. */
-    DRIVER_ERROR,      /*!< A system driver error occured. */
-    SYSTEM_ERROR,      /*!< A system error occured. */
-    THREAD_ERROR       /*!< A thread error occured. */
+    DRIVER_ERROR,      /*!< A system driver error occurred. */
+    SYSTEM_ERROR,      /*!< A system error occurred. */
+    THREAD_ERROR       /*!< A thread error occurred. */
   };
 
   //! The constructor.
@@ -132,6 +152,8 @@ class MidiApi;
 class RTMIDI_DLL_PUBLIC RtMidi
 {
  public:
+
+     RtMidi(RtMidi&& other) noexcept;
   //! MIDI API specifier arguments.
   enum Api {
     UNSPECIFIED,    /*!< Search for a working compiled API. */
@@ -140,6 +162,9 @@ class RTMIDI_DLL_PUBLIC RtMidi
     UNIX_JACK,      /*!< The JACK Low-Latency MIDI Server API. */
     WINDOWS_MM,     /*!< The Microsoft Multimedia MIDI API. */
     RTMIDI_DUMMY,   /*!< A compilable but non-functional API. */
+    WEB_MIDI_API,   /*!< W3C Web MIDI API. */
+    WINDOWS_UWP,    /*!< The Microsoft Universal Windows Platform MIDI API. */
+    ANDROID_AMIDI,  /*!< Native Android MIDI API. */
     NUM_APIS        /*!< Number of values in this enum. */
   };
 
@@ -202,9 +227,9 @@ class RTMIDI_DLL_PUBLIC RtMidi
   */
   virtual bool isPortOpen( void ) const = 0;
 
-  //! Set an error callback function to be invoked when an error has occured.
+  //! Set an error callback function to be invoked when an error has occurred.
   /*!
-    The callback function will be called whenever an error has occured. It is best
+    The callback function will be called whenever an error has occurred. It is best
     to set the error callback function before opening a port.
   */
   virtual void setErrorCallback( RtMidiErrorCallback errorCallback = NULL, void *userData = 0 ) = 0;
@@ -213,6 +238,10 @@ class RTMIDI_DLL_PUBLIC RtMidi
   RtMidi();
   virtual ~RtMidi();
   MidiApi *rtapi_;
+
+  /* Make the class non-copyable */
+  RtMidi(RtMidi& other) = delete;
+  RtMidi& operator=(RtMidi& other) = delete;
 };
 
 /**********************************************************************/
@@ -248,7 +277,6 @@ class RTMIDI_DLL_PUBLIC RtMidi
 class RTMIDI_DLL_PUBLIC RtMidiIn : public RtMidi
 {
  public:
-
   //! User callback function type definition.
   typedef void (*RtMidiCallback)( double timeStamp, std::vector<unsigned char> *message, void *userData );
 
@@ -273,6 +301,8 @@ class RTMIDI_DLL_PUBLIC RtMidiIn : public RtMidi
   RtMidiIn( RtMidi::Api api=UNSPECIFIED,
             const std::string& clientName = "RtMidi Input Client",
             unsigned int queueSizeLimit = 100 );
+
+  RtMidiIn(RtMidiIn&& other) noexcept : RtMidi(std::move(other)) { }
 
   //! If a MIDI connection is still open, it will be closed by the destructor.
   ~RtMidiIn ( void ) throw();
@@ -364,12 +394,25 @@ class RTMIDI_DLL_PUBLIC RtMidiIn : public RtMidi
   */
   double getMessage( std::vector<unsigned char> *message );
 
-  //! Set an error callback function to be invoked when an error has occured.
+  //! Set an error callback function to be invoked when an error has occurred.
   /*!
-    The callback function will be called whenever an error has occured. It is best
+    The callback function will be called whenever an error has occurred. It is best
     to set the error callback function before opening a port.
   */
   virtual void setErrorCallback( RtMidiErrorCallback errorCallback = NULL, void *userData = 0 );
+
+  //! Set maximum expected incoming message size.
+  /*!
+    For APIs that require manual buffer management, it can be useful to set the buffer
+    size and buffer count when expecting to receive large SysEx messages.  Note that
+    currently this function has no effect when called after openPort().  The default
+    buffer size is 1024 with a count of 4 buffers, which should be sufficient for most
+    cases; as mentioned, this does not affect all API backends, since most either support
+    dynamically scalable buffers or take care of buffer handling themselves.  It is
+    principally intended for users of the Windows MM backend who must support receiving
+    especially large messages.
+  */
+  virtual void setBufferSize( unsigned int size, unsigned int count );
 
  protected:
   void openMidiApi( RtMidi::Api api, const std::string &clientName, unsigned int queueSizeLimit );
@@ -402,6 +445,8 @@ class RTMIDI_DLL_PUBLIC RtMidiOut : public RtMidi
   */
   RtMidiOut( RtMidi::Api api=UNSPECIFIED,
              const std::string& clientName = "RtMidi Output Client" );
+
+  RtMidiOut(RtMidiOut&& other) noexcept : RtMidi(std::move(other)) { }
 
   //! The destructor closes any open MIDI connections.
   ~RtMidiOut( void ) throw();
@@ -467,9 +512,9 @@ class RTMIDI_DLL_PUBLIC RtMidiOut : public RtMidi
   */
   void sendMessage( const unsigned char *message, size_t size );
 
-  //! Set an error callback function to be invoked when an error has occured.
+  //! Set an error callback function to be invoked when an error has occurred.
   /*!
-    The callback function will be called whenever an error has occured. It is best
+    The callback function will be called whenever an error has occurred. It is best
     to set the error callback function before opening a port.
   */
   virtual void setErrorCallback( RtMidiErrorCallback errorCallback = NULL, void *userData = 0 );
@@ -523,6 +568,7 @@ protected:
   RtMidiErrorCallback errorCallback_;
   bool firstErrorOccurred_;
   void *errorCallbackUserData_;
+
 };
 
 class RTMIDI_DLL_PUBLIC MidiInApi : public MidiApi
@@ -534,7 +580,8 @@ class RTMIDI_DLL_PUBLIC MidiInApi : public MidiApi
   void setCallback( RtMidiIn::RtMidiCallback callback, void *userData );
   void cancelCallback( void );
   virtual void ignoreTypes( bool midiSysex, bool midiTime, bool midiSense );
-  double getMessage( std::vector<unsigned char> *message );
+  virtual double getMessage( std::vector<unsigned char> *message );
+  virtual void setBufferSize( unsigned int size, unsigned int count );
 
   // A MIDI structure used internally by the class to store incoming
   // messages.  Each message represents one and only one MIDI message.
@@ -576,11 +623,13 @@ class RTMIDI_DLL_PUBLIC MidiInApi : public MidiApi
     RtMidiIn::RtMidiCallback userCallback;
     void *userData;
     bool continueSysex;
+    unsigned int bufferSize;
+    unsigned int bufferCount;
 
     // Default constructor.
     RtMidiInData()
       : ignoreFlags(7), doInput(false), firstMessage(true), apiData(0), usingCallback(false),
-        userCallback(0), userData(0), continueSysex(false) {}
+        userCallback(0), userData(0), continueSysex(false), bufferSize(1024), bufferCount(4) {}
   };
 
  protected:
@@ -614,6 +663,7 @@ inline std::string RtMidiIn :: getPortName( unsigned int portNumber ) { return r
 inline void RtMidiIn :: ignoreTypes( bool midiSysex, bool midiTime, bool midiSense ) { static_cast<MidiInApi *>(rtapi_)->ignoreTypes( midiSysex, midiTime, midiSense ); }
 inline double RtMidiIn :: getMessage( std::vector<unsigned char> *message ) { return static_cast<MidiInApi *>(rtapi_)->getMessage( message ); }
 inline void RtMidiIn :: setErrorCallback( RtMidiErrorCallback errorCallback, void *userData ) { rtapi_->setErrorCallback(errorCallback, userData); }
+inline void RtMidiIn :: setBufferSize( unsigned int size, unsigned int count ) { static_cast<MidiInApi *>(rtapi_)->setBufferSize(size, count); }
 
 inline RtMidi::Api RtMidiOut :: getCurrentApi( void ) throw() { return rtapi_->getCurrentApi(); }
 inline void RtMidiOut :: openPort( unsigned int portNumber, const std::string &portName ) { rtapi_->openPort( portNumber, portName ); }
@@ -626,4 +676,11 @@ inline void RtMidiOut :: sendMessage( const std::vector<unsigned char> *message 
 inline void RtMidiOut :: sendMessage( const unsigned char *message, size_t size ) { static_cast<MidiOutApi *>(rtapi_)->sendMessage( message, size ); }
 inline void RtMidiOut :: setErrorCallback( RtMidiErrorCallback errorCallback, void *userData ) { rtapi_->setErrorCallback(errorCallback, userData); }
 
+} // namespace midi
+} // namespace rt
+
+#endif
+
+#ifndef RTMIDI_USE_NAMESPACE
+using namespace rt::midi;
 #endif
