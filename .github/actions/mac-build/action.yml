@@ -1,0 +1,102 @@
+name: 'Build macOS Project'
+description: 'Build an iPlug2 project for macOS using Xcode'
+
+inputs:
+  project:
+    description: 'Project name (e.g., IPlugEffect)'
+    required: true
+  path:
+    description: 'Path to project folder (e.g., Examples or Tests)'
+    required: true
+  graphics:
+    description: 'Graphics backend (NANOVG or SKIA)'
+    required: true
+    default: 'NANOVG'
+  build_vst3:
+    description: 'Build VST3 format'
+    required: false
+    default: 'true'
+  build_auv2:
+    description: 'Build AUv2 format'
+    required: false
+    default: 'true'
+  build_app:
+    description: 'Build standalone app'
+    required: false
+    default: 'true'
+  configuration:
+    description: 'Build configuration (Release or Debug)'
+    required: false
+    default: 'Release'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Configure graphics backend
+      shell: bash
+      run: |
+        if [ "${{ inputs.graphics }}" = "SKIA" ]; then
+          cd ./${{ inputs.path }}/${{ inputs.project }}/config
+          sed -i.bu 's/IGRAPHICS_NANOVG/IGRAPHICS_SKIA/' ${{ inputs.project }}-mac.xcconfig
+          sed -i.bu 's/\/\/$(IGRAPHICS_LNK_FLAGS)/$(IGRAPHICS_LNK_FLAGS)/' ${{ inputs.project }}-mac.xcconfig
+        fi
+
+    - name: Build VST3
+      if: ${{ inputs.build_vst3 == 'true' }}
+      shell: bash
+      run: |
+        xcodebuild -project "${{ inputs.path }}/${{ inputs.project }}/projects/${{ inputs.project }}-macOS.xcodeproj" \
+          -target VST3 \
+          -configuration ${{ inputs.configuration }} \
+          -xcconfig "${{ inputs.path }}/${{ inputs.project }}/config/${{ inputs.project }}-mac.xcconfig" \
+          -UseModernBuildSystem=NO \
+          CODE_SIGNING_ALLOWED=NO \
+          | xcpretty || true
+
+    - name: Build AUv2
+      if: ${{ inputs.build_auv2 == 'true' }}
+      shell: bash
+      run: |
+        xcodebuild -project "${{ inputs.path }}/${{ inputs.project }}/projects/${{ inputs.project }}-macOS.xcodeproj" \
+          -target AU \
+          -configuration ${{ inputs.configuration }} \
+          -xcconfig "${{ inputs.path }}/${{ inputs.project }}/config/${{ inputs.project }}-mac.xcconfig" \
+          -UseModernBuildSystem=NO \
+          CODE_SIGNING_ALLOWED=NO \
+          | xcpretty || true
+
+    - name: Build APP
+      if: ${{ inputs.build_app == 'true' }}
+      shell: bash
+      run: |
+        xcodebuild -project "${{ inputs.path }}/${{ inputs.project }}/projects/${{ inputs.project }}-macOS.xcodeproj" \
+          -target APP \
+          -configuration ${{ inputs.configuration }} \
+          -xcconfig "${{ inputs.path }}/${{ inputs.project }}/config/${{ inputs.project }}-mac.xcconfig" \
+          -UseModernBuildSystem=NO \
+          CODE_SIGNING_ALLOWED=NO \
+          | xcpretty || true
+
+    - name: Organize artifacts
+      shell: bash
+      run: |
+        mkdir -p artifacts/VST3/${{ inputs.project }}_${{ inputs.graphics }}
+        mkdir -p artifacts/AU/${{ inputs.project }}_${{ inputs.graphics }}
+        mkdir -p artifacts/APP/${{ inputs.project }}_${{ inputs.graphics }}
+
+        cd ${{ inputs.path }}/${{ inputs.project }}/build-mac/
+
+        if [ -d "${{ inputs.project }}.vst3" ]; then
+          zip -r ${{ inputs.project }}_VST3.zip "${{ inputs.project }}.vst3"
+          mv ${{ inputs.project }}_VST3.zip ../../../artifacts/VST3/${{ inputs.project }}_${{ inputs.graphics }}/
+        fi
+
+        if [ -d "${{ inputs.project }}.component" ]; then
+          zip -r ${{ inputs.project }}_AU.zip "${{ inputs.project }}.component"
+          mv ${{ inputs.project }}_AU.zip ../../../artifacts/AU/${{ inputs.project }}_${{ inputs.graphics }}/
+        fi
+
+        if [ -d "${{ inputs.project }}.app" ]; then
+          zip -r ${{ inputs.project }}_APP.zip "${{ inputs.project }}.app"
+          mv ${{ inputs.project }}_APP.zip ../../../artifacts/APP/${{ inputs.project }}_${{ inputs.graphics }}/
+        fi

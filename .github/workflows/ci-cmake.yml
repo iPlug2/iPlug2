@@ -1,0 +1,271 @@
+name: CI (CMake)
+
+on:
+  push:
+    branches: [master, main, cmake-2]
+  pull_request:
+    branches: [master, main, cmake-2]
+  workflow_dispatch:
+    inputs:
+      build_mac:
+        description: 'Build macOS'
+        type: boolean
+        default: true
+      build_win:
+        description: 'Build Windows'
+        type: boolean
+        default: true
+      build_ios:
+        description: 'Build iOS'
+        type: boolean
+        default: true
+      build_web:
+        description: 'Build Web (Emscripten)'
+        type: boolean
+        default: false
+      graphics:
+        description: 'Graphics backend'
+        type: choice
+        options:
+          - NANOVG
+          - SKIA
+        default: NANOVG
+      configuration:
+        description: 'Build configuration'
+        type: choice
+        options:
+          - Release
+          - Debug
+        default: Release
+
+env:
+  BUILD_MAC: ${{ github.event_name == 'workflow_dispatch' && inputs.build_mac || true }}
+  BUILD_WIN: ${{ github.event_name == 'workflow_dispatch' && inputs.build_win || true }}
+  BUILD_IOS: ${{ github.event_name == 'workflow_dispatch' && inputs.build_ios || true }}
+  BUILD_WEB: ${{ github.event_name == 'workflow_dispatch' && inputs.build_web || false }}
+  GRAPHICS: ${{ github.event_name == 'workflow_dispatch' && inputs.graphics || 'NANOVG' }}
+  CONFIGURATION: ${{ github.event_name == 'workflow_dispatch' && inputs.configuration || 'Release' }}
+
+jobs:
+  # =============================================================================
+  # Build macOS with CMake
+  # =============================================================================
+  build-mac-cmake:
+    name: macOS CMake (${{ matrix.graphics }})
+    runs-on: macos-latest
+    if: ${{ github.event_name != 'workflow_dispatch' || inputs.build_mac }}
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        graphics: [NANOVG]
+        # Add SKIA once dependencies are available
+        # graphics: [NANOVG, SKIA]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Download IPlug SDKs
+        run: |
+          cd ./Dependencies/IPlug
+          chmod +x download-iplug-sdks.sh
+          ./download-iplug-sdks.sh
+
+      - name: Download prebuilt IGraphics dependencies
+        run: |
+          cd ./Dependencies/
+          chmod +x download-prebuilt-libs.sh
+          ./download-prebuilt-libs.sh mac
+
+      - name: Configure CMake
+        run: |
+          cmake -B build \
+            -DCMAKE_BUILD_TYPE=${{ env.CONFIGURATION }} \
+            -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13 \
+            -DIGRAPHICS_BACKEND=${{ matrix.graphics }}
+
+      - name: Build with CMake
+        run: cmake --build build --config ${{ env.CONFIGURATION }} --parallel
+
+      - name: List build outputs
+        run: |
+          find build -name "*.vst3" -o -name "*.component" -o -name "*.app" -o -name "*.clap" 2>/dev/null | head -50
+
+      - name: Upload macOS CMake artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: MAC-CMAKE-${{ matrix.graphics }}
+          path: |
+            build/**/*.vst3
+            build/**/*.component
+            build/**/*.app
+            build/**/*.clap
+          retention-days: 7
+          if-no-files-found: ignore
+
+  # =============================================================================
+  # Build Windows with CMake
+  # =============================================================================
+  build-win-cmake:
+    name: Windows CMake (${{ matrix.graphics }})
+    runs-on: windows-2022
+    if: ${{ github.event_name != 'workflow_dispatch' || inputs.build_win }}
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        graphics: [NANOVG]
+        # Add SKIA once dependencies are available
+        # graphics: [NANOVG, SKIA]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Download IPlug SDKs
+        shell: bash
+        run: |
+          cd ./Dependencies/IPlug
+          chmod +x download-iplug-sdks.sh
+          ./download-iplug-sdks.sh
+
+      - name: Download prebuilt IGraphics dependencies
+        shell: bash
+        run: |
+          cd ./Dependencies/
+          chmod +x download-prebuilt-libs.sh
+          ./download-prebuilt-libs.sh win
+
+      - name: Configure CMake
+        run: |
+          cmake -B build -G "Visual Studio 17 2022" -A x64 `
+            -DIGRAPHICS_BACKEND=${{ matrix.graphics }}
+
+      - name: Build with CMake
+        run: cmake --build build --config ${{ env.CONFIGURATION }} --parallel
+
+      - name: List build outputs
+        shell: pwsh
+        run: |
+          Get-ChildItem -Path build -Recurse -Include *.vst3,*.exe,*.clap -ErrorAction SilentlyContinue | Select-Object -First 50
+
+      - name: Upload Windows CMake artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: WIN-CMAKE-${{ matrix.graphics }}
+          path: |
+            build/**/*.vst3
+            build/**/*.exe
+            build/**/*.clap
+            build/**/*.pdb
+          retention-days: 7
+          if-no-files-found: ignore
+
+  # =============================================================================
+  # Build iOS with CMake
+  # =============================================================================
+  build-ios-cmake:
+    name: iOS CMake (${{ matrix.graphics }})
+    runs-on: macos-latest
+    if: ${{ github.event_name != 'workflow_dispatch' || inputs.build_ios }}
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        graphics: [NANOVG]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Download IPlug SDKs
+        run: |
+          cd ./Dependencies/IPlug
+          chmod +x download-iplug-sdks.sh
+          ./download-iplug-sdks.sh
+
+      - name: Download prebuilt IGraphics dependencies
+        run: |
+          cd ./Dependencies/
+          chmod +x download-prebuilt-libs.sh
+          ./download-prebuilt-libs.sh ios
+
+      - name: Configure CMake for iOS
+        run: |
+          cmake -B build-ios \
+            -G Xcode \
+            -DCMAKE_SYSTEM_NAME=iOS \
+            -DCMAKE_OSX_DEPLOYMENT_TARGET=15.0 \
+            -DCMAKE_OSX_ARCHITECTURES=arm64 \
+            -DIGRAPHICS_BACKEND=${{ matrix.graphics }}
+
+      - name: Build with CMake
+        run: |
+          cmake --build build-ios \
+            --config ${{ env.CONFIGURATION }} \
+            -- -sdk iphoneos \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Upload iOS CMake artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: IOS-CMAKE-${{ matrix.graphics }}
+          path: |
+            build-ios/**/*.app
+            build-ios/**/*.appex
+          retention-days: 7
+          if-no-files-found: ignore
+
+  # =============================================================================
+  # Build Web (Emscripten) with CMake
+  # =============================================================================
+  build-web-cmake:
+    name: Web CMake (${{ matrix.graphics }})
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.build_web }}
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        graphics: [NANOVG, CANVAS]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup Emscripten
+        uses: mymindstorm/setup-emsdk@v14
+        with:
+          version: latest
+          actions-cache-folder: 'emsdk-cache'
+
+      - name: Download IPlug SDKs
+        run: |
+          cd ./Dependencies/IPlug
+          chmod +x download-iplug-sdks.sh
+          ./download-iplug-sdks.sh
+
+      - name: Configure CMake for Emscripten
+        run: |
+          emcmake cmake -B build-web \
+            -DCMAKE_BUILD_TYPE=${{ env.CONFIGURATION }} \
+            -DIGRAPHICS_BACKEND=${{ matrix.graphics }}
+
+      - name: Build with CMake
+        run: cmake --build build-web --config ${{ env.CONFIGURATION }} --parallel
+
+      - name: Upload Web CMake artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: WEB-CMAKE-${{ matrix.graphics }}
+          path: |
+            build-web/**/*.js
+            build-web/**/*.wasm
+            build-web/**/*.html
+          retention-days: 7
+          if-no-files-found: ignore

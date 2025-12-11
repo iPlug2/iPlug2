@@ -1,0 +1,57 @@
+name: 'Build iOS Project'
+description: 'Build an iPlug2 project for iOS using Xcode'
+
+inputs:
+  project:
+    description: 'Project name (e.g., IPlugEffect)'
+    required: true
+  path:
+    description: 'Path to project folder (e.g., Examples or Tests)'
+    required: true
+  graphics:
+    description: 'Graphics backend (NANOVG or SKIA)'
+    required: true
+    default: 'NANOVG'
+  configuration:
+    description: 'Build configuration (Release or Debug)'
+    required: false
+    default: 'Release'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Configure graphics backend
+      shell: bash
+      run: |
+        if [ "${{ inputs.graphics }}" = "SKIA" ]; then
+          cd ./${{ inputs.path }}/${{ inputs.project }}/config
+          sed -i.bu 's/IGRAPHICS_NANOVG/IGRAPHICS_SKIA/' ${{ inputs.project }}-ios.xcconfig
+          sed -i.bu 's/\/\/$(IGRAPHICS_LNK_FLAGS)/$(IGRAPHICS_LNK_FLAGS)/' ${{ inputs.project }}-ios.xcconfig
+        fi
+
+    - name: Build iOS App with AUv3
+      shell: bash
+      run: |
+        xcodebuild -project "${{ inputs.path }}/${{ inputs.project }}/projects/${{ inputs.project }}-ios.xcodeproj" \
+          -scheme "iOS-APP with AUv3" \
+          -configuration ${{ inputs.configuration }} \
+          -xcconfig "${{ inputs.path }}/${{ inputs.project }}/config/${{ inputs.project }}-ios.xcconfig" \
+          -destination 'generic/platform=iOS' \
+          CODE_SIGNING_ALLOWED=NO \
+          | xcpretty || true
+
+    - name: Organize artifacts
+      shell: bash
+      run: |
+        mkdir -p artifacts/IOS/${{ inputs.project }}_${{ inputs.graphics }}
+
+        cd ${{ inputs.path }}/${{ inputs.project }}/build-ios/ 2>/dev/null || exit 0
+
+        # Find and package any built iOS artifacts
+        if [ -d "${{ inputs.project }}.app" ]; then
+          zip -r ${{ inputs.project }}_iOS.zip "${{ inputs.project }}.app"
+          mv ${{ inputs.project }}_iOS.zip ../../../artifacts/IOS/${{ inputs.project }}_${{ inputs.graphics }}/
+        fi
+
+        # Package any .ipa if present
+        find . -name "*.ipa" -exec cp {} ../../../artifacts/IOS/${{ inputs.project }}_${{ inputs.graphics }}/ \; 2>/dev/null || true

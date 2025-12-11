@@ -1,0 +1,542 @@
+name: CI
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+    branches: [master, main]
+  workflow_dispatch:
+    inputs:
+      build_mac:
+        description: 'Build macOS binaries'
+        type: boolean
+        default: true
+      build_win:
+        description: 'Build Windows binaries'
+        type: boolean
+        default: true
+      build_ios:
+        description: 'Build iOS binaries'
+        type: boolean
+        default: true
+      build_web:
+        description: 'Build Web Audio Modules'
+        type: boolean
+        default: false
+      build_vst3:
+        description: 'Build VST3 format'
+        type: boolean
+        default: true
+      build_auv2:
+        description: 'Build AUv2 format (macOS only)'
+        type: boolean
+        default: true
+      build_app:
+        description: 'Build standalone app'
+        type: boolean
+        default: true
+      test_projects:
+        description: 'Run plugin validation tests'
+        type: boolean
+        default: false
+      configuration:
+        description: 'Build configuration'
+        type: choice
+        options:
+          - Release
+          - Debug
+        default: Release
+
+env:
+  # Default values for non-dispatch triggers
+  BUILD_MAC: ${{ github.event_name == 'workflow_dispatch' && inputs.build_mac || true }}
+  BUILD_WIN: ${{ github.event_name == 'workflow_dispatch' && inputs.build_win || true }}
+  BUILD_IOS: ${{ github.event_name == 'workflow_dispatch' && inputs.build_ios || true }}
+  BUILD_WEB: ${{ github.event_name == 'workflow_dispatch' && inputs.build_web || false }}
+  BUILD_VST3: ${{ github.event_name == 'workflow_dispatch' && inputs.build_vst3 || true }}
+  BUILD_AUV2: ${{ github.event_name == 'workflow_dispatch' && inputs.build_auv2 || true }}
+  BUILD_APP: ${{ github.event_name == 'workflow_dispatch' && inputs.build_app || true }}
+  TEST_PROJECTS: ${{ github.event_name == 'workflow_dispatch' && inputs.test_projects || false }}
+  CONFIGURATION: ${{ github.event_name == 'workflow_dispatch' && inputs.configuration || 'Release' }}
+
+jobs:
+  # =============================================================================
+  # Setup: Download dependencies and create source artifact
+  # =============================================================================
+  setup:
+    name: Setup Source Tree
+    runs-on: ubuntu-latest
+    outputs:
+      build_mac: ${{ env.BUILD_MAC }}
+      build_win: ${{ env.BUILD_WIN }}
+      build_ios: ${{ env.BUILD_IOS }}
+      build_web: ${{ env.BUILD_WEB }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Download prebuilt IGraphics dependencies
+        run: |
+          cd ./Dependencies/
+          ./download-prebuilt-libs.sh mac
+          ./download-prebuilt-libs.sh ios
+          ./download-prebuilt-libs.sh win
+
+      - name: Download IPlug SDKs
+        run: |
+          cd ./Dependencies/IPlug
+          ./download-iplug-sdks.sh
+
+      - name: Clean up unnecessary files
+        run: |
+          rm -rf .git
+          cd ./Dependencies/Build/
+          find . -type f -iname "*.png" -delete
+
+      - name: Upload source artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: SRC
+          path: .
+          retention-days: 1
+
+  # =============================================================================
+  # Build macOS Projects
+  # =============================================================================
+  build-mac:
+    name: Build macOS (${{ matrix.graphics }})
+    needs: setup
+    if: ${{ needs.setup.outputs.build_mac == 'true' }}
+    runs-on: macos-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        graphics: [NANOVG, SKIA]
+    steps:
+      - name: Download source artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: SRC
+
+      - name: Make scripts executable
+        run: |
+          find . -name "*.sh" -exec chmod +x {} \;
+          find . -name "*.command" -exec chmod +x {} \;
+
+      - name: Build IPlugEffect
+        uses: ./.github/actions/mac-build
+        with:
+          project: IPlugEffect
+          path: Examples
+          graphics: ${{ matrix.graphics }}
+          build_vst3: ${{ env.BUILD_VST3 }}
+          build_auv2: ${{ env.BUILD_AUV2 }}
+          build_app: ${{ env.BUILD_APP }}
+          configuration: ${{ env.CONFIGURATION }}
+
+      - name: Build IPlugInstrument
+        uses: ./.github/actions/mac-build
+        with:
+          project: IPlugInstrument
+          path: Examples
+          graphics: ${{ matrix.graphics }}
+          build_vst3: ${{ env.BUILD_VST3 }}
+          build_auv2: ${{ env.BUILD_AUV2 }}
+          build_app: ${{ env.BUILD_APP }}
+          configuration: ${{ env.CONFIGURATION }}
+
+      - name: Build IPlugMidiEffect
+        uses: ./.github/actions/mac-build
+        with:
+          project: IPlugMidiEffect
+          path: Examples
+          graphics: ${{ matrix.graphics }}
+          build_vst3: ${{ env.BUILD_VST3 }}
+          build_auv2: ${{ env.BUILD_AUV2 }}
+          build_app: ${{ env.BUILD_APP }}
+          configuration: ${{ env.CONFIGURATION }}
+
+      - name: Build IPlugControls
+        uses: ./.github/actions/mac-build
+        with:
+          project: IPlugControls
+          path: Examples
+          graphics: ${{ matrix.graphics }}
+          build_vst3: ${{ env.BUILD_VST3 }}
+          build_auv2: ${{ env.BUILD_AUV2 }}
+          build_app: ${{ env.BUILD_APP }}
+          configuration: ${{ env.CONFIGURATION }}
+
+      - name: Build IPlugResponsiveUI
+        uses: ./.github/actions/mac-build
+        with:
+          project: IPlugResponsiveUI
+          path: Examples
+          graphics: ${{ matrix.graphics }}
+          build_vst3: ${{ env.BUILD_VST3 }}
+          build_auv2: ${{ env.BUILD_AUV2 }}
+          build_app: ${{ env.BUILD_APP }}
+          configuration: ${{ env.CONFIGURATION }}
+
+      - name: Build IGraphicsStressTest
+        uses: ./.github/actions/mac-build
+        with:
+          project: IGraphicsStressTest
+          path: Tests
+          graphics: ${{ matrix.graphics }}
+          build_vst3: ${{ env.BUILD_VST3 }}
+          build_auv2: ${{ env.BUILD_AUV2 }}
+          build_app: ${{ env.BUILD_APP }}
+          configuration: ${{ env.CONFIGURATION }}
+
+      - name: Build IGraphicsTest
+        uses: ./.github/actions/mac-build
+        with:
+          project: IGraphicsTest
+          path: Tests
+          graphics: ${{ matrix.graphics }}
+          build_vst3: ${{ env.BUILD_VST3 }}
+          build_auv2: ${{ env.BUILD_AUV2 }}
+          build_app: ${{ env.BUILD_APP }}
+          configuration: ${{ env.CONFIGURATION }}
+
+      - name: Build MetaParamTest
+        uses: ./.github/actions/mac-build
+        with:
+          project: MetaParamTest
+          path: Tests
+          graphics: ${{ matrix.graphics }}
+          build_vst3: ${{ env.BUILD_VST3 }}
+          build_auv2: ${{ env.BUILD_AUV2 }}
+          build_app: ${{ env.BUILD_APP }}
+          configuration: ${{ env.CONFIGURATION }}
+
+      - name: Upload macOS artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: MAC-${{ matrix.graphics }}
+          path: artifacts/
+          retention-days: 7
+
+  # =============================================================================
+  # Build Windows Projects
+  # =============================================================================
+  build-win:
+    name: Build Windows (${{ matrix.graphics }})
+    needs: setup
+    if: ${{ needs.setup.outputs.build_win == 'true' }}
+    runs-on: windows-2022
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        graphics: [NANOVG, SKIA]
+    steps:
+      - name: Download source artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: SRC
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Build IPlugEffect
+        uses: ./.github/actions/win-build
+        with:
+          project: IPlugEffect
+          path: Examples
+          graphics: ${{ matrix.graphics }}
+          build_vst3: ${{ env.BUILD_VST3 }}
+          build_app: ${{ env.BUILD_APP }}
+          configuration: ${{ env.CONFIGURATION }}
+
+      - name: Build IPlugInstrument
+        uses: ./.github/actions/win-build
+        with:
+          project: IPlugInstrument
+          path: Examples
+          graphics: ${{ matrix.graphics }}
+          build_vst3: ${{ env.BUILD_VST3 }}
+          build_app: ${{ env.BUILD_APP }}
+          configuration: ${{ env.CONFIGURATION }}
+
+      - name: Build IPlugMidiEffect
+        uses: ./.github/actions/win-build
+        with:
+          project: IPlugMidiEffect
+          path: Examples
+          graphics: ${{ matrix.graphics }}
+          build_vst3: ${{ env.BUILD_VST3 }}
+          build_app: ${{ env.BUILD_APP }}
+          configuration: ${{ env.CONFIGURATION }}
+
+      - name: Build IPlugControls
+        uses: ./.github/actions/win-build
+        with:
+          project: IPlugControls
+          path: Examples
+          graphics: ${{ matrix.graphics }}
+          build_vst3: ${{ env.BUILD_VST3 }}
+          build_app: ${{ env.BUILD_APP }}
+          configuration: ${{ env.CONFIGURATION }}
+
+      - name: Build IPlugResponsiveUI
+        uses: ./.github/actions/win-build
+        with:
+          project: IPlugResponsiveUI
+          path: Examples
+          graphics: ${{ matrix.graphics }}
+          build_vst3: ${{ env.BUILD_VST3 }}
+          build_app: ${{ env.BUILD_APP }}
+          configuration: ${{ env.CONFIGURATION }}
+
+      - name: Build IGraphicsStressTest
+        uses: ./.github/actions/win-build
+        with:
+          project: IGraphicsStressTest
+          path: Tests
+          graphics: ${{ matrix.graphics }}
+          build_vst3: ${{ env.BUILD_VST3 }}
+          build_app: ${{ env.BUILD_APP }}
+          configuration: ${{ env.CONFIGURATION }}
+
+      - name: Build IGraphicsTest
+        uses: ./.github/actions/win-build
+        with:
+          project: IGraphicsTest
+          path: Tests
+          graphics: ${{ matrix.graphics }}
+          build_vst3: ${{ env.BUILD_VST3 }}
+          build_app: ${{ env.BUILD_APP }}
+          configuration: ${{ env.CONFIGURATION }}
+
+      - name: Build MetaParamTest
+        uses: ./.github/actions/win-build
+        with:
+          project: MetaParamTest
+          path: Tests
+          graphics: ${{ matrix.graphics }}
+          build_vst3: ${{ env.BUILD_VST3 }}
+          build_app: ${{ env.BUILD_APP }}
+          configuration: ${{ env.CONFIGURATION }}
+
+      - name: Upload Windows artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: WIN-${{ matrix.graphics }}
+          path: artifacts/
+          retention-days: 7
+
+  # =============================================================================
+  # Build iOS Projects
+  # =============================================================================
+  build-ios:
+    name: Build iOS (${{ matrix.graphics }})
+    needs: setup
+    if: ${{ needs.setup.outputs.build_ios == 'true' }}
+    runs-on: macos-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        graphics: [NANOVG, SKIA]
+    steps:
+      - name: Download source artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: SRC
+
+      - name: Make scripts executable
+        run: |
+          find . -name "*.sh" -exec chmod +x {} \;
+          find . -name "*.command" -exec chmod +x {} \;
+
+      - name: Build IPlugEffect
+        uses: ./.github/actions/ios-build
+        with:
+          project: IPlugEffect
+          path: Examples
+          graphics: ${{ matrix.graphics }}
+          configuration: ${{ env.CONFIGURATION }}
+
+      - name: Build IPlugInstrument
+        uses: ./.github/actions/ios-build
+        with:
+          project: IPlugInstrument
+          path: Examples
+          graphics: ${{ matrix.graphics }}
+          configuration: ${{ env.CONFIGURATION }}
+
+      - name: Build IPlugControls
+        uses: ./.github/actions/ios-build
+        with:
+          project: IPlugControls
+          path: Examples
+          graphics: ${{ matrix.graphics }}
+          configuration: ${{ env.CONFIGURATION }}
+
+      - name: Upload iOS artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: IOS-${{ matrix.graphics }}
+          path: artifacts/
+          retention-days: 7
+
+  # =============================================================================
+  # Build Web Audio Modules
+  # =============================================================================
+  build-web:
+    name: Build Web (${{ matrix.graphics }})
+    needs: setup
+    if: ${{ needs.setup.outputs.build_web == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        graphics: [NANOVG, CANVAS]
+    steps:
+      - name: Download source artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: SRC
+
+      - name: Setup Emscripten
+        uses: mymindstorm/setup-emsdk@v14
+        with:
+          version: latest
+          actions-cache-folder: 'emsdk-cache'
+
+      - name: Make scripts executable
+        run: |
+          find . -name "*.sh" -exec chmod +x {} \;
+
+      - name: Build IPlugEffect
+        uses: ./.github/actions/web-build
+        with:
+          project: IPlugEffect
+          path: Examples
+          graphics: ${{ matrix.graphics }}
+
+      - name: Build IPlugInstrument
+        uses: ./.github/actions/web-build
+        with:
+          project: IPlugInstrument
+          path: Examples
+          graphics: ${{ matrix.graphics }}
+
+      - name: Build IPlugControls
+        uses: ./.github/actions/web-build
+        with:
+          project: IPlugControls
+          path: Examples
+          graphics: ${{ matrix.graphics }}
+
+      - name: Upload Web artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: WEB-${{ matrix.graphics }}
+          path: artifacts/
+          retention-days: 7
+
+  # =============================================================================
+  # Test macOS Plugins
+  # =============================================================================
+  test-mac:
+    name: Test macOS (${{ matrix.graphics }})
+    needs: build-mac
+    if: ${{ needs.setup.outputs.build_mac == 'true' && (github.event_name == 'workflow_dispatch' && inputs.test_projects || false) }}
+    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        graphics: [NANOVG, SKIA]
+    steps:
+      - name: Download macOS artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: MAC-${{ matrix.graphics }}
+          path: artifacts
+
+      - name: Download pluginval
+        run: |
+          curl -L -o pluginval.zip https://github.com/Tracktion/pluginval/releases/latest/download/pluginval_macOS.zip
+          unzip pluginval.zip
+          chmod +x pluginval.app/Contents/MacOS/pluginval
+
+      - name: Download VST3 SDK for validator
+        run: |
+          git clone --depth 1 https://github.com/steinbergmedia/vst3sdk.git
+          cd vst3sdk
+          git submodule update --init --recursive
+          mkdir build && cd build
+          cmake .. -DSMTG_ADD_VSTGUI=OFF
+          cmake --build . --target validator --config Release
+
+      - name: Validate VST3 plugins
+        continue-on-error: true
+        run: |
+          for plugin in artifacts/VST3/*/*.vst3; do
+            if [ -d "$plugin" ]; then
+              echo "Validating $plugin with pluginval..."
+              ./pluginval.app/Contents/MacOS/pluginval --validate-in-process --skip-gui-tests "$plugin" || true
+              echo "Validating $plugin with VST3 validator..."
+              ./vst3sdk/build/bin/Release/validator "$plugin" || true
+            fi
+          done
+
+      - name: Validate AUv2 plugins
+        continue-on-error: true
+        run: |
+          # Install AUs to user plugin directory
+          mkdir -p ~/Library/Audio/Plug-Ins/Components
+          for plugin in artifacts/AU/*/*.component; do
+            if [ -d "$plugin" ]; then
+              cp -R "$plugin" ~/Library/Audio/Plug-Ins/Components/
+            fi
+          done
+          # Run auval on installed plugins
+          for plugin in ~/Library/Audio/Plug-Ins/Components/*.component; do
+            if [ -d "$plugin" ]; then
+              name=$(basename "$plugin" .component)
+              echo "Validating $name with auval..."
+              auval -a || true
+            fi
+          done
+
+  # =============================================================================
+  # Test Windows Plugins
+  # =============================================================================
+  test-win:
+    name: Test Windows (${{ matrix.graphics }})
+    needs: build-win
+    if: ${{ needs.setup.outputs.build_win == 'true' && (github.event_name == 'workflow_dispatch' && inputs.test_projects || false) }}
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        graphics: [NANOVG, SKIA]
+    steps:
+      - name: Download Windows artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: WIN-${{ matrix.graphics }}
+          path: artifacts
+
+      - name: Download pluginval
+        shell: pwsh
+        run: |
+          Invoke-WebRequest -Uri "https://github.com/Tracktion/pluginval/releases/latest/download/pluginval_Windows.zip" -OutFile "pluginval.zip"
+          Expand-Archive -Path "pluginval.zip" -DestinationPath "."
+
+      - name: Validate VST3 plugins
+        continue-on-error: true
+        shell: pwsh
+        run: |
+          Get-ChildItem -Path "artifacts/VST3" -Recurse -Filter "*.vst3" -Directory | ForEach-Object {
+            Write-Host "Validating $($_.FullName) with pluginval..."
+            & "./pluginval.exe" --validate-in-process --skip-gui-tests $_.FullName
+          }
