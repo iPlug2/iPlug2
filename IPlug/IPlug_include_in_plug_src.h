@@ -443,6 +443,15 @@ Steinberg::FUnknown* MakeProcessor()
 
 #pragma mark - ** Config Utility **
 
+// Provide defaults for Apple-specific macros on non-Apple platforms
+#ifndef BUNDLE_ID
+  #define BUNDLE_ID ""
+#endif
+
+#ifndef APP_GROUP_ID
+  #define APP_GROUP_ID ""
+#endif
+
 static Config MakeConfig(int nParams, int nPresets)
 {
   return Config(nParams, nPresets, PLUG_CHANNEL_IO, PLUG_NAME, PLUG_NAME, PLUG_MFR, PLUG_VERSION_HEX, PLUG_UNIQUE_ID, PLUG_MFR_ID, PLUG_LATENCY, PLUG_DOES_MIDI_IN, PLUG_DOES_MIDI_OUT, PLUG_DOES_MPE, PLUG_DOES_STATE_CHUNKS, PLUG_TYPE, PLUG_HAS_UI, PLUG_WIDTH, PLUG_HEIGHT, PLUG_HOST_RESIZE, PLUG_MIN_WIDTH, PLUG_MAX_WIDTH, PLUG_MIN_HEIGHT, PLUG_MAX_HEIGHT, BUNDLE_ID, APP_GROUP_ID); // TODO: Product Name?
