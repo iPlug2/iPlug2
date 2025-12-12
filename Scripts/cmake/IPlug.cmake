@@ -113,8 +113,16 @@ if(NOT TARGET iPlug2::IPlug)
       "-framework Foundation"
     )
   elseif(UNIX AND NOT APPLE AND NOT EMSCRIPTEN)
-    message("Error - Linux not yet supported")
+    target_link_libraries(iPlug2::IPlug INTERFACE
+      pthread
+      dl
+    )
   endif()
+  
+  # Note: Linker options can be added here if needed
+  # if((CMAKE_CXX_COMPILER_ID MATCHES "Clang") OR (CMAKE_CXX_COMPILER_ID MATCHES "GNU"))
+  #   target_link_options(iPlug2::IPlug INTERFACE -Wl,<option>)
+  # endif()
 
   # Generate PkgInfo file for macOS bundles (used by VST2, CLAP, etc.)
   # This file is created once at configure time and copied to each bundle at build time

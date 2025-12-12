@@ -143,4 +143,41 @@ void Timer_impl::TimerProc(void* userData)
   Timer_impl* itimer = (Timer_impl*) userData;
   itimer->mTimerFunc(*itimer);
 }
+#elif defined OS_LINUX
+
+Timer* Timer::Create(ITimerFunction func, uint32_t intervalMs)
+{
+  return new Timer_impl(func, intervalMs);
+}
+
+Timer_impl::Timer_impl(ITimerFunction func, uint32_t intervalMs)
+: mTimerFunc(func)
+, mIntervalMs(intervalMs)
+{
+  mRunning = true;
+  mThread = std::thread([this]() {
+    while (mRunning)
+    {
+      std::this_thread::sleep_for(std::chrono::milliseconds(mIntervalMs));
+      if (mRunning)
+        mTimerFunc(*this);
+    }
+  });
+}
+
+Timer_impl::~Timer_impl()
+{
+  Stop();
+}
+
+void Timer_impl::Stop()
+{
+  if (mRunning)
+  {
+    mRunning = false;
+    if (mThread.joinable())
+      mThread.join();
+  }
+}
+
 #endif

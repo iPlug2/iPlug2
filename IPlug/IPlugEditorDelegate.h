@@ -17,6 +17,7 @@
 
 #include <cassert>
 #include <cstring>
+#include <cstdlib>
 #include <stdint.h>
 
 #include "ptrlist.h"
