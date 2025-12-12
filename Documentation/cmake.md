@@ -155,7 +155,7 @@ endfunction()
 # ============================================================================
 add_executable(${PROJECT_NAME}-app ${SOURCE_FILES})
 iplug_add_target(${PROJECT_NAME}-app PUBLIC
-  LINK iPlug2::APP iPlug2::IGraphics::NanoVG _${PROJECT_NAME}-base
+  LINK iPlug2::APP ${IGRAPHICS_LIB} _${PROJECT_NAME}-base
 )
 iplug_configure_target(${PROJECT_NAME}-app APP ${PROJECT_NAME})
 target_sources(${PROJECT_NAME}-app PRIVATE ${FONT_FILES})
@@ -168,7 +168,7 @@ set_source_files_properties(${FONT_FILES} PROPERTIES
 # ============================================================================
 add_library(${PROJECT_NAME}-vst3 MODULE ${SOURCE_FILES})
 iplug_add_target(${PROJECT_NAME}-vst3 PUBLIC
-  LINK iPlug2::VST3 iPlug2::IGraphics::NanoVG _${PROJECT_NAME}-base
+  LINK iPlug2::VST3 ${IGRAPHICS_LIB} _${PROJECT_NAME}-base
 )
 iplug_configure_target(${PROJECT_NAME}-vst3 VST3 ${PROJECT_NAME})
 iplug_add_plugin_resources(${PROJECT_NAME}-vst3)
@@ -178,7 +178,7 @@ iplug_add_plugin_resources(${PROJECT_NAME}-vst3)
 # ============================================================================
 add_library(${PROJECT_NAME}-clap MODULE ${SOURCE_FILES})
 iplug_add_target(${PROJECT_NAME}-clap PUBLIC
-  LINK iPlug2::CLAP iPlug2::IGraphics::NanoVG _${PROJECT_NAME}-base
+  LINK iPlug2::CLAP ${IGRAPHICS_LIB} _${PROJECT_NAME}-base
 )
 iplug_configure_target(${PROJECT_NAME}-clap CLAP ${PROJECT_NAME})
 iplug_add_plugin_resources(${PROJECT_NAME}-clap)
@@ -189,7 +189,7 @@ iplug_add_plugin_resources(${PROJECT_NAME}-clap)
 if(APPLE)
   add_library(${PROJECT_NAME}-au MODULE ${SOURCE_FILES})
   iplug_add_target(${PROJECT_NAME}-au PUBLIC
-    LINK iPlug2::AUv2 iPlug2::IGraphics::NanoVG _${PROJECT_NAME}-base
+    LINK iPlug2::AUv2 ${IGRAPHICS_LIB} _${PROJECT_NAME}-base
   )
   iplug_configure_target(${PROJECT_NAME}-au AUv2 ${PROJECT_NAME})
   iplug_add_plugin_resources(${PROJECT_NAME}-au)
@@ -202,7 +202,7 @@ if(APPLE)
   # Framework containing AUv3 plugin code
   add_library(${PROJECT_NAME}AU-framework SHARED ${SOURCE_FILES})
   iplug_add_target(${PROJECT_NAME}AU-framework PUBLIC
-    LINK iPlug2::AUv3 iPlug2::IGraphics::NanoVG _${PROJECT_NAME}-base
+    LINK iPlug2::AUv3 ${IGRAPHICS_LIB} _${PROJECT_NAME}-base
   )
   iplug_configure_target(${PROJECT_NAME}AU-framework AUv3Framework ${PROJECT_NAME})
   iplug_add_plugin_resources(${PROJECT_NAME}AU-framework)
@@ -273,13 +273,55 @@ auval -v aufx Ipef Acme
 
 ## IGraphics Backends
 
-```cmake
-# NanoVG (default, lightweight)
-LINK iPlug2::IGraphics::NanoVG
+iPlug2 provides a convenience variable `${IGRAPHICS_LIB}` that is automatically set based on cache variables. This allows switching backends at configure time without modifying CMakeLists.txt.
 
-# Skia (feature-rich, requires dependencies)
-LINK iPlug2::IGraphics::Skia
+### Using the Convenience Variable
+
+```cmake
+# In your CMakeLists.txt - uses whatever backend is configured
+LINK iPlug2::APP ${IGRAPHICS_LIB} _${PROJECT_NAME}-base
 ```
+
+### Configuring at Build Time
+
+```bash
+# Default: NanoVG with GL2 (Windows) or Metal (macOS)
+cmake -G Ninja ..
+
+# Use Skia with GL3
+cmake -G Ninja -DIGRAPHICS_BACKEND=SKIA -DIGRAPHICS_RENDERER=GL3 ..
+
+# Use NanoVG with Metal (macOS)
+cmake -G Ninja -DIGRAPHICS_BACKEND=NANOVG -DIGRAPHICS_RENDERER=METAL ..
+```
+
+### Cache Variables
+
+| Variable | Options | Default |
+|----------|---------|---------|
+| `IGRAPHICS_BACKEND` | `NANOVG`, `SKIA` | `NANOVG` |
+| `IGRAPHICS_RENDERER` | `GL2`, `GL3`, `METAL`, `CPU` | `GL2` (Windows), `METAL` (macOS/iOS) |
+
+### Available Targets
+
+You can also link directly to specific backend targets:
+
+```cmake
+# NanoVG backends
+iPlug2::IGraphics::NanoVG        # GL2 (default)
+iPlug2::IGraphics::NanoVG::GL3   # OpenGL 3
+iPlug2::IGraphics::NanoVG::Metal # Metal (macOS/iOS)
+
+# Skia backends (requires dependencies)
+iPlug2::IGraphics::Skia::GL3     # OpenGL 3
+iPlug2::IGraphics::Skia::Metal   # Metal (macOS/iOS)
+iPlug2::IGraphics::Skia::CPU     # Software rendering
+```
+
+### Backend Notes
+
+- **NanoVG**: Lightweight, fast, included in iPlug2. Best for simple UIs.
+- **Skia**: Feature-rich, requires downloading dependencies. Better for complex graphics.
 
 ## Troubleshooting
 

@@ -361,3 +361,54 @@ if(NOT TARGET iPlug2::IGraphics::Skia::CPU)
     iPlug2::IGraphics::Skia
   )
 endif()
+
+# =============================================================================
+# IGraphics Backend Selection - Convenience Variables
+# =============================================================================
+# These can be overridden by setting IGRAPHICS_BACKEND and/or IGRAPHICS_RENDERER
+# BEFORE including iPlug2.cmake or calling find_package(iPlug2)
+
+# Backend selection (NANOVG or SKIA)
+if(NOT DEFINED IGRAPHICS_BACKEND)
+  set(IGRAPHICS_BACKEND "NANOVG" CACHE STRING "IGraphics drawing backend")
+  set_property(CACHE IGRAPHICS_BACKEND PROPERTY STRINGS "NANOVG" "SKIA")
+endif()
+
+# Renderer selection with platform-aware defaults
+# NANOVG supports: GL2, GL3, METAL (Metal is macOS/iOS only)
+# SKIA supports: GL3, METAL, CPU
+if(NOT DEFINED IGRAPHICS_RENDERER)
+  if(WIN32)
+    set(DEFAULT_RENDERER "GL2")
+  elseif(APPLE OR IOS)
+    set(DEFAULT_RENDERER "METAL")
+  else()
+    set(DEFAULT_RENDERER "GL2")
+  endif()
+  set(IGRAPHICS_RENDERER "${DEFAULT_RENDERER}" CACHE STRING "IGraphics renderer")
+  set_property(CACHE IGRAPHICS_RENDERER PROPERTY STRINGS "GL2" "GL3" "METAL" "CPU")
+endif()
+
+# Construct IGRAPHICS_LIB target based on selections
+if(NOT DEFINED IGRAPHICS_LIB)
+  if(IGRAPHICS_BACKEND STREQUAL "SKIA")
+    if(IGRAPHICS_RENDERER STREQUAL "CPU")
+      set(IGRAPHICS_LIB iPlug2::IGraphics::Skia::CPU)
+    elseif(IGRAPHICS_RENDERER STREQUAL "GL3")
+      set(IGRAPHICS_LIB iPlug2::IGraphics::Skia::GL3)
+    else()
+      set(IGRAPHICS_LIB iPlug2::IGraphics::Skia::Metal)
+    endif()
+  else()
+    # NanoVG
+    if(IGRAPHICS_RENDERER STREQUAL "GL3")
+      set(IGRAPHICS_LIB iPlug2::IGraphics::NanoVG::GL3)
+    elseif(IGRAPHICS_RENDERER STREQUAL "METAL")
+      set(IGRAPHICS_LIB iPlug2::IGraphics::NanoVG::Metal)
+    else()
+      # Default to GL2 for NanoVG
+      set(IGRAPHICS_LIB iPlug2::IGraphics::NanoVG)
+    endif()
+  endif()
+  message(STATUS "IGraphics: ${IGRAPHICS_BACKEND}/${IGRAPHICS_RENDERER} -> ${IGRAPHICS_LIB}")
+endif()
