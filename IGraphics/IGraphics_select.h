@@ -52,6 +52,9 @@
   #elif defined IGRAPHICS_SKIA
     #include "IGraphicsSkia.h"
     #define IGRAPHICS_DRAW_CLASS_TYPE IGraphicsSkia
+  #elif defined IGRAPHICS_BLEND2D
+    #include "IGraphicsBlend2D.h"
+    #define IGRAPHICS_DRAW_CLASS_TYPE IGraphicsBlend2D
   #else
     #error NO IGRAPHICS_MODE defined
   #endif

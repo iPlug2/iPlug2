@@ -63,6 +63,9 @@
     sk_sp<SkSurface> mSurface;
   };
   #define BITMAP_DATA_TYPE SkiaDrawable*
+#elif defined IGRAPHICS_BLEND2D
+  #include <blend2d.h>
+  #define BITMAP_DATA_TYPE BLImage*
 #else // NO_IGRAPHICS
   #define BITMAP_DATA_TYPE void*;
 #endif
