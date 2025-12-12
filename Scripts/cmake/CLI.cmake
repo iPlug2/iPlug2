@@ -60,5 +60,10 @@ function(iplug_configure_cli target project_name)
     set_target_properties(${target} PROPERTIES
       RUNTIME_OUTPUT_DIRECTORY "${project_name}-cli"
     )
+  elseif(UNIX AND NOT APPLE)
+    # Linux CLI configuration
+    set_target_properties(${target} PROPERTIES
+      RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/out"
+    )
   endif()
 endfunction()
