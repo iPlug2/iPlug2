@@ -232,6 +232,150 @@ const void* LoadWinResource(const char* resid, const char* type, int& sizeInByte
   }
 }
 
+#elif defined OS_LINUX
+#pragma mark - OS_LINUX
+
+#include <unistd.h>
+#include <pwd.h>
+#include <sys/stat.h>
+#include <limits.h>
+
+void HostPath(WDL_String& path, const char* bundleID)
+{
+  char result[PATH_MAX];
+  ssize_t count = readlink("/proc/self/exe", result, PATH_MAX);
+  if (count > 0)
+  {
+    result[count] = '\0';
+    path.Set(result);
+    // Remove executable name to get directory
+    char* lastSlash = strrchr(path.Get(), '/');
+    if (lastSlash)
+      path.SetLen(lastSlash - path.Get() + 1);
+  }
+  else
+  {
+    path.Set("");
+  }
+}
+
+void PluginPath(WDL_String& path, void* pExtra)
+{
+  HostPath(path, nullptr);
+}
+
+void BundleResourcePath(WDL_String& path, void* pExtra)
+{
+  HostPath(path, nullptr);
+  path.Append("resources/");
+}
+
+void DesktopPath(WDL_String& path)
+{
+  const char* home = getenv("HOME");
+  if (!home)
+  {
+    struct passwd* pw = getpwuid(getuid());
+    home = pw ? pw->pw_dir : "/tmp";
+  }
+  path.Set(home);
+  path.Append("/Desktop");
+}
+
+void UserHomePath(WDL_String& path)
+{
+  const char* home = getenv("HOME");
+  if (!home)
+  {
+    struct passwd* pw = getpwuid(getuid());
+    home = pw ? pw->pw_dir : "/tmp";
+  }
+  path.Set(home);
+}
+
+void AppSupportPath(WDL_String& path, bool isSystem)
+{
+  if (isSystem)
+  {
+    path.Set("/usr/local/share");
+  }
+  else
+  {
+    const char* xdgData = getenv("XDG_DATA_HOME");
+    if (xdgData && xdgData[0])
+    {
+      path.Set(xdgData);
+    }
+    else
+    {
+      UserHomePath(path);
+      path.Append("/.local/share");
+    }
+  }
+}
+
+void VST3PresetsPath(WDL_String& path, const char* mfrName, const char* pluginName, bool isSystem)
+{
+  AppSupportPath(path, isSystem);
+  path.AppendFormatted(PATH_MAX, "/vst3/presets/%s/%s", mfrName, pluginName);
+}
+
+void INIPath(WDL_String& path, const char* pluginName)
+{
+  const char* xdgConfig = getenv("XDG_CONFIG_HOME");
+  if (xdgConfig && xdgConfig[0])
+  {
+    path.Set(xdgConfig);
+  }
+  else
+  {
+    UserHomePath(path);
+    path.Append("/.config");
+  }
+  path.AppendFormatted(PATH_MAX, "/%s", pluginName);
+}
+
+void WebViewCachePath(WDL_String& path)
+{
+  const char* xdgCache = getenv("XDG_CACHE_HOME");
+  if (xdgCache && xdgCache[0])
+  {
+    path.Set(xdgCache);
+  }
+  else
+  {
+    UserHomePath(path);
+    path.Append("/.cache");
+  }
+  path.Append("/iPlug2/WebViewCache");
+}
+
+EResourceLocation LocateResource(const char* name, const char* type, WDL_String& result, const char* bundleID, void* pHInstance, const char* sharedResourcesSubPath)
+{
+  if (CStringHasContents(name))
+  {
+    // First check if it's an absolute path that exists
+    struct stat st;
+    if (stat(name, &st) == 0)
+    {
+      result.Set(name);
+      return EResourceLocation::kAbsolutePath;
+    }
+
+    // Check in bundle resources path
+    WDL_String resourcePath;
+    BundleResourcePath(resourcePath, pHInstance);
+    resourcePath.Append(name);
+
+    if (stat(resourcePath.Get(), &st) == 0)
+    {
+      result.Set(resourcePath.Get());
+      return EResourceLocation::kAbsolutePath;
+    }
+  }
+  return EResourceLocation::kNotFound;
+}
+
 #elif defined OS_WEB
 #pragma mark - OS_WEB
 

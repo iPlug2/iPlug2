@@ -32,10 +32,21 @@ iplug_add_target(_${PROJECT_NAME}-base INTERFACE
 )
 
 # ============================================================================
-# macOS/Windows targets (not iOS, not Emscripten)
-# Note: This is a NO_IGRAPHICS plugin, so WAM/Web targets are not supported
+# CLI Target (Command-line headless) - All desktop platforms including Linux
 # ============================================================================
 if(NOT IOS AND NOT CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+  add_executable(${PROJECT_NAME}-cli ${SOURCE_FILES})
+  iplug_add_target(${PROJECT_NAME}-cli PUBLIC
+    LINK iPlug2::CLI _${PROJECT_NAME}-base
+  )
+  iplug_configure_cli(${PROJECT_NAME}-cli ${PROJECT_NAME})
+endif()
+
+# ============================================================================
+# macOS/Windows targets (not iOS, not Emscripten, not Linux - Linux only supports CLI for now)
+# Note: This is a NO_IGRAPHICS plugin, so WAM/Web targets are not supported
+# ============================================================================
+if(NOT IOS AND NOT CMAKE_SYSTEM_NAME STREQUAL "Emscripten" AND NOT (UNIX AND NOT APPLE))
   # ============================================================================
   # APP Target (Standalone Application) - NO UI
   # ============================================================================

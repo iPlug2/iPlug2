@@ -31,6 +31,10 @@
 #include <CoreFoundation/CoreFoundation.h>
 #elif defined OS_WEB
 #include <emscripten/html5.h>
+#elif defined OS_LINUX
+#include <thread>
+#include <atomic>
+#include <chrono>
 #endif
 
 BEGIN_IPLUG_NAMESPACE
@@ -90,10 +94,24 @@ public:
   ~Timer_impl();
   void Stop() override;
   static void TimerProc(void *userData);
-  
+
 private:
   long ID = 0;
   ITimerFunction mTimerFunc;
+};
+#elif defined OS_LINUX
+class Timer_impl : public Timer
+{
+public:
+  Timer_impl(ITimerFunction func, uint32_t intervalMs);
+  ~Timer_impl();
+  void Stop() override;
+
+private:
+  std::thread mThread;
+  std::atomic<bool> mRunning{false};
+  ITimerFunction mTimerFunc;
+  uint32_t mIntervalMs;
 };
 #else
   #error NOT IMPLEMENTED

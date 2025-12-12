@@ -86,10 +86,15 @@ if(NOT TARGET iPlug2::IPlug)
       "-framework Foundation"
     )
   elseif(UNIX AND NOT APPLE)
-    message("Error - Linux not yet supported")
+    # Linux support - headless/CLI only for now
+    target_link_libraries(iPlug2::IPlug INTERFACE
+      pthread
+      dl
+    )
   endif()
   
-  if((CMAKE_CXX_COMPILER_ID MATCHES "Clang") OR (CMAKE_CXX_COMPILER_ID MATCHES "GNU"))
-    target_link_options(iPlug2::IPlug INTERFACE -Wl)
-  endif()
+  # Note: Linker options can be added here if needed
+  # if((CMAKE_CXX_COMPILER_ID MATCHES "Clang") OR (CMAKE_CXX_COMPILER_ID MATCHES "GNU"))
+  #   target_link_options(iPlug2::IPlug INTERFACE -Wl,<option>)
+  # endif()
 endif()
