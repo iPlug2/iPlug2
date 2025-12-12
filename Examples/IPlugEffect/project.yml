@@ -1,0 +1,738 @@
+# XcodeGen project spec for IPlugEffect
+# Generate with: xcodegen generate --spec project.yml
+# This demonstrates how XcodeGen can replace manually maintained .xcodeproj files
+
+name: IPlugEffect
+
+############################################
+# Options
+############################################
+options:
+  bundleIdPrefix: com.AcmeInc
+  deploymentTarget:
+    macOS: "10.13"
+    iOS: "15.0"
+  xcodeVersion: "15.0"
+  generateEmptyDirectories: false
+  createIntermediateGroups: true
+  developmentLanguage: en
+  defaultConfig: Release
+
+############################################
+# Project-level config files
+############################################
+configFiles:
+  Debug: config/IPlugEffect-mac.xcconfig
+  Release: config/IPlugEffect-mac.xcconfig
+  Tracer: config/IPlugEffect-mac.xcconfig
+
+############################################
+# Build configurations
+############################################
+configs:
+  Debug: debug
+  Release: release
+  Tracer: release
+
+############################################
+# File Groups (for organizing project navigator)
+############################################
+fileGroups:
+  - config
+  - resources
+  - scripts
+
+############################################
+# Settings Templates (define once, reuse)
+############################################
+settingGroups:
+  # Common base settings for all targets
+  common_base:
+    CLANG_CXX_LANGUAGE_STANDARD: c++17
+    CLANG_CXX_LIBRARY: libc++
+    GCC_PRECOMPILE_PREFIX_HEADER: YES
+    GCC_PREFIX_HEADER: $(IPLUG_PATH)/IPlugOBJCPrefix.pch
+    HEADER_SEARCH_PATHS:
+      - $(inherited)
+      - $(IPLUG_INC_PATHS)
+      - $(EXTRA_INC_PATHS)
+    LIBRARY_SEARCH_PATHS:
+      - $(inherited)
+      - $(EXTRA_LIB_PATHS)
+
+  # Plugin-common settings (VST2, VST3, AU, AAX, CLAP)
+  plugin_common:
+    groups: [common_base]
+    WRAPPER_EXTENSION: bundle
+    GENERATE_PKGINFO_FILE: YES
+    SKIP_INSTALL: YES
+    DEPLOYMENT_LOCATION: YES
+    STRIP_INSTALLED_PRODUCT: NO
+    COPY_PHASE_STRIP: NO
+
+  # Standalone app settings
+  app_common:
+    groups: [common_base]
+    INFOPLIST_FILE: resources/IPlugEffect-macOS-Info.plist
+    ENABLE_HARDENED_RUNTIME: YES
+    CODE_SIGN_ENTITLEMENTS: projects/IPlugEffect-macOS.entitlements
+    PRODUCT_NAME: $(BINARY_NAME)
+    LD_RUNPATH_SEARCH_PATHS: "@executable_path/../Frameworks"
+
+############################################
+# Target Templates (format-specific configs)
+############################################
+targetTemplates:
+
+  # VST3 Plugin Template
+  VST3_Template:
+    platform: macOS
+    type: bundle
+    settings:
+      groups: [plugin_common]
+      PRODUCT_NAME: $(BINARY_NAME)
+      INFOPLIST_FILE: resources/IPlugEffect-VST3-Info.plist
+      WRAPPER_EXTENSION: vst3
+      DSTROOT: $(VST3_PATH)
+      INSTALL_PATH: /
+      GCC_PREPROCESSOR_DEFINITIONS:
+        - $(inherited)
+        - $(EXTRA_PLUGIN_DEFS)
+        - $(EXTRA_VST3_DEFS)
+        - $(VST3_DEFS)
+        - $(EXTRA_ALL_DEFS)
+        - $(ALL_DEFS)
+    sources:
+      - path: .
+        includes:
+          - "*.cpp"
+          - "*.h"
+        excludes:
+          - "*.md"
+          - "*.RPP"
+      - path: ../../IPlug
+        buildPhase: sources
+        includes:
+          - "IPlugAPIBase.cpp"
+          - "IPlugParameter.cpp"
+          - "IPlugPluginBase.cpp"
+          - "IPlugProcessor.cpp"
+          - "IPlugPaths.mm"
+          - "IPlugTimer.cpp"
+        name: IPlug
+      - path: ../../IPlug/VST3
+        buildPhase: sources
+        includes:
+          - "*.cpp"
+        excludes:
+          - "*_Controller.cpp"
+          - "*_Processor.cpp"
+        name: VST3
+      - path: ../../IGraphics
+        buildPhase: sources
+        includes:
+          - "*.cpp"
+        name: IGraphics
+      - path: ../../IGraphics/Controls
+        buildPhase: sources
+        includes:
+          - "*.cpp"
+        name: Controls
+      - path: ../../IGraphics/Platforms
+        buildPhase: sources
+        includes:
+          - "IGraphicsMac.mm"
+          - "IGraphicsMac_view.mm"
+          - "IGraphicsCoreText.mm"
+        name: Platforms
+      - path: ../../IGraphics/Drawing
+        buildPhase: sources
+        includes:
+          - "IGraphicsNanoVG.cpp"
+          - "IGraphicsNanoVG_src.m"
+        name: Drawing
+      - path: ../../WDL/swell
+        buildPhase: sources
+        includes:
+          - "swell.cpp"
+          - "swell-ini.cpp"
+          - "swell-misc.mm"
+          - "swell-gdi.mm"
+          - "swell-kb.mm"
+          - "swell-menu.mm"
+          - "swell-wnd.mm"
+          - "swell-dlg.mm"
+          - "swell-miscdlg.mm"
+        name: SWELL
+    dependencies:
+      - sdk: Cocoa.framework
+      - sdk: Carbon.framework
+      - sdk: CoreFoundation.framework
+      - sdk: CoreServices.framework
+      - sdk: QuartzCore.framework
+      - sdk: Metal.framework
+      - sdk: MetalKit.framework
+      - sdk: OpenGL.framework
+
+  # CLAP Plugin Template
+  CLAP_Template:
+    platform: macOS
+    type: bundle
+    settings:
+      groups: [plugin_common]
+      PRODUCT_NAME: $(BINARY_NAME)
+      INFOPLIST_FILE: resources/IPlugEffect-CLAP-Info.plist
+      WRAPPER_EXTENSION: clap
+      DSTROOT: $(CLAP_PATH)
+      INSTALL_PATH: /
+      GCC_PREPROCESSOR_DEFINITIONS:
+        - $(inherited)
+        - $(EXTRA_PLUGIN_DEFS)
+        - $(EXTRA_CLAP_DEFS)
+        - $(CLAP_DEFS)
+        - $(EXTRA_ALL_DEFS)
+        - $(ALL_DEFS)
+      HEADER_SEARCH_PATHS:
+        - $(inherited)
+        - $(CLAP_INC_PATHS)
+    sources:
+      - path: .
+        includes:
+          - "*.cpp"
+          - "*.h"
+        excludes:
+          - "*.md"
+          - "*.RPP"
+      - path: ../../IPlug
+        buildPhase: sources
+        includes:
+          - "IPlugAPIBase.cpp"
+          - "IPlugParameter.cpp"
+          - "IPlugPluginBase.cpp"
+          - "IPlugProcessor.cpp"
+          - "IPlugPaths.mm"
+          - "IPlugTimer.cpp"
+        name: IPlug
+      - path: ../../IPlug/CLAP
+        buildPhase: sources
+        includes:
+          - "*.cpp"
+        name: CLAP
+      - path: ../../IGraphics
+        buildPhase: sources
+        includes:
+          - "*.cpp"
+        name: IGraphics
+      - path: ../../IGraphics/Controls
+        buildPhase: sources
+        includes:
+          - "*.cpp"
+        name: Controls
+      - path: ../../IGraphics/Platforms
+        buildPhase: sources
+        includes:
+          - "IGraphicsMac.mm"
+          - "IGraphicsMac_view.mm"
+          - "IGraphicsCoreText.mm"
+        name: Platforms
+      - path: ../../IGraphics/Drawing
+        buildPhase: sources
+        includes:
+          - "IGraphicsNanoVG.cpp"
+          - "IGraphicsNanoVG_src.m"
+        name: Drawing
+      - path: ../../WDL/swell
+        buildPhase: sources
+        includes:
+          - "swell.cpp"
+          - "swell-ini.cpp"
+          - "swell-misc.mm"
+          - "swell-gdi.mm"
+          - "swell-kb.mm"
+          - "swell-menu.mm"
+          - "swell-wnd.mm"
+          - "swell-dlg.mm"
+          - "swell-miscdlg.mm"
+        name: SWELL
+    dependencies:
+      - sdk: Cocoa.framework
+      - sdk: Carbon.framework
+      - sdk: CoreFoundation.framework
+      - sdk: CoreServices.framework
+      - sdk: QuartzCore.framework
+      - sdk: Metal.framework
+      - sdk: MetalKit.framework
+      - sdk: OpenGL.framework
+
+  # AUv2 Plugin Template
+  AUv2_Template:
+    platform: macOS
+    type: bundle
+    settings:
+      groups: [plugin_common]
+      PRODUCT_NAME: $(BINARY_NAME)
+      INFOPLIST_FILE: resources/IPlugEffect-AU-Info.plist
+      WRAPPER_EXTENSION: component
+      DSTROOT: $(AU_PATH)
+      INSTALL_PATH: /
+      GCC_PREPROCESSOR_DEFINITIONS:
+        - $(inherited)
+        - $(EXTRA_PLUGIN_DEFS)
+        - $(EXTRA_AU_DEFS)
+        - $(AU_DEFS)
+        - $(EXTRA_ALL_DEFS)
+        - $(ALL_DEFS)
+    sources:
+      - path: .
+        includes:
+          - "*.cpp"
+          - "*.h"
+        excludes:
+          - "*.md"
+          - "*.RPP"
+      - path: ../../IPlug
+        buildPhase: sources
+        includes:
+          - "IPlugAPIBase.cpp"
+          - "IPlugParameter.cpp"
+          - "IPlugPluginBase.cpp"
+          - "IPlugProcessor.cpp"
+          - "IPlugPaths.mm"
+          - "IPlugTimer.cpp"
+        name: IPlug
+      - path: ../../IPlug/AUv2
+        buildPhase: sources
+        includes:
+          - "IPlugAU.cpp"
+          - "IPlugAU_view_factory.mm"
+          - "dfx-au-utilities.c"
+          - "IPlugAU.r"
+        name: AUv2
+      - path: ../../IGraphics
+        buildPhase: sources
+        includes:
+          - "*.cpp"
+        name: IGraphics
+      - path: ../../IGraphics/Controls
+        buildPhase: sources
+        includes:
+          - "*.cpp"
+        name: Controls
+      - path: ../../IGraphics/Platforms
+        buildPhase: sources
+        includes:
+          - "IGraphicsMac.mm"
+          - "IGraphicsMac_view.mm"
+          - "IGraphicsCoreText.mm"
+        name: Platforms
+      - path: ../../IGraphics/Drawing
+        buildPhase: sources
+        includes:
+          - "IGraphicsNanoVG.cpp"
+          - "IGraphicsNanoVG_src.m"
+        name: Drawing
+      - path: ../../WDL/swell
+        buildPhase: sources
+        includes:
+          - "swell.cpp"
+          - "swell-ini.cpp"
+          - "swell-misc.mm"
+          - "swell-gdi.mm"
+          - "swell-kb.mm"
+          - "swell-menu.mm"
+          - "swell-wnd.mm"
+          - "swell-dlg.mm"
+          - "swell-miscdlg.mm"
+        name: SWELL
+    dependencies:
+      - sdk: Cocoa.framework
+      - sdk: Carbon.framework
+      - sdk: CoreFoundation.framework
+      - sdk: CoreServices.framework
+      - sdk: QuartzCore.framework
+      - sdk: AudioUnit.framework
+      - sdk: AudioToolbox.framework
+      - sdk: CoreAudio.framework
+      - sdk: CoreMIDI.framework
+      - sdk: Metal.framework
+      - sdk: MetalKit.framework
+      - sdk: OpenGL.framework
+
+  # Standalone App Template
+  APP_Template:
+    platform: macOS
+    type: application
+    settings:
+      groups: [app_common]
+      DSTROOT: $(APP_PATH)
+      INSTALL_PATH: /
+      GCC_PREPROCESSOR_DEFINITIONS:
+        - $(inherited)
+        - $(EXTRA_APP_DEFS)
+        - $(APP_DEFS)
+        - $(EXTRA_ALL_DEFS)
+        - $(ALL_DEFS)
+    sources:
+      - path: .
+        includes:
+          - "*.cpp"
+          - "*.h"
+        excludes:
+          - "*.md"
+          - "*.RPP"
+      - path: ../../IPlug
+        buildPhase: sources
+        includes:
+          - "IPlugAPIBase.cpp"
+          - "IPlugParameter.cpp"
+          - "IPlugPluginBase.cpp"
+          - "IPlugProcessor.cpp"
+          - "IPlugPaths.mm"
+          - "IPlugTimer.cpp"
+        name: IPlug
+      - path: ../../IPlug/APP
+        buildPhase: sources
+        includes:
+          - "*.cpp"
+        name: APP
+      - path: ../../IGraphics
+        buildPhase: sources
+        includes:
+          - "*.cpp"
+        name: IGraphics
+      - path: ../../IGraphics/Controls
+        buildPhase: sources
+        includes:
+          - "*.cpp"
+        name: Controls
+      - path: ../../IGraphics/Platforms
+        buildPhase: sources
+        includes:
+          - "IGraphicsMac.mm"
+          - "IGraphicsMac_view.mm"
+          - "IGraphicsCoreText.mm"
+        name: Platforms
+      - path: ../../IGraphics/Drawing
+        buildPhase: sources
+        includes:
+          - "IGraphicsNanoVG.cpp"
+          - "IGraphicsNanoVG_src.m"
+        name: Drawing
+      - path: ../../WDL/swell
+        buildPhase: sources
+        includes:
+          - "swell.cpp"
+          - "swell-ini.cpp"
+          - "swell-misc.mm"
+          - "swell-gdi.mm"
+          - "swell-kb.mm"
+          - "swell-menu.mm"
+          - "swell-wnd.mm"
+          - "swell-dlg.mm"
+          - "swell-miscdlg.mm"
+        name: SWELL
+      - path: resources
+        buildPhase: resources
+        includes:
+          - "IPlugEffect-macOS-MainMenu.xib"
+          - "IPlugEffect.icns"
+          - "Images.xcassets"
+          - "fonts"
+        name: Resources
+    dependencies:
+      - sdk: Cocoa.framework
+      - sdk: Carbon.framework
+      - sdk: CoreFoundation.framework
+      - sdk: CoreServices.framework
+      - sdk: QuartzCore.framework
+      - sdk: AppKit.framework
+      - sdk: CoreMIDI.framework
+      - sdk: CoreAudio.framework
+      - sdk: Metal.framework
+      - sdk: MetalKit.framework
+      - sdk: OpenGL.framework
+
+############################################
+# Targets
+############################################
+targets:
+
+  # VST3 Plugin
+  VST3:
+    templates: [VST3_Template]
+    scheme:
+      configVariants: [Debug, Release, Tracer]
+      testTargets: []
+
+  # CLAP Plugin
+  CLAP:
+    templates: [CLAP_Template]
+    scheme:
+      configVariants: [Debug, Release, Tracer]
+      testTargets: []
+
+  # AUv2 Plugin
+  AUv2:
+    templates: [AUv2_Template]
+    scheme:
+      configVariants: [Debug, Release, Tracer]
+      testTargets: []
+
+  # Standalone Application
+  APP:
+    templates: [APP_Template]
+    scheme:
+      configVariants: [Debug, Release, Tracer]
+      testTargets: []
+
+  # AUv3 Framework (embedded in both AUv3 extension and host app)
+  AUv3Framework:
+    platform: macOS
+    type: framework
+    settings:
+      groups: [common_base]
+      PRODUCT_NAME: AUv3Framework
+      PRODUCT_BUNDLE_IDENTIFIER: $(BUNDLE_DOMAIN).$(BUNDLE_MFR).audiounit.$(BINARY_NAME).framework
+      INFOPLIST_FILE: resources/IPlugEffect-macOS-AUv3Framework-Info.plist
+      DEFINES_MODULE: YES
+      CURRENT_PROJECT_VERSION: 1
+      VERSIONING_SYSTEM: apple-generic
+      DYLIB_INSTALL_NAME_BASE: "@rpath"
+      LD_RUNPATH_SEARCH_PATHS: "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks"
+      SKIP_INSTALL: YES
+      GCC_PREPROCESSOR_DEFINITIONS:
+        - $(inherited)
+        - $(AUv3_DEFS)
+        - $(EXTRA_ALL_DEFS)
+        - $(ALL_DEFS)
+    sources:
+      - path: .
+        includes:
+          - "*.cpp"
+          - "*.h"
+        excludes:
+          - "*.md"
+          - "*.RPP"
+      - path: ../../IPlug
+        buildPhase: sources
+        includes:
+          - "IPlugAPIBase.cpp"
+          - "IPlugParameter.cpp"
+          - "IPlugPluginBase.cpp"
+          - "IPlugProcessor.cpp"
+          - "IPlugPaths.mm"
+          - "IPlugTimer.cpp"
+        name: IPlug
+      - path: ../../IPlug/AUv3
+        buildPhase: sources
+        includes:
+          - "IPlugAUv3.mm"
+          - "IPlugAUAudioUnit.mm"
+          - "IPlugAUViewController.mm"
+        excludes:
+          - "IPlugAUv3Appex.m"
+          - "iOSApp/**"
+        name: AUv3
+      - path: ../../IGraphics
+        buildPhase: sources
+        includes:
+          - "*.cpp"
+        name: IGraphics
+      - path: ../../IGraphics/Controls
+        buildPhase: sources
+        includes:
+          - "*.cpp"
+        name: Controls
+      - path: ../../IGraphics/Platforms
+        buildPhase: sources
+        includes:
+          - "IGraphicsMac.mm"
+          - "IGraphicsMac_view.mm"
+          - "IGraphicsCoreText.mm"
+        name: Platforms
+      - path: ../../IGraphics/Drawing
+        buildPhase: sources
+        includes:
+          - "IGraphicsNanoVG.cpp"
+          - "IGraphicsNanoVG_src.m"
+        name: Drawing
+      - path: ../../WDL/swell
+        buildPhase: sources
+        includes:
+          - "swell.cpp"
+          - "swell-ini.cpp"
+          - "swell-misc.mm"
+          - "swell-gdi.mm"
+          - "swell-kb.mm"
+          - "swell-menu.mm"
+          - "swell-wnd.mm"
+          - "swell-dlg.mm"
+          - "swell-miscdlg.mm"
+        name: SWELL
+      - path: resources
+        buildPhase: resources
+        includes:
+          - "IPlugAUViewController_vIPlugEffect.xib"
+          - "fonts"
+        name: Resources
+      - path: resources/AUv3Framework.h
+        buildPhase: headers
+        headerVisibility: public
+    dependencies:
+      - sdk: Cocoa.framework
+      - sdk: CoreFoundation.framework
+      - sdk: QuartzCore.framework
+      - sdk: AudioToolbox.framework
+      - sdk: AVFoundation.framework
+      - sdk: CoreAudio.framework
+      - sdk: CoreAudioKit.framework
+      - sdk: Metal.framework
+      - sdk: MetalKit.framework
+      - sdk: OpenGL.framework
+    scheme:
+      configVariants: [Debug, Release, Tracer]
+
+  # AUv3 App Extension
+  AUv3:
+    platform: macOS
+    type: app-extension
+    settings:
+      groups: [common_base]
+      PRODUCT_NAME: $(BINARY_NAME)
+      PRODUCT_BUNDLE_IDENTIFIER: $(BUNDLE_DOMAIN).$(BUNDLE_MFR).app.$(BINARY_NAME).AUv3
+      INFOPLIST_FILE: resources/IPlugEffect-macOS-AUv3-Info.plist
+      CODE_SIGN_ENTITLEMENTS: projects/IPlugEffect-macOS.entitlements
+      SKIP_INSTALL: YES
+      LD_RUNPATH_SEARCH_PATHS: "$(inherited) @executable_path/../Frameworks @executable_path/../../../../Frameworks"
+      GCC_PREPROCESSOR_DEFINITIONS:
+        - $(inherited)
+        - $(AUv3_DEFS)
+        - $(EXTRA_ALL_DEFS)
+        - $(ALL_DEFS)
+    sources:
+      - path: ../../IPlug/AUv3/IPlugAUv3Appex.m
+        name: IPlugAUv3Appex.m
+    dependencies:
+      - target: AUv3Framework
+        embed: true
+        codeSign: true
+    scheme:
+      configVariants: [Debug, Release, Tracer]
+
+  # APP with AUv3 (host app that contains the AUv3 extension)
+  APP-AUv3:
+    platform: macOS
+    type: application
+    settings:
+      groups: [app_common]
+      PRODUCT_NAME: $(BINARY_NAME)
+      PRODUCT_BUNDLE_IDENTIFIER: $(BUNDLE_DOMAIN).$(BUNDLE_MFR).app.$(BINARY_NAME)
+      DSTROOT: $(APP_PATH)
+      INSTALL_PATH: /
+      GCC_PREPROCESSOR_DEFINITIONS:
+        - $(inherited)
+        - $(EXTRA_APP_DEFS)
+        - $(APP_DEFS)
+        - $(EXTRA_ALL_DEFS)
+        - $(ALL_DEFS)
+    sources:
+      - path: .
+        includes:
+          - "*.cpp"
+          - "*.h"
+        excludes:
+          - "*.md"
+          - "*.RPP"
+      - path: ../../IPlug
+        buildPhase: sources
+        includes:
+          - "IPlugAPIBase.cpp"
+          - "IPlugParameter.cpp"
+          - "IPlugPluginBase.cpp"
+          - "IPlugProcessor.cpp"
+          - "IPlugPaths.mm"
+          - "IPlugTimer.cpp"
+        name: IPlug
+      - path: ../../IPlug/APP
+        buildPhase: sources
+        includes:
+          - "*.cpp"
+        name: APP
+      - path: ../../IGraphics
+        buildPhase: sources
+        includes:
+          - "*.cpp"
+        name: IGraphics
+      - path: ../../IGraphics/Controls
+        buildPhase: sources
+        includes:
+          - "*.cpp"
+        name: Controls
+      - path: ../../IGraphics/Platforms
+        buildPhase: sources
+        includes:
+          - "IGraphicsMac.mm"
+          - "IGraphicsMac_view.mm"
+          - "IGraphicsCoreText.mm"
+        name: Platforms
+      - path: ../../IGraphics/Drawing
+        buildPhase: sources
+        includes:
+          - "IGraphicsNanoVG.cpp"
+          - "IGraphicsNanoVG_src.m"
+        name: Drawing
+      - path: ../../WDL/swell
+        buildPhase: sources
+        includes:
+          - "swell.cpp"
+          - "swell-ini.cpp"
+          - "swell-misc.mm"
+          - "swell-gdi.mm"
+          - "swell-kb.mm"
+          - "swell-menu.mm"
+          - "swell-wnd.mm"
+          - "swell-dlg.mm"
+          - "swell-miscdlg.mm"
+        name: SWELL
+      - path: resources
+        buildPhase: resources
+        includes:
+          - "IPlugEffect-macOS-MainMenu.xib"
+          - "IPlugEffect.icns"
+          - "Images.xcassets"
+          - "fonts"
+        name: Resources
+    dependencies:
+      - target: AUv3
+        embed: true
+        codeSign: true
+      - target: AUv3Framework
+        embed: true
+        codeSign: true
+      - sdk: Cocoa.framework
+      - sdk: Carbon.framework
+      - sdk: CoreFoundation.framework
+      - sdk: CoreServices.framework
+      - sdk: QuartzCore.framework
+      - sdk: AppKit.framework
+      - sdk: CoreMIDI.framework
+      - sdk: CoreAudio.framework
+      - sdk: Metal.framework
+      - sdk: MetalKit.framework
+      - sdk: OpenGL.framework
+    scheme:
+      configVariants: [Debug, Release, Tracer]
+
+############################################
+# Schemes
+############################################
+schemes:
+  # Aggregate scheme to build all macOS targets
+  All-macOS:
+    build:
+      targets:
+        VST3: all
+        CLAP: all
+        AUv2: all
+        APP: all
+        APP-AUv3: all

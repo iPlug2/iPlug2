@@ -1,0 +1,423 @@
+# iPlug2 Common XcodeGen Templates
+# Include this file in your project.yml with:
+#   include:
+#     - path: ../../Scripts/xcodegen/iplug2-common.yml
+#
+# Then use the target templates defined here.
+
+############################################
+# Common Settings Groups
+############################################
+settingGroups:
+
+  # Base settings for all macOS targets
+  iplug2_macos_base:
+    CLANG_CXX_LANGUAGE_STANDARD: c++17
+    CLANG_CXX_LIBRARY: libc++
+    MACOSX_DEPLOYMENT_TARGET: "10.13"
+    ARCHS: $(ARCHS_STANDARD_64_BIT)
+    GCC_PRECOMPILE_PREFIX_HEADER: YES
+    GCC_PREFIX_HEADER: $(IPLUG_PATH)/IPlugOBJCPrefix.pch
+    CLANG_WARN_DOCUMENTATION_COMMENTS: NO
+    CLANG_ENABLE_OBJC_WEAK: YES
+    HEADER_SEARCH_PATHS:
+      - $(inherited)
+      - $(IPLUG_INC_PATHS)
+      - $(EXTRA_INC_PATHS)
+    LIBRARY_SEARCH_PATHS:
+      - $(inherited)
+      - $(EXTRA_LIB_PATHS)
+    OTHER_LDFLAGS:
+      - $(inherited)
+      - $(EXTRA_LNK_FLAGS)
+
+  # Base settings for all iOS targets
+  iplug2_ios_base:
+    CLANG_CXX_LANGUAGE_STANDARD: c++17
+    CLANG_CXX_LIBRARY: libc++
+    IPHONEOS_DEPLOYMENT_TARGET: "15.0"
+    GCC_PRECOMPILE_PREFIX_HEADER: YES
+    GCC_PREFIX_HEADER: $(IPLUG_PATH)/IPlugOBJCPrefix.pch
+    CLANG_WARN_DOCUMENTATION_COMMENTS: NO
+    CLANG_ENABLE_OBJC_WEAK: YES
+    HEADER_SEARCH_PATHS:
+      - $(inherited)
+      - $(IPLUG_INC_PATHS)
+      - $(EXTRA_INC_PATHS)
+    LIBRARY_SEARCH_PATHS:
+      - $(inherited)
+      - $(EXTRA_LIB_PATHS)
+
+  # Plugin-common settings (bundles)
+  iplug2_plugin_bundle:
+    WRAPPER_EXTENSION: bundle
+    GENERATE_PKGINFO_FILE: YES
+    SKIP_INSTALL: YES
+    DEPLOYMENT_LOCATION: YES
+    STRIP_INSTALLED_PRODUCT: NO
+    COPY_PHASE_STRIP: NO
+
+  # Debug configuration
+  iplug2_debug:
+    GCC_OPTIMIZATION_LEVEL: "0"
+    GCC_PREPROCESSOR_DEFINITIONS:
+      - $(inherited)
+      - $(DEBUG_DEFS)
+      - $(EXTRA_DEBUG_DEFS)
+
+  # Release configuration
+  iplug2_release:
+    GCC_OPTIMIZATION_LEVEL: "3"
+    GCC_PREPROCESSOR_DEFINITIONS:
+      - $(inherited)
+      - $(RELEASE_DEFS)
+      - $(EXTRA_RELEASE_DEFS)
+
+  # Tracer configuration (debug build with tracing)
+  iplug2_tracer:
+    GCC_OPTIMIZATION_LEVEL: "0"
+    GCC_PREPROCESSOR_DEFINITIONS:
+      - $(inherited)
+      - $(TRACER_DEFS)
+      - $(EXTRA_TRACER_DEFS)
+
+############################################
+# Source File Groups
+# These define the IPlug/IGraphics source files needed for each target type
+############################################
+
+# Note: XcodeGen doesn't support reusable source definitions directly,
+# so projects should reference these paths. Here we document them:
+#
+# IPlug Core Sources (all targets need these):
+#   - IPlugAPIBase.cpp
+#   - IPlugParameter.cpp
+#   - IPlugPluginBase.cpp
+#   - IPlugProcessor.cpp
+#   - IPlugPaths.mm (macOS) / IPlugPaths.cpp (other)
+#   - IPlugTimer.cpp
+#
+# VST3 Sources:
+#   - IPlug/VST3/IPlugVST3.cpp (single-binary)
+#   - OR IPlug/VST3/IPlugVST3_Processor.cpp + IPlugVST3_Controller.cpp (split)
+#
+# CLAP Sources:
+#   - IPlug/CLAP/IPlugCLAP.cpp
+#
+# AUv2 Sources:
+#   - IPlug/AUv2/IPlugAU.cpp
+#   - IPlug/AUv2/IPlugAU_view_factory.mm
+#   - IPlug/AUv2/dfx-au-utilities.c
+#   - IPlug/AUv2/IPlugAU.r
+#
+# AUv3 Sources:
+#   - IPlug/AUv3/IPlugAUv3.mm
+#   - IPlug/AUv3/IPlugAUAudioUnit.mm
+#   - IPlug/AUv3/IPlugAUViewController.mm
+#   - IPlug/AUv3/IPlugAUv3Appex.m (for appex target only)
+#
+# APP Sources:
+#   - IPlug/APP/IPlugAPP.cpp
+#   - IPlug/APP/IPlugAPP_host.cpp
+#   - IPlug/APP/IPlugAPP_main.cpp
+#   - IPlug/APP/IPlugAPP_dialog.cpp
+#
+# AAX Sources:
+#   - IPlug/AAX/IPlugAAX.cpp
+#   - IPlug/AAX/IPlugAAX_Describe.cpp
+#   - IPlug/AAX/IPlugAAX_Parameters.cpp
+#
+# IGraphics Sources (NanoVG backend):
+#   - IGraphics/IGraphics.cpp
+#   - IGraphics/IGraphicsEditorDelegate.cpp
+#   - IGraphics/Controls/IControls.cpp
+#   - IGraphics/Controls/ITextEntryControl.cpp
+#   - IGraphics/Controls/IPopupMenuControl.cpp
+#   - IGraphics/Platforms/IGraphicsMac.mm
+#   - IGraphics/Platforms/IGraphicsMac_view.mm
+#   - IGraphics/Platforms/IGraphicsCoreText.mm
+#   - IGraphics/Drawing/IGraphicsNanoVG.cpp
+#   - IGraphics/Drawing/IGraphicsNanoVG_src.m
+#
+# SWELL Sources (macOS):
+#   - WDL/swell/swell.cpp
+#   - WDL/swell/swell-ini.cpp
+#   - WDL/swell/swell-misc.mm
+#   - WDL/swell/swell-gdi.mm
+#   - WDL/swell/swell-kb.mm
+#   - WDL/swell/swell-menu.mm
+#   - WDL/swell/swell-wnd.mm
+#   - WDL/swell/swell-dlg.mm
+#   - WDL/swell/swell-miscdlg.mm
+
+############################################
+# Target Templates
+############################################
+targetTemplates:
+
+  # ========================================
+  # macOS VST3 Plugin Template
+  # ========================================
+  IPlug2_VST3_macOS:
+    platform: macOS
+    type: bundle
+    settings:
+      groups:
+        - iplug2_macos_base
+        - iplug2_plugin_bundle
+      PRODUCT_NAME: $(BINARY_NAME)
+      WRAPPER_EXTENSION: vst3
+      DSTROOT: $(VST3_PATH)
+      INSTALL_PATH: /
+      CODE_SIGN_IDENTITY: ""
+      GCC_PREPROCESSOR_DEFINITIONS:
+        - $(inherited)
+        - $(EXTRA_PLUGIN_DEFS)
+        - $(EXTRA_VST3_DEFS)
+        - $(VST3_DEFS)
+        - $(EXTRA_ALL_DEFS)
+        - $(ALL_DEFS)
+    dependencies:
+      - sdk: Cocoa.framework
+      - sdk: Carbon.framework
+      - sdk: CoreFoundation.framework
+      - sdk: CoreServices.framework
+      - sdk: QuartzCore.framework
+      - sdk: Metal.framework
+      - sdk: MetalKit.framework
+      - sdk: OpenGL.framework
+
+  # ========================================
+  # macOS CLAP Plugin Template
+  # ========================================
+  IPlug2_CLAP_macOS:
+    platform: macOS
+    type: bundle
+    settings:
+      groups:
+        - iplug2_macos_base
+        - iplug2_plugin_bundle
+      PRODUCT_NAME: $(BINARY_NAME)
+      WRAPPER_EXTENSION: clap
+      DSTROOT: $(CLAP_PATH)
+      INSTALL_PATH: /
+      CODE_SIGN_IDENTITY: ""
+      HEADER_SEARCH_PATHS:
+        - $(inherited)
+        - $(CLAP_INC_PATHS)
+      GCC_PREPROCESSOR_DEFINITIONS:
+        - $(inherited)
+        - $(EXTRA_PLUGIN_DEFS)
+        - $(EXTRA_CLAP_DEFS)
+        - $(CLAP_DEFS)
+        - $(EXTRA_ALL_DEFS)
+        - $(ALL_DEFS)
+    dependencies:
+      - sdk: Cocoa.framework
+      - sdk: Carbon.framework
+      - sdk: CoreFoundation.framework
+      - sdk: CoreServices.framework
+      - sdk: QuartzCore.framework
+      - sdk: Metal.framework
+      - sdk: MetalKit.framework
+      - sdk: OpenGL.framework
+
+  # ========================================
+  # macOS AUv2 Plugin Template
+  # ========================================
+  IPlug2_AUv2_macOS:
+    platform: macOS
+    type: bundle
+    settings:
+      groups:
+        - iplug2_macos_base
+        - iplug2_plugin_bundle
+      PRODUCT_NAME: $(BINARY_NAME)
+      WRAPPER_EXTENSION: component
+      DSTROOT: $(AU_PATH)
+      INSTALL_PATH: /
+      GCC_PREPROCESSOR_DEFINITIONS:
+        - $(inherited)
+        - $(EXTRA_PLUGIN_DEFS)
+        - $(EXTRA_AU_DEFS)
+        - $(AU_DEFS)
+        - $(EXTRA_ALL_DEFS)
+        - $(ALL_DEFS)
+    dependencies:
+      - sdk: Cocoa.framework
+      - sdk: Carbon.framework
+      - sdk: CoreFoundation.framework
+      - sdk: CoreServices.framework
+      - sdk: QuartzCore.framework
+      - sdk: AudioUnit.framework
+      - sdk: AudioToolbox.framework
+      - sdk: CoreAudio.framework
+      - sdk: CoreMIDI.framework
+      - sdk: Metal.framework
+      - sdk: MetalKit.framework
+      - sdk: OpenGL.framework
+
+  # ========================================
+  # macOS Standalone App Template
+  # ========================================
+  IPlug2_APP_macOS:
+    platform: macOS
+    type: application
+    settings:
+      groups:
+        - iplug2_macos_base
+      PRODUCT_NAME: $(BINARY_NAME)
+      DSTROOT: $(APP_PATH)
+      INSTALL_PATH: /
+      ENABLE_HARDENED_RUNTIME: YES
+      LD_RUNPATH_SEARCH_PATHS: "@executable_path/../Frameworks"
+      GCC_PREPROCESSOR_DEFINITIONS:
+        - $(inherited)
+        - $(EXTRA_APP_DEFS)
+        - $(APP_DEFS)
+        - $(EXTRA_ALL_DEFS)
+        - $(ALL_DEFS)
+    dependencies:
+      - sdk: Cocoa.framework
+      - sdk: Carbon.framework
+      - sdk: CoreFoundation.framework
+      - sdk: CoreServices.framework
+      - sdk: QuartzCore.framework
+      - sdk: AppKit.framework
+      - sdk: CoreMIDI.framework
+      - sdk: CoreAudio.framework
+      - sdk: Metal.framework
+      - sdk: MetalKit.framework
+      - sdk: OpenGL.framework
+
+  # ========================================
+  # macOS AUv3 Framework Template
+  # ========================================
+  IPlug2_AUv3Framework_macOS:
+    platform: macOS
+    type: framework
+    settings:
+      groups:
+        - iplug2_macos_base
+      PRODUCT_NAME: AUv3Framework
+      DEFINES_MODULE: YES
+      CURRENT_PROJECT_VERSION: 1
+      VERSIONING_SYSTEM: apple-generic
+      DYLIB_INSTALL_NAME_BASE: "@rpath"
+      LD_RUNPATH_SEARCH_PATHS: "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks"
+      SKIP_INSTALL: YES
+      GCC_PREPROCESSOR_DEFINITIONS:
+        - $(inherited)
+        - $(AUv3_DEFS)
+        - $(EXTRA_ALL_DEFS)
+        - $(ALL_DEFS)
+    dependencies:
+      - sdk: Cocoa.framework
+      - sdk: CoreFoundation.framework
+      - sdk: QuartzCore.framework
+      - sdk: AudioToolbox.framework
+      - sdk: AVFoundation.framework
+      - sdk: CoreAudio.framework
+      - sdk: CoreAudioKit.framework
+      - sdk: Metal.framework
+      - sdk: MetalKit.framework
+      - sdk: OpenGL.framework
+
+  # ========================================
+  # macOS AUv3 App Extension Template
+  # ========================================
+  IPlug2_AUv3_macOS:
+    platform: macOS
+    type: app-extension
+    settings:
+      groups:
+        - iplug2_macos_base
+      PRODUCT_NAME: $(BINARY_NAME)
+      SKIP_INSTALL: YES
+      LD_RUNPATH_SEARCH_PATHS: "$(inherited) @executable_path/../Frameworks @executable_path/../../../../Frameworks"
+      GCC_PREPROCESSOR_DEFINITIONS:
+        - $(inherited)
+        - $(AUv3_DEFS)
+        - $(EXTRA_ALL_DEFS)
+        - $(ALL_DEFS)
+
+  # ========================================
+  # iOS AUv3 Framework Template
+  # ========================================
+  IPlug2_AUv3Framework_iOS:
+    platform: iOS
+    type: framework
+    settings:
+      groups:
+        - iplug2_ios_base
+      PRODUCT_NAME: AUv3Framework
+      DEFINES_MODULE: YES
+      CURRENT_PROJECT_VERSION: 1
+      VERSIONING_SYSTEM: apple-generic
+      DYLIB_INSTALL_NAME_BASE: "@rpath"
+      LD_RUNPATH_SEARCH_PATHS: "$(inherited) @executable_path/Frameworks @loader_path/Frameworks"
+      SKIP_INSTALL: YES
+      TARGETED_DEVICE_FAMILY: "1,2"
+      GCC_PREPROCESSOR_DEFINITIONS:
+        - $(inherited)
+        - $(AUv3_DEFS)
+        - $(EXTRA_ALL_DEFS)
+        - $(ALL_DEFS)
+    dependencies:
+      - sdk: UIKit.framework
+      - sdk: CoreFoundation.framework
+      - sdk: QuartzCore.framework
+      - sdk: AudioToolbox.framework
+      - sdk: AVFoundation.framework
+      - sdk: CoreAudioKit.framework
+      - sdk: CoreText.framework
+      - sdk: CoreGraphics.framework
+      - sdk: Metal.framework
+      - sdk: MetalKit.framework
+      - sdk: UniformTypeIdentifiers.framework
+
+  # ========================================
+  # iOS AUv3 App Extension Template
+  # ========================================
+  IPlug2_AUv3_iOS:
+    platform: iOS
+    type: app-extension
+    settings:
+      groups:
+        - iplug2_ios_base
+      PRODUCT_NAME: $(BINARY_NAME)
+      SKIP_INSTALL: YES
+      TARGETED_DEVICE_FAMILY: "1,2"
+      LD_RUNPATH_SEARCH_PATHS: "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks"
+      GCC_PREPROCESSOR_DEFINITIONS:
+        - $(inherited)
+        - $(AUv3_DEFS)
+        - $(EXTRA_ALL_DEFS)
+        - $(ALL_DEFS)
+
+  # ========================================
+  # iOS Host App Template (contains AUv3)
+  # ========================================
+  IPlug2_APP_iOS:
+    platform: iOS
+    type: application
+    settings:
+      groups:
+        - iplug2_ios_base
+      PRODUCT_NAME: $(BINARY_NAME)
+      TARGETED_DEVICE_FAMILY: "1,2"
+      LD_RUNPATH_SEARCH_PATHS: "$(inherited) @executable_path/Frameworks"
+      GCC_PREPROCESSOR_DEFINITIONS:
+        - $(inherited)
+        - $(AUv3_DEFS)
+        - $(EXTRA_ALL_DEFS)
+        - $(ALL_DEFS)
+    dependencies:
+      - sdk: UIKit.framework
+      - sdk: CoreFoundation.framework
+      - sdk: QuartzCore.framework
+      - sdk: AudioToolbox.framework
+      - sdk: AVFoundation.framework
+      - sdk: CoreAudioKit.framework
+      - sdk: Metal.framework
+      - sdk: MetalKit.framework

@@ -1,0 +1,421 @@
+# XcodeGen project spec for IPlugEffect (simplified version using shared templates)
+# Generate with: xcodegen generate --spec project-simple.yml
+#
+# This version demonstrates using the shared iPlug2 templates from Scripts/xcodegen/
+
+name: IPlugEffect-macOS
+
+############################################
+# Include shared iPlug2 templates
+############################################
+include:
+  - path: ../../Scripts/xcodegen/iplug2-common.yml
+
+############################################
+# Options
+############################################
+options:
+  bundleIdPrefix: com.AcmeInc
+  deploymentTarget:
+    macOS: "10.13"
+  xcodeVersion: "15.0"
+  createIntermediateGroups: true
+  defaultConfig: Release
+
+############################################
+# Project-level config files
+############################################
+configFiles:
+  Debug: config/IPlugEffect-mac.xcconfig
+  Release: config/IPlugEffect-mac.xcconfig
+  Tracer: config/IPlugEffect-mac.xcconfig
+
+############################################
+# Build configurations
+############################################
+configs:
+  Debug: debug
+  Release: release
+  Tracer: release
+
+############################################
+# File Groups
+############################################
+fileGroups:
+  - config
+  - resources
+  - scripts
+
+############################################
+# Custom Settings for this project
+############################################
+settings:
+  base:
+    BINARY_NAME: IPlugEffect
+
+############################################
+# Targets
+############################################
+targets:
+
+  # VST3 Plugin
+  VST3:
+    templates:
+      - IPlug2_VST3_macOS
+    settings:
+      INFOPLIST_FILE: resources/IPlugEffect-VST3-Info.plist
+    sources: &plugin_sources
+      # Project source files
+      - path: .
+        includes:
+          - "*.cpp"
+          - "*.h"
+        excludes:
+          - "*.md"
+          - "*.RPP"
+          - "project*.yml"
+      # IPlug Core
+      - path: ../../IPlug
+        name: IPlug
+        buildPhase: sources
+        includes:
+          - "IPlugAPIBase.cpp"
+          - "IPlugParameter.cpp"
+          - "IPlugPluginBase.cpp"
+          - "IPlugProcessor.cpp"
+          - "IPlugPaths.mm"
+          - "IPlugTimer.cpp"
+      # VST3 Implementation
+      - path: ../../IPlug/VST3
+        name: VST3
+        buildPhase: sources
+        includes:
+          - "IPlugVST3.cpp"
+      # IGraphics Core
+      - path: ../../IGraphics
+        name: IGraphics
+        buildPhase: sources
+        includes:
+          - "IGraphics.cpp"
+          - "IGraphicsEditorDelegate.cpp"
+      # IGraphics Controls
+      - path: ../../IGraphics/Controls
+        name: Controls
+        buildPhase: sources
+        includes:
+          - "IControls.cpp"
+          - "ITextEntryControl.cpp"
+          - "IPopupMenuControl.cpp"
+      # IGraphics Platforms (macOS)
+      - path: ../../IGraphics/Platforms
+        name: Platforms
+        buildPhase: sources
+        includes:
+          - "IGraphicsMac.mm"
+          - "IGraphicsMac_view.mm"
+          - "IGraphicsCoreText.mm"
+      # IGraphics Drawing (NanoVG)
+      - path: ../../IGraphics/Drawing
+        name: Drawing
+        buildPhase: sources
+        includes:
+          - "IGraphicsNanoVG.cpp"
+          - "IGraphicsNanoVG_src.m"
+      # SWELL
+      - path: ../../WDL/swell
+        name: SWELL
+        buildPhase: sources
+        includes:
+          - "swell.cpp"
+          - "swell-ini.cpp"
+          - "swell-misc.mm"
+          - "swell-gdi.mm"
+          - "swell-kb.mm"
+          - "swell-menu.mm"
+          - "swell-wnd.mm"
+          - "swell-dlg.mm"
+          - "swell-miscdlg.mm"
+      # Resources
+      - path: resources/fonts
+        name: fonts
+        buildPhase: resources
+    scheme:
+      configVariants: [Debug, Release, Tracer]
+
+  # CLAP Plugin
+  CLAP:
+    templates:
+      - IPlug2_CLAP_macOS
+    settings:
+      INFOPLIST_FILE: resources/IPlugEffect-CLAP-Info.plist
+    sources:
+      # Project source files
+      - path: .
+        includes:
+          - "*.cpp"
+          - "*.h"
+        excludes:
+          - "*.md"
+          - "*.RPP"
+          - "project*.yml"
+      # IPlug Core
+      - path: ../../IPlug
+        name: IPlug
+        buildPhase: sources
+        includes:
+          - "IPlugAPIBase.cpp"
+          - "IPlugParameter.cpp"
+          - "IPlugPluginBase.cpp"
+          - "IPlugProcessor.cpp"
+          - "IPlugPaths.mm"
+          - "IPlugTimer.cpp"
+      # CLAP Implementation
+      - path: ../../IPlug/CLAP
+        name: CLAP
+        buildPhase: sources
+        includes:
+          - "IPlugCLAP.cpp"
+      # IGraphics Core
+      - path: ../../IGraphics
+        name: IGraphics
+        buildPhase: sources
+        includes:
+          - "IGraphics.cpp"
+          - "IGraphicsEditorDelegate.cpp"
+      # IGraphics Controls
+      - path: ../../IGraphics/Controls
+        name: Controls
+        buildPhase: sources
+        includes:
+          - "IControls.cpp"
+          - "ITextEntryControl.cpp"
+          - "IPopupMenuControl.cpp"
+      # IGraphics Platforms (macOS)
+      - path: ../../IGraphics/Platforms
+        name: Platforms
+        buildPhase: sources
+        includes:
+          - "IGraphicsMac.mm"
+          - "IGraphicsMac_view.mm"
+          - "IGraphicsCoreText.mm"
+      # IGraphics Drawing (NanoVG)
+      - path: ../../IGraphics/Drawing
+        name: Drawing
+        buildPhase: sources
+        includes:
+          - "IGraphicsNanoVG.cpp"
+          - "IGraphicsNanoVG_src.m"
+      # SWELL
+      - path: ../../WDL/swell
+        name: SWELL
+        buildPhase: sources
+        includes:
+          - "swell.cpp"
+          - "swell-ini.cpp"
+          - "swell-misc.mm"
+          - "swell-gdi.mm"
+          - "swell-kb.mm"
+          - "swell-menu.mm"
+          - "swell-wnd.mm"
+          - "swell-dlg.mm"
+          - "swell-miscdlg.mm"
+      # Resources
+      - path: resources/fonts
+        name: fonts
+        buildPhase: resources
+    scheme:
+      configVariants: [Debug, Release, Tracer]
+
+  # AUv2 Plugin
+  AUv2:
+    templates:
+      - IPlug2_AUv2_macOS
+    settings:
+      INFOPLIST_FILE: resources/IPlugEffect-AU-Info.plist
+    sources:
+      # Project source files
+      - path: .
+        includes:
+          - "*.cpp"
+          - "*.h"
+        excludes:
+          - "*.md"
+          - "*.RPP"
+          - "project*.yml"
+      # IPlug Core
+      - path: ../../IPlug
+        name: IPlug
+        buildPhase: sources
+        includes:
+          - "IPlugAPIBase.cpp"
+          - "IPlugParameter.cpp"
+          - "IPlugPluginBase.cpp"
+          - "IPlugProcessor.cpp"
+          - "IPlugPaths.mm"
+          - "IPlugTimer.cpp"
+      # AUv2 Implementation
+      - path: ../../IPlug/AUv2
+        name: AUv2
+        buildPhase: sources
+        includes:
+          - "IPlugAU.cpp"
+          - "IPlugAU_view_factory.mm"
+          - "dfx-au-utilities.c"
+      - path: ../../IPlug/AUv2/IPlugAU.r
+        name: IPlugAU.r
+        buildPhase: sources
+      # IGraphics Core
+      - path: ../../IGraphics
+        name: IGraphics
+        buildPhase: sources
+        includes:
+          - "IGraphics.cpp"
+          - "IGraphicsEditorDelegate.cpp"
+      # IGraphics Controls
+      - path: ../../IGraphics/Controls
+        name: Controls
+        buildPhase: sources
+        includes:
+          - "IControls.cpp"
+          - "ITextEntryControl.cpp"
+          - "IPopupMenuControl.cpp"
+      # IGraphics Platforms (macOS)
+      - path: ../../IGraphics/Platforms
+        name: Platforms
+        buildPhase: sources
+        includes:
+          - "IGraphicsMac.mm"
+          - "IGraphicsMac_view.mm"
+          - "IGraphicsCoreText.mm"
+      # IGraphics Drawing (NanoVG)
+      - path: ../../IGraphics/Drawing
+        name: Drawing
+        buildPhase: sources
+        includes:
+          - "IGraphicsNanoVG.cpp"
+          - "IGraphicsNanoVG_src.m"
+      # SWELL
+      - path: ../../WDL/swell
+        name: SWELL
+        buildPhase: sources
+        includes:
+          - "swell.cpp"
+          - "swell-ini.cpp"
+          - "swell-misc.mm"
+          - "swell-gdi.mm"
+          - "swell-kb.mm"
+          - "swell-menu.mm"
+          - "swell-wnd.mm"
+          - "swell-dlg.mm"
+          - "swell-miscdlg.mm"
+      # Resources
+      - path: resources/fonts
+        name: fonts
+        buildPhase: resources
+    scheme:
+      configVariants: [Debug, Release, Tracer]
+
+  # Standalone Application
+  APP:
+    templates:
+      - IPlug2_APP_macOS
+    settings:
+      INFOPLIST_FILE: resources/IPlugEffect-macOS-Info.plist
+      CODE_SIGN_ENTITLEMENTS: projects/IPlugEffect-macOS.entitlements
+    sources:
+      # Project source files
+      - path: .
+        includes:
+          - "*.cpp"
+          - "*.h"
+        excludes:
+          - "*.md"
+          - "*.RPP"
+          - "project*.yml"
+      # IPlug Core
+      - path: ../../IPlug
+        name: IPlug
+        buildPhase: sources
+        includes:
+          - "IPlugAPIBase.cpp"
+          - "IPlugParameter.cpp"
+          - "IPlugPluginBase.cpp"
+          - "IPlugProcessor.cpp"
+          - "IPlugPaths.mm"
+          - "IPlugTimer.cpp"
+      # APP Implementation
+      - path: ../../IPlug/APP
+        name: APP
+        buildPhase: sources
+        includes:
+          - "IPlugAPP.cpp"
+          - "IPlugAPP_host.cpp"
+          - "IPlugAPP_main.cpp"
+          - "IPlugAPP_dialog.cpp"
+      # IGraphics Core
+      - path: ../../IGraphics
+        name: IGraphics
+        buildPhase: sources
+        includes:
+          - "IGraphics.cpp"
+          - "IGraphicsEditorDelegate.cpp"
+      # IGraphics Controls
+      - path: ../../IGraphics/Controls
+        name: Controls
+        buildPhase: sources
+        includes:
+          - "IControls.cpp"
+          - "ITextEntryControl.cpp"
+          - "IPopupMenuControl.cpp"
+      # IGraphics Platforms (macOS)
+      - path: ../../IGraphics/Platforms
+        name: Platforms
+        buildPhase: sources
+        includes:
+          - "IGraphicsMac.mm"
+          - "IGraphicsMac_view.mm"
+          - "IGraphicsCoreText.mm"
+      # IGraphics Drawing (NanoVG)
+      - path: ../../IGraphics/Drawing
+        name: Drawing
+        buildPhase: sources
+        includes:
+          - "IGraphicsNanoVG.cpp"
+          - "IGraphicsNanoVG_src.m"
+      # SWELL
+      - path: ../../WDL/swell
+        name: SWELL
+        buildPhase: sources
+        includes:
+          - "swell.cpp"
+          - "swell-ini.cpp"
+          - "swell-misc.mm"
+          - "swell-gdi.mm"
+          - "swell-kb.mm"
+          - "swell-menu.mm"
+          - "swell-wnd.mm"
+          - "swell-dlg.mm"
+          - "swell-miscdlg.mm"
+      # Resources
+      - path: resources
+        name: Resources
+        buildPhase: resources
+        includes:
+          - "IPlugEffect-macOS-MainMenu.xib"
+          - "IPlugEffect.icns"
+          - "Images.xcassets"
+          - "fonts"
+    scheme:
+      configVariants: [Debug, Release, Tracer]
+
+############################################
+# Schemes
+############################################
+schemes:
+  All-macOS:
+    build:
+      targets:
+        VST3: all
+        CLAP: all
+        AUv2: all
+        APP: all
