@@ -213,14 +213,14 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   CGRect r = CGRectMake(0.f, 0.f, (float) pGraphics->WindowWidth(), (float) pGraphics->WindowHeight());
   self = [super initWithFrame:r];
     
-#ifdef IGRAPHICS_METAL
+#if defined IGRAPHICS_METAL || defined IGRAPHICS_CPU_METAL
   mMTLLayer = [[CAMetalLayer alloc] init];
   mMTLLayer.device = MTLCreateSystemDefaultDevice();
   mMTLLayer.framebufferOnly = YES;
   mMTLLayer.frame = self.layer.frame;
   mMTLLayer.opaque = YES;
   mMTLLayer.contentsScale = [UIScreen mainScreen].scale;
-  
+
   [self.layer addSublayer: mMTLLayer];
 #endif
 
@@ -248,7 +248,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   if (self.window)
     scale = self.window.screen.scale;
   
-  #ifdef IGRAPHICS_METAL
+  #if defined IGRAPHICS_METAL || defined IGRAPHICS_CPU_METAL
   [CATransaction begin];
   [CATransaction setValue:(id)kCFBooleanTrue forKey:kCATransactionDisableActions];
   CGSize drawableSize = self.bounds.size;
@@ -259,7 +259,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   drawableSize.height *= scale;
 
   mMTLLayer.drawableSize = drawableSize;
-  
+
   [CATransaction commit];
   #endif
 }
@@ -374,7 +374,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 
 - (void) redraw:(CADisplayLink*) displayLink
 {
-#ifdef IGRAPHICS_CPU
+#if defined IGRAPHICS_CPU && !defined IGRAPHICS_CPU_METAL
   [self setNeedsDisplay];
 #else
   [self drawRect:CGRect()];
