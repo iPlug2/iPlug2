@@ -918,6 +918,11 @@ public:
    * @return \c true on success (if the path was valid) */
   virtual bool RevealPathInExplorerOrFinder(WDL_String& path, bool select = false) { return false; }
 
+  /** Save a screenshot of the current UI to a PNG file
+   * @param path The absolute file path to save the screenshot to (should end in .png)
+   * @return \c true on success */
+  bool SaveScreenshot(const char* path);
+
   /** Used on Windows to set the HINSTANCE module handle, which allows graphics APIs to load resources from the binary.
    * @param pHinstance void pointer to the platform instance */
   virtual void SetWinModuleHandle(void* pHinstance) {}

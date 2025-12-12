@@ -1,7 +1,7 @@
 /******************************************/
 /*
   duplex.cpp
-  by Gary P. Scavone, 2006-2007.
+  by Gary P. Scavone, 2006-2019.
 
   This program opens a duplex stream and passes
   input directly through to the output.
@@ -41,19 +41,45 @@ void usage( void ) {
   std::cout << "\nuseage: duplex N fs <iDevice> <oDevice> <iChannelOffset> <oChannelOffset>\n";
   std::cout << "    where N = number of channels,\n";
   std::cout << "    fs = the sample rate,\n";
-  std::cout << "    iDevice = optional input device to use (default = 0),\n";
-  std::cout << "    oDevice = optional output device to use (default = 0),\n";
+  std::cout << "    iDevice = optional input device index to use (default = 0),\n";
+  std::cout << "    oDevice = optional output device index to use (default = 0),\n";
   std::cout << "    iChannelOffset = an optional input channel offset (default = 0),\n";
   std::cout << "    and oChannelOffset = optional output channel offset (default = 0).\n\n";
   exit( 0 );
 }
 
+unsigned int getDeviceIndex( std::vector<std::string> deviceNames, bool isInput = false )
+{
+  unsigned int i;
+  std::string keyHit;
+  std::cout << '\n';
+  for ( i=0; i<deviceNames.size(); i++ )
+    std::cout << "  Device #" << i << ": " << deviceNames[i] << '\n';
+  do {
+    if ( isInput )
+      std::cout << "\nChoose an input device #: ";
+    else
+      std::cout << "\nChoose an output device #: ";
+    std::cin >> i;
+  } while ( i >= deviceNames.size() );
+  std::getline( std::cin, keyHit );  // used to clear out stdin
+  return i;
+}
+
+double streamTimePrintIncrement = 1.0; // seconds
+double streamTimePrintTime = 1.0; // seconds
+
 int inout( void *outputBuffer, void *inputBuffer, unsigned int /*nBufferFrames*/,
-           double /*streamTime*/, RtAudioStreamStatus status, void *data )
+           double streamTime, RtAudioStreamStatus status, void *data )
 {
   // Since the number of input and output channels is equal, we can do
   // a simple buffer copy operation here.
   if ( status ) std::cout << "Stream over/underflow detected." << std::endl;
+
+  if ( streamTime >= streamTimePrintTime ) {
+    std::cout << "streamTime = " << streamTime << std::endl;
+    streamTimePrintTime += streamTimePrintIncrement;
+  }
 
   unsigned int *bytes = (unsigned int *) data;
   memcpy( outputBuffer, inputBuffer, *bytes );
@@ -68,7 +94,8 @@ int main( int argc, char *argv[] )
   if (argc < 3 || argc > 7 ) usage();
 
   RtAudio adac;
-  if ( adac.getDeviceCount() < 1 ) {
+  std::vector<unsigned int> deviceIds = adac.getDeviceIds();
+  if ( deviceIds.size() < 1 ) {
     std::cout << "\nNo audio devices found!\n";
     exit( 1 );
   }
@@ -90,47 +117,48 @@ int main( int argc, char *argv[] )
   // Set the same number of channels for both input and output.
   unsigned int bufferFrames = 512;
   RtAudio::StreamParameters iParams, oParams;
-  iParams.deviceId = iDevice;
   iParams.nChannels = channels;
   iParams.firstChannel = iOffset;
-  oParams.deviceId = oDevice;
   oParams.nChannels = channels;
   oParams.firstChannel = oOffset;
 
   if ( iDevice == 0 )
     iParams.deviceId = adac.getDefaultInputDevice();
+  else {
+    if ( iDevice >= deviceIds.size() )
+      iDevice = getDeviceIndex( adac.getDeviceNames(), true );
+    iParams.deviceId = deviceIds[iDevice];
+  }
   if ( oDevice == 0 )
     oParams.deviceId = adac.getDefaultOutputDevice();
-
+  else {
+    if ( oDevice >= deviceIds.size() )
+      oDevice = getDeviceIndex( adac.getDeviceNames() );
+    oParams.deviceId = deviceIds[oDevice];
+  }
+  
   RtAudio::StreamOptions options;
   //options.flags |= RTAUDIO_NONINTERLEAVED;
 
   bufferBytes = bufferFrames * channels * sizeof( MY_TYPE );
-  try {
-    adac.openStream( &oParams, &iParams, FORMAT, fs, &bufferFrames, &inout, (void *)&bufferBytes, &options );
+  if ( adac.openStream( &oParams, &iParams, FORMAT, fs, &bufferFrames, &inout, (void *)&bufferBytes, &options ) ) {
+    goto cleanup;
   }
-  catch ( RtAudioError& e ) {
-    std::cout << '\n' << e.getMessage() << '\n' << std::endl;
-    exit( 1 );
-  }
+
+  if ( adac.isStreamOpen() == false ) goto cleanup;
 
   // Test RtAudio functionality for reporting latency.
   std::cout << "\nStream latency = " << adac.getStreamLatency() << " frames" << std::endl;
 
-  try {
-    adac.startStream();
+  if ( adac.startStream() ) goto cleanup;
 
-    char input;
-    std::cout << "\nRunning ... press <enter> to quit (buffer frames = " << bufferFrames << ").\n";
-    std::cin.get(input);
+  char input;
+  std::cout << "\nRunning ... press <enter> to quit (buffer frames = " << bufferFrames << ").\n";
+  std::cin.get(input);
 
-    // Stop the stream.
+  // Stop the stream.
+  if ( adac.isStreamRunning() )
     adac.stopStream();
-  }
-  catch ( RtAudioError& e ) {
-    std::cout << '\n' << e.getMessage() << '\n' << std::endl;
-    goto cleanup;
-  }
 
  cleanup:
   if ( adac.isStreamOpen() ) adac.closeStream();
