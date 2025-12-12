@@ -10,7 +10,7 @@
 
 #import <QuartzCore/QuartzCore.h>
 
-#if defined IGRAPHICS_METAL
+#if defined IGRAPHICS_METAL || defined IGRAPHICS_CPU_METAL
 #import <Metal/Metal.h>
 #endif
 
@@ -397,11 +397,11 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   
   [self registerForDraggedTypes:[NSArray arrayWithObjects: NSFilenamesPboardType, nil]];
   
-  #if defined IGRAPHICS_METAL
+  #if defined IGRAPHICS_METAL || defined IGRAPHICS_CPU_METAL
   self.layer = [CAMetalLayer new];
   [(CAMetalLayer*)[self layer] setPixelFormat:MTLPixelFormatBGRA8Unorm];
   ((CAMetalLayer*) self.layer).device = MTLCreateSystemDefaultDevice();
-  
+
   #elif defined IGRAPHICS_GL
   NSOpenGLPixelFormatAttribute profile = NSOpenGLProfileVersionLegacy;
   #if defined IGRAPHICS_GL3
@@ -572,7 +572,7 @@ static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
     if (mGraphics)
       mGraphics->SetScreenScale(newScale);
     
-    #ifdef IGRAPHICS_METAL
+    #if defined IGRAPHICS_METAL || defined IGRAPHICS_CPU_METAL
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(frameDidChange:)
                                                  name:NSViewFrameDidChangeNotification
@@ -615,7 +615,7 @@ static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
 
 #if defined IGRAPHICS_GL
   self.layer.contentsScale = 1./newScale;
-#elif defined IGRAPHICS_METAL
+#elif defined IGRAPHICS_METAL || defined IGRAPHICS_CPU_METAL
   [(CAMetalLayer*)[self layer] setDrawableSize:CGSizeMake(self.frame.size.width * newScale,
                                                           self.frame.size.height * newScale)];
 #endif
@@ -654,12 +654,12 @@ static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
 - (void) render
 {
   mDirtyRects.Clear();
-  
+
   if (mGraphics->IsDirty(mDirtyRects))
   {
     mGraphics->SetAllControlsClean();
-      
-    #if defined IGRAPHICS_CPU
+
+    #if defined IGRAPHICS_CPU && !defined IGRAPHICS_CPU_METAL
       for (int i = 0; i < mDirtyRects.Size(); i++)
         [self setNeedsDisplayInRect:ToNSRect(mGraphics, mDirtyRects.Get(i))];
     #else
@@ -1288,7 +1288,7 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
   return NSDragOperationCopy;
 }
 
-#ifdef IGRAPHICS_METAL
+#if defined IGRAPHICS_METAL || defined IGRAPHICS_CPU_METAL
 - (void) frameDidChange:(NSNotification*) pNotification
 {
   CGFloat scale = [[self window] backingScaleFactor];

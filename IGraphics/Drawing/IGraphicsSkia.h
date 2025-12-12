@@ -12,6 +12,12 @@
 #define SK_GL
 #endif
 
+// IGRAPHICS_CPU_METAL: CPU Skia rendering with Metal blitting for display
+// This provides software rendering but uses Metal to efficiently display the result
+#if defined IGRAPHICS_CPU && defined IGRAPHICS_METAL
+#define IGRAPHICS_CPU_METAL
+#endif
+
 #pragma warning( push )
 #pragma warning( disable : 4244 )
 #include "include/core/SkSurface.h"
@@ -167,11 +173,15 @@ private:
   sk_sp<skia::textlayout::FontCollection> mFontCollection;
 #endif
   
-#ifdef IGRAPHICS_METAL
-  void* mMTLDevice;
-  void* mMTLCommandQueue;
-  void* mMTLDrawable;
-  void* mMTLLayer;
+#if defined IGRAPHICS_METAL || defined IGRAPHICS_CPU_METAL
+  void* mMTLDevice = nullptr;
+  void* mMTLCommandQueue = nullptr;
+  void* mMTLDrawable = nullptr;
+  void* mMTLLayer = nullptr;
+#endif
+
+#ifdef IGRAPHICS_CPU_METAL
+  void* mMTLTexture = nullptr;  // Owned texture for CPU->Metal blitting
 #endif
 
   static StaticStorage<Font> sFontCache;

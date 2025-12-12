@@ -38,6 +38,10 @@
     #error SKIA doesn't work correctly with IGRAPHICS_GL2
   #elif defined IGRAPHICS_GL3
     #include <OpenGL/gl3.h>
+  #elif defined IGRAPHICS_CPU_METAL
+    // CPU rendering with Metal blitting - only need basic Metal headers
+    #import <Metal/Metal.h>
+    #import <QuartzCore/CAMetalLayer.h>
   #elif defined IGRAPHICS_METAL
     // even though this is a .cpp we are in an objc(pp) compilation unit
     #import <Metal/Metal.h>
@@ -346,8 +350,10 @@ IGraphicsSkia::IGraphicsSkia(IGEditorDelegate& dlg, int w, int h, int fps, float
 : IGraphics(dlg, w, h, fps, scale)
 {
   mMainPath.setIsVolatile(true);
-  
-#if defined IGRAPHICS_CPU
+
+#if defined IGRAPHICS_CPU_METAL
+  DBGMSG("IGraphics Skia CPU+Metal @ %i FPS\n", fps);
+#elif defined IGRAPHICS_CPU
   DBGMSG("IGraphics Skia CPU @ %i FPS\n", fps);
 #elif defined IGRAPHICS_METAL
   DBGMSG("IGraphics Skia METAL @ %i FPS\n", fps);
@@ -422,6 +428,15 @@ void IGraphicsSkia::OnViewInitialized(void* pContext)
   auto glInterface = GrGLInterfaces::MakeWin();
 #endif
   mGrContext = GrDirectContexts::MakeGL(glInterface);
+#elif defined IGRAPHICS_CPU_METAL
+  // CPU rendering with Metal blitting - set up Metal for display only
+  CAMetalLayer* pMTLLayer = (CAMetalLayer*) pContext;
+  id<MTLDevice> device = pMTLLayer.device;
+  id<MTLCommandQueue> commandQueue = [device newCommandQueue];
+  mMTLDevice = (void*) device;
+  mMTLCommandQueue = (void*) commandQueue;
+  mMTLLayer = pContext;
+  // Note: We don't create mGrContext - CPU rendering doesn't need it
 #elif defined IGRAPHICS_METAL
   CAMetalLayer* pMTLLayer = (CAMetalLayer*) pContext;
   id<MTLDevice> device = pMTLLayer.device;
@@ -446,6 +461,17 @@ void IGraphicsSkia::OnViewDestroyed()
   mSurface = nullptr;
   mScreenSurface = nullptr;
   mGrContext = nullptr;
+#elif defined IGRAPHICS_CPU_METAL
+  if (mMTLTexture)
+  {
+    [(id<MTLTexture>) mMTLTexture release];
+    mMTLTexture = nullptr;
+  }
+  [(id<MTLCommandQueue>) mMTLCommandQueue release];
+  mMTLCommandQueue = nullptr;
+  mMTLLayer = nullptr;
+  mMTLDevice = nullptr;
+  mSurface = nullptr;
 #elif defined IGRAPHICS_METAL
   [(id<MTLCommandQueue>) mMTLCommandQueue release];
   mMTLCommandQueue = nullptr;
@@ -459,8 +485,35 @@ void IGraphicsSkia::DrawResize()
   ScopedGLContext scopedGLContext{this};
   auto w = static_cast<int>(std::ceil(static_cast<float>(WindowWidth()) * GetScreenScale()));
   auto h = static_cast<int>(std::ceil(static_cast<float>(WindowHeight()) * GetScreenScale()));
-  
-#if defined IGRAPHICS_GL || defined IGRAPHICS_METAL
+
+#if defined IGRAPHICS_CPU_METAL
+  // CPU rendering with Metal blitting: create CPU raster surface and Metal texture
+  {
+    // Create CPU raster surface for Skia to render to
+    SkImageInfo info = SkImageInfo::Make(w, h, kBGRA_8888_SkColorType, kPremul_SkAlphaType, nullptr);
+    mSurface = SkSurfaces::Raster(info);
+
+    // Release old Metal texture if it exists
+    if (mMTLTexture)
+    {
+      [(id<MTLTexture>) mMTLTexture release];
+      mMTLTexture = nullptr;
+    }
+
+    // Create Metal texture for blitting
+    if (mMTLDevice)
+    {
+      MTLTextureDescriptor* textureDescriptor = [[MTLTextureDescriptor alloc] init];
+      textureDescriptor.pixelFormat = MTLPixelFormatBGRA8Unorm;
+      textureDescriptor.width = w;
+      textureDescriptor.height = h;
+      textureDescriptor.usage = MTLTextureUsageShaderRead;
+
+      mMTLTexture = [(id<MTLDevice>) mMTLDevice newTextureWithDescriptor:textureDescriptor];
+      [textureDescriptor release];
+    }
+  }
+#elif defined IGRAPHICS_GL || defined IGRAPHICS_METAL
   if (mGrContext.get())
   {
     SkImageInfo info = SkImageInfo::MakeN32Premul(w, h);
@@ -469,7 +522,7 @@ void IGraphicsSkia::DrawResize()
 #else
   #ifdef OS_WIN
     mSurface.reset();
-   
+
     const size_t bmpSize = sizeof(BITMAPINFOHEADER) + (w * h * sizeof(uint32_t));
     mSurfaceMemory.Resize(bmpSize);
     BITMAPINFO* bmpInfo = reinterpret_cast<BITMAPINFO*>(mSurfaceMemory.Get());
@@ -503,7 +556,7 @@ void IGraphicsSkia::BeginFrame()
   {
     int width = WindowWidth() * GetScreenScale();
     int height = WindowHeight() * GetScreenScale();
-    
+
     // Bind to the current main framebuffer
     int fbo = 0, samples = 0, stencilBits = 0;
     glGetIntegerv(GL_FRAMEBUFFER_BINDING, &fbo);
@@ -513,7 +566,7 @@ void IGraphicsSkia::BeginFrame()
 #else
     glGetIntegerv(GL_STENCIL_BITS, &stencilBits);
 #endif
-    
+
     GrGLFramebufferInfo fbInfo;
     fbInfo.fFBOID = fbo;
     fbInfo.fFormat = 0x8058;
@@ -523,19 +576,26 @@ void IGraphicsSkia::BeginFrame()
     mScreenSurface = SkSurfaces::WrapBackendRenderTarget(mGrContext.get(), backendRT, kBottomLeft_GrSurfaceOrigin, kRGBA_8888_SkColorType, nullptr, nullptr);
     assert(mScreenSurface);
   }
+#elif defined IGRAPHICS_CPU_METAL
+  // CPU rendering with Metal blitting: get the drawable for later blitting
+  if (mMTLLayer)
+  {
+    id<CAMetalDrawable> drawable = [(CAMetalLayer*) mMTLLayer nextDrawable];
+    mMTLDrawable = (void*) drawable;
+  }
 #elif defined IGRAPHICS_METAL
   if (mGrContext.get())
   {
     int width = WindowWidth() * GetScreenScale();
     int height = WindowHeight() * GetScreenScale();
-    
+
     id<CAMetalDrawable> drawable = [(CAMetalLayer*) mMTLLayer nextDrawable];
-    
+
     GrMtlTextureInfo fbInfo;
     fbInfo.fTexture.retain((const void*)(drawable.texture));
     auto backendRT = GrBackendRenderTargets::MakeMtl(width, height, fbInfo);
     mScreenSurface = SkSurfaces::WrapBackendRenderTarget(mGrContext.get(), backendRT, kTopLeft_GrSurfaceOrigin, kBGRA_8888_SkColorType, nullptr, nullptr);
-    
+
     mMTLDrawable = (void*) drawable;
     assert(mScreenSurface);
   }
@@ -546,12 +606,54 @@ void IGraphicsSkia::BeginFrame()
 
 void IGraphicsSkia::EndFrame()
 {
-#ifdef IGRAPHICS_CPU
+#ifdef IGRAPHICS_CPU_METAL
+  // CPU rendering with Metal blitting
+  if (mMTLDrawable && mMTLTexture && mSurface)
+  {
+    int width = static_cast<int>(std::ceil(static_cast<float>(WindowWidth()) * GetScreenScale()));
+    int height = static_cast<int>(std::ceil(static_cast<float>(WindowHeight()) * GetScreenScale()));
+
+    // Get the pixels from the Skia CPU surface
+    SkPixmap pixmap;
+    if (mSurface->peekPixels(&pixmap))
+    {
+      // Upload pixels to Metal texture using replaceRegion
+      id<MTLTexture> tex = (id<MTLTexture>) mMTLTexture;
+      MTLRegion region = MTLRegionMake2D(0, 0, width, height);
+      [tex replaceRegion:region mipmapLevel:0 withBytes:pixmap.addr() bytesPerRow:pixmap.rowBytes()];
+
+      // Create command buffer and blit encoder
+      id<MTLCommandBuffer> commandBuffer = [(id<MTLCommandQueue>) mMTLCommandQueue commandBuffer];
+      commandBuffer.label = @"CPU Metal Blit";
+
+      id<MTLBlitCommandEncoder> blitEncoder = [commandBuffer blitCommandEncoder];
+
+      // Blit from our texture to the drawable's texture
+      id<CAMetalDrawable> drawable = (id<CAMetalDrawable>) mMTLDrawable;
+      [blitEncoder copyFromTexture:tex
+                       sourceSlice:0
+                       sourceLevel:0
+                      sourceOrigin:MTLOriginMake(0, 0, 0)
+                        sourceSize:MTLSizeMake(width, height, 1)
+                         toTexture:drawable.texture
+                  destinationSlice:0
+                  destinationLevel:0
+                 destinationOrigin:MTLOriginMake(0, 0, 0)];
+
+      [blitEncoder endEncoding];
+
+      // Present and commit
+      [commandBuffer presentDrawable:drawable];
+      [commandBuffer commit];
+    }
+  }
+  mMTLDrawable = nullptr;
+#elif defined IGRAPHICS_CPU
   #if defined OS_MAC || defined OS_IOS
     SkPixmap pixmap;
     mSurface->peekPixels(&pixmap);
     SkBitmap bmp;
-    bmp.installPixels(pixmap);  
+    bmp.installPixels(pixmap);
     CGContext* pCGContext = (CGContextRef) GetPlatformContext();
     CGContextSaveGState(pCGContext);
     CGContextScaleCTM(pCGContext, 1.0 / GetScreenScale(), 1.0 / GetScreenScale());
@@ -580,7 +682,7 @@ void IGraphicsSkia::EndFrame()
   #ifdef IGRAPHICS_METAL
     id<MTLCommandBuffer> commandBuffer = [(id<MTLCommandQueue>) mMTLCommandQueue commandBuffer];
     commandBuffer.label = @"Present";
-  
+
     [commandBuffer presentDrawable:(id<CAMetalDrawable>) mMTLDrawable];
     [commandBuffer commit];
   #endif
@@ -1169,7 +1271,9 @@ void IGraphicsSkia::DrawMultiLineText(const IText& text, const char* str, const 
 
 const char* IGraphicsSkia::GetDrawingAPIStr()
 {
-#ifdef IGRAPHICS_CPU
+#ifdef IGRAPHICS_CPU_METAL
+  return "SKIA | CPU+Metal";
+#elif defined IGRAPHICS_CPU
   return "SKIA | CPU";
 #elif defined IGRAPHICS_GL2
   return "SKIA | GL2";
