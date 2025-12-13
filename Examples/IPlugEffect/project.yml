@@ -50,14 +50,8 @@ settingGroups:
   common_base:
     CLANG_CXX_LANGUAGE_STANDARD: c++17
     CLANG_CXX_LIBRARY: libc++
-    # Note: GCC_PREFIX_HEADER is inherited from xcconfig files
-    HEADER_SEARCH_PATHS:
-      - $(inherited)
-      - $(IPLUG_INC_PATHS)
-      - $(EXTRA_INC_PATHS)
-    LIBRARY_SEARCH_PATHS:
-      - $(inherited)
-      - $(EXTRA_LIB_PATHS)
+    # Include paths - using variables defined in xcconfig
+    HEADER_SEARCH_PATHS: $(IPLUG_INC_PATHS) $(EXTRA_INC_PATHS)
 
   # Plugin-common settings (VST2, VST3, AU, AAX, CLAP)
   plugin_common:
@@ -191,9 +185,8 @@ targetTemplates:
         - $(CLAP_DEFS)
         - $(EXTRA_ALL_DEFS)
         - $(ALL_DEFS)
-      HEADER_SEARCH_PATHS:
-        - $(inherited)
-        - $(CLAP_INC_PATHS)
+      # CLAP needs additional include paths for the CLAP SDK
+      HEADER_SEARCH_PATHS: $(IPLUG_INC_PATHS) $(EXTRA_INC_PATHS) $(CLAP_INC_PATHS)
     sources:
       - path: .
         includes:

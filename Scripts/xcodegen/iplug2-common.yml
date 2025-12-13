@@ -16,35 +16,20 @@ settingGroups:
     CLANG_CXX_LIBRARY: libc++
     MACOSX_DEPLOYMENT_TARGET: "10.13"
     ARCHS: $(ARCHS_STANDARD_64_BIT)
-    # Note: GCC_PREFIX_HEADER is inherited from xcconfig files
     CLANG_WARN_DOCUMENTATION_COMMENTS: NO
     CLANG_ENABLE_OBJC_WEAK: YES
-    HEADER_SEARCH_PATHS:
-      - $(inherited)
-      - $(IPLUG_INC_PATHS)
-      - $(EXTRA_INC_PATHS)
-    LIBRARY_SEARCH_PATHS:
-      - $(inherited)
-      - $(EXTRA_LIB_PATHS)
-    OTHER_LDFLAGS:
-      - $(inherited)
-      - $(EXTRA_LNK_FLAGS)
+    # Include paths - using variables defined in xcconfig
+    HEADER_SEARCH_PATHS: $(IPLUG_INC_PATHS) $(EXTRA_INC_PATHS)
 
   # Base settings for all iOS targets
   iplug2_ios_base:
     CLANG_CXX_LANGUAGE_STANDARD: c++17
     CLANG_CXX_LIBRARY: libc++
     IPHONEOS_DEPLOYMENT_TARGET: "15.0"
-    # Note: GCC_PREFIX_HEADER is inherited from xcconfig files
     CLANG_WARN_DOCUMENTATION_COMMENTS: NO
     CLANG_ENABLE_OBJC_WEAK: YES
-    HEADER_SEARCH_PATHS:
-      - $(inherited)
-      - $(IPLUG_INC_PATHS)
-      - $(EXTRA_INC_PATHS)
-    LIBRARY_SEARCH_PATHS:
-      - $(inherited)
-      - $(EXTRA_LIB_PATHS)
+    # Include paths - using variables defined in xcconfig
+    HEADER_SEARCH_PATHS: $(IPLUG_INC_PATHS) $(EXTRA_INC_PATHS)
 
   # Plugin-common settings (bundles)
   iplug2_plugin_bundle:
@@ -200,9 +185,8 @@ targetTemplates:
       DSTROOT: $(CLAP_PATH)
       INSTALL_PATH: /
       CODE_SIGN_IDENTITY: ""
-      HEADER_SEARCH_PATHS:
-        - $(inherited)
-        - $(CLAP_INC_PATHS)
+      # CLAP needs additional include paths for the CLAP SDK
+      HEADER_SEARCH_PATHS: $(IPLUG_INC_PATHS) $(EXTRA_INC_PATHS) $(CLAP_INC_PATHS)
       GCC_PREPROCESSOR_DEFINITIONS:
         - $(inherited)
         - $(EXTRA_PLUGIN_DEFS)
