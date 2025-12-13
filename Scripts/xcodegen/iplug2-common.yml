@@ -218,6 +218,8 @@ targetTemplates:
       WRAPPER_EXTENSION: component
       DSTROOT: $(AU_PATH)
       INSTALL_PATH: /
+      # Rez compiler needs to find config.h
+      REZ_SEARCH_PATHS: $(PROJECT_ROOT) $(IPLUG_PATH)
       GCC_PREPROCESSOR_DEFINITIONS:
         - $(inherited)
         - $(EXTRA_PLUGIN_DEFS)
