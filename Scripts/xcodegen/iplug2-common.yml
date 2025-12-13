@@ -4,6 +4,20 @@
 #     - path: ../../Scripts/xcodegen/iplug2-common.yml
 #
 # Then use the target templates defined here.
+#
+# IMPORTANT: Your project must define these project-level settings:
+#   settings:
+#     base:
+#       IPLUG2_ROOT: ../..               # Path from project to iPlug2 root
+#       CLANG_ENABLE_OBJC_ARC: NO        # SWELL requires manual memory management
+#       HEADER_SEARCH_PATHS: $(IPLUG_INC_PATHS) $(EXTRA_INC_PATHS)
+#
+# Source file notes:
+#   - IGraphicsNanoVG.cpp is #included by IGraphicsMac.mm - do NOT compile separately
+#   - IGraphicsNanoVG_src.m requires -fobjc-arc compiler flag
+#   - IPlugAPP_main.cpp requires -x objective-c++ compiler flag (uses Cocoa.h)
+#   - RtAudio.cpp and RtMidi.cpp require -x objective-c++ for APP targets
+#   - AUv3 files (IPlugAUv3.mm, IPlugAUAudioUnit.mm, IPlugAUViewController.mm) require -fobjc-arc
 
 ############################################
 # Common Settings Groups
@@ -153,8 +167,14 @@ targetTemplates:
       DSTROOT: $(VST3_PATH)
       INSTALL_PATH: /
       CODE_SIGN_IDENTITY: ""
+      # VST3 SDK header path
+      HEADER_SEARCH_PATHS:
+        - $(inherited)
+        - $(VST3_SDK)
+        - $(IPLUG2_ROOT)/IPlug/VST3
       GCC_PREPROCESSOR_DEFINITIONS:
         - $(inherited)
+        - $(DEBUG_DEFS)
         - $(EXTRA_PLUGIN_DEFS)
         - $(EXTRA_VST3_DEFS)
         - $(VST3_DEFS)
@@ -185,10 +205,14 @@ targetTemplates:
       DSTROOT: $(CLAP_PATH)
       INSTALL_PATH: /
       CODE_SIGN_IDENTITY: ""
-      # CLAP needs additional include paths for the CLAP SDK
-      HEADER_SEARCH_PATHS: $(IPLUG_INC_PATHS) $(EXTRA_INC_PATHS) $(CLAP_INC_PATHS)
+      # CLAP SDK and IPlug CLAP header paths
+      HEADER_SEARCH_PATHS:
+        - $(inherited)
+        - $(CLAP_SDK)
+        - $(IPLUG2_ROOT)/IPlug/CLAP
       GCC_PREPROCESSOR_DEFINITIONS:
         - $(inherited)
+        - $(DEBUG_DEFS)
         - $(EXTRA_PLUGIN_DEFS)
         - $(EXTRA_CLAP_DEFS)
         - $(CLAP_DEFS)
@@ -218,10 +242,15 @@ targetTemplates:
       WRAPPER_EXTENSION: component
       DSTROOT: $(AU_PATH)
       INSTALL_PATH: /
-      # Rez compiler needs to find config.h
-      REZ_SEARCH_PATHS: $(PROJECT_ROOT) $(IPLUG_PATH)
+      # AUv2 header paths
+      HEADER_SEARCH_PATHS:
+        - $(inherited)
+        - $(IPLUG2_ROOT)/IPlug/AUv2
+      # Rez compiler needs to find config.h and ConditionalMacros.r
+      REZ_SEARCH_PATHS: $(SRCROOT) $(IPLUG_PATH) $(SDKROOT)/System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/CarbonCore.framework/Versions/A/Headers
       GCC_PREPROCESSOR_DEFINITIONS:
         - $(inherited)
+        - $(DEBUG_DEFS)
         - $(EXTRA_PLUGIN_DEFS)
         - $(EXTRA_AU_DEFS)
         - $(AU_DEFS)
@@ -255,8 +284,14 @@ targetTemplates:
       INSTALL_PATH: /
       ENABLE_HARDENED_RUNTIME: YES
       LD_RUNPATH_SEARCH_PATHS: "@executable_path/../Frameworks"
+      # APP header paths - needs SRCROOT for resources/main.rc_mac_dlg
+      HEADER_SEARCH_PATHS:
+        - $(inherited)
+        - $(SRCROOT)
+        - $(IPLUG2_ROOT)/IPlug/APP
       GCC_PREPROCESSOR_DEFINITIONS:
         - $(inherited)
+        - $(DEBUG_DEFS)
         - $(EXTRA_APP_DEFS)
         - $(APP_DEFS)
         - $(EXTRA_ALL_DEFS)
@@ -290,19 +325,27 @@ targetTemplates:
       DYLIB_INSTALL_NAME_BASE: "@rpath"
       LD_RUNPATH_SEARCH_PATHS: "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks"
       SKIP_INSTALL: YES
+      # AUv3 header paths
+      HEADER_SEARCH_PATHS:
+        - $(inherited)
+        - $(IPLUG2_ROOT)/IPlug/AUv3
       GCC_PREPROCESSOR_DEFINITIONS:
         - $(inherited)
+        - $(DEBUG_DEFS)
         - $(AUv3_DEFS)
         - $(EXTRA_ALL_DEFS)
         - $(ALL_DEFS)
     dependencies:
       - sdk: Cocoa.framework
+      - sdk: Carbon.framework
       - sdk: CoreFoundation.framework
+      - sdk: CoreServices.framework
       - sdk: QuartzCore.framework
       - sdk: AudioToolbox.framework
       - sdk: AVFoundation.framework
       - sdk: CoreAudio.framework
       - sdk: CoreAudioKit.framework
+      - sdk: CoreMIDI.framework
       - sdk: Metal.framework
       - sdk: MetalKit.framework
       - sdk: OpenGL.framework
@@ -321,6 +364,7 @@ targetTemplates:
       LD_RUNPATH_SEARCH_PATHS: "$(inherited) @executable_path/../Frameworks @executable_path/../../../../Frameworks"
       GCC_PREPROCESSOR_DEFINITIONS:
         - $(inherited)
+        - $(DEBUG_DEFS)
         - $(AUv3_DEFS)
         - $(EXTRA_ALL_DEFS)
         - $(ALL_DEFS)
