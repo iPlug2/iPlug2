@@ -4,7 +4,7 @@
 #include "IWebViewControl.h"
 
 IPlugOSCEditor::IPlugOSCEditor(const InstanceInfo& info)
-: Plugin(info, MakeConfig(kNumParams, kNumPresets))
+: iplug::Plugin(info, MakeConfig(kNumParams, kNumPresets))
 , OSCReceiver(8000)
 , OSCSender("127.0.0.1", 8000)
 {

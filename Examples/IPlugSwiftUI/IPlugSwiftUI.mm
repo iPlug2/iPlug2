@@ -11,7 +11,7 @@
 const NSInteger kScopeBufferSize = SCOPE_BUFFER_SIZE;
 
 IPlugSwiftUI::IPlugSwiftUI(const InstanceInfo& info)
-: Plugin(info, MakeConfig(kNumParams, kNumPresets))
+: iplug::Plugin(info, MakeConfig(kNumParams, kNumPresets))
 {
   GetParam(kParamGain)->InitDouble("Gain", 100., 0., 100.0, 0.01, "%");
   

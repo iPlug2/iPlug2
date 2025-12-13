@@ -2,7 +2,7 @@
 #include "IPlug_include_in_plug_src.h"
 
 IPlugP5js::IPlugP5js(const InstanceInfo& info)
-: Plugin(info, MakeConfig(kNumParams, kNumPresets))
+: iplug::Plugin(info, MakeConfig(kNumParams, kNumPresets))
 {
   GetParam(kGain)->InitGain("Gain", -70., -70, 0.);
 

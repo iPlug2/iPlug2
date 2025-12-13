@@ -3,7 +3,7 @@
 #include "IControls.h"
 
 IPlugChunks::IPlugChunks(const InstanceInfo& info)
-: Plugin(info, MakeConfig(kNumParams, kNumPresets))
+: iplug::Plugin(info, MakeConfig(kNumParams, kNumPresets))
 , mStepPos(0)
 {
   GetParam(kParamGain)->InitDouble("Gain", 0., 0., 100.0, 0.01, "%");

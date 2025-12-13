@@ -2,7 +2,7 @@
 #include "IPlug_include_in_plug_src.h"
 
 IPlugSideChain::IPlugSideChain(const InstanceInfo& info)
-: Plugin(info, MakeConfig(kNumParams, kNumPresets))
+: iplug::Plugin(info, MakeConfig(kNumParams, kNumPresets))
 {
   SetChannelLabel(ERoute::kInput, 0, "Main L");
   SetChannelLabel(ERoute::kInput, 1, "Main R");

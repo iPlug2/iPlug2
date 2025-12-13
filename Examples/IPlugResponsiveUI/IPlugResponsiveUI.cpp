@@ -4,7 +4,7 @@
 #include "Test/TestSizeControl.h"
 
 IPlugResponsiveUI::IPlugResponsiveUI(const InstanceInfo& info)
-: Plugin(info, MakeConfig(kNumParams, kNumPresets))
+: iplug::Plugin(info, MakeConfig(kNumParams, kNumPresets))
 {
   GetParam(kGain)->InitGain("Gain", -70., -70., 0.);
 
