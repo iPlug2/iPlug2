@@ -139,8 +139,8 @@ targets:
       - path: resources/fonts
         name: fonts
         buildPhase: resources
-    scheme:
-      configVariants: [Debug, Release, Tracer]
+    scheme: {}
+      {}
 
   # CLAP Plugin
   CLAP:
@@ -223,8 +223,8 @@ targets:
       - path: resources/fonts
         name: fonts
         buildPhase: resources
-    scheme:
-      configVariants: [Debug, Release, Tracer]
+    scheme: {}
+      {}
 
   # AUv2 Plugin
   AUv2:
@@ -312,8 +312,8 @@ targets:
       - path: resources/fonts
         name: fonts
         buildPhase: resources
-    scheme:
-      configVariants: [Debug, Release, Tracer]
+    scheme: {}
+      {}
 
   # Standalone Application
   APP:
@@ -405,8 +405,8 @@ targets:
           - "IPlugEffect.icns"
           - "Images.xcassets"
           - "fonts"
-    scheme:
-      configVariants: [Debug, Release, Tracer]
+    scheme: {}
+      {}
 
 ############################################
 # Schemes

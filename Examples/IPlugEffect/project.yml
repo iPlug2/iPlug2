@@ -460,30 +460,22 @@ targets:
   # VST3 Plugin
   VST3:
     templates: [VST3_Template]
-    scheme:
-      configVariants: [Debug, Release, Tracer]
-      testTargets: []
+    scheme: {}
 
   # CLAP Plugin
   CLAP:
     templates: [CLAP_Template]
-    scheme:
-      configVariants: [Debug, Release, Tracer]
-      testTargets: []
+    scheme: {}
 
   # AUv2 Plugin
   AUv2:
     templates: [AUv2_Template]
-    scheme:
-      configVariants: [Debug, Release, Tracer]
-      testTargets: []
+    scheme: {}
 
   # Standalone Application
   APP:
     templates: [APP_Template]
-    scheme:
-      configVariants: [Debug, Release, Tracer]
-      testTargets: []
+    scheme: {}
 
   # AUv3 Framework (embedded in both AUv3 extension and host app)
   AUv3Framework:
@@ -589,8 +581,7 @@ targets:
       - sdk: Metal.framework
       - sdk: MetalKit.framework
       - sdk: OpenGL.framework
-    scheme:
-      configVariants: [Debug, Release, Tracer]
+    scheme: {}
 
   # AUv3 App Extension
   AUv3:
@@ -616,8 +607,7 @@ targets:
       - target: AUv3Framework
         embed: true
         codeSign: true
-    scheme:
-      configVariants: [Debug, Release, Tracer]
+    scheme: {}
 
   # APP with AUv3 (host app that contains the AUv3 extension)
   APP-AUv3:
@@ -720,8 +710,7 @@ targets:
       - sdk: Metal.framework
       - sdk: MetalKit.framework
       - sdk: OpenGL.framework
-    scheme:
-      configVariants: [Debug, Release, Tracer]
+    scheme: {}
 
 ############################################
 # Schemes
