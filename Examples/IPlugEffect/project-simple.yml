@@ -52,6 +52,12 @@ fileGroups:
 settings:
   base:
     BINARY_NAME: IPlugEffect
+    # Required: Path from this project to iPlug2 root
+    IPLUG2_ROOT: ../..
+    # Required: SWELL requires manual memory management
+    CLANG_ENABLE_OBJC_ARC: NO
+    # Base include paths from xcconfig
+    HEADER_SEARCH_PATHS: $(IPLUG_INC_PATHS) $(EXTRA_INC_PATHS)
 
 ############################################
 # Targets
@@ -60,10 +66,41 @@ targets:
 
   # VST3 Plugin
   VST3:
-    templates:
-      - IPlug2_VST3_macOS
+    platform: macOS
+    type: bundle
     settings:
+      PRODUCT_NAME: $(BINARY_NAME)
       INFOPLIST_FILE: resources/IPlugEffect-VST3-Info.plist
+      WRAPPER_EXTENSION: vst3
+      DSTROOT: $(VST3_PATH)
+      INSTALL_PATH: /
+      CODE_SIGN_IDENTITY: ""
+      PRODUCT_BUNDLE_IDENTIFIER: com.AcmeInc.vst3.$(BINARY_NAME)
+      SKIP_INSTALL: NO
+      GENERATE_PKGINFO_FILE: YES
+      DEPLOYMENT_LOCATION: YES
+      HEADER_SEARCH_PATHS:
+        - $(inherited)
+        - $(SRCROOT)
+        - $(VST3_SDK)
+        - $(IPLUG2_ROOT)/IPlug/VST3
+      GCC_PREPROCESSOR_DEFINITIONS:
+        - $(inherited)
+        - $(DEBUG_DEFS)
+        - $(EXTRA_PLUGIN_DEFS)
+        - $(EXTRA_VST3_DEFS)
+        - $(VST3_DEFS)
+        - $(EXTRA_ALL_DEFS)
+        - $(ALL_DEFS)
+    dependencies:
+      - sdk: Cocoa.framework
+      - sdk: Carbon.framework
+      - sdk: CoreFoundation.framework
+      - sdk: CoreServices.framework
+      - sdk: QuartzCore.framework
+      - sdk: Metal.framework
+      - sdk: MetalKit.framework
+      - sdk: OpenGL.framework
     sources: &plugin_sources
       # Project source files
       - path: .
@@ -91,6 +128,55 @@ targets:
         buildPhase: sources
         includes:
           - "IPlugVST3.cpp"
+          - "IPlugVST3_ProcessorBase.cpp"
+      # VST3 SDK sources
+      - path: ../../Dependencies/IPlug/VST3_SDK/base/source
+        name: VST3_SDK_base
+        buildPhase: sources
+        includes:
+          - "fobject.cpp"
+          - "fdebug.cpp"
+          - "updatehandler.cpp"
+          - "fstreamer.cpp"
+          - "fbuffer.cpp"
+          - "fstring.cpp"
+          - "timer.cpp"
+          - "baseiids.cpp"
+      - path: ../../Dependencies/IPlug/VST3_SDK/base/thread/source
+        name: VST3_SDK_thread
+        buildPhase: sources
+        includes:
+          - "*.cpp"
+      - path: ../../Dependencies/IPlug/VST3_SDK/public.sdk/source/common
+        name: VST3_SDK_common
+        buildPhase: sources
+        includes:
+          - "pluginview.cpp"
+          - "commoniids.cpp"
+      - path: ../../Dependencies/IPlug/VST3_SDK/public.sdk/source/main
+        name: VST3_SDK_main
+        buildPhase: sources
+        includes:
+          - "pluginfactory.cpp"
+      - path: ../../Dependencies/IPlug/VST3_SDK/public.sdk/source/vst
+        name: VST3_SDK_vst
+        buildPhase: sources
+        includes:
+          - "vstbus.cpp"
+          - "vstcomponent.cpp"
+          - "vstcomponentbase.cpp"
+          - "vstaudioeffect.cpp"
+          - "vstparameters.cpp"
+          - "vstinitiids.cpp"
+          - "vstsinglecomponenteffect.cpp"
+          # Note: vsteditcontroller.cpp is included by vstsinglecomponenteffect.cpp
+      - path: ../../Dependencies/IPlug/VST3_SDK/pluginterfaces/base
+        name: VST3_SDK_pluginterfaces
+        buildPhase: sources
+        includes:
+          - "coreiids.cpp"
+          - "funknown.cpp"
+          - "ustring.cpp"
       # IGraphics Core
       - path: ../../IGraphics
         name: IGraphics
@@ -115,12 +201,11 @@ targets:
           - "IGraphicsMac_view.mm"
           - "IGraphicsCoreText.mm"
       # IGraphics Drawing (NanoVG)
-      - path: ../../IGraphics/Drawing
-        name: Drawing
+      # Note: IGraphicsNanoVG.cpp is #included by IGraphicsMac.mm - don't compile separately
+      - path: ../../IGraphics/Drawing/IGraphicsNanoVG_src.m
+        name: IGraphicsNanoVG_src.m
         buildPhase: sources
-        includes:
-          - "IGraphicsNanoVG.cpp"
-          - "IGraphicsNanoVG_src.m"
+        compilerFlags: -fobjc-arc
       # SWELL
       - path: ../../WDL/swell
         name: SWELL
@@ -143,10 +228,40 @@ targets:
 
   # CLAP Plugin
   CLAP:
-    templates:
-      - IPlug2_CLAP_macOS
+    platform: macOS
+    type: bundle
     settings:
+      PRODUCT_NAME: $(BINARY_NAME)
       INFOPLIST_FILE: resources/IPlugEffect-CLAP-Info.plist
+      WRAPPER_EXTENSION: clap
+      DSTROOT: $(CLAP_PATH)
+      INSTALL_PATH: /
+      CODE_SIGN_IDENTITY: ""
+      PRODUCT_BUNDLE_IDENTIFIER: com.AcmeInc.clap.$(BINARY_NAME)
+      SKIP_INSTALL: NO
+      GENERATE_PKGINFO_FILE: YES
+      DEPLOYMENT_LOCATION: YES
+      HEADER_SEARCH_PATHS:
+        - $(inherited)
+        - $(SRCROOT)
+        - $(CLAP_INC_PATHS)
+        - $(IPLUG2_ROOT)/IPlug/CLAP
+      GCC_PREPROCESSOR_DEFINITIONS:
+        - $(inherited)
+        - $(DEBUG_DEFS)
+        - $(EXTRA_PLUGIN_DEFS)
+        - $(CLAP_DEFS)
+        - $(EXTRA_ALL_DEFS)
+        - $(ALL_DEFS)
+    dependencies:
+      - sdk: Cocoa.framework
+      - sdk: Carbon.framework
+      - sdk: CoreFoundation.framework
+      - sdk: CoreServices.framework
+      - sdk: QuartzCore.framework
+      - sdk: Metal.framework
+      - sdk: MetalKit.framework
+      - sdk: OpenGL.framework
     sources:
       # Project source files
       - path: .
@@ -198,12 +313,11 @@ targets:
           - "IGraphicsMac_view.mm"
           - "IGraphicsCoreText.mm"
       # IGraphics Drawing (NanoVG)
-      - path: ../../IGraphics/Drawing
-        name: Drawing
+      # Note: IGraphicsNanoVG.cpp is #included by IGraphicsMac.mm - don't compile separately
+      - path: ../../IGraphics/Drawing/IGraphicsNanoVG_src.m
+        name: IGraphicsNanoVG_src.m
         buildPhase: sources
-        includes:
-          - "IGraphicsNanoVG.cpp"
-          - "IGraphicsNanoVG_src.m"
+        compilerFlags: -fobjc-arc
       # SWELL
       - path: ../../WDL/swell
         name: SWELL
@@ -226,10 +340,45 @@ targets:
 
   # AUv2 Plugin
   AUv2:
-    templates:
-      - IPlug2_AUv2_macOS
+    platform: macOS
+    type: bundle
     settings:
+      PRODUCT_NAME: $(BINARY_NAME)
       INFOPLIST_FILE: resources/IPlugEffect-AU-Info.plist
+      WRAPPER_EXTENSION: component
+      DSTROOT: $(AU_PATH)
+      INSTALL_PATH: /
+      CODE_SIGN_IDENTITY: ""
+      PRODUCT_BUNDLE_IDENTIFIER: com.AcmeInc.audiounit.$(BINARY_NAME)
+      SKIP_INSTALL: NO
+      GENERATE_PKGINFO_FILE: YES
+      DEPLOYMENT_LOCATION: YES
+      REZ_SEARCH_PATHS: $(SRCROOT) $(IPLUG_PATH) $(SDKROOT)/System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/CarbonCore.framework/Versions/A/Headers
+      HEADER_SEARCH_PATHS:
+        - $(inherited)
+        - $(SRCROOT)
+        - $(IPLUG2_ROOT)/IPlug/AUv2
+      GCC_PREPROCESSOR_DEFINITIONS:
+        - $(inherited)
+        - $(DEBUG_DEFS)
+        - $(EXTRA_PLUGIN_DEFS)
+        - $(EXTRA_AU_DEFS)
+        - $(AU_DEFS)
+        - $(EXTRA_ALL_DEFS)
+        - $(ALL_DEFS)
+    dependencies:
+      - sdk: Cocoa.framework
+      - sdk: Carbon.framework
+      - sdk: CoreFoundation.framework
+      - sdk: CoreServices.framework
+      - sdk: QuartzCore.framework
+      - sdk: AudioUnit.framework
+      - sdk: AudioToolbox.framework
+      - sdk: CoreAudio.framework
+      - sdk: CoreMIDI.framework
+      - sdk: Metal.framework
+      - sdk: MetalKit.framework
+      - sdk: OpenGL.framework
     sources:
       # Project source files
       - path: .
@@ -286,12 +435,11 @@ targets:
           - "IGraphicsMac_view.mm"
           - "IGraphicsCoreText.mm"
       # IGraphics Drawing (NanoVG)
-      - path: ../../IGraphics/Drawing
-        name: Drawing
+      # Note: IGraphicsNanoVG.cpp is #included by IGraphicsMac.mm - don't compile separately
+      - path: ../../IGraphics/Drawing/IGraphicsNanoVG_src.m
+        name: IGraphicsNanoVG_src.m
         buildPhase: sources
-        includes:
-          - "IGraphicsNanoVG.cpp"
-          - "IGraphicsNanoVG_src.m"
+        compilerFlags: -fobjc-arc
       # SWELL
       - path: ../../WDL/swell
         name: SWELL
@@ -314,11 +462,39 @@ targets:
 
   # Standalone Application
   APP:
-    templates:
-      - IPlug2_APP_macOS
+    platform: macOS
+    type: application
     settings:
+      PRODUCT_NAME: $(BINARY_NAME)
       INFOPLIST_FILE: resources/IPlugEffect-macOS-Info.plist
+      DSTROOT: $(APP_PATH)
+      INSTALL_PATH: /
+      ENABLE_HARDENED_RUNTIME: YES
       CODE_SIGN_ENTITLEMENTS: projects/IPlugEffect-macOS.entitlements
+      LD_RUNPATH_SEARCH_PATHS: "@executable_path/../Frameworks"
+      HEADER_SEARCH_PATHS:
+        - $(inherited)
+        - $(SRCROOT)
+        - $(IPLUG2_ROOT)/IPlug/APP
+      GCC_PREPROCESSOR_DEFINITIONS:
+        - $(inherited)
+        - $(DEBUG_DEFS)
+        - $(EXTRA_APP_DEFS)
+        - $(APP_DEFS)
+        - $(EXTRA_ALL_DEFS)
+        - $(ALL_DEFS)
+    dependencies:
+      - sdk: Cocoa.framework
+      - sdk: Carbon.framework
+      - sdk: CoreFoundation.framework
+      - sdk: CoreServices.framework
+      - sdk: QuartzCore.framework
+      - sdk: AppKit.framework
+      - sdk: CoreMIDI.framework
+      - sdk: CoreAudio.framework
+      - sdk: Metal.framework
+      - sdk: MetalKit.framework
+      - sdk: OpenGL.framework
     sources:
       # Project source files
       - path: .
@@ -347,8 +523,21 @@ targets:
         includes:
           - "IPlugAPP.cpp"
           - "IPlugAPP_host.cpp"
-          - "IPlugAPP_main.cpp"
           - "IPlugAPP_dialog.cpp"
+      # IPlugAPP_main.cpp needs Objective-C++ for Cocoa.h
+      - path: ../../IPlug/APP/IPlugAPP_main.cpp
+        name: IPlugAPP_main.cpp
+        buildPhase: sources
+        compilerFlags: -x objective-c++
+      # RtAudio/RtMidi for standalone audio
+      - path: ../../Dependencies/IPlug/RTAudio/RtAudio.cpp
+        name: RtAudio.cpp
+        buildPhase: sources
+        compilerFlags: -x objective-c++
+      - path: ../../Dependencies/IPlug/RTMidi/RtMidi.cpp
+        name: RtMidi.cpp
+        buildPhase: sources
+        compilerFlags: -x objective-c++
       # IGraphics Core
       - path: ../../IGraphics
         name: IGraphics
@@ -373,12 +562,11 @@ targets:
           - "IGraphicsMac_view.mm"
           - "IGraphicsCoreText.mm"
       # IGraphics Drawing (NanoVG)
-      - path: ../../IGraphics/Drawing
-        name: Drawing
+      # Note: IGraphicsNanoVG.cpp is #included by IGraphicsMac.mm - don't compile separately
+      - path: ../../IGraphics/Drawing/IGraphicsNanoVG_src.m
+        name: IGraphicsNanoVG_src.m
         buildPhase: sources
-        includes:
-          - "IGraphicsNanoVG.cpp"
-          - "IGraphicsNanoVG_src.m"
+        compilerFlags: -fobjc-arc
       # SWELL
       - path: ../../WDL/swell
         name: SWELL
