@@ -50,8 +50,7 @@ settingGroups:
   common_base:
     CLANG_CXX_LANGUAGE_STANDARD: c++17
     CLANG_CXX_LIBRARY: libc++
-    GCC_PRECOMPILE_PREFIX_HEADER: YES
-    GCC_PREFIX_HEADER: $(IPLUG_PATH)/IPlugOBJCPrefix.pch
+    # Note: GCC_PREFIX_HEADER is inherited from xcconfig files
     HEADER_SEARCH_PATHS:
       - $(inherited)
       - $(IPLUG_INC_PATHS)

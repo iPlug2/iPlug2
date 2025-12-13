@@ -140,7 +140,6 @@ targets:
         name: fonts
         buildPhase: resources
     scheme: {}
-      {}
 
   # CLAP Plugin
   CLAP:
@@ -224,7 +223,6 @@ targets:
         name: fonts
         buildPhase: resources
     scheme: {}
-      {}
 
   # AUv2 Plugin
   AUv2:
@@ -313,7 +311,6 @@ targets:
         name: fonts
         buildPhase: resources
     scheme: {}
-      {}
 
   # Standalone Application
   APP:
@@ -406,7 +403,6 @@ targets:
           - "Images.xcassets"
           - "fonts"
     scheme: {}
-      {}
 
 ############################################
 # Schemes
