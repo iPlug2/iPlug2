@@ -53,6 +53,33 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
     gScrollMessage = RegisterWindowMessage("MSWHEEL_ROLLMSG");
 
     IPlugAPPHost* pAppHost = IPlugAPPHost::Create();
+
+    // Parse command line arguments
+    if (lpszCmdParam && lpszCmdParam[0])
+    {
+      char* args = _strdup(lpszCmdParam);
+      char* token = strtok(args, " ");
+      while (token)
+      {
+        if (strcmp(token, "--screenshot") == 0)
+        {
+          token = strtok(nullptr, " ");
+          if (token)
+            pAppHost->SetScreenshotPath(token);
+        }
+        else if (strcmp(token, "--no-io") == 0)
+        {
+          pAppHost->SetNoIO(true);
+        }
+        token = strtok(nullptr, " ");
+      }
+      free(args);
+    }
+
+    // Screenshot mode implies --no-io
+    if (pAppHost->IsScreenshotMode())
+      pAppHost->SetNoIO(true);
+
     pAppHost->Init();
     pAppHost->TryToChangeAudio();
 
@@ -144,6 +171,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
 #elif defined(OS_MAC)
 #import <Cocoa/Cocoa.h>
 #include <dlfcn.h>
+#include <cstring>
 #include "IPlugSWELL.h"
 #include "IPlugPaths.h"
 
@@ -207,11 +235,15 @@ extern "C" bool SaveWindowScreenshot(void* hwnd, const char* path)
 }
 extern HMENU SWELL_app_stocksysmenu;
 
+// Globals to store CLI options before NSApplicationMain is called
+static WDL_String gScreenshotPath;
+static bool gNoIO = false;
+
 int main(int argc, char *argv[])
 {
 #if APP_COPY_AUV3
   //if invoked with an argument registerauv3 use plug-in kit to explicitly register auv3 app extension (doesn't happen from debugger)
-  if (std::string_view(argv[2]) == "registerauv3")
+  if (argc > 2 && std::string_view(argv[2]) == "registerauv3")
   {
     WDL_String appexPath;
     appexPath.SetFormatted(1024, "pluginkit -a %s%s%s.appex", argv[0], "/../../Plugins/", appexPath.get_filepart());
@@ -221,11 +253,25 @@ int main(int argc, char *argv[])
       NSLog(@"Failed to register audiounit app extension\n");
   }
 #endif
-  
+
+  // Parse command line arguments
+  for (int i = 1; i < argc; i++)
+  {
+    if (strcmp(argv[i], "--screenshot") == 0 && i + 1 < argc)
+    {
+      gScreenshotPath.Set(argv[i + 1]);
+      i++; // Skip the path argument
+    }
+    else if (strcmp(argv[i], "--no-io") == 0)
+    {
+      gNoIO = true;
+    }
+  }
+
   if (AppIsSandboxed())
     DBGMSG("App is sandboxed, file system access etc restricted!\n");
-  
-  return NSApplicationMain(argc,  (const char **) argv);
+
+  return NSApplicationMain(argc, (const char**) argv);
 }
 
 INT_PTR SWELLAppMain(int msg, INT_PTR parm1, INT_PTR parm2)
@@ -237,6 +283,18 @@ INT_PTR SWELLAppMain(int msg, INT_PTR parm1, INT_PTR parm2)
     case SWELLAPP_ONLOAD:
     {
       pAppHost = IPlugAPPHost::Create();
+
+      // Set CLI options
+      if (gScreenshotPath.GetLength() > 0)
+      {
+        pAppHost->SetScreenshotPath(gScreenshotPath.Get());
+        pAppHost->SetNoIO(true); // Implicit --no-io for screenshot mode
+      }
+      else if (gNoIO)
+      {
+        pAppHost->SetNoIO(true);
+      }
+
       pAppHost->Init();
       pAppHost->TryToChangeAudio();
       break;

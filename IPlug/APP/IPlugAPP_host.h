@@ -179,7 +179,27 @@ public:
   
   static IPlugAPPHost* Create();
   static std::unique_ptr<IPlugAPPHost> sInstance;
-  
+
+  /** Set screenshot path for CLI screenshot mode
+   * @param path Path to save the screenshot to (empty to disable) */
+  void SetScreenshotPath(const char* path) { mScreenshotPath.Set(path); }
+
+  /** Get screenshot path (empty if not in screenshot mode)
+   * @return The screenshot path or empty string */
+  const char* GetScreenshotPath() const { return mScreenshotPath.Get(); }
+
+  /** Check if in screenshot mode
+   * @return true if a screenshot should be taken and app should exit */
+  bool IsScreenshotMode() const { return mScreenshotPath.GetLength() > 0; }
+
+  /** Set no-I/O mode (disables audio and MIDI initialization)
+   * @param noIO true to disable I/O */
+  void SetNoIO(bool noIO) { mNoIO = noIO; }
+
+  /** Check if I/O is disabled
+   * @return true if audio and MIDI I/O is disabled */
+  bool IsNoIO() const { return mNoIO; }
+
   void PopulateSampleRateList(HWND hwndDlg, RtAudio::DeviceInfo* pInputDevInfo, RtAudio::DeviceInfo* pOutputDevInfo);
   void PopulateAudioInputList(HWND hwndDlg, RtAudio::DeviceInfo* pInfo);
   void PopulateAudioOutputList(HWND hwndDlg, RtAudio::DeviceInfo* pInfo);
@@ -255,6 +275,7 @@ private:
   bool mExiting = false;
   bool mAudioEnding = false;
   bool mAudioDone = false;
+  bool mNoIO = false;
 
   /** The ID of the operating system's default input device if detected */
   ValidatedID mDefaultInputDev;
@@ -262,6 +283,7 @@ private:
   ValidatedID mDefaultOutputDev;
     
   WDL_String mINIPath;
+  WDL_String mScreenshotPath;
 
   std::vector<uint32_t> mAudioInputDevIDs;
   std::vector<uint32_t> mAudioOutputDevIDs;

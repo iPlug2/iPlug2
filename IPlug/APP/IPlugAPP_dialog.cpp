@@ -30,6 +30,9 @@ using namespace iplug;
 using namespace igraphics;
 #endif
 
+// Timer ID for CLI screenshot mode
+#define IDT_SCREENSHOT_TIMER 1001
+
 
 // check the input and output devices, find matching srs
 void IPlugAPPHost::PopulateSampleRateList(HWND hwndDlg, RtAudio::DeviceInfo* inputDevInfo, RtAudio::DeviceInfo* outputDevInfo)
@@ -554,7 +557,42 @@ WDL_DLGRET IPlugAPPHost::MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
       ClientResize(hwndDlg, pPlug->GetEditorWidth(), pPlug->GetEditorHeight());
 
       ShowWindow(hwndDlg, SW_SHOW);
+
+      // If in screenshot mode, start timer to take screenshot after UI initializes
+      if (pAppHost->IsScreenshotMode())
+      {
+        SetTimer(hwndDlg, IDT_SCREENSHOT_TIMER, 500, nullptr); // 500ms delay
+      }
+
       return 1;
+    }
+    case WM_TIMER:
+    {
+      if (wParam == IDT_SCREENSHOT_TIMER)
+      {
+        KillTimer(hwndDlg, IDT_SCREENSHOT_TIMER);
+
+        const char* screenshotPath = pAppHost->GetScreenshotPath();
+        bool success = false;
+
+        #if !defined NO_IGRAPHICS
+        if (!success)
+        {
+          IGEditorDelegate* pPlug = dynamic_cast<IGEditorDelegate*>(pAppHost->GetPlug());
+          if (pPlug)
+          {
+            IGraphics* pGraphics = pPlug->GetUI();
+            if (pGraphics)
+              success = pGraphics->SaveScreenshot(screenshotPath);
+          }
+        }
+        #endif
+
+        // Exit the application
+        DestroyWindow(hwndDlg);
+        return 0;
+      }
+      break;
     }
     case WM_DESTROY:
       pAppHost->CloseWindow();
@@ -641,7 +679,6 @@ WDL_DLGRET IPlugAPPHost::MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
 
           bool success = false;
 
-          // Try IGraphics::SaveScreenshot first (works with Metal/GPU backends)
           #if !defined NO_IGRAPHICS
           IGEditorDelegate* pPlug = dynamic_cast<IGEditorDelegate*>(pAppHost->GetPlug());
           if (pPlug)
