@@ -43,7 +43,7 @@ if(NOT TARGET iPlug2::IGraphics)
       ${IGRAPHICS_DIR}/Platforms/IGraphicsCoreText.mm
     )
   elseif(UNIX AND NOT APPLE)
-    message("Error - Linux not yet supported")
+    # Linux IGraphics not yet supported - use NO_IGRAPHICS/CLI builds
   endif()
 
   target_sources(iPlug2::IGraphics INTERFACE ${IGRAPHICS_SRC})
@@ -80,7 +80,7 @@ if(NOT TARGET iPlug2::IGraphics)
       "-framework QuartzCore"
     )
   elseif(UNIX AND NOT APPLE)
-    message("Error - Linux not yet supported")
+    # Linux IGraphics not yet supported - use NO_IGRAPHICS/CLI builds
   endif()
 
   target_link_libraries(iPlug2::IGraphics INTERFACE iPlug2::IPlug)
