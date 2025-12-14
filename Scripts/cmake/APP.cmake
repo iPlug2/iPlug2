@@ -96,7 +96,23 @@ if(NOT TARGET iPlug2::APP)
       "-framework CoreAudio"
     )
   elseif(UNIX AND NOT APPLE)
-    message("Error - Linux not yet supported")
+    # Linux APP support via ALSA for audio/MIDI
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(ALSA REQUIRED IMPORTED_TARGET alsa)
+
+    target_include_directories(iPlug2::APP INTERFACE ${SWELL_DIR})
+
+    target_compile_definitions(iPlug2::APP INTERFACE
+      __LINUX_ALSA__
+      SWELL_COMPILED
+      SWELL_TARGET_GDK=3
+    )
+
+    target_link_libraries(iPlug2::APP INTERFACE
+      PkgConfig::ALSA
+      pthread
+      rt
+    )
   endif()
   
   target_link_libraries(iPlug2::APP INTERFACE iPlug2::IPlug)
@@ -161,5 +177,14 @@ function(iplug_configure_app target project_name)
         COMMENT "Creating PkgInfo for ${project_name}.app"
       )
     endif()
+  elseif(UNIX AND NOT APPLE)
+    # Linux APP output configuration
+    set(APP_OUTPUT_DIR "${CMAKE_BINARY_DIR}/out")
+    set_target_properties(${target} PROPERTIES
+      OUTPUT_NAME "${project_name}"
+      RUNTIME_OUTPUT_DIRECTORY "${APP_OUTPUT_DIR}"
+      RUNTIME_OUTPUT_DIRECTORY_DEBUG "${APP_OUTPUT_DIR}"
+      RUNTIME_OUTPUT_DIRECTORY_RELEASE "${APP_OUTPUT_DIR}"
+    )
   endif()
 endfunction()
