@@ -96,20 +96,48 @@ if(NOT TARGET iPlug2::APP)
       "-framework CoreAudio"
     )
   elseif(UNIX AND NOT APPLE)
-    # Linux APP support via ALSA for audio/MIDI
+    # Linux APP support via ALSA for audio/MIDI, GTK3 for SWELL
     find_package(PkgConfig REQUIRED)
     pkg_check_modules(ALSA REQUIRED IMPORTED_TARGET alsa)
+    pkg_check_modules(GTK3 REQUIRED IMPORTED_TARGET gtk+-3.0)
 
     target_include_directories(iPlug2::APP INTERFACE ${SWELL_DIR})
+
+    # SWELL source files for Linux (GDK backend)
+    # Both swell-gdi-generic.cpp and swell-generic-gdk.cpp define some GL functions.
+    # swell-generic-gdk.cpp has the real implementation, swell-gdi-generic.cpp has stubs.
+    # We use --allow-multiple-definition to let the linker pick the first (GDK) version.
+    set(SWELL_SRC
+      "${SWELL_DIR}/swell.cpp"
+      "${SWELL_DIR}/swell-ini.cpp"
+      "${SWELL_DIR}/swell-dlg-generic.cpp"
+      "${SWELL_DIR}/swell-gdi-generic.cpp"
+      "${SWELL_DIR}/swell-kb-generic.cpp"
+      "${SWELL_DIR}/swell-menu-generic.cpp"
+      "${SWELL_DIR}/swell-misc-generic.cpp"
+      "${SWELL_DIR}/swell-miscdlg-generic.cpp"
+      "${SWELL_DIR}/swell-wnd-generic.cpp"
+      "${SWELL_DIR}/swell-generic-gdk.cpp"
+    )
+    target_sources(iPlug2::APP INTERFACE ${SWELL_SRC})
+
+    # Xi library for cursor support in swell-generic-gdk
+    pkg_check_modules(XI REQUIRED IMPORTED_TARGET xi)
 
     target_compile_definitions(iPlug2::APP INTERFACE
       __LINUX_ALSA__
       SWELL_COMPILED
       SWELL_TARGET_GDK=3
+      SWELL_EXTRA_MINIMAL
     )
+
+    # Allow multiple definitions for SWELL GL function stubs
+    target_link_options(iPlug2::APP INTERFACE "-Wl,--allow-multiple-definition")
 
     target_link_libraries(iPlug2::APP INTERFACE
       PkgConfig::ALSA
+      PkgConfig::GTK3
+      PkgConfig::XI
       pthread
       rt
     )

@@ -42,21 +42,23 @@
     #elif defined IGRAPHICS_GL3
       #include <OpenGL/gl3.h>
     #endif
+  #elif defined OS_LINUX
+    #include <glad/glad.h>
   #else
     #include <OpenGL/gl.h>
   #endif
 #endif
 
-#ifdef OS_WIN
-  #include "IGraphicsWin.h"
+#if defined(OS_WIN)
+  #include "Platforms/IGraphicsWin.h"
 #elif defined OS_MAC
-  #include "IGraphicsMac.h"
+  #include "Platforms/IGraphicsMac.h"
 #elif defined OS_IOS
-  #include "IGraphicsIOS.h"
+  #include "Platforms/IGraphicsIOS.h"
 #elif defined OS_LINUX
-  #include "IGraphicsLinux.h"
+  #include "Platforms/IGraphicsLinux.h"
 #elif defined OS_WEB
-  #include "IGraphicsWeb.h"
+  #include "Platforms/IGraphicsWeb.h"
 #endif
 
 //TODO: move this

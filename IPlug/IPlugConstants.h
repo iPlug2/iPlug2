@@ -1,10 +1,10 @@
 /*
  ==============================================================================
- 
- This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
- 
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
  See LICENSE.txt for  more info.
- 
+
  ==============================================================================
 */
 
@@ -230,7 +230,7 @@ enum EHost
   kHostTwistedWave,
   kHostBitwig,
   kHostWWW,
-  
+
   kHostReason,
   kHostGoldWave5x,
   kHostWaveform,
@@ -319,7 +319,22 @@ enum EVirtualKey
   kVK_PAUSE = 0x13,
   kVK_CAPITAL = 0x14,
 
+  kVK_KANA    = 0x15,
+  kVK_HANGEUL = 0x15,  /* old name - should be here for compatibility */
+  kVK_HANGUL  = 0x15,
+  kVK_IME_ON  = 0x16,
+  kVK_JUNJA   = 0x17,
+  kVK_FINAL   = 0x18,
+  kVK_HANJA   = 0x19,
+  kVK_KANJI   = 0x19,
+  kVK_IME_OFF = 0x1A,
+
   kVK_ESCAPE = 0x1B,
+
+  kVK_CONVERT      = 0x1C,
+  kVK_NONCONVERT   = 0x1D,
+  kVK_ACCEPT       = 0x1E,
+  kVK_MODECHANGE   = 0x1F,
 
   kVK_SPACE = 0x20,
   kVK_PRIOR = 0x21,
@@ -332,6 +347,7 @@ enum EVirtualKey
   kVK_DOWN = 0x28,
   kVK_SELECT = 0x29,
   kVK_PRINT = 0x2A,
+  kVK_EXECUTE  = 0x2B,
   kVK_SNAPSHOT = 0x2C,
   kVK_INSERT = 0x2D,
   kVK_DELETE = 0x2E,
@@ -375,6 +391,8 @@ enum EVirtualKey
   kVK_Z = 0x5A,
 
   kVK_LWIN = 0x5B,
+  kVK_RWIN = 0x5C,
+  kVK_APPS = 0x5D,
 
   kVK_NUMPAD0 = 0x60,
   kVK_NUMPAD1 = 0x61,
@@ -418,7 +436,84 @@ enum EVirtualKey
   kVK_F24 = 0x87,
 
   kVK_NUMLOCK = 0x90,
-  kVK_SCROLL = 0x91
+  kVK_SCROLL = 0x91,
+
+  /* Comment from WinUser.h:
+   * Fujitsu/OASYS kbd definitions
+   */
+  kVK_OEM_FJ_JISHO   = 0x92,   // 'Dictionary' key
+  kVK_OEM_FJ_MASSHOU = 0x93,   // 'Unregister word' key
+  kVK_OEM_FJ_TOUROKU = 0x94,   // 'Register word' key
+  kVK_OEM_FJ_LOYA    = 0x95,   // 'Left OYAYUBI' key
+  kVK_OEM_FJ_ROYA    = 0x96,   // 'Right OYAYUBI' key
+
+  /* Comment from WinUser.h:
+   * VK_L* & VK_R* - left and right Alt, Ctrl and Shift virtual keys.
+   * Used only as parameters to GetAsyncKeyState() and GetKeyState().
+   * No other API or message will distinguish left and right keys in this way.
+   */
+  kVK_LSHIFT        = 0xA0,
+  kVK_RSHIFT        = 0xA1,
+  kVK_LCONTROL      = 0xA2,
+  kVK_RCONTROL      = 0xA3,
+  kVK_LMENU         = 0xA4,
+  kVK_RMENU         = 0xA5,
+
+  kVK_BROWSER_BACK        = 0xA6,
+  kVK_BROWSER_FORWARD     = 0xA7,
+  kVK_BROWSER_REFRESH     = 0xA8,
+  kVK_BROWSER_STOP        = 0xA9,
+  kVK_BROWSER_SEARCH      = 0xAA,
+  kVK_BROWSER_FAVORITES   = 0xAB,
+  kVK_BROWSER_HOME        = 0xAC,
+
+  kVK_VOLUME_MUTE         = 0xAD,
+  kVK_VOLUME_DOWN         = 0xAE,
+  kVK_VOLUME_UP           = 0xAF,
+  kVK_MEDIA_NEXT_TRACK    = 0xB0,
+  kVK_MEDIA_PREV_TRACK    = 0xB1,
+  kVK_MEDIA_STOP          = 0xB2,
+  kVK_MEDIA_PLAY_PAUSE    = 0xB3,
+  kVK_LAUNCH_MAIL         = 0xB4,
+  kVK_LAUNCH_MEDIA_SELECT = 0xB5,
+  kVK_LAUNCH_APP1         = 0xB6,
+  kVK_LAUNCH_APP2         = 0xB7,
+
+  kVK_OEM_1        = 0xBA,   // ';:' for US
+  kVK_OEM_PLUS     = 0xBB,   // '+' any country
+  kVK_OEM_COMMA    = 0xBC,   // ',' any country
+  kVK_OEM_MINUS    = 0xBD,   // '-' any country
+  kVK_OEM_PERIOD   = 0xBE,   // '.' any country
+  kVK_OEM_2        = 0xBF,   // '/?' for US
+  kVK_OEM_3        = 0xC0,   // '`~' for US
+
+  /* 0xC1 - 0xDA : Reserved + Gamepad input */
+
+  kVK_OEM_4        = 0xDB,  //  '[{' for US
+  kVK_OEM_5        = 0xDC,  //  '\|' for US
+  kVK_OEM_6        = 0xDD,  //  ']}' for US
+  kVK_OEM_7        = 0xDE,  //  ''"' for US
+  kVK_OEM_8        = 0xDF,
+
+  /* Comment from WinUser.h:
+   * Various extended or enhanced keyboards
+   */
+  kVK_OEM_AX       = 0xE1,  //  'AX' key on Japanese AX kbd
+  kVK_OEM_102      = 0xE2,  //  "<>" or "\|" on RT 102-key kbd.
+  kVK_ICO_HELP     = 0xE3,  //  Help key on ICO
+  kVK_ICO_00       = 0xE4,  //  00 key on ICO
+  kVK_ICO_CLEAR    = 0xE6,
+
+  // Linux/X11-specific
+
+  // Windows does not have a specific key code for AltGr. We use the unused 0xE1
+  // (VK_OEM_AX) code to represent AltGr, matching the behaviour of Firefox on
+  // Linux.
+  kVK_ALTGR = kVK_OEM_AX,
+  // Windows does not have a specific key code for Compose. We use the unused
+  // 0xE6 (VK_ICO_CLEAR) code to represent Compose.
+  kVK_COMPOSE = kVK_ICO_CLEAR,
+
 };
 
 END_IPLUG_NAMESPACE

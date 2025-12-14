@@ -1,10 +1,10 @@
 /*
  ==============================================================================
- 
- This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
- 
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
  See LICENSE.txt for  more info.
- 
+
  ==============================================================================
 */
 
@@ -26,53 +26,75 @@ IPlugAPP::IPlugAPP(const InstanceInfo& info, const Config& config)
 , IPlugProcessor(config, kAPIAPP)
 {
   mAppHost = (IPlugAPPHost*) info.pAppHost;
-  
+
   Trace(TRACELOC, "%s%s", config.pluginName, config.channelIOStr);
 
   SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), true);
   SetChannelConnections(ERoute::kOutput, 0, MaxNChannels(ERoute::kOutput), true);
 
   SetBlockSize(DEFAULT_BLOCK_SIZE);
-  
+
   CreateTimer();
+
+#ifdef OS_LINUX
+  // Every 50ms check to see if the main window needs to be resized.
+  // This fixes basically all the issues related to resizing the window on Linux.
+  mResizeTimer = std::unique_ptr<Timer>(Timer::Create([&](Timer& timer) {
+    if (mNeedResize)
+    {
+      int viewWidth = GetEditorWidth();
+      int viewHeight = GetEditorHeight();
+      RECT r;
+      GetWindowRect(gHWND, &r);
+      SetWindowPos(gHWND, 0, r.left, r.bottom - viewHeight, viewWidth, viewHeight, 0);
+      mNeedResize = false;
+    }
+  }, 50));
+#endif
 }
 
 bool IPlugAPP::EditorResize(int viewWidth, int viewHeight)
 {
   bool parentResized = false;
-  
   if (viewWidth != GetEditorWidth() || viewHeight != GetEditorHeight())
   {
-    #if defined OS_MAC || defined NO_IGRAPHICS 
+    #if defined(OS_LINUX) || defined(OS_MAC) || defined(NO_IGRAPHICS)
     RECT rcClient, rcWindow;
     POINT ptDiff;
-    
+
     GetClientRect(gHWND, &rcClient);
     GetWindowRect(gHWND, &rcWindow);
-    
+
     ptDiff.x = (rcWindow.right - rcWindow.left) - rcClient.right;
     ptDiff.y = (rcWindow.bottom - rcWindow.top) - rcClient.bottom;
-    
+
     int flags = 0;
-    
+
     #ifdef OS_WIN
     flags = SWP_NOMOVE;
     float ss = GetScaleForHWND(gHWND);
     #else
     float ss = 1.f;
     #endif
-    
+
+    LONG szW = static_cast<LONG>((viewWidth + ptDiff.x) * ss);
+    LONG szH = static_cast<LONG>((viewHeight + ptDiff.y) * ss);
+
+    #if defined(OS_LINUX)
+    HWND site = GetWindow(gHWND, GW_CHILD);
+    SetWindowPos(site, 0, 0, 0, szW, szH, SWP_NOZORDER);
+    #endif
+
     SetWindowPos(gHWND, 0,
                  static_cast<LONG>(rcWindow.left * ss),
                  static_cast<LONG>((rcWindow.bottom - viewHeight - ptDiff.y) * ss),
-                 static_cast<LONG>((viewWidth + ptDiff.x) * ss),
-                 static_cast<LONG>((viewHeight + ptDiff.y) * ss), flags);
+                 szW, szH, flags);
     parentResized = true;
     #endif
-    
+
     SetEditorSize(viewWidth, viewHeight);
   }
-  
+
   return parentResized;
 }
 
@@ -84,7 +106,7 @@ bool IPlugAPP::SendMidiMsg(const IMidiMsg& msg)
 //    uint8_t status;
 //
 //    // if the midi channel out filter is set, reassign the status byte appropriately
-//    if (mAppHost->mMidiOutChannel > -1)
+//    if(mAppHost->mMidiOutChannel > -1)
 //      status = mAppHost->mMidiOutChannel-1 | ((uint8_t) msg.StatusMsg() << 4) ;
 
     std::vector<uint8_t> message;
@@ -93,7 +115,7 @@ bool IPlugAPP::SendMidiMsg(const IMidiMsg& msg)
     message.push_back(msg.mData2);
 
     mAppHost->mMidiOut->sendMessage(&message);
-    
+
     return true;
   }
 
@@ -106,16 +128,16 @@ bool IPlugAPP::SendSysEx(const ISysEx& msg)
   {
     //TODO: midi out channel
     std::vector<uint8_t> message;
-    
+
     for (int i = 0; i < msg.mSize; i++)
     {
       message.push_back(msg.mData[i]);
     }
-    
+
     mAppHost->mMidiOut->sendMessage(&message);
     return true;
   }
-  
+
   return false;
 }
 
@@ -130,22 +152,22 @@ void IPlugAPP::AppProcess(double** inputs, double** outputs, int nFrames)
   SetChannelConnections(ERoute::kOutput, 0, MaxNChannels(ERoute::kOutput), true); //TODO: go elsewhere
   AttachBuffers(ERoute::kInput, 0, NChannelsConnected(ERoute::kInput), inputs, GetBlockSize());
   AttachBuffers(ERoute::kOutput, 0, NChannelsConnected(ERoute::kOutput), outputs, GetBlockSize());
-  
-  if (mMidiMsgsFromCallback.ElementsAvailable())
+
+  if(mMidiMsgsFromCallback.ElementsAvailable())
   {
     IMidiMsg msg;
-    
+
     while (mMidiMsgsFromCallback.Pop(msg))
     {
       ProcessMidiMsg(msg);
       mMidiMsgsFromProcessor.Push(msg); // queue incoming MIDI for UI
     }
   }
-  
-  if (mSysExMsgsFromCallback.ElementsAvailable())
+
+  if(mSysExMsgsFromCallback.ElementsAvailable())
   {
     SysExData data;
-    
+
     while (mSysExMsgsFromCallback.Pop(data))
     {
       ISysEx msg { data.mOffset, data.mData, data.mSize };
@@ -153,8 +175,8 @@ void IPlugAPP::AppProcess(double** inputs, double** outputs, int nFrames)
       mSysExDataFromProcessor.Push(data); // queue incoming Sysex for UI
     }
   }
-  
-  if (mMidiMsgsFromEditor.ElementsAvailable())
+
+  if(mMidiMsgsFromEditor.ElementsAvailable())
   {
     IMidiMsg msg;
 

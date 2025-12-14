@@ -1,10 +1,10 @@
 /*
  ==============================================================================
- 
- This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
- 
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
  See LICENSE.txt for  more info.
- 
+
  ==============================================================================
 */
 
@@ -23,9 +23,103 @@
 #include <windows.h>
 #include <Shlobj.h>
 #include <Shlwapi.h>
+#elif defined OS_LINUX
+#include <dlfcn.h>
+#include <limits.h>
+#include <sys/stat.h>
 #endif
 
+
+
 BEGIN_IPLUG_NAMESPACE
+
+extern "C" {
+struct embedded_file { const char* name; const uint32_t size; const unsigned char* data; };
+}
+
+// OS-specific implementation to dynamically get the embed list symbol.
+static void* GetEmbedListPtr();
+
+static bool FindEmbedResource(const char* name, const void** dataOut, size_t* dataSz)
+{
+  static void* sEmbedList = GetEmbedListPtr();
+  if (!sEmbedList) return false;
+
+  // cast
+  auto embedList = reinterpret_cast<const embedded_file*>(sEmbedList);
+  // zero output values
+  *dataOut = nullptr;
+  *dataSz = 0;
+  // Determine name length
+  const size_t nameLen = strnlen(name, PATH_MAX);
+  for (int i = 0; embedList[i].name; ++i)
+  {
+    if (strncmp(name, embedList[i].name, nameLen) == 0)
+    {
+      *dataOut = embedList[i].data;
+      *dataSz = embedList[i].size;
+      return true;
+    }
+  }
+  return false;
+}
+
+// Base resource deconstructor assumes there's nothing else to do.
+Resource::~Resource() {}
+
+std::shared_ptr<Resource> Resource::fromBuffer(const void* data, size_t len)
+{
+  auto res = std::shared_ptr<Resource>(new Resource());
+  res->mData = reinterpret_cast<const uint8_t*>(data);
+  res->mSize = len;
+  return res;
+}
+
+struct DeallocResource : public Resource
+{
+  DeallocResource(const uint8_t* data, size_t len)
+  {
+    mData = data;
+    mSize = len;
+  }
+
+  ~DeallocResource() override
+  {
+    free((void*)mData);
+  }
+};
+
+std::shared_ptr<Resource> Resource::fromFile(const char* path)
+{
+  FILE* f = fopenUTF8(path, "rb");
+  long totalSize = 0;
+  size_t totalSizeU = 0;
+  uint8_t *dataPtr = nullptr;
+
+  if (!f) return nullptr;
+  // Seek to end to determine the file size.
+  if (fseek(f, 0, SEEK_END) != 0) goto fail;
+  totalSize = ftell(f);
+  if (totalSize == -1L) goto fail;
+  // Seek back to the start.
+  if (fseek(f, 0, SEEK_SET) != 0) goto fail;
+  // Try to allocate memory for the resource.
+  totalSizeU = static_cast<size_t>(totalSize);
+  dataPtr = (uint8_t*)::malloc(totalSizeU);
+  // Check allocation success.
+  if (!dataPtr) goto fail;
+  // Read data.
+  if (fread(dataPtr, 1, totalSizeU, f) != totalSizeU) goto fail;
+  // Close the file.
+  fclose(f);
+  // Success.
+  return std::make_shared<DeallocResource>(dataPtr, totalSizeU);
+
+  fail:
+  if (dataPtr) ::free(dataPtr);
+  if (f) ::fclose(f);
+  return nullptr;
+}
 
 #if defined OS_WIN
 #pragma mark - OS_WIN
@@ -108,7 +202,7 @@ void VST3PresetsPath(WDL_String& path, const char* mfrName, const char* pluginNa
     GetKnownFolder(path, CSIDL_PERSONAL, SHGFP_TYPE_CURRENT);
   else
     AppSupportPath(path, true);
-  
+
   path.AppendFormatted(MAX_WIN32_PATH_LEN, "\\VST3 Presets\\%s\\%s", mfrName, pluginName);
 }
 
@@ -143,7 +237,7 @@ static BOOL CALLBACK EnumResNameProc(HMODULE module, LPCWSTR type, LPWSTR name, 
   else
   {
     WinResourceSearch* search = reinterpret_cast<WinResourceSearch*>(param);
-   
+
     if (search != nullptr && name != nullptr)
     {
       WDL_String searchName(search->mName);
@@ -232,150 +326,6 @@ const void* LoadWinResource(const char* resid, const char* type, int& sizeInByte
   }
 }
 
-#elif defined OS_LINUX
-#pragma mark - OS_LINUX
-
-#include <unistd.h>
-#include <pwd.h>
-#include <sys/stat.h>
-#include <limits.h>
-
-void HostPath(WDL_String& path, const char* bundleID)
-{
-  char result[PATH_MAX];
-  ssize_t count = readlink("/proc/self/exe", result, PATH_MAX);
-  if (count > 0)
-  {
-    result[count] = '\0';
-    path.Set(result);
-    // Remove executable name to get directory
-    char* lastSlash = strrchr(path.Get(), '/');
-    if (lastSlash)
-      path.SetLen(lastSlash - path.Get() + 1);
-  }
-  else
-  {
-    path.Set("");
-  }
-}
-
-void PluginPath(WDL_String& path, void* pExtra)
-{
-  HostPath(path, nullptr);
-}
-
-void BundleResourcePath(WDL_String& path, void* pExtra)
-{
-  HostPath(path, nullptr);
-  path.Append("resources/");
-}
-
-void DesktopPath(WDL_String& path)
-{
-  const char* home = getenv("HOME");
-  if (!home)
-  {
-    struct passwd* pw = getpwuid(getuid());
-    home = pw ? pw->pw_dir : "/tmp";
-  }
-  path.Set(home);
-  path.Append("/Desktop");
-}
-
-void UserHomePath(WDL_String& path)
-{
-  const char* home = getenv("HOME");
-  if (!home)
-  {
-    struct passwd* pw = getpwuid(getuid());
-    home = pw ? pw->pw_dir : "/tmp";
-  }
-  path.Set(home);
-}
-
-void AppSupportPath(WDL_String& path, bool isSystem)
-{
-  if (isSystem)
-  {
-    path.Set("/usr/local/share");
-  }
-  else
-  {
-    const char* xdgData = getenv("XDG_DATA_HOME");
-    if (xdgData && xdgData[0])
-    {
-      path.Set(xdgData);
-    }
-    else
-    {
-      UserHomePath(path);
-      path.Append("/.local/share");
-    }
-  }
-}
-
-void VST3PresetsPath(WDL_String& path, const char* mfrName, const char* pluginName, bool isSystem)
-{
-  AppSupportPath(path, isSystem);
-  path.AppendFormatted(PATH_MAX, "/vst3/presets/%s/%s", mfrName, pluginName);
-}
-
-void INIPath(WDL_String& path, const char* pluginName)
-{
-  const char* xdgConfig = getenv("XDG_CONFIG_HOME");
-  if (xdgConfig && xdgConfig[0])
-  {
-    path.Set(xdgConfig);
-  }
-  else
-  {
-    UserHomePath(path);
-    path.Append("/.config");
-  }
-  path.AppendFormatted(PATH_MAX, "/%s", pluginName);
-}
-
-void WebViewCachePath(WDL_String& path)
-{
-  const char* xdgCache = getenv("XDG_CACHE_HOME");
-  if (xdgCache && xdgCache[0])
-  {
-    path.Set(xdgCache);
-  }
-  else
-  {
-    UserHomePath(path);
-    path.Append("/.cache");
-  }
-  path.Append("/iPlug2/WebViewCache");
-}
-
-EResourceLocation LocateResource(const char* name, const char* type, WDL_String& result, const char* bundleID, void* pHInstance, const char* sharedResourcesSubPath)
-{
-  if (CStringHasContents(name))
-  {
-    // First check if it's an absolute path that exists
-    struct stat st;
-    if (stat(name, &st) == 0)
-    {
-      result.Set(name);
-      return EResourceLocation::kAbsolutePath;
-    }
-
-    // Check in bundle resources path
-    WDL_String resourcePath;
-    BundleResourcePath(resourcePath, pHInstance);
-    resourcePath.Append(name);
-
-    if (stat(resourcePath.Get(), &st) == 0)
-    {
-      result.Set(resourcePath.Get());
-      return EResourceLocation::kAbsolutePath;
-    }
-  }
-  return EResourceLocation::kNotFound;
-}
-
 #elif defined OS_WEB
 #pragma mark - OS_WEB
 
@@ -401,11 +351,11 @@ EResourceLocation LocateResource(const char* name, const char* type, WDL_String&
     WDL_String plusSlash;
     WDL_String path(name);
     const char* file = path.get_filepart();
-      
+
     bool foundResource = false;
-    
+
     //TODO: FindResource is not sufficient here
-    
+
     if(strcmp(type, "png") == 0) { //TODO: lowercase/uppercase png
       plusSlash.SetFormatted(strlen("/resources/img/") + strlen(file) + 1, "/resources/img/%s", file);
       foundResource = emscripten::val::global("Browser")["preloadedImages"].call<bool>("hasOwnProperty", std::string(plusSlash.Get()));
@@ -418,7 +368,7 @@ EResourceLocation LocateResource(const char* name, const char* type, WDL_String&
       plusSlash.SetFormatted(strlen("/resources/img/") + strlen(file) + 1, "/resources/img/%s", file);
       foundResource = true; // TODO: check svg
     }
-    
+
     if(foundResource)
     {
       result.Set(plusSlash.Get());
@@ -426,6 +376,126 @@ EResourceLocation LocateResource(const char* name, const char* type, WDL_String&
     }
   }
   return EResourceLocation::kNotFound;
+}
+
+#elif defined OS_LINUX
+#pragma mark - OS_LINUX
+
+void* GetEmbedListPtr()
+{
+  Dl_info info;
+  auto codePtr = reinterpret_cast<const void*>(&GetEmbedListPtr);
+  if (dladdr(codePtr, &info) == 0) return nullptr;
+  void* hDll = dlopen(info.dli_fname, RTLD_LOCAL);
+  if (!hDll) return nullptr;
+  void* hEmbedList = dlsym(hDll, "EMBED_LIST");
+  return hEmbedList;
+}
+
+// Get the file path for the module where specified symbol is defined
+static bool GetFileNameFor(void* code, char* path, int size)
+{
+  Dl_info info;
+
+  if(!code || !path || !size)
+  {
+    return false;
+  }
+
+  if(!dladdr(code, &info) || (strlen(info.dli_fname) + 1 > size))
+  {
+    *path = 0; // the path is too long
+    return false;
+  }
+
+  strcpy(path, info.dli_fname);
+  return true;
+}
+
+EResourceLocation LocateResource(const char* name, const char* type, WDL_String& result, const char*, void* pHInstance, const char*)
+{
+  char path[PATH_MAX];
+  if (CStringHasContents(name) && GetFileNameFor(reinterpret_cast<void*>(GetFileNameFor), path, PATH_MAX))
+  {
+    for (char *s = path + strlen(path) - 1; s >= path; --s)
+    {
+      if(*s == WDL_DIRCHAR)
+      {
+        *s = 0;
+        break;
+      }
+    }
+
+    const char *subdir = "";
+    if(strcmp(type, "png") == 0) //TODO: lowercase/uppercase png
+      subdir = "img";
+    else if(strcmp(type, "ttf") == 0) //TODO: lowercase/uppercase ttf
+      subdir = "fonts";
+    else if(strcmp(type, "svg") == 0) //TODO: lowercase/uppercase svg
+      subdir = "img";
+
+    result.SetFormatted(PATH_MAX, "%s%s%s%s%s", path, WDL_DIRCHAR_STR "resources" WDL_DIRCHAR_STR, subdir, WDL_DIRCHAR_STR, name);
+    struct stat st;
+
+    if (!stat(result.Get(), &st))
+      return EResourceLocation::kAbsolutePath;
+
+#ifdef VST3_API
+    // VST3 bundle since 3.6.10
+    result.SetFormatted(PATH_MAX, "%s%s%s%s%s", path, WDL_DIRCHAR_STR ".." WDL_DIRCHAR_STR "Resources" WDL_DIRCHAR_STR, subdir, WDL_DIRCHAR_STR, name);
+    if (!stat(result.Get(), &st))
+      return EResourceLocation::kAbsolutePath;
+#endif
+  }
+  return EResourceLocation::kNotFound;
+}
+
+std::shared_ptr<Resource> LoadRcResource(const char* fileOrResId, const char* type)
+{
+  // No passed name? Return an empty shared_ptr.
+  if (!CStringHasContents(fileOrResId)) return nullptr;
+
+  // Try to load an embedded resource
+  const void* pData = nullptr;
+  size_t dataSize = 0;
+  if (FindEmbedResource(fileOrResId, &pData, &dataSize))
+  {
+    return Resource::fromBuffer(pData, dataSize);
+  }
+
+  WDL_String fullPath;
+  const EResourceLocation location = LocateResource(fileOrResId, type, fullPath, "", nullptr, nullptr);
+  if ((location == kNotFound) || (location != kAbsolutePath) )
+  {
+    return nullptr;
+  }
+  // Load from a file
+  return Resource::fromFile(fullPath.Get());
+}
+
+bool AppIsSandboxed()
+{
+  return false;
+}
+
+void AppSupportPath(WDL_String& path, bool isSystem)
+{
+  path.Set("~");
+}
+
+void SandboxSafeAppSupportPath(WDL_String& path, const char* appGroupID)
+{
+  AppSupportPath(path);
+}
+
+void DesktopPath(WDL_String& path)
+{
+  path.Set("");
+}
+
+void VST3PresetsPath(WDL_String& path, const char* mfrName, const char* pluginName, bool isSystem)
+{
+  path.Set("~/Presets");
 }
 
 #endif

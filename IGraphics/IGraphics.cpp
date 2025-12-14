@@ -2259,7 +2259,7 @@ void IGraphics::ApplyLayerDropShadow(ILayerPtr& layer, const IShadow& shadow)
   kernel.Resize(iSize);
         
   for (int i = 0; i < iSize; i++)
-    kernel.Get()[i] = static_cast<uint8_t>(std::round(255.f * std::expf(-(i * i) * blurConst)));
+    kernel.Get()[i] = static_cast<uint8_t>(std::round(255.f * ::expf(-(i * i) * blurConst)));
   
   // Kernel normalisation
   int normFactor = kernel.Get()[0];

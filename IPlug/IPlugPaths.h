@@ -1,10 +1,10 @@
 /*
  ==============================================================================
- 
- This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
- 
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
  See LICENSE.txt for  more info.
- 
+
  ==============================================================================
 */
 
@@ -16,6 +16,7 @@
  */
 
 #include "IPlugUtilities.h"
+#include <memory>
 
 BEGIN_IPLUG_NAMESPACE
 
@@ -27,11 +28,41 @@ using PluginIDType = HMODULE;
 using PluginIDType = void *;
 #endif
 
-/** Get the path to the host binary 
+class Resource
+{
+public:
+  // Disable copy and move
+  Resource(const Resource&) = delete;
+  Resource(Resource&&) = delete;
+  Resource& operator=(const Resource&) = delete;
+  Resource& operator=(Resource&&) = delete;
+
+  // Virtual deconstructor
+  virtual ~Resource();
+
+  /// Creates a new \c Resource from an in-memory buffer.
+  static std::shared_ptr<Resource> fromBuffer(const void* data, size_t len);
+
+  /// Creates a new \c Resource from a file.
+  static std::shared_ptr<Resource> fromFile(const char* path);
+
+  const uint8_t* data() const noexcept { return mData; }
+  size_t size() const noexcept { return mSize; }
+  const uint8_t* begin() const { return data(); }
+  const uint8_t* end() const { return data() + size(); }
+
+protected:
+  Resource() = default;
+
+  const uint8_t* mData {nullptr};
+  size_t mSize {0};
+};
+
+/** Get the path to the host binary
 * @param path WDL_String reference where the path will be put on success or empty string on failure */
 extern void HostPath(WDL_String& path, const char* bundleID = 0);
 
-/** Get the path to the plug-in binary 
+/** Get the path to the plug-in binary
  * @param path WDL_String reference where the path will be put on success or empty string on failure
  * @param pExtra This should either be a const char* to bundleID (macOS) or an HMODULE handle (windows) */
 extern void PluginPath(WDL_String& path, PluginIDType pExtra);
@@ -81,6 +112,8 @@ extern void WebViewCachePath(WDL_String& path);
  * @param result WDL_String which will either contain the full path to the resource on disk, or the full Windows resourceID on success
  * @return \c true on success */
 extern EResourceLocation LocateResource(const char* fileNameOrResID, const char* type, WDL_String& result, const char* bundleID, void* pHInstance, const char* sharedResourcesSubPath);
+
+extern std::shared_ptr<Resource> LoadRcResource(const char* fileOrResId, const char* type);
 
 /** Load a resource from the binary (windows only).
  * @param type The resource type in lower or upper case, e.g. ttf or TTF for a truetype font

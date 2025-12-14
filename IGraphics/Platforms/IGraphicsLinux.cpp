@@ -9,6 +9,7 @@
 */
 
 #include <stddef.h>
+#include <cstdlib>
 #include <wdlutf8.h>
 
 #include "IPlugParameter.h"
@@ -338,7 +339,7 @@ void* IGraphicsLinux::OpenWindow(void* pParent)
 
 #if defined(VST3_API)
   mWindow->SetVisible(true);
-#elif defined(APP_API) || defined(CLAP_API) || defined(VST2_API) || defined(LV2_API)
+#elif defined(APP_API) || defined(CLAP_API) || defined(VST2_API)
   mWindow->SetVisible(true);
   mTaskId = IPlugTaskThread::instance()->Push(Task::FromMs(0, 10, [this](uint64_t) {
     this->UpdateUI();
@@ -921,6 +922,7 @@ PlatformFontPtr IGraphicsLinux::LoadPlatformFont(const char* fontID, const char*
   {
     return LoadPlatformFont(fontID, (void*)res->data(), res->size());
   }
+
   return nullptr;
 }
 

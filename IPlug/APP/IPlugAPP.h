@@ -59,6 +59,10 @@ private:
   IPlugAPPHost* mAppHost = nullptr;
   IPlugQueue<IMidiMsg> mMidiMsgsFromCallback {MIDI_TRANSFER_SIZE};
   IPlugQueue<SysExData> mSysExMsgsFromCallback {SYSEX_TRANSFER_SIZE};
+#ifdef OS_LINUX
+  std::unique_ptr<Timer> mResizeTimer;
+  bool mNeedResize = false;
+#endif
 
   friend class IPlugAPPHost;
 };

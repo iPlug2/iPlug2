@@ -23,12 +23,16 @@
       #include <OpenGLES/ES2/gl.h>
     #elif defined OS_WEB
       #include <GLES2/gl2.h>
+    #elif defined OS_LINUX
+      #include <GLES2/gl2.h>
     #endif
   #elif defined IGRAPHICS_GLES3
     #define IGRAPHICS_GL
     #if defined OS_IOS
       #include <OpenGLES/ES3/gl.h>
     #elif defined OS_WEB
+      #include <GLES3/gl3.h>
+    #elif defined OS_LINUX
       #include <GLES3/gl3.h>
     #endif
   #elif defined IGRAPHICS_GL2 || defined IGRAPHICS_GL3
@@ -41,17 +45,25 @@
       #elif defined IGRAPHICS_GL3
         #include <OpenGL/gl3.h>
       #endif
+    #elif defined OS_LINUX
+      #include <glad/glad.h>
     #else
       #include <OpenGL/gl.h>
     #endif
   #endif
 
   #if defined IGRAPHICS_NANOVG
-    #include "IGraphicsNanoVG.h"
+    #include "Drawing/IGraphicsNanoVG.h"
     #define IGRAPHICS_DRAW_CLASS_TYPE IGraphicsNanoVG
   #elif defined IGRAPHICS_SKIA
-    #include "IGraphicsSkia.h"
+    #include "Drawing/IGraphicsSkia.h"
     #define IGRAPHICS_DRAW_CLASS_TYPE IGraphicsSkia
+  #elif defined IGRAPHICS_CANVAS
+     #include "Drawing/IGraphicsCanvas.h"
+     #define IGRAPHICS_DRAW_CLASS_TYPE IGraphicsCanvas
+    #if defined IGRAPHICS_GL || defined IGRAPHICS_METAL
+      // #error "When using IGRAPHICS_CANVAS, don't define IGRAPHICS_METAL or IGRAPHICS_GL*"
+    #endif
   #else
     #error NO IGRAPHICS_MODE defined
   #endif

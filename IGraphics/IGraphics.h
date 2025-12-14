@@ -835,6 +835,10 @@ public:
   /** Call to force end text entry (will cancel any partial text input) */
   virtual void ForceEndUserEdit() = 0;
     
+  /** Called at regular intervals to update the UI.
+   * Used on Linux to process X11 events in the UI thread. */
+  virtual void UpdateUI() {}
+
   /** Open a new platform view for this graphics context
    * @param pParentWnd Pointer to parent platform window or view handle (HWND on Windows, NSView* on macOS)
    * @return Pointer to the newly created IGraphics platform view */

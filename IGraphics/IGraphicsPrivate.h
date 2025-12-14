@@ -42,7 +42,7 @@
   #pragma comment(lib, "skshaper.lib")
   #pragma comment(lib, "skunicode_core.lib")
   #pragma comment(lib, "skunicode_icu.lib")
-#else
+#elif !defined(NO_IGRAPHICS)
   #include "nanosvg.h"
 #endif
 
@@ -63,6 +63,10 @@
     sk_sp<SkSurface> mSurface;
   };
   #define BITMAP_DATA_TYPE SkiaDrawable*
+#elif defined IGRAPHICS_CANVAS
+  #include <emscripten.h>
+  #include <emscripten/val.h>
+  #define BITMAP_DATA_TYPE emscripten::val*
 #else // NO_IGRAPHICS
   #define BITMAP_DATA_TYPE void*;
 #endif
@@ -75,6 +79,9 @@
   #define FONT_DESCRIPTOR_TYPE HFONT
 #elif defined OS_WEB
   #define FONT_DESCRIPTOR_TYPE std::pair<WDL_String, WDL_String>*
+#elif defined OS_LINUX
+  // #include "swell-types.h"
+  #define FONT_DESCRIPTOR_TYPE void*
 #else 
   // NO_IGRAPHICS
 #endif
@@ -410,7 +417,7 @@ private:
 /** IFontDataPtr is a managed pointer for transferring the ownership of font data */
 using IFontDataPtr = std::unique_ptr<IFontData>;
 
-/** Base class for platform-specific font implementations */
+/** \todo */
 class PlatformFont
 {
 public:
@@ -464,7 +471,7 @@ struct SVGHolder
   
   sk_sp<SkSVGDOM> mSVGDom;
 };
-#else
+#elif !defined(NO_IGRAPHICS)
 /** Used internally to manage SVG data*/
 struct SVGHolder
 {
@@ -524,7 +531,7 @@ public:
   StaticStorage& operator=(const StaticStorage&) = delete;
     
 private:
-  /** Internal structure for storing cached data with a string key and scale factor */
+  /** \todo */
   struct DataKey
   {
     // N.B. - hashID is not guaranteed to be unique
@@ -534,19 +541,19 @@ private:
     std::unique_ptr<T> data;
   };
   
-  /** Computes a hash value for a string key
-   * @param str The string to hash
-   * @return The hash value */
+  /** \todo 
+   * @param str \todo
+   * @return size_t \todo */
   size_t Hash(const char* str)
   {
     std::string string(str);
     return std::hash<std::string>()(string);
   }
 
-  /** Finds cached data by name and scale
-   * @param str The key string to search for
-   * @param scale The scale factor to match
-   * @return Pointer to the cached data, or nullptr if not found */
+  /** \todo 
+   * @param str \todo
+   * @param scale \todo
+   * @return T* \todo */
   T* Find(const char* str, double scale = 1.)
   {
     WDL_String cacheName(str);
@@ -566,10 +573,10 @@ private:
     return nullptr;
   }
 
-  /** Adds data to the cache
-   * @param pData Pointer to the data to cache (takes ownership)
-   * @param str The key string to associate with the data
-   * @param scale The scale factor (e.g. 2.0 for retina) */
+  /** \todo 
+   * @param pData \todo
+   * @param str \todo
+   * @param scale \todo scale where 2x = retina, omit if not needed */
   void Add(T* pData, const char* str, double scale = 1.)
   {
     DataKey* pKey = mDatas.Add(new DataKey);
@@ -585,8 +592,7 @@ private:
     //DBGMSG("adding %s to the static storage at %.1fx the original scale\n", str, scale);
   }
 
-  /** Removes data from the cache
-   * @param pData Pointer to the data to remove */
+  /** \todo @param pData \todo */
   void Remove(T* pData)
   {
     for (int i = 0; i < mDatas.GetSize(); ++i)
@@ -599,19 +605,19 @@ private:
     }
   }
 
-  /** Clears all cached data */
+  /** \todo  */
   void Clear()
   {
     mDatas.Empty(true);
   };
 
-  /** Increments the reference count for this storage */
+  /** \todo  */
   void Retain()
   {
     mCount++;
   }
   
-  /** Decrements the reference count, clearing the cache when it reaches zero */
+  /** \todo  */
   void Release()
   {
     if (--mCount == 0)
@@ -632,6 +638,8 @@ struct IVec2
   
   IVec2 operator-(const IVec2 b) { return IVec2{x-b.x, y-b.y}; }
   IVec2 operator+(const IVec2 b) { return IVec2{x+b.x, y+b.y}; }
+  bool operator==(const IVec2 &rhs) const { return x == rhs.x && y == rhs.y; }
+  bool operator!=(const IVec2 &rhs) const { return x != rhs.x || y == rhs.y; }
 };
 
 END_IGRAPHICS_NAMESPACE

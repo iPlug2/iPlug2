@@ -118,14 +118,11 @@ endif()
 if(NOT TARGET iPlug2::IGraphics::NanoVG)
   add_library(iPlug2::IGraphics::NanoVG INTERFACE IMPORTED)
 
-  # Note: Platform files use unity-build style #includes:
+  # Note: All platform files use unity-build style #includes:
   # - IGraphicsWin.cpp includes nanovg.c and glad.c directly
   # - IGraphicsMac.mm includes IGraphicsNanoVG.cpp which includes nanovg.c
-  # So we only add nanovg.c as a source on platforms that don't do this
-  if(NOT WIN32 AND NOT APPLE)
-    set(NANOVG_SRC ${IGRAPHICS_DEPS_DIR}/NanoVG/src/nanovg.c)
-    target_sources(iPlug2::IGraphics::NanoVG INTERFACE ${NANOVG_SRC})
-  endif()
+  # - IGraphicsLinux.cpp includes nanovg.c directly
+  # So we don't add nanovg.c as a separate source file
 
   target_include_directories(iPlug2::IGraphics::NanoVG INTERFACE
     ${IGRAPHICS_DEPS_DIR}/NanoVG/src

@@ -70,24 +70,28 @@ if(NOT IOS AND NOT CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
   iplug_add_plugin_resources(${PROJECT_NAME}-app)
 
   # ============================================================================
-  # VST3 Target - with IGraphics UI
+  # VST3 Target - with IGraphics UI (not Linux yet)
   # ============================================================================
-  add_library(${PROJECT_NAME}-vst3 MODULE ${SOURCE_FILES})
-  iplug_add_target(${PROJECT_NAME}-vst3 PUBLIC
-    LINK iPlug2::VST3 ${IGRAPHICS_LIB} _${PROJECT_NAME}-base
-  )
-  iplug_configure_target(${PROJECT_NAME}-vst3 VST3 ${PROJECT_NAME})
-  iplug_add_plugin_resources(${PROJECT_NAME}-vst3)
+  if(NOT (UNIX AND NOT APPLE))
+    add_library(${PROJECT_NAME}-vst3 MODULE ${SOURCE_FILES})
+    iplug_add_target(${PROJECT_NAME}-vst3 PUBLIC
+      LINK iPlug2::VST3 ${IGRAPHICS_LIB} _${PROJECT_NAME}-base
+    )
+    iplug_configure_target(${PROJECT_NAME}-vst3 VST3 ${PROJECT_NAME})
+    iplug_add_plugin_resources(${PROJECT_NAME}-vst3)
+  endif()
 
   # ============================================================================
-  # CLAP Target - with IGraphics UI
+  # CLAP Target - with IGraphics UI (not Linux yet)
   # ============================================================================
-  add_library(${PROJECT_NAME}-clap MODULE ${SOURCE_FILES})
-  iplug_add_target(${PROJECT_NAME}-clap PUBLIC
-    LINK iPlug2::CLAP ${IGRAPHICS_LIB} _${PROJECT_NAME}-base
-  )
-  iplug_configure_target(${PROJECT_NAME}-clap CLAP ${PROJECT_NAME})
-  iplug_add_plugin_resources(${PROJECT_NAME}-clap)
+  if(NOT (UNIX AND NOT APPLE))
+    add_library(${PROJECT_NAME}-clap MODULE ${SOURCE_FILES})
+    iplug_add_target(${PROJECT_NAME}-clap PUBLIC
+      LINK iPlug2::CLAP ${IGRAPHICS_LIB} _${PROJECT_NAME}-base
+    )
+    iplug_configure_target(${PROJECT_NAME}-clap CLAP ${PROJECT_NAME})
+    iplug_add_plugin_resources(${PROJECT_NAME}-clap)
+  endif()
 endif()
 
 # ============================================================================
