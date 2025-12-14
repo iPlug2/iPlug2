@@ -43,7 +43,11 @@ if(NOT TARGET iPlug2::IGraphics)
       ${IGRAPHICS_DIR}/Platforms/IGraphicsCoreText.mm
     )
   elseif(UNIX AND NOT APPLE)
-    message("Error - Linux not yet supported")
+    # Linux platform sources - X11/XCB based windowing
+    list(APPEND IGRAPHICS_SRC
+      ${IGRAPHICS_DIR}/Platforms/IGraphicsLinux.cpp
+      ${IGRAPHICS_DIR}/Platforms/PlatformX11.cpp
+    )
   endif()
 
   target_sources(iPlug2::IGraphics INTERFACE ${IGRAPHICS_SRC})
@@ -92,7 +96,19 @@ if(NOT TARGET iPlug2::IGraphics)
       "-framework QuartzCore"
     )
   elseif(UNIX AND NOT APPLE)
-    message("Error - Linux not yet supported")
+    # Linux: Find required X11/XCB libraries via pkg-config
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(X11_LIBS REQUIRED IMPORTED_TARGET
+      freetype2
+      fontconfig
+      x11-xcb
+      xcb
+      xcb-util
+      xcb-icccm
+      xcb-xfixes
+    )
+    target_link_libraries(iPlug2::IGraphics INTERFACE PkgConfig::X11_LIBS dl)
+    target_compile_options(iPlug2::IGraphics INTERFACE -fPIC)
   endif()
 
   target_link_libraries(iPlug2::IGraphics INTERFACE iPlug2::IPlug)
@@ -123,6 +139,18 @@ if(NOT TARGET iPlug2::IGraphics::NanoVG)
       ${IGRAPHICS_DEPS_DIR}/glad_GL2/include
       ${IGRAPHICS_DEPS_DIR}/glad_GL2/src
     )
+  elseif(UNIX AND NOT APPLE)
+    # Linux: GLX for OpenGL context, glad_GL2 for GL functions
+    pkg_check_modules(GLX REQUIRED IMPORTED_TARGET glx)
+    target_include_directories(iPlug2::IGraphics::NanoVG INTERFACE
+      ${IGRAPHICS_DEPS_DIR}/glad_GL2/include
+      ${IGRAPHICS_DEPS_DIR}/glad_GLX/include
+    )
+    target_sources(iPlug2::IGraphics::NanoVG INTERFACE
+      ${IGRAPHICS_DEPS_DIR}/glad_GL2/src/glad.c
+      ${IGRAPHICS_DEPS_DIR}/glad_GLX/src/glad_glx.c
+    )
+    target_link_libraries(iPlug2::IGraphics::NanoVG INTERFACE PkgConfig::GLX)
   endif()
 
   target_compile_definitions(iPlug2::IGraphics::NanoVG INTERFACE
@@ -164,6 +192,17 @@ if(NOT TARGET iPlug2::IGraphics::NanoVG::GL3)
       ${IGRAPHICS_DEPS_DIR}/glad_GL3/include
       ${IGRAPHICS_DEPS_DIR}/glad_GL3/src
     )
+  elseif(UNIX AND NOT APPLE)
+    # Linux: GLX for OpenGL context, glad_GL3 for GL functions
+    target_include_directories(iPlug2::IGraphics::NanoVG::GL3 INTERFACE
+      ${IGRAPHICS_DEPS_DIR}/glad_GL3/include
+      ${IGRAPHICS_DEPS_DIR}/glad_GLX/include
+    )
+    target_sources(iPlug2::IGraphics::NanoVG::GL3 INTERFACE
+      ${IGRAPHICS_DEPS_DIR}/glad_GL3/src/glad.c
+      ${IGRAPHICS_DEPS_DIR}/glad_GLX/src/glad_glx.c
+    )
+    target_link_libraries(iPlug2::IGraphics::NanoVG::GL3 INTERFACE PkgConfig::GLX)
   endif()
 
   target_compile_definitions(iPlug2::IGraphics::NanoVG::GL3 INTERFACE
