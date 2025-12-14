@@ -1,6 +1,6 @@
 @echo off
 
-REM - CALL "$(SolutionDir)scripts\postbuild-win.bat" "$(TargetExt)" "$(BINARY_NAME)" "$(Platform)" "$(COPY_VST2)" "$(TargetPath)" "$(VST2_ARM64EC_PATH)" "$(VST2_x86_64_PATH)" "$(VST3_ARM64EC_PATH)" "$(VST3_x86_64_PATH)" "$(AAX_ARM64EC_PATH)" "$(AAX_x86_64_PATH)" "$(BUILD_DIR)" "$(VST_ICON)" "$(AAX_ICON)" "
+REM - CALL "$(SolutionDir)scripts\postbuild-win.bat" "$(TargetExt)" "$(BINARY_NAME)" "$(Platform)" "$(COPY_VST2)" "$(TargetPath)" "$(VST2_ARM64EC_PATH)" "$(VST2_X64_PATH)" "$(VST3_ARM64EC_PATH)" "$(VST3_X64_PATH)" "$(AAX_ARM64EC_PATH)" "$(AAX_X64_PATH)" "$(BUILD_DIR)" "$(VST_ICON)" "$(AAX_ICON)" "
 REM $(CREATE_BUNDLE_SCRIPT)"
 
 set FORMAT=%1
@@ -9,9 +9,9 @@ set PLATFORM=%3
 set COPY_VST2=%4
 set BUILT_BINARY=%5
 set VST2_ARM64EC_PATH=%6
-set VST2_x86_64_PATH=%7 
+set VST2_X64_PATH=%7 
 set VST3_ARM64EC_PATH=%8
-set VST3_x86_64_PATH=%9
+set VST3_X64_PATH=%9
 shift
 shift 
 shift
@@ -19,7 +19,7 @@ shift
 shift 
 shift
 set AAX_ARM64EC_PATH=%4
-set AAX_x86_64_PATH=%5
+set AAX_X64_PATH=%5
 set BUILD_DIR=%6
 set VST_ICON=%7
 set AAX_ICON=%8
@@ -32,9 +32,9 @@ echo PLATFORM %PLATFORM%
 echo COPY_VST2 %COPY_VST2% 
 echo BUILT_BINARY %BUILT_BINARY% 
 echo VST2_ARM64EC_PATH %VST2_ARM64EC_PATH% 
-echo VST2_x86_64_PATH %VST2_x86_64_PATH% 
+echo VST2_X64_PATH %VST2_X64_PATH% 
 echo VST3_ARM64EC_PATH %VST3_ARM64EC_PATH% 
-echo VST3_x86_64_PATH %VST3_x86_64_PATH% 
+echo VST3_X64_PATH %VST3_X64_PATH% 
 echo BUILD_DIR %BUILD_DIR%
 echo VST_ICON %VST_ICON% 
 echo AAX_ICON %AAX_ICON% 
@@ -96,7 +96,7 @@ if %PLATFORM% == "x64" (
   if %FORMAT% == ".dll" (
     if %COPY_VST2% == "1" (
       echo copying 64bit binary to 64bit VST2 Plugins folder ... 
-      copy /y %BUILT_BINARY% %VST2_x86_64_PATH%
+      copy /y %BUILT_BINARY% %VST2_X64_PATH%
     ) else (
       echo not copying 64bit VST2 binary
     )
@@ -106,10 +106,10 @@ if %PLATFORM% == "x64" (
     echo copying 64bit binary to VST3 BUNDLE ...
     call %CREATE_BUNDLE_SCRIPT% %BUILD_DIR%\%NAME%.vst3 %VST_ICON% %FORMAT%
     copy /y %BUILT_BINARY% %BUILD_DIR%\%NAME%.vst3\Contents\x86_64-win
-    if exist %VST3_x86_64_PATH% (
+    if exist %VST3_X64_PATH% (
       echo copying VST3 bundle to 64bit VST3 Plugins folder ...
-      call %CREATE_BUNDLE_SCRIPT% %VST3_x86_64_PATH%\%NAME%.vst3 %VST_ICON% %FORMAT%
-      xcopy /E /H /Y %BUILD_DIR%\%NAME%.vst3\Contents\*  %VST3_x86_64_PATH%\%NAME%.vst3\Contents\
+      call %CREATE_BUNDLE_SCRIPT% %VST3_X64_PATH%\%NAME%.vst3 %VST_ICON% %FORMAT%
+      xcopy /E /H /Y %BUILD_DIR%\%NAME%.vst3\Contents\*  %VST3_X64_PATH%\%NAME%.vst3\Contents\
     )
   )
   
@@ -119,6 +119,6 @@ if %PLATFORM% == "x64" (
     copy /y %BUILT_BINARY% %BUILD_DIR%\%NAME%.aaxplugin\Contents\x64
     echo copying 64bit bundle to 64bit AAX Plugins folder ... 
     call %CREATE_BUNDLE_SCRIPT% %BUILD_DIR%\%NAME%.aaxplugin %AAX_ICON% %FORMAT%
-    xcopy /E /H /Y %BUILD_DIR%\%NAME%.aaxplugin\Contents\* %AAX_x86_64_PATH%\%NAME%.aaxplugin\Contents\
+    xcopy /E /H /Y %BUILD_DIR%\%NAME%.aaxplugin\Contents\* %AAX_X64_PATH%\%NAME%.aaxplugin\Contents\
   )
 )
