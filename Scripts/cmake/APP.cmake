@@ -96,7 +96,7 @@ if(NOT TARGET iPlug2::APP)
       "-framework CoreAudio"
     )
   elseif(UNIX AND NOT APPLE)
-    message("Error - Linux not yet supported")
+    # Linux APP target not yet supported - use CLI target instead
   endif()
   
   target_link_libraries(iPlug2::APP INTERFACE iPlug2::IPlug)
