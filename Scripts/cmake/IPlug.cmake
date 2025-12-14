@@ -82,6 +82,11 @@ if(NOT TARGET iPlug2::IPlug)
       /wd4250 /wd4018 /wd4267 /wd4068
       /MT$<$<CONFIG:Debug>:d>
     )
+  elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    # Disable warnings for multi-character constants (FourCC codes used in FXP/FXB/AU)
+    target_compile_options(iPlug2::IPlug INTERFACE
+      -Wno-multichar
+    )
   endif()
 
   # Suppress deprecation warnings if requested (useful for CI)
