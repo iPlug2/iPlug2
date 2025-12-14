@@ -41,17 +41,28 @@ if(NOT TARGET iPlug2::IPlug)
 
   if(APPLE)
     list(APPEND IPLUG_SRC ${IPLUG_DIR}/IPlugPaths.mm)
+  elseif(UNIX AND NOT APPLE)
+    # Linux: IPlugTaskThread provides background timer/task system for UI loop
+    list(APPEND IPLUG_SRC
+      ${IPLUG_DIR}/IPlugTaskThread.h
+      ${IPLUG_DIR}/IPlugTaskThread.cpp
+    )
   endif()
   
   target_sources(iPlug2::IPlug INTERFACE ${IPLUG_SRC})
   
-  target_include_directories(iPlug2::IPlug INTERFACE 
+  target_include_directories(iPlug2::IPlug INTERFACE
     ${IPLUG_DIR}
     ${WDL_DIR}
     ${WDL_DIR}/libpng
     ${WDL_DIR}/zlib
     ${IPLUG_DIR}/Extras
   )
+
+  # Linux needs SWELL includes for WDL_Mutex and other types
+  if(UNIX AND NOT APPLE)
+    target_include_directories(iPlug2::IPlug INTERFACE ${WDL_DIR}/swell)
+  endif()
   
   target_compile_definitions(iPlug2::IPlug INTERFACE
     NOMINMAX
