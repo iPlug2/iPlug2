@@ -16,9 +16,14 @@ IPlugEffect::IPlugEffect(const InstanceInfo& info)
     pGraphics->AttachCornerResizer(EUIResizerMode::Scale, false);
     pGraphics->AttachPanelBackground(COLOR_GRAY);
     pGraphics->LoadFont("Roboto-Regular", ROBOTO_FN);
-    const IRECT b = pGraphics->GetBounds();
-    pGraphics->AttachControl(new ITextControl(b.GetMidVPadded(50), "Hello iPlug 2!", IText(50)));
-    pGraphics->AttachControl(new IVKnobControl(b.GetCentredInside(100).GetVShifted(-100), kGain));
+    const IRECT bounds = pGraphics->GetBounds();
+    const IRECT innerBounds = bounds.GetPadded(-10.f);
+    const IRECT versionBounds = innerBounds.GetFromTRHC(300, 20);
+    pGraphics->AttachControl(new ITextControl(innerBounds.GetMidVPadded(50), "Hello iPlug 2!", IText(50)));
+    pGraphics->AttachControl(new IVKnobControl(innerBounds.GetCentredInside(100).GetVShifted(-100), kGain));
+    WDL_String buildInfoStr;
+    GetBuildInfoStr(buildInfoStr, __DATE__, __TIME__);
+    pGraphics->AttachControl(new ITextControl(versionBounds, buildInfoStr.Get(), DEFAULT_TEXT.WithAlign(EAlign::Far)));
   };
 #endif
 }
