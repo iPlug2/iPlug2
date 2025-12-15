@@ -89,7 +89,12 @@ float IGraphicsMac::MeasureText(const IText& text, const char* str, IRECT& bound
 void* IGraphicsMac::OpenWindow(void* pParent)
 {
   TRACE
+  
+  // Prevent the call to CloseWindow() deleting this copy of IGraphics
+  
+  mPreventViewCallingCloseWindow = true;
   CloseWindow();
+  mPreventViewCallingCloseWindow = false;
   IGRAPHICS_VIEW* pView = [[IGRAPHICS_VIEW alloc] initWithIGraphics: this];
   mView = (void*) pView;
     
