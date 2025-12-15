@@ -18,6 +18,7 @@ variables:
   build_mac: true # build mac binaries
   build_win: true # build windows binaries
   build_ios: true # build ios binaries
+  build_visionos: false # build visionos binaries
 
   #FORMATS
   build_app: true # build standalone app

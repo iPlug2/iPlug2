@@ -55,6 +55,30 @@ jobs:
       graphics: $(graphics)
       buildAllProjects: ${{parameters.buildAllProjects}}
 
+- job: BUILD_VISIONOS_PROJECTS
+  condition: and(eq(variables.build_deps, false), eq(variables.build_visionos, true))
+  dependsOn: GET_SRC_TREE
+
+  strategy:
+    matrix:
+      NANOVG:
+        graphics: 'NANOVG'
+      SKIA:
+        graphics: 'SKIA'
+
+  pool:
+    vmImage: 'macos-latest'
+
+  steps:
+  - checkout: none
+
+  - template: get_src_artifact.yml
+
+  - template: projects.yml
+    parameters:
+      platform: build_project-visionos.yml
+      graphics: $(graphics)
+
 - job: BUILD_WIN_PROJECTS
   condition: and(eq(variables.build_deps, false), eq(variables.build_win, true))
   dependsOn:
