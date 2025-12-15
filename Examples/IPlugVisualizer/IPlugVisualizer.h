@@ -28,5 +28,11 @@ public:
 #endif
 #if IPLUG_EDITOR
   void OnParamChangeUI(int paramIdx, EParamSource source) override;
+  bool SerializeState(IByteChunk &chunk) const override;
+  int UnserializeState(const IByteChunk &chunk, int startPos) override;
+  void OnUIOpen() override;
 #endif
+  
+private:
+  void SyncUIControl();
 };

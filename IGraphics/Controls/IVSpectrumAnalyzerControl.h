@@ -92,6 +92,8 @@ public:
     auto* pFftSizeMenu = mMenu.AddItem("FFT Size", new IPopupMenu("FFT Size", { "64", "128", "256", "512", "1024", "2048", "4096"}))->GetSubmenu();
     auto* pChansMenu = mMenu.AddItem("Channels", new IPopupMenu("Channels", { "L", "R", "L + R"}))->GetSubmenu();
     auto* pFreqScaleMenu = mMenu.AddItem("Freq Scaling", new IPopupMenu("Freq Scaling", { "Linear", "Log"}))->GetSubmenu();
+    auto* pOverlapMenu = mMenu.AddItem("Overlap", new IPopupMenu("Overlap", { "1x", "2x", "4x", "8x" }))->GetSubmenu();
+    auto* pWindowMenu = mMenu.AddItem("Window", new IPopupMenu("Window", { "Hann", "Blackman Harris", "Hamming", "Flattop", "Rectangular" }))->GetSubmenu();
 
     pFftSizeMenu->CheckItem(0, mFFTSize == 64);
     pFftSizeMenu->CheckItem(1, mFFTSize == 128);
@@ -106,6 +108,19 @@ public:
     pChansMenu->CheckItem(2, mChanType == EChannelType::LeftAndRight);
     pFreqScaleMenu->CheckItem(0, mFreqScale == EFrequencyScale::Linear);
     pFreqScaleMenu->CheckItem(1, mFreqScale == EFrequencyScale::Log);
+
+    // Overlap checks
+    pOverlapMenu->CheckItem(0, mOverlap == 1);
+    pOverlapMenu->CheckItem(1, mOverlap == 2);
+    pOverlapMenu->CheckItem(2, mOverlap == 4);
+    pOverlapMenu->CheckItem(3, mOverlap == 8);
+
+    // Window checks (indices match enum order)
+    pWindowMenu->CheckItem(0, mWindowType == 0);
+    pWindowMenu->CheckItem(1, mWindowType == 1);
+    pWindowMenu->CheckItem(2, mWindowType == 2);
+    pWindowMenu->CheckItem(3, mWindowType == 3);
+    pWindowMenu->CheckItem(4, mWindowType == 4);
     
     GetUI()->CreatePopupMenu(*this, mMenu, x, y);
   }
@@ -141,6 +156,21 @@ public:
         auto index = pSelectedMenu->GetChosenItemIdx();
         SetFrequencyScale(index == 0 ? EFrequencyScale::Linear : EFrequencyScale::Log);
       }
+      else if (strcmp(title, "Overlap") == 0)
+      {
+        const char* txt = pSelectedMenu->GetChosenItem()->GetText();
+        int overlap = atoi(txt); // works for strings like "1x", "2x"
+        if (overlap <= 0)
+          overlap = 1;
+        GetDelegate()->SendArbitraryMsgFromUI(kMsgTagOverlap, kNoTag, sizeof(int), &overlap);
+        mOverlap = overlap;
+      }
+      else if (strcmp(title, "Window") == 0)
+      {
+        int idx = pSelectedMenu->GetChosenItemIdx();
+        GetDelegate()->SendArbitraryMsgFromUI(kMsgTagWindowType, kNoTag, sizeof(int), &idx);
+        mWindowType = idx;
+      }
     }
   }
 
@@ -175,6 +205,18 @@ public:
       int fftSize;
       stream.Get(&fftSize, 0);
       SetFFTSize(fftSize);
+    }
+    else if (msgTag == kMsgTagOverlap)
+    {
+      int overlap;
+      stream.Get(&overlap, 0);
+      mOverlap = overlap;
+    }
+    else if (msgTag == kMsgTagWindowType)
+    {
+      int windowType;
+      stream.Get(&windowType, 0);
+      mWindowType = windowType;
     }
     else if (msgTag == kMsgTagOctaveGain)
     {
@@ -255,10 +297,113 @@ private:
         continue;
       if ((c == 1) && (mChanType == EChannelType::Left))
         continue;
-      
-      int nPoints = NumPoints();
-      IColor fillColor = mChannelColors[c].WithOpacity(mFillOpacity);
-      g.DrawData(mChannelColors[c], mWidgetBounds, mYPoints[c].data(), nPoints, mXPoints.data(), 0, mCurveThickness, &fillColor);
+
+      const int nBins = NumBins();
+      const IColor baseColor = mChannelColors[c];
+
+      // Build the spectrum path (optionally smoothed using cubic Beziers)
+      g.PathClear();
+      float x0 = mWidgetBounds.L + mXPoints[0] * mWidgetBounds.W();
+      float y0 = mWidgetBounds.B - mYPoints[c][0] * mWidgetBounds.H();
+      g.PathMoveTo(x0, y0);
+
+      if (mCurveSmoothing > 0.f && nBins > 3)
+      {
+        // Catmull-Rom to Bezier conversion with adjustable tension (mCurveSmoothing in [0,1])
+        const float s = mCurveSmoothing; // 0 -> straight lines, 1 -> classic Catmull-Rom
+        for (int i = 0; i < nBins - 1; ++i)
+        {
+          const int i0 = std::max(i - 1, 0);
+          const int i1 = i;
+          const int i2 = i + 1;
+          const int i3 = std::min(i + 2, nBins - 1);
+
+          const float x1 = mWidgetBounds.L + mXPoints[i1] * mWidgetBounds.W();
+          const float y1 = mWidgetBounds.B - mYPoints[c][i1] * mWidgetBounds.H();
+          const float x2 = mWidgetBounds.L + mXPoints[i2] * mWidgetBounds.W();
+          const float y2 = mWidgetBounds.B - mYPoints[c][i2] * mWidgetBounds.H();
+
+          const float x0s = mWidgetBounds.L + mXPoints[i0] * mWidgetBounds.W();
+          const float y0s = mWidgetBounds.B - mYPoints[c][i0] * mWidgetBounds.H();
+          const float x3 = mWidgetBounds.L + mXPoints[i3] * mWidgetBounds.W();
+          const float y3 = mWidgetBounds.B - mYPoints[c][i3] * mWidgetBounds.H();
+
+          const float c1x = x1 + (x2 - x0s) * (s / 6.f);
+          const float c1y = y1 + (y2 - y0s) * (s / 6.f);
+          const float c2x = x2 - (x3 - x1) * (s / 6.f);
+          const float c2y = y2 - (y3 - y1) * (s / 6.f);
+
+          g.PathCubicBezierTo(c1x, c1y, c2x, c2y, x2, y2);
+        }
+      }
+      else
+      {
+        for (int i = 1; i < nBins; ++i)
+        {
+          float xi = mWidgetBounds.L + mXPoints[i] * mWidgetBounds.W();
+          float yi = mWidgetBounds.B - mYPoints[c][i] * mWidgetBounds.H();
+          g.PathLineTo(xi, yi);
+        }
+      }
+
+      // Fill under the curve with a vertical gradient to transparent
+      if (FillCurves())
+      {
+        // Close the path down to the baseline and back to the start
+        float xLast = mWidgetBounds.L + mXPoints[nBins-1] * mWidgetBounds.W();
+        g.PathLineTo(xLast, mWidgetBounds.B);
+        g.PathLineTo(x0, mWidgetBounds.B);
+        g.PathClose();
+
+        const IColor topCol = baseColor.WithOpacity(mFillOpacity);
+        const IColor botCol = baseColor.WithOpacity(0.f);
+        IPattern fill = IPattern::CreateLinearGradient(mWidgetBounds, EDirection::Vertical, { IColorStop(topCol, 0.f), IColorStop(botCol, 1.f) });
+        g.PathFill(fill);
+
+        // Recreate the path for stroking (PathFill may consume it on some backends)
+        g.PathClear();
+        g.PathMoveTo(x0, y0);
+        if (mCurveSmoothing > 0.f && nBins > 3)
+        {
+          const float s = mCurveSmoothing;
+          for (int i = 0; i < nBins - 1; ++i)
+          {
+            const int i0 = std::max(i - 1, 0);
+            const int i1 = i;
+            const int i2 = i + 1;
+            const int i3 = std::min(i + 2, nBins - 1);
+
+            const float x1 = mWidgetBounds.L + mXPoints[i1] * mWidgetBounds.W();
+            const float y1 = mWidgetBounds.B - mYPoints[c][i1] * mWidgetBounds.H();
+            const float x2 = mWidgetBounds.L + mXPoints[i2] * mWidgetBounds.W();
+            const float y2 = mWidgetBounds.B - mYPoints[c][i2] * mWidgetBounds.H();
+
+            const float x0s = mWidgetBounds.L + mXPoints[i0] * mWidgetBounds.W();
+            const float y0s = mWidgetBounds.B - mYPoints[c][i0] * mWidgetBounds.H();
+            const float x3 = mWidgetBounds.L + mXPoints[i3] * mWidgetBounds.W();
+            const float y3 = mWidgetBounds.B - mYPoints[c][i3] * mWidgetBounds.H();
+
+            const float c1x = x1 + (x2 - x0s) * (s / 6.f);
+            const float c1y = y1 + (y2 - y0s) * (s / 6.f);
+            const float c2x = x2 - (x3 - x1) * (s / 6.f);
+            const float c2y = y2 - (y3 - y1) * (s / 6.f);
+
+            g.PathCubicBezierTo(c1x, c1y, c2x, c2y, x2, y2);
+          }
+        }
+        else
+        {
+          for (int i = 1; i < nBins; ++i)
+          {
+            float xi = mWidgetBounds.L + mXPoints[i] * mWidgetBounds.W();
+            float yi = mWidgetBounds.B - mYPoints[c][i] * mWidgetBounds.H();
+            g.PathLineTo(xi, yi);
+          }
+        }
+      }
+
+      // Stroke the curve for crispness
+      g.PathStroke(IPattern(baseColor), mCurveThickness);
     }
   }
 
@@ -327,6 +472,12 @@ private:
   void SetOctaveGain(float octaveGain)
   {
     mOctaveGain = octaveGain;
+    SetDirty(false);
+  }
+
+  void SetCurveSmoothing(float amount)
+  {
+    mCurveSmoothing = Clip(amount, 0.f, 1.f);
     SetDirty(false);
   }
   
@@ -499,6 +650,9 @@ private:
   std::array<std::vector<float>, MAXNC> mEnvelopeValues;
   float mAttackCoeff = 0.2f;
   float mReleaseCoeff = 0.99f;
+  int mOverlap = 1;
+  int mWindowType = 0; // matches ISpectrumSender<>::EWindowType::Hann
+  float mCurveSmoothing = 0.6f; // 0 = straight lines, 1 = full Catmull-Rom
 };
 
 END_IGRAPHICS_NAMESPACE
