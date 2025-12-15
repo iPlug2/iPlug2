@@ -72,6 +72,7 @@ public:
   enum class EFrequencyScale { Linear, Log, ThirdOctave };
   enum class EColorMode { Segments, Smooth };
   enum class EChannelMode { Left, Right, Sum, SideBySide, Split };
+  enum class ESegmentShape { Rect, RoundLED };
 
   static constexpr float kPeakDecayRate = 0.95f;
 
@@ -88,6 +89,7 @@ public:
    * @param ledRanges LED color ranges for Segments mode
    * @param gapRatio Gap between bars as ratio of bar width (0-1)
    * @param segGapRatio Gap between segments as ratio of segment height (0-1)
+   * @param segmentShape Shape of segments: Rect for rectangles, RoundLED for glowing circles
    * @param attackTimeMs Attack smoothing in milliseconds
    * @param decayTimeMs Decay smoothing in milliseconds
    * @param lowRangeDB Lower dB range for display
@@ -110,6 +112,7 @@ public:
                                      },
                                      float gapRatio = 0.2f,
                                      float segGapRatio = 0.1f,
+                                     ESegmentShape segmentShape = ESegmentShape::Rect,
                                      float attackTimeMs = 5.0f,
                                      float decayTimeMs = 50.0f,
                                      float lowRangeDB = -72.f,
@@ -125,11 +128,23 @@ public:
   , mLEDRanges(ledRanges)
   , mGapRatio(gapRatio)
   , mSegGapRatio(segGapRatio)
+  , mSegmentShape(segmentShape)
   , mAttackTimeMs(attackTimeMs)
   , mDecayTimeMs(decayTimeMs)
   , mLowRangeDB(lowRangeDB)
   , mHighRangeDB(highRangeDB)
   {
+    // Use default LED ranges if none provided
+    if (mLEDRanges.empty())
+    {
+      mLEDRanges = {
+        {0.f, 6.f, 2, SPEC_LED5},
+        {-12.f, 0.f, 3, SPEC_LED4},
+        {-24.f, -12.f, 3, SPEC_LED3},
+        {-48.f, -24.f, 4, SPEC_LED2},
+        {-72.f, -48.f, 4, SPEC_LED1}
+      };
+    }
     AttachIControl(this, label);
     ResizeBarArrays();
     SetFFTSize(1024);
@@ -194,6 +209,7 @@ public:
       auto* pFreqScaleMenu = mMenu.AddItem("Freq Scaling", new IPopupMenu("Freq Scaling", { "Linear", "Log", "1/3 Octave" }))->GetSubmenu();
       auto* pOverlapMenu = mMenu.AddItem("Overlap", new IPopupMenu("Overlap", { "1x", "2x", "4x", "8x" }))->GetSubmenu();
       auto* pWindowMenu = mMenu.AddItem("Window", new IPopupMenu("Window", { "Hann", "Blackman Harris", "Hamming", "Flattop", "Rectangular" }))->GetSubmenu();
+      mMenu.AddItem("Show Peaks", mShowPeaks ? IPopupMenu::Item::kChecked : 0);
 
       pFftSizeMenu->CheckItem(0, mFFTSize == 64);
       pFftSizeMenu->CheckItem(1, mFFTSize == 128);
@@ -275,6 +291,10 @@ public:
         GetDelegate()->SendArbitraryMsgFromUI(kMsgTagWindowType, kNoTag, sizeof(int), &idx);
         mWindowType = idx;
       }
+      else if (pSelectedMenu->GetChosenItem() && strcmp(pSelectedMenu->GetChosenItem()->GetText(), "Show Peaks") == 0)
+      {
+        SetShowPeaks(!mShowPeaks);
+      }
     }
   }
 
@@ -334,6 +354,12 @@ public:
   void SetBarPattern(const IPattern& pattern)
   {
     mBarPattern = pattern;
+    SetDirty(false);
+  }
+
+  void SetSegmentShape(ESegmentShape shape)
+  {
+    mSegmentShape = shape;
     SetDirty(false);
   }
 
@@ -514,6 +540,27 @@ private:
     }
   }
 
+  void DrawLEDSegment(IGraphics& g, float cx, float cy, float radius, const IColor& color, float brightness = 1.f)
+  {
+    // Brightness controls how "lit" the LED appears (0 = dim, 1 = full glow)
+    const float v = brightness * 0.65f;
+    float hue, sat, lit, alp;
+    color.GetHSLA(hue, sat, lit, alp);
+    const IColor c = IColor::FromHSLA(hue, 1.f, v);
+
+    // Draw inner LED circle
+    IRECT innerRect(cx - radius, cy - radius, cx + radius, cy + radius);
+    g.FillEllipse(c, innerRect, nullptr);
+    g.DrawEllipse(COLOR_BLACK, innerRect, nullptr, 1.f);
+
+    // Draw glow effect
+    const float glowRadius = radius * (1.f + v);
+    IRECT glowRect(cx - glowRadius, cy - glowRadius, cx + glowRadius, cy + glowRadius);
+    g.PathEllipse(glowRect);
+    IBlend b = {EBlend::Default, v};
+    g.PathFill(IPattern::CreateRadialGradient(cx, cy, glowRadius, {{c, 0.f}, {COLOR_TRANSPARENT, 1.f}}), {}, &b);
+  }
+
   void DrawBar(IGraphics& g, float barX, float barWidth, float segHeight, float segGap, float value, int channelIdx = -1)
   {
     if (mColorMode == EColorMode::Smooth)
@@ -580,14 +627,27 @@ private:
           if (value >= segNorm - 0.001f)
           {
             const float segY = mWidgetBounds.B - (totalSeg + 1) * (segHeight + segGap) + segGap * 0.5f;
-            IRECT segRect(barX, segY, barX + barWidth, segY + segHeight);
             IColor segColor = range.color;
             // In SideBySide mode, slightly adjust color for R channel (not in Split mode)
             if (channelIdx == 1 && mChannelMode != EChannelMode::Split)
             {
               segColor = segColor.WithContrast(0.2f);
             }
-            g.FillRect(segColor, segRect);
+
+            if (mSegmentShape == ESegmentShape::RoundLED)
+            {
+              // Draw glowing round LED
+              const float radius = std::min(barWidth, segHeight) * 0.45f;
+              const float cx = barX + barWidth * 0.5f;
+              const float cy = segY + segHeight * 0.5f;
+              DrawLEDSegment(g, cx, cy, radius, segColor);
+            }
+            else
+            {
+              // Draw rectangular segment
+              IRECT segRect(barX, segY, barX + barWidth, segY + segHeight);
+              g.FillRect(segColor, segRect);
+            }
           }
 
           segIdx++;
@@ -935,6 +995,7 @@ private:
 
   float mGapRatio = 0.2f;
   float mSegGapRatio = 0.1f;
+  ESegmentShape mSegmentShape = ESegmentShape::Rect;
   float mLowRangeDB = -72.f;
   float mHighRangeDB = 6.f;
   float mAttackTimeMs = 5.f;
