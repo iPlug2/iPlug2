@@ -110,7 +110,7 @@ void* IGraphicsIOS::OpenWindow(void* pParent)
   mView = (void*) view;
   
   IGraphics::ScopedGLContext scopedGLContext{this};
-  OnViewInitialized((void*) [view layer]);
+  OnViewInitialized((void*) [view metalLayer]);
 
 #if !TARGET_OS_VISION
   CGFloat  scale = [UIScreen mainScreen].scale;
