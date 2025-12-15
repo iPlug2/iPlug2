@@ -650,7 +650,7 @@ private:
   std::array<std::vector<float>, MAXNC> mEnvelopeValues;
   float mAttackCoeff = 0.2f;
   float mReleaseCoeff = 0.99f;
-  int mOverlap = 2;
+  int mOverlap = 1;
   int mWindowType = 0; // matches ISpectrumSender<>::EWindowType::Hann
   float mCurveSmoothing = 0.6f; // 0 = straight lines, 1 = full Catmull-Rom
 };
