@@ -13,13 +13,13 @@ steps:
       if [ ${{ parameters.srcRepo }} != none ]
       then
         if [ ! -d ./${{parameters.path}} ]
-        then  
+        then
           mkdir -p ./${{parameters.path}}
         fi
         cd ./${{parameters.path}}
         git clone --recursive -b ${{parameters.srcBranch}} ${{parameters.srcRepo}} ${{parameters.name}}
       else
-        echo no remote repo argument supplied, building local project ${{parameters.path}}/${{parameters.name}} ... 
+        echo no remote repo argument supplied, building local project ${{parameters.path}}/${{parameters.name}} ...
       fi
     env:
       GITHUB_PAT: $(GITHUB_PAT)
@@ -34,6 +34,10 @@ steps:
       fi
     displayName: Set graphics string to ${{parameters.graphics}}
 
+  # ============================================================
+  # x64 Builds
+  # ============================================================
+
   - task: VSBuild@1
     inputs:
       solution: '${{parameters.path}}/${{parameters.name}}/${{parameters.name}}.sln'
@@ -42,7 +46,7 @@ steps:
       msbuildArgs: /t:${{parameters.name}}-vst2
       configuration: '${{parameters.configuration}}'
     displayName: Compile ${{parameters.name}} VST2 x64
-    condition: eq(variables.build_vst2, True) 
+    condition: eq(variables.build_vst2, True)
 
   - task: VSBuild@1
     inputs:
@@ -52,7 +56,7 @@ steps:
       msbuildArgs: /t:${{parameters.name}}-vst3
       configuration: '${{parameters.configuration}}'
     displayName: Compile ${{parameters.name}} VST3 x64
-    condition: eq(variables.build_vst3, True) 
+    condition: eq(variables.build_vst3, True)
 
   - task: VSBuild@1
     inputs:
@@ -62,7 +66,7 @@ steps:
       msbuildArgs: /t:${{parameters.name}}-aax
       configuration: '${{parameters.configuration}}'
     displayName: Compile ${{parameters.name}} AAX x64
-    condition: eq(variables.build_aax, True) 
+    condition: eq(variables.build_aax, True)
 
   - task: VSBuild@1
     inputs:
@@ -72,60 +76,182 @@ steps:
       msbuildArgs: /t:${{parameters.name}}-app
       configuration: '${{parameters.configuration}}'
     displayName: Compile ${{parameters.name}} APP x64
-    condition: eq(variables.build_app, True) 
+    condition: eq(variables.build_app, True)
+
+  # ============================================================
+  # ARM64EC Builds (Skia not yet supported for ARM64EC)
+  # ============================================================
+
+  - task: VSBuild@1
+    inputs:
+      solution: '${{parameters.path}}/${{parameters.name}}/${{parameters.name}}.sln'
+      vsVersion: '17.0'
+      platform: ARM64EC
+      msbuildArgs: /t:${{parameters.name}}-vst2
+      configuration: '${{parameters.configuration}}'
+    displayName: Compile ${{parameters.name}} VST2 ARM64EC
+    condition: and(eq(variables.build_vst2, True), eq(variables.build_arm64ec, True), ne('${{parameters.graphics}}', 'SKIA'))
+
+  - task: VSBuild@1
+    inputs:
+      solution: '${{parameters.path}}/${{parameters.name}}/${{parameters.name}}.sln'
+      vsVersion: '17.0'
+      platform: ARM64EC
+      msbuildArgs: /t:${{parameters.name}}-vst3
+      configuration: '${{parameters.configuration}}'
+    displayName: Compile ${{parameters.name}} VST3 ARM64EC
+    condition: and(eq(variables.build_vst3, True), eq(variables.build_arm64ec, True), ne('${{parameters.graphics}}', 'SKIA'))
+
+  - task: VSBuild@1
+    inputs:
+      solution: '${{parameters.path}}/${{parameters.name}}/${{parameters.name}}.sln'
+      vsVersion: '17.0'
+      platform: ARM64EC
+      msbuildArgs: /t:${{parameters.name}}-aax
+      configuration: '${{parameters.configuration}}'
+    displayName: Compile ${{parameters.name}} AAX ARM64EC
+    condition: and(eq(variables.build_aax, True), eq(variables.build_arm64ec, True), ne('${{parameters.graphics}}', 'SKIA'))
+
+  - task: VSBuild@1
+    inputs:
+      solution: '${{parameters.path}}/${{parameters.name}}/${{parameters.name}}.sln'
+      vsVersion: '17.0'
+      platform: ARM64EC
+      msbuildArgs: /t:${{parameters.name}}-app
+      configuration: '${{parameters.configuration}}'
+    displayName: Compile ${{parameters.name}} APP ARM64EC
+    condition: and(eq(variables.build_app, True), eq(variables.build_arm64ec, True), ne('${{parameters.graphics}}', 'SKIA'))
+
+  # ============================================================
+  # Organize ARM64EC Artifacts FIRST (uses cp, so bundles remain for x64)
+  # ============================================================
+
+  - bash: |
+      mkdir -p $BUILD_ARTIFACTSTAGINGDIRECTORY/APP_ARM64EC/${{parameters.name}}
+      cp ${{parameters.path}}/${{parameters.name}}/build-win/${{parameters.name}}_ARM64EC.exe $BUILD_ARTIFACTSTAGINGDIRECTORY/APP_ARM64EC/${{parameters.name}}/
+      cp ${{parameters.path}}/${{parameters.name}}/build-win/pdbs/${{parameters.name}}-app_ARM64EC.pdb $BUILD_ARTIFACTSTAGINGDIRECTORY/APP_ARM64EC/${{parameters.name}}/
+    displayName: Organize APP ARM64EC artifact
+    condition: and(eq(variables.build_app, True), eq(variables.build_arm64ec, True), ne('${{parameters.graphics}}', 'SKIA'))
+
+  - bash: |
+      mkdir -p $BUILD_ARTIFACTSTAGINGDIRECTORY/VST3_ARM64EC/${{parameters.name}}
+      # Copy entire VST3 bundle (contains arm64ec-win subfolder)
+      if [ -d "${{parameters.path}}/${{parameters.name}}/build-win/${{parameters.name}}.vst3" ]; then
+        cp -r ${{parameters.path}}/${{parameters.name}}/build-win/${{parameters.name}}.vst3 $BUILD_ARTIFACTSTAGINGDIRECTORY/VST3_ARM64EC/${{parameters.name}}/
+      fi
+      cp ${{parameters.path}}/${{parameters.name}}/build-win/pdbs/${{parameters.name}}-vst3_ARM64EC.pdb $BUILD_ARTIFACTSTAGINGDIRECTORY/VST3_ARM64EC/${{parameters.name}}/
+    displayName: Organize VST3 ARM64EC artifact
+    condition: and(eq(variables.build_vst3, True), eq(variables.build_arm64ec, True), ne('${{parameters.graphics}}', 'SKIA'))
+
+  - bash: |
+      mkdir -p $BUILD_ARTIFACTSTAGINGDIRECTORY/VST2_ARM64EC/${{parameters.name}}
+      cp ${{parameters.path}}/${{parameters.name}}/build-win/${{parameters.name}}_ARM64EC.dll $BUILD_ARTIFACTSTAGINGDIRECTORY/VST2_ARM64EC/${{parameters.name}}/
+      cp ${{parameters.path}}/${{parameters.name}}/build-win/pdbs/${{parameters.name}}-vst2_ARM64EC.pdb $BUILD_ARTIFACTSTAGINGDIRECTORY/VST2_ARM64EC/${{parameters.name}}/
+    displayName: Organize VST2 ARM64EC artifact
+    condition: and(eq(variables.build_vst2, True), eq(variables.build_arm64ec, True), ne('${{parameters.graphics}}', 'SKIA'))
+
+  - bash: |
+      mkdir -p $BUILD_ARTIFACTSTAGINGDIRECTORY/AAX_ARM64EC/${{parameters.name}}
+      # Copy entire AAX bundle
+      if [ -d "${{parameters.path}}/${{parameters.name}}/build-win/${{parameters.name}}.aaxplugin" ]; then
+        cp -r ${{parameters.path}}/${{parameters.name}}/build-win/${{parameters.name}}.aaxplugin $BUILD_ARTIFACTSTAGINGDIRECTORY/AAX_ARM64EC/${{parameters.name}}/
+      fi
+      cp ${{parameters.path}}/${{parameters.name}}/build-win/pdbs/${{parameters.name}}-aax_ARM64EC.pdb $BUILD_ARTIFACTSTAGINGDIRECTORY/AAX_ARM64EC/${{parameters.name}}/
+    displayName: Organize AAX ARM64EC artifact
+    condition: and(eq(variables.build_aax, True), eq(variables.build_arm64ec, True), ne('${{parameters.graphics}}', 'SKIA'))
+
+  # ============================================================
+  # Organize x64 Artifacts (uses mv, runs after ARM64EC copies)
+  # ============================================================
 
   - bash: |
       mkdir -p $BUILD_ARTIFACTSTAGINGDIRECTORY/APP/${{parameters.name}}
       mv ${{parameters.path}}/${{parameters.name}}/build-win/${{parameters.name}}_x64.exe $BUILD_ARTIFACTSTAGINGDIRECTORY/APP/${{parameters.name}}
-      mv ${{parameters.path}}/${{parameters.name}}/build-win/pdbs/${{parameters.name}}-app_x64.pdb $BUILD_ARTIFACTSTAGINGDIRECTORY/APP/${{parameters.name}} 
-    displayName: Organize APP artifact
-    condition: eq(variables.build_app, True) 
+      mv ${{parameters.path}}/${{parameters.name}}/build-win/pdbs/${{parameters.name}}-app_x64.pdb $BUILD_ARTIFACTSTAGINGDIRECTORY/APP/${{parameters.name}}
+    displayName: Organize APP x64 artifact
+    condition: eq(variables.build_app, True)
 
   - bash: |
       mkdir -p $BUILD_ARTIFACTSTAGINGDIRECTORY/VST3/${{parameters.name}}
       mv ${{parameters.path}}/${{parameters.name}}/build-win/${{parameters.name}}.vst3* $BUILD_ARTIFACTSTAGINGDIRECTORY/VST3/${{parameters.name}} # must move VST3 first
       mv ${{parameters.path}}/${{parameters.name}}/build-win/pdbs/${{parameters.name}}-vst3_x64.pdb $BUILD_ARTIFACTSTAGINGDIRECTORY/VST3/${{parameters.name}}
-    displayName: Organize VST3 artifact
-    condition: eq(variables.build_vst3, True) 
+    displayName: Organize VST3 x64 artifact
+    condition: eq(variables.build_vst3, True)
 
   - bash: |
       mkdir -p $BUILD_ARTIFACTSTAGINGDIRECTORY/VST2/${{parameters.name}}
       mv ${{parameters.path}}/${{parameters.name}}/build-win/${{parameters.name}}_x64.dll $BUILD_ARTIFACTSTAGINGDIRECTORY/VST2/${{parameters.name}}
       mv ${{parameters.path}}/${{parameters.name}}/build-win/pdbs/${{parameters.name}}-vst2_x64.pdb $BUILD_ARTIFACTSTAGINGDIRECTORY/VST2/${{parameters.name}}
-    displayName: Organize VST2 artifact
-    condition: eq(variables.build_vst2, True)     
+    displayName: Organize VST2 x64 artifact
+    condition: eq(variables.build_vst2, True)
 
   - bash: |
       mkdir -p $BUILD_ARTIFACTSTAGINGDIRECTORY/AAX/${{parameters.name}}
       mv ${{parameters.path}}/${{parameters.name}}/build-win/${{parameters.name}}.aaxplugin* $BUILD_ARTIFACTSTAGINGDIRECTORY/AAX/${{parameters.name}}
       mv ${{parameters.path}}/${{parameters.name}}/build-win/pdbs/${{parameters.name}}-aax_x64.pdb $BUILD_ARTIFACTSTAGINGDIRECTORY/AAX/${{parameters.name}}
-    displayName: Organize AAX artifact
-    condition: eq(variables.build_aax, True)    
+    displayName: Organize AAX x64 artifact
+    condition: eq(variables.build_aax, True)
+
+  # ============================================================
+  # Publish x64 Artifacts
+  # ============================================================
 
   - task: PublishPipelineArtifact@0
     inputs:
       artifactName: 'WIN_VST2_${{parameters.artifactName}}'
       targetPath: '$(Build.ArtifactStagingDirectory)/VST2/${{parameters.name}}'
-    displayName: Publish ${{parameters.name}} VST2
-    condition: eq(variables.build_vst2, True) 
+    displayName: Publish ${{parameters.name}} VST2 x64
+    condition: eq(variables.build_vst2, True)
 
   - task: PublishPipelineArtifact@0
     inputs:
       artifactName: 'WIN_VST3_${{parameters.artifactName}}'
       targetPath: '$(Build.ArtifactStagingDirectory)/VST3/${{parameters.name}}'
-    displayName: Publish ${{parameters.name}} VST3
-    condition: eq(variables.build_vst3, True) 
+    displayName: Publish ${{parameters.name}} VST3 x64
+    condition: eq(variables.build_vst3, True)
 
   - task: PublishPipelineArtifact@0
     inputs:
       artifactName: 'WIN_AAX_${{parameters.artifactName}}'
       targetPath: '$(Build.ArtifactStagingDirectory)/AAX/${{parameters.name}}'
-    displayName: Publish ${{parameters.name}} AAX
-    condition: eq(variables.build_aax, True) 
+    displayName: Publish ${{parameters.name}} AAX x64
+    condition: eq(variables.build_aax, True)
 
   - task: PublishPipelineArtifact@0
     inputs:
       artifactName: 'WIN_APP_${{parameters.artifactName}}'
       targetPath: '$(Build.ArtifactStagingDirectory)/APP/${{parameters.name}}'
-    displayName: Publish ${{parameters.name}} APP
-    condition: eq(variables.build_app, True) 
+    displayName: Publish ${{parameters.name}} APP x64
+    condition: eq(variables.build_app, True)
+
+  # ============================================================
+  # Publish ARM64EC Artifacts
+  # ============================================================
+
+  - task: PublishPipelineArtifact@0
+    inputs:
+      artifactName: 'WIN_VST2_ARM64EC_${{parameters.artifactName}}'
+      targetPath: '$(Build.ArtifactStagingDirectory)/VST2_ARM64EC/${{parameters.name}}'
+    displayName: Publish ${{parameters.name}} VST2 ARM64EC
+    condition: and(eq(variables.build_vst2, True), eq(variables.build_arm64ec, True), ne('${{parameters.graphics}}', 'SKIA'))
+
+  - task: PublishPipelineArtifact@0
+    inputs:
+      artifactName: 'WIN_VST3_ARM64EC_${{parameters.artifactName}}'
+      targetPath: '$(Build.ArtifactStagingDirectory)/VST3_ARM64EC/${{parameters.name}}'
+    displayName: Publish ${{parameters.name}} VST3 ARM64EC
+    condition: and(eq(variables.build_vst3, True), eq(variables.build_arm64ec, True), ne('${{parameters.graphics}}', 'SKIA'))
+
+  - task: PublishPipelineArtifact@0
+    inputs:
+      artifactName: 'WIN_AAX_ARM64EC_${{parameters.artifactName}}'
+      targetPath: '$(Build.ArtifactStagingDirectory)/AAX_ARM64EC/${{parameters.name}}'
+    displayName: Publish ${{parameters.name}} AAX ARM64EC
+    condition: and(eq(variables.build_aax, True), eq(variables.build_arm64ec, True), ne('${{parameters.graphics}}', 'SKIA'))
+
+  - task: PublishPipelineArtifact@0
+    inputs:
+      artifactName: 'WIN_APP_ARM64EC_${{parameters.artifactName}}'
+      targetPath: '$(Build.ArtifactStagingDirectory)/APP_ARM64EC/${{parameters.name}}'
+    displayName: Publish ${{parameters.name}} APP ARM64EC
+    condition: and(eq(variables.build_app, True), eq(variables.build_arm64ec, True), ne('${{parameters.graphics}}', 'SKIA'))

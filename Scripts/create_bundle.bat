@@ -6,7 +6,7 @@ SET Format=%3
 echo Create AAX/VST3 Package Directories
 
 if %Format% == ".vst3" (
-SET X86=x86-win
+SET X86=arm64ec-win
 SET X86_64=x86_64-win
 ) else (
 SET X86=Win32

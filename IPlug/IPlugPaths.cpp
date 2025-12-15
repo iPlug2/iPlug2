@@ -81,7 +81,7 @@ void BundleResourcePath(WDL_String& path, HMODULE pExtra)
 #ifdef ARCH_64BIT
   path.SetLen(path.GetLength() - strlen("x86_64-win/"));
 #else
-  path.SetLen(path.GetLength() - strlen("x86-win/"));
+  path.SetLen(path.GetLength() - strlen("arm64ec-win/"));
 #endif
   path.Append("Resources\\");
 #endif

@@ -15,6 +15,10 @@ steps:
       contents: '**'
     displayName: Clean Staging Directory
 
+  # ============================================================
+  # Download x64 Artifacts
+  # ============================================================
+
   - task: DownloadPipelineArtifact@0
     continueOnError: true
     inputs:
@@ -30,7 +34,7 @@ steps:
       targetPath: $(Build.BinariesDirectory)
     displayName: Download WIN_VST3_${{parameters.name}}_${{parameters.graphics}}
     condition: eq(variables.build_vst3, True)
-  
+
   # - task: DownloadPipelineArtifact@0
   #   continueOnError: true
   #   inputs:
@@ -48,10 +52,14 @@ steps:
 
   # NOTE: Win artifacts are not currently double zipped, like mac ones. If that changes BUILD_BINARIESDIRECTORY -> BUILD_STAGINGDIRECTORY
 
+  # ============================================================
+  # Test x64 Plugins
+  # ============================================================
+
   - script: |
       pluginval.exe --validate-in-process --output-dir "./bin" --skip-gui-tests --validate "%BUILD_BINARIESDIRECTORY%\${{parameters.name}}_x64.dll"
       if %ERRORLEVEL% neq 0 exit /b 1
-    displayName: Pluginval - Test ${{parameters.name}} VST2
+    displayName: Pluginval - Test ${{parameters.name}} VST2 x64
     continueOnError: true
     condition: eq(variables.build_vst2, True)
 
@@ -59,12 +67,59 @@ steps:
       dir
       pluginval.exe --validate-in-process --output-dir "./bin" --skip-gui-tests --validate "%BUILD_BINARIESDIRECTORY%\${{parameters.name}}.vst3\Contents\x86_64-win\${{parameters.name}}.vst3"
       if %ERRORLEVEL% neq 0 exit /b 1
-    displayName: Pluginval - Test ${{parameters.name}} VST3
+    displayName: Pluginval - Test ${{parameters.name}} VST3 x64
     continueOnError: true
     condition: eq(variables.build_vst3, True)
 
   - script: |
       validator.exe "%BUILD_BINARIESDIRECTORY%\${{parameters.name}}.vst3\Contents\x86_64-win\${{parameters.name}}.vst3"
-    displayName: VST3 Validator - Test ${{parameters.name}} VST3
+    displayName: VST3 Validator - Test ${{parameters.name}} VST3 x64
     continueOnError: true
     condition: eq(variables.build_vst3, True)
+
+  # ============================================================
+  # Download ARM64EC Artifacts (Skia not supported)
+  # ============================================================
+
+  - task: DownloadPipelineArtifact@0
+    continueOnError: true
+    inputs:
+      artifactName: 'WIN_VST2_ARM64EC_${{parameters.name}}_${{parameters.graphics}}'
+      targetPath: $(Build.BinariesDirectory)/ARM64EC
+    displayName: Download WIN_VST2_ARM64EC_${{parameters.name}}_${{parameters.graphics}}
+    condition: and(eq(variables.build_vst2, True), eq(variables.build_arm64ec, True), ne('${{parameters.graphics}}', 'SKIA'))
+
+  - task: DownloadPipelineArtifact@0
+    continueOnError: true
+    inputs:
+      artifactName: 'WIN_VST3_ARM64EC_${{parameters.name}}_${{parameters.graphics}}'
+      targetPath: $(Build.BinariesDirectory)/ARM64EC
+    displayName: Download WIN_VST3_ARM64EC_${{parameters.name}}_${{parameters.graphics}}
+    condition: and(eq(variables.build_vst3, True), eq(variables.build_arm64ec, True), ne('${{parameters.graphics}}', 'SKIA'))
+
+  # ============================================================
+  # Test ARM64EC Plugins
+  # NOTE: ARM64EC binaries cannot be tested on x64 runners.
+  # These tests require an ARM64 Windows runner.
+  # Uncomment when ARM64 runners are available.
+  # ============================================================
+
+  # - script: |
+  #     pluginval.exe --validate-in-process --output-dir "./bin" --skip-gui-tests --validate "%BUILD_BINARIESDIRECTORY%\ARM64EC\${{parameters.name}}_ARM64EC.dll"
+  #     if %ERRORLEVEL% neq 0 exit /b 1
+  #   displayName: Pluginval - Test ${{parameters.name}} VST2 ARM64EC
+  #   continueOnError: true
+  #   condition: and(eq(variables.build_vst2, True), eq(variables.build_arm64ec, True), eq(variables.test_arm64ec, True), ne('${{parameters.graphics}}', 'SKIA'))
+
+  # - script: |
+  #     pluginval.exe --validate-in-process --output-dir "./bin" --skip-gui-tests --validate "%BUILD_BINARIESDIRECTORY%\ARM64EC\${{parameters.name}}.vst3\Contents\arm64ec-win\${{parameters.name}}.vst3"
+  #     if %ERRORLEVEL% neq 0 exit /b 1
+  #   displayName: Pluginval - Test ${{parameters.name}} VST3 ARM64EC
+  #   continueOnError: true
+  #   condition: and(eq(variables.build_vst3, True), eq(variables.build_arm64ec, True), eq(variables.test_arm64ec, True), ne('${{parameters.graphics}}', 'SKIA'))
+
+  # - script: |
+  #     validator.exe "%BUILD_BINARIESDIRECTORY%\ARM64EC\${{parameters.name}}.vst3\Contents\arm64ec-win\${{parameters.name}}.vst3"
+  #   displayName: VST3 Validator - Test ${{parameters.name}} VST3 ARM64EC
+  #   continueOnError: true
+  #   condition: and(eq(variables.build_vst3, True), eq(variables.build_arm64ec, True), eq(variables.test_arm64ec, True), ne('${{parameters.graphics}}', 'SKIA'))

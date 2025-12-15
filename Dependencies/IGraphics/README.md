@@ -25,11 +25,16 @@ Next you can execute **build-skia-mac.sh** which will build the various static l
 Execute **build-skia-ios.sh** with either arm64 or x64 as a single argument, to build for the device or simulator (TODO: what about simulator on ARM?)
 
 ## Windows
-Launch a regular Windows command prompt (cmd.exe) and execute the Windows batch script **build-igraphics-libs-win.bat**, which will compile all the static libraries (for debug/release) configurations and (win32/x64 architectures) using the IGraphicsLibraries visual studio solution.
+Open a PowerShell prompt and execute **build-igraphics-libs-win.ps1**, which will compile all the static libraries (for Debug/Release configurations and x64/ARM64EC architectures) using the IGraphicsLibraries Visual Studio solution. The script uses vswhere to automatically locate your Visual Studio installation.
+
+```powershell
+cd ~/Dev/iPlug2/Dependencies/IGraphics
+./build-igraphics-libs-win.ps1
+```
 
 You need to make sure that you have LLVM installed and that it is installed in C://ProgramFiles/LLVM
 
-Now launch a shell with git-bash and execute **build-skia-win.sh** which will build the various static libraries for skia and place the files in the right locations. You need to add arguments for configuration and architechture e.g. 
+Now launch a shell with git-bash and execute **build-skia-win.sh** which will build the various static libraries for skia and place the files in the right locations. You need to add arguments for configuration and architecture e.g.
 
 ```
 $ cd ~/Dev/iPlug2/Dependencies/IGraphics
