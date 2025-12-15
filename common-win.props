@@ -45,7 +45,7 @@
     <AAX_ARM64EC_PATH Condition="'$(AAX_ARM64EC_PATH)'==''">$(CommonProgramFiles)\Avid\Audio\Plug-Ins</AAX_ARM64EC_PATH>
     <AAX_X64_PATH Condition="'$(AAX_X64_PATH)'==''">$(CommonProgramW6432)\Avid\Audio\Plug-Ins</AAX_X64_PATH>
     <CLAP_ARM64EC_PATH Condition="'$(CLAP_ARM64EC_PATH)'==''">$(CommonProgramFiles)\CLAP</CLAP_ARM64EC_PATH>
-    <CLAP_PATH>$(CommonProgramW6432)\CLAP</CLAP_PATH>
+    <CLAP_X64_PATH Condition="'$(CLAP_X64_PATH)'==''">$(CommonProgramW6432)\CLAP</CLAP_X64_PATH>
     <REAPER_EXT_PATH>$(APPDATA)\REAPER\UserPlugins</REAPER_EXT_PATH>
     <APP_DEFS>APP_API;__WINDOWS_DS__;__WINDOWS_MM__;__WINDOWS_ASIO__;IPLUG_EDITOR=1;IPLUG_DSP=1</APP_DEFS>
     <CLAP_DEFS>CLAP_API;IPLUG_EDITOR=1;IPLUG_DSP=1</CLAP_DEFS>
@@ -305,8 +305,8 @@
     <BuildMacro Include="CLAP_ARM64EC_PATH">
       <Value>$(CLAP_ARM64EC_PATH)</Value>
     </BuildMacro>
-    <BuildMacro Include="CLAP_PATH">
-      <Value>$(CLAP_PATH)</Value>
+    <BuildMacro Include="CLAP_X64_PATH">
+      <Value>$(CLAP_X64_PATH)</Value>
     </BuildMacro>
   </ItemGroup>
 </Project>
