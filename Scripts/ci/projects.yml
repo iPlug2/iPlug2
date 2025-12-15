@@ -3,19 +3,26 @@ parameters:
   platformStr: ''
   graphics: 'NANOVG'
   buildAllProjects: false
+  selectedProjects: ''  # Comma-separated list of specific projects to build
+
+# Helper function to determine if a project should be built:
+# - If selectedProjects is specified, build only those projects
+# - If selectedProjects is empty and buildAllProjects is true, build all projects
+# - If both are empty/false, build only IPlugEffect (minimal CI)
 
 steps:
-# IPlugEffect is always built (minimal CI for PRs)
-- template: ${{parameters.platform}}
-  parameters:
-    name: IPlugEffect
-    path: 'Examples'
-    graphics: ${{parameters.graphics}}
-    artifactName: IPlugEffect_${{parameters.graphics}}
-    platformStr: ${{parameters.platformStr}}
+# IPlugEffect - always built unless specific projects are selected (and it's not in the list)
+- ${{ if or(eq(parameters.selectedProjects, ''), contains(parameters.selectedProjects, 'IPlugEffect')) }}:
+  - template: ${{parameters.platform}}
+    parameters:
+      name: IPlugEffect
+      path: 'Examples'
+      graphics: ${{parameters.graphics}}
+      artifactName: IPlugEffect_${{parameters.graphics}}
+      platformStr: ${{parameters.platformStr}}
 
-# Additional projects only built when buildAllProjects is true
-- ${{if eq(parameters.buildAllProjects, true)}}:
+# IPlugInstrument
+- ${{ if or(contains(parameters.selectedProjects, 'IPlugInstrument'), and(eq(parameters.selectedProjects, ''), eq(parameters.buildAllProjects, true))) }}:
   - template: ${{parameters.platform}}
     parameters:
       name: IPlugInstrument
@@ -24,6 +31,8 @@ steps:
       artifactName: IPlugInstrument_${{parameters.graphics}}
       platformStr: ${{parameters.platformStr}}
 
+# IPlugMidiEffect
+- ${{ if or(contains(parameters.selectedProjects, 'IPlugMidiEffect'), and(eq(parameters.selectedProjects, ''), eq(parameters.buildAllProjects, true))) }}:
   - template: ${{parameters.platform}}
     parameters:
       name: IPlugMidiEffect
@@ -32,6 +41,8 @@ steps:
       artifactName: IPlugMidiEffect_${{parameters.graphics}}
       platformStr: ${{parameters.platformStr}}
 
+# IPlugControls
+- ${{ if or(contains(parameters.selectedProjects, 'IPlugControls'), and(eq(parameters.selectedProjects, ''), eq(parameters.buildAllProjects, true))) }}:
   - template: ${{parameters.platform}}
     parameters:
       name: IPlugControls
@@ -40,6 +51,8 @@ steps:
       artifactName: IPlugControls_${{parameters.graphics}}
       platformStr: ${{parameters.platformStr}}
 
+# IPlugResponsiveUI
+- ${{ if or(contains(parameters.selectedProjects, 'IPlugResponsiveUI'), and(eq(parameters.selectedProjects, ''), eq(parameters.buildAllProjects, true))) }}:
   - template: ${{parameters.platform}}
     parameters:
       name: IPlugResponsiveUI
@@ -48,6 +61,8 @@ steps:
       artifactName: IPlugResponsiveUI_${{parameters.graphics}}
       platformStr: ${{parameters.platformStr}}
 
+# IPlugChunks
+- ${{ if or(contains(parameters.selectedProjects, 'IPlugChunks'), and(eq(parameters.selectedProjects, ''), eq(parameters.buildAllProjects, true))) }}:
   - template: ${{parameters.platform}}
     parameters:
       name: IPlugChunks
@@ -56,6 +71,8 @@ steps:
       artifactName: IPlugChunks_${{parameters.graphics}}
       platformStr: ${{parameters.platformStr}}
 
+# IPlugSideChain
+- ${{ if or(contains(parameters.selectedProjects, 'IPlugSideChain'), and(eq(parameters.selectedProjects, ''), eq(parameters.buildAllProjects, true))) }}:
   - template: ${{parameters.platform}}
     parameters:
       name: IPlugSideChain
@@ -64,6 +81,8 @@ steps:
       artifactName: IPlugSideChain_${{parameters.graphics}}
       platformStr: ${{parameters.platformStr}}
 
+# IPlugSurroundEffect
+- ${{ if or(contains(parameters.selectedProjects, 'IPlugSurroundEffect'), and(eq(parameters.selectedProjects, ''), eq(parameters.buildAllProjects, true))) }}:
   - template: ${{parameters.platform}}
     parameters:
       name: IPlugSurroundEffect
@@ -72,6 +91,8 @@ steps:
       artifactName: IPlugSurroundEffect_${{parameters.graphics}}
       platformStr: ${{parameters.platformStr}}
 
+# IPlugDrumSynth
+- ${{ if or(contains(parameters.selectedProjects, 'IPlugDrumSynth'), and(eq(parameters.selectedProjects, ''), eq(parameters.buildAllProjects, true))) }}:
   - template: ${{parameters.platform}}
     parameters:
       name: IPlugDrumSynth
@@ -80,6 +101,8 @@ steps:
       artifactName: IPlugDrumSynth_${{parameters.graphics}}
       platformStr: ${{parameters.platformStr}}
 
+# IPlugConvoEngine
+- ${{ if or(contains(parameters.selectedProjects, 'IPlugConvoEngine'), and(eq(parameters.selectedProjects, ''), eq(parameters.buildAllProjects, true))) }}:
   - template: ${{parameters.platform}}
     parameters:
       name: IPlugConvoEngine
@@ -88,6 +111,8 @@ steps:
       artifactName: IPlugConvoEngine_${{parameters.graphics}}
       platformStr: ${{parameters.platformStr}}
 
+# IPlugOSCEditor
+- ${{ if or(contains(parameters.selectedProjects, 'IPlugOSCEditor'), and(eq(parameters.selectedProjects, ''), eq(parameters.buildAllProjects, true))) }}:
   - template: ${{parameters.platform}}
     parameters:
       name: IPlugOSCEditor
@@ -96,6 +121,8 @@ steps:
       artifactName: IPlugOSCEditor_${{parameters.graphics}}
       platformStr: ${{parameters.platformStr}}
 
+# IPlugVisualizer
+- ${{ if or(contains(parameters.selectedProjects, 'IPlugVisualizer'), and(eq(parameters.selectedProjects, ''), eq(parameters.buildAllProjects, true))) }}:
   - template: ${{parameters.platform}}
     parameters:
       name: IPlugVisualizer
@@ -104,6 +131,8 @@ steps:
       artifactName: IPlugVisualizer_${{parameters.graphics}}
       platformStr: ${{parameters.platformStr}}
 
+# IPlugReaperPlugin
+- ${{ if or(contains(parameters.selectedProjects, 'IPlugReaperPlugin'), and(eq(parameters.selectedProjects, ''), eq(parameters.buildAllProjects, true))) }}:
   - template: ${{parameters.platform}}
     parameters:
       name: IPlugReaperPlugin
@@ -112,6 +141,8 @@ steps:
       artifactName: IPlugReaperPlugin_${{parameters.graphics}}
       platformStr: ${{parameters.platformStr}}
 
+# IPlugCocoaUI
+- ${{ if or(contains(parameters.selectedProjects, 'IPlugCocoaUI'), and(eq(parameters.selectedProjects, ''), eq(parameters.buildAllProjects, true))) }}:
   - template: ${{parameters.platform}}
     parameters:
       name: IPlugCocoaUI
@@ -120,6 +151,8 @@ steps:
       artifactName: IPlugCocoaUI_${{parameters.graphics}}
       platformStr: ${{parameters.platformStr}}
 
+# IPlugSwiftUI
+- ${{ if or(contains(parameters.selectedProjects, 'IPlugSwiftUI'), and(eq(parameters.selectedProjects, ''), eq(parameters.buildAllProjects, true))) }}:
   - template: ${{parameters.platform}}
     parameters:
       name: IPlugSwiftUI
@@ -128,6 +161,8 @@ steps:
       artifactName: IPlugSwiftUI_${{parameters.graphics}}
       platformStr: ${{parameters.platformStr}}
 
+# IPlugWebUI
+- ${{ if or(contains(parameters.selectedProjects, 'IPlugWebUI'), and(eq(parameters.selectedProjects, ''), eq(parameters.buildAllProjects, true))) }}:
   - template: ${{parameters.platform}}
     parameters:
       name: IPlugWebUI
@@ -136,6 +171,8 @@ steps:
       artifactName: IPlugWebUI_${{parameters.graphics}}
       platformStr: ${{parameters.platformStr}}
 
+# IPlugP5js
+- ${{ if or(contains(parameters.selectedProjects, 'IPlugP5js'), and(eq(parameters.selectedProjects, ''), eq(parameters.buildAllProjects, true))) }}:
   - template: ${{parameters.platform}}
     parameters:
       name: IPlugP5js
@@ -144,6 +181,8 @@ steps:
       artifactName: IPlugP5js_${{parameters.graphics}}
       platformStr: ${{parameters.platformStr}}
 
+# IPlugSvelteUI
+- ${{ if or(contains(parameters.selectedProjects, 'IPlugSvelteUI'), and(eq(parameters.selectedProjects, ''), eq(parameters.buildAllProjects, true))) }}:
   - template: ${{parameters.platform}}
     parameters:
       name: IPlugSvelteUI
@@ -152,6 +191,8 @@ steps:
       artifactName: IPlugSvelteUI_${{parameters.graphics}}
       platformStr: ${{parameters.platformStr}}
 
+# IGraphicsStressTest (Tests)
+- ${{ if or(contains(parameters.selectedProjects, 'IGraphicsStressTest'), and(eq(parameters.selectedProjects, ''), eq(parameters.buildAllProjects, true))) }}:
   - template: ${{parameters.platform}}
     parameters:
       name: IGraphicsStressTest
@@ -160,6 +201,8 @@ steps:
       artifactName: IGraphicsStressTest_${{parameters.graphics}}
       platformStr: ${{parameters.platformStr}}
 
+# IGraphicsTest (Tests)
+- ${{ if or(contains(parameters.selectedProjects, 'IGraphicsTest'), and(eq(parameters.selectedProjects, ''), eq(parameters.buildAllProjects, true))) }}:
   - template: ${{parameters.platform}}
     parameters:
       name: IGraphicsTest
@@ -168,6 +211,8 @@ steps:
       artifactName: IGraphicsTest_${{parameters.graphics}}
       platformStr: ${{parameters.platformStr}}
 
+# MetaParamTest (Tests)
+- ${{ if or(contains(parameters.selectedProjects, 'MetaParamTest'), and(eq(parameters.selectedProjects, ''), eq(parameters.buildAllProjects, true))) }}:
   - template: ${{parameters.platform}}
     parameters:
       name: MetaParamTest

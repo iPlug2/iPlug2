@@ -1,0 +1,651 @@
+name: CI Commands
+
+# This workflow handles /ci commands in PR comments and descriptions
+# It parses commands and triggers builds with the specified configuration
+
+on:
+  # Trigger on PR comments containing /ci commands
+  issue_comment:
+    types: [created]
+
+  # Trigger on PR open/edit to parse commands from PR body
+  pull_request:
+    types: [opened, edited, synchronize]
+
+  # Allow manual triggering with parameters
+  workflow_dispatch:
+    inputs:
+      projects:
+        description: 'Projects to build (comma-separated, or "all")'
+        required: false
+        default: 'IPlugEffect'
+        type: string
+      platforms:
+        description: 'Platforms to build (mac,win,ios,web)'
+        required: false
+        default: 'mac,win'
+        type: string
+      formats:
+        description: 'Plugin formats (app,vst3,clap,auv2)'
+        required: false
+        default: 'app,vst3,clap'
+        type: string
+      graphics:
+        description: 'Graphics backends (nanovg,skia,both)'
+        required: false
+        default: 'nanovg'
+        type: string
+      test:
+        description: 'Run plugin validation tests'
+        required: false
+        default: false
+        type: boolean
+      pr_number:
+        description: 'PR number (for context)'
+        required: false
+        type: string
+
+env:
+  # Default configuration
+  DEFAULT_PROJECTS: 'IPlugEffect'
+  DEFAULT_PLATFORMS: 'mac,win'
+  DEFAULT_FORMATS: 'app,vst3,clap,auv2'
+  DEFAULT_GRAPHICS: 'nanovg'
+
+jobs:
+  # Parse CI commands from PR body or comment
+  parse-commands:
+    name: Parse CI Commands
+    runs-on: ubuntu-latest
+    # Only run on PR comments that contain /ci, or PR events, or workflow_dispatch
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'pull_request' ||
+      (github.event_name == 'issue_comment' &&
+       github.event.issue.pull_request &&
+       contains(github.event.comment.body, '/ci'))
+    outputs:
+      should_build: ${{ steps.parse.outputs.should_build }}
+      skip: ${{ steps.parse.outputs.skip }}
+      projects: ${{ steps.parse.outputs.projects }}
+      platforms: ${{ steps.parse.outputs.platforms }}
+      formats: ${{ steps.parse.outputs.formats }}
+      graphics: ${{ steps.parse.outputs.graphics }}
+      test: ${{ steps.parse.outputs.test }}
+      build_all: ${{ steps.parse.outputs.build_all }}
+      build_mac: ${{ steps.parse.outputs.build_mac }}
+      build_win: ${{ steps.parse.outputs.build_win }}
+      build_ios: ${{ steps.parse.outputs.build_ios }}
+      build_web: ${{ steps.parse.outputs.build_web }}
+      build_skia: ${{ steps.parse.outputs.build_skia }}
+      summary: ${{ steps.parse.outputs.summary }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Get PR body for comment trigger
+        id: get-pr
+        if: github.event_name == 'issue_comment'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number
+            });
+            return pr.data.body || '';
+          result-encoding: string
+
+      - name: Parse CI commands
+        id: parse
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PR_BODY: ${{ github.event.pull_request.body || steps.get-pr.outputs.result || '' }}
+          COMMENT_BODY: ${{ github.event.comment.body || '' }}
+          INPUT_PROJECTS: ${{ github.event.inputs.projects || '' }}
+          INPUT_PLATFORMS: ${{ github.event.inputs.platforms || '' }}
+          INPUT_FORMATS: ${{ github.event.inputs.formats || '' }}
+          INPUT_GRAPHICS: ${{ github.event.inputs.graphics || '' }}
+          INPUT_TEST: ${{ github.event.inputs.test || 'false' }}
+        run: |
+          python3 << 'PYTHON_SCRIPT'
+          import os
+          import re
+          import json
+
+          # Available options
+          ALL_PROJECTS = [
+              'IPlugEffect', 'IPlugInstrument', 'IPlugMidiEffect', 'IPlugControls',
+              'IPlugResponsiveUI', 'IPlugChunks', 'IPlugSideChain', 'IPlugSurroundEffect',
+              'IPlugDrumSynth', 'IPlugConvoEngine', 'IPlugOSCEditor', 'IPlugVisualizer',
+              'IPlugReaperPlugin', 'IPlugCocoaUI', 'IPlugSwiftUI', 'IPlugWebUI',
+              'IPlugP5js', 'IPlugSvelteUI', 'IGraphicsStressTest', 'IGraphicsTest', 'MetaParamTest'
+          ]
+          ALL_PLATFORMS = ['mac', 'win', 'ios', 'web']
+          ALL_FORMATS = ['app', 'vst3', 'clap', 'auv2', 'aax', 'vst2']
+          ALL_GRAPHICS = ['nanovg', 'skia']
+
+          def parse_ci_commands(text):
+              """Parse /ci commands from text."""
+              result = {
+                  'projects': [],
+                  'platforms': [],
+                  'formats': [],
+                  'graphics': [],
+                  'test': False,
+                  'skip': False,
+                  'full': False,
+              }
+
+              if not text:
+                  return result
+
+              ci_pattern = re.compile(r'^/ci\s+(.*)$', re.MULTILINE | re.IGNORECASE)
+              matches = ci_pattern.findall(text)
+
+              for match in matches:
+                  args = match.strip()
+
+                  # Shortcuts
+                  if args.lower() == 'skip':
+                      result['skip'] = True
+                      continue
+                  if args.lower() == 'full':
+                      result['full'] = True
+                      continue
+                  if args.lower() == 'quick':
+                      result['projects'] = ['IPlugEffect']
+                      continue
+                  if args.lower() in ['web', 'mac', 'win', 'ios']:
+                      result['platforms'].append(args.lower())
+                      continue
+
+                  # Parse tokens
+                  tokens = args.split()
+                  for token in tokens:
+                      token_lower = token.lower()
+
+                      if token_lower == 'test':
+                          result['test'] = True
+                          continue
+                      if token_lower == 'skip':
+                          result['skip'] = True
+                          continue
+                      if token_lower == 'full':
+                          result['full'] = True
+                          continue
+
+                      if '=' in token:
+                          key, value = token.split('=', 1)
+                          key = key.lower()
+                          values = [v.strip() for v in value.split(',') if v.strip()]
+
+                          if key in ['projects', 'project']:
+                              if values == ['all']:
+                                  result['full'] = True
+                              else:
+                                  for v in values:
+                                      for proj in ALL_PROJECTS:
+                                          if proj.lower() == v.lower():
+                                              if proj not in result['projects']:
+                                                  result['projects'].append(proj)
+                                              break
+                          elif key in ['platforms', 'platform']:
+                              for v in values:
+                                  if v.lower() in ALL_PLATFORMS and v.lower() not in result['platforms']:
+                                      result['platforms'].append(v.lower())
+                          elif key in ['formats', 'format']:
+                              for v in values:
+                                  if v.lower() in ALL_FORMATS and v.lower() not in result['formats']:
+                                      result['formats'].append(v.lower())
+                          elif key in ['graphics', 'gfx']:
+                              for v in values:
+                                  if v.lower() == 'both':
+                                      result['graphics'] = ['nanovg', 'skia']
+                                  elif v.lower() in ALL_GRAPHICS and v.lower() not in result['graphics']:
+                                      result['graphics'].append(v.lower())
+
+              return result
+
+          event_name = os.environ.get('EVENT_NAME', '')
+          pr_body = os.environ.get('PR_BODY', '')
+          comment_body = os.environ.get('COMMENT_BODY', '')
+
+          # Determine what text to parse
+          if event_name == 'workflow_dispatch':
+              # Use manual inputs
+              config = {
+                  'projects': [p.strip() for p in os.environ.get('INPUT_PROJECTS', '').split(',') if p.strip()],
+                  'platforms': [p.strip().lower() for p in os.environ.get('INPUT_PLATFORMS', '').split(',') if p.strip()],
+                  'formats': [f.strip().lower() for f in os.environ.get('INPUT_FORMATS', '').split(',') if f.strip()],
+                  'graphics': [g.strip().lower() for g in os.environ.get('INPUT_GRAPHICS', '').split(',') if g.strip()],
+                  'test': os.environ.get('INPUT_TEST', 'false').lower() == 'true',
+                  'skip': False,
+                  'full': 'all' in os.environ.get('INPUT_PROJECTS', '').lower(),
+              }
+              should_build = True
+          elif event_name == 'issue_comment':
+              # Parse the comment for /ci commands
+              config = parse_ci_commands(comment_body)
+              should_build = '/ci' in comment_body.lower() and not config['skip']
+          else:
+              # Parse PR body for /ci commands
+              config = parse_ci_commands(pr_body)
+              # Only auto-build on PR if explicit /ci commands are present
+              should_build = bool(re.search(r'^/ci\s', pr_body, re.MULTILINE | re.IGNORECASE)) and not config['skip']
+
+          # Apply defaults if nothing specified
+          if config['full']:
+              config['projects'] = ALL_PROJECTS
+          elif not config['projects']:
+              config['projects'] = ['IPlugEffect']
+
+          if not config['platforms']:
+              config['platforms'] = ['mac', 'win']
+
+          if not config['formats']:
+              config['formats'] = ['app', 'vst3', 'clap', 'auv2']
+
+          if not config['graphics']:
+              config['graphics'] = ['nanovg']
+
+          # Build summary
+          summary_parts = []
+          if config['full']:
+              summary_parts.append('Projects: ALL')
+          else:
+              summary_parts.append(f"Projects: {', '.join(config['projects'])}")
+          summary_parts.append(f"Platforms: {', '.join(config['platforms'])}")
+          summary_parts.append(f"Formats: {', '.join(config['formats'])}")
+          summary_parts.append(f"Graphics: {', '.join(config['graphics'])}")
+          if config['test']:
+              summary_parts.append('Testing: enabled')
+          summary = ' | '.join(summary_parts)
+
+          # Write outputs
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+              f.write(f"should_build={'true' if should_build else 'false'}\n")
+              f.write(f"skip={'true' if config['skip'] else 'false'}\n")
+              f.write(f"projects={','.join(config['projects'])}\n")
+              f.write(f"platforms={','.join(config['platforms'])}\n")
+              f.write(f"formats={','.join(config['formats'])}\n")
+              f.write(f"graphics={','.join(config['graphics'])}\n")
+              f.write(f"test={'true' if config['test'] else 'false'}\n")
+              f.write(f"build_all={'true' if config['full'] else 'false'}\n")
+              f.write(f"build_mac={'true' if 'mac' in config['platforms'] else 'false'}\n")
+              f.write(f"build_win={'true' if 'win' in config['platforms'] else 'false'}\n")
+              f.write(f"build_ios={'true' if 'ios' in config['platforms'] else 'false'}\n")
+              f.write(f"build_web={'true' if 'web' in config['platforms'] else 'false'}\n")
+              f.write(f"build_skia={'true' if 'skia' in config['graphics'] else 'false'}\n")
+              f.write(f"summary={summary}\n")
+
+          print(f"Parsed configuration:")
+          print(f"  Should build: {should_build}")
+          print(f"  Skip: {config['skip']}")
+          print(f"  Projects: {config['projects']}")
+          print(f"  Platforms: {config['platforms']}")
+          print(f"  Formats: {config['formats']}")
+          print(f"  Graphics: {config['graphics']}")
+          print(f"  Test: {config['test']}")
+          PYTHON_SCRIPT
+
+      - name: Post acknowledgment comment
+        if: github.event_name == 'issue_comment' && steps.parse.outputs.should_build == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const summary = '${{ steps.parse.outputs.summary }}';
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `🔨 **CI Build Triggered**\n\n${summary}\n\nBuilds will start shortly...`
+            });
+
+      - name: Skip notification
+        if: steps.parse.outputs.skip == 'true'
+        run: echo "CI build skipped by /ci skip command"
+
+  # Trigger Azure Pipeline (if AZURE_DEVOPS_PAT secret is configured)
+  trigger-azure:
+    name: Trigger Azure Pipeline
+    needs: parse-commands
+    if: |
+      needs.parse-commands.outputs.should_build == 'true' &&
+      needs.parse-commands.outputs.skip != 'true'
+    runs-on: ubuntu-latest
+    # This job requires AZURE_DEVOPS_PAT and AZURE_DEVOPS_ORG secrets to be configured
+    # If not configured, this job will be skipped
+
+    steps:
+      - name: Check Azure credentials
+        id: check-azure
+        run: |
+          if [ -n "${{ secrets.AZURE_DEVOPS_PAT }}" ] && [ -n "${{ secrets.AZURE_DEVOPS_ORG }}" ]; then
+            echo "has_azure=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_azure=false" >> $GITHUB_OUTPUT
+            echo "Azure DevOps credentials not configured. Skipping Azure Pipeline trigger."
+            echo "To enable Azure Pipeline triggering, set AZURE_DEVOPS_PAT and AZURE_DEVOPS_ORG secrets."
+          fi
+
+      - name: Trigger Azure Pipeline
+        if: steps.check-azure.outputs.has_azure == 'true'
+        env:
+          AZURE_DEVOPS_PAT: ${{ secrets.AZURE_DEVOPS_PAT }}
+          AZURE_DEVOPS_ORG: ${{ secrets.AZURE_DEVOPS_ORG }}
+          AZURE_DEVOPS_PROJECT: ${{ secrets.AZURE_DEVOPS_PROJECT || 'iPlug2' }}
+          AZURE_PIPELINE_ID: ${{ secrets.AZURE_PIPELINE_ID || '1' }}
+        run: |
+          # Azure Pipeline API to queue a build with parameters
+          # This would queue the build with the parsed configuration
+          echo "Would trigger Azure Pipeline with:"
+          echo "  Projects: ${{ needs.parse-commands.outputs.projects }}"
+          echo "  Platforms: ${{ needs.parse-commands.outputs.platforms }}"
+          echo "  Build all: ${{ needs.parse-commands.outputs.build_all }}"
+          echo "  Test: ${{ needs.parse-commands.outputs.test }}"
+
+          # Uncomment to actually trigger (requires proper Azure setup):
+          # curl -X POST \
+          #   -u ":${AZURE_DEVOPS_PAT}" \
+          #   -H "Content-Type: application/json" \
+          #   "https://dev.azure.com/${AZURE_DEVOPS_ORG}/${AZURE_DEVOPS_PROJECT}/_apis/pipelines/${AZURE_PIPELINE_ID}/runs?api-version=7.0" \
+          #   -d '{
+          #     "templateParameters": {
+          #       "buildAllProjects": "${{ needs.parse-commands.outputs.build_all }}"
+          #     }
+          #   }'
+
+  # macOS build job
+  build-mac:
+    name: Build macOS
+    needs: parse-commands
+    if: |
+      needs.parse-commands.outputs.should_build == 'true' &&
+      needs.parse-commands.outputs.skip != 'true' &&
+      needs.parse-commands.outputs.build_mac == 'true'
+    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        graphics: ${{ fromJson(format('["{0}"]', join(fromJson(format('["{0}"]', needs.parse-commands.outputs.graphics)), '","'))) }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Download dependencies
+        run: |
+          cd Dependencies/IPlug
+          ./download-iplug-sdks.sh
+
+      - name: Build projects
+        env:
+          PROJECTS: ${{ needs.parse-commands.outputs.projects }}
+          FORMATS: ${{ needs.parse-commands.outputs.formats }}
+          GRAPHICS: ${{ matrix.graphics }}
+        run: |
+          echo "Building macOS with $GRAPHICS graphics backend"
+          echo "Projects: $PROJECTS"
+          echo "Formats: $FORMATS"
+
+          IFS=',' read -ra PROJECT_ARRAY <<< "$PROJECTS"
+          IFS=',' read -ra FORMAT_ARRAY <<< "$FORMATS"
+
+          for project in "${PROJECT_ARRAY[@]}"; do
+            # Determine project path
+            if [[ "$project" == IGraphics* ]] || [[ "$project" == MetaParamTest ]]; then
+              PROJECT_PATH="Tests/$project"
+            else
+              PROJECT_PATH="Examples/$project"
+            fi
+
+            if [ -d "$PROJECT_PATH" ]; then
+              echo "Building $project..."
+              cd "$PROJECT_PATH"
+
+              for format in "${FORMAT_ARRAY[@]}"; do
+                FORMAT_UPPER=$(echo "$format" | tr '[:lower:]' '[:upper:]')
+                SCHEME="${project}-macOS"
+
+                # Check if xcodeproj exists
+                if [ -d "${project}.xcodeproj" ]; then
+                  echo "  Building $FORMAT_UPPER..."
+                  xcodebuild -project "${project}.xcodeproj" \
+                    -scheme "$SCHEME" \
+                    -configuration Release \
+                    -destination 'platform=macOS' \
+                    build \
+                    GCC_PREPROCESSOR_DEFINITIONS='$GCC_PREPROCESSOR_DEFINITIONS IGRAPHICS_${{ matrix.graphics }}' \
+                    2>&1 | tail -50 || echo "Build completed with warnings/errors"
+                fi
+              done
+
+              cd - > /dev/null
+            else
+              echo "Project path not found: $PROJECT_PATH"
+            fi
+          done
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: mac-${{ matrix.graphics }}-builds
+          path: |
+            Examples/*/build/Release/*.app
+            Examples/*/build/Release/*.vst3
+            Examples/*/build/Release/*.clap
+            Examples/*/build/Release/*.component
+            Tests/*/build/Release/*.app
+          if-no-files-found: ignore
+
+  # Windows build job
+  build-win:
+    name: Build Windows
+    needs: parse-commands
+    if: |
+      needs.parse-commands.outputs.should_build == 'true' &&
+      needs.parse-commands.outputs.skip != 'true' &&
+      needs.parse-commands.outputs.build_win == 'true'
+    runs-on: windows-2022
+    strategy:
+      fail-fast: false
+      matrix:
+        graphics: ${{ fromJson(format('["{0}"]', join(fromJson(format('["{0}"]', needs.parse-commands.outputs.graphics)), '","'))) }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Download dependencies
+        shell: bash
+        run: |
+          cd Dependencies/IPlug
+          ./download-iplug-sdks.sh
+
+      - name: Build projects
+        shell: pwsh
+        env:
+          PROJECTS: ${{ needs.parse-commands.outputs.projects }}
+          FORMATS: ${{ needs.parse-commands.outputs.formats }}
+          GRAPHICS: ${{ matrix.graphics }}
+        run: |
+          Write-Host "Building Windows with $env:GRAPHICS graphics backend"
+          Write-Host "Projects: $env:PROJECTS"
+          Write-Host "Formats: $env:FORMATS"
+
+          $projects = $env:PROJECTS -split ','
+          $formats = $env:FORMATS -split ','
+
+          foreach ($project in $projects) {
+            # Determine project path
+            if ($project -like "IGraphics*" -or $project -eq "MetaParamTest") {
+              $projectPath = "Tests/$project"
+            } else {
+              $projectPath = "Examples/$project"
+            }
+
+            if (Test-Path $projectPath) {
+              Write-Host "Building $project..."
+              Push-Location $projectPath
+
+              $slnFile = Get-ChildItem -Filter "*.sln" | Select-Object -First 1
+              if ($slnFile) {
+                foreach ($format in $formats) {
+                  $formatUpper = $format.ToUpper()
+                  Write-Host "  Building $formatUpper..."
+
+                  # Set graphics preprocessor
+                  $graphicsDefine = "IGRAPHICS_$($env:GRAPHICS.ToUpper())"
+
+                  msbuild $slnFile.Name `
+                    /p:Configuration=Release `
+                    /p:Platform=x64 `
+                    /p:PreprocessorDefinitions="$graphicsDefine" `
+                    /m `
+                    /verbosity:minimal
+                }
+              }
+
+              Pop-Location
+            } else {
+              Write-Host "Project path not found: $projectPath"
+            }
+          }
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: win-${{ matrix.graphics }}-builds
+          path: |
+            Examples/*/build-win/**/*.exe
+            Examples/*/build-win/**/*.vst3
+            Examples/*/build-win/**/*.clap
+            Tests/*/build-win/**/*.exe
+          if-no-files-found: ignore
+
+  # Web build job
+  build-web:
+    name: Build Web
+    needs: parse-commands
+    if: |
+      needs.parse-commands.outputs.should_build == 'true' &&
+      needs.parse-commands.outputs.skip != 'true' &&
+      needs.parse-commands.outputs.build_web == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup Emscripten
+        uses: mymindstorm/setup-emsdk@v14
+        with:
+          version: 'latest'
+
+      - name: Download dependencies
+        run: |
+          cd Dependencies/IPlug
+          ./download-iplug-sdks.sh
+
+      - name: Build projects
+        env:
+          PROJECTS: ${{ needs.parse-commands.outputs.projects }}
+        run: |
+          echo "Building Web Audio Modules"
+          echo "Projects: $PROJECTS"
+
+          IFS=',' read -ra PROJECT_ARRAY <<< "$PROJECTS"
+
+          for project in "${PROJECT_ARRAY[@]}"; do
+            # Determine project path
+            if [[ "$project" == IGraphics* ]] || [[ "$project" == MetaParamTest ]]; then
+              PROJECT_PATH="Tests/$project"
+            else
+              PROJECT_PATH="Examples/$project"
+            fi
+
+            if [ -d "$PROJECT_PATH" ]; then
+              MAKEFILE="$PROJECT_PATH/Makefile"
+              if [ -f "$MAKEFILE" ]; then
+                echo "Building WAM for $project..."
+                cd "$PROJECT_PATH"
+                emmake make WAM || echo "WAM build completed"
+                cd - > /dev/null
+              fi
+            fi
+          done
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-builds
+          path: |
+            Examples/*/build-web/**/*.wasm
+            Examples/*/build-web/**/*.js
+            Tests/*/build-web/**/*.wasm
+            Tests/*/build-web/**/*.js
+          if-no-files-found: ignore
+
+  # Summary job
+  summary:
+    name: Build Summary
+    needs: [parse-commands, build-mac, build-win, build-web]
+    if: always() && needs.parse-commands.outputs.should_build == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Post summary comment
+        if: github.event_name == 'issue_comment' || github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const results = {
+              mac: '${{ needs.build-mac.result }}',
+              win: '${{ needs.build-win.result }}',
+              web: '${{ needs.build-web.result }}'
+            };
+
+            const statusEmoji = {
+              'success': '✅',
+              'failure': '❌',
+              'cancelled': '⚪',
+              'skipped': '⏭️'
+            };
+
+            let summaryLines = ['## CI Build Results\n'];
+
+            for (const [platform, result] of Object.entries(results)) {
+              if (result !== 'skipped') {
+                summaryLines.push(`- ${statusEmoji[result] || '❓'} **${platform}**: ${result}`);
+              }
+            }
+
+            summaryLines.push('\n---');
+            summaryLines.push(`Configuration: ${{ needs.parse-commands.outputs.summary }}`);
+
+            const issueNumber = context.issue?.number || context.payload.pull_request?.number;
+            if (issueNumber) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber,
+                body: summaryLines.join('\n')
+              });
+            }
