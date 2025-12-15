@@ -206,7 +206,7 @@ def main():
   macOSapp['NSPrincipalClass'] = "SWELLApplication"
   macOSapp['NSMainNibFile'] = config['BUNDLE_NAME'] + "-macOS-MainMenu"
   macOSapp['LSApplicationCategoryType'] = "public.app-category.music"
-  macOSapp['CFBundleIconFile'] = config['BUNDLE_NAME'] + ".icns"
+  macOSapp['CFBundleIconName'] = "AppIcon"
 #  macOSapp['NSMicrophoneUsageDescription'] = 	"This app needs mic access to process audio."
 
   with open(plistpath, 'wb') as fp:

@@ -8,8 +8,8 @@
 	<string>IGraphicsStressTest</string>
 	<key>CFBundleGetInfoString</key>
 	<string>IGraphicsStressTest v1.0.0 Copyright 2025 Acme Inc</string>
-	<key>CFBundleIconFile</key>
-	<string>IGraphicsStressTest.icns</string>
+	<key>CFBundleIconName</key>
+	<string>AppIcon</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.AcmeInc.app.IGraphicsStressTest</string>
 	<key>CFBundleInfoDictionaryVersion</key>

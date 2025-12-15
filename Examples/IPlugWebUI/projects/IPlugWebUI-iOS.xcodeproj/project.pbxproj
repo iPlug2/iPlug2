@@ -39,6 +39,7 @@
 		4FDF6D7F2267CEBA0007B686 /* IPlugAUPlayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FDF6D7D2267CEBA0007B686 /* IPlugAUPlayer.mm */; };
 		4FF8974C24782DE9004845AC /* IPlugWebUI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FF8974B24782DE9004845AC /* IPlugWebUI.cpp */; };
 		91236D811B08F59300734C5E /* IPlugWebUIAppExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 91236D771B08F59300734C5E /* IPlugWebUIAppExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		6FAE64052EF03C8200FC0202 /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = 6FAE64042EF03C8200FC0202 /* AppIcon.icon */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -92,6 +93,7 @@
 		4F3E0F6520A0BC4000A9C2BE /* IPlugWebUI-iOS-AUv3-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "IPlugWebUI-iOS-AUv3-Info.plist"; path = "../resources/IPlugWebUI-iOS-AUv3-Info.plist"; sourceTree = "<group>"; };
 		4F3E0F6720A0BC5B00A9C2BE /* IPlugWebUI-iOS.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = "IPlugWebUI-iOS.storyboard"; path = "../resources/IPlugWebUI-iOS.storyboard"; sourceTree = "<group>"; };
 		4F3E0F6820A0BCAF00A9C2BE /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = ../resources/Images.xcassets; sourceTree = "<group>"; };
+		6FAE64042EF03C8200FC0202 /* AppIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; name = AppIcon.icon; path = ../resources/AppIcon.icon; sourceTree = SOURCE_ROOT; };
 		4F6E673621C5613A005991A9 /* VoiceAllocator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VoiceAllocator.h; sourceTree = "<group>"; };
 		4F6E673721C5613A005991A9 /* SynthVoice.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SynthVoice.h; sourceTree = "<group>"; };
 		4F6E673821C5613A005991A9 /* VoiceAllocator.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = VoiceAllocator.cpp; sourceTree = "<group>"; };
@@ -265,6 +267,7 @@
 				4FC46E58231440C8000045E7 /* web */,
 				4F10E7C520B189DD00F5B09B /* IPlugWebUI-iOS.entitlements */,
 				4F3E0F6820A0BCAF00A9C2BE /* Images.xcassets */,
+				6FAE64042EF03C8200FC0202 /* AppIcon.icon */,
 				4F3E0F6720A0BC5B00A9C2BE /* IPlugWebUI-iOS.storyboard */,
 				4FB2269620A0D3A800614769 /* IPlugWebUI-iOS-LaunchScreen.storyboard */,
 				4F10E7BF20B17EDB00F5B09B /* IPlugWebUI-iOS-MainInterface.storyboard */,
@@ -572,6 +575,7 @@
 				4FA0FB25247D4FE800E25C73 /* web in Resources */,
 				4F1115CF2296DA95000CFCBF /* IPlugWebUI-iOS-MainInterface.storyboard in Resources */,
 				4F3E0F6B20A0BCE300A9C2BE /* Images.xcassets in Resources */,
+				6FAE64052EF03C8200FC0202 /* AppIcon.icon in Resources */,
 				4FB2269720A0D3A800614769 /* IPlugWebUI-iOS-LaunchScreen.storyboard in Resources */,
 				4F3E0F6A20A0BCD900A9C2BE /* IPlugWebUI-iOS.storyboard in Resources */,
 			);
@@ -769,7 +773,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ASSETCATALOG_COMPILER_APPICON_NAME = IPlugWebUIiOSAppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
@@ -818,7 +822,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ASSETCATALOG_COMPILER_APPICON_NAME = IPlugWebUIiOSAppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;

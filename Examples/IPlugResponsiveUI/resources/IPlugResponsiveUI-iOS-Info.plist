@@ -6,8 +6,8 @@
 	<string>en</string>
 	<key>CFBundleExecutable</key>
 	<string>IPlugResponsiveUI</string>
-	<key>CFBundleIcons</key>
-	<dict/>
+	<key>CFBundleIconName</key>
+	<string>AppIcon</string>
 	<key>CFBundleIdentifier</key>
 	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>

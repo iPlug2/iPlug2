@@ -44,6 +44,7 @@
 		4FDF6D7B2267CE540007B686 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDF6D752267CE540007B686 /* AppDelegate.m */; };
 		4FDF6D7F2267CEBA0007B686 /* IPlugAUPlayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FDF6D7D2267CEBA0007B686 /* IPlugAUPlayer.mm */; };
 		91236D811B08F59300734C5E /* IPlugMidiEffectAppExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 91236D771B08F59300734C5E /* IPlugMidiEffectAppExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		6FAE64052EF03C8200FC0202 /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = 6FAE64042EF03C8200FC0202 /* AppIcon.icon */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -229,6 +230,7 @@
 		4FFF108820A1036200D3092F /* IPlugMidiEffect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugMidiEffect.h; path = ../IPlugMidiEffect.h; sourceTree = "<group>"; };
 		91236D0D1B08F42B00734C5E /* IPlugMidiEffect.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = IPlugMidiEffect.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		91236D771B08F59300734C5E /* IPlugMidiEffectAppExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = IPlugMidiEffectAppExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		6FAE64042EF03C8200FC0202 /* AppIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; name = AppIcon.icon; path = ../resources/AppIcon.icon; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -386,6 +388,7 @@
 				4F3E0F6520A0BC4000A9C2BE /* IPlugMidiEffect-iOS-AUv3-Info.plist */,
 				4FA61F7A22E89A2700A92C58 /* IPlugMidiEffect-iOS-AUv3Framework-Info.plist */,
 				4FA61F7B22E89A5900A92C58 /* AUv3Framework.h */,
+				6FAE64042EF03C8200FC0202 /* AppIcon.icon */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -676,6 +679,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6FAE64052EF03C8200FC0202 /* AppIcon.icon in Resources */,
 				4F1115CF2296DA95000CFCBF /* IPlugMidiEffect-iOS-MainInterface.storyboard in Resources */,
 				4F3E0F6B20A0BCE300A9C2BE /* Images.xcassets in Resources */,
 				4FB2269720A0D3A800614769 /* IPlugMidiEffect-iOS-LaunchScreen.storyboard in Resources */,
@@ -883,7 +887,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ASSETCATALOG_COMPILER_APPICON_NAME = IPlugMidiEffectiOSAppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
@@ -932,7 +936,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ASSETCATALOG_COMPILER_APPICON_NAME = IPlugMidiEffectiOSAppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;

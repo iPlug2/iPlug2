@@ -8,8 +8,8 @@
 	<string>IPlugVisualizer</string>
 	<key>CFBundleGetInfoString</key>
 	<string>IPlugVisualizer v1.0.0 Copyright 2024 Acme Inc</string>
-	<key>CFBundleIconFile</key>
-	<string>IPlugVisualizer.icns</string>
+	<key>CFBundleIconName</key>
+	<string>AppIcon</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.AcmeInc.app.IPlugVisualizer</string>
 	<key>CFBundleInfoDictionaryVersion</key>

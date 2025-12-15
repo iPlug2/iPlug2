@@ -8,8 +8,8 @@
 	<string>IPlugSvelteUI</string>
 	<key>CFBundleGetInfoString</key>
 	<string>IPlugSvelteUI v1.0.0 Copyright 2025 Acme Inc</string>
-	<key>CFBundleIconFile</key>
-	<string>IPlugSvelteUI.icns</string>
+	<key>CFBundleIconName</key>
+	<string>AppIcon</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.AcmeInc.app.IPlugSvelteUI</string>
 	<key>CFBundleInfoDictionaryVersion</key>

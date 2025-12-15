@@ -108,6 +108,7 @@ def main():
   iOSapp['CFBundleShortVersionString'] = CFBundleVersion
   iOSapp['CFBundlePackageType'] = "APPL"
   iOSapp['LSApplicationCategoryType'] = "public.app-category.music"
+  iOSapp['CFBundleIconName'] = "AppIcon"
 
   with open(plistpath, 'wb') as fp:
     plistlib.dump(iOSapp, fp)

@@ -43,6 +43,7 @@
 		4FDF6D792267CE540007B686 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDF6D742267CE540007B686 /* main.m */; };
 		4FDF6D7B2267CE540007B686 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDF6D752267CE540007B686 /* AppDelegate.m */; };
 		4FDF6D7F2267CEBA0007B686 /* IPlugAUPlayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FDF6D7D2267CEBA0007B686 /* IPlugAUPlayer.mm */; };
+		6FAE64052EF03C8200FC0202 /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = 6FAE64042EF03C8200FC0202 /* AppIcon.icon */; };
 		91236D811B08F59300734C5E /* IPlugEffectAppExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 91236D771B08F59300734C5E /* IPlugEffectAppExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
@@ -237,6 +238,7 @@
 		4FFF108420A1036200D3092F /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = config.h; path = ../config.h; sourceTree = "<group>"; };
 		4FFF108720A1036200D3092F /* IPlugEffect.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugEffect.cpp; path = ../IPlugEffect.cpp; sourceTree = "<group>"; };
 		4FFF108820A1036200D3092F /* IPlugEffect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugEffect.h; path = ../IPlugEffect.h; sourceTree = "<group>"; };
+		6FAE64042EF03C8200FC0202 /* AppIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; name = AppIcon.icon; path = ../resources/AppIcon.icon; sourceTree = SOURCE_ROOT; };
 		91236D0D1B08F42B00734C5E /* IPlugEffect.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = IPlugEffect.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		91236D771B08F59300734C5E /* IPlugEffectAppExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = IPlugEffectAppExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -396,6 +398,7 @@
 				4F3E0F6520A0BC4000A9C2BE /* IPlugEffect-iOS-AUv3-Info.plist */,
 				4FA61F7A22E89A2700A92C58 /* IPlugEffect-iOS-AUv3Framework-Info.plist */,
 				4FA61F7B22E89A5900A92C58 /* AUv3Framework.h */,
+				6FAE64042EF03C8200FC0202 /* AppIcon.icon */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -699,6 +702,7 @@
 				4F3E0F6B20A0BCE300A9C2BE /* Images.xcassets in Resources */,
 				4FB2269720A0D3A800614769 /* IPlugEffect-iOS-LaunchScreen.storyboard in Resources */,
 				4F3E0F6A20A0BCD900A9C2BE /* IPlugEffect-iOS.storyboard in Resources */,
+				6FAE64052EF03C8200FC0202 /* AppIcon.icon in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -907,7 +911,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ASSETCATALOG_COMPILER_APPICON_NAME = IPlugEffectiOSAppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
@@ -956,7 +960,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ASSETCATALOG_COMPILER_APPICON_NAME = IPlugEffectiOSAppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;

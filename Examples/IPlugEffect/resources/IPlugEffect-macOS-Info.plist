@@ -8,8 +8,8 @@
 	<string>IPlugEffect</string>
 	<key>CFBundleGetInfoString</key>
 	<string>IPlugEffect v1.0.0 Copyright 2025 Acme Inc</string>
-	<key>CFBundleIconFile</key>
-	<string>IPlugEffect.icns</string>
+	<key>CFBundleIconName</key>
+	<string>AppIcon</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.AcmeInc.app.IPlugEffect</string>
 	<key>CFBundleInfoDictionaryVersion</key>

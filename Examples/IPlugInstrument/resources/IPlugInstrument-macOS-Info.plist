@@ -8,8 +8,8 @@
 	<string>IPlugInstrument</string>
 	<key>CFBundleGetInfoString</key>
 	<string>IPlugInstrument v1.0.0 Copyright 2025 Acme Inc</string>
-	<key>CFBundleIconFile</key>
-	<string>IPlugInstrument.icns</string>
+	<key>CFBundleIconName</key>
+	<string>AppIcon</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.AcmeInc.app.IPlugInstrument</string>
 	<key>CFBundleInfoDictionaryVersion</key>

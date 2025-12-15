@@ -1,0 +1,11 @@
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -project ./projects/IPlugEffect-macOS.xcodeproj -target APP -configuration Release
+
+2025-11-25 11:49:02.468 xcodebuild[9890:883433] Error Domain=NSCocoaErrorDomain Code=3840 "JSON text did not start with array or object and option to allow fragments not set. around line 1, column 0." UserInfo={NSDebugDescription=JSON text did not start with array or object and option to allow fragments not set. around line 1, column 0., NSJSONSerializationErrorIndex=0}
+2025-11-25 11:49:02.470 xcodebuild[9890:883433] Writing error result bundle to /var/folders/gg/jmc4jl_j6wvdtn6_8nppr0r1xy6jhk/T/ResultBundle_2025-25-11_11-49-0002.xcresult
+xcodebuild: error: Unable to read project 'IPlugEffect-macOS.xcodeproj' from folder '/Users/ola/Dev/Non-Ableton/iPlug2/Examples/IPlugEffect/./projects'.
+	Reason: The project ‘IPlugEffect-macOS’ is damaged and cannot be opened due to a parse error. Examine the project file for invalid edits or unresolved source control conflicts.
+
+Path: /Users/ola/Dev/Non-Ableton/iPlug2/Examples/IPlugEffect/projects/IPlugEffect-macOS.xcodeproj
+
+

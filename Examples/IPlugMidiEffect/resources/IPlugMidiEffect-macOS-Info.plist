@@ -8,8 +8,8 @@
 	<string>IPlugMidiEffect</string>
 	<key>CFBundleGetInfoString</key>
 	<string>IPlugMidiEffect v1.0.0 Copyright 2025 Acme Inc</string>
-	<key>CFBundleIconFile</key>
-	<string>IPlugMidiEffect.icns</string>
+	<key>CFBundleIconName</key>
+	<string>AppIcon</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.AcmeInc.app.IPlugMidiEffect</string>
 	<key>CFBundleInfoDictionaryVersion</key>

@@ -8,8 +8,8 @@
 	<string>IPlugCocoaUI</string>
 	<key>CFBundleGetInfoString</key>
 	<string>IPlugCocoaUI v1.0.0 Copyright 2025 Acme Inc</string>
-	<key>CFBundleIconFile</key>
-	<string>IPlugCocoaUI.icns</string>
+	<key>CFBundleIconName</key>
+	<string>AppIcon</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.AcmeInc.app.IPlugCocoaUI</string>
 	<key>CFBundleInfoDictionaryVersion</key>

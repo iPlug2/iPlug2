@@ -50,7 +50,7 @@
 		4F3862F12014BBEC0009F402 /* IPlugChunks.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F3862ED2014BBEC0009F402 /* IPlugChunks.cpp */; };
 		4F3862F22014BBEC0009F402 /* IPlugChunks.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F3862ED2014BBEC0009F402 /* IPlugChunks.cpp */; };
 		4F3862F32014BBEC0009F402 /* IPlugChunks.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F3862ED2014BBEC0009F402 /* IPlugChunks.cpp */; };
-		4F3EE1BF231438D000004786 /* IPlugChunks.icns in Resources */ = {isa = PBXBuildFile; fileRef = 4FD290A8137C34D700CEBE7E /* IPlugChunks.icns */; };
+		4F3EE1BF231438D000004786 /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = 4FD290A8137C34D700CEBE7E /* AppIcon.icon */; };
 		4F3EE1C0231438D000004786 /* IPlugChunks-macOS-MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4F1B4AE32014D33600BC64D4 /* IPlugChunks-macOS-MainMenu.xib */; };
 		4F3EE1C2231438D000004786 /* IPlugProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8F61A8202807B9003F2573 /* IPlugProcessor.cpp */; };
 		4F3EE1C3231438D000004786 /* RtMidi.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F10D3D7203A6719003EF82A /* RtMidi.cpp */; settings = {COMPILER_FLAGS = "-Wno-shorten-64-to-32"; }; };
@@ -142,7 +142,7 @@
 		4F78BE2A22E7406D00AD537E /* IPlugPaths.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F5F344020C0226200487201 /* IPlugPaths.mm */; };
 		4F78BE3222E7429B00AD537E /* IPlugAUv3Appex.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F78BE3022E7429700AD537E /* IPlugAUv3Appex.m */; };
 		4F78BE3C22E74CD000AD537E /* IPlugAUViewController_vIPlugChunks.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4F98C32C20A7678800F120A9 /* IPlugAUViewController_vIPlugChunks.xib */; };
-		4F78D88613B6382B0032E0F3 /* IPlugChunks.icns in Resources */ = {isa = PBXBuildFile; fileRef = 4FD290A8137C34D700CEBE7E /* IPlugChunks.icns */; };
+		4F78D88613B6382B0032E0F3 /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = 4FD290A8137C34D700CEBE7E /* AppIcon.icon */; };
 		4F78D90B13B63BA50032E0F3 /* IPlugAPIBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8ED13B63BA40032E0F3 /* IPlugAPIBase.cpp */; };
 		4F78D91813B63BA50032E0F3 /* IPlugParameter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D90413B63BA50032E0F3 /* IPlugParameter.cpp */; };
 		4F78D94513B63BA50032E0F3 /* IPlugAPIBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8ED13B63BA40032E0F3 /* IPlugAPIBase.cpp */; };
@@ -645,7 +645,7 @@
 		4FD16D4313B635B2001D0217 /* swell.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = swell.cpp; path = ../../../WDL/swell/swell.cpp; sourceTree = SOURCE_ROOT; };
 		4FD16D4513B635C8001D0217 /* swellappmain.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = swellappmain.h; path = ../../../WDL/swell/swellappmain.h; sourceTree = SOURCE_ROOT; };
 		4FD16D4613B635C8001D0217 /* swellappmain.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = swellappmain.mm; path = ../../../WDL/swell/swellappmain.mm; sourceTree = SOURCE_ROOT; };
-		4FD290A8137C34D700CEBE7E /* IPlugChunks.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = IPlugChunks.icns; path = ../resources/IPlugChunks.icns; sourceTree = "<group>"; };
+		4FD290A8137C34D700CEBE7E /* AppIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; name = AppIcon.icon; path = ../resources/AppIcon.icon; sourceTree = SOURCE_ROOT; };
 		4FD5212E202A5B9B00A4D22A /* IPlugAU_view_factory.mm */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.cpp.objcpp; name = IPlugAU_view_factory.mm; path = ../../../IPlug/AUv2/IPlugAU_view_factory.mm; sourceTree = "<group>"; tabWidth = 2; };
 		4FD52130202A5B9B00A4D22A /* IPlugAU.r */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.rez; name = IPlugAU.r; path = ../../../IPlug/AUv2/IPlugAU.r; sourceTree = "<group>"; tabWidth = 2; };
 		4FD52134202A5BD000A4D22A /* dfx-au-utilities.c */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.c; name = "dfx-au-utilities.c"; path = "../../../IPlug/AUv2/dfx-au-utilities.c"; sourceTree = "<group>"; tabWidth = 2; };
@@ -784,7 +784,7 @@
 				4F3E693A1409747300C4D749 /* IPlugChunks-VST3-Info.plist */,
 				4F23BA1313B647E50097A67E /* IPlugChunks-AU-Info.plist */,
 				4F4CC3811549B8A700A9EA21 /* IPlugChunks-AAX-Info.plist */,
-				4FD290A8137C34D700CEBE7E /* IPlugChunks.icns */,
+				4FD290A8137C34D700CEBE7E /* AppIcon.icon */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -1769,7 +1769,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4F3EE1BF231438D000004786 /* IPlugChunks.icns in Resources */,
+				4F3EE1BF231438D000004786 /* AppIcon.icon in Resources */,
 				4F3EE1C0231438D000004786 /* IPlugChunks-macOS-MainMenu.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1800,7 +1800,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4F78D88613B6382B0032E0F3 /* IPlugChunks.icns in Resources */,
+				4F78D88613B6382B0032E0F3 /* AppIcon.icon in Resources */,
 				4F1B4AE42014D33600BC64D4 /* IPlugChunks-macOS-MainMenu.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -3244,6 +3244,7 @@
 		4FD16A0C13B63082001D0217 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "IPlugChunks-macOS.entitlements";
 				DSTROOT = "$(APP_PATH)";
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -3272,6 +3273,7 @@
 		4FD16A0D13B63082001D0217 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "IPlugChunks-macOS.entitlements";
 				DSTROOT = "$(APP_PATH)";
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -3300,6 +3302,7 @@
 		4FD16A0E13B63082001D0217 /* Tracer */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "IPlugChunks-macOS.entitlements";
 				DSTROOT = "$(APP_PATH)";
 				ENABLE_HARDENED_RUNTIME = YES;

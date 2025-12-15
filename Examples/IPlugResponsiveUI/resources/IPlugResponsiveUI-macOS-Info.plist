@@ -8,8 +8,8 @@
 	<string>IPlugResponsiveUI</string>
 	<key>CFBundleGetInfoString</key>
 	<string>IPlugResponsiveUI v1.0.0 Copyright 2025 Acme Inc</string>
-	<key>CFBundleIconFile</key>
-	<string>IPlugResponsiveUI.icns</string>
+	<key>CFBundleIconName</key>
+	<string>AppIcon</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.AcmeInc.app.IPlugResponsiveUI</string>
 	<key>CFBundleInfoDictionaryVersion</key>

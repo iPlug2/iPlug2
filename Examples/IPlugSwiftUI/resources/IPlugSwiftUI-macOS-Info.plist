@@ -8,8 +8,8 @@
 	<string>IPlugSwiftUI</string>
 	<key>CFBundleGetInfoString</key>
 	<string>IPlugSwiftUI v1.0.0 Copyright 2025 Acme Inc</string>
-	<key>CFBundleIconFile</key>
-	<string>IPlugSwiftUI.icns</string>
+	<key>CFBundleIconName</key>
+	<string>AppIcon</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.AcmeInc.app.IPlugSwiftUI</string>
 	<key>CFBundleInfoDictionaryVersion</key>
