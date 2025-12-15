@@ -11,8 +11,9 @@ jobs:
     matrix:
       NANOVG:
         graphics: 'NANOVG'
-      SKIA:
-        graphics: 'SKIA'
+      ${{ if eq(variables.build_skia, true) }}:
+        SKIA:
+          graphics: 'SKIA'
 
   pool:
     vmImage: 'macos-latest'
@@ -36,8 +37,9 @@ jobs:
     matrix:
       NANOVG:
         graphics: 'NANOVG'
-      SKIA:
-        graphics: 'SKIA'
+      ${{ if eq(variables.build_skia, true) }}:
+        SKIA:
+          graphics: 'SKIA'
 
   pool:
     vmImage: 'macos-latest'
@@ -65,8 +67,9 @@ jobs:
     matrix:
       NANOVG:
         graphics: 'NANOVG'
-      SKIA:
-        graphics: 'SKIA'
+      ${{ if eq(variables.build_skia, true) }}:
+        SKIA:
+          graphics: 'SKIA'
 
   pool:
     vmImage: 'windows-2022'
@@ -97,8 +100,6 @@ jobs:
     matrix:
       NANOVG:
         graphics: 'NANOVG'
-      CANVAS:
-        graphics: 'CANVAS'
 
   pool:
     vmImage: 'ubuntu-latest'

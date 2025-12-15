@@ -7,6 +7,9 @@ parameters:
 variables:
   build_deps: false # set true to build optional dependencies, if false, pre-built versions are downloaded
 
+  #GRAPHICS BACKENDS
+  build_skia: false # set true to build Skia graphics backend (in addition to NanoVG)
+
   #ARCHITECTURES
   build_arm64ec: true # build windows arm64ec binaries
 
