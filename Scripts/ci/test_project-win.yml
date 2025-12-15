@@ -19,23 +19,23 @@ steps:
   # Download x64 Artifacts
   # ============================================================
 
-  - task: DownloadPipelineArtifact@0
+  - task: DownloadPipelineArtifact@2
     continueOnError: true
     inputs:
-      artifactName: 'WIN_VST2_${{parameters.name}}_${{parameters.graphics}}'
-      targetPath: $(Build.BinariesDirectory)
+      artifact: 'WIN_VST2_${{parameters.name}}_${{parameters.graphics}}'
+      path: $(Build.BinariesDirectory)
     displayName: Download WIN_VST2_${{parameters.name}}_${{parameters.graphics}}
     condition: eq(variables.build_vst2, True)
 
-  - task: DownloadPipelineArtifact@0
+  - task: DownloadPipelineArtifact@2
     continueOnError: true
     inputs:
-      artifactName: 'WIN_VST3_${{parameters.name}}_${{parameters.graphics}}'
-      targetPath: $(Build.BinariesDirectory)
+      artifact: 'WIN_VST3_${{parameters.name}}_${{parameters.graphics}}'
+      path: $(Build.BinariesDirectory)
     displayName: Download WIN_VST3_${{parameters.name}}_${{parameters.graphics}}
     condition: eq(variables.build_vst3, True)
 
-  # - task: DownloadPipelineArtifact@0
+  # - task: DownloadPipelineArtifact@2
   #   continueOnError: true
   #   inputs:
   #     artifactName: 'WIN_AAX_${{parameters.name}}_${{parameters.graphics}}'
@@ -81,19 +81,19 @@ steps:
   # Download ARM64EC Artifacts (Skia not supported)
   # ============================================================
 
-  - task: DownloadPipelineArtifact@0
+  - task: DownloadPipelineArtifact@2
     continueOnError: true
     inputs:
-      artifactName: 'WIN_VST2_ARM64EC_${{parameters.name}}_${{parameters.graphics}}'
-      targetPath: $(Build.BinariesDirectory)/ARM64EC
+      artifact: 'WIN_VST2_ARM64EC_${{parameters.name}}_${{parameters.graphics}}'
+      path: $(Build.BinariesDirectory)/ARM64EC
     displayName: Download WIN_VST2_ARM64EC_${{parameters.name}}_${{parameters.graphics}}
     condition: and(eq(variables.build_vst2, True), eq(variables.build_arm64ec, True), ne('${{parameters.graphics}}', 'SKIA'))
 
-  - task: DownloadPipelineArtifact@0
+  - task: DownloadPipelineArtifact@2
     continueOnError: true
     inputs:
-      artifactName: 'WIN_VST3_ARM64EC_${{parameters.name}}_${{parameters.graphics}}'
-      targetPath: $(Build.BinariesDirectory)/ARM64EC
+      artifact: 'WIN_VST3_ARM64EC_${{parameters.name}}_${{parameters.graphics}}'
+      path: $(Build.BinariesDirectory)/ARM64EC
     displayName: Download WIN_VST3_ARM64EC_${{parameters.name}}_${{parameters.graphics}}
     condition: and(eq(variables.build_vst3, True), eq(variables.build_arm64ec, True), ne('${{parameters.graphics}}', 'SKIA'))
 

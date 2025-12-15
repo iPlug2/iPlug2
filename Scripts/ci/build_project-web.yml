@@ -44,7 +44,7 @@ steps:
       ./makedist-web.sh off
     displayName: Compile ${{ parameters.name }} WAM
 
-  - task: PublishPipelineArtifact@0
+  - task: PublishPipelineArtifact@1
     inputs:
       artifactName: 'WEB_${{parameters.artifactName}}'
       targetPath: '${{ parameters.path }}/${{ parameters.name }}/build-web'

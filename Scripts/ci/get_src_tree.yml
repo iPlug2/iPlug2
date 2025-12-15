@@ -41,7 +41,7 @@ jobs:
       archiveFile: '$(Build.ArtifactStagingDirectory)/SRC.zip'
       includeRootFolder: false
 
-  - task: PublishPipelineArtifact@0
+  - task: PublishPipelineArtifact@1
     inputs:
       targetPath: '$(Build.ArtifactStagingDirectory)'
       artifactName: 'SRC'

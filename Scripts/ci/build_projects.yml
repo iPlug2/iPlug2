@@ -76,7 +76,7 @@ jobs:
 
   - template: get_src_artifact.yml
 
-  # - task: DownloadPipelineArtifact@0
+  # - task: DownloadPipelineArtifact@2
   #   inputs:
   #     artifactName: 'DEPS_AAX_LIB_WIN'
   #     targetPath: 'Dependencies/IPlug/AAX_SDK/Libs/'

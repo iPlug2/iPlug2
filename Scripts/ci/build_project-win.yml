@@ -238,35 +238,35 @@ steps:
   # Publish x64 Artifacts
   # ============================================================
 
-  - task: PublishPipelineArtifact@0
+  - task: PublishPipelineArtifact@1
     inputs:
       artifactName: 'WIN_VST2_${{parameters.artifactName}}'
       targetPath: '$(Build.ArtifactStagingDirectory)/VST2/${{parameters.name}}'
     displayName: Publish ${{parameters.name}} VST2 x64
     condition: eq(variables.build_vst2, True)
 
-  - task: PublishPipelineArtifact@0
+  - task: PublishPipelineArtifact@1
     inputs:
       artifactName: 'WIN_VST3_${{parameters.artifactName}}'
       targetPath: '$(Build.ArtifactStagingDirectory)/VST3/${{parameters.name}}'
     displayName: Publish ${{parameters.name}} VST3 x64
     condition: eq(variables.build_vst3, True)
 
-  - task: PublishPipelineArtifact@0
+  - task: PublishPipelineArtifact@1
     inputs:
       artifactName: 'WIN_AAX_${{parameters.artifactName}}'
       targetPath: '$(Build.ArtifactStagingDirectory)/AAX/${{parameters.name}}'
     displayName: Publish ${{parameters.name}} AAX x64
     condition: eq(variables.build_aax, True)
 
-  - task: PublishPipelineArtifact@0
+  - task: PublishPipelineArtifact@1
     inputs:
       artifactName: 'WIN_CLAP_${{parameters.artifactName}}'
       targetPath: '$(Build.ArtifactStagingDirectory)/CLAP/${{parameters.name}}'
     displayName: Publish ${{parameters.name}} CLAP x64
     condition: eq(variables.build_clap, True)
 
-  - task: PublishPipelineArtifact@0
+  - task: PublishPipelineArtifact@1
     inputs:
       artifactName: 'WIN_APP_${{parameters.artifactName}}'
       targetPath: '$(Build.ArtifactStagingDirectory)/APP/${{parameters.name}}'
@@ -277,35 +277,35 @@ steps:
   # Publish ARM64EC Artifacts
   # ============================================================
 
-  - task: PublishPipelineArtifact@0
+  - task: PublishPipelineArtifact@1
     inputs:
       artifactName: 'WIN_VST2_ARM64EC_${{parameters.artifactName}}'
       targetPath: '$(Build.ArtifactStagingDirectory)/VST2_ARM64EC/${{parameters.name}}'
     displayName: Publish ${{parameters.name}} VST2 ARM64EC
     condition: and(eq(variables.build_vst2, True), eq(variables.build_arm64ec, True), ne('${{parameters.graphics}}', 'SKIA'))
 
-  - task: PublishPipelineArtifact@0
+  - task: PublishPipelineArtifact@1
     inputs:
       artifactName: 'WIN_VST3_ARM64EC_${{parameters.artifactName}}'
       targetPath: '$(Build.ArtifactStagingDirectory)/VST3_ARM64EC/${{parameters.name}}'
     displayName: Publish ${{parameters.name}} VST3 ARM64EC
     condition: and(eq(variables.build_vst3, True), eq(variables.build_arm64ec, True), ne('${{parameters.graphics}}', 'SKIA'))
 
-  - task: PublishPipelineArtifact@0
+  - task: PublishPipelineArtifact@1
     inputs:
       artifactName: 'WIN_AAX_ARM64EC_${{parameters.artifactName}}'
       targetPath: '$(Build.ArtifactStagingDirectory)/AAX_ARM64EC/${{parameters.name}}'
     displayName: Publish ${{parameters.name}} AAX ARM64EC
     condition: and(eq(variables.build_aax, True), eq(variables.build_arm64ec, True), ne('${{parameters.graphics}}', 'SKIA'))
 
-  - task: PublishPipelineArtifact@0
+  - task: PublishPipelineArtifact@1
     inputs:
       artifactName: 'WIN_CLAP_ARM64EC_${{parameters.artifactName}}'
       targetPath: '$(Build.ArtifactStagingDirectory)/CLAP_ARM64EC/${{parameters.name}}'
     displayName: Publish ${{parameters.name}} CLAP ARM64EC
     condition: and(eq(variables.build_clap, True), eq(variables.build_arm64ec, True), ne('${{parameters.graphics}}', 'SKIA'))
 
-  - task: PublishPipelineArtifact@0
+  - task: PublishPipelineArtifact@1
     inputs:
       artifactName: 'WIN_APP_ARM64EC_${{parameters.artifactName}}'
       targetPath: '$(Build.ArtifactStagingDirectory)/APP_ARM64EC/${{parameters.name}}'

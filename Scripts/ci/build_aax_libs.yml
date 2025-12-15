@@ -38,7 +38,7 @@
 #       configuration: Release
 #     displayName: Compile AAX Library Visual Studio Solution Win32
 
-#   - task: PublishPipelineArtifact@0
+#   - task: PublishPipelineArtifact@1
 #     inputs:
 #       artifactName: 'DEPS_AAX_LIB_WIN'
 #       targetPath: 'Dependencies/IPlug/AAX_SDK/Libs/'

@@ -62,7 +62,7 @@ jobs:
       ./../IGraphics/package-deps-src.sh
     displayName: slim SKIA src
 
-  - task: PublishPipelineArtifact@0
+  - task: PublishPipelineArtifact@1
     inputs:
       artifactName: 'DEPS_BUILD_WIN_$(buildPlatform)_$(buildConfiguration)'
       targetPath: 'Dependencies/Build/'
@@ -77,28 +77,28 @@ jobs:
   steps:
   - checkout: none
 
-  # - task: DownloadPipelineArtifact@0
+  # - task: DownloadPipelineArtifact@2
   #   inputs:
   #     artifactName: 'DEPS_BUILD_WIN_Win32_Release'
   #     targetPath: 'Dependencies/Build/'
   #   displayName: Download Win32_Release Artifact
 
-  # - task: DownloadPipelineArtifact@0
+  # - task: DownloadPipelineArtifact@2
   #   inputs:
   #     artifactName: 'DEPS_BUILD_WIN_Win32_Debug'
   #     targetPath: 'Dependencies/Build/'
   #   displayName: Download Win32_Debug Artifact
 
-  - task: DownloadPipelineArtifact@0
+  - task: DownloadPipelineArtifact@2
     inputs:
-      artifactName: 'DEPS_BUILD_WIN_x64_Release'
-      targetPath: 'Dependencies/Build/'
+      artifact: 'DEPS_BUILD_WIN_x64_Release'
+      path: 'Dependencies/Build/'
     displayName: Download x64_Release Artifact
 
-  - task: DownloadPipelineArtifact@0
+  - task: DownloadPipelineArtifact@2
     inputs:
-      artifactName: 'DEPS_BUILD_WIN_x64_Debug'
-      targetPath: 'Dependencies/Build/'
+      artifact: 'DEPS_BUILD_WIN_x64_Debug'
+      path: 'Dependencies/Build/'
     displayName: Download x64_Debug Artifact
 
   - task: DeleteFiles@1
@@ -109,7 +109,7 @@ jobs:
     inputs:
       contents: 'Dependencies/Build/tmp'
 
-  - task: PublishPipelineArtifact@0
+  - task: PublishPipelineArtifact@1
     inputs:
       artifactName: 'IPLUG2_DEPS_WIN'
       targetPath: 'Dependencies/Build/'
@@ -147,7 +147,7 @@ jobs:
       ./../IGraphics/package-deps-src.sh
     displayName: slim SKIA src
 
-  - task: PublishPipelineArtifact@0
+  - task: PublishPipelineArtifact@1
     inputs:
       artifactName: 'IPLUG2_DEPS_MAC'
       targetPath: 'Dependencies/Build/'
@@ -194,7 +194,7 @@ jobs:
       ./../IGraphics/package-deps-src.sh
     displayName: slim SKIA src
 
-  - task: PublishPipelineArtifact@0
+  - task: PublishPipelineArtifact@1
     inputs:
       artifactName: 'IPLUG2_DEPS_IOS'
       targetPath: 'Dependencies/Build/'

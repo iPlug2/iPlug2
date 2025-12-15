@@ -61,7 +61,7 @@ steps:
   #   displayName: Organize AU artifact
   #   condition: eq(variables.build_auv2, True)
 
-  # - task: PublishPipelineArtifact@0
+  # - task: PublishPipelineArtifact@1
   #   inputs:
   #     artifactName: 'IOS_AU_${{parameters.artifactName}}'
   #     targetPath: '$(Build.ArtifactStagingDirectory)/AU/${{parameters.name}}'
