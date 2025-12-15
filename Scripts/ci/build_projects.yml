@@ -1,3 +1,6 @@
+parameters:
+  buildAllProjects: false
+
 jobs:
 - job: BUILD_MAC_PROJECTS
   condition: and(eq(variables.build_deps, false), eq(variables.build_mac, true))
@@ -8,8 +11,9 @@ jobs:
     matrix:
       NANOVG:
         graphics: 'NANOVG'
-      SKIA:
-        graphics: 'SKIA'
+      ${{ if eq(variables.build_skia, true) }}:
+        SKIA:
+          graphics: 'SKIA'
 
   pool:
     vmImage: 'macos-latest'
@@ -23,6 +27,7 @@ jobs:
     parameters:
       platform: build_project-mac.yml
       graphics: $(graphics)
+      buildAllProjects: ${{parameters.buildAllProjects}}
 
 - job: BUILD_IOS_PROJECTS
   condition: and(eq(variables.build_deps, false), eq(variables.build_ios, true))
@@ -32,8 +37,9 @@ jobs:
     matrix:
       NANOVG:
         graphics: 'NANOVG'
-      SKIA:
-        graphics: 'SKIA'
+      ${{ if eq(variables.build_skia, true) }}:
+        SKIA:
+          graphics: 'SKIA'
 
   pool:
     vmImage: 'macos-latest'
@@ -47,6 +53,7 @@ jobs:
     parameters:
       platform: build_project-ios.yml
       graphics: $(graphics)
+      buildAllProjects: ${{parameters.buildAllProjects}}
 
 - job: BUILD_WIN_PROJECTS
   condition: and(eq(variables.build_deps, false), eq(variables.build_win, true))
@@ -60,8 +67,9 @@ jobs:
     matrix:
       NANOVG:
         graphics: 'NANOVG'
-      SKIA:
-        graphics: 'SKIA'
+      ${{ if eq(variables.build_skia, true) }}:
+        SKIA:
+          graphics: 'SKIA'
 
   pool:
     vmImage: 'windows-2022'
@@ -71,7 +79,7 @@ jobs:
 
   - template: get_src_artifact.yml
 
-  # - task: DownloadPipelineArtifact@0
+  # - task: DownloadPipelineArtifact@2
   #   inputs:
   #     artifactName: 'DEPS_AAX_LIB_WIN'
   #     targetPath: 'Dependencies/IPlug/AAX_SDK/Libs/'
@@ -81,6 +89,7 @@ jobs:
     parameters:
       platform: build_project-win.yml
       graphics: $(graphics)
+      buildAllProjects: ${{parameters.buildAllProjects}}
 
 - job: BUILD_WEB_PROJECTS
   condition: and(eq(variables.build_deps, false), eq(variables.build_web, true))
@@ -91,8 +100,6 @@ jobs:
     matrix:
       NANOVG:
         graphics: 'NANOVG'
-      CANVAS:
-        graphics: 'CANVAS'
 
   pool:
     vmImage: 'ubuntu-latest'
@@ -113,3 +120,4 @@ jobs:
     parameters:
       platform: build_project-web.yml
       graphics: $(graphics)
+      buildAllProjects: ${{parameters.buildAllProjects}}

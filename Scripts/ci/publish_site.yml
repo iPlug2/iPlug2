@@ -65,9 +65,3 @@ jobs:
       platform: publish_project.yml
       graphics: 'NANOVG'
       platformStr: 'WEB'
-
-  - template: projects.yml
-    parameters:
-      platform: publish_project.yml
-      graphics: 'CANVAS'
-      platformStr: 'WEB'
