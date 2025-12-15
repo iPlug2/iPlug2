@@ -736,6 +736,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.IPlugCocoaUI.AUv3Framework;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator xros xrsimulator";
 				SKIP_INSTALL = YES;
 				SWIFT_OBJC_INTERFACE_HEADER_NAME = "IPlugCocoaUI-Swift.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -790,6 +791,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.IPlugCocoaUI.AUv3Framework;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator xros xrsimulator";
 				SKIP_INSTALL = YES;
 				SWIFT_OBJC_INTERFACE_HEADER_NAME = "IPlugCocoaUI-Swift.h";
 				SWIFT_VERSION = 5.0;
@@ -806,6 +808,7 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				"ASSETCATALOG_COMPILER_APPICON_NAME[sdk=xr*]" = visionOSAppIcon;
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
@@ -844,6 +847,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.IPlugCocoaUI;
 				PRODUCT_NAME = IPlugCocoaUI;
 				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator xros xrsimulator";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -856,6 +860,7 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				"ASSETCATALOG_COMPILER_APPICON_NAME[sdk=xr*]" = visionOSAppIcon;
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
@@ -891,6 +896,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.IPlugCocoaUI;
 				PRODUCT_NAME = IPlugCocoaUI;
 				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator xros xrsimulator";
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
 				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -940,6 +946,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.IPlugCocoaUI.AUv3;
 				PRODUCT_NAME = IPlugCocoaUIAppExtension;
 				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator xros xrsimulator";
 				SKIP_INSTALL = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 4.2;
@@ -985,6 +992,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.IPlugCocoaUI.AUv3;
 				PRODUCT_NAME = IPlugCocoaUIAppExtension;
 				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator xros xrsimulator";
 				SKIP_INSTALL = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
 				SWIFT_VERSION = 4.2;

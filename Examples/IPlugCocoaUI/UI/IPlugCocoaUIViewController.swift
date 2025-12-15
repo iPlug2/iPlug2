@@ -36,7 +36,7 @@ class IPlugCocoaUIViewController: IPlugCocoaViewController {
       let db = 20.0 * log10(floatValue(data: msg) + 0.0001);
       let val = ((db+80.0)/80.0); // dirty linear to log
       
-#if os(iOS)
+#if os(iOS) || os(visionOS)
       MeterView.setProgress(val, animated: false)
 #else
       MeterView.doubleValue = Double(val)
@@ -55,7 +55,7 @@ class IPlugCocoaUIViewController: IPlugCocoaViewController {
   override func onParamChangeUI(_ paramIdx: Int, _ value: Double) {
     if(paramIdx == kParamGain) {
       if let slider = self.view.viewWithTag(kCtrlTagVolumeSlider) as? PlatformSlider {
-        #if os(iOS)
+        #if os(iOS) || os(visionOS)
         slider.value = Float(value)
         #else
         slider.doubleValue = value
@@ -78,7 +78,7 @@ class IPlugCocoaUIViewController: IPlugCocoaViewController {
   
   @IBAction func sliderChanged(_ sender: PlatformSlider) {
     if(sender.tag == kCtrlTagVolumeSlider) {
-#if os(iOS)
+#if os(iOS) || os(visionOS)
       sendParameterValueFromUI(paramIdx: kParamGain, normalizedValue: Double(sender.value))
 #else
       sendParameterValueFromUI(paramIdx: kParamGain, normalizedValue: sender.doubleValue)

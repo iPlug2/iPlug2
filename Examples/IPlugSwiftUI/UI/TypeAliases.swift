@@ -1,4 +1,4 @@
-#if os(iOS)
+#if os(iOS) || os(visionOS)
 import UIKit
 import SwiftUI
 public typealias PlatformView = UIView
