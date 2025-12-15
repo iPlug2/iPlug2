@@ -2,8 +2,10 @@ parameters:
   platform: ''
   platformStr: ''
   graphics: 'NANOVG'
+  buildAllProjects: false
 
 steps:
+# IPlugEffect is always built (minimal CI for PRs)
 - template: ${{parameters.platform}}
   parameters:
     name: IPlugEffect
@@ -12,165 +14,167 @@ steps:
     artifactName: IPlugEffect_${{parameters.graphics}}
     platformStr: ${{parameters.platformStr}}
 
-- template: ${{parameters.platform}}
-  parameters:
-    name: IPlugInstrument
-    path: 'Examples'
-    graphics: ${{parameters.graphics}}
-    artifactName: IPlugInstrument_${{parameters.graphics}}
-    platformStr: ${{parameters.platformStr}}
+# Additional projects only built when buildAllProjects is true
+- ${{if eq(parameters.buildAllProjects, true)}}:
+  - template: ${{parameters.platform}}
+    parameters:
+      name: IPlugInstrument
+      path: 'Examples'
+      graphics: ${{parameters.graphics}}
+      artifactName: IPlugInstrument_${{parameters.graphics}}
+      platformStr: ${{parameters.platformStr}}
 
-- template: ${{parameters.platform}}
-  parameters:
-    name: IPlugMidiEffect
-    path: 'Examples'
-    graphics: ${{parameters.graphics}}
-    artifactName: IPlugMidiEffect_${{parameters.graphics}}
-    platformStr: ${{parameters.platformStr}}
+  - template: ${{parameters.platform}}
+    parameters:
+      name: IPlugMidiEffect
+      path: 'Examples'
+      graphics: ${{parameters.graphics}}
+      artifactName: IPlugMidiEffect_${{parameters.graphics}}
+      platformStr: ${{parameters.platformStr}}
 
-- template: ${{parameters.platform}}
-  parameters:
-    name: IPlugControls
-    path: 'Examples'
-    graphics: ${{parameters.graphics}}
-    artifactName: IPlugControls_${{parameters.graphics}}
-    platformStr: ${{parameters.platformStr}}
+  - template: ${{parameters.platform}}
+    parameters:
+      name: IPlugControls
+      path: 'Examples'
+      graphics: ${{parameters.graphics}}
+      artifactName: IPlugControls_${{parameters.graphics}}
+      platformStr: ${{parameters.platformStr}}
 
-- template: ${{parameters.platform}}
-  parameters:
-    name: IPlugResponsiveUI
-    path: 'Examples'
-    graphics: ${{parameters.graphics}}
-    artifactName: IPlugResponsiveUI_${{parameters.graphics}}
-    platformStr: ${{parameters.platformStr}}
+  - template: ${{parameters.platform}}
+    parameters:
+      name: IPlugResponsiveUI
+      path: 'Examples'
+      graphics: ${{parameters.graphics}}
+      artifactName: IPlugResponsiveUI_${{parameters.graphics}}
+      platformStr: ${{parameters.platformStr}}
 
-- template: ${{parameters.platform}}
-  parameters:
-    name: IPlugChunks
-    path: 'Examples'
-    graphics: ${{parameters.graphics}}
-    artifactName: IPlugChunks_${{parameters.graphics}}
-    platformStr: ${{parameters.platformStr}}
+  - template: ${{parameters.platform}}
+    parameters:
+      name: IPlugChunks
+      path: 'Examples'
+      graphics: ${{parameters.graphics}}
+      artifactName: IPlugChunks_${{parameters.graphics}}
+      platformStr: ${{parameters.platformStr}}
 
-- template: ${{parameters.platform}}
-  parameters:
-    name: IPlugSideChain
-    path: 'Examples'
-    graphics: ${{parameters.graphics}}
-    artifactName: IPlugSideChain_${{parameters.graphics}}
-    platformStr: ${{parameters.platformStr}}
+  - template: ${{parameters.platform}}
+    parameters:
+      name: IPlugSideChain
+      path: 'Examples'
+      graphics: ${{parameters.graphics}}
+      artifactName: IPlugSideChain_${{parameters.graphics}}
+      platformStr: ${{parameters.platformStr}}
 
-- template: ${{parameters.platform}}
-  parameters:
-    name: IPlugSurroundEffect
-    path: 'Examples'
-    graphics: ${{parameters.graphics}}
-    artifactName: IPlugSurroundEffect_${{parameters.graphics}}
-    platformStr: ${{parameters.platformStr}}
+  - template: ${{parameters.platform}}
+    parameters:
+      name: IPlugSurroundEffect
+      path: 'Examples'
+      graphics: ${{parameters.graphics}}
+      artifactName: IPlugSurroundEffect_${{parameters.graphics}}
+      platformStr: ${{parameters.platformStr}}
 
-- template: ${{parameters.platform}}
-  parameters:
-    name: IPlugDrumSynth
-    path: 'Examples'
-    graphics: ${{parameters.graphics}}
-    artifactName: IPlugDrumSynth_${{parameters.graphics}}
-    platformStr: ${{parameters.platformStr}}
+  - template: ${{parameters.platform}}
+    parameters:
+      name: IPlugDrumSynth
+      path: 'Examples'
+      graphics: ${{parameters.graphics}}
+      artifactName: IPlugDrumSynth_${{parameters.graphics}}
+      platformStr: ${{parameters.platformStr}}
 
-- template: ${{parameters.platform}}
-  parameters:
-    name: IPlugConvoEngine
-    path: 'Examples'
-    graphics: ${{parameters.graphics}}
-    artifactName: IPlugConvoEngine_${{parameters.graphics}}
-    platformStr: ${{parameters.platformStr}}
+  - template: ${{parameters.platform}}
+    parameters:
+      name: IPlugConvoEngine
+      path: 'Examples'
+      graphics: ${{parameters.graphics}}
+      artifactName: IPlugConvoEngine_${{parameters.graphics}}
+      platformStr: ${{parameters.platformStr}}
 
-- template: ${{parameters.platform}}
-  parameters:
-    name: IPlugOSCEditor
-    path: 'Examples'
-    graphics: ${{parameters.graphics}}
-    artifactName: IPlugOSCEditor_${{parameters.graphics}}
-    platformStr: ${{parameters.platformStr}}
+  - template: ${{parameters.platform}}
+    parameters:
+      name: IPlugOSCEditor
+      path: 'Examples'
+      graphics: ${{parameters.graphics}}
+      artifactName: IPlugOSCEditor_${{parameters.graphics}}
+      platformStr: ${{parameters.platformStr}}
 
-- template: ${{parameters.platform}}
-  parameters:
-    name: IPlugVisualizer
-    path: 'Examples'
-    graphics: ${{parameters.graphics}}
-    artifactName: IPlugVisualizer_${{parameters.graphics}}
-    platformStr: ${{parameters.platformStr}}
+  - template: ${{parameters.platform}}
+    parameters:
+      name: IPlugVisualizer
+      path: 'Examples'
+      graphics: ${{parameters.graphics}}
+      artifactName: IPlugVisualizer_${{parameters.graphics}}
+      platformStr: ${{parameters.platformStr}}
 
-- template: ${{parameters.platform}}
-  parameters:
-    name: IPlugReaperPlugin
-    path: 'Examples'
-    graphics: ${{parameters.graphics}}
-    artifactName: IPlugReaperPlugin_${{parameters.graphics}}
-    platformStr: ${{parameters.platformStr}}
+  - template: ${{parameters.platform}}
+    parameters:
+      name: IPlugReaperPlugin
+      path: 'Examples'
+      graphics: ${{parameters.graphics}}
+      artifactName: IPlugReaperPlugin_${{parameters.graphics}}
+      platformStr: ${{parameters.platformStr}}
 
-- template: ${{parameters.platform}}
-  parameters:
-    name: IPlugCocoaUI
-    path: 'Examples'
-    graphics: ${{parameters.graphics}}
-    artifactName: IPlugCocoaUI_${{parameters.graphics}}
-    platformStr: ${{parameters.platformStr}}
+  - template: ${{parameters.platform}}
+    parameters:
+      name: IPlugCocoaUI
+      path: 'Examples'
+      graphics: ${{parameters.graphics}}
+      artifactName: IPlugCocoaUI_${{parameters.graphics}}
+      platformStr: ${{parameters.platformStr}}
 
-- template: ${{parameters.platform}}
-  parameters:
-    name: IPlugSwiftUI
-    path: 'Examples'
-    graphics: ${{parameters.graphics}}
-    artifactName: IPlugSwiftUI_${{parameters.graphics}}
-    platformStr: ${{parameters.platformStr}}
+  - template: ${{parameters.platform}}
+    parameters:
+      name: IPlugSwiftUI
+      path: 'Examples'
+      graphics: ${{parameters.graphics}}
+      artifactName: IPlugSwiftUI_${{parameters.graphics}}
+      platformStr: ${{parameters.platformStr}}
 
-- template: ${{parameters.platform}}
-  parameters:
-    name: IPlugWebUI
-    path: 'Examples'
-    graphics: ${{parameters.graphics}}
-    artifactName: IPlugWebUI_${{parameters.graphics}}
-    platformStr: ${{parameters.platformStr}}
+  - template: ${{parameters.platform}}
+    parameters:
+      name: IPlugWebUI
+      path: 'Examples'
+      graphics: ${{parameters.graphics}}
+      artifactName: IPlugWebUI_${{parameters.graphics}}
+      platformStr: ${{parameters.platformStr}}
 
-- template: ${{parameters.platform}}
-  parameters:
-    name: IPlugP5js
-    path: 'Examples'
-    graphics: ${{parameters.graphics}}
-    artifactName: IPlugP5js_${{parameters.graphics}}
-    platformStr: ${{parameters.platformStr}}
+  - template: ${{parameters.platform}}
+    parameters:
+      name: IPlugP5js
+      path: 'Examples'
+      graphics: ${{parameters.graphics}}
+      artifactName: IPlugP5js_${{parameters.graphics}}
+      platformStr: ${{parameters.platformStr}}
 
-- template: ${{parameters.platform}}
-  parameters:
-    name: IPlugSvelteUI
-    path: 'Examples'
-    graphics: ${{parameters.graphics}}
-    artifactName: IPlugSvelteUI_${{parameters.graphics}}
-    platformStr: ${{parameters.platformStr}}
+  - template: ${{parameters.platform}}
+    parameters:
+      name: IPlugSvelteUI
+      path: 'Examples'
+      graphics: ${{parameters.graphics}}
+      artifactName: IPlugSvelteUI_${{parameters.graphics}}
+      platformStr: ${{parameters.platformStr}}
 
-- template: ${{parameters.platform}}
-  parameters:
-    name: IGraphicsStressTest
-    path: 'Tests'
-    graphics: ${{parameters.graphics}}
-    artifactName: IGraphicsStressTest_${{parameters.graphics}}
-    platformStr: ${{parameters.platformStr}}
+  - template: ${{parameters.platform}}
+    parameters:
+      name: IGraphicsStressTest
+      path: 'Tests'
+      graphics: ${{parameters.graphics}}
+      artifactName: IGraphicsStressTest_${{parameters.graphics}}
+      platformStr: ${{parameters.platformStr}}
 
-- template: ${{parameters.platform}}
-  parameters:
-    name: IGraphicsTest
-    path: 'Tests'
-    graphics: ${{parameters.graphics}}
-    artifactName: IGraphicsTest_${{parameters.graphics}}
-    platformStr: ${{parameters.platformStr}}
+  - template: ${{parameters.platform}}
+    parameters:
+      name: IGraphicsTest
+      path: 'Tests'
+      graphics: ${{parameters.graphics}}
+      artifactName: IGraphicsTest_${{parameters.graphics}}
+      platformStr: ${{parameters.platformStr}}
 
-- template: ${{parameters.platform}}
-  parameters:
-    name: MetaParamTest
-    path: 'Tests'
-    graphics: ${{parameters.graphics}}
-    artifactName: MetaParamTest_${{parameters.graphics}}
-    platformStr: ${{parameters.platformStr}}
+  - template: ${{parameters.platform}}
+    parameters:
+      name: MetaParamTest
+      path: 'Tests'
+      graphics: ${{parameters.graphics}}
+      artifactName: MetaParamTest_${{parameters.graphics}}
+      platformStr: ${{parameters.platformStr}}
 
 # External Project
 # - template: ${{parameters.platform}}

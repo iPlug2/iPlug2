@@ -1,3 +1,6 @@
+parameters:
+  buildAllProjects: false
+
 jobs:
 - job: BUILD_MAC_PROJECTS
   condition: and(eq(variables.build_deps, false), eq(variables.build_mac, true))
@@ -23,6 +26,7 @@ jobs:
     parameters:
       platform: build_project-mac.yml
       graphics: $(graphics)
+      buildAllProjects: ${{parameters.buildAllProjects}}
 
 - job: BUILD_IOS_PROJECTS
   condition: and(eq(variables.build_deps, false), eq(variables.build_ios, true))
@@ -47,6 +51,7 @@ jobs:
     parameters:
       platform: build_project-ios.yml
       graphics: $(graphics)
+      buildAllProjects: ${{parameters.buildAllProjects}}
 
 - job: BUILD_WIN_PROJECTS
   condition: and(eq(variables.build_deps, false), eq(variables.build_win, true))
@@ -81,6 +86,7 @@ jobs:
     parameters:
       platform: build_project-win.yml
       graphics: $(graphics)
+      buildAllProjects: ${{parameters.buildAllProjects}}
 
 - job: BUILD_WEB_PROJECTS
   condition: and(eq(variables.build_deps, false), eq(variables.build_web, true))
@@ -113,3 +119,4 @@ jobs:
     parameters:
       platform: build_project-web.yml
       graphics: $(graphics)
+      buildAllProjects: ${{parameters.buildAllProjects}}
