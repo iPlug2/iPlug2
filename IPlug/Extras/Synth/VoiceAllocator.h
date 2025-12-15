@@ -140,6 +140,7 @@ public:
   size_t GetNVoices() const {return mVoicePtrs.size();}
   SynthVoice* GetVoice(int voiceIndex) const {return mVoicePtrs[voiceIndex];}
   void SetPitchOffset(float offset) { mPitchOffset = offset; }
+  void SetLegato(bool isLegatoEnabled) { mLegato = isLegatoEnabled; }
 
 private:
   using VoiceBitsArray = std::bitset<UCHAR_MAX>;
@@ -186,6 +187,7 @@ private:
   bool mSustainPedalDown{false};
   float mModWheel{0.f};
   float mMinHeldVelocity{1.f};
+  bool mLegato{false};
 
 public:
   EPolyMode mPolyMode {kPolyModePoly};
