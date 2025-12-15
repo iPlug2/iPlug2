@@ -214,12 +214,20 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   self = [super initWithFrame:r];
     
 #ifdef IGRAPHICS_METAL
+
   mMTLLayer = [[CAMetalLayer alloc] init];
   mMTLLayer.device = MTLCreateSystemDefaultDevice();
   mMTLLayer.framebufferOnly = YES;
   mMTLLayer.frame = self.layer.frame;
   mMTLLayer.opaque = YES;
-  mMTLLayer.contentsScale = [UIScreen mainScreen].scale;
+
+#if TARGET_OS_VISION
+  CGFloat scale = 2.0;
+#else
+  CGFloat scale = [UIScreen mainScreen].scale;
+#endif
+
+  mMTLLayer.contentsScale = scale;
   
   [self.layer addSublayer: mMTLLayer];
 #endif
@@ -241,12 +249,14 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 {
   [super setFrame:frame];
   
-  // During the first layout pass, we will not be in a view hierarchy, so we guess our scale
+#if TARGET_OS_VISION
+  CGFloat scale = 2.0;
+#else
   CGFloat scale = [UIScreen mainScreen].scale;
-  
-  // If we've moved to a window by the time our frame is being set, we can take its scale as our own
-  if (self.window)
+  if (self.window) {
     scale = self.window.screen.scale;
+  }
+#endif
   
   #ifdef IGRAPHICS_METAL
   [CATransaction begin];
