@@ -32,11 +32,11 @@
     <VST3_SDK Condition="'$(VST3_SDK)'==''">$(IPLUG_DEPS_PATH)\VST3_SDK</VST3_SDK>
     <ASIO_SDK Condition="'$(ASIO_SDK)'==''">$(IPLUG_DEPS_PATH)\RTAudio\include</ASIO_SDK>
     <AAX_SDK Condition="'$(AAX_SDK)'==''">$(IPLUG_DEPS_PATH)\AAX_SDK</AAX_SDK>
-    <CLAP_ARM64EC_HOST_PATH Condition="'$(CLAP_ARM64EC_HOST_PATH)'==''">$(ProgramFiles)\REAPER\reaper.exe</CLAP_ARM64EC_HOST_PATH>
+    <CLAP_ARM64EC_HOST_PATH Condition="'$(CLAP_ARM64EC_HOST_PATH)'==''">$(ProgramW6432)\REAPER (arm64)\reaper.exe</CLAP_ARM64EC_HOST_PATH>
     <CLAP_X64_HOST_PATH Condition="'$(CLAP_X64_HOST_PATH)'==''">$(ProgramW6432)\REAPER (x64)\reaper.exe</CLAP_X64_HOST_PATH>
-    <VST2_ARM64EC_HOST_PATH Condition="'$(VST2_ARM64EC_HOST_PATH)'==''">$(ProgramFiles)\REAPER\reaper.exe</VST2_ARM64EC_HOST_PATH>
+    <VST2_ARM64EC_HOST_PATH Condition="'$(VST2_ARM64EC_HOST_PATH)'==''">$(ProgramW6432)\REAPER (arm64)\reaper.exe</VST2_ARM64EC_HOST_PATH>
     <VST2_X64_HOST_PATH Condition="'$(VST2_X64_HOST_PATH)'==''">$(ProgramW6432)\REAPER (x64)\reaper.exe</VST2_X64_HOST_PATH>
-    <VST3_ARM64EC_HOST_PATH Condition="'$(VST3_ARM64EC_HOST_PATH)'==''">$(ProgramFiles)\REAPER\reaper.exe</VST3_ARM64EC_HOST_PATH>
+    <VST3_ARM64EC_HOST_PATH Condition="'$(VST3_ARM64EC_HOST_PATH)'==''">$(ProgramW6432)\REAPER (arm64)\reaper.exe</VST3_ARM64EC_HOST_PATH>
     <VST3_X64_HOST_PATH Condition="'$(VST3_X64_HOST_PATH)'==''">$(ProgramW6432)\REAPER (x64)\reaper.exe</VST3_X64_HOST_PATH>
     <VST3_ARM64EC_PATH Condition="'$(VST3_ARM64EC_PATH)'==''">$(LOCALAPPDATA)\Programs\Common\VST3</VST3_ARM64EC_PATH>
     <VST3_X64_PATH Condition="'$(VST3_X64_PATH)'==''">$(LOCALAPPDATA)\Programs\Common\VST3</VST3_X64_PATH>
