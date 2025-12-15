@@ -63,6 +63,16 @@ steps:
       solution: '${{parameters.path}}/${{parameters.name}}/${{parameters.name}}.sln'
       vsVersion: '17.0'
       platform: x64
+      msbuildArgs: /t:${{parameters.name}}-clap
+      configuration: '${{parameters.configuration}}'
+    displayName: Compile ${{parameters.name}} CLAP x64
+    condition: eq(variables.build_clap, True)
+
+  - task: VSBuild@1
+    inputs:
+      solution: '${{parameters.path}}/${{parameters.name}}/${{parameters.name}}.sln'
+      vsVersion: '17.0'
+      platform: x64
       msbuildArgs: /t:${{parameters.name}}-aax
       configuration: '${{parameters.configuration}}'
     displayName: Compile ${{parameters.name}} AAX x64
@@ -101,6 +111,16 @@ steps:
       configuration: '${{parameters.configuration}}'
     displayName: Compile ${{parameters.name}} VST3 ARM64EC
     condition: and(eq(variables.build_vst3, True), eq(variables.build_arm64ec, True), ne('${{parameters.graphics}}', 'SKIA'))
+
+  - task: VSBuild@1
+    inputs:
+      solution: '${{parameters.path}}/${{parameters.name}}/${{parameters.name}}.sln'
+      vsVersion: '17.0'
+      platform: ARM64EC
+      msbuildArgs: /t:${{parameters.name}}-clap
+      configuration: '${{parameters.configuration}}'
+    displayName: Compile ${{parameters.name}} CLAP ARM64EC
+    condition: and(eq(variables.build_clap, True), eq(variables.build_arm64ec, True), ne('${{parameters.graphics}}', 'SKIA'))
 
   - task: VSBuild@1
     inputs:
@@ -160,6 +180,17 @@ steps:
     displayName: Organize AAX ARM64EC artifact
     condition: and(eq(variables.build_aax, True), eq(variables.build_arm64ec, True), ne('${{parameters.graphics}}', 'SKIA'))
 
+  - bash: |
+      mkdir -p $BUILD_ARTIFACTSTAGINGDIRECTORY/CLAP_ARM64EC/${{parameters.name}}
+      if [ -f "${{parameters.path}}/${{parameters.name}}/build-win/clap/ARM64EC/Release/${{parameters.name}}.clap" ]; then
+        cp ${{parameters.path}}/${{parameters.name}}/build-win/clap/ARM64EC/Release/${{parameters.name}}.clap $BUILD_ARTIFACTSTAGINGDIRECTORY/CLAP_ARM64EC/${{parameters.name}}/
+      fi
+      if [ -f "${{parameters.path}}/${{parameters.name}}/build-win/pdbs/${{parameters.name}}-clap_ARM64EC.pdb" ]; then
+        cp ${{parameters.path}}/${{parameters.name}}/build-win/pdbs/${{parameters.name}}-clap_ARM64EC.pdb $BUILD_ARTIFACTSTAGINGDIRECTORY/CLAP_ARM64EC/${{parameters.name}}/
+      fi
+    displayName: Organize CLAP ARM64EC artifact
+    condition: and(eq(variables.build_clap, True), eq(variables.build_arm64ec, True), ne('${{parameters.graphics}}', 'SKIA'))
+
   # ============================================================
   # Organize x64 Artifacts (uses mv, runs after ARM64EC copies)
   # ============================================================
@@ -192,6 +223,17 @@ steps:
     displayName: Organize AAX x64 artifact
     condition: eq(variables.build_aax, True)
 
+  - bash: |
+      mkdir -p $BUILD_ARTIFACTSTAGINGDIRECTORY/CLAP/${{parameters.name}}
+      if [ -f "${{parameters.path}}/${{parameters.name}}/build-win/clap/x64/Release/${{parameters.name}}.clap" ]; then
+        mv ${{parameters.path}}/${{parameters.name}}/build-win/clap/x64/Release/${{parameters.name}}.clap $BUILD_ARTIFACTSTAGINGDIRECTORY/CLAP/${{parameters.name}}/
+      fi
+      if [ -f "${{parameters.path}}/${{parameters.name}}/build-win/pdbs/${{parameters.name}}-clap_x64.pdb" ]; then
+        mv ${{parameters.path}}/${{parameters.name}}/build-win/pdbs/${{parameters.name}}-clap_x64.pdb $BUILD_ARTIFACTSTAGINGDIRECTORY/CLAP/${{parameters.name}}/
+      fi
+    displayName: Organize CLAP x64 artifact
+    condition: eq(variables.build_clap, True)
+
   # ============================================================
   # Publish x64 Artifacts
   # ============================================================
@@ -216,6 +258,13 @@ steps:
       targetPath: '$(Build.ArtifactStagingDirectory)/AAX/${{parameters.name}}'
     displayName: Publish ${{parameters.name}} AAX x64
     condition: eq(variables.build_aax, True)
+
+  - task: PublishPipelineArtifact@0
+    inputs:
+      artifactName: 'WIN_CLAP_${{parameters.artifactName}}'
+      targetPath: '$(Build.ArtifactStagingDirectory)/CLAP/${{parameters.name}}'
+    displayName: Publish ${{parameters.name}} CLAP x64
+    condition: eq(variables.build_clap, True)
 
   - task: PublishPipelineArtifact@0
     inputs:
@@ -248,6 +297,13 @@ steps:
       targetPath: '$(Build.ArtifactStagingDirectory)/AAX_ARM64EC/${{parameters.name}}'
     displayName: Publish ${{parameters.name}} AAX ARM64EC
     condition: and(eq(variables.build_aax, True), eq(variables.build_arm64ec, True), ne('${{parameters.graphics}}', 'SKIA'))
+
+  - task: PublishPipelineArtifact@0
+    inputs:
+      artifactName: 'WIN_CLAP_ARM64EC_${{parameters.artifactName}}'
+      targetPath: '$(Build.ArtifactStagingDirectory)/CLAP_ARM64EC/${{parameters.name}}'
+    displayName: Publish ${{parameters.name}} CLAP ARM64EC
+    condition: and(eq(variables.build_clap, True), eq(variables.build_arm64ec, True), ne('${{parameters.graphics}}', 'SKIA'))
 
   - task: PublishPipelineArtifact@0
     inputs:
