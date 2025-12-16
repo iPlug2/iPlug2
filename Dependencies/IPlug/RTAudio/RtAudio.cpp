@@ -48,8 +48,6 @@
 #include <climits>
 #include <cmath>
 #include <algorithm>
-#include <codecvt>
-#include <locale>
 
 #if defined(_WIN32)
 #include <windows.h>
@@ -74,7 +72,18 @@ std::string convertCharPointerToStdString(const char *text)
 template<> inline
 std::string convertCharPointerToStdString(const wchar_t *text)
 {
-  return std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>>{}.to_bytes(text);
+#if defined(_WIN32)
+  if (!text) return std::string();
+  int len = WideCharToMultiByte(CP_UTF8, 0, text, -1, nullptr, 0, nullptr, nullptr);
+  if (len <= 0) return std::string();
+  std::string result(len - 1, '\0');
+  WideCharToMultiByte(CP_UTF8, 0, text, -1, &result[0], len, nullptr, nullptr);
+  return result;
+#else
+  // wchar_t conversion only used on Windows
+  (void)text;
+  return std::string();
+#endif
 }
 
 #if defined(_MSC_VER)
