@@ -9,9 +9,15 @@
 */
 
 #include "SettingsDialogSWELL.h"
-#include "Audio/AudioEngine.h"
+#include "../Audio/AudioEngine.h"
+#include "../Resources/resource.h"
 
 #include <algorithm>
+#include <cstring>
+
+#ifdef OS_WIN
+extern HINSTANCE gHINSTANCE;
+#endif
 
 BEGIN_IPLUG_NAMESPACE
 
@@ -23,25 +29,24 @@ static const int kNumBufferSizes = sizeof(kBufferSizes) / sizeof(kBufferSizes[0]
 static const UINT_PTR kMeterTimerId = 1001;
 static const UINT kMeterTimerInterval = 50; // 20 Hz refresh
 
-// Temporary: Dialog will be created programmatically until resource files are added
-// Control IDs
-enum
-{
-  IDC_DRIVER_COMBO = 1001,
-  IDC_INPUT_DEV_COMBO,
-  IDC_OUTPUT_DEV_COMBO,
-  IDC_SAMPLE_RATE_COMBO,
-  IDC_BUFFER_SIZE_COMBO,
-  IDC_IO_CONFIG_COMBO,
-  IDC_MIDI_IN_COMBO,
-  IDC_MIDI_OUT_COMBO,
-  IDC_MIDI_IN_CHAN_COMBO,
-  IDC_MIDI_OUT_CHAN_COMBO,
-  IDC_INPUT_METERS_STATIC,
-  IDC_OUTPUT_METERS_STATIC,
-  IDC_APPLY_BUTTON,
-  IDC_CONFIG_BUTTON,
+// Channel combo box ID arrays for easy iteration
+static const int kInputChannelCombos[] = {
+  IDC_COMBO_IN_CH1, IDC_COMBO_IN_CH2, IDC_COMBO_IN_CH3, IDC_COMBO_IN_CH4,
+  IDC_COMBO_IN_CH5, IDC_COMBO_IN_CH6, IDC_COMBO_IN_CH7, IDC_COMBO_IN_CH8
 };
+static const int kInputChannelLabels[] = {
+  IDC_STATIC_IN_CH1, IDC_STATIC_IN_CH2, IDC_STATIC_IN_CH3, IDC_STATIC_IN_CH4,
+  IDC_STATIC_IN_CH5, IDC_STATIC_IN_CH6, IDC_STATIC_IN_CH7, IDC_STATIC_IN_CH8
+};
+static const int kOutputChannelCombos[] = {
+  IDC_COMBO_OUT_CH1, IDC_COMBO_OUT_CH2, IDC_COMBO_OUT_CH3, IDC_COMBO_OUT_CH4,
+  IDC_COMBO_OUT_CH5, IDC_COMBO_OUT_CH6, IDC_COMBO_OUT_CH7, IDC_COMBO_OUT_CH8
+};
+static const int kOutputChannelLabels[] = {
+  IDC_STATIC_OUT_CH1, IDC_STATIC_OUT_CH2, IDC_STATIC_OUT_CH3, IDC_STATIC_OUT_CH4,
+  IDC_STATIC_OUT_CH5, IDC_STATIC_OUT_CH6, IDC_STATIC_OUT_CH7, IDC_STATIC_OUT_CH8
+};
+static const int kMaxChannelControls = 8;
 
 // Factory function
 std::unique_ptr<ISettingsDialog> CreateSettingsDialog()
@@ -55,7 +60,7 @@ SettingsDialogSWELL::SettingsDialogSWELL()
 
 SettingsDialogSWELL::~SettingsDialogSWELL()
 {
-  if (mMeterTimerId)
+  if (mMeterTimerId && mDialogHwnd)
   {
     KillTimer(mDialogHwnd, mMeterTimerId);
     mMeterTimerId = 0;
@@ -66,17 +71,20 @@ bool SettingsDialogSWELL::ShowModal(void* parentWindow)
 {
   mOriginalState = mState;
 
-  // TODO: Create dialog from resource or programmatically
-  // For now, return false as dialog is not yet implemented
-  // This is a skeleton that will be fleshed out
-
-  // The actual implementation would:
-  // 1. Create the dialog window
-  // 2. Populate all controls
-  // 3. Run modal message loop
-  // 4. Return true if OK, false if Cancel
-
+#ifdef OS_WIN
+  INT_PTR result = DialogBoxParamA(
+    gHINSTANCE,
+    MAKEINTRESOURCEA(IDD_DIALOG_PREF),
+    static_cast<HWND>(parentWindow),
+    &SettingsDialogSWELL::DialogProc,
+    reinterpret_cast<LPARAM>(this)
+  );
+  return (result == IDOK);
+#else
+  // SWELL implementation for macOS/Linux
+  // TODO: Use SWELL_DialogBox or create dialog programmatically
   return false;
+#endif
 }
 
 void SettingsDialogSWELL::SetState(const AppState& state)
@@ -124,6 +132,14 @@ void SettingsDialogSWELL::SetAudioEngine(AudioEngine* engine)
     const auto& config = engine->GetActiveConfig();
     mNumInputMeters = std::min(static_cast<int>(config.inputMappings.size()), kMaxMeters);
     mNumOutputMeters = std::min(static_cast<int>(config.outputMappings.size()), kMaxMeters);
+
+    // If no mappings, use I/O config
+    if (mNumInputMeters == 0 && !mIOConfigs.empty())
+    {
+      int ioIdx = std::clamp(mState.selectedIOConfig, 0, static_cast<int>(mIOConfigs.size()) - 1);
+      mNumInputMeters = std::min(mIOConfigs[ioIdx].numInputs, kMaxMeters);
+      mNumOutputMeters = std::min(mIOConfigs[ioIdx].numOutputs, kMaxMeters);
+    }
   }
 }
 
@@ -154,22 +170,66 @@ INT_PTR SettingsDialogSWELL::HandleMessage(HWND hwnd, UINT msg, WPARAM wParam, L
   {
     case WM_INITDIALOG:
     {
+      // Populate all controls
       PopulateDriverList(hwnd);
       PopulateInputDeviceList(hwnd);
       PopulateOutputDeviceList(hwnd);
       PopulateSampleRateList(hwnd);
       PopulateBufferSizeList(hwnd);
       PopulateIOConfigList(hwnd);
+      PopulateInputChannelLists(hwnd);
+      PopulateOutputChannelLists(hwnd);
       PopulateMidiInputList(hwnd);
       PopulateMidiOutputList(hwnd);
       PopulateMidiChannelLists(hwnd);
       UpdateControlStates(hwnd);
-      CreateLevelMeters(hwnd);
 
       // Start meter timer
       mMeterTimerId = SetTimer(hwnd, kMeterTimerId, kMeterTimerInterval, nullptr);
 
       return TRUE;
+    }
+
+    case WM_TIMER:
+      if (wParam == kMeterTimerId)
+      {
+        UpdateLevelMeters();
+        // Invalidate meter controls to trigger repaint
+        InvalidateRect(GetDlgItem(hwnd, IDC_STATIC_INPUT_METERS), nullptr, FALSE);
+        InvalidateRect(GetDlgItem(hwnd, IDC_STATIC_OUTPUT_METERS), nullptr, FALSE);
+      }
+      return TRUE;
+
+    case WM_DRAWITEM:
+    {
+      LPDRAWITEMSTRUCT pDIS = reinterpret_cast<LPDRAWITEMSTRUCT>(lParam);
+      if (pDIS->CtlID == IDC_STATIC_INPUT_METERS)
+      {
+        // Draw input meters
+        int meterWidth = (pDIS->rcItem.right - pDIS->rcItem.left) / std::max(mNumInputMeters, 1);
+        for (int ch = 0; ch < mNumInputMeters; ++ch)
+        {
+          RECT meterRect = pDIS->rcItem;
+          meterRect.left += ch * meterWidth + 2;
+          meterRect.right = meterRect.left + meterWidth - 4;
+          mInputMeters[ch].Paint(pDIS->hDC, meterRect, false);
+        }
+        return TRUE;
+      }
+      else if (pDIS->CtlID == IDC_STATIC_OUTPUT_METERS)
+      {
+        // Draw output meters
+        int meterWidth = (pDIS->rcItem.right - pDIS->rcItem.left) / std::max(mNumOutputMeters, 1);
+        for (int ch = 0; ch < mNumOutputMeters; ++ch)
+        {
+          RECT meterRect = pDIS->rcItem;
+          meterRect.left += ch * meterWidth + 2;
+          meterRect.right = meterRect.left + meterWidth - 4;
+          mOutputMeters[ch].Paint(pDIS->hDC, meterRect, false);
+        }
+        return TRUE;
+      }
+      break;
     }
 
     case WM_COMMAND:
@@ -180,10 +240,13 @@ INT_PTR SettingsDialogSWELL::HandleMessage(HWND hwnd, UINT msg, WPARAM wParam, L
       switch (ctrlId)
       {
         case IDOK:
-          if (OnApply && !OnApply(mState))
+          if (OnApply)
           {
-            // Apply failed
-            return TRUE;
+            if (!OnApply(mState))
+            {
+              // Apply failed - stay in dialog
+              return TRUE;
+            }
           }
           KillTimer(hwnd, mMeterTimerId);
           mMeterTimerId = 0;
@@ -192,20 +255,22 @@ INT_PTR SettingsDialogSWELL::HandleMessage(HWND hwnd, UINT msg, WPARAM wParam, L
 
         case IDCANCEL:
           mState = mOriginalState;
+          if (OnApply)
+            OnApply(mState);  // Restore original settings
           KillTimer(hwnd, mMeterTimerId);
           mMeterTimerId = 0;
           EndDialog(hwnd, IDCANCEL);
           return TRUE;
 
-        case IDC_APPLY_BUTTON:
+        case IDAPPLY:
           if (OnApply)
             OnApply(mState);
           return TRUE;
 
-        case IDC_DRIVER_COMBO:
+        case IDC_COMBO_AUDIO_DRIVER:
           if (notifyCode == CBN_SELCHANGE)
           {
-            int idx = (int)SendDlgItemMessage(hwnd, IDC_DRIVER_COMBO, CB_GETCURSEL, 0, 0);
+            int idx = static_cast<int>(SendDlgItemMessage(hwnd, IDC_COMBO_AUDIO_DRIVER, CB_GETCURSEL, 0, 0));
             auto apis = GetAvailableAudioApis();
             if (idx >= 0 && idx < static_cast<int>(apis.size()))
             {
@@ -214,17 +279,20 @@ INT_PTR SettingsDialogSWELL::HandleMessage(HWND hwnd, UINT msg, WPARAM wParam, L
                 OnDriverChange(mState.audioApi);
               PopulateInputDeviceList(hwnd);
               PopulateOutputDeviceList(hwnd);
+              PopulateSampleRateList(hwnd);
+              UpdateControlStates(hwnd);
             }
           }
           return TRUE;
 
-        case IDC_INPUT_DEV_COMBO:
+        case IDC_COMBO_AUDIO_IN_DEV:
           if (notifyCode == CBN_SELCHANGE)
           {
-            int idx = (int)SendDlgItemMessage(hwnd, IDC_INPUT_DEV_COMBO, CB_GETCURSEL, 0, 0);
+            int idx = static_cast<int>(SendDlgItemMessage(hwnd, IDC_COMBO_AUDIO_IN_DEV, CB_GETCURSEL, 0, 0));
             if (idx >= 0 && idx < static_cast<int>(mInputDevices.size()))
             {
               mState.inputDeviceName = mInputDevices[idx].name;
+              mInputSampleRates = mInputDevices[idx].sampleRates;
               PopulateSampleRateList(hwnd);
               PopulateInputChannelLists(hwnd);
               if (OnDeviceChange)
@@ -233,13 +301,14 @@ INT_PTR SettingsDialogSWELL::HandleMessage(HWND hwnd, UINT msg, WPARAM wParam, L
           }
           return TRUE;
 
-        case IDC_OUTPUT_DEV_COMBO:
+        case IDC_COMBO_AUDIO_OUT_DEV:
           if (notifyCode == CBN_SELCHANGE)
           {
-            int idx = (int)SendDlgItemMessage(hwnd, IDC_OUTPUT_DEV_COMBO, CB_GETCURSEL, 0, 0);
+            int idx = static_cast<int>(SendDlgItemMessage(hwnd, IDC_COMBO_AUDIO_OUT_DEV, CB_GETCURSEL, 0, 0));
             if (idx >= 0 && idx < static_cast<int>(mOutputDevices.size()))
             {
               mState.outputDeviceName = mOutputDevices[idx].name;
+              mOutputSampleRates = mOutputDevices[idx].sampleRates;
               PopulateSampleRateList(hwnd);
               PopulateOutputChannelLists(hwnd);
               if (OnDeviceChange)
@@ -248,94 +317,111 @@ INT_PTR SettingsDialogSWELL::HandleMessage(HWND hwnd, UINT msg, WPARAM wParam, L
           }
           return TRUE;
 
-        case IDC_SAMPLE_RATE_COMBO:
+        case IDC_COMBO_AUDIO_SR:
           if (notifyCode == CBN_SELCHANGE)
           {
-            int idx = (int)SendDlgItemMessage(hwnd, IDC_SAMPLE_RATE_COMBO, CB_GETCURSEL, 0, 0);
-            uint32_t sr = (uint32_t)SendDlgItemMessage(hwnd, IDC_SAMPLE_RATE_COMBO, CB_GETITEMDATA, idx, 0);
+            int idx = static_cast<int>(SendDlgItemMessage(hwnd, IDC_COMBO_AUDIO_SR, CB_GETCURSEL, 0, 0));
+            uint32_t sr = static_cast<uint32_t>(SendDlgItemMessage(hwnd, IDC_COMBO_AUDIO_SR, CB_GETITEMDATA, idx, 0));
             mState.sampleRate = sr;
           }
           return TRUE;
 
-        case IDC_BUFFER_SIZE_COMBO:
+        case IDC_COMBO_AUDIO_BUF_SIZE:
           if (notifyCode == CBN_SELCHANGE)
           {
-            int idx = (int)SendDlgItemMessage(hwnd, IDC_BUFFER_SIZE_COMBO, CB_GETCURSEL, 0, 0);
+            int idx = static_cast<int>(SendDlgItemMessage(hwnd, IDC_COMBO_AUDIO_BUF_SIZE, CB_GETCURSEL, 0, 0));
             if (idx >= 0 && idx < kNumBufferSizes)
               mState.bufferSize = kBufferSizes[idx];
           }
           return TRUE;
 
-        case IDC_IO_CONFIG_COMBO:
+        case IDC_COMBO_IO_CONFIG:
           if (notifyCode == CBN_SELCHANGE)
           {
-            int idx = (int)SendDlgItemMessage(hwnd, IDC_IO_CONFIG_COMBO, CB_GETCURSEL, 0, 0);
+            int idx = static_cast<int>(SendDlgItemMessage(hwnd, IDC_COMBO_IO_CONFIG, CB_GETCURSEL, 0, 0));
             mState.selectedIOConfig = idx;
-            // Update channel mappings for new config
             if (idx >= 0 && idx < static_cast<int>(mIOConfigs.size()))
             {
+              // Update channel count and recreate default mappings
               mState.CreateDefaultInputMappings(mIOConfigs[idx].numInputs);
               mState.CreateDefaultOutputMappings(mIOConfigs[idx].numOutputs);
+              mNumInputMeters = std::min(mIOConfigs[idx].numInputs, kMaxMeters);
+              mNumOutputMeters = std::min(mIOConfigs[idx].numOutputs, kMaxMeters);
             }
             UpdateControlStates(hwnd);
+            PopulateInputChannelLists(hwnd);
+            PopulateOutputChannelLists(hwnd);
           }
           return TRUE;
 
-        case IDC_MIDI_IN_COMBO:
+        case IDC_BUTTON_OS_DEV_SETTINGS:
+        {
+#ifdef OS_WIN
+          // Open ASIO control panel if using ASIO
+          if (mState.audioApi == EAudioApi::kASIO)
+          {
+            // TODO: Call ASIOControlPanel() if stream is running
+          }
+#endif
+          return TRUE;
+        }
+
+        case IDC_COMBO_MIDI_IN_DEV:
           if (notifyCode == CBN_SELCHANGE)
           {
-            int idx = (int)SendDlgItemMessage(hwnd, IDC_MIDI_IN_COMBO, CB_GETCURSEL, 0, 0);
+            int idx = static_cast<int>(SendDlgItemMessage(hwnd, IDC_COMBO_MIDI_IN_DEV, CB_GETCURSEL, 0, 0));
             if (idx >= 0 && idx < static_cast<int>(mMidiInputDevices.size()))
               mState.midiInputDevice = mMidiInputDevices[idx];
           }
           return TRUE;
 
-        case IDC_MIDI_OUT_COMBO:
+        case IDC_COMBO_MIDI_OUT_DEV:
           if (notifyCode == CBN_SELCHANGE)
           {
-            int idx = (int)SendDlgItemMessage(hwnd, IDC_MIDI_OUT_COMBO, CB_GETCURSEL, 0, 0);
+            int idx = static_cast<int>(SendDlgItemMessage(hwnd, IDC_COMBO_MIDI_OUT_DEV, CB_GETCURSEL, 0, 0));
             if (idx >= 0 && idx < static_cast<int>(mMidiOutputDevices.size()))
               mState.midiOutputDevice = mMidiOutputDevices[idx];
           }
           return TRUE;
 
-        case IDC_MIDI_IN_CHAN_COMBO:
+        case IDC_COMBO_MIDI_IN_CHAN:
           if (notifyCode == CBN_SELCHANGE)
           {
-            int idx = (int)SendDlgItemMessage(hwnd, IDC_MIDI_IN_CHAN_COMBO, CB_GETCURSEL, 0, 0);
-            mState.midiInputChannel = idx; // 0 = all, 1-16 = specific
+            int idx = static_cast<int>(SendDlgItemMessage(hwnd, IDC_COMBO_MIDI_IN_CHAN, CB_GETCURSEL, 0, 0));
+            mState.midiInputChannel = idx;
           }
           return TRUE;
 
-        case IDC_MIDI_OUT_CHAN_COMBO:
+        case IDC_COMBO_MIDI_OUT_CHAN:
           if (notifyCode == CBN_SELCHANGE)
           {
-            int idx = (int)SendDlgItemMessage(hwnd, IDC_MIDI_OUT_CHAN_COMBO, CB_GETCURSEL, 0, 0);
+            int idx = static_cast<int>(SendDlgItemMessage(hwnd, IDC_COMBO_MIDI_OUT_CHAN, CB_GETCURSEL, 0, 0));
             mState.midiOutputChannel = idx;
           }
           return TRUE;
+
+        default:
+          // Handle channel mapping combos
+          for (int ch = 0; ch < kMaxChannelControls; ++ch)
+          {
+            if (ctrlId == kInputChannelCombos[ch] && notifyCode == CBN_SELCHANGE)
+            {
+              int devCh = static_cast<int>(SendDlgItemMessage(hwnd, ctrlId, CB_GETCURSEL, 0, 0));
+              if (ch < static_cast<int>(mState.inputMappings.size()))
+                mState.inputMappings[ch].deviceChannel = devCh;
+              return TRUE;
+            }
+            if (ctrlId == kOutputChannelCombos[ch] && notifyCode == CBN_SELCHANGE)
+            {
+              int devCh = static_cast<int>(SendDlgItemMessage(hwnd, ctrlId, CB_GETCURSEL, 0, 0));
+              if (ch < static_cast<int>(mState.outputMappings.size()))
+                mState.outputMappings[ch].deviceChannel = devCh;
+              return TRUE;
+            }
+          }
+          break;
       }
       break;
-    }
-
-    case WM_TIMER:
-      if (wParam == kMeterTimerId)
-      {
-        UpdateLevelMeters();
-        // Invalidate meter area to trigger repaint
-        RECT meterRect;
-        // TODO: Get actual meter bounds
-        InvalidateRect(hwnd, nullptr, FALSE);
-      }
-      return TRUE;
-
-    case WM_PAINT:
-    {
-      PAINTSTRUCT ps;
-      HDC hdc = BeginPaint(hwnd, &ps);
-      PaintLevelMeters(hwnd, hdc);
-      EndPaint(hwnd, &ps);
-      return TRUE;
     }
 
     case WM_DESTROY:
@@ -353,82 +439,67 @@ INT_PTR SettingsDialogSWELL::HandleMessage(HWND hwnd, UINT msg, WPARAM wParam, L
 
 void SettingsDialogSWELL::PopulateDriverList(HWND hwnd)
 {
-  SendDlgItemMessage(hwnd, IDC_DRIVER_COMBO, CB_RESETCONTENT, 0, 0);
+  SendDlgItemMessage(hwnd, IDC_COMBO_AUDIO_DRIVER, CB_RESETCONTENT, 0, 0);
 
   auto apis = GetAvailableAudioApis();
   int selectIdx = 0;
 
   for (size_t i = 0; i < apis.size(); ++i)
   {
-    SendDlgItemMessage(hwnd, IDC_DRIVER_COMBO, CB_ADDSTRING, 0,
-                       reinterpret_cast<LPARAM>(GetAudioApiName(apis[i])));
+    SendDlgItemMessageA(hwnd, IDC_COMBO_AUDIO_DRIVER, CB_ADDSTRING, 0,
+                        reinterpret_cast<LPARAM>(GetAudioApiName(apis[i])));
     if (apis[i] == mState.audioApi)
       selectIdx = static_cast<int>(i);
   }
 
-  SendDlgItemMessage(hwnd, IDC_DRIVER_COMBO, CB_SETCURSEL, selectIdx, 0);
+  SendDlgItemMessage(hwnd, IDC_COMBO_AUDIO_DRIVER, CB_SETCURSEL, selectIdx, 0);
 }
 
 void SettingsDialogSWELL::PopulateInputDeviceList(HWND hwnd)
 {
-  SendDlgItemMessage(hwnd, IDC_INPUT_DEV_COMBO, CB_RESETCONTENT, 0, 0);
+  SendDlgItemMessage(hwnd, IDC_COMBO_AUDIO_IN_DEV, CB_RESETCONTENT, 0, 0);
 
   int selectIdx = 0;
   for (size_t i = 0; i < mInputDevices.size(); ++i)
   {
-    SendDlgItemMessage(hwnd, IDC_INPUT_DEV_COMBO, CB_ADDSTRING, 0,
-                       reinterpret_cast<LPARAM>(mInputDevices[i].name.c_str()));
+    SendDlgItemMessageA(hwnd, IDC_COMBO_AUDIO_IN_DEV, CB_ADDSTRING, 0,
+                        reinterpret_cast<LPARAM>(mInputDevices[i].name.c_str()));
     if (mInputDevices[i].name == mState.inputDeviceName)
+    {
       selectIdx = static_cast<int>(i);
+      mInputSampleRates = mInputDevices[i].sampleRates;
+    }
   }
 
-  SendDlgItemMessage(hwnd, IDC_INPUT_DEV_COMBO, CB_SETCURSEL, selectIdx, 0);
+  SendDlgItemMessage(hwnd, IDC_COMBO_AUDIO_IN_DEV, CB_SETCURSEL, selectIdx, 0);
 }
 
 void SettingsDialogSWELL::PopulateOutputDeviceList(HWND hwnd)
 {
-  SendDlgItemMessage(hwnd, IDC_OUTPUT_DEV_COMBO, CB_RESETCONTENT, 0, 0);
+  SendDlgItemMessage(hwnd, IDC_COMBO_AUDIO_OUT_DEV, CB_RESETCONTENT, 0, 0);
 
   int selectIdx = 0;
   for (size_t i = 0; i < mOutputDevices.size(); ++i)
   {
-    SendDlgItemMessage(hwnd, IDC_OUTPUT_DEV_COMBO, CB_ADDSTRING, 0,
-                       reinterpret_cast<LPARAM>(mOutputDevices[i].name.c_str()));
+    SendDlgItemMessageA(hwnd, IDC_COMBO_AUDIO_OUT_DEV, CB_ADDSTRING, 0,
+                        reinterpret_cast<LPARAM>(mOutputDevices[i].name.c_str()));
     if (mOutputDevices[i].name == mState.outputDeviceName)
+    {
       selectIdx = static_cast<int>(i);
+      mOutputSampleRates = mOutputDevices[i].sampleRates;
+    }
   }
 
-  SendDlgItemMessage(hwnd, IDC_OUTPUT_DEV_COMBO, CB_SETCURSEL, selectIdx, 0);
+  SendDlgItemMessage(hwnd, IDC_COMBO_AUDIO_OUT_DEV, CB_SETCURSEL, selectIdx, 0);
 }
 
 void SettingsDialogSWELL::PopulateSampleRateList(HWND hwnd)
 {
-  SendDlgItemMessage(hwnd, IDC_SAMPLE_RATE_COMBO, CB_RESETCONTENT, 0, 0);
+  SendDlgItemMessage(hwnd, IDC_COMBO_AUDIO_SR, CB_RESETCONTENT, 0, 0);
 
-  // Find matching sample rates between input and output devices
+  // Find common sample rates between input and output
   std::vector<uint32_t> matchedRates;
 
-  // Get input device sample rates
-  for (const auto& dev : mInputDevices)
-  {
-    if (dev.name == mState.inputDeviceName)
-    {
-      mInputSampleRates = dev.sampleRates;
-      break;
-    }
-  }
-
-  // Get output device sample rates
-  for (const auto& dev : mOutputDevices)
-  {
-    if (dev.name == mState.outputDeviceName)
-    {
-      mOutputSampleRates = dev.sampleRates;
-      break;
-    }
-  }
-
-  // Find common rates
   if (mInputSampleRates.empty())
   {
     matchedRates = mOutputSampleRates;
@@ -444,148 +515,244 @@ void SettingsDialogSWELL::PopulateSampleRateList(HWND hwnd)
       for (uint32_t outRate : mOutputSampleRates)
       {
         if (inRate == outRate)
+        {
           matchedRates.push_back(inRate);
+          break;
+        }
       }
     }
   }
 
-  // Add to combo box
+  // Sort rates
+  std::sort(matchedRates.begin(), matchedRates.end());
+
   int selectIdx = 0;
   for (size_t i = 0; i < matchedRates.size(); ++i)
   {
     char buf[32];
     snprintf(buf, sizeof(buf), "%u", matchedRates[i]);
-    LRESULT idx = SendDlgItemMessage(hwnd, IDC_SAMPLE_RATE_COMBO, CB_ADDSTRING, 0,
-                                     reinterpret_cast<LPARAM>(buf));
-    SendDlgItemMessage(hwnd, IDC_SAMPLE_RATE_COMBO, CB_SETITEMDATA, idx, matchedRates[i]);
+    LRESULT idx = SendDlgItemMessageA(hwnd, IDC_COMBO_AUDIO_SR, CB_ADDSTRING, 0,
+                                      reinterpret_cast<LPARAM>(buf));
+    SendDlgItemMessage(hwnd, IDC_COMBO_AUDIO_SR, CB_SETITEMDATA, idx, matchedRates[i]);
 
     if (matchedRates[i] == mState.sampleRate)
       selectIdx = static_cast<int>(i);
   }
 
-  SendDlgItemMessage(hwnd, IDC_SAMPLE_RATE_COMBO, CB_SETCURSEL, selectIdx, 0);
+  SendDlgItemMessage(hwnd, IDC_COMBO_AUDIO_SR, CB_SETCURSEL, selectIdx, 0);
 }
 
 void SettingsDialogSWELL::PopulateBufferSizeList(HWND hwnd)
 {
-  SendDlgItemMessage(hwnd, IDC_BUFFER_SIZE_COMBO, CB_RESETCONTENT, 0, 0);
+  SendDlgItemMessage(hwnd, IDC_COMBO_AUDIO_BUF_SIZE, CB_RESETCONTENT, 0, 0);
 
-  int selectIdx = 0;
+  int selectIdx = 6; // Default to 512
   for (int i = 0; i < kNumBufferSizes; ++i)
   {
     char buf[32];
     snprintf(buf, sizeof(buf), "%u", kBufferSizes[i]);
-    SendDlgItemMessage(hwnd, IDC_BUFFER_SIZE_COMBO, CB_ADDSTRING, 0,
-                       reinterpret_cast<LPARAM>(buf));
+    SendDlgItemMessageA(hwnd, IDC_COMBO_AUDIO_BUF_SIZE, CB_ADDSTRING, 0,
+                        reinterpret_cast<LPARAM>(buf));
 
     if (kBufferSizes[i] == mState.bufferSize)
       selectIdx = i;
   }
 
-  SendDlgItemMessage(hwnd, IDC_BUFFER_SIZE_COMBO, CB_SETCURSEL, selectIdx, 0);
+  SendDlgItemMessage(hwnd, IDC_COMBO_AUDIO_BUF_SIZE, CB_SETCURSEL, selectIdx, 0);
 }
 
 void SettingsDialogSWELL::PopulateIOConfigList(HWND hwnd)
 {
-  SendDlgItemMessage(hwnd, IDC_IO_CONFIG_COMBO, CB_RESETCONTENT, 0, 0);
+  SendDlgItemMessage(hwnd, IDC_COMBO_IO_CONFIG, CB_RESETCONTENT, 0, 0);
 
   for (size_t i = 0; i < mIOConfigs.size(); ++i)
   {
     std::string name = mIOConfigs[i].GetDisplayName();
-    SendDlgItemMessage(hwnd, IDC_IO_CONFIG_COMBO, CB_ADDSTRING, 0,
-                       reinterpret_cast<LPARAM>(name.c_str()));
+    SendDlgItemMessageA(hwnd, IDC_COMBO_IO_CONFIG, CB_ADDSTRING, 0,
+                        reinterpret_cast<LPARAM>(name.c_str()));
   }
 
-  int selectIdx = std::clamp(mState.selectedIOConfig, 0, static_cast<int>(mIOConfigs.size()) - 1);
-  SendDlgItemMessage(hwnd, IDC_IO_CONFIG_COMBO, CB_SETCURSEL, selectIdx, 0);
+  int selectIdx = std::clamp(mState.selectedIOConfig, 0,
+                             static_cast<int>(mIOConfigs.size()) - 1);
+  SendDlgItemMessage(hwnd, IDC_COMBO_IO_CONFIG, CB_SETCURSEL, selectIdx, 0);
 }
 
 void SettingsDialogSWELL::PopulateInputChannelLists(HWND hwnd)
 {
-  // TODO: Populate per-channel mapping combos
+  // Get input device channel count
+  int deviceChannels = 0;
+  for (const auto& dev : mInputDevices)
+  {
+    if (dev.name == mState.inputDeviceName)
+    {
+      deviceChannels = dev.inputChannels;
+      break;
+    }
+  }
+
+  // Get plugin input channel count from current I/O config
+  int pluginChannels = 0;
+  if (mState.selectedIOConfig >= 0 &&
+      mState.selectedIOConfig < static_cast<int>(mIOConfigs.size()))
+  {
+    pluginChannels = mIOConfigs[mState.selectedIOConfig].numInputs;
+  }
+
+  // Update each channel combo
+  for (int ch = 0; ch < kMaxChannelControls; ++ch)
+  {
+    SendDlgItemMessage(hwnd, kInputChannelCombos[ch], CB_RESETCONTENT, 0, 0);
+
+    bool visible = (ch < pluginChannels);
+    ShowWindow(GetDlgItem(hwnd, kInputChannelCombos[ch]), visible ? SW_SHOW : SW_HIDE);
+    ShowWindow(GetDlgItem(hwnd, kInputChannelLabels[ch]), visible ? SW_SHOW : SW_HIDE);
+
+    if (visible)
+    {
+      // Add device channels
+      for (int devCh = 0; devCh < deviceChannels; ++devCh)
+      {
+        char buf[32];
+        snprintf(buf, sizeof(buf), "%d", devCh + 1);
+        SendDlgItemMessageA(hwnd, kInputChannelCombos[ch], CB_ADDSTRING, 0,
+                            reinterpret_cast<LPARAM>(buf));
+      }
+
+      // Select current mapping
+      int selectIdx = 0;
+      if (ch < static_cast<int>(mState.inputMappings.size()))
+        selectIdx = std::min(mState.inputMappings[ch].deviceChannel, deviceChannels - 1);
+      SendDlgItemMessage(hwnd, kInputChannelCombos[ch], CB_SETCURSEL, selectIdx, 0);
+    }
+  }
 }
 
 void SettingsDialogSWELL::PopulateOutputChannelLists(HWND hwnd)
 {
-  // TODO: Populate per-channel mapping combos
+  // Get output device channel count
+  int deviceChannels = 0;
+  for (const auto& dev : mOutputDevices)
+  {
+    if (dev.name == mState.outputDeviceName)
+    {
+      deviceChannels = dev.outputChannels;
+      break;
+    }
+  }
+
+  // Get plugin output channel count from current I/O config
+  int pluginChannels = 0;
+  if (mState.selectedIOConfig >= 0 &&
+      mState.selectedIOConfig < static_cast<int>(mIOConfigs.size()))
+  {
+    pluginChannels = mIOConfigs[mState.selectedIOConfig].numOutputs;
+  }
+
+  // Update each channel combo
+  for (int ch = 0; ch < kMaxChannelControls; ++ch)
+  {
+    SendDlgItemMessage(hwnd, kOutputChannelCombos[ch], CB_RESETCONTENT, 0, 0);
+
+    bool visible = (ch < pluginChannels);
+    ShowWindow(GetDlgItem(hwnd, kOutputChannelCombos[ch]), visible ? SW_SHOW : SW_HIDE);
+    ShowWindow(GetDlgItem(hwnd, kOutputChannelLabels[ch]), visible ? SW_SHOW : SW_HIDE);
+
+    if (visible)
+    {
+      // Add device channels
+      for (int devCh = 0; devCh < deviceChannels; ++devCh)
+      {
+        char buf[32];
+        snprintf(buf, sizeof(buf), "%d", devCh + 1);
+        SendDlgItemMessageA(hwnd, kOutputChannelCombos[ch], CB_ADDSTRING, 0,
+                            reinterpret_cast<LPARAM>(buf));
+      }
+
+      // Select current mapping
+      int selectIdx = 0;
+      if (ch < static_cast<int>(mState.outputMappings.size()))
+        selectIdx = std::min(mState.outputMappings[ch].deviceChannel, deviceChannels - 1);
+      SendDlgItemMessage(hwnd, kOutputChannelCombos[ch], CB_SETCURSEL, selectIdx, 0);
+    }
+  }
 }
 
 void SettingsDialogSWELL::PopulateMidiInputList(HWND hwnd)
 {
-  SendDlgItemMessage(hwnd, IDC_MIDI_IN_COMBO, CB_RESETCONTENT, 0, 0);
+  SendDlgItemMessage(hwnd, IDC_COMBO_MIDI_IN_DEV, CB_RESETCONTENT, 0, 0);
 
   int selectIdx = 0;
   for (size_t i = 0; i < mMidiInputDevices.size(); ++i)
   {
-    SendDlgItemMessage(hwnd, IDC_MIDI_IN_COMBO, CB_ADDSTRING, 0,
-                       reinterpret_cast<LPARAM>(mMidiInputDevices[i].c_str()));
+    SendDlgItemMessageA(hwnd, IDC_COMBO_MIDI_IN_DEV, CB_ADDSTRING, 0,
+                        reinterpret_cast<LPARAM>(mMidiInputDevices[i].c_str()));
     if (mMidiInputDevices[i] == mState.midiInputDevice)
       selectIdx = static_cast<int>(i);
   }
 
-  SendDlgItemMessage(hwnd, IDC_MIDI_IN_COMBO, CB_SETCURSEL, selectIdx, 0);
+  SendDlgItemMessage(hwnd, IDC_COMBO_MIDI_IN_DEV, CB_SETCURSEL, selectIdx, 0);
 }
 
 void SettingsDialogSWELL::PopulateMidiOutputList(HWND hwnd)
 {
-  SendDlgItemMessage(hwnd, IDC_MIDI_OUT_COMBO, CB_RESETCONTENT, 0, 0);
+  SendDlgItemMessage(hwnd, IDC_COMBO_MIDI_OUT_DEV, CB_RESETCONTENT, 0, 0);
 
   int selectIdx = 0;
   for (size_t i = 0; i < mMidiOutputDevices.size(); ++i)
   {
-    SendDlgItemMessage(hwnd, IDC_MIDI_OUT_COMBO, CB_ADDSTRING, 0,
-                       reinterpret_cast<LPARAM>(mMidiOutputDevices[i].c_str()));
+    SendDlgItemMessageA(hwnd, IDC_COMBO_MIDI_OUT_DEV, CB_ADDSTRING, 0,
+                        reinterpret_cast<LPARAM>(mMidiOutputDevices[i].c_str()));
     if (mMidiOutputDevices[i] == mState.midiOutputDevice)
       selectIdx = static_cast<int>(i);
   }
 
-  SendDlgItemMessage(hwnd, IDC_MIDI_OUT_COMBO, CB_SETCURSEL, selectIdx, 0);
+  SendDlgItemMessage(hwnd, IDC_COMBO_MIDI_OUT_DEV, CB_SETCURSEL, selectIdx, 0);
 }
 
 void SettingsDialogSWELL::PopulateMidiChannelLists(HWND hwnd)
 {
   // Input channel
-  SendDlgItemMessage(hwnd, IDC_MIDI_IN_CHAN_COMBO, CB_RESETCONTENT, 0, 0);
-  SendDlgItemMessage(hwnd, IDC_MIDI_IN_CHAN_COMBO, CB_ADDSTRING, 0, reinterpret_cast<LPARAM>("all"));
+  SendDlgItemMessage(hwnd, IDC_COMBO_MIDI_IN_CHAN, CB_RESETCONTENT, 0, 0);
+  SendDlgItemMessageA(hwnd, IDC_COMBO_MIDI_IN_CHAN, CB_ADDSTRING, 0, reinterpret_cast<LPARAM>("all"));
   for (int i = 1; i <= 16; ++i)
   {
     char buf[8];
     snprintf(buf, sizeof(buf), "%d", i);
-    SendDlgItemMessage(hwnd, IDC_MIDI_IN_CHAN_COMBO, CB_ADDSTRING, 0, reinterpret_cast<LPARAM>(buf));
+    SendDlgItemMessageA(hwnd, IDC_COMBO_MIDI_IN_CHAN, CB_ADDSTRING, 0, reinterpret_cast<LPARAM>(buf));
   }
-  SendDlgItemMessage(hwnd, IDC_MIDI_IN_CHAN_COMBO, CB_SETCURSEL, mState.midiInputChannel, 0);
+  SendDlgItemMessage(hwnd, IDC_COMBO_MIDI_IN_CHAN, CB_SETCURSEL, mState.midiInputChannel, 0);
 
   // Output channel
-  SendDlgItemMessage(hwnd, IDC_MIDI_OUT_CHAN_COMBO, CB_RESETCONTENT, 0, 0);
-  SendDlgItemMessage(hwnd, IDC_MIDI_OUT_CHAN_COMBO, CB_ADDSTRING, 0, reinterpret_cast<LPARAM>("all"));
+  SendDlgItemMessage(hwnd, IDC_COMBO_MIDI_OUT_CHAN, CB_RESETCONTENT, 0, 0);
+  SendDlgItemMessageA(hwnd, IDC_COMBO_MIDI_OUT_CHAN, CB_ADDSTRING, 0, reinterpret_cast<LPARAM>("all"));
   for (int i = 1; i <= 16; ++i)
   {
     char buf[8];
     snprintf(buf, sizeof(buf), "%d", i);
-    SendDlgItemMessage(hwnd, IDC_MIDI_OUT_CHAN_COMBO, CB_ADDSTRING, 0, reinterpret_cast<LPARAM>(buf));
+    SendDlgItemMessageA(hwnd, IDC_COMBO_MIDI_OUT_CHAN, CB_ADDSTRING, 0, reinterpret_cast<LPARAM>(buf));
   }
-  SendDlgItemMessage(hwnd, IDC_MIDI_OUT_CHAN_COMBO, CB_SETCURSEL, mState.midiOutputChannel, 0);
+  SendDlgItemMessage(hwnd, IDC_COMBO_MIDI_OUT_CHAN, CB_SETCURSEL, mState.midiOutputChannel, 0);
 }
 
 void SettingsDialogSWELL::UpdateControlStates(HWND hwnd)
 {
-  // Show/hide input controls based on I/O config
-  int ioIdx = mState.selectedIOConfig;
-  bool hasInputs = false;
-
-  if (ioIdx >= 0 && ioIdx < static_cast<int>(mIOConfigs.size()))
+  // Get current I/O config
+  int numInputs = 0;
+  if (mState.selectedIOConfig >= 0 &&
+      mState.selectedIOConfig < static_cast<int>(mIOConfigs.size()))
   {
-    hasInputs = mIOConfigs[ioIdx].numInputs > 0;
+    numInputs = mIOConfigs[mState.selectedIOConfig].numInputs;
   }
 
-  // Enable/disable input device combo
-  EnableWindow(GetDlgItem(hwnd, IDC_INPUT_DEV_COMBO), hasInputs);
-}
+  // Enable/disable input device combo based on whether plugin has inputs
+  bool hasInputs = (numInputs > 0);
+  EnableWindow(GetDlgItem(hwnd, IDC_COMBO_AUDIO_IN_DEV), hasInputs);
 
-void SettingsDialogSWELL::CreateLevelMeters(HWND hwnd)
-{
-  // Level meters will be drawn in a reserved area of the dialog
-  // The actual RECT bounds will be determined by the dialog layout
+#ifdef OS_WIN
+  // Enable ASIO config button only when using ASIO
+  EnableWindow(GetDlgItem(hwnd, IDC_BUTTON_OS_DEV_SETTINGS),
+               mState.audioApi == EAudioApi::kASIO);
+#endif
 }
 
 void SettingsDialogSWELL::UpdateLevelMeters()
@@ -606,50 +773,6 @@ void SettingsDialogSWELL::UpdateLevelMeters()
     float level = mAudioEngine->GetOutputPeakLevel(ch);
     mOutputMeters[ch].SetLevel(level);
   }
-}
-
-void SettingsDialogSWELL::PaintLevelMeters(HWND hwnd, HDC hdc)
-{
-  // Define meter areas (TODO: get from actual dialog layout)
-  RECT clientRect;
-  GetClientRect(hwnd, &clientRect);
-
-  // Input meters on left side
-  const int meterWidth = 16;
-  const int meterHeight = 100;
-  const int meterSpacing = 4;
-  int startX = 10;
-  int startY = 200; // Below other controls
-
-  for (int ch = 0; ch < mNumInputMeters; ++ch)
-  {
-    RECT meterRect = {
-      startX + ch * (meterWidth + meterSpacing),
-      startY,
-      startX + ch * (meterWidth + meterSpacing) + meterWidth,
-      startY + meterHeight
-    };
-    mInputMeters[ch].Paint(hdc, meterRect, false);
-  }
-
-  // Output meters on right side
-  startX = clientRect.right - 10 - mNumOutputMeters * (meterWidth + meterSpacing);
-
-  for (int ch = 0; ch < mNumOutputMeters; ++ch)
-  {
-    RECT meterRect = {
-      startX + ch * (meterWidth + meterSpacing),
-      startY,
-      startX + ch * (meterWidth + meterSpacing) + meterWidth,
-      startY + meterHeight
-    };
-    mOutputMeters[ch].Paint(hdc, meterRect, false);
-  }
-}
-
-void CALLBACK SettingsDialogSWELL::MeterTimerProc(HWND hwnd, UINT msg, UINT_PTR id, DWORD time)
-{
-  // Not used - timer handled in WM_TIMER
 }
 
 END_IPLUG_NAMESPACE

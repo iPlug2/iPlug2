@@ -10,7 +10,7 @@
 
 #ifdef OS_LINUX
 
-#include "IPlugAPP2_Host.h"
+#include "../IPlugAPP2_Host.h"
 #include "IPlugSWELL.h"
 #include "config.h"
 

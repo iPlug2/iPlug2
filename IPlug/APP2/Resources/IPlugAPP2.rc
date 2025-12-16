@@ -1,0 +1,247 @@
+// Microsoft Visual C++ generated resource script.
+// APP2 - Modernized Standalone App Wrapper
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "winres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (United Kingdom) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENG)
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_UK
+#pragma code_page(1252)
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog - Main Window (hosts plugin UI)
+//
+
+IDD_DIALOG_MAIN DIALOG 0, 0, 300, 300
+STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_MINIMIZEBOX | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "IPlug2 APP"
+MENU IDR_MENU1
+FONT 8, "MS Sans Serif"
+BEGIN
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog - Preferences (Audio/MIDI Settings with Level Meters)
+//
+// Layout:
+// +------------------------------------------+
+// | Audio Device Settings                    |
+// |  Driver: [combo]     Buffer: [combo]     |
+// |  Input:  [combo]     Rate:   [combo]     |
+// |  Output: [combo]     Config: [combo]     |
+// +------------------------------------------+
+// | Channel Routing          | Level Meters  |
+// |  In 1: [combo]  Out 1:[] |  [IN] [OUT]   |
+// |  In 2: [combo]  Out 2:[] |  [==] [==]    |
+// |  ...                     |  [==] [==]    |
+// +------------------------------------------+
+// | MIDI Device Settings                     |
+// |  In:  [combo]   Channel: [combo]         |
+// |  Out: [combo]   Channel: [combo]         |
+// +------------------------------------------+
+// |        [Apply]    [OK]    [Cancel]       |
+// +------------------------------------------+
+
+IDD_DIALOG_PREF DIALOG 0, 0, 340, 380
+STYLE DS_SETFONT | DS_MODALFRAME | DS_3DLOOK | DS_FIXEDSYS | DS_CENTER | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+CAPTION "Preferences"
+FONT 8, "MS Sans Serif"
+BEGIN
+    // Audio Device Settings Group
+    GROUPBOX        "Audio Device Settings", IDC_GROUP_AUDIO, 5, 5, 330, 95
+
+    LTEXT           "Driver Type", IDC_STATIC_DRIVER, 15, 20, 45, 8
+    COMBOBOX        IDC_COMBO_AUDIO_DRIVER, 15, 30, 100, 100, CBS_DROPDOWNLIST | CBS_HASSTRINGS
+
+    LTEXT           "Buffer Size", IDC_STATIC_BUFFER_SIZE, 125, 20, 45, 8
+    COMBOBOX        IDC_COMBO_AUDIO_BUF_SIZE, 125, 30, 65, 100, CBS_DROPDOWNLIST | CBS_HASSTRINGS
+
+    LTEXT           "I/O Config", IDC_STATIC_IO_CONFIG, 200, 20, 45, 8
+    COMBOBOX        IDC_COMBO_IO_CONFIG, 200, 30, 125, 100, CBS_DROPDOWNLIST | CBS_HASSTRINGS
+
+    LTEXT           "Input Device", IDC_STATIC_INPUT_DEV, 15, 50, 50, 8
+    COMBOBOX        IDC_COMBO_AUDIO_IN_DEV, 15, 60, 150, 200, CBS_DROPDOWNLIST | CBS_HASSTRINGS
+
+    LTEXT           "Sample Rate", IDC_STATIC_SAMPLE_RATE, 175, 50, 50, 8
+    COMBOBOX        IDC_COMBO_AUDIO_SR, 175, 60, 70, 200, CBS_DROPDOWNLIST | CBS_HASSTRINGS
+
+    LTEXT           "Output Device", IDC_STATIC_OUTPUT_DEV, 15, 78, 55, 8
+    COMBOBOX        IDC_COMBO_AUDIO_OUT_DEV, 15, 88, 150, 200, CBS_DROPDOWNLIST | CBS_HASSTRINGS
+
+    PUSHBUTTON      "Config...", IDC_BUTTON_OS_DEV_SETTINGS, 255, 60, 70, 14
+
+    // Channel Routing Group
+    GROUPBOX        "Channel Routing", IDC_GROUP_ROUTING, 5, 105, 200, 130
+
+    // Input channels (left column)
+    LTEXT           "In 1", IDC_STATIC_IN_CH1, 15, 120, 20, 8
+    COMBOBOX        IDC_COMBO_IN_CH1, 35, 118, 55, 200, CBS_DROPDOWNLIST | CBS_HASSTRINGS
+    LTEXT           "In 2", IDC_STATIC_IN_CH2, 15, 136, 20, 8
+    COMBOBOX        IDC_COMBO_IN_CH2, 35, 134, 55, 200, CBS_DROPDOWNLIST | CBS_HASSTRINGS
+    LTEXT           "In 3", IDC_STATIC_IN_CH3, 15, 152, 20, 8
+    COMBOBOX        IDC_COMBO_IN_CH3, 35, 150, 55, 200, CBS_DROPDOWNLIST | CBS_HASSTRINGS
+    LTEXT           "In 4", IDC_STATIC_IN_CH4, 15, 168, 20, 8
+    COMBOBOX        IDC_COMBO_IN_CH4, 35, 166, 55, 200, CBS_DROPDOWNLIST | CBS_HASSTRINGS
+    LTEXT           "In 5", IDC_STATIC_IN_CH5, 15, 184, 20, 8
+    COMBOBOX        IDC_COMBO_IN_CH5, 35, 182, 55, 200, CBS_DROPDOWNLIST | CBS_HASSTRINGS
+    LTEXT           "In 6", IDC_STATIC_IN_CH6, 15, 200, 20, 8
+    COMBOBOX        IDC_COMBO_IN_CH6, 35, 198, 55, 200, CBS_DROPDOWNLIST | CBS_HASSTRINGS
+    LTEXT           "In 7", IDC_STATIC_IN_CH7, 15, 216, 20, 8
+    COMBOBOX        IDC_COMBO_IN_CH7, 35, 214, 55, 200, CBS_DROPDOWNLIST | CBS_HASSTRINGS
+    LTEXT           "In 8", IDC_STATIC_IN_CH8, 15, 232, 20, 8  // Hidden by default
+    COMBOBOX        IDC_COMBO_IN_CH8, 35, 230, 55, 200, CBS_DROPDOWNLIST | CBS_HASSTRINGS  // Hidden by default
+
+    // Output channels (right column)
+    LTEXT           "Out 1", IDC_STATIC_OUT_CH1, 100, 120, 25, 8
+    COMBOBOX        IDC_COMBO_OUT_CH1, 125, 118, 55, 200, CBS_DROPDOWNLIST | CBS_HASSTRINGS
+    LTEXT           "Out 2", IDC_STATIC_OUT_CH2, 100, 136, 25, 8
+    COMBOBOX        IDC_COMBO_OUT_CH2, 125, 134, 55, 200, CBS_DROPDOWNLIST | CBS_HASSTRINGS
+    LTEXT           "Out 3", IDC_STATIC_OUT_CH3, 100, 152, 25, 8
+    COMBOBOX        IDC_COMBO_OUT_CH3, 125, 150, 55, 200, CBS_DROPDOWNLIST | CBS_HASSTRINGS
+    LTEXT           "Out 4", IDC_STATIC_OUT_CH4, 100, 168, 25, 8
+    COMBOBOX        IDC_COMBO_OUT_CH4, 125, 166, 55, 200, CBS_DROPDOWNLIST | CBS_HASSTRINGS
+    LTEXT           "Out 5", IDC_STATIC_OUT_CH5, 100, 184, 25, 8
+    COMBOBOX        IDC_COMBO_OUT_CH5, 125, 182, 55, 200, CBS_DROPDOWNLIST | CBS_HASSTRINGS
+    LTEXT           "Out 6", IDC_STATIC_OUT_CH6, 100, 200, 25, 8
+    COMBOBOX        IDC_COMBO_OUT_CH6, 125, 198, 55, 200, CBS_DROPDOWNLIST | CBS_HASSTRINGS
+    LTEXT           "Out 7", IDC_STATIC_OUT_CH7, 100, 216, 25, 8
+    COMBOBOX        IDC_COMBO_OUT_CH7, 125, 214, 55, 200, CBS_DROPDOWNLIST | CBS_HASSTRINGS
+    LTEXT           "Out 8", IDC_STATIC_OUT_CH8, 100, 232, 25, 8  // Hidden by default
+    COMBOBOX        IDC_COMBO_OUT_CH8, 125, 230, 55, 200, CBS_DROPDOWNLIST | CBS_HASSTRINGS  // Hidden by default
+
+    // Level Meters Group (right side, next to routing)
+    GROUPBOX        "Level Meters", IDC_GROUP_METERS, 210, 105, 125, 130
+    LTEXT           "Input", IDC_STATIC_INPUT_METERS_LABEL, 225, 118, 30, 8
+    LTEXT           "Output", IDC_STATIC_OUTPUT_METERS_LABEL, 280, 118, 30, 8
+    // Meter area - will be owner-drawn
+    CONTROL         "", IDC_STATIC_INPUT_METERS, "Static", SS_OWNERDRAW, 220, 130, 50, 95
+    CONTROL         "", IDC_STATIC_OUTPUT_METERS, "Static", SS_OWNERDRAW, 275, 130, 50, 95
+
+    // MIDI Device Settings Group
+    GROUPBOX        "MIDI Device Settings", IDC_GROUP_MIDI, 5, 240, 330, 65
+
+    LTEXT           "Input Device", IDC_STATIC_MIDI_IN_DEV, 15, 255, 50, 8
+    COMBOBOX        IDC_COMBO_MIDI_IN_DEV, 15, 265, 130, 200, CBS_DROPDOWNLIST | CBS_HASSTRINGS
+
+    LTEXT           "Input Channel", IDC_STATIC_MIDI_IN_CHAN, 155, 255, 50, 8
+    COMBOBOX        IDC_COMBO_MIDI_IN_CHAN, 155, 265, 55, 200, CBS_DROPDOWNLIST | CBS_HASSTRINGS
+
+    LTEXT           "Output Device", IDC_STATIC_MIDI_OUT_DEV, 15, 283, 55, 8
+    COMBOBOX        IDC_COMBO_MIDI_OUT_DEV, 15, 293, 130, 200, CBS_DROPDOWNLIST | CBS_HASSTRINGS
+
+    LTEXT           "Output Channel", IDC_STATIC_MIDI_OUT_CHAN, 155, 283, 55, 8
+    COMBOBOX        IDC_COMBO_MIDI_OUT_CHAN, 155, 293, 55, 200, CBS_DROPDOWNLIST | CBS_HASSTRINGS
+
+    // Status text area
+    LTEXT           "", IDC_STATIC, 15, 315, 310, 20
+
+    // Buttons
+    PUSHBUTTON      "Apply", IDAPPLY, 140, 355, 55, 14
+    DEFPUSHBUTTON   "OK", IDOK, 200, 355, 55, 14
+    PUSHBUTTON      "Cancel", IDCANCEL, 260, 355, 55, 14
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_MENU1 MENU
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "&Preferences...\tCtrl+,",     ID_PREFERENCES
+        MENUITEM SEPARATOR
+        MENUITEM "&Quit",                       ID_QUIT
+    END
+    POPUP "&Debug"
+    BEGIN
+        MENUITEM "&Live Edit Mode\tCtrl+E",     ID_LIVE_EDIT
+        MENUITEM "&Show Control Bounds\tCtrl+B", ID_SHOW_BOUNDS
+        MENUITEM "&Show Drawn Area\tCtrl+D",    ID_SHOW_DRAWN
+        MENUITEM "&Show FPS\tCtrl+F",           ID_SHOW_FPS
+    END
+    POPUP "&Help"
+    BEGIN
+        MENUITEM "&About",                      ID_ABOUT
+        MENUITEM "&Read Manual",                ID_HELP
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Accelerator
+//
+
+IDR_ACCELERATOR1 ACCELERATORS
+BEGIN
+    VK_OEM_COMMA,   ID_PREFERENCES,         VIRTKEY, CONTROL, NOINVERT
+    "B",            ID_SHOW_BOUNDS,         VIRTKEY, CONTROL, NOINVERT
+    "D",            ID_SHOW_DRAWN,          VIRTKEY, CONTROL, NOINVERT
+    "F",            ID_SHOW_FPS,            VIRTKEY, CONTROL, NOINVERT
+    "E",            ID_LIVE_EDIT,           VIRTKEY, CONTROL, NOINVERT
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO
+BEGIN
+    IDD_DIALOG_PREF, DIALOG
+    BEGIN
+    END
+
+    IDD_DIALOG_MAIN, DIALOG
+    BEGIN
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE
+BEGIN
+    "#include ""winres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE
+BEGIN
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+#endif    // English (United Kingdom) resources
+/////////////////////////////////////////////////////////////////////////////
