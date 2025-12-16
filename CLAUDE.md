@@ -56,7 +56,7 @@ Cross-platform C++ audio plugin framework with two main components:
 - Member variables: `mCamelCase`
 - Pointer args: `pCamelCase`
 - Internal methods: `_methodName`
-- Use C++11 (`override`, `final`, `auto`)
+- Use C++17 (`override`, `final`, `auto`, `std::optional`, `std::string_view`)
 - Avoid STL in core code; prefer WDL alternatives
 
 ## Resources

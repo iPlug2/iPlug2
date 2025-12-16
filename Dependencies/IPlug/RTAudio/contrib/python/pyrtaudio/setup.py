@@ -40,7 +40,6 @@ elif OSNAME == 'Windows':
     extra_compile_args.append('-EHsc')
 
 
-
 audio = Extension('rtaudio',
                  sources=sources,
                  libraries=libraries,

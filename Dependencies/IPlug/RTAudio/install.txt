@@ -1,6 +1,6 @@
 RtAudio - a set of C++ classes which provide a common API for realtime audio input/output across Linux (native ALSA, JACK, PulseAudio, and OSS), Macintosh OS X (CoreAudio and JACK), and Windows (DirectSound, ASIO and WASAPI) operating systems.
 
-By Gary P. Scavone, 2001-2019.
+By Gary P. Scavone, 2001-2023.
 
 To configure and compile (on Unix systems and MinGW):
 
@@ -39,7 +39,20 @@ CMake support is provided via the CMakeLists.txt files.  Assuming you have CMake
 
 mkdir _build_
 cd _build_
-cmake <path to CMakeLists.txt usually two dots> <options> e.g. cmake .. -DAUDIO_WINDOWS_WASAPI=ON
+cmake <path to CMakeLists.txt usually two dots> <options> e.g. cmake .. -DRTAUDIO_WINDOWS_WASAPI=ON
+
+
+VCPKG USAGE:
+
+You can build and install rtaudio using [vcpkg](https://github.com/Microsoft/vcpkg/) dependency manager:
+
+git clone https://github.com/Microsoft/vcpkg.git
+cd vcpkg
+./bootstrap-vcpkg.sh  # ./bootstrap-vcpkg.bat for Windows
+./vcpkg integrate install
+./vcpkg install rtaudio
+
+The rtaudio port in vcpkg is kept up to date by Microsoft team members and community contributors. If the version is out of date, please [create an issue or pull request](https://github.com/Microsoft/vcpkg) on the vcpkg repository.
 
 
 WINDOWS:

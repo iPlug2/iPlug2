@@ -6,7 +6,7 @@ These guidelines exist in order to try and tidy up the IPlug code base. Every de
 
 * Files should be unix format line endings, unless they are windows specific
 
-* C++11 stuff: `override` keyword, `final` keyword, `auto` where sensible
+* C++17: `override` keyword, `final` keyword, `auto` where sensible, `std::optional`, `std::string_view`
 
 * Do not use the STL, unless API classes depend on it. `WDL_String` is used rather than `std::string`, setters that require string arguments take `const char*` UTF8 cstrings
 

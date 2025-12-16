@@ -14,7 +14,7 @@
  
  IPlug plug-in -> Standalone app wrapper, using Cockos' SWELL
  
- Oli Larkin 2014-2018
+ Oli Larkin 2014-2025
  
  Notes:
  
@@ -33,6 +33,7 @@
 #include <vector>
 #include <limits>
 #include <memory>
+#include <optional>
 
 #include "wdltypes.h"
 #include "wdlstring.h"
@@ -82,7 +83,7 @@ class IPlugAPPHost
 {
 public:
   
-  /** Used to manage changes to app i/o */
+  /** Used to manage changes to app I/O */
   struct AppState
   {
     WDL_String mAudioInDev;
@@ -131,8 +132,8 @@ public:
     
     , mAudioInChanL(obj.mAudioInChanL)
     , mAudioInChanR(obj.mAudioInChanR)
-    , mAudioOutChanL(obj.mAudioInChanL)
-    , mAudioOutChanR(obj.mAudioInChanR)
+    , mAudioOutChanL(obj.mAudioOutChanL)
+    , mAudioOutChanR(obj.mAudioOutChanR)
     {
     }
     
@@ -142,16 +143,14 @@ public:
               rhs.mAudioSR == mAudioSR &&
               rhs.mMidiInChan == mMidiInChan &&
               rhs.mMidiOutChan == mMidiOutChan &&
-              (strcmp(rhs.mAudioInDev.Get(), mAudioInDev.Get()) == 0) &&
-              (strcmp(rhs.mAudioOutDev.Get(), mAudioOutDev.Get()) == 0) &&
-              (strcmp(rhs.mMidiInDev.Get(), mMidiInDev.Get()) == 0) &&
-              (strcmp(rhs.mMidiOutDev.Get(), mMidiOutDev.Get()) == 0) &&
-
+              (std::string_view(rhs.mAudioInDev.Get()) == mAudioInDev.Get()) &&
+              (std::string_view(rhs.mAudioOutDev.Get()) == mAudioOutDev.Get()) &&
+              (std::string_view(rhs.mMidiInDev.Get()) == mMidiInDev.Get()) &&
+              (std::string_view(rhs.mMidiOutDev.Get()) == mMidiOutDev.Get()) &&
               rhs.mAudioInChanL == mAudioInChanL &&
               rhs.mAudioInChanR == mAudioInChanR &&
               rhs.mAudioOutChanL == mAudioOutChanL &&
               rhs.mAudioOutChanR == mAudioOutChanR
-
       );
     }
     bool operator!=(const AppState& rhs) const { return !operator==(rhs); }
@@ -178,23 +177,21 @@ public:
   bool InitState();
   void UpdateINI();
   
-  /** Returns the name of the audio device at idx
-   * @param idx The index RTAudio has given the audio device
+  /** Returns the name of the audio device with a given RTAudio device ID
+   * @param deviceID The ID RTAudio has given the audio device
    * @return The device name. Core Audio device names are truncated. */
-  std::string GetAudioDeviceName(int idx) const;
-  // returns the rtaudio device ID, based on the (truncated) device name
+  std::string GetAudioDeviceName(uint32_t deviceID) const;
   
-  /** Returns the audio device index linked to a particular name
+  /** Returns the a validated audio device ID linked to a particular name
   * @param name The name of the audio device to test
-  * @return The integer index RTAudio has given the audio device */
-  int GetAudioDeviceIdx(const char* name) const;
+  * @return The ID RTAudio has given the audio device if found */
+  std::optional<uint32_t> GetAudioDeviceID(const char* name) const;
   
   /** @param direction Either kInput or kOutput
    * @param name The name of the midi device
    * @return An integer specifying the output port number, where 0 means any */
   int GetMIDIPortNumber(ERoute direction, const char* name) const;
   
-  /** find out which devices have input channels & which have output channels, add their ids to the lists */
   void ProbeAudioIO();
   void ProbeMidiIO();
   bool InitMidi();
@@ -209,7 +206,7 @@ public:
   
   static int AudioCallback(void* pOutputBuffer, void* pInputBuffer, uint32_t nFrames, double streamTime, RtAudioStreamStatus status, void* pUserData);
   static void MIDICallback(double deltatime, std::vector<uint8_t>* pMsg, void* pUserData);
-  static void ErrorCallback(RtAudioError::Type type, const std::string& errorText);
+  static void ErrorCallback(RtAudioErrorType type, const std::string& errorText);
 
   static WDL_DLGRET PreferencesDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
   static WDL_DLGRET MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
@@ -222,8 +219,7 @@ private:
   std::unique_ptr<RtMidiOut> mMidiOut = nullptr;
   int mMidiOutChannel = -1;
   int mMidiInChannel = -1;
-  
-  /**  */
+
   AppState mState;
   /** When the preferences dialog is opened the existing state is cached here, and restored if cancel is pressed */
   AppState mTempState;
@@ -239,22 +235,21 @@ private:
   bool mAudioEnding = false;
   bool mAudioDone = false;
 
-  /** The index of the operating systems default input device, -1 if not detected */
-  int32_t mDefaultInputDev = -1;
-  /** The index of the operating systems default output device, -1 if not detected */
-  int32_t mDefaultOutputDev = -1;
+  /** The ID of the operating system's default input device if detected */
+  std::optional<uint32_t> mDefaultInputDev;
+  /** The ID of the operating system's default output device if detected */
+  std::optional<uint32_t> mDefaultOutputDev;
     
   WDL_String mINIPath;
-  
-  std::vector<uint32_t> mAudioInputDevs;
-  std::vector<uint32_t> mAudioOutputDevs;
-  std::vector<std::string> mAudioIDDevNames;
+
+  std::vector<uint32_t> mAudioInputDevIDs;
+  std::vector<uint32_t> mAudioOutputDevIDs;
   std::vector<std::string> mMidiInputDevNames;
   std::vector<std::string> mMidiOutputDevNames;
   
   WDL_PtrList<double> mInputBufPtrs;
   WDL_PtrList<double> mOutputBufPtrs;
-
+  
   friend class IPlugAPP;
 };
 
