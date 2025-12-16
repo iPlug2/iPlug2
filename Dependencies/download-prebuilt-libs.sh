@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -eo pipefail
 
 if [ "$1" == "" ]; then
   if [ "$(uname)" == "Darwin" ]; then

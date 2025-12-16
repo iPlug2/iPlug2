@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -eo pipefail
 
 # 1st argument = tag name
 # 2nd argument = "build-validator" to build the vst3-validator
@@ -20,7 +21,11 @@ git submodule update --init vstgui4
 if [ "$2" == "build-validator" ]; then
   mkdir VST3_BUILD
   cd VST3_BUILD
-  cmake ..
+  if [ "$(uname)" == "Darwin" ]; then
+    cmake .. -G Xcode
+  else
+    cmake ..
+  fi
   cmake --build . --target validator -j --config=Release
   if [ -d "./bin/Release" ]; then
     mv ./bin/Release/validator ../validator
