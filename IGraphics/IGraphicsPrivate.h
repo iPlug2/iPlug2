@@ -15,13 +15,13 @@
  * @{
  */
 
-#include <codecvt>
 #include <string>
 #include <memory>
 
 #include "mutex.h"
 #include "wdlstring.h"
 #include "wdlendian.h"
+#include "wdlutf8.h"
 #include "ptrlist.h"
 #include "heapbuf.h"
 
@@ -84,6 +84,82 @@ BEGIN_IGRAPHICS_NAMESPACE
 using BitmapData = BITMAP_DATA_TYPE;
 using FontDescriptor = FONT_DESCRIPTOR_TYPE;
 using RawBitmapData = WDL_TypedBuf<uint8_t>;
+
+/** Convert a UTF-8 string to a std::u16string (UTF-16)
+ * @param utf8 The UTF-8 string to convert
+ * @return The converted UTF-16 string */
+inline std::u16string UTF8ToUTF16(const char* utf8)
+{
+  std::u16string result;
+  if (!utf8) return result;
+
+  while (*utf8)
+  {
+    int codepoint;
+    int len = wdl_utf8_parsechar(utf8, &codepoint);
+
+    if (codepoint >= 0x10000 && codepoint < 0x10FFFF)
+    {
+      // Surrogate pair
+      result += static_cast<char16_t>(0xD800 + (((codepoint - 0x10000) >> 10) & 0x3FF));
+      result += static_cast<char16_t>(0xDC00 + ((codepoint - 0x10000) & 0x3FF));
+    }
+    else
+    {
+      result += static_cast<char16_t>(codepoint);
+    }
+    utf8 += len;
+  }
+  return result;
+}
+
+/** Convert a UTF-8 string to a std::u16string (UTF-16)
+ * @param utf8 The UTF-8 string to convert
+ * @return The converted UTF-16 string */
+inline std::u16string UTF8ToUTF16(const std::string& utf8)
+{
+  return UTF8ToUTF16(utf8.c_str());
+}
+
+/** Convert a UTF-16 char16_t string to a UTF-8 std::string
+ * @param utf16 Pointer to the UTF-16 string
+ * @param len Number of char16_t units (-1 for null-terminated)
+ * @return The converted UTF-8 string */
+inline std::string UTF16ToUTF8(const char16_t* utf16, int len = -1)
+{
+  std::string result;
+  if (!utf16) return result;
+
+  const char16_t* end = (len < 0) ? nullptr : utf16 + len;
+
+  while ((end ? (utf16 < end) : true) && *utf16)
+  {
+    int codepoint = *utf16++;
+
+    // Handle surrogate pairs
+    if (codepoint >= 0xD800 && codepoint <= 0xDBFF)
+    {
+      if ((end ? (utf16 < end) : true) && *utf16 >= 0xDC00 && *utf16 <= 0xDFFF)
+      {
+        codepoint = 0x10000 + ((codepoint - 0xD800) << 10) + (*utf16++ - 0xDC00);
+      }
+    }
+
+    char buf[4];
+    int written = wdl_utf8_makechar(codepoint, buf, 4);
+    if (written > 0)
+      result.append(buf, written);
+  }
+  return result;
+}
+
+/** Convert a std::u16string (UTF-16) to a UTF-8 std::string
+ * @param utf16 The UTF-16 string to convert
+ * @return The converted UTF-8 string */
+inline std::string UTF16ToUTF8(const std::u16string& utf16)
+{
+  return UTF16ToUTF8(utf16.data(), static_cast<int>(utf16.size()));
+}
 
 /** A base class interface for a bitmap abstraction around the different drawing back end bitmap representations.
  * In most cases it does own the bitmap data, the exception being with NanoVG, where the image is loaded onto the GPU as a texture,
@@ -275,22 +351,14 @@ private:
         {
           case EStringID::Windows:
           {
-            WDL_TypedBuf<char> utf8;
             WDL_TypedBuf<char16_t> utf16;
-            utf8.Resize((length * 3) / 2);
             utf16.Resize(length / sizeof(char16_t));
-            
-            for (int j = 0; j < length; j++)
+
+            for (int j = 0; j < utf16.GetSize(); j++)
               utf16.Get()[j] = GetUInt16(mNameLocation + stringLocation + j * 2);
-            
-            std::codecvt_utf8_utf16<char16_t> conv;
-            const char16_t *a;
-            char *b;
-            mbstate_t mbs;
-            memset(&mbs, 0, sizeof(mbs));
-            conv.out(mbs, utf16.Get(), utf16.Get() + utf16.GetSize(), a, utf8.Get(), utf8.Get() + utf8.GetSize(), b);
-            
-            return WDL_String(utf8.Get(), (int) (b - utf8.Get()));
+
+            std::string utf8 = UTF16ToUTF8(utf16.Get(), utf16.GetSize());
+            return WDL_String(utf8.c_str(), static_cast<int>(utf8.length()));
           }
             
           case EStringID::Mac:
