@@ -1354,7 +1354,21 @@ IPopupMenu* IGraphicsWin::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT 
 
     ::ClientToScreen(mPlugWnd, &cPos);
 
-    if (TrackPopupMenu(hMenu, TPM_LEFTALIGN, cPos.x, cPos.y, 0, mPlugWnd, 0))
+    UINT flags = TPM_LEFTALIGN;
+    HMONITOR hMonitor = MonitorFromPoint(cPos,MONITOR_DEFAULTTONEAREST);
+    MONITORINFO monitorInfo;
+    monitorInfo.cbSize = sizeof(monitorInfo);
+    if (GetMonitorInfo(hMonitor,&monitorInfo))
+    {
+      LONG distanceLeft = abs(cPos.x-monitorInfo.rcWork.left);
+      LONG distanceRight = abs(cPos.x-monitorInfo.rcWork.right);
+      if (distanceRight < distanceLeft)
+      {
+        flags = TPM_RIGHTALIGN;
+      }
+    }
+
+    if (TrackPopupMenu(hMenu, flags, cPos.x, cPos.y, 0, mPlugWnd, 0))
     {
       MSG msg;
       if (PeekMessage(&msg, mPlugWnd, WM_COMMAND, WM_COMMAND, PM_REMOVE))
