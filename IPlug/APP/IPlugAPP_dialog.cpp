@@ -426,8 +426,10 @@ WDL_DLGRET IPlugAPPHost::PreferencesDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wPar
 
         case IDC_COMBO_AUDIO_IN_R:
           if (HIWORD(wParam) == CBN_SELCHANGE)
-            SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_IN_R,CB_SETCURSEL, mState.mAudioInChanR - 1, 0);  // TEMP
-                mState.mAudioInChanR = (int) SendDlgItemMessage(hwndDlg, IDC_COMBO_AUDIO_IN_R, CB_GETCURSEL, 0, 0);
+          {
+            // TEMP: Right channel is locked to left+1, reset selection
+            SendDlgItemMessage(hwndDlg, IDC_COMBO_AUDIO_IN_R, CB_SETCURSEL, mState.mAudioInChanR - 1, 0);
+          }
           break;
 
         case IDC_COMBO_AUDIO_OUT_L:
@@ -444,8 +446,10 @@ WDL_DLGRET IPlugAPPHost::PreferencesDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wPar
 
         case IDC_COMBO_AUDIO_OUT_R:
           if (HIWORD(wParam) == CBN_SELCHANGE)
-            SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_OUT_R,CB_SETCURSEL, mState.mAudioOutChanR - 1, 0);  // TEMP
-                mState.mAudioOutChanR = (int) SendDlgItemMessage(hwndDlg, IDC_COMBO_AUDIO_OUT_R, CB_GETCURSEL, 0, 0);
+          {
+            // TEMP: Right channel is locked to left+1, reset selection
+            SendDlgItemMessage(hwndDlg, IDC_COMBO_AUDIO_OUT_R, CB_SETCURSEL, mState.mAudioOutChanR - 1, 0);
+          }
           break;
 
 //        case IDC_CB_MONO_INPUT:

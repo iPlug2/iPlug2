@@ -324,6 +324,9 @@ void IPlugAPPHost::ProbeMidiIO()
     return;
   else
   {
+    mMidiInputDevNames.clear();
+    mMidiOutputDevNames.clear();
+
     int nInputPorts = mMidiIn->getPortCount();
 
     mMidiInputDevNames.push_back(OFF_TEXT);
