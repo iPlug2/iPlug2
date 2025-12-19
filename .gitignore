@@ -51,3 +51,4 @@ Examples/IPlugConvoEngine/r8brain
 Examples/*/build*
 Tests/*/build*
 build/*
+.claude/settings.local.json
