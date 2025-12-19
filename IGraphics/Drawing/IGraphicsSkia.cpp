@@ -67,6 +67,12 @@
     #pragma comment(lib, "skunicode_icu.lib")
   #endif
 
+  #ifdef IGRAPHICS_CPU_D3D
+    #include <d3d11.h>
+    #include <dxgi.h>
+    #pragma comment(lib, "d3d11.lib")
+    #pragma comment(lib, "dxgi.lib")
+  #endif
 
 #endif
 
@@ -353,6 +359,8 @@ IGraphicsSkia::IGraphicsSkia(IGEditorDelegate& dlg, int w, int h, int fps, float
 
 #if defined IGRAPHICS_CPU_METAL
   DBGMSG("IGraphics Skia CPU+Metal @ %i FPS\n", fps);
+#elif defined IGRAPHICS_CPU_D3D
+  DBGMSG("IGraphics Skia CPU+D3D @ %i FPS\n", fps);
 #elif defined IGRAPHICS_CPU
   DBGMSG("IGraphics Skia CPU @ %i FPS\n", fps);
 #elif defined IGRAPHICS_METAL
@@ -437,6 +445,82 @@ void IGraphicsSkia::OnViewInitialized(void* pContext)
   mMTLCommandQueue = (void*) commandQueue;
   mMTLLayer = pContext;
   // Note: We don't create mGrContext - CPU rendering doesn't need it
+#elif defined IGRAPHICS_CPU_D3D
+  // CPU rendering with D3D11 blitting - set up D3D11 for display only
+  {
+    HWND hWnd = (HWND) GetWindow();
+
+    // Create D3D11 device and device context
+    D3D_FEATURE_LEVEL featureLevels[] = { D3D_FEATURE_LEVEL_11_0, D3D_FEATURE_LEVEL_10_1, D3D_FEATURE_LEVEL_10_0 };
+    D3D_FEATURE_LEVEL featureLevel;
+    UINT createDeviceFlags = 0;
+#ifdef _DEBUG
+    createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
+#endif
+
+    ID3D11Device* device = nullptr;
+    ID3D11DeviceContext* deviceContext = nullptr;
+
+    HRESULT hr = D3D11CreateDevice(
+      nullptr,                    // Use default adapter
+      D3D_DRIVER_TYPE_HARDWARE,   // Use hardware acceleration
+      nullptr,                    // No software rasterizer
+      createDeviceFlags,
+      featureLevels,
+      ARRAYSIZE(featureLevels),
+      D3D11_SDK_VERSION,
+      &device,
+      &featureLevel,
+      &deviceContext
+    );
+
+    if (SUCCEEDED(hr))
+    {
+      mD3DDevice = device;
+      mD3DDeviceContext = deviceContext;
+
+      // Get DXGI factory from device
+      IDXGIDevice* dxgiDevice = nullptr;
+      IDXGIAdapter* dxgiAdapter = nullptr;
+      IDXGIFactory* dxgiFactory = nullptr;
+
+      device->QueryInterface(__uuidof(IDXGIDevice), (void**)&dxgiDevice);
+      dxgiDevice->GetAdapter(&dxgiAdapter);
+      dxgiAdapter->GetParent(__uuidof(IDXGIFactory), (void**)&dxgiFactory);
+
+      // Create swap chain
+      DXGI_SWAP_CHAIN_DESC swapChainDesc = {};
+      swapChainDesc.BufferCount = 1;
+      swapChainDesc.BufferDesc.Width = WindowWidth() * GetScreenScale();
+      swapChainDesc.BufferDesc.Height = WindowHeight() * GetScreenScale();
+      swapChainDesc.BufferDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
+      swapChainDesc.BufferDesc.RefreshRate.Numerator = 60;
+      swapChainDesc.BufferDesc.RefreshRate.Denominator = 1;
+      swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+      swapChainDesc.OutputWindow = hWnd;
+      swapChainDesc.SampleDesc.Count = 1;
+      swapChainDesc.SampleDesc.Quality = 0;
+      swapChainDesc.Windowed = TRUE;
+      swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
+
+      IDXGISwapChain* swapChain = nullptr;
+      hr = dxgiFactory->CreateSwapChain(device, &swapChainDesc, &swapChain);
+
+      if (SUCCEEDED(hr))
+      {
+        mD3DSwapChain = swapChain;
+
+        // Get back buffer
+        ID3D11Texture2D* backBuffer = nullptr;
+        swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backBuffer);
+        mD3DBackBuffer = backBuffer;
+      }
+
+      dxgiFactory->Release();
+      dxgiAdapter->Release();
+      dxgiDevice->Release();
+    }
+  }
 #elif defined IGRAPHICS_METAL
   CAMetalLayer* pMTLLayer = (CAMetalLayer*) pContext;
   id<MTLDevice> device = pMTLLayer.device;
@@ -471,6 +555,33 @@ void IGraphicsSkia::OnViewDestroyed()
   mMTLCommandQueue = nullptr;
   mMTLLayer = nullptr;
   mMTLDevice = nullptr;
+  mSurface = nullptr;
+#elif defined IGRAPHICS_CPU_D3D
+  if (mD3DStagingTexture)
+  {
+    ((ID3D11Texture2D*)mD3DStagingTexture)->Release();
+    mD3DStagingTexture = nullptr;
+  }
+  if (mD3DBackBuffer)
+  {
+    ((ID3D11Texture2D*)mD3DBackBuffer)->Release();
+    mD3DBackBuffer = nullptr;
+  }
+  if (mD3DSwapChain)
+  {
+    ((IDXGISwapChain*)mD3DSwapChain)->Release();
+    mD3DSwapChain = nullptr;
+  }
+  if (mD3DDeviceContext)
+  {
+    ((ID3D11DeviceContext*)mD3DDeviceContext)->Release();
+    mD3DDeviceContext = nullptr;
+  }
+  if (mD3DDevice)
+  {
+    ((ID3D11Device*)mD3DDevice)->Release();
+    mD3DDevice = nullptr;
+  }
   mSurface = nullptr;
 #elif defined IGRAPHICS_METAL
   [(id<MTLCommandQueue>) mMTLCommandQueue release];
@@ -511,6 +622,65 @@ void IGraphicsSkia::DrawResize()
 
       mMTLTexture = [(id<MTLDevice>) mMTLDevice newTextureWithDescriptor:textureDescriptor];
       [textureDescriptor release];
+    }
+  }
+#elif defined IGRAPHICS_CPU_D3D
+  // CPU rendering with D3D11 blitting: create CPU raster surface and D3D staging texture
+  {
+    // Create CPU raster surface for Skia to render to (BGRA format to match D3D)
+    SkImageInfo info = SkImageInfo::Make(w, h, kBGRA_8888_SkColorType, kPremul_SkAlphaType, nullptr);
+    mSurface = SkSurfaces::Raster(info);
+
+    if (mD3DDevice && mD3DSwapChain)
+    {
+      ID3D11Device* device = (ID3D11Device*)mD3DDevice;
+      IDXGISwapChain* swapChain = (IDXGISwapChain*)mD3DSwapChain;
+
+      // Release old staging texture if exists
+      if (mD3DStagingTexture)
+      {
+        ((ID3D11Texture2D*)mD3DStagingTexture)->Release();
+        mD3DStagingTexture = nullptr;
+      }
+
+      // Release old back buffer reference
+      if (mD3DBackBuffer)
+      {
+        ((ID3D11Texture2D*)mD3DBackBuffer)->Release();
+        mD3DBackBuffer = nullptr;
+      }
+
+      // Resize swap chain
+      HRESULT hr = swapChain->ResizeBuffers(1, w, h, DXGI_FORMAT_B8G8R8A8_UNORM, 0);
+
+      if (SUCCEEDED(hr))
+      {
+        // Get new back buffer
+        ID3D11Texture2D* backBuffer = nullptr;
+        swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backBuffer);
+        mD3DBackBuffer = backBuffer;
+
+        // Create staging texture for CPU->GPU transfer
+        D3D11_TEXTURE2D_DESC texDesc = {};
+        texDesc.Width = w;
+        texDesc.Height = h;
+        texDesc.MipLevels = 1;
+        texDesc.ArraySize = 1;
+        texDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
+        texDesc.SampleDesc.Count = 1;
+        texDesc.SampleDesc.Quality = 0;
+        texDesc.Usage = D3D11_USAGE_STAGING;
+        texDesc.BindFlags = 0;
+        texDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+        texDesc.MiscFlags = 0;
+
+        ID3D11Texture2D* stagingTexture = nullptr;
+        hr = device->CreateTexture2D(&texDesc, nullptr, &stagingTexture);
+        if (SUCCEEDED(hr))
+        {
+          mD3DStagingTexture = stagingTexture;
+        }
+      }
     }
   }
 #elif defined IGRAPHICS_GL || defined IGRAPHICS_METAL
@@ -583,6 +753,8 @@ void IGraphicsSkia::BeginFrame()
     id<CAMetalDrawable> drawable = [(CAMetalLayer*) mMTLLayer nextDrawable];
     mMTLDrawable = (void*) drawable;
   }
+#elif defined IGRAPHICS_CPU_D3D
+  // CPU rendering with D3D blitting: nothing to do here (no drawable to acquire)
 #elif defined IGRAPHICS_METAL
   if (mGrContext.get())
   {
@@ -648,6 +820,50 @@ void IGraphicsSkia::EndFrame()
     }
   }
   mMTLDrawable = nullptr;
+#elif defined IGRAPHICS_CPU_D3D
+  // CPU rendering with D3D11 blitting
+  if (mD3DSwapChain && mD3DStagingTexture && mD3DBackBuffer && mD3DDeviceContext && mSurface)
+  {
+    int width = static_cast<int>(std::ceil(static_cast<float>(WindowWidth()) * GetScreenScale()));
+    int height = static_cast<int>(std::ceil(static_cast<float>(WindowHeight()) * GetScreenScale()));
+
+    ID3D11DeviceContext* deviceContext = (ID3D11DeviceContext*)mD3DDeviceContext;
+    ID3D11Texture2D* stagingTexture = (ID3D11Texture2D*)mD3DStagingTexture;
+    ID3D11Texture2D* backBuffer = (ID3D11Texture2D*)mD3DBackBuffer;
+    IDXGISwapChain* swapChain = (IDXGISwapChain*)mD3DSwapChain;
+
+    // Get the pixels from the Skia CPU surface
+    SkPixmap pixmap;
+    if (mSurface->peekPixels(&pixmap))
+    {
+      // Map staging texture for CPU write
+      D3D11_MAPPED_SUBRESOURCE mapped;
+      HRESULT hr = deviceContext->Map(stagingTexture, 0, D3D11_MAP_WRITE, 0, &mapped);
+
+      if (SUCCEEDED(hr))
+      {
+        // Copy pixels row by row (handle different row pitches)
+        const uint8_t* src = (const uint8_t*)pixmap.addr();
+        uint8_t* dst = (uint8_t*)mapped.pData;
+        size_t srcRowBytes = pixmap.rowBytes();
+        size_t dstRowBytes = mapped.RowPitch;
+        size_t copyBytes = std::min(srcRowBytes, (size_t)(width * 4));
+
+        for (int y = 0; y < height; y++)
+        {
+          memcpy(dst + y * dstRowBytes, src + y * srcRowBytes, copyBytes);
+        }
+
+        deviceContext->Unmap(stagingTexture, 0);
+
+        // Copy staging texture to back buffer
+        deviceContext->CopyResource(backBuffer, stagingTexture);
+
+        // Present
+        swapChain->Present(0, 0);
+      }
+    }
+  }
 #elif defined IGRAPHICS_CPU
   #if defined OS_MAC || defined OS_IOS
     SkPixmap pixmap;
@@ -1273,6 +1489,8 @@ const char* IGraphicsSkia::GetDrawingAPIStr()
 {
 #ifdef IGRAPHICS_CPU_METAL
   return "SKIA | CPU+Metal";
+#elif defined IGRAPHICS_CPU_D3D
+  return "SKIA | CPU+D3D";
 #elif defined IGRAPHICS_CPU
   return "SKIA | CPU";
 #elif defined IGRAPHICS_GL2

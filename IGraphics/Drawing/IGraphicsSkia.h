@@ -18,6 +18,12 @@
 #define IGRAPHICS_CPU_METAL
 #endif
 
+// IGRAPHICS_CPU_D3D: CPU Skia rendering with Direct3D 11 blitting for display
+// This provides software rendering but uses D3D11 to efficiently display the result
+#if defined OS_WIN && defined IGRAPHICS_CPU && defined IGRAPHICS_D3D
+#define IGRAPHICS_CPU_D3D
+#endif
+
 #pragma warning( push )
 #pragma warning( disable : 4244 )
 #include "include/core/SkSurface.h"
@@ -182,6 +188,14 @@ private:
 
 #ifdef IGRAPHICS_CPU_METAL
   void* mMTLTexture = nullptr;  // Owned texture for CPU->Metal blitting
+#endif
+
+#ifdef IGRAPHICS_CPU_D3D
+  void* mD3DDevice = nullptr;           // ID3D11Device*
+  void* mD3DDeviceContext = nullptr;    // ID3D11DeviceContext*
+  void* mD3DSwapChain = nullptr;        // IDXGISwapChain*
+  void* mD3DStagingTexture = nullptr;   // ID3D11Texture2D* for CPU->GPU transfer
+  void* mD3DBackBuffer = nullptr;       // ID3D11Texture2D* swap chain back buffer
 #endif
 
   static StaticStorage<Font> sFontCache;
