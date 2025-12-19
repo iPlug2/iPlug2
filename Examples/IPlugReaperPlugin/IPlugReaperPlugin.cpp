@@ -114,9 +114,10 @@ void IPlugReaperPlugin::ProcessBlock(sample** inputs, sample** outputs, int nFra
 
 void IPlugReaperPlugin::OnHostIdentified()
 {
+#if defined VST2_API || defined VST3_API || defined CLAP_API
   if (GetHost() == kHostReaper)
   {
-    int errorCount = REAPERAPI_LoadAPI([this](const char* str) {
+    int errorCount = REAPERAPI_LoadAPI([this](const char* str) -> void* {
 #if defined VST2_API
       return (void*) mHostCallback(NULL, 0xdeadbeef, 0xdeadf00d, 0, (void*) str, 0.0);
 #elif defined VST3_API
@@ -125,17 +126,18 @@ void IPlugReaperPlugin::OnHostIdentified()
       return (void*) reinterpret_cast<const reaper_plugin_info_t*>(mpClapHost->get_extension(mpClapHost, "cockos.reaper_extension"))->GetFunc(str);
 #endif
     });
-    
+
 #if defined CLAP_API
     auto pRec = reinterpret_cast<const reaper_plugin_info_t*>(mpClapHost->get_extension(mpClapHost, "cockos.reaper_extension"));
     IMPAPI(clap_get_reaper_context);
 #endif
-    
+
     if (errorCount > 0)
     {
       LogToReaperConsole("some errors when loading reaper api functions\n");
     }
   }
+#endif
 }
 
 #if defined VST3_API

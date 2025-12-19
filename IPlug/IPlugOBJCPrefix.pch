@@ -37,6 +37,8 @@
     #define API _vst3
   #elif defined(APP_API)
     #define API _app
+  #elif defined(REAPER_EXT_API)
+    #define API _reaperext
   #endif
 
   #define CONCAT3(a,b,c) a##b##c

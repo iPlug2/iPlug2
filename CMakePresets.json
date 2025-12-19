@@ -1,0 +1,249 @@
+{
+  "version": 6,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 21,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "base",
+      "hidden": true,
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "IGRAPHICS_BACKEND": "NANOVG"
+      }
+    },
+    {
+      "name": "base-macos",
+      "hidden": true,
+      "inherits": "base",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Darwin"
+      },
+      "cacheVariables": {
+        "CMAKE_OSX_DEPLOYMENT_TARGET": "10.15",
+        "IGRAPHICS_RENDERER": "METAL"
+      }
+    },
+    {
+      "name": "base-windows",
+      "hidden": true,
+      "inherits": "base",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      },
+      "cacheVariables": {
+        "IGRAPHICS_RENDERER": "GL2"
+      }
+    },
+    {
+      "name": "macos-ninja",
+      "displayName": "macOS Ninja",
+      "description": "macOS build with Ninja generator (NanoVG/Metal)",
+      "inherits": "base-macos",
+      "generator": "Ninja"
+    },
+    {
+      "name": "macos-make",
+      "displayName": "macOS Unix Makefiles",
+      "description": "macOS build with Unix Makefiles generator (NanoVG/Metal)",
+      "inherits": "base-macos",
+      "generator": "Unix Makefiles"
+    },
+    {
+      "name": "macos-xcode",
+      "displayName": "macOS Xcode",
+      "description": "macOS build with Xcode generator (NanoVG/Metal)",
+      "inherits": "base-macos",
+      "generator": "Xcode"
+    },
+    {
+      "name": "macos-xcode-universal",
+      "displayName": "macOS Xcode (Universal)",
+      "description": "macOS Universal (arm64+x86_64) build with Xcode generator",
+      "inherits": "base-macos",
+      "generator": "Xcode",
+      "cacheVariables": {
+        "CMAKE_OSX_ARCHITECTURES": "arm64;x86_64"
+      }
+    },
+    {
+      "name": "ios-xcode",
+      "displayName": "iOS Xcode (Device)",
+      "description": "iOS device build with Xcode generator (NanoVG/Metal)",
+      "inherits": "base",
+      "generator": "Xcode",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Darwin"
+      },
+      "cacheVariables": {
+        "CMAKE_SYSTEM_NAME": "iOS",
+        "IGRAPHICS_RENDERER": "METAL"
+      }
+    },
+    {
+      "name": "ios-sim-xcode",
+      "displayName": "iOS Xcode (Simulator)",
+      "description": "iOS simulator build with Xcode generator (NanoVG/Metal)",
+      "inherits": "base",
+      "generator": "Xcode",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Darwin"
+      },
+      "cacheVariables": {
+        "CMAKE_SYSTEM_NAME": "iOS",
+        "CMAKE_OSX_SYSROOT": "iphonesimulator",
+        "IGRAPHICS_RENDERER": "METAL"
+      }
+    },
+    {
+      "name": "visionos-xcode",
+      "displayName": "visionOS Xcode (Device)",
+      "description": "visionOS device build with Xcode generator (NanoVG/Metal)",
+      "inherits": "base",
+      "generator": "Xcode",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Darwin"
+      },
+      "cacheVariables": {
+        "CMAKE_SYSTEM_NAME": "visionOS",
+        "CMAKE_OSX_SYSROOT": "xros",
+        "IGRAPHICS_RENDERER": "METAL"
+      }
+    },
+    {
+      "name": "visionos-sim-xcode",
+      "displayName": "visionOS Xcode (Simulator)",
+      "description": "visionOS simulator build with Xcode generator (NanoVG/Metal)",
+      "inherits": "base",
+      "generator": "Xcode",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Darwin"
+      },
+      "cacheVariables": {
+        "CMAKE_SYSTEM_NAME": "visionOS",
+        "CMAKE_OSX_SYSROOT": "xrsimulator",
+        "IGRAPHICS_RENDERER": "METAL"
+      }
+    },
+    {
+      "name": "windows-vs2022",
+      "displayName": "Windows Visual Studio 2022",
+      "description": "Windows x64 build with Visual Studio 2022 (NanoVG/GL2)",
+      "inherits": "base-windows",
+      "generator": "Visual Studio 17 2022",
+      "architecture": {
+        "value": "x64",
+        "strategy": "set"
+      }
+    },
+    {
+      "name": "windows-vs2022-arm64ec",
+      "displayName": "Windows Visual Studio 2022 (ARM64EC)",
+      "description": "Windows ARM64EC build with Visual Studio 2022 (NanoVG/GL2)",
+      "inherits": "base-windows",
+      "generator": "Visual Studio 17 2022",
+      "architecture": {
+        "value": "ARM64EC",
+        "strategy": "set"
+      }
+    },
+    {
+      "name": "wam",
+      "displayName": "WAM (Emscripten)",
+      "description": "Web Audio Module build with Emscripten/WebAssembly",
+      "inherits": "base",
+      "generator": "Ninja",
+      "toolchainFile": "$env{EMSDK}/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake",
+      "cacheVariables": {
+        "CMAKE_CROSSCOMPILING_EMULATOR": "$env{EMSDK_NODE}"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "macos-ninja",
+      "configurePreset": "macos-ninja",
+      "configuration": "Release"
+    },
+    {
+      "name": "macos-make",
+      "configurePreset": "macos-make"
+    },
+    {
+      "name": "macos-xcode",
+      "configurePreset": "macos-xcode",
+      "configuration": "Release"
+    },
+    {
+      "name": "macos-xcode-universal",
+      "configurePreset": "macos-xcode-universal",
+      "configuration": "Release"
+    },
+    {
+      "name": "ios-xcode",
+      "configurePreset": "ios-xcode",
+      "configuration": "Release",
+      "nativeToolOptions": [
+        "-destination", "generic/platform=iOS",
+        "CODE_SIGNING_ALLOWED=NO"
+      ]
+    },
+    {
+      "name": "ios-sim-xcode",
+      "configurePreset": "ios-sim-xcode",
+      "configuration": "Release",
+      "nativeToolOptions": [
+        "-destination", "generic/platform=iOS Simulator",
+        "CODE_SIGNING_ALLOWED=NO"
+      ]
+    },
+    {
+      "name": "visionos-xcode",
+      "configurePreset": "visionos-xcode",
+      "configuration": "Release",
+      "nativeToolOptions": [
+        "-destination", "generic/platform=visionOS",
+        "CODE_SIGNING_ALLOWED=NO"
+      ]
+    },
+    {
+      "name": "visionos-sim-xcode",
+      "configurePreset": "visionos-sim-xcode",
+      "configuration": "Release",
+      "nativeToolOptions": [
+        "-destination", "generic/platform=visionOS Simulator",
+        "CODE_SIGNING_ALLOWED=NO"
+      ]
+    },
+    {
+      "name": "windows-vs2022",
+      "configurePreset": "windows-vs2022",
+      "configuration": "Release"
+    },
+    {
+      "name": "windows-vs2022-arm64ec",
+      "configurePreset": "windows-vs2022-arm64ec",
+      "configuration": "Release"
+    },
+    {
+      "name": "wam",
+      "configurePreset": "wam",
+      "configuration": "Release"
+    }
+  ]
+}

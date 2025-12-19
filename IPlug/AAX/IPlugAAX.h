@@ -28,7 +28,8 @@
 
 #include "AAX_Push8ByteStructAlignment.h"
 
-#if defined OS_WIN
+// CMake handles linking via target_link_libraries, so skip pragma lib references
+#if defined OS_WIN && !defined IPLUG2_CMAKE_BUILD
   #if defined _DEBUG
     #if defined ARCH_64BIT
       #pragma comment(lib, "AAXLibrary_x64_D.lib")

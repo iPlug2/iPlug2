@@ -1,0 +1,787 @@
+name: CMake CI
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'CMakeLists.txt'
+      - 'iPlug2.cmake'
+      - 'CMakePresets.json'
+      - 'Scripts/cmake/**'
+      - 'IPlug/**'
+      - 'IGraphics/**'
+      - 'Examples/**/CMakeLists.txt'
+      - 'Tests/**/CMakeLists.txt'
+      - '.github/workflows/cmake-ci.yml'
+  pull_request:
+    branches: [master]
+    paths:
+      - 'CMakeLists.txt'
+      - 'iPlug2.cmake'
+      - 'CMakePresets.json'
+      - 'Scripts/cmake/**'
+      - 'IPlug/**'
+      - 'IGraphics/**'
+      - 'Examples/**/CMakeLists.txt'
+      - 'Tests/**/CMakeLists.txt'
+      - '.github/workflows/cmake-ci.yml'
+  issue_comment:
+    types: [created]
+  workflow_dispatch:
+    inputs:
+      examples:
+        description: 'Examples to build (comma-separated, empty = IPlugEffect only, "all" = everything)'
+        type: string
+        default: 'IPlugEffect'
+      all_generators:
+        description: 'Test all generators (Ninja, Make, Xcode, VS2022)'
+        type: boolean
+        default: false
+      ios:
+        description: 'Include iOS build'
+        type: boolean
+        default: false
+      visionos:
+        description: 'Include visionOS build'
+        type: boolean
+        default: false
+      wam:
+        description: 'Include WAM/Emscripten build'
+        type: boolean
+        default: false
+      universal:
+        description: 'Include macOS Universal build (arm64+x86_64)'
+        type: boolean
+        default: false
+      arm64ec:
+        description: 'Include Windows ARM64EC build'
+        type: boolean
+        default: false
+
+# Cancel in-progress runs for the same PR/branch
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ============================================================================
+  # Parse PR commands from comments
+  # ============================================================================
+  parse-commands:
+    name: Parse Commands
+    runs-on: ubuntu-latest
+    if: >-
+      github.event_name != 'issue_comment' ||
+      (github.event.issue.pull_request &&
+       startsWith(github.event.comment.body, '/ci'))
+    outputs:
+      examples: ${{ steps.parse.outputs.examples }}
+      all_generators: ${{ steps.parse.outputs.all_generators }}
+      ios: ${{ steps.parse.outputs.ios }}
+      visionos: ${{ steps.parse.outputs.visionos }}
+      wam: ${{ steps.parse.outputs.wam }}
+      universal: ${{ steps.parse.outputs.universal }}
+      arm64ec: ${{ steps.parse.outputs.arm64ec }}
+      should_run: ${{ steps.parse.outputs.should_run }}
+      pr_ref: ${{ steps.get-pr.outputs.ref }}
+      pr_sha: ${{ steps.get-pr.outputs.sha }}
+    steps:
+      - name: Parse CI commands from comment
+        id: parse
+        env:
+          # Use environment variable to avoid shell injection from direct interpolation
+          COMMENT_BODY: ${{ github.event.comment.body }}
+          INPUT_EXAMPLES: ${{ inputs.examples }}
+        run: |
+          # Default examples to build (IPlugEffect only for faster CI)
+          DEFAULT_EXAMPLES="IPlugEffect"
+
+          # Function to validate examples input (alphanumeric, commas, underscores only)
+          validate_examples() {
+            local input="$1"
+            if [[ "$input" =~ ^[a-zA-Z0-9,_]+$ ]]; then
+              echo "$input"
+            else
+              echo "Invalid examples input, using default" >&2
+              echo "$DEFAULT_EXAMPLES"
+            fi
+          }
+
+          if [[ "${{ github.event_name }}" == "issue_comment" ]]; then
+            # Sanitize comment for safe pattern matching (remove potentially dangerous chars)
+            COMMENT=$(echo "$COMMENT_BODY" | tr -cd '[:alnum:][:space:]/=,_-')
+            echo "Parsing comment: $COMMENT"
+
+            # Parse examples=... parameter with validation
+            if [[ "$COMMENT" =~ examples=([^[:space:]]+) ]]; then
+              EXAMPLES_VALUE=$(validate_examples "${BASH_REMATCH[1]}")
+              echo "examples=$EXAMPLES_VALUE" >> $GITHUB_OUTPUT
+            elif [[ "$COMMENT" == *"/ci all"* ]]; then
+              echo "examples=all" >> $GITHUB_OUTPUT
+            else
+              echo "examples=$DEFAULT_EXAMPLES" >> $GITHUB_OUTPUT
+            fi
+
+            # Check for various commands
+            if [[ "$COMMENT" == *"/ci all"* ]]; then
+              echo "all_generators=true" >> $GITHUB_OUTPUT
+              echo "ios=true" >> $GITHUB_OUTPUT
+              echo "visionos=true" >> $GITHUB_OUTPUT
+              echo "wam=true" >> $GITHUB_OUTPUT
+              echo "universal=true" >> $GITHUB_OUTPUT
+              echo "arm64ec=true" >> $GITHUB_OUTPUT
+            else
+              [[ "$COMMENT" == *"/ci all-generators"* || "$COMMENT" == *"/ci generators"* ]] && echo "all_generators=true" >> $GITHUB_OUTPUT || echo "all_generators=false" >> $GITHUB_OUTPUT
+              [[ "$COMMENT" == *"/ci ios"* ]] && echo "ios=true" >> $GITHUB_OUTPUT || echo "ios=false" >> $GITHUB_OUTPUT
+              [[ "$COMMENT" == *"/ci visionos"* ]] && echo "visionos=true" >> $GITHUB_OUTPUT || echo "visionos=false" >> $GITHUB_OUTPUT
+              [[ "$COMMENT" == *"/ci wam"* ]] && echo "wam=true" >> $GITHUB_OUTPUT || echo "wam=false" >> $GITHUB_OUTPUT
+              [[ "$COMMENT" == *"/ci universal"* ]] && echo "universal=true" >> $GITHUB_OUTPUT || echo "universal=false" >> $GITHUB_OUTPUT
+              [[ "$COMMENT" == *"/ci arm64ec"* ]] && echo "arm64ec=true" >> $GITHUB_OUTPUT || echo "arm64ec=false" >> $GITHUB_OUTPUT
+            fi
+            echo "should_run=true" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            # Validate workflow_dispatch input as well
+            EXAMPLES_INPUT="${INPUT_EXAMPLES:-IPlugEffect}"
+            EXAMPLES_VALUE=$(validate_examples "$EXAMPLES_INPUT")
+            echo "examples=$EXAMPLES_VALUE" >> $GITHUB_OUTPUT
+            echo "all_generators=${{ inputs.all_generators }}" >> $GITHUB_OUTPUT
+            echo "ios=${{ inputs.ios }}" >> $GITHUB_OUTPUT
+            echo "visionos=${{ inputs.visionos }}" >> $GITHUB_OUTPUT
+            echo "wam=${{ inputs.wam }}" >> $GITHUB_OUTPUT
+            echo "universal=${{ inputs.universal }}" >> $GITHUB_OUTPUT
+            echo "arm64ec=${{ inputs.arm64ec }}" >> $GITHUB_OUTPUT
+            echo "should_run=true" >> $GITHUB_OUTPUT
+          else
+            # push or pull_request - use defaults (IPlugEffect only)
+            echo "examples=$DEFAULT_EXAMPLES" >> $GITHUB_OUTPUT
+            echo "all_generators=false" >> $GITHUB_OUTPUT
+            echo "ios=false" >> $GITHUB_OUTPUT
+            echo "visionos=false" >> $GITHUB_OUTPUT
+            echo "wam=false" >> $GITHUB_OUTPUT
+            echo "universal=false" >> $GITHUB_OUTPUT
+            echo "arm64ec=false" >> $GITHUB_OUTPUT
+            echo "should_run=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Get PR ref for comment trigger
+        id: get-pr
+        if: github.event_name == 'issue_comment'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          PR_DATA=$(gh api repos/${{ github.repository }}/pulls/${{ github.event.issue.number }})
+          echo "ref=$(echo $PR_DATA | jq -r .head.ref)" >> $GITHUB_OUTPUT
+          echo "sha=$(echo $PR_DATA | jq -r .head.sha)" >> $GITHUB_OUTPUT
+
+  # ============================================================================
+  # macOS - Xcode Generator (Default)
+  # ============================================================================
+  macos-xcode:
+    name: macOS (Xcode)
+    needs: parse-commands
+    if: needs.parse-commands.outputs.should_run == 'true'
+    runs-on: macos-14
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.parse-commands.outputs.pr_sha || github.sha }}
+          submodules: recursive
+
+      - name: Cache SDKs
+        id: cache-sdks
+        uses: actions/cache@v4
+        with:
+          path: |
+            Dependencies/IPlug/VST3_SDK
+            Dependencies/IPlug/CLAP_SDK
+            Dependencies/IPlug/CLAP_HELPERS
+            Dependencies/IPlug/WAM_SDK
+            Dependencies/IPlug/WAM_AWP
+          key: sdks-${{ runner.os }}-${{ hashFiles('Dependencies/IPlug/download-*.sh') }}
+
+      - name: Download Public SDKs
+        if: steps.cache-sdks.outputs.cache-hit != 'true'
+        run: |
+          cd Dependencies/IPlug
+          ./download-iplug-sdks.sh
+
+      - name: Setup Proprietary SDKs
+        env:
+          VST2_SDK_B64: ${{ secrets.VST2_SDK_B64 }}
+          AAX_SDK_B64_1: ${{ secrets.AAX_SDK_B64_1 }}
+          AAX_SDK_B64_2: ${{ secrets.AAX_SDK_B64_2 }}
+          AAX_SDK_B64_3: ${{ secrets.AAX_SDK_B64_3 }}
+          AAX_SDK_B64_4: ${{ secrets.AAX_SDK_B64_4 }}
+          AAX_SDK_B64_5: ${{ secrets.AAX_SDK_B64_5 }}
+          AAX_SDK_B64_6: ${{ secrets.AAX_SDK_B64_6 }}
+          AAX_SDK_B64_7: ${{ secrets.AAX_SDK_B64_7 }}
+        run: |
+          if [ -n "$VST2_SDK_B64" ]; then
+            echo "$VST2_SDK_B64" | base64 -d | tar -xz -C Dependencies/IPlug/
+          fi
+          if [ -n "$AAX_SDK_B64_1" ]; then
+            echo "${AAX_SDK_B64_1}${AAX_SDK_B64_2}${AAX_SDK_B64_3}${AAX_SDK_B64_4}${AAX_SDK_B64_5}${AAX_SDK_B64_6}${AAX_SDK_B64_7}" | base64 -d | tar -xJ -C Dependencies/IPlug/
+          fi
+
+      - name: Configure CMake
+        run: cmake --preset macos-xcode -DIPLUG2_DISABLE_DEPRECATION_WARNINGS=ON -DIPLUG_DEPLOY_PLUGINS=OFF
+
+      - name: Build
+        run: |
+          EXAMPLES="${{ needs.parse-commands.outputs.examples }}"
+          if [[ "$EXAMPLES" == "all" || -z "$EXAMPLES" ]]; then
+            cmake --build --preset macos-xcode
+          else
+            # Build each example's targets
+            TARGETS=""
+            IFS=',' read -ra EXAMPLE_LIST <<< "$EXAMPLES"
+            for example in "${EXAMPLE_LIST[@]}"; do
+              example=$(echo "$example" | xargs)  # trim whitespace
+              TARGETS="$TARGETS --target ${example}-app --target ${example}-vst3 --target ${example}-clap --target ${example}-au"
+            done
+            cmake --build --preset macos-xcode $TARGETS
+          fi
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-xcode-artifacts
+          path: build/macos-xcode/out/
+          if-no-files-found: warn
+
+  # ============================================================================
+  # Windows - Visual Studio 2022 (Default)
+  # ============================================================================
+  windows-vs2022:
+    name: Windows (VS2022)
+    needs: parse-commands
+    if: needs.parse-commands.outputs.should_run == 'true'
+    runs-on: windows-2022
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.parse-commands.outputs.pr_sha || github.sha }}
+          submodules: recursive
+
+      - name: Cache SDKs
+        id: cache-sdks
+        uses: actions/cache@v4
+        with:
+          path: |
+            Dependencies/IPlug/VST3_SDK
+            Dependencies/IPlug/CLAP_SDK
+            Dependencies/IPlug/CLAP_HELPERS
+            Dependencies/IPlug/WAM_SDK
+            Dependencies/IPlug/WAM_AWP
+          key: sdks-${{ runner.os }}-${{ hashFiles('Dependencies/IPlug/download-*.sh') }}
+
+      - name: Download Public SDKs
+        if: steps.cache-sdks.outputs.cache-hit != 'true'
+        shell: bash
+        run: |
+          cd Dependencies/IPlug
+          ./download-iplug-sdks.sh
+
+      - name: Setup Proprietary SDKs
+        shell: bash
+        env:
+          VST2_SDK_B64: ${{ secrets.VST2_SDK_B64 }}
+          AAX_SDK_B64_1: ${{ secrets.AAX_SDK_B64_1 }}
+          AAX_SDK_B64_2: ${{ secrets.AAX_SDK_B64_2 }}
+          AAX_SDK_B64_3: ${{ secrets.AAX_SDK_B64_3 }}
+          AAX_SDK_B64_4: ${{ secrets.AAX_SDK_B64_4 }}
+          AAX_SDK_B64_5: ${{ secrets.AAX_SDK_B64_5 }}
+          AAX_SDK_B64_6: ${{ secrets.AAX_SDK_B64_6 }}
+          AAX_SDK_B64_7: ${{ secrets.AAX_SDK_B64_7 }}
+        run: |
+          if [ -n "$VST2_SDK_B64" ]; then
+            echo "$VST2_SDK_B64" | base64 -d | tar -xz -C Dependencies/IPlug/
+          fi
+          if [ -n "$AAX_SDK_B64_1" ]; then
+            echo "${AAX_SDK_B64_1}${AAX_SDK_B64_2}${AAX_SDK_B64_3}${AAX_SDK_B64_4}${AAX_SDK_B64_5}${AAX_SDK_B64_6}${AAX_SDK_B64_7}" | base64 -d | tar -xJ -C Dependencies/IPlug/
+          fi
+
+      - name: Configure CMake
+        run: cmake --preset windows-vs2022 -DIPLUG2_DISABLE_DEPRECATION_WARNINGS=ON -DIPLUG_DEPLOY_PLUGINS=OFF
+
+      - name: Build
+        shell: bash
+        run: |
+          EXAMPLES="${{ needs.parse-commands.outputs.examples }}"
+          if [[ "$EXAMPLES" == "all" || -z "$EXAMPLES" ]]; then
+            cmake --build --preset windows-vs2022
+          else
+            # Build each example's targets
+            TARGETS=""
+            IFS=',' read -ra EXAMPLE_LIST <<< "$EXAMPLES"
+            for example in "${EXAMPLE_LIST[@]}"; do
+              example=$(echo "$example" | xargs)  # trim whitespace
+              TARGETS="$TARGETS --target ${example}-app --target ${example}-vst3 --target ${example}-clap"
+            done
+            cmake --build --preset windows-vs2022 $TARGETS
+          fi
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-artifacts
+          path: build/windows-vs2022/out/
+          if-no-files-found: warn
+
+  # ============================================================================
+  # macOS - Ninja Generator (Optional - /ci all-generators)
+  # ============================================================================
+  macos-ninja:
+    name: macOS (Ninja)
+    needs: parse-commands
+    if: needs.parse-commands.outputs.all_generators == 'true'
+    runs-on: macos-14
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.parse-commands.outputs.pr_sha || github.sha }}
+          submodules: recursive
+
+      - name: Install Ninja
+        run: brew install ninja
+
+      - name: Cache SDKs
+        id: cache-sdks
+        uses: actions/cache@v4
+        with:
+          path: |
+            Dependencies/IPlug/VST3_SDK
+            Dependencies/IPlug/CLAP_SDK
+            Dependencies/IPlug/CLAP_HELPERS
+            Dependencies/IPlug/WAM_SDK
+            Dependencies/IPlug/WAM_AWP
+          key: sdks-${{ runner.os }}-${{ hashFiles('Dependencies/IPlug/download-*.sh') }}
+
+      - name: Download Public SDKs
+        if: steps.cache-sdks.outputs.cache-hit != 'true'
+        run: |
+          cd Dependencies/IPlug
+          ./download-iplug-sdks.sh
+
+      - name: Setup Proprietary SDKs
+        env:
+          VST2_SDK_B64: ${{ secrets.VST2_SDK_B64 }}
+          AAX_SDK_B64_1: ${{ secrets.AAX_SDK_B64_1 }}
+          AAX_SDK_B64_2: ${{ secrets.AAX_SDK_B64_2 }}
+          AAX_SDK_B64_3: ${{ secrets.AAX_SDK_B64_3 }}
+          AAX_SDK_B64_4: ${{ secrets.AAX_SDK_B64_4 }}
+          AAX_SDK_B64_5: ${{ secrets.AAX_SDK_B64_5 }}
+          AAX_SDK_B64_6: ${{ secrets.AAX_SDK_B64_6 }}
+          AAX_SDK_B64_7: ${{ secrets.AAX_SDK_B64_7 }}
+        run: |
+          if [ -n "$VST2_SDK_B64" ]; then
+            echo "$VST2_SDK_B64" | base64 -d | tar -xz -C Dependencies/IPlug/
+          fi
+          if [ -n "$AAX_SDK_B64_1" ]; then
+            echo "${AAX_SDK_B64_1}${AAX_SDK_B64_2}${AAX_SDK_B64_3}${AAX_SDK_B64_4}${AAX_SDK_B64_5}${AAX_SDK_B64_6}${AAX_SDK_B64_7}" | base64 -d | tar -xJ -C Dependencies/IPlug/
+          fi
+
+      - name: Configure CMake
+        run: cmake --preset macos-ninja -DIPLUG2_DISABLE_DEPRECATION_WARNINGS=ON -DIPLUG_DEPLOY_PLUGINS=OFF
+
+      - name: Build
+        run: |
+          EXAMPLES="${{ needs.parse-commands.outputs.examples }}"
+          if [[ "$EXAMPLES" == "all" || -z "$EXAMPLES" ]]; then
+            cmake --build --preset macos-ninja
+          else
+            TARGETS=""
+            IFS=',' read -ra EXAMPLE_LIST <<< "$EXAMPLES"
+            for example in "${EXAMPLE_LIST[@]}"; do
+              example=$(echo "$example" | xargs)
+              TARGETS="$TARGETS --target ${example}-app --target ${example}-vst3 --target ${example}-clap --target ${example}-au"
+            done
+            cmake --build --preset macos-ninja $TARGETS
+          fi
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-ninja-artifacts
+          path: build/macos-ninja/out/
+          if-no-files-found: warn
+
+  # ============================================================================
+  # macOS - Unix Makefiles Generator (Optional - /ci all-generators)
+  # ============================================================================
+  macos-make:
+    name: macOS (Make)
+    needs: parse-commands
+    if: needs.parse-commands.outputs.all_generators == 'true'
+    runs-on: macos-14
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.parse-commands.outputs.pr_sha || github.sha }}
+          submodules: recursive
+
+      - name: Cache SDKs
+        id: cache-sdks
+        uses: actions/cache@v4
+        with:
+          path: |
+            Dependencies/IPlug/VST3_SDK
+            Dependencies/IPlug/CLAP_SDK
+            Dependencies/IPlug/CLAP_HELPERS
+            Dependencies/IPlug/WAM_SDK
+            Dependencies/IPlug/WAM_AWP
+          key: sdks-${{ runner.os }}-${{ hashFiles('Dependencies/IPlug/download-*.sh') }}
+
+      - name: Download Public SDKs
+        if: steps.cache-sdks.outputs.cache-hit != 'true'
+        run: |
+          cd Dependencies/IPlug
+          ./download-iplug-sdks.sh
+
+      - name: Setup Proprietary SDKs
+        env:
+          VST2_SDK_B64: ${{ secrets.VST2_SDK_B64 }}
+          AAX_SDK_B64_1: ${{ secrets.AAX_SDK_B64_1 }}
+          AAX_SDK_B64_2: ${{ secrets.AAX_SDK_B64_2 }}
+          AAX_SDK_B64_3: ${{ secrets.AAX_SDK_B64_3 }}
+          AAX_SDK_B64_4: ${{ secrets.AAX_SDK_B64_4 }}
+          AAX_SDK_B64_5: ${{ secrets.AAX_SDK_B64_5 }}
+          AAX_SDK_B64_6: ${{ secrets.AAX_SDK_B64_6 }}
+          AAX_SDK_B64_7: ${{ secrets.AAX_SDK_B64_7 }}
+        run: |
+          if [ -n "$VST2_SDK_B64" ]; then
+            echo "$VST2_SDK_B64" | base64 -d | tar -xz -C Dependencies/IPlug/
+          fi
+          if [ -n "$AAX_SDK_B64_1" ]; then
+            echo "${AAX_SDK_B64_1}${AAX_SDK_B64_2}${AAX_SDK_B64_3}${AAX_SDK_B64_4}${AAX_SDK_B64_5}${AAX_SDK_B64_6}${AAX_SDK_B64_7}" | base64 -d | tar -xJ -C Dependencies/IPlug/
+          fi
+
+      - name: Configure CMake
+        run: cmake --preset macos-make -DIPLUG2_DISABLE_DEPRECATION_WARNINGS=ON -DIPLUG_DEPLOY_PLUGINS=OFF
+
+      - name: Build
+        run: |
+          EXAMPLES="${{ needs.parse-commands.outputs.examples }}"
+          if [[ "$EXAMPLES" == "all" || -z "$EXAMPLES" ]]; then
+            cmake --build --preset macos-make -- -j$(sysctl -n hw.ncpu)
+          else
+            TARGETS=""
+            IFS=',' read -ra EXAMPLE_LIST <<< "$EXAMPLES"
+            for example in "${EXAMPLE_LIST[@]}"; do
+              example=$(echo "$example" | xargs)
+              TARGETS="$TARGETS --target ${example}-app --target ${example}-vst3 --target ${example}-clap --target ${example}-au"
+            done
+            cmake --build --preset macos-make $TARGETS -- -j$(sysctl -n hw.ncpu)
+          fi
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-make-artifacts
+          path: build/macos-make/out/
+          if-no-files-found: warn
+
+  # ============================================================================
+  # iOS - Xcode Generator (Optional - /ci ios)
+  # ============================================================================
+  ios-xcode:
+    name: iOS (Xcode)
+    needs: parse-commands
+    if: needs.parse-commands.outputs.ios == 'true'
+    runs-on: macos-14
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.parse-commands.outputs.pr_sha || github.sha }}
+          submodules: recursive
+
+      - name: Configure CMake
+        run: cmake --preset ios-xcode -DIPLUG2_DISABLE_DEPRECATION_WARNINGS=ON -DIPLUG_DEPLOY_PLUGINS=OFF
+
+      - name: Build
+        run: |
+          EXAMPLES="${{ needs.parse-commands.outputs.examples }}"
+          if [[ "$EXAMPLES" == "all" || -z "$EXAMPLES" ]]; then
+            cmake --build --preset ios-xcode
+          else
+            TARGETS=""
+            IFS=',' read -ra EXAMPLE_LIST <<< "$EXAMPLES"
+            for example in "${EXAMPLE_LIST[@]}"; do
+              example=$(echo "$example" | xargs)
+              TARGETS="$TARGETS --target ${example}-ios-app"
+            done
+            cmake --build --preset ios-xcode $TARGETS
+          fi
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-artifacts
+          path: build/ios-xcode/out/
+          if-no-files-found: warn
+
+  # ============================================================================
+  # visionOS - Xcode Generator (Optional - /ci visionos)
+  # ============================================================================
+  visionos-xcode:
+    name: visionOS (Xcode)
+    needs: parse-commands
+    if: needs.parse-commands.outputs.visionos == 'true'
+    runs-on: macos-14
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.parse-commands.outputs.pr_sha || github.sha }}
+          submodules: recursive
+
+      - name: Configure CMake
+        run: cmake --preset visionos-xcode -DIPLUG2_DISABLE_DEPRECATION_WARNINGS=ON -DIPLUG_DEPLOY_PLUGINS=OFF
+
+      - name: Build
+        run: |
+          EXAMPLES="${{ needs.parse-commands.outputs.examples }}"
+          if [[ "$EXAMPLES" == "all" || -z "$EXAMPLES" ]]; then
+            cmake --build --preset visionos-xcode
+          else
+            TARGETS=""
+            IFS=',' read -ra EXAMPLE_LIST <<< "$EXAMPLES"
+            for example in "${EXAMPLE_LIST[@]}"; do
+              example=$(echo "$example" | xargs)
+              TARGETS="$TARGETS --target ${example}-ios-app"
+            done
+            cmake --build --preset visionos-xcode $TARGETS
+          fi
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: visionos-artifacts
+          path: build/visionos-xcode/out/
+          if-no-files-found: warn
+
+  # ============================================================================
+  # macOS Universal - arm64 + x86_64 (Optional - /ci universal)
+  # ============================================================================
+  macos-universal:
+    name: macOS (Universal)
+    needs: parse-commands
+    if: needs.parse-commands.outputs.universal == 'true'
+    runs-on: macos-14
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.parse-commands.outputs.pr_sha || github.sha }}
+          submodules: recursive
+
+      - name: Cache SDKs
+        id: cache-sdks
+        uses: actions/cache@v4
+        with:
+          path: |
+            Dependencies/IPlug/VST3_SDK
+            Dependencies/IPlug/CLAP_SDK
+            Dependencies/IPlug/CLAP_HELPERS
+            Dependencies/IPlug/WAM_SDK
+            Dependencies/IPlug/WAM_AWP
+          key: sdks-${{ runner.os }}-${{ hashFiles('Dependencies/IPlug/download-*.sh') }}
+
+      - name: Download Public SDKs
+        if: steps.cache-sdks.outputs.cache-hit != 'true'
+        run: |
+          cd Dependencies/IPlug
+          ./download-iplug-sdks.sh
+
+      - name: Setup Proprietary SDKs
+        env:
+          VST2_SDK_B64: ${{ secrets.VST2_SDK_B64 }}
+          AAX_SDK_B64_1: ${{ secrets.AAX_SDK_B64_1 }}
+          AAX_SDK_B64_2: ${{ secrets.AAX_SDK_B64_2 }}
+          AAX_SDK_B64_3: ${{ secrets.AAX_SDK_B64_3 }}
+          AAX_SDK_B64_4: ${{ secrets.AAX_SDK_B64_4 }}
+          AAX_SDK_B64_5: ${{ secrets.AAX_SDK_B64_5 }}
+          AAX_SDK_B64_6: ${{ secrets.AAX_SDK_B64_6 }}
+          AAX_SDK_B64_7: ${{ secrets.AAX_SDK_B64_7 }}
+        run: |
+          if [ -n "$VST2_SDK_B64" ]; then
+            echo "$VST2_SDK_B64" | base64 -d | tar -xz -C Dependencies/IPlug/
+          fi
+          if [ -n "$AAX_SDK_B64_1" ]; then
+            echo "${AAX_SDK_B64_1}${AAX_SDK_B64_2}${AAX_SDK_B64_3}${AAX_SDK_B64_4}${AAX_SDK_B64_5}${AAX_SDK_B64_6}${AAX_SDK_B64_7}" | base64 -d | tar -xJ -C Dependencies/IPlug/
+          fi
+
+      - name: Configure CMake
+        run: cmake --preset macos-xcode-universal -DIPLUG2_DISABLE_DEPRECATION_WARNINGS=ON -DIPLUG_DEPLOY_PLUGINS=OFF
+
+      - name: Build
+        run: |
+          EXAMPLES="${{ needs.parse-commands.outputs.examples }}"
+          if [[ "$EXAMPLES" == "all" || -z "$EXAMPLES" ]]; then
+            cmake --build --preset macos-xcode-universal
+          else
+            TARGETS=""
+            IFS=',' read -ra EXAMPLE_LIST <<< "$EXAMPLES"
+            for example in "${EXAMPLE_LIST[@]}"; do
+              example=$(echo "$example" | xargs)
+              TARGETS="$TARGETS --target ${example}-app --target ${example}-vst3 --target ${example}-clap --target ${example}-au"
+            done
+            cmake --build --preset macos-xcode-universal $TARGETS
+          fi
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-universal-artifacts
+          path: build/macos-xcode-universal/out/
+          if-no-files-found: warn
+
+  # ============================================================================
+  # Windows ARM64EC (Optional - /ci arm64ec)
+  # ============================================================================
+  windows-arm64ec:
+    name: Windows (ARM64EC)
+    needs: parse-commands
+    if: needs.parse-commands.outputs.arm64ec == 'true'
+    runs-on: windows-2022
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.parse-commands.outputs.pr_sha || github.sha }}
+          submodules: recursive
+
+      - name: Cache SDKs
+        id: cache-sdks
+        uses: actions/cache@v4
+        with:
+          path: |
+            Dependencies/IPlug/VST3_SDK
+            Dependencies/IPlug/CLAP_SDK
+            Dependencies/IPlug/CLAP_HELPERS
+            Dependencies/IPlug/WAM_SDK
+            Dependencies/IPlug/WAM_AWP
+          key: sdks-${{ runner.os }}-${{ hashFiles('Dependencies/IPlug/download-*.sh') }}
+
+      - name: Download Public SDKs
+        if: steps.cache-sdks.outputs.cache-hit != 'true'
+        shell: bash
+        run: |
+          cd Dependencies/IPlug
+          ./download-iplug-sdks.sh
+
+      - name: Setup Proprietary SDKs
+        shell: bash
+        env:
+          VST2_SDK_B64: ${{ secrets.VST2_SDK_B64 }}
+          AAX_SDK_B64_1: ${{ secrets.AAX_SDK_B64_1 }}
+          AAX_SDK_B64_2: ${{ secrets.AAX_SDK_B64_2 }}
+          AAX_SDK_B64_3: ${{ secrets.AAX_SDK_B64_3 }}
+          AAX_SDK_B64_4: ${{ secrets.AAX_SDK_B64_4 }}
+          AAX_SDK_B64_5: ${{ secrets.AAX_SDK_B64_5 }}
+          AAX_SDK_B64_6: ${{ secrets.AAX_SDK_B64_6 }}
+          AAX_SDK_B64_7: ${{ secrets.AAX_SDK_B64_7 }}
+        run: |
+          if [ -n "$VST2_SDK_B64" ]; then
+            echo "$VST2_SDK_B64" | base64 -d | tar -xz -C Dependencies/IPlug/
+          fi
+          if [ -n "$AAX_SDK_B64_1" ]; then
+            echo "${AAX_SDK_B64_1}${AAX_SDK_B64_2}${AAX_SDK_B64_3}${AAX_SDK_B64_4}${AAX_SDK_B64_5}${AAX_SDK_B64_6}${AAX_SDK_B64_7}" | base64 -d | tar -xJ -C Dependencies/IPlug/
+          fi
+
+      - name: Configure CMake
+        run: cmake --preset windows-vs2022-arm64ec -DIPLUG2_DISABLE_DEPRECATION_WARNINGS=ON -DIPLUG_DEPLOY_PLUGINS=OFF
+
+      - name: Build
+        shell: bash
+        run: |
+          EXAMPLES="${{ needs.parse-commands.outputs.examples }}"
+          if [[ "$EXAMPLES" == "all" || -z "$EXAMPLES" ]]; then
+            cmake --build --preset windows-vs2022-arm64ec
+          else
+            TARGETS=""
+            IFS=',' read -ra EXAMPLE_LIST <<< "$EXAMPLES"
+            for example in "${EXAMPLE_LIST[@]}"; do
+              example=$(echo "$example" | xargs)
+              TARGETS="$TARGETS --target ${example}-app --target ${example}-vst3 --target ${example}-clap"
+            done
+            cmake --build --preset windows-vs2022-arm64ec $TARGETS
+          fi
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-arm64ec-artifacts
+          path: build/windows-vs2022-arm64ec/out/
+          if-no-files-found: warn
+
+  # ============================================================================
+  # WAM - Emscripten/WebAssembly (Optional - /ci wam)
+  # ============================================================================
+  wam:
+    name: WAM (Emscripten)
+    needs: parse-commands
+    if: needs.parse-commands.outputs.wam == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.parse-commands.outputs.pr_sha || github.sha }}
+          submodules: recursive
+
+      - name: Setup Emscripten
+        uses: mymindstorm/setup-emsdk@v14
+        with:
+          version: '3.1.51'
+
+      - name: Install Ninja
+        run: sudo apt-get install -y ninja-build
+
+      - name: Cache SDKs
+        id: cache-sdks
+        uses: actions/cache@v4
+        with:
+          path: |
+            Dependencies/IPlug/VST3_SDK
+            Dependencies/IPlug/CLAP_SDK
+            Dependencies/IPlug/CLAP_HELPERS
+            Dependencies/IPlug/WAM_SDK
+            Dependencies/IPlug/WAM_AWP
+          key: sdks-${{ runner.os }}-${{ hashFiles('Dependencies/IPlug/download-*.sh') }}
+
+      - name: Download Public SDKs
+        if: steps.cache-sdks.outputs.cache-hit != 'true'
+        run: |
+          cd Dependencies/IPlug
+          ./download-iplug-sdks.sh
+
+      - name: Configure CMake
+        run: cmake --preset wam -DIPLUG2_DISABLE_DEPRECATION_WARNINGS=ON
+
+      - name: Build
+        run: |
+          EXAMPLES="${{ needs.parse-commands.outputs.examples }}"
+          if [[ "$EXAMPLES" == "all" || -z "$EXAMPLES" ]]; then
+            cmake --build --preset wam
+          else
+            TARGETS=""
+            IFS=',' read -ra EXAMPLE_LIST <<< "$EXAMPLES"
+            for example in "${EXAMPLE_LIST[@]}"; do
+              example=$(echo "$example" | xargs)
+              TARGETS="$TARGETS --target ${example}-wam --target ${example}-web"
+            done
+            cmake --build --preset wam $TARGETS
+          fi
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: wam-artifacts
+          path: build/wam/out/
+          if-no-files-found: warn
