@@ -365,18 +365,19 @@ iplug_add_plugin(<name>
 | `CLAP` | CLAP plugin | macOS, Windows |
 | `AAX` | AAX plugin (requires SDK) | macOS, Windows |
 | `AU` | Audio Unit v2 | macOS only |
-| `AUV3` | Audio Unit v3 (opt-in) | macOS, iOS |
+| `AUV3` | Audio Unit v3 | macOS, iOS |
 | `WAM` | Web Audio Module | Emscripten only |
 
 ### Format Groups
 
 | Group | Expands To | Notes |
 |-------|------------|-------|
-| `ALL` | APP, VST3, CLAP, AAX, AU, WAM | Default. Excludes AUv3 |
-| `ALL_AUV3` | APP, VST3, CLAP, AAX, AU, AUV3, WAM | Includes AUv3 with embedding |
-| `DESKTOP` | APP, VST3, CLAP, AAX, AU | No iOS/Web/AUv3 |
-
-**Note:** AUv3 is opt-in because it requires additional setup (framework, appex, embedding in APP). Use `ALL_AUV3` or explicitly add `AUV3` to include it.
+| `ALL` | APP, VST2, VST3, CLAP, AAX, AU, AUV3, WAM | Default. All formats |
+| `ALL_PLUGINS` | VST2, VST3, CLAP, AAX, AU, AUV3, WAM | All plugin formats (no APP) |
+| `ALL_DESKTOP` | APP, VST2, VST3, CLAP, AAX, AU, AUV3 | All desktop formats (no WAM) |
+| `MINIMAL_PLUGINS` | VST3, CLAP, AU | Core plugin formats only |
+| `DESKTOP` | APP, VST3, CLAP, AAX, AU | Desktop without VST2/AUv3 |
+| `WEB` | WAM | Web formats only |
 
 ### Examples
 
@@ -393,7 +394,7 @@ iplug_add_plugin(${PROJECT_NAME}
 )
 ```
 
-**Plugin with AUv3 support:**
+**Desktop plugin with AUv3 (no WAM):**
 
 ```cmake
 iplug_add_plugin(${PROJECT_NAME}
@@ -403,11 +404,11 @@ iplug_add_plugin(${PROJECT_NAME}
     resources/resource.h
   RESOURCES
     resources/fonts/Roboto-Regular.ttf
-  FORMATS ALL_AUV3
+  FORMATS ALL_DESKTOP
 )
 ```
 
-**Desktop-only plugin (no WAM/iOS):**
+**Minimal plugin (VST3, CLAP, AU only):**
 
 ```cmake
 iplug_add_plugin(${PROJECT_NAME}
@@ -415,7 +416,7 @@ iplug_add_plugin(${PROJECT_NAME}
     MyPlugin.cpp
     MyPlugin.h
     resources/resource.h
-  FORMATS DESKTOP
+  FORMATS MINIMAL_PLUGINS
 )
 ```
 
