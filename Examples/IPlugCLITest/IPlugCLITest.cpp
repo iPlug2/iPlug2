@@ -1,0 +1,132 @@
+#include "IPlugCLITest.h"
+#include "IPlug_include_in_plug_src.h"
+
+IPlugCLITest::IPlugCLITest(const InstanceInfo& info)
+: Plugin(info, MakeConfig(kNumParams, kNumPresets))
+{
+  GetParam(kGain)->InitDouble("Gain", 100., 0., 100.0, 0.1, "%");
+  GetParam(kFrequency)->InitDouble("Frequency", 440., 20., 20000., 1., "Hz");
+  GetParam(kAttack)->InitDouble("Attack", 10., 1., 1000., 1., "ms");
+  GetParam(kDecay)->InitDouble("Decay", 200., 1., 5000., 1., "ms");
+}
+
+#if IPLUG_DSP
+void IPlugCLITest::OnReset()
+{
+  mPhase = 0.0;
+  mEnvValue = 0.0;
+  mEnvStage = 0;
+  mNote = -1;
+
+  // Calculate envelope rates based on sample rate
+  double sr = GetSampleRate();
+  double attackMs = GetParam(kAttack)->Value();
+  double decayMs = GetParam(kDecay)->Value();
+  mAttackRate = 1.0 / (attackMs * sr / 1000.0);
+  mDecayRate = 1.0 / (decayMs * sr / 1000.0);
+}
+
+void IPlugCLITest::ProcessMidiMsg(const IMidiMsg& msg)
+{
+  int status = msg.StatusMsg();
+
+  switch (status)
+  {
+    case IMidiMsg::kNoteOn:
+    {
+      int note = msg.NoteNumber();
+      int velocity = msg.Velocity();
+      if (velocity > 0)
+      {
+        mNote = note;
+        mVelocity = velocity / 127.0;
+        mFreq = 440.0 * std::pow(2.0, (note - 69) / 12.0);
+        mEnvStage = 1; // Attack
+      }
+      else
+      {
+        if (note == mNote)
+          mEnvStage = 2; // Decay
+      }
+      break;
+    }
+    case IMidiMsg::kNoteOff:
+    {
+      int note = msg.NoteNumber();
+      if (note == mNote)
+        mEnvStage = 2; // Decay
+      break;
+    }
+    default:
+      break;
+  }
+}
+
+void IPlugCLITest::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
+{
+  const double gain = GetParam(kGain)->Value() / 100.0;
+  const double freq = GetParam(kFrequency)->Value();
+  const double sr = GetSampleRate();
+  const int nChans = NOutChansConnected();
+
+  // Update envelope rates in case parameters changed
+  double attackMs = GetParam(kAttack)->Value();
+  double decayMs = GetParam(kDecay)->Value();
+  mAttackRate = 1.0 / (attackMs * sr / 1000.0);
+  mDecayRate = 1.0 / (decayMs * sr / 1000.0);
+
+  for (int s = 0; s < nFrames; s++)
+  {
+    // Update envelope
+    if (mEnvStage == 1) // Attack
+    {
+      mEnvValue += mAttackRate;
+      if (mEnvValue >= 1.0)
+      {
+        mEnvValue = 1.0;
+        mEnvStage = 0; // Hold until note off
+      }
+    }
+    else if (mEnvStage == 2) // Decay
+    {
+      mEnvValue -= mDecayRate;
+      if (mEnvValue <= 0.0)
+      {
+        mEnvValue = 0.0;
+        mEnvStage = 0;
+        mNote = -1;
+      }
+    }
+
+    // Generate sine wave with envelope
+    double useFreq = (mNote >= 0) ? mFreq : freq;
+    double osc = std::sin(mPhase * 2.0 * 3.14159265358979323846);
+    mPhase += useFreq / sr;
+    if (mPhase >= 1.0)
+      mPhase -= 1.0;
+
+    // Apply envelope and velocity for synth mode, or just gain for effect mode
+    double sample;
+    if (mNote >= 0 || mEnvValue > 0.0)
+    {
+      // Synth mode: generate tone with envelope
+      sample = osc * mEnvValue * mVelocity * gain;
+    }
+    else if (inputs != nullptr && inputs[0] != nullptr)
+    {
+      // Effect mode: pass through input with gain
+      sample = inputs[0][s] * gain;
+    }
+    else
+    {
+      // No input, no notes: output oscillator at set frequency
+      sample = osc * gain;
+    }
+
+    for (int c = 0; c < nChans; c++)
+    {
+      outputs[c][s] = sample;
+    }
+  }
+}
+#endif
