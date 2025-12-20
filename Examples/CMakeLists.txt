@@ -15,6 +15,7 @@ add_subdirectory(IPlugResponsiveUI)
 add_subdirectory(IPlugSideChain)
 add_subdirectory(IPlugSurroundEffect)
 add_subdirectory(IPlugVisualizer)
+add_subdirectory(IPlugParametricEQ)
 
 # WebView examples
 set(CMAKE_FOLDER "Examples/WebView")
