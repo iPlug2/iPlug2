@@ -161,6 +161,7 @@
     </ClCompile>
     <ClCompile Include="..\IPlugReaperExtension.cpp" />
     <ClCompile Include="..\resources\roboto.cpp" />
+    <ClCompile Include="..\..\..\WDL\win32_utf8.c" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\resources\main.rc" />

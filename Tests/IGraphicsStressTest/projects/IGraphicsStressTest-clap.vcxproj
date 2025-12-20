@@ -327,7 +327,9 @@
     <ClCompile Include="..\..\..\IPlug\IPlugProcessor.cpp" />
     <ClCompile Include="..\..\..\IPlug\IPlugTimer.cpp" />
     <ClCompile Include="..\IGraphicsStressTest.cpp" />
-  <ClCompile Include="..\..\..\IPlug\CLAP\IPlugCLAP.cpp" /></ItemGroup>
+  <ClCompile Include="..\..\..\IPlug\CLAP\IPlugCLAP.cpp" />
+    <ClCompile Include="..\..\..\WDL\win32_utf8.c" />
+  </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\resources\main.rc" />
   </ItemGroup>

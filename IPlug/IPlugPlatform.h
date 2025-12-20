@@ -17,6 +17,9 @@
 
 #ifdef _WIN32
   #define OS_WIN
+  // Include WDL's UTF-8 wrappers early so #define fopen fopenUTF8 is active
+  // before any third-party headers (like nanosvg.h) use fopen
+  #include "win32_utf8.h"
 #elif defined __APPLE__
   #include <TargetConditionals.h>
   #if TARGET_OS_IPHONE
