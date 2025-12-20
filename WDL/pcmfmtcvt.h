@@ -32,6 +32,7 @@
 #endif
 
 #define INT16_TO_float INT16_TO_double
+#define UINT8_TO_float UINT8_TO_double
 #define float_TO_INT16 double_TO_INT16
 #define float_to_i32 double_to_i32
 #define float_to_i24 double_to_i24
@@ -45,6 +46,10 @@
 template<class T> static void INT16_TO_double(T &out, int in)
 {
   out = (T) (in/32768.0);
+}
+template<class T> static void UINT8_TO_double(T &out, int in)
+{
+  out = (T) ((in - 128) / 128.0);
 }
 template<class T> static void double_TO_INT16(T &out, double in)
 {
