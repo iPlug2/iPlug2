@@ -1,5 +1,6 @@
 #include <cmath>
 #include <map>
+#include <mutex>
 
 #include "IGraphicsSkia.h"
 
@@ -63,6 +64,8 @@
     #pragma comment(lib, "skunicode_icu.lib")
   #endif
 
+#elif defined OS_LINUX
+  #include "include/ports/SkFontMgr_fontconfig.h"
 
 #endif
 
@@ -301,6 +304,8 @@ static sk_sp<SkFontMgr> SFontMgrFactory()
   return SkFontMgr_New_CoreText(nullptr);
 #elif defined OS_WIN
   return SkFontMgr_New_DirectWrite();
+#elif defined OS_LINUX
+  return SkFontMgr_New_FontConfig(nullptr);
 #else
   #error "Not supported"
 #endif
@@ -567,6 +572,8 @@ void IGraphicsSkia::EndFrame()
     StretchDIBits(hdc, 0, 0, w, h, 0, 0, w, h, bmpInfo->bmiColors, bmpInfo, DIB_RGB_COLORS, SRCCOPY);
     ReleaseDC(hWnd, hdc);
     EndPaint(hWnd, &ps);
+  #elif defined IGRAPHICS_HEADLESS || defined OS_LINUX
+    // Headless/Linux: no window to update, surface is rendered directly
   #else
     #error NOT IMPLEMENTED
   #endif

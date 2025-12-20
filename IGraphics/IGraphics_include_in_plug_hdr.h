@@ -47,7 +47,9 @@
   #endif
 #endif
 
-#ifdef OS_WIN
+#if defined IGRAPHICS_HEADLESS
+  #include "IGraphicsHeadless.h"
+#elif defined OS_WIN
   #include "IGraphicsWin.h"
 #elif defined OS_MAC
   #include "IGraphicsMac.h"

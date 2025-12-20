@@ -22,6 +22,30 @@
 using namespace iplug;
 using namespace igraphics;
 
+#if !defined(OS_MAC) && !defined(OS_IOS)
+// Simple font wrapper for headless mode on non-Apple platforms
+// Stores font data and returns it via GetFontData() for use by IGraphicsSkia
+class HeadlessFont : public PlatformFont
+{
+public:
+  HeadlessFont(void* pData, int dataSize, int faceIdx)
+  : PlatformFont(false)
+  , mFontData(new IFontData(pData, dataSize, faceIdx))
+  {}
+
+  IFontDataPtr GetFontData() override
+  {
+    // Create a copy of the font data to return
+    if (mFontData && mFontData->IsValid())
+      return IFontDataPtr(new IFontData(mFontData->Get(), mFontData->GetSize(), mFontData->GetFaceIdx()));
+    return IFontDataPtr(new IFontData());
+  }
+
+private:
+  IFontDataPtr mFontData;
+};
+#endif
+
 IGraphicsHeadless::IGraphicsHeadless(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
 : IGRAPHICS_DRAW_CLASS(dlg, w, h, fps, scale)
 {
@@ -150,9 +174,8 @@ PlatformFontPtr IGraphicsHeadless::LoadPlatformFont(const char* fontID, void* pD
 #if defined(OS_MAC) || defined(OS_IOS)
   return CoreTextHelpers::LoadPlatformFont(fontID, pData, dataSize);
 #else
-  // On non-Apple platforms, we would need a different font loading mechanism
-  // For now, return nullptr (could be extended for fontconfig/freetype on Linux)
-  return nullptr;
+  // Use default face index 0 for headless font loading
+  return PlatformFontPtr(new HeadlessFont(pData, dataSize, 0));
 #endif
 }
 

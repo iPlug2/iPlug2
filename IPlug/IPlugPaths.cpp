@@ -27,6 +27,19 @@
 
 BEGIN_IPLUG_NAMESPACE
 
+// CLI/headless resource base path
+static WDL_String gResourceBasePath;
+
+void SetResourceBasePath(const char* path)
+{
+  gResourceBasePath.Set(path);
+}
+
+const char* GetResourceBasePath()
+{
+  return gResourceBasePath.Get();
+}
+
 #if defined OS_WIN
 #pragma mark - OS_WIN
 
@@ -354,12 +367,64 @@ EResourceLocation LocateResource(const char* name, const char* type, WDL_String&
 {
   if (CStringHasContents(name))
   {
-    // First check if it's an absolute path that exists
     struct stat st;
+
+    // First check if it's an absolute path that exists
     if (stat(name, &st) == 0)
     {
       result.Set(name);
       return EResourceLocation::kAbsolutePath;
+    }
+
+    // Check the CLI resource base path if set
+    const char* basePath = GetResourceBasePath();
+    if (CStringHasContents(basePath))
+    {
+      WDL_String fullPath;
+      fullPath.SetFormatted(4096, "%s/%s", basePath, name);
+
+      if (stat(fullPath.Get(), &st) == 0)
+      {
+        result.Set(fullPath.Get());
+        return EResourceLocation::kAbsolutePath;
+      }
+
+      // Try with extension
+      if (CStringHasContents(type))
+      {
+        fullPath.SetFormatted(4096, "%s/%s.%s", basePath, name, type);
+        if (stat(fullPath.Get(), &st) == 0)
+        {
+          result.Set(fullPath.Get());
+          return EResourceLocation::kAbsolutePath;
+        }
+      }
+
+      // Also try in fonts/ subdirectory (like macOS)
+      fullPath.SetFormatted(4096, "%s/fonts/%s", basePath, name);
+      if (stat(fullPath.Get(), &st) == 0)
+      {
+        result.Set(fullPath.Get());
+        return EResourceLocation::kAbsolutePath;
+      }
+
+      if (CStringHasContents(type))
+      {
+        fullPath.SetFormatted(4096, "%s/fonts/%s.%s", basePath, name, type);
+        if (stat(fullPath.Get(), &st) == 0)
+        {
+          result.Set(fullPath.Get());
+          return EResourceLocation::kAbsolutePath;
+        }
+      }
+
+      // Also try in img/ subdirectory (like macOS)
+      fullPath.SetFormatted(4096, "%s/img/%s", basePath, name);
+      if (stat(fullPath.Get(), &st) == 0)
+      {
+        result.Set(fullPath.Get());
+        return EResourceLocation::kAbsolutePath;
+      }
     }
 
     // Check in bundle resources path

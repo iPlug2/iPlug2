@@ -123,15 +123,19 @@ if(NOT TARGET iPlug2::CLI::Graphics)
     )
   elseif(UNIX)
     set(SKIA_LIB_PATH ${DEPS_DIR}/Build/linux/lib)
+    # Note: Link order matters for static libraries. Dependent libs must come before their dependencies.
+    # libsvg and other modules depend on libskia, so libskia goes last.
     target_link_libraries(iPlug2::CLI::Graphics INTERFACE
-      ${SKIA_LIB_PATH}/libskia.a
       ${SKIA_LIB_PATH}/libsvg.a
       ${SKIA_LIB_PATH}/libskshaper.a
       ${SKIA_LIB_PATH}/libskparagraph.a
       ${SKIA_LIB_PATH}/libskunicode_core.a
       ${SKIA_LIB_PATH}/libskunicode_icu.a
+      ${SKIA_LIB_PATH}/libskia.a
       fontconfig
       freetype
+      pthread
+      dl
     )
   endif()
 endif()
@@ -156,6 +160,10 @@ function(iplug_configure_cli_graphics target project_name)
   elseif(WIN32)
     set_target_properties(${target} PROPERTIES
       RUNTIME_OUTPUT_DIRECTORY "${project_name}-cli"
+    )
+  elseif(UNIX)
+    set_target_properties(${target} PROPERTIES
+      RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/out"
     )
   endif()
 endfunction()

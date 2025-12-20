@@ -22,7 +22,7 @@ class IGraphicsLinux final : public IGRAPHICS_DRAW_CLASS
 {
 public:
   IGraphicsLinux(IGEditorDelegate& dlg, int w, int h, int fps, float scale);
-  virtual ~IGraphicsLinux);
+  virtual ~IGraphicsLinux();
 
   void* OpenWindow(void* pWindow) override;
   void CloseWindow() override;
@@ -52,7 +52,7 @@ public:
 protected:
   IPopupMenu* CreatePlatformPopupMenu(const IPopupMenu& menu, IRECT& bounds) override;
   void CreatePlatformTextEntry(int paramIdx, const IText& text, const IRECT& bounds, int length, const char* str) override;
-}
+};
 
 END_IGRAPHICS_NAMESPACE
 END_IPLUG_NAMESPACE
