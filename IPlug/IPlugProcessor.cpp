@@ -31,7 +31,7 @@ IPlugProcessor::IPlugProcessor(const Config& config, EAPI plugAPI)
   int totalNInBuses, totalNOutBuses;
   int totalNInChans, totalNOutChans;
 
-  ParseChannelIOStr(config.channelIOStr, mIOConfigs, totalNInChans, totalNOutChans, totalNInBuses, totalNOutBuses);
+  ParseChannelIOStr(config.channelIOStr, mIOConfigs, totalNInChans, totalNOutChans, totalNInBuses, totalNOutBuses, plugAPI != kAPICLI);
 
   mScratchData[ERoute::kInput].Resize(totalNInChans);
   mScratchData[ERoute::kOutput].Resize(totalNOutChans);
@@ -278,12 +278,14 @@ void IPlugProcessor::SetLatency(int samples)
 }
 
 //static
-int IPlugProcessor::ParseChannelIOStr(const char* IOStr, WDL_PtrList<IOConfig>& channelIOList, int& totalNInChans, int& totalNOutChans, int& totalNInBuses, int& totalNOutBuses)
+int IPlugProcessor::ParseChannelIOStr(const char* IOStr, WDL_PtrList<IOConfig>& channelIOList, int& totalNInChans, int& totalNOutChans, int& totalNInBuses, int& totalNOutBuses, bool verbose)
 {
   bool foundAWildcard = false;
   int IOConfigIndex = 0;
 
-  DBGMSG("\nBEGIN IPLUG CHANNEL IO PARSER --------------------------------------------------\n");
+  if (verbose)
+    DBGMSG("\nBEGIN IPLUG CHANNEL IO PARSER --------------------------------------------------\n");
+
   // lamda function to iterate through the period separated buses and check that none have 0 channel count
   auto ParseBusToken = [&foundAWildcard, &IOConfigIndex](ERoute busDir, char* pBusStr, char* pBusStrEnd, int& NBuses, int& NChans, IOConfig* pConfig)
   {
@@ -371,13 +373,16 @@ int IPlugProcessor::ParseChannelIOStr(const char* IOStr, WDL_PtrList<IOConfig>& 
       assert(0);
     }
 
-    DBGMSG("Channel I/O #%i - %s\n", IOConfigIndex + 1, thisIOStr->Get());
-    DBGMSG("               - input bus count: %i, output bus count %i\n", NInBuses, NOutBuses);
-    for (auto i = 0; i < NInBuses; i++)
-      DBGMSG("               - channel count on input bus %i: %i\n", i + 1, pConfig->NChansOnBusSAFE(ERoute::kInput, i));
-    for (auto i = 0; i < NOutBuses; i++)
-      DBGMSG("               - channel count on output bus %i: %i\n", i + 1, pConfig->NChansOnBusSAFE(ERoute::kOutput, i));
-    DBGMSG("               - input channel count across all buses: %i, output channel count across all buses %i\n\n", NInChans, NOutChans);
+    if (verbose)
+    {
+      DBGMSG("Channel I/O #%i - %s\n", IOConfigIndex + 1, thisIOStr->Get());
+      DBGMSG("               - input bus count: %i, output bus count %i\n", NInBuses, NOutBuses);
+      for (auto i = 0; i < NInBuses; i++)
+        DBGMSG("               - channel count on input bus %i: %i\n", i + 1, pConfig->NChansOnBusSAFE(ERoute::kInput, i));
+      for (auto i = 0; i < NOutBuses; i++)
+        DBGMSG("               - channel count on output bus %i: %i\n", i + 1, pConfig->NChansOnBusSAFE(ERoute::kOutput, i));
+      DBGMSG("               - input channel count across all buses: %i, output channel count across all buses %i\n\n", NInChans, NOutChans);
+    }
 
     totalNInChans = std::max(totalNInChans, NInChans);
     totalNOutChans = std::max(totalNOutChans, NOutChans);
@@ -393,9 +398,13 @@ int IPlugProcessor::ParseChannelIOStr(const char* IOStr, WDL_PtrList<IOConfig>& 
 
   free(pChannelIOStr);
   IOStrlist.Empty(true);
-  DBGMSG("%i I/O configs detected\n", IOConfigIndex);
-  DBGMSG("Total # in chans: %i, Total # out chans: %i \n\n", totalNInChans, totalNOutChans);
-  DBGMSG("END IPLUG CHANNEL IO PARSER --------------------------------------------------\n");
+
+  if (verbose)
+  {
+    DBGMSG("%i I/O configs detected\n", IOConfigIndex);
+    DBGMSG("Total # in chans: %i, Total # out chans: %i \n\n", totalNInChans, totalNOutChans);
+    DBGMSG("END IPLUG CHANNEL IO PARSER --------------------------------------------------\n");
+  }
 
   return IOConfigIndex;
 }
