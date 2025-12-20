@@ -43,7 +43,8 @@ if(NOT TARGET iPlug2::IGraphics)
       ${IGRAPHICS_DIR}/Platforms/IGraphicsCoreText.mm
     )
   elseif(UNIX AND NOT APPLE)
-    # Linux IGraphics not yet supported - use NO_IGRAPHICS/CLI builds
+    # Linux: headless mode only supported for now
+    # No windowed platform sources - use IGraphicsHeadless for CLI rendering
   endif()
 
   target_sources(iPlug2::IGraphics INTERFACE ${IGRAPHICS_SRC})
@@ -80,7 +81,11 @@ if(NOT TARGET iPlug2::IGraphics)
       "-framework QuartzCore"
     )
   elseif(UNIX AND NOT APPLE)
-    # Linux IGraphics not yet supported - use NO_IGRAPHICS/CLI builds
+    # Linux: headless/CLI rendering support only
+    target_link_libraries(iPlug2::IGraphics INTERFACE
+      fontconfig
+      freetype
+    )
   endif()
 
   target_link_libraries(iPlug2::IGraphics INTERFACE iPlug2::IPlug)
@@ -333,6 +338,19 @@ if(NOT TARGET iPlug2::IGraphics::Skia)
       ${SKIA_LIB_PATH}/libskparagraph.a
       ${SKIA_LIB_PATH}/libskunicode_core.a
       ${SKIA_LIB_PATH}/libskunicode_icu.a
+    )
+  elseif(UNIX)
+    # Linux: Use prebuilt Skia libraries from Dependencies/Build/linux/lib
+    set(SKIA_LIB_PATH ${DEPS_DIR}/Build/linux/lib)
+    target_link_libraries(iPlug2::IGraphics::Skia INTERFACE
+      ${SKIA_LIB_PATH}/libskia.a
+      ${SKIA_LIB_PATH}/libsvg.a
+      ${SKIA_LIB_PATH}/libskshaper.a
+      ${SKIA_LIB_PATH}/libskparagraph.a
+      ${SKIA_LIB_PATH}/libskunicode_core.a
+      ${SKIA_LIB_PATH}/libskunicode_icu.a
+      fontconfig
+      freetype
     )
   endif()
 endif()

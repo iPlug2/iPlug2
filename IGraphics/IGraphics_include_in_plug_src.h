@@ -21,6 +21,24 @@
 
 #ifndef NO_IGRAPHICS
 
+  // Headless mode for CLI rendering without a window
+  #if defined IGRAPHICS_HEADLESS
+  #include "IGraphicsHeadless.h"
+
+  BEGIN_IPLUG_NAMESPACE
+  BEGIN_IGRAPHICS_NAMESPACE
+
+  IGraphics* MakeGraphics(IGEditorDelegate& dlg, int w, int h, int fps = 0, float scale = 1.)
+  {
+    IGraphicsHeadless* pGraphics = new IGraphicsHeadless(dlg, w, h, fps, scale);
+    return pGraphics;
+  }
+
+  END_IGRAPHICS_NAMESPACE
+  END_IPLUG_NAMESPACE
+
+  #else // !IGRAPHICS_HEADLESS
+
   #if defined OS_WEB
 
   #include <emscripten.h>
@@ -78,6 +96,8 @@
 
   END_IGRAPHICS_NAMESPACE
   END_IPLUG_NAMESPACE
+
+  #endif // !IGRAPHICS_HEADLESS
 
 #endif //NO_IGRAPHICS
 

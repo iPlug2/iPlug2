@@ -15,7 +15,19 @@
 #include <vector>
 #include <memory>
 
-#include "IPlugCLI.h"
+#ifndef NO_IGRAPHICS
+  #include "IPlugCLI_ScreenshotRenderer.h"
+  using CLIPluginType = iplug::IPlugCLI_ScreenshotRenderer;
+#else
+  #include "IPlugCLI.h"
+  using CLIPluginType = iplug::IPlugCLI;
+#endif
+
+namespace iplug {
+  CLIPluginType* MakePlug(const InstanceInfo& info);
+}
+
+#include "IPlugPaths.h"
 #include "config.h"
 #include "wavread.h"
 #include "wavwrite.h"
@@ -114,9 +126,15 @@ void printUsage(const char* progName)
   fprintf(stderr, "  --midi-pc <program> [time_ms]     Queue program change (time: default 0)\n");
   fprintf(stderr, "\nText Output:\n");
   fprintf(stderr, "  --output-txt <file> Output as text (one sample per line)\n");
+#ifndef NO_IGRAPHICS
+  fprintf(stderr, "\nUI Screenshot (requires IGraphics build):\n");
+  fprintf(stderr, "  --screenshot <file.png>  Render UI to PNG image file\n");
+  fprintf(stderr, "  --scale <factor>         Screenshot scale factor (default: 1.0)\n");
+  fprintf(stderr, "  --resources <path>       Path to resources directory (fonts, images)\n");
+#endif
 }
 
-void printInfo(IPlugCLI* pPlugin)
+void printInfo(CLIPluginType* pPlugin)
 {
   const char* typeStr = "effect";
   if (pPlugin->IsInstrument())
@@ -142,7 +160,7 @@ void printInfo(IPlugCLI* pPlugin)
   printf("}\n");
 }
 
-void printParams(IPlugCLI* pPlugin)
+void printParams(CLIPluginType* pPlugin)
 {
   printf("{\n");
   printf("  \"parameters\": [\n");
@@ -166,7 +184,7 @@ void printParams(IPlugCLI* pPlugin)
   printf("}\n");
 }
 
-void printParam(IPlugCLI* pPlugin, int idx)
+void printParam(CLIPluginType* pPlugin, int idx)
 {
   if (idx < 0 || idx >= pPlugin->NParams())
   {
@@ -204,7 +222,7 @@ void outputText(const std::vector<double>& data, const char* filename)
   fprintf(stderr, "Wrote %zu samples to %s\n", data.size(), filename);
 }
 
-int findParamByName(IPlugCLI* pPlugin, const char* name)
+int findParamByName(CLIPluginType* pPlugin, const char* name)
 {
   int nParams = pPlugin->NParams();
   for (int i = 0; i < nParams; i++)
@@ -215,7 +233,7 @@ int findParamByName(IPlugCLI* pPlugin, const char* name)
   return -1;
 }
 
-void saveParams(IPlugCLI* pPlugin, const char* filename)
+void saveParams(CLIPluginType* pPlugin, const char* filename)
 {
   FILE* f = fopen(filename, "w");
   if (!f)
@@ -243,7 +261,7 @@ void saveParams(IPlugCLI* pPlugin, const char* filename)
   fprintf(stderr, "Saved %d parameters to %s\n", nParams, filename);
 }
 
-void saveState(IPlugCLI* pPlugin, const char* filename)
+void saveState(CLIPluginType* pPlugin, const char* filename)
 {
   IByteChunk chunk;
   if (pPlugin->SerializeState(chunk))
@@ -264,7 +282,7 @@ void saveState(IPlugCLI* pPlugin, const char* filename)
   }
 }
 
-bool loadState(IPlugCLI* pPlugin, const char* filename)
+bool loadState(CLIPluginType* pPlugin, const char* filename)
 {
   FILE* f = fopen(filename, "rb");
   if (!f)
@@ -298,7 +316,7 @@ bool loadState(IPlugCLI* pPlugin, const char* filename)
   }
 }
 
-bool loadParams(IPlugCLI* pPlugin, const char* filename)
+bool loadParams(CLIPluginType* pPlugin, const char* filename)
 {
   FILE* f = fopen(filename, "r");
   if (!f)
@@ -362,7 +380,7 @@ int main(int argc, char* argv[])
 
   // Create plugin instance
   InstanceInfo info = { argc, argv };
-  std::unique_ptr<IPlugCLI> plugin(MakePlug(info));
+  std::unique_ptr<CLIPluginType> plugin(MakePlug(info));
 
   if (!plugin)
   {
@@ -380,6 +398,10 @@ int main(int argc, char* argv[])
   std::vector<double> outputData;
   std::vector<std::vector<double>> outputChannels;
   int outputSampleRate = 44100;
+#ifndef NO_IGRAPHICS
+  std::string screenshotFile;
+  float screenshotScale = 1.0f;
+#endif
 
   ArgParser args(argc, argv);
 
@@ -735,6 +757,27 @@ int main(int argc, char* argv[])
 
       fprintf(stderr, "Rendered %d ms (%d frames)\n", ms, nFrames);
     }
+#ifndef NO_IGRAPHICS
+    else if (args.match("--screenshot"))
+    {
+      const char* file = args.next();
+      if (file)
+        screenshotFile = file;
+    }
+    else if (args.match("--scale"))
+    {
+      screenshotScale = static_cast<float>(args.getDouble(1.0));
+    }
+    else if (args.match("--resources"))
+    {
+      const char* path = args.next();
+      if (path)
+      {
+        SetResourceBasePath(path);
+        fprintf(stderr, "Set resource path: %s\n", path);
+      }
+    }
+#endif
     else
     {
       fprintf(stderr, "Unknown option: %s\n", args.next());
@@ -810,6 +853,16 @@ int main(int argc, char* argv[])
     fprintf(stderr, "Wrote %s (1 ch, %d Hz, %u frames)\n",
             outputWavFile.c_str(), outputSampleRate, nFrames);
   }
+
+#ifndef NO_IGRAPHICS
+  if (!screenshotFile.empty())
+  {
+    if (!plugin->SaveScreenshot(screenshotFile.c_str(), screenshotScale))
+    {
+      return 1;
+    }
+  }
+#endif
 
   return 0;
 }

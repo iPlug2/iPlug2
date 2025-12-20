@@ -82,6 +82,15 @@ extern void WebViewCachePath(WDL_String& path);
  * @return \c true on success */
 extern EResourceLocation LocateResource(const char* fileNameOrResID, const char* type, WDL_String& result, const char* bundleID, void* pHInstance, const char* sharedResourcesSubPath);
 
+/** Set the base path for resource lookups in CLI/headless mode
+ * When set, LocateResource will first try to find resources relative to this path
+ * @param path The absolute path to the resources directory (e.g. /path/to/plugin/resources) */
+extern void SetResourceBasePath(const char* path);
+
+/** Get the current resource base path for CLI/headless mode
+ * @return The current resource base path, or empty string if not set */
+extern const char* GetResourceBasePath();
+
 /** Load a resource from the binary (windows only).
  * @param type The resource type in lower or upper case, e.g. ttf or TTF for a truetype font
  * @return const void pointer to the data if successfull on windows. Returns nullptr if unsuccessfull or on platforms other than windows */

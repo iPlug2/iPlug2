@@ -73,8 +73,13 @@
   #define PLUGIN_API_BASE IPlugCLAP
   #define API_EXT "clap"
 #elif defined CLI_API
-  #include "IPlugCLI.h"
-  #define PLUGIN_API_BASE IPlugCLI
+  #if !defined NO_IGRAPHICS
+    #include "IPlugCLI_ScreenshotRenderer.h"
+    #define PLUGIN_API_BASE IPlugCLI_ScreenshotRenderer
+  #else
+    #include "IPlugCLI.h"
+    #define PLUGIN_API_BASE IPlugCLI
+  #endif
   #define API_EXT "cli"
 #else
   #error "No API defined!"

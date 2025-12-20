@@ -111,8 +111,6 @@ private:
   int mBlockSize = 512;
 };
 
-IPlugCLI* MakePlug(const InstanceInfo& info);
-
 END_IPLUG_NAMESPACE
 
 #endif

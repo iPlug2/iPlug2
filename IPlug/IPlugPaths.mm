@@ -29,6 +29,18 @@ extern std::map<std::string, void*> gTextureMap;
 
 BEGIN_IPLUG_NAMESPACE
 
+static WDL_String gResourceBasePath;
+
+void SetResourceBasePath(const char* path)
+{
+  gResourceBasePath.Set(path);
+}
+
+const char* GetResourceBasePath()
+{
+  return gResourceBasePath.Get();
+}
+
 #ifdef OS_MAC
 #pragma mark - macOS
 
@@ -218,6 +230,38 @@ EResourceLocation LocateResource(const char* name, const char* type, WDL_String&
 {
   if(CStringHasContents(name))
   {
+    // First check the CLI resource base path if set
+    const char* basePath = GetResourceBasePath();
+    if(CStringHasContents(basePath))
+    {
+      WDL_String fullPath;
+      fullPath.SetFormatted(4096, "%s/%s", basePath, name);
+      NSString* pPath = [NSString stringWithUTF8String:fullPath.Get()];
+
+      if([[NSFileManager defaultManager] fileExistsAtPath : pPath] == YES)
+      {
+        result.Set([pPath UTF8String]);
+        return EResourceLocation::kAbsolutePath;
+      }
+
+      // Also try in fonts/ and img/ subdirectories
+      fullPath.SetFormatted(4096, "%s/fonts/%s", basePath, name);
+      pPath = [NSString stringWithUTF8String:fullPath.Get()];
+      if([[NSFileManager defaultManager] fileExistsAtPath : pPath] == YES)
+      {
+        result.Set([pPath UTF8String]);
+        return EResourceLocation::kAbsolutePath;
+      }
+
+      fullPath.SetFormatted(4096, "%s/img/%s", basePath, name);
+      pPath = [NSString stringWithUTF8String:fullPath.Get()];
+      if([[NSFileManager defaultManager] fileExistsAtPath : pPath] == YES)
+      {
+        result.Set([pPath UTF8String]);
+        return EResourceLocation::kAbsolutePath;
+      }
+    }
+
 #ifndef AUv3_API
     // first check this bundle
     if(GetResourcePathFromBundle(name, type, result, bundleID))

@@ -287,9 +287,9 @@ function(_iplug_create_wam_targets plugin_name formats sources site_origin base_
 endfunction()
 
 # ============================================================================
-# Create CLI target (macOS/Windows only) - Headless command-line interface
+# Create CLI target (macOS/Windows/Linux) - Headless command-line interface
 # ============================================================================
-function(_iplug_create_cli_targets plugin_name formats sources base_lib)
+function(_iplug_create_cli_targets plugin_name formats sources ui_lib base_lib)
   # Skip on iOS and Emscripten
   if(IOS OR CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
     return()
@@ -299,13 +299,29 @@ function(_iplug_create_cli_targets plugin_name formats sources base_lib)
     return()
   endif()
 
-  include(${IPLUG2_CMAKE_DIR}/CLI.cmake)
-
-  add_executable(${plugin_name}-cli ${sources})
-  iplug_add_target(${plugin_name}-cli PUBLIC
-    LINK iPlug2::CLI ${base_lib}
-  )
-  iplug_configure_cli(${plugin_name}-cli ${plugin_name})
+  # If plugin has IGraphics UI, use CLI-Graphics for headless rendering
+  if(ui_lib)
+    include(${IPLUG2_CMAKE_DIR}/CLI-Graphics.cmake)
+    add_executable(${plugin_name}-cli ${sources})
+    # For CLI-Graphics, only inherit includes and defines from base_lib, not links
+    # This avoids transitive IGraphics platform dependencies (e.g., FlexBox → IGraphics → IGraphicsMac)
+    get_target_property(_base_includes ${base_lib} INTERFACE_INCLUDE_DIRECTORIES)
+    get_target_property(_base_defines ${base_lib} INTERFACE_COMPILE_DEFINITIONS)
+    if(_base_includes)
+      target_include_directories(${plugin_name}-cli PUBLIC ${_base_includes})
+    endif()
+    if(_base_defines)
+      target_compile_definitions(${plugin_name}-cli PUBLIC ${_base_defines})
+    endif()
+    iplug_configure_cli_graphics(${plugin_name}-cli ${plugin_name})
+  else()
+    include(${IPLUG2_CMAKE_DIR}/CLI.cmake)
+    add_executable(${plugin_name}-cli ${sources})
+    iplug_add_target(${plugin_name}-cli PUBLIC
+      LINK iPlug2::CLI ${base_lib}
+    )
+    iplug_configure_cli(${plugin_name}-cli ${plugin_name})
+  endif()
 endfunction()
 
 # ============================================================================
@@ -445,5 +461,5 @@ macro(iplug_add_plugin plugin_name)
   _iplug_create_auv3_targets(${plugin_name} "${_iplug_formats}" "${PLUGIN_SOURCES}" "${_iplug_ui_lib}" "${PLUGIN_RESOURCES}" "${PLUGIN_WEB_RESOURCES}" "_${plugin_name}-base")
   _iplug_create_ios_targets(${plugin_name} "${_iplug_formats}" "${PLUGIN_SOURCES}" "${_iplug_ui_lib}" "${PLUGIN_RESOURCES}" "${PLUGIN_WEB_RESOURCES}" "_${plugin_name}-base")
   _iplug_create_wam_targets(${plugin_name} "${_iplug_formats}" "${PLUGIN_SOURCES}" "${PLUGIN_WAM_SITE_ORIGIN}" "_${plugin_name}-base")
-  _iplug_create_cli_targets(${plugin_name} "${_iplug_formats}" "${PLUGIN_SOURCES}" "_${plugin_name}-base")
+  _iplug_create_cli_targets(${plugin_name} "${_iplug_formats}" "${PLUGIN_SOURCES}" "${_iplug_ui_lib}" "_${plugin_name}-base")
 endmacro()
