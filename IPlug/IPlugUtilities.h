@@ -27,6 +27,7 @@
 
 #include "heapbuf.h"
 #include "wdlstring.h"
+#include "wdlutf8.h"
 
 #include "IPlugConstants.h"
 #include "IPlugPlatform.h"
@@ -318,33 +319,54 @@ static void MidiNoteName(double midiPitch, WDL_String& noteName, bool cents = fa
 
 static int UTF8ToUTF16Len(const char* utf8Str)
 {
-  return std::max(MultiByteToWideChar(CP_UTF8, 0, utf8Str, -1, NULL, 0), 1);
+  if (!utf8Str)
+    return 1;  // Just null terminator
+  int len = 0;
+  const char* p = utf8Str;
+  while (*p)
+  {
+    int c;
+    int sz = wdl_utf8_parsechar(p, &c);
+    len += (c >= 0x10000 && c < 0x10FFFF) ? 2 : 1;
+    p += sz;
+  }
+  return std::max(len + 1, 1);  // +1 for null terminator
 }
 
 static void UTF8ToUTF16(wchar_t* wideStr, const char* utf8Str, int maxLen)
 {
-  int requiredSize = UTF8ToUTF16Len(utf8Str);
-
-  if (requiredSize <= maxLen)
-  {
-    if (MultiByteToWideChar(CP_UTF8, 0, utf8Str, -1, wideStr, requiredSize))
-      return;
-  }
-
-  wideStr[0] = '\0';
+  WDL_MBtoWideStr(wideStr, utf8Str, maxLen * sizeof(wchar_t));
 }
 
 static void UTF16ToUTF8(WDL_String& utf8Str, const wchar_t* wideStr)
 {
-  int requiredSize = WideCharToMultiByte(CP_UTF8, 0, wideStr, -1, NULL, 0, NULL, NULL);
-
-  if (requiredSize > 0 && utf8Str.SetLen(requiredSize))
+  if (!wideStr)
   {
-    WideCharToMultiByte(CP_UTF8, 0, wideStr, -1, utf8Str.Get(), requiredSize, NULL, NULL);
+    utf8Str.Set("");
     return;
   }
+  // Calculate required size
+  int requiredSize = 0;
+  const wchar_t* p = wideStr;
+  while (*p)
+  {
+    int ch = *p++;
+    if (ch >= 0xD800 && ch <= 0xDBFF && *p >= 0xDC00 && *p <= 0xDFFF)
+    {
+      ch = 0x10000 + ((ch - 0xD800) << 10) + (*p++ - 0xDC00);
+    }
+    requiredSize += (ch < 0x80) ? 1 : (ch < 0x800) ? 2 : (ch < 0x10000) ? 3 : 4;
+  }
+  requiredSize++; // null terminator
 
-  utf8Str.Set("");
+  if (utf8Str.SetLen(requiredSize))
+  {
+    WDL_WideToMBStr(utf8Str.Get(), wideStr, requiredSize);
+  }
+  else
+  {
+    utf8Str.Set("");
+  }
 }
 
 class UTF8AsUTF16
