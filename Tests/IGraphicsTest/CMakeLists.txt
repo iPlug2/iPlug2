@@ -43,6 +43,7 @@ iplug_add_plugin(${PROJECT_NAME}
     resources/img/dst.png
     resources/img/dst@2x.png
   LINK iPlug2::Extras::FlexBox ${EXTRA_LINK}
+  FORMATS APP CLI
 )
 
 # TestCustomShaderControl needs ShaderTypes.h from resources/shaders
