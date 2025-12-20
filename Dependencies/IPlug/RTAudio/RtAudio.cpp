@@ -48,8 +48,8 @@
 #include <climits>
 #include <cmath>
 #include <algorithm>
-#include <codecvt>
-#include <locale>
+
+#include "../../../WDL/wdlutf8.h"
 
 #if defined(_WIN32)
 #include <windows.h>
@@ -74,7 +74,22 @@ std::string convertCharPointerToStdString(const char *text)
 template<> inline
 std::string convertCharPointerToStdString(const wchar_t *text)
 {
-  return std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>>{}.to_bytes(text);
+  if (!text) return std::string();
+  std::string result;
+  result.reserve(wcslen(text) * 3);  // worst case UTF-8
+  for (size_t i = 0; text[i]; i++)
+  {
+    int ch = text[i];
+    // Handle UTF-16 surrogate pairs
+    if (ch >= 0xD800 && ch <= 0xDBFF && text[i+1] >= 0xDC00 && text[i+1] <= 0xDFFF)
+    {
+      ch = 0x10000 + ((ch - 0xD800) << 10) + (text[++i] - 0xDC00);
+    }
+    char buf[5];
+    int n = wdl_utf8_makechar(ch, buf, 4);
+    if (n > 0) result.append(buf, n);
+  }
+  return result;
 }
 
 #if defined(_MSC_VER)
