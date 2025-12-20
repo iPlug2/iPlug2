@@ -422,23 +422,6 @@ private:
 };
 #endif
 
-
-#if defined OS_WIN
-
-static FILE* fopenUTF8(const char* path, const char* mode)
-{
-  return _wfopen(UTF8AsUTF16(path).Get(), UTF8AsUTF16(mode).Get());
-}
-
-#else
-
-static FILE* fopenUTF8(const char* path, const char* mode)
-{
-  return fopen(path, mode);
-}
-
-#endif
-
 /** Convert UTF-8 string to UTF-16 std::u16string using WDL functions
  * @param utf8 UTF-8 encoded C string
  * @return UTF-16 encoded std::u16string */

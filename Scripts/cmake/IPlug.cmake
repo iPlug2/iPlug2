@@ -50,7 +50,11 @@ if(NOT TARGET iPlug2::IPlug)
   if(APPLE)
     list(APPEND IPLUG_SRC ${IPLUG_DIR}/IPlugPaths.mm)
   endif()
-  
+
+  if(WIN32)
+    list(APPEND IPLUG_SRC ${WDL_DIR}/win32_utf8.c)
+  endif()
+
   target_sources(iPlug2::IPlug INTERFACE ${IPLUG_SRC})
   
   target_include_directories(iPlug2::IPlug INTERFACE

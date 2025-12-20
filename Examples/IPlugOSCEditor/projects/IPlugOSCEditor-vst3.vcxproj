@@ -414,6 +414,7 @@
     <ClCompile Include="..\..\..\WDL\jnetlib\listen.cpp" />
     <ClCompile Include="..\..\..\WDL\jnetlib\util.cpp" />
     <ClCompile Include="..\IPlugOSCEditor.cpp" />
+    <ClCompile Include="..\..\..\WDL\win32_utf8.c" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\resources\main.rc" />
