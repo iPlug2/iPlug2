@@ -28,7 +28,6 @@ _*
 *.RPP-bak
 Icon?
 .DS_Stor*
-build-*
 !.claude/skills/build-*
 Dependencies/IPlug/CLAP_HELPERS/*
 Dependencies/IPlug/CLAP_SDK/*
