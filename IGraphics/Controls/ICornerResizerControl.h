@@ -55,9 +55,12 @@ public:
 
   void OnRescale() override
   {
-    float size = mSize * (1.f/GetUI()->GetDrawScale());
-    IRECT r = GetUI()->GetBounds().GetFromBRHC(size, size);
-    SetTargetAndDrawRECTs(r);
+    if (IGraphics* pGraphics = GetUI())
+    {
+      float size = mSize * (1.f/pGraphics->GetDrawScale());
+      IRECT r = pGraphics->GetBounds().GetFromBRHC(size, size);
+      SetTargetAndDrawRECTs(r);
+    }
   }
 
   void OnMouseOver(float x, float y, const IMouseMod& mod) override
