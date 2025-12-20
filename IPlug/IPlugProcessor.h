@@ -261,8 +261,9 @@ public:
    * @param totalNOutChans The total number of output channels across all buses will be stored here
    * @param totalNInBuses The total number of input buses across all channel I/O configs will be stored here
    * @param totalNOutBuses The total number of output buses across all channel I/O configs will be stored here
+   * @param verbose If true, print debug info about the parsed channel I/O (default: true)
    * @return The number of space separated channel I/O configs that have been detected in IOStr */
-  static int ParseChannelIOStr(const char* IOStr, WDL_PtrList<IOConfig>& channelIOList, int& totalNInChans, int& totalNOutChans, int& totalNInBuses, int& totalNOutBuses);
+  static int ParseChannelIOStr(const char* IOStr, WDL_PtrList<IOConfig>& channelIOList, int& totalNInChans, int& totalNOutChans, int& totalNInBuses, int& totalNOutBuses, bool verbose = true);
 
 protected:
 #pragma mark - Methods called by the API class - you do not call these methods in your plug-in class
