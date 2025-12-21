@@ -302,6 +302,7 @@
     <ClInclude Include="..\..\..\IPlug\APP\IPlugAPP.h" />
     <ClInclude Include="..\..\..\IPlug\APP\IPlugAPP_host.h" />
     <ClInclude Include="..\..\..\IPlug\Extras\OSC\IPlugOSC.h" />
+    <ClInclude Include="..\..\..\IPlug\Extras\OSC\IPlugOSC_internal.h" />
     <ClInclude Include="..\..\..\IPlug\Extras\OSC\IPlugOSC_msg.h" />
     <ClInclude Include="..\..\..\IPlug\Extras\WebView\IPlugWebView.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugAPIBase.h" />
@@ -365,6 +366,7 @@
     <ClCompile Include="..\..\..\IPlug\APP\IPlugAPP_host.cpp" />
     <ClCompile Include="..\..\..\IPlug\APP\IPlugAPP_main.cpp" />
     <ClCompile Include="..\..\..\IPlug\Extras\OSC\IPlugOSC.cpp" />
+    <ClCompile Include="..\..\..\IPlug\Extras\OSC\IPlugOSC_internal.cpp" />
     <ClCompile Include="..\..\..\IPlug\Extras\OSC\IPlugOSC_msg.cpp" />
     <ClCompile Include="..\..\..\IPlug\Extras\WebView\IPlugWebView.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>

@@ -404,6 +404,7 @@
     <ClCompile Include="..\..\..\IPlug\AAX\IPlugAAX_Describe.cpp" />
     <ClCompile Include="..\..\..\IPlug\AAX\IPlugAAX.cpp" />
     <ClCompile Include="..\..\..\IPlug\Extras\OSC\IPlugOSC.cpp" />
+    <ClCompile Include="..\..\..\IPlug\Extras\OSC\IPlugOSC_internal.cpp" />
     <ClCompile Include="..\..\..\IPlug\Extras\OSC\IPlugOSC_msg.cpp" />
     <ClCompile Include="..\..\..\IPlug\Extras\WebView\IPlugWebView.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64EC'">true</ExcludedFromBuild>
@@ -487,6 +488,7 @@
     <ClInclude Include="..\..\..\IPlug\AAX\IPlugAAX_TaperDelegate.h" />
     <ClInclude Include="..\..\..\IPlug\AAX\IPlugAAX.h" />
     <ClInclude Include="..\..\..\IPlug\Extras\OSC\IPlugOSC.h" />
+    <ClInclude Include="..\..\..\IPlug\Extras\OSC\IPlugOSC_internal.h" />
     <ClInclude Include="..\..\..\IPlug\Extras\OSC\IPlugOSC_msg.h" />
     <ClInclude Include="..\..\..\IPlug\Extras\WebView\IPlugWebView.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugAPIBase.h" />
