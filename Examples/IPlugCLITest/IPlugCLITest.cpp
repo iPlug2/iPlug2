@@ -1,6 +1,10 @@
 #include "IPlugCLITest.h"
 #include "IPlug_include_in_plug_src.h"
 
+#if IPLUG_EDITOR
+#include "IControls.h"
+#endif
+
 IPlugCLITest::IPlugCLITest(const InstanceInfo& info)
 : Plugin(info, MakeConfig(kNumParams, kNumPresets))
 {
@@ -8,6 +12,53 @@ IPlugCLITest::IPlugCLITest(const InstanceInfo& info)
   GetParam(kFrequency)->InitDouble("Frequency", 440., 20., 20000., 1., "Hz");
   GetParam(kAttack)->InitDouble("Attack", 10., 1., 1000., 1., "ms");
   GetParam(kDecay)->InitDouble("Decay", 200., 1., 5000., 1., "ms");
+
+#if IPLUG_EDITOR
+  mMakeGraphicsFunc = [&]() {
+    return MakeGraphics(*this, PLUG_WIDTH, PLUG_HEIGHT, PLUG_FPS, GetScaleForScreen(PLUG_WIDTH, PLUG_HEIGHT));
+  };
+
+  mLayoutFunc = [&](IGraphics* pGraphics) {
+    if (pGraphics->NControls())
+      return;
+
+    // Load a system font
+    pGraphics->LoadFont("Roboto-Regular", "Roboto", ETextStyle::Normal);
+
+    // Dark background
+    pGraphics->AttachPanelBackground(COLOR_BLACK);
+
+    // Mosaic of colored rectangles
+    pGraphics->AttachControl(new ILambdaControl(pGraphics->GetBounds(),
+      [](ILambdaControl* pCaller, IGraphics& g, IRECT& r) {
+        const int cols = 12;
+        const int rows = 8;
+        const float cellW = r.W() / cols;
+        const float cellH = r.H() / rows;
+
+        for (int row = 0; row < rows; row++)
+        {
+          for (int col = 0; col < cols; col++)
+          {
+            // Create varied colors based on position
+            float hue = (float)(row * cols + col) / (rows * cols);
+            float sat = 0.7f + 0.3f * std::sin(col * 0.5f);
+            float lum = 0.4f + 0.3f * std::cos(row * 0.7f);
+
+            IColor color = IColor::FromHSLA(hue, sat, lum);
+
+            IRECT cell(r.L + col * cellW, r.T + row * cellH,
+                       r.L + (col + 1) * cellW, r.T + (row + 1) * cellH);
+
+            // Add some padding between cells
+            cell.Pad(-2.f);
+
+            g.FillRect(color, cell);
+          }
+        }
+      }, kNoParameter, false));
+  };
+#endif
 }
 
 #if IPLUG_DSP

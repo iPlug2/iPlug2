@@ -17,5 +17,5 @@ iplug_add_plugin(${PROJECT_NAME}
     IPlugCLITest.cpp
     IPlugCLITest.h
   FORMATS CLI
-  UI NONE
+  UI IGRAPHICS
 )

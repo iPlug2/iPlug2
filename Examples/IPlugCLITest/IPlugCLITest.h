@@ -14,6 +14,7 @@ enum EParams
 };
 
 using namespace iplug;
+using namespace igraphics;
 
 class IPlugCLITest final : public Plugin
 {
