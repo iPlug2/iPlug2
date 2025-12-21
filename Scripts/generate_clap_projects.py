@@ -259,6 +259,57 @@ def process_filters_file(repo_root, rel_path, project_name):
     print(f"  Created filters: {clap_filters_path}")
     return True
 
+CLAP_USER_TEMPLATE = '''<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LocalDebuggerCommand>$(CLAP_X64_HOST_PATH)</LocalDebuggerCommand>
+    <LocalDebuggerCommandArguments>$(CLAP_X64_COMMAND_ARGS)</LocalDebuggerCommandArguments>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LocalDebuggerCommand>$(CLAP_X64_HOST_PATH)</LocalDebuggerCommand>
+    <LocalDebuggerCommandArguments>$(CLAP_X64_COMMAND_ARGS)</LocalDebuggerCommandArguments>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Tracer|x64'">
+    <LocalDebuggerCommand>$(CLAP_X64_HOST_PATH)</LocalDebuggerCommand>
+    <LocalDebuggerCommandArguments>$(CLAP_X64_COMMAND_ARGS)</LocalDebuggerCommandArguments>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64EC'">
+    <LocalDebuggerCommand>$(CLAP_ARM64EC_HOST_PATH)</LocalDebuggerCommand>
+    <LocalDebuggerCommandArguments>$(CLAP_ARM64EC_COMMAND_ARGS)</LocalDebuggerCommandArguments>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64EC'">
+    <LocalDebuggerCommand>$(CLAP_ARM64EC_HOST_PATH)</LocalDebuggerCommand>
+    <LocalDebuggerCommandArguments>$(CLAP_ARM64EC_COMMAND_ARGS)</LocalDebuggerCommandArguments>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Tracer|ARM64EC'">
+    <LocalDebuggerCommand>$(CLAP_ARM64EC_HOST_PATH)</LocalDebuggerCommand>
+    <LocalDebuggerCommandArguments>$(CLAP_ARM64EC_COMMAND_ARGS)</LocalDebuggerCommandArguments>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+  </PropertyGroup>
+</Project>
+'''
+
+def process_user_file(repo_root, rel_path, project_name):
+    """Create CLAP .user file with debugger settings."""
+    projects_dir = os.path.join(repo_root, rel_path, 'projects')
+    clap_user_path = os.path.join(projects_dir, f'{project_name}-clap.vcxproj.user')
+
+    if os.path.exists(clap_user_path):
+        print(f"  CLAP user file already exists: {clap_user_path}")
+        return False
+
+    # Write CLAP user file with UTF-8 BOM
+    with open(clap_user_path, 'w', encoding='utf-8-sig') as f:
+        f.write(CLAP_USER_TEMPLATE)
+
+    print(f"  Created user file: {clap_user_path}")
+    return True
+
 def process_project(repo_root, rel_path, project_name):
     """Process a single project to create CLAP version."""
     projects_dir = os.path.join(repo_root, rel_path, 'projects')
@@ -370,6 +421,7 @@ def main():
         if guid:
             update_solution_file(repo_root, rel_path, project_name, guid)
         process_filters_file(repo_root, rel_path, project_name)
+        process_user_file(repo_root, rel_path, project_name)
         print()
 
     print("Done!")
