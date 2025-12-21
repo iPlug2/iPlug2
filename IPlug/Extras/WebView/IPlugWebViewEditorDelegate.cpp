@@ -46,8 +46,19 @@ WebViewEditorDelegate::~WebViewEditorDelegate()
 
 void* WebViewEditorDelegate::OpenWindow(void* pParent)
 {
-  mView = OpenWebView(pParent, 0.0f, 0.0f, static_cast<float>(GetEditorWidth()), static_cast<float>(GetEditorHeight()), 1.0f);
+  mView = OpenWebView(pParent, 0.0f, 0.0f,
+    static_cast<float>(GetEditorWidth()),
+    static_cast<float>(GetEditorHeight()), 1.0f);
+
   return mView;
+}
+
+void WebViewEditorDelegate::SetScreenScale(float scale)
+{
+  int w = static_cast<int>(GetEditorWidth() * scale);
+  int h = static_cast<int>(GetEditorHeight() * scale);
+
+  EditorResizeFromUI(w, h, true);
 }
 
 void WebViewEditorDelegate::Resize(int width, int height)
