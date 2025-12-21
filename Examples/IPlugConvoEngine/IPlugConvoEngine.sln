@@ -11,6 +11,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IPlugConvoEngine-vst3", "pr
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IPlugConvoEngine-aax", "projects\IPlugConvoEngine-aax.vcxproj", "{DC4B5920-933D-4C82-B842-F34431D55A93}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IPlugConvoEngine-clap", "projects\IPlugConvoEngine-clap.vcxproj", "{EA9A4ECE-EFA0-4E09-A971-87B64FF27760}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|ARM64EC = Debug|ARM64EC
@@ -69,7 +71,19 @@ Global
 		{DC4B5920-933D-4C82-B842-F34431D55A93}.Tracer|ARM64EC.Build.0 = Tracer|ARM64EC
 		{DC4B5920-933D-4C82-B842-F34431D55A93}.Tracer|x64.ActiveCfg = Tracer|x64
 		{DC4B5920-933D-4C82-B842-F34431D55A93}.Tracer|x64.Build.0 = Tracer|x64
-	EndGlobalSection
+			{EA9A4ECE-EFA0-4E09-A971-87B64FF27760}.Debug|ARM64EC.ActiveCfg = Debug|ARM64EC
+		{EA9A4ECE-EFA0-4E09-A971-87B64FF27760}.Debug|ARM64EC.Build.0 = Debug|ARM64EC
+		{EA9A4ECE-EFA0-4E09-A971-87B64FF27760}.Debug|x64.ActiveCfg = Debug|x64
+		{EA9A4ECE-EFA0-4E09-A971-87B64FF27760}.Debug|x64.Build.0 = Debug|x64
+		{EA9A4ECE-EFA0-4E09-A971-87B64FF27760}.Release|ARM64EC.ActiveCfg = Release|ARM64EC
+		{EA9A4ECE-EFA0-4E09-A971-87B64FF27760}.Release|ARM64EC.Build.0 = Release|ARM64EC
+		{EA9A4ECE-EFA0-4E09-A971-87B64FF27760}.Release|x64.ActiveCfg = Release|x64
+		{EA9A4ECE-EFA0-4E09-A971-87B64FF27760}.Release|x64.Build.0 = Release|x64
+		{EA9A4ECE-EFA0-4E09-A971-87B64FF27760}.Tracer|ARM64EC.ActiveCfg = Tracer|ARM64EC
+		{EA9A4ECE-EFA0-4E09-A971-87B64FF27760}.Tracer|ARM64EC.Build.0 = Tracer|ARM64EC
+		{EA9A4ECE-EFA0-4E09-A971-87B64FF27760}.Tracer|x64.ActiveCfg = Tracer|x64
+		{EA9A4ECE-EFA0-4E09-A971-87B64FF27760}.Tracer|x64.Build.0 = Tracer|x64
+EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection

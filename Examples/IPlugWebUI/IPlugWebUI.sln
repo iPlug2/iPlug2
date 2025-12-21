@@ -11,6 +11,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IPlugWebUI-vst3", "projects
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IPlugWebUI-aax", "projects\IPlugWebUI-aax.vcxproj", "{DC4B5920-933D-4C82-B842-F34431D55A93}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IPlugWebUI-clap", "projects\IPlugWebUI-clap.vcxproj", "{9171D264-40F3-43A6-BBB2-E7FCB8A43D69}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|ARM64EC = Debug|ARM64EC
@@ -69,7 +71,19 @@ Global
 		{DC4B5920-933D-4C82-B842-F34431D55A93}.Tracer|ARM64EC.Build.0 = Tracer|ARM64EC
 		{DC4B5920-933D-4C82-B842-F34431D55A93}.Tracer|x64.ActiveCfg = Tracer|x64
 		{DC4B5920-933D-4C82-B842-F34431D55A93}.Tracer|x64.Build.0 = Tracer|x64
-	EndGlobalSection
+			{9171D264-40F3-43A6-BBB2-E7FCB8A43D69}.Debug|ARM64EC.ActiveCfg = Debug|ARM64EC
+		{9171D264-40F3-43A6-BBB2-E7FCB8A43D69}.Debug|ARM64EC.Build.0 = Debug|ARM64EC
+		{9171D264-40F3-43A6-BBB2-E7FCB8A43D69}.Debug|x64.ActiveCfg = Debug|x64
+		{9171D264-40F3-43A6-BBB2-E7FCB8A43D69}.Debug|x64.Build.0 = Debug|x64
+		{9171D264-40F3-43A6-BBB2-E7FCB8A43D69}.Release|ARM64EC.ActiveCfg = Release|ARM64EC
+		{9171D264-40F3-43A6-BBB2-E7FCB8A43D69}.Release|ARM64EC.Build.0 = Release|ARM64EC
+		{9171D264-40F3-43A6-BBB2-E7FCB8A43D69}.Release|x64.ActiveCfg = Release|x64
+		{9171D264-40F3-43A6-BBB2-E7FCB8A43D69}.Release|x64.Build.0 = Release|x64
+		{9171D264-40F3-43A6-BBB2-E7FCB8A43D69}.Tracer|ARM64EC.ActiveCfg = Tracer|ARM64EC
+		{9171D264-40F3-43A6-BBB2-E7FCB8A43D69}.Tracer|ARM64EC.Build.0 = Tracer|ARM64EC
+		{9171D264-40F3-43A6-BBB2-E7FCB8A43D69}.Tracer|x64.ActiveCfg = Tracer|x64
+		{9171D264-40F3-43A6-BBB2-E7FCB8A43D69}.Tracer|x64.Build.0 = Tracer|x64
+EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection

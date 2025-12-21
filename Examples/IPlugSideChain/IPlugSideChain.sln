@@ -11,6 +11,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IPlugSideChain-vst3", "proj
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IPlugSideChain-aax", "projects\IPlugSideChain-aax.vcxproj", "{DC4B5920-933D-4C82-B842-F34431D55A93}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IPlugSideChain-clap", "projects\IPlugSideChain-clap.vcxproj", "{CACD6C06-904A-4C45-91DC-244A09E922B7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|ARM64EC = Debug|ARM64EC
@@ -69,7 +71,19 @@ Global
 		{DC4B5920-933D-4C82-B842-F34431D55A93}.Tracer|ARM64EC.Build.0 = Tracer|ARM64EC
 		{DC4B5920-933D-4C82-B842-F34431D55A93}.Tracer|x64.ActiveCfg = Tracer|x64
 		{DC4B5920-933D-4C82-B842-F34431D55A93}.Tracer|x64.Build.0 = Tracer|x64
-	EndGlobalSection
+			{CACD6C06-904A-4C45-91DC-244A09E922B7}.Debug|ARM64EC.ActiveCfg = Debug|ARM64EC
+		{CACD6C06-904A-4C45-91DC-244A09E922B7}.Debug|ARM64EC.Build.0 = Debug|ARM64EC
+		{CACD6C06-904A-4C45-91DC-244A09E922B7}.Debug|x64.ActiveCfg = Debug|x64
+		{CACD6C06-904A-4C45-91DC-244A09E922B7}.Debug|x64.Build.0 = Debug|x64
+		{CACD6C06-904A-4C45-91DC-244A09E922B7}.Release|ARM64EC.ActiveCfg = Release|ARM64EC
+		{CACD6C06-904A-4C45-91DC-244A09E922B7}.Release|ARM64EC.Build.0 = Release|ARM64EC
+		{CACD6C06-904A-4C45-91DC-244A09E922B7}.Release|x64.ActiveCfg = Release|x64
+		{CACD6C06-904A-4C45-91DC-244A09E922B7}.Release|x64.Build.0 = Release|x64
+		{CACD6C06-904A-4C45-91DC-244A09E922B7}.Tracer|ARM64EC.ActiveCfg = Tracer|ARM64EC
+		{CACD6C06-904A-4C45-91DC-244A09E922B7}.Tracer|ARM64EC.Build.0 = Tracer|ARM64EC
+		{CACD6C06-904A-4C45-91DC-244A09E922B7}.Tracer|x64.ActiveCfg = Tracer|x64
+		{CACD6C06-904A-4C45-91DC-244A09E922B7}.Tracer|x64.Build.0 = Tracer|x64
+EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
