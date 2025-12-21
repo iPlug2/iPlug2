@@ -9,6 +9,12 @@
 # FindiPlug2.cmake
 # This module finds the iPlug2 library and sets up the necessary variables and targets.
 
+# Include iOS platform configuration FIRST if building for iOS or visionOS
+# This sets the IOS variable needed by other modules like IGraphics.cmake
+if(CMAKE_SYSTEM_NAME MATCHES "^(iOS|visionOS)$")
+  include(${CMAKE_CURRENT_LIST_DIR}/iOS.cmake)
+endif()
+
 # Include the files that defined the iPlug2 components
 include(${CMAKE_CURRENT_LIST_DIR}/IPlug.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/IGraphics.cmake)
@@ -21,11 +27,6 @@ include(${CMAKE_CURRENT_LIST_DIR}/VST3.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/CLAP.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/AAX.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/APP.cmake)
-
-# Include iOS platform configuration if building for iOS or visionOS
-if(CMAKE_SYSTEM_NAME MATCHES "^(iOS|visionOS)$")
-  include(${CMAKE_CURRENT_LIST_DIR}/iOS.cmake)
-endif()
 
 # Include AUv3 helper functions (macOS only)
 if(APPLE AND NOT IOS)
