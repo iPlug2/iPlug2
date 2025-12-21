@@ -11,6 +11,10 @@
 #include "IGraphicsMac.h"
 #import "IGraphicsMac_view.h"
 
+#if defined IGRAPHICS_GLES2 || defined IGRAPHICS_GLES3
+#import <libEGL/libEGL.h>
+#endif
+
 #include "IControl.h"
 #include "IPopupMenuControl.h"
 
@@ -132,11 +136,16 @@ void IGraphicsMac::CloseWindow()
   {    
     IGRAPHICS_VIEW* pView = (IGRAPHICS_VIEW*) mView;
       
-#ifdef IGRAPHICS_GL
+#if defined IGRAPHICS_GL2 || defined IGRAPHICS_GL3
     [[pView pixelFormat] release];
     [[pView openGLContext] release];
+#elif defined IGRAPHICS_GLES2 || defined IGRAPHICS_GLES3
+    [pView deactivateGLContext];
+    eglDestroySurface([pView getEGLDisplay], [pView getEGLSurface]);
+    eglDestroyContext([pView getEGLDisplay], [pView getEGLContext]);
+    eglTerminate([pView getEGLDisplay]);
 #endif
-      
+
     [pView removeAllToolTips];
     [pView killTimer];
     [pView removeFromSuperview];

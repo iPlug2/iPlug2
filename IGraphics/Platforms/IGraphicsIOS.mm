@@ -110,7 +110,7 @@ void* IGraphicsIOS::OpenWindow(void* pParent)
   mView = (void*) view;
   
   IGraphics::ScopedGLContext scopedGLContext{this};
-  OnViewInitialized((void*) [view metalLayer]);
+  OnViewInitialized((void*) [view layer]);
 
 #if !TARGET_OS_VISION
   CGFloat  scale = [UIScreen mainScreen].scale;
@@ -378,6 +378,19 @@ EUIAppearance IGraphicsIOS::GetUIAppearance() const
     return EUIAppearance::Light;
   }
 }
+
+void IGraphicsIOS::ActivateGLContext()
+{
+  IGRAPHICS_VIEW* pView = (IGRAPHICS_VIEW*) mView;
+  [pView activateGLContext];
+}
+
+void IGraphicsIOS::DeactivateGLContext()
+{
+  IGRAPHICS_VIEW* pView = (IGRAPHICS_VIEW*) mView;
+  [pView deactivateGLContext];
+}
+
 
 #if defined IGRAPHICS_NANOVG
   #include "IGraphicsNanoVG.cpp"

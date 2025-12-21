@@ -170,7 +170,8 @@
       "generator": "Ninja",
       "toolchainFile": "$env{EMSDK}/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake",
       "cacheVariables": {
-        "CMAKE_CROSSCOMPILING_EMULATOR": "$env{EMSDK_NODE}"
+        "CMAKE_CROSSCOMPILING_EMULATOR": "$env{EMSDK_NODE}",
+        "CMAKE_MODULE_PATH": "${sourceDir}/Scripts/cmake"
       }
     }
   ],
