@@ -164,6 +164,101 @@ def add_target_name_to_property_groups(content):
 
     return '\n'.join(result)
 
+def process_filters_file(repo_root, rel_path, project_name):
+    """Process a single project's filters file to create CLAP version."""
+    projects_dir = os.path.join(repo_root, rel_path, 'projects')
+    vst3_filters_path = os.path.join(projects_dir, f'{project_name}-vst3.vcxproj.filters')
+    clap_filters_path = os.path.join(projects_dir, f'{project_name}-clap.vcxproj.filters')
+
+    if not os.path.exists(vst3_filters_path):
+        print(f"  VST3 filters not found: {vst3_filters_path}")
+        return False
+
+    if os.path.exists(clap_filters_path):
+        print(f"  CLAP filters already exists: {clap_filters_path}")
+        return False
+
+    # Read VST3 filters file
+    with open(vst3_filters_path, 'r', encoding='utf-8-sig') as f:
+        content = f.read()
+
+    # Parse as XML
+    tree = ET.ElementTree(ET.fromstring(content))
+    root = tree.getroot()
+    ns = 'http://schemas.microsoft.com/developer/msbuild/2003'
+
+    # Remove VST3 SDK entries
+    vst3_patterns = ['VST3_SDK', 'IPlugVST3']
+    for item_group in root.findall(f'.//{{{ns}}}ItemGroup'):
+        items_to_remove = []
+        for child in item_group:
+            include_attr = child.get('Include', '')
+            for pattern in vst3_patterns:
+                if pattern in include_attr:
+                    items_to_remove.append(child)
+                    break
+        for item in items_to_remove:
+            item_group.remove(item)
+
+    # Check if IPlug\CLAP filter exists, add if not
+    has_clap_filter = False
+    filter_item_group = None
+    for item_group in root.findall(f'.//{{{ns}}}ItemGroup'):
+        filters = item_group.findall(f'{{{ns}}}Filter')
+        if filters:
+            filter_item_group = item_group
+            for f in filters:
+                if f.get('Include') == 'IPlug\\CLAP':
+                    has_clap_filter = True
+                    break
+
+    if filter_item_group is not None and not has_clap_filter:
+        clap_filter = ET.SubElement(filter_item_group, f'{{{ns}}}Filter')
+        clap_filter.set('Include', 'IPlug\\CLAP')
+        uid = ET.SubElement(clap_filter, f'{{{ns}}}UniqueIdentifier')
+        uid.text = generate_guid().lower()
+
+    # Add CLAP source file entries
+    for item_group in root.findall(f'.//{{{ns}}}ItemGroup'):
+        compiles = item_group.findall(f'{{{ns}}}ClCompile')
+        if compiles:
+            has_clap_cpp = any('IPlugCLAP.cpp' in c.get('Include', '') for c in compiles)
+            if not has_clap_cpp:
+                clap_compile = ET.SubElement(item_group, f'{{{ns}}}ClCompile')
+                clap_compile.set('Include', r'..\..\..\IPlug\CLAP\IPlugCLAP.cpp')
+                filter_elem = ET.SubElement(clap_compile, f'{{{ns}}}Filter')
+                filter_elem.text = 'IPlug\\CLAP'
+            break
+
+    # Add CLAP header file entries
+    for item_group in root.findall(f'.//{{{ns}}}ItemGroup'):
+        includes = item_group.findall(f'{{{ns}}}ClInclude')
+        if includes:
+            has_clap_h = any('IPlugCLAP.h' in inc.get('Include', '') for inc in includes)
+            if not has_clap_h:
+                clap_include = ET.SubElement(item_group, f'{{{ns}}}ClInclude')
+                clap_include.set('Include', r'..\..\..\IPlug\CLAP\IPlugCLAP.h')
+                filter_elem = ET.SubElement(clap_include, f'{{{ns}}}Filter')
+                filter_elem.text = 'IPlug\\CLAP'
+            break
+
+    # Write back to string
+    import io
+    output = io.BytesIO()
+    tree.write(output, encoding='utf-8', xml_declaration=True)
+    clap_content = output.getvalue().decode('utf-8')
+
+    # Fix the XML declaration
+    clap_content = clap_content.replace("<?xml version='1.0' encoding='utf-8'?>",
+                                        '<?xml version="1.0" encoding="utf-8"?>')
+
+    # Write CLAP filters file with UTF-8 BOM
+    with open(clap_filters_path, 'w', encoding='utf-8-sig') as f:
+        f.write(clap_content)
+
+    print(f"  Created filters: {clap_filters_path}")
+    return True
+
 def process_project(repo_root, rel_path, project_name):
     """Process a single project to create CLAP version."""
     projects_dir = os.path.join(repo_root, rel_path, 'projects')
@@ -274,6 +369,7 @@ def main():
         guid = process_project(repo_root, rel_path, project_name)
         if guid:
             update_solution_file(repo_root, rel_path, project_name, guid)
+        process_filters_file(repo_root, rel_path, project_name)
         print()
 
     print("Done!")
