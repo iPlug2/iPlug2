@@ -10,6 +10,8 @@
 
 #include "IPlugAPP_host.h"
 #include "NativeSettingsDialog.h"
+#include "IGraphicsSettingsDialog.h"
+#include "WebViewSettingsDialog.h"
 #include "config.h"
 #include "resource.h"
 
@@ -970,6 +972,22 @@ static void ClientResize(HWND hWnd, int nWidth, int nHeight)
 extern float GetScaleForHWND(HWND hWnd);
 #endif
 
+
+static HWND ccontrolCreator(HWND parent, const char *cname, int idx, const char *classname, int style, int x, int y, int w, int h)
+{
+  if (!stricmp(classname,"SubView"))
+  {
+    IPlugAPPHost* pAppHost = IPlugAPPHost::sInstance.get();
+
+    HWND hwnd = CreateDialog(gHINSTANCE, 0, nullptr, pAppHost->GetSettingsDialog()->GetDlgProc());
+    SetWindowLong(hwnd,GWL_ID,idx);
+    SetWindowPos(hwnd,HWND_TOP,x,y,w,h,SWP_NOZORDER|SWP_NOACTIVATE);
+    ShowWindow(hwnd,SW_SHOWNA);
+    return hwnd;
+  }
+  return 0;
+}
+
 //static
 WDL_DLGRET IPlugAPPHost::MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -1048,6 +1066,8 @@ WDL_DLGRET IPlugAPPHost::MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
         }
         case ID_PREFERENCES:
         {
+          SWELL_RegisterCustomControlCreator(ccontrolCreator);
+
           INT_PTR ret = DialogBox(gHINSTANCE, MAKEINTRESOURCE(IDD_DIALOG_PREF), hwndDlg, pAppHost->mSettingsDialog->GetDlgProc());
           
           if (ret == IDOK)
