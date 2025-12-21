@@ -11,6 +11,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IGraphicsStressTest-vst3", 
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IGraphicsStressTest-aax", "projects\IGraphicsStressTest-aax.vcxproj", "{DC4B5920-933D-4C82-B842-F34431D55A93}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IGraphicsStressTest-clap", "projects\IGraphicsStressTest-clap.vcxproj", "{25E925FC-8EDF-4B4D-B184-15122FA5DED3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|ARM64EC = Debug|ARM64EC
@@ -69,7 +71,19 @@ Global
 		{DC4B5920-933D-4C82-B842-F34431D55A93}.Tracer|ARM64EC.Build.0 = Tracer|ARM64EC
 		{DC4B5920-933D-4C82-B842-F34431D55A93}.Tracer|x64.ActiveCfg = Tracer|x64
 		{DC4B5920-933D-4C82-B842-F34431D55A93}.Tracer|x64.Build.0 = Tracer|x64
-	EndGlobalSection
+			{25E925FC-8EDF-4B4D-B184-15122FA5DED3}.Debug|ARM64EC.ActiveCfg = Debug|ARM64EC
+		{25E925FC-8EDF-4B4D-B184-15122FA5DED3}.Debug|ARM64EC.Build.0 = Debug|ARM64EC
+		{25E925FC-8EDF-4B4D-B184-15122FA5DED3}.Debug|x64.ActiveCfg = Debug|x64
+		{25E925FC-8EDF-4B4D-B184-15122FA5DED3}.Debug|x64.Build.0 = Debug|x64
+		{25E925FC-8EDF-4B4D-B184-15122FA5DED3}.Release|ARM64EC.ActiveCfg = Release|ARM64EC
+		{25E925FC-8EDF-4B4D-B184-15122FA5DED3}.Release|ARM64EC.Build.0 = Release|ARM64EC
+		{25E925FC-8EDF-4B4D-B184-15122FA5DED3}.Release|x64.ActiveCfg = Release|x64
+		{25E925FC-8EDF-4B4D-B184-15122FA5DED3}.Release|x64.Build.0 = Release|x64
+		{25E925FC-8EDF-4B4D-B184-15122FA5DED3}.Tracer|ARM64EC.ActiveCfg = Tracer|ARM64EC
+		{25E925FC-8EDF-4B4D-B184-15122FA5DED3}.Tracer|ARM64EC.Build.0 = Tracer|ARM64EC
+		{25E925FC-8EDF-4B4D-B184-15122FA5DED3}.Tracer|x64.ActiveCfg = Tracer|x64
+		{25E925FC-8EDF-4B4D-B184-15122FA5DED3}.Tracer|x64.Build.0 = Tracer|x64
+EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection

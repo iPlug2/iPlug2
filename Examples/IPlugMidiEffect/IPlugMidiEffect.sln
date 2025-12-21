@@ -11,6 +11,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IPlugMidiEffect-vst3", "pro
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IPlugMidiEffect-aax", "projects\IPlugMidiEffect-aax.vcxproj", "{DC4B5920-933D-4C82-B842-F34431D55A93}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IPlugMidiEffect-clap", "projects\IPlugMidiEffect-clap.vcxproj", "{54C3ED84-8A2E-45C8-BE1A-7EACB5C155E0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|ARM64EC = Debug|ARM64EC
@@ -69,7 +71,19 @@ Global
 		{DC4B5920-933D-4C82-B842-F34431D55A93}.Tracer|ARM64EC.Build.0 = Tracer|ARM64EC
 		{DC4B5920-933D-4C82-B842-F34431D55A93}.Tracer|x64.ActiveCfg = Tracer|x64
 		{DC4B5920-933D-4C82-B842-F34431D55A93}.Tracer|x64.Build.0 = Tracer|x64
-	EndGlobalSection
+			{54C3ED84-8A2E-45C8-BE1A-7EACB5C155E0}.Debug|ARM64EC.ActiveCfg = Debug|ARM64EC
+		{54C3ED84-8A2E-45C8-BE1A-7EACB5C155E0}.Debug|ARM64EC.Build.0 = Debug|ARM64EC
+		{54C3ED84-8A2E-45C8-BE1A-7EACB5C155E0}.Debug|x64.ActiveCfg = Debug|x64
+		{54C3ED84-8A2E-45C8-BE1A-7EACB5C155E0}.Debug|x64.Build.0 = Debug|x64
+		{54C3ED84-8A2E-45C8-BE1A-7EACB5C155E0}.Release|ARM64EC.ActiveCfg = Release|ARM64EC
+		{54C3ED84-8A2E-45C8-BE1A-7EACB5C155E0}.Release|ARM64EC.Build.0 = Release|ARM64EC
+		{54C3ED84-8A2E-45C8-BE1A-7EACB5C155E0}.Release|x64.ActiveCfg = Release|x64
+		{54C3ED84-8A2E-45C8-BE1A-7EACB5C155E0}.Release|x64.Build.0 = Release|x64
+		{54C3ED84-8A2E-45C8-BE1A-7EACB5C155E0}.Tracer|ARM64EC.ActiveCfg = Tracer|ARM64EC
+		{54C3ED84-8A2E-45C8-BE1A-7EACB5C155E0}.Tracer|ARM64EC.Build.0 = Tracer|ARM64EC
+		{54C3ED84-8A2E-45C8-BE1A-7EACB5C155E0}.Tracer|x64.ActiveCfg = Tracer|x64
+		{54C3ED84-8A2E-45C8-BE1A-7EACB5C155E0}.Tracer|x64.Build.0 = Tracer|x64
+EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection

@@ -11,6 +11,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IGraphicsTest-vst3", "proje
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IGraphicsTest-aax", "projects\IGraphicsTest-aax.vcxproj", "{DC4B5920-933D-4C82-B842-F34431D55A93}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IGraphicsTest-clap", "projects\IGraphicsTest-clap.vcxproj", "{4FFE7B12-3088-4020-A3AB-C484713E40A0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|ARM64EC = Debug|ARM64EC
@@ -69,7 +71,19 @@ Global
 		{DC4B5920-933D-4C82-B842-F34431D55A93}.Tracer|ARM64EC.Build.0 = Tracer|ARM64EC
 		{DC4B5920-933D-4C82-B842-F34431D55A93}.Tracer|x64.ActiveCfg = Tracer|x64
 		{DC4B5920-933D-4C82-B842-F34431D55A93}.Tracer|x64.Build.0 = Tracer|x64
-	EndGlobalSection
+			{4FFE7B12-3088-4020-A3AB-C484713E40A0}.Debug|ARM64EC.ActiveCfg = Debug|ARM64EC
+		{4FFE7B12-3088-4020-A3AB-C484713E40A0}.Debug|ARM64EC.Build.0 = Debug|ARM64EC
+		{4FFE7B12-3088-4020-A3AB-C484713E40A0}.Debug|x64.ActiveCfg = Debug|x64
+		{4FFE7B12-3088-4020-A3AB-C484713E40A0}.Debug|x64.Build.0 = Debug|x64
+		{4FFE7B12-3088-4020-A3AB-C484713E40A0}.Release|ARM64EC.ActiveCfg = Release|ARM64EC
+		{4FFE7B12-3088-4020-A3AB-C484713E40A0}.Release|ARM64EC.Build.0 = Release|ARM64EC
+		{4FFE7B12-3088-4020-A3AB-C484713E40A0}.Release|x64.ActiveCfg = Release|x64
+		{4FFE7B12-3088-4020-A3AB-C484713E40A0}.Release|x64.Build.0 = Release|x64
+		{4FFE7B12-3088-4020-A3AB-C484713E40A0}.Tracer|ARM64EC.ActiveCfg = Tracer|ARM64EC
+		{4FFE7B12-3088-4020-A3AB-C484713E40A0}.Tracer|ARM64EC.Build.0 = Tracer|ARM64EC
+		{4FFE7B12-3088-4020-A3AB-C484713E40A0}.Tracer|x64.ActiveCfg = Tracer|x64
+		{4FFE7B12-3088-4020-A3AB-C484713E40A0}.Tracer|x64.Build.0 = Tracer|x64
+EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection

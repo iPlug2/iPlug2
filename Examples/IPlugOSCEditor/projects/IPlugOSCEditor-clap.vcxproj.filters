@@ -1,0 +1,302 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <ItemGroup>
+    <ClCompile Include="..\IPlugOSCEditor.cpp" />
+    <ClCompile Include="..\..\..\IGraphics\IGraphics.cpp">
+      <Filter>IGraphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IGraphics\Platforms\IGraphicsWin.cpp">
+      <Filter>IGraphics\Platform</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IGraphics\Controls\IControls.cpp">
+      <Filter>IGraphics\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IGraphics\IControl.cpp">
+      <Filter>IGraphics\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\IPlugAPIBase.cpp">
+      <Filter>IPlug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\IPlugParameter.cpp">
+      <Filter>IPlug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\IPlugPluginBase.cpp">
+      <Filter>IPlug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\IPlugProcessor.cpp">
+      <Filter>IPlug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\IPlugTimer.cpp">
+      <Filter>IPlug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IGraphics\Controls\ITextEntryControl.cpp">
+      <Filter>IGraphics\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IGraphics\Controls\IPopupMenuControl.cpp">
+      <Filter>IGraphics\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\IPlugPaths.cpp">
+      <Filter>IPlug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IGraphics\Drawing\IGraphicsNanoVG.cpp">
+      <Filter>IGraphics\Drawing</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IGraphics\Drawing\IGraphicsSkia.cpp">
+      <Filter>IGraphics\Drawing</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IGraphics\IGraphicsEditorDelegate.cpp">
+      <Filter>IGraphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\WDL\jnetlib\asyncdns.cpp">
+      <Filter>WDL\jnetlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\WDL\jnetlib\connection.cpp">
+      <Filter>WDL\jnetlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\WDL\jnetlib\listen.cpp">
+      <Filter>WDL\jnetlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\WDL\jnetlib\util.cpp">
+      <Filter>WDL\jnetlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\Extras\OSC\IPlugOSC.cpp">
+      <Filter>IPlug\Extras\OSC</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\Extras\OSC\IPlugOSC_msg.cpp">
+      <Filter>IPlug\Extras\OSC</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\Extras\WebView\IPlugWebView.cpp">
+      <Filter>IPlug\Extras\WebView</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\Extras\WebView\IPlugWebView_win.cpp">
+      <Filter>IPlug\Extras\WebView</Filter>
+    </ClCompile>
+  <ClCompile Include="..\..\..\IPlug\CLAP\IPlugCLAP.cpp"><Filter>IPlug\CLAP</Filter></ClCompile></ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="../config.h" />
+    <ClInclude Include="..\IPlugOSCEditor.h" />
+    <ClInclude Include="..\resources\resource.h">
+      <Filter>resources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IGraphics\IGraphics.h">
+      <Filter>IGraphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IGraphics\IGraphicsConstants.h">
+      <Filter>IGraphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IGraphics\IGraphicsLiveEdit.h">
+      <Filter>IGraphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IGraphics\IGraphicsPopupMenu.h">
+      <Filter>IGraphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IGraphics\IGraphicsStructs.h">
+      <Filter>IGraphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IGraphics\IGraphicsPrivate.h">
+      <Filter>IGraphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IGraphics\IGraphicsUtilities.h">
+      <Filter>IGraphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IGraphics\IGraphics_include_in_plug_hdr.h">
+      <Filter>IGraphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IGraphics\IGraphics_include_in_plug_src.h">
+      <Filter>IGraphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IGraphics\IGraphics_select.h">
+      <Filter>IGraphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IGraphics\Drawing\IGraphicsNanoVG.h">
+      <Filter>IGraphics\Drawing</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IGraphics\Platforms\IGraphicsLinux.h">
+      <Filter>IGraphics\Platform</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IGraphics\Platforms\IGraphicsMac.h">
+      <Filter>IGraphics\Platform</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IGraphics\Platforms\IGraphicsMac_view.h">
+      <Filter>IGraphics\Platform</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IGraphics\Platforms\IGraphicsWeb.h">
+      <Filter>IGraphics\Platform</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IGraphics\Platforms\IGraphicsWin.h">
+      <Filter>IGraphics\Platform</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IGraphics\Controls\IControls.h">
+      <Filter>IGraphics\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IGraphics\Controls\IVDropDownListControl.h">
+      <Filter>IGraphics\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IGraphics\Controls\IVKeyboardControl.h">
+      <Filter>IGraphics\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IGraphics\Controls\IVMeterControl.h">
+      <Filter>IGraphics\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IGraphics\Controls\IVScopeControl.h">
+      <Filter>IGraphics\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IGraphics\IControl.h">
+      <Filter>IGraphics\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugAPIBase.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugConstants.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugEditorDelegate.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugLogger.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugMidi.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugPlatform.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugParameter.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugProcessor.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugStructs.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugTimer.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugUtilities.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlug_include_in_plug_hdr.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlug_include_in_plug_src.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IGraphics\Controls\ITextEntryControl.h">
+      <Filter>IGraphics\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IGraphics\Controls\IPopupMenuControl.h">
+      <Filter>IGraphics\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugPaths.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IGraphics\Drawing\IGraphicsSkia.h">
+      <Filter>IGraphics\Drawing</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IGraphics\IGraphicsEditorDelegate.h">
+      <Filter>IGraphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugPluginBase.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\ISender.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\WDL\jnetlib\asyncdns.h">
+      <Filter>WDL\jnetlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\WDL\jnetlib\connection.h">
+      <Filter>WDL\jnetlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\WDL\jnetlib\irc_util.h">
+      <Filter>WDL\jnetlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\WDL\jnetlib\jnetlib.h">
+      <Filter>WDL\jnetlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\WDL\jnetlib\listen.h">
+      <Filter>WDL\jnetlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\WDL\jnetlib\netinc.h">
+      <Filter>WDL\jnetlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\WDL\jnetlib\util.h">
+      <Filter>WDL\jnetlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\Extras\OSC\IPlugOSC.h">
+      <Filter>IPlug\Extras\OSC</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\Extras\OSC\IPlugOSC_msg.h">
+      <Filter>IPlug\Extras\OSC</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\Extras\WebView\IPlugWebView.h">
+      <Filter>IPlug\Extras\WebView</Filter>
+    </ClInclude>
+  <ClInclude Include="..\..\..\IPlug\CLAP\IPlugCLAP.h"><Filter>IPlug\CLAP</Filter></ClInclude></ItemGroup>
+  <ItemGroup>
+    <Filter Include="resources">
+      <UniqueIdentifier>{74cd52f2-b3b1-45bf-b24a-5e60e66b70de}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IGraphics">
+      <UniqueIdentifier>{30a371c3-625a-4283-948b-afc6665bd15e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IGraphics\Drawing">
+      <UniqueIdentifier>{0468a615-fe74-4ab5-8e07-f68a4a4d2c61}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IGraphics\Platform">
+      <UniqueIdentifier>{70240a88-f166-4127-a108-4162d68a58a3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IGraphics\Controls">
+      <UniqueIdentifier>{dc3b907e-91a1-483f-a535-c11681237069}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IPlug">
+      <UniqueIdentifier>{40c50427-6a81-4d1f-a6f2-9712d345f626}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IPlug\VST3">
+      <UniqueIdentifier>{5674951e-0cfd-4a71-98fb-050914b34427}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="config">
+      <UniqueIdentifier>{0ce889c3-9b8a-47b9-a9b5-7592348bc27f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="WDL">
+      <UniqueIdentifier>{71bee84f-75d5-4170-8fb6-8a549e6cabc1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="WDL\jnetlib">
+      <UniqueIdentifier>{ca765f5d-d4e3-40ad-b843-90fe21c11ab4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IPlug\Extras">
+      <UniqueIdentifier>{f4b23489-b12b-4b4c-bf11-15730b6b0adc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IPlug\Extras\OSC">
+      <UniqueIdentifier>{105f5d96-03fc-47e1-b4b4-fb0ce2a24daa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IPlug\Extras\WebView">
+      <UniqueIdentifier>{78dd208c-0cf0-47e3-a156-cc2af106bd3f}</UniqueIdentifier>
+    </Filter>
+  <Filter Include="IPlug\CLAP"><UniqueIdentifier>{88899ac6-8ebb-4205-b27d-c29eec4410fe}</UniqueIdentifier></Filter></ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\resources\main.rc">
+      <Filter>resources</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\config\IPlugOSCEditor-ios.xcconfig">
+      <Filter>config</Filter>
+    </None>
+    <None Include="..\config\IPlugOSCEditor-web.mk">
+      <Filter>config</Filter>
+    </None>
+    <None Include="..\config\IPlugOSCEditor-win.props">
+      <Filter>config</Filter>
+    </None>
+    <None Include="..\config\IPlugOSCEditor-mac.xcconfig">
+      <Filter>config</Filter>
+    </None>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="$(MSBuildThisFileDirectory)..\..\natvis\wil.natvis" />
+  </ItemGroup>
+</Project>

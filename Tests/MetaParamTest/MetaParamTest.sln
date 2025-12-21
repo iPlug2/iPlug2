@@ -11,6 +11,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MetaParamTest-vst3", "proje
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MetaParamTest-aax", "projects\MetaParamTest-aax.vcxproj", "{DC4B5920-933D-4C82-B842-F34431D55A93}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MetaParamTest-clap", "projects\MetaParamTest-clap.vcxproj", "{F3EDAB88-29D9-4906-970D-8620A98062E5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|ARM64EC = Debug|ARM64EC
@@ -69,7 +71,19 @@ Global
 		{DC4B5920-933D-4C82-B842-F34431D55A93}.Tracer|ARM64EC.Build.0 = Tracer|ARM64EC
 		{DC4B5920-933D-4C82-B842-F34431D55A93}.Tracer|x64.ActiveCfg = Tracer|x64
 		{DC4B5920-933D-4C82-B842-F34431D55A93}.Tracer|x64.Build.0 = Tracer|x64
-	EndGlobalSection
+			{F3EDAB88-29D9-4906-970D-8620A98062E5}.Debug|ARM64EC.ActiveCfg = Debug|ARM64EC
+		{F3EDAB88-29D9-4906-970D-8620A98062E5}.Debug|ARM64EC.Build.0 = Debug|ARM64EC
+		{F3EDAB88-29D9-4906-970D-8620A98062E5}.Debug|x64.ActiveCfg = Debug|x64
+		{F3EDAB88-29D9-4906-970D-8620A98062E5}.Debug|x64.Build.0 = Debug|x64
+		{F3EDAB88-29D9-4906-970D-8620A98062E5}.Release|ARM64EC.ActiveCfg = Release|ARM64EC
+		{F3EDAB88-29D9-4906-970D-8620A98062E5}.Release|ARM64EC.Build.0 = Release|ARM64EC
+		{F3EDAB88-29D9-4906-970D-8620A98062E5}.Release|x64.ActiveCfg = Release|x64
+		{F3EDAB88-29D9-4906-970D-8620A98062E5}.Release|x64.Build.0 = Release|x64
+		{F3EDAB88-29D9-4906-970D-8620A98062E5}.Tracer|ARM64EC.ActiveCfg = Tracer|ARM64EC
+		{F3EDAB88-29D9-4906-970D-8620A98062E5}.Tracer|ARM64EC.Build.0 = Tracer|ARM64EC
+		{F3EDAB88-29D9-4906-970D-8620A98062E5}.Tracer|x64.ActiveCfg = Tracer|x64
+		{F3EDAB88-29D9-4906-970D-8620A98062E5}.Tracer|x64.Build.0 = Tracer|x64
+EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection

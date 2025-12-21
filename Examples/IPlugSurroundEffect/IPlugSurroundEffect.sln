@@ -11,6 +11,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IPlugSurroundEffect-vst3", 
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IPlugSurroundEffect-aax", "projects\IPlugSurroundEffect-aax.vcxproj", "{DC4B5920-933D-4C82-B842-F34431D55A93}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IPlugSurroundEffect-clap", "projects\IPlugSurroundEffect-clap.vcxproj", "{8CA4754A-C8A5-4468-AA4F-94AA28EDF864}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|ARM64EC = Debug|ARM64EC
@@ -69,7 +71,19 @@ Global
 		{DC4B5920-933D-4C82-B842-F34431D55A93}.Tracer|ARM64EC.Build.0 = Tracer|ARM64EC
 		{DC4B5920-933D-4C82-B842-F34431D55A93}.Tracer|x64.ActiveCfg = Tracer|x64
 		{DC4B5920-933D-4C82-B842-F34431D55A93}.Tracer|x64.Build.0 = Tracer|x64
-	EndGlobalSection
+			{8CA4754A-C8A5-4468-AA4F-94AA28EDF864}.Debug|ARM64EC.ActiveCfg = Debug|ARM64EC
+		{8CA4754A-C8A5-4468-AA4F-94AA28EDF864}.Debug|ARM64EC.Build.0 = Debug|ARM64EC
+		{8CA4754A-C8A5-4468-AA4F-94AA28EDF864}.Debug|x64.ActiveCfg = Debug|x64
+		{8CA4754A-C8A5-4468-AA4F-94AA28EDF864}.Debug|x64.Build.0 = Debug|x64
+		{8CA4754A-C8A5-4468-AA4F-94AA28EDF864}.Release|ARM64EC.ActiveCfg = Release|ARM64EC
+		{8CA4754A-C8A5-4468-AA4F-94AA28EDF864}.Release|ARM64EC.Build.0 = Release|ARM64EC
+		{8CA4754A-C8A5-4468-AA4F-94AA28EDF864}.Release|x64.ActiveCfg = Release|x64
+		{8CA4754A-C8A5-4468-AA4F-94AA28EDF864}.Release|x64.Build.0 = Release|x64
+		{8CA4754A-C8A5-4468-AA4F-94AA28EDF864}.Tracer|ARM64EC.ActiveCfg = Tracer|ARM64EC
+		{8CA4754A-C8A5-4468-AA4F-94AA28EDF864}.Tracer|ARM64EC.Build.0 = Tracer|ARM64EC
+		{8CA4754A-C8A5-4468-AA4F-94AA28EDF864}.Tracer|x64.ActiveCfg = Tracer|x64
+		{8CA4754A-C8A5-4468-AA4F-94AA28EDF864}.Tracer|x64.Build.0 = Tracer|x64
+EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection

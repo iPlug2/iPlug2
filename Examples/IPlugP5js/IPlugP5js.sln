@@ -11,6 +11,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IPlugP5js-vst3", "projects\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IPlugP5js-aax", "projects\IPlugP5js-aax.vcxproj", "{DC4B5920-933D-4C82-B842-F34431D55A93}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IPlugP5js-clap", "projects\IPlugP5js-clap.vcxproj", "{91BE89BF-E3DA-48A3-93A0-BAB9E02BDF60}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|ARM64EC = Debug|ARM64EC
@@ -69,7 +71,19 @@ Global
 		{DC4B5920-933D-4C82-B842-F34431D55A93}.Tracer|ARM64EC.Build.0 = Tracer|ARM64EC
 		{DC4B5920-933D-4C82-B842-F34431D55A93}.Tracer|x64.ActiveCfg = Tracer|x64
 		{DC4B5920-933D-4C82-B842-F34431D55A93}.Tracer|x64.Build.0 = Tracer|x64
-	EndGlobalSection
+			{91BE89BF-E3DA-48A3-93A0-BAB9E02BDF60}.Debug|ARM64EC.ActiveCfg = Debug|ARM64EC
+		{91BE89BF-E3DA-48A3-93A0-BAB9E02BDF60}.Debug|ARM64EC.Build.0 = Debug|ARM64EC
+		{91BE89BF-E3DA-48A3-93A0-BAB9E02BDF60}.Debug|x64.ActiveCfg = Debug|x64
+		{91BE89BF-E3DA-48A3-93A0-BAB9E02BDF60}.Debug|x64.Build.0 = Debug|x64
+		{91BE89BF-E3DA-48A3-93A0-BAB9E02BDF60}.Release|ARM64EC.ActiveCfg = Release|ARM64EC
+		{91BE89BF-E3DA-48A3-93A0-BAB9E02BDF60}.Release|ARM64EC.Build.0 = Release|ARM64EC
+		{91BE89BF-E3DA-48A3-93A0-BAB9E02BDF60}.Release|x64.ActiveCfg = Release|x64
+		{91BE89BF-E3DA-48A3-93A0-BAB9E02BDF60}.Release|x64.Build.0 = Release|x64
+		{91BE89BF-E3DA-48A3-93A0-BAB9E02BDF60}.Tracer|ARM64EC.ActiveCfg = Tracer|ARM64EC
+		{91BE89BF-E3DA-48A3-93A0-BAB9E02BDF60}.Tracer|ARM64EC.Build.0 = Tracer|ARM64EC
+		{91BE89BF-E3DA-48A3-93A0-BAB9E02BDF60}.Tracer|x64.ActiveCfg = Tracer|x64
+		{91BE89BF-E3DA-48A3-93A0-BAB9E02BDF60}.Tracer|x64.Build.0 = Tracer|x64
+EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
