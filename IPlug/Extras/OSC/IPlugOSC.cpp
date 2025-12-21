@@ -2,8 +2,6 @@
 
 using namespace iplug;
 
-extern WDL_PtrList<OSCDevice> gDevices;
-
 OSCSender::OSCSender(const char* destIP, int port, OSCLogFunc logFunc)
 : OSCInterface(logFunc)
 , mDestIP("")
@@ -17,15 +15,14 @@ void OSCSender::SetDestination(const char* ip, int port)
   {
     mDestIP.Set(ip);
     mPort = port;
-    
-    if (mDevice != nullptr)
-    {
-      gDevices.DeletePtr(mDevice, true);
-    }
+
+    // Remove old device before creating new one to prevent memory leak
+    RemoveDevice(mDevice);
+    mDevice = nullptr;
 
     WDL_String log;
     mDevice = CreateSender(log, ip, port);
-    
+
     if (mLogFunc)
       mLogFunc(log);
   }
@@ -35,7 +32,8 @@ void OSCSender::SendOSCMessage(OscMessageWrite& msg)
 {
   int len;
   const char* msgStr = msg.GetBuffer(&len);
-  mDevice->SendOSC(msgStr, len);
+  if (mDevice)
+    mDevice->SendOSC(msgStr, len);
 }
 
 OSCReceiver::OSCReceiver(int port, OSCLogFunc logFunc, OSCMessageReceivedFunc receiveFunc)
@@ -49,15 +47,14 @@ void OSCReceiver::SetReceivePort(int port)
 {
   if (port != mPort)
   {
-    if (mDevice != nullptr)
-    {
-      gDevices.DeletePtr(mDevice, true);
-    }
+    // Remove old device before creating new one to prevent memory leak
+    RemoveDevice(mDevice);
+    mDevice = nullptr;
 
     WDL_String log;
     mDevice = CreateReceiver(log, port);
     mPort = port;
-    
+
     if (mLogFunc)
       mLogFunc(log);
   }

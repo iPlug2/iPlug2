@@ -2,10 +2,6 @@
 
 using namespace iplug;
 
-std::unique_ptr<Timer> OSCInterface::mTimer;
-int OSCInterface::sInstances = 0;
-WDL_PtrList<OSCDevice> gDevices;
-
 #ifdef OS_WIN
 #define XSleep Sleep
 #else
@@ -223,18 +219,19 @@ void OSCInterface::MessageCallback(void* d1, int dev_idx, int len, void* msg)
 
 void OSCInterface::OnTimer(Timer& timer)
 {
-  const int nDevices = gDevices.GetSize();
+  // Process OUR devices only (instance-owned, not global)
+  const int nDevices = mDevices.GetSize();
 
   for (auto i = 0; i < nDevices; i++)
   {
-    auto* pDev = gDevices.Get(i);
+    auto* pDev = mDevices.Get(i);
     if (pDev->mHasInput)
       pDev->RunInput();
   }
 
   if (mIncomingEvents.GetSize())
   {
-    static WDL_HeapBuf tmp;
+    WDL_HeapBuf tmp;  // local, not static (thread-safe)
 
     mIncomingEvents_mutex.Enter();
     tmp.CopyFrom(&mIncomingEvents, false);
@@ -260,7 +257,6 @@ void OSCInterface::OnTimer(Timer& timer)
         OSC_MAKEINTMEM4BE(&rd_sz);
         rd_pos += 20;
       }
-      //        if (m_var_msgs[3]) m_var_msgs[3][0] = evt->dev_ptr ? *evt->dev_ptr : -1.0;
 
       while (rd_pos + rd_sz <= evt->sz && rd_sz >= 0)
       {
@@ -281,7 +277,7 @@ void OSCInterface::OnTimer(Timer& timer)
 
   for (auto i = 0; i < nDevices; i++)
   {
-    auto* pDev = gDevices.Get(i);
+    auto* pDev = mDevices.Get(i);
     if (pDev->mHasOutput)
       pDev->RunOutput();  // send queued messages
   }
@@ -292,17 +288,29 @@ OSCInterface::OSCInterface(OSCLogFunc logFunc)
 {
   JNL::open_socketlib();
 
-  if (!mTimer)
-    mTimer = std::unique_ptr<Timer>(Timer::Create(std::bind(&OSCInterface::OnTimer, this, std::placeholders::_1), OSC_TIMER_RATE));
-
-  sInstances++;
+  // Each instance gets its own timer (not shared)
+  mTimer = std::unique_ptr<Timer>(Timer::Create(std::bind(&OSCInterface::OnTimer, this, std::placeholders::_1), OSC_TIMER_RATE));
 }
 
 OSCInterface::~OSCInterface()
 {
-  if (--sInstances == 0) {
-    mTimer = nullptr;
-    gDevices.Empty(true);
+  // Stop timer first to prevent callbacks during destruction.
+  // Timer::Stop() synchronously invalidates the timer on all platforms,
+  // and both the timer callback and destructor run on the main thread,
+  // so there's no race condition.
+  mTimer = nullptr;
+
+  // Clean up our own devices (instance-owned)
+  mDevices.Empty(true);
+}
+
+void OSCInterface::RemoveDevice(OSCDevice* device)
+{
+  if (device)
+  {
+    int idx = mDevices.Find(device);
+    if (idx >= 0)
+      mDevices.Delete(idx, true);  // true = free the device
   }
 }
 
@@ -317,12 +325,12 @@ OSCDevice* OSCInterface::CreateReceiver(WDL_String& log, int port)
   if (addr.sin_addr.s_addr == INADDR_NONE) addr.sin_addr.s_addr = INADDR_ANY;
   addr.sin_port = htons(port);
 
-  int x;
+  // Search OUR devices for reuse (instance-owned, not global)
   bool isReuse = false;
   OSCDevice* r = nullptr;
-  for (x = 0; x < gDevices.GetSize(); x++)
+  for (int x = 0; x < mDevices.GetSize(); x++)
   {
-    OSCDevice* dev = gDevices.Get(x);
+    OSCDevice* dev = mDevices.Get(x);
     if (dev && dev->mHasInput)
     {
       if (dev->mReceiveAddress.sin_port == addr.sin_port && dev->mReceiveAddress.sin_addr.s_addr == addr.sin_addr.s_addr)
@@ -355,10 +363,9 @@ OSCDevice* OSCInterface::CreateReceiver(WDL_String& log, int port)
   if (r)
   {
     r->AddInstance(MessageCallback, this, mDevices.GetSize());
-    mDevices.Add(r);
 
     if (!isReuse)
-      gDevices.Add(r);
+      mDevices.Add(r);  // Add to OUR device list only
   }
 
   return r;
@@ -368,11 +375,13 @@ OSCDevice* OSCInterface::CreateSender(WDL_String& log, const char* ip, int port)
 {
   WDL_String destStr;
   destStr.SetFormatted(256, "%s:%i", ip, port);
+
+  // Search OUR devices for reuse (instance-owned, not global)
   OSCDevice* r = nullptr;
   bool isReuse = false;
-  for (auto x = 0; x < gDevices.GetSize(); x++)
+  for (auto x = 0; x < mDevices.GetSize(); x++)
   {
-    OSCDevice* d = gDevices.Get(x);
+    OSCDevice* d = mDevices.Get(x);
     if (d && d->mHasOutput)
     {
       if (!strcmp(d->mDestination.Get(), destStr.Get()))
@@ -403,10 +412,9 @@ OSCDevice* OSCInterface::CreateSender(WDL_String& log, const char* ip, int port)
     log.AppendFormatted(1024, "Set destination: '%s'\n", destStr.Get());
 
     r->AddInstance(MessageCallback, this, mDevices.GetSize());
-    mDevices.Add(r);
 
     if (!isReuse)
-      gDevices.Add(r);
+      mDevices.Add(r);  // Add to OUR device list only
   }
 
   return r;

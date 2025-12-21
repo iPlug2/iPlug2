@@ -80,34 +80,37 @@ class OSCInterface
     int sz; // size of msg
     unsigned char msg[3];
   };
-  
+
 public:
   OSCInterface(OSCLogFunc logFunc = nullptr);
-  
+
   virtual ~OSCInterface();
-  
+
   OSCInterface(const OSCInterface&) = delete;
   OSCInterface& operator=(const OSCInterface&) = delete;
-  
+
   OSCDevice* CreateReceiver(WDL_String& log, int port = 8000);
   OSCDevice* CreateSender(WDL_String& log, const char* ip = "127.0.0.1", int port = 8000);
-  
+
 public:
   virtual void OnOSCMessage(OscMessageRead& msg) {};
   void SetLogFunc(OSCLogFunc logFunc) { mLogFunc = logFunc; }
-  
+
+protected:
+  /** Remove a device from the device list and delete it
+   * @param device The device to remove */
+  void RemoveDevice(OSCDevice* device);
+
 private:
   static void MessageCallback(void *d1, int dev_idx, int msglen, void *msg);
 
   void OnTimer(Timer& timer);
-  
-  // these are non-owned refs
+
   WDL_PtrList<OSCDevice> mDevices;
-  
+
 protected:
   OSCLogFunc mLogFunc;
-  static std::unique_ptr<Timer> mTimer;
-  static int sInstances;
+  std::unique_ptr<Timer> mTimer;
   WDL_HeapBuf mIncomingEvents;  // incomingEvent list, each is 8-byte aligned
   WDL_Mutex mIncomingEvents_mutex;
 };
