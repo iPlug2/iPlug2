@@ -29,6 +29,8 @@ STYLE DS_SETFONT | DS_MODALFRAME | DS_3DLOOK | DS_FIXEDSYS | DS_CENTER | WS_POPU
 CAPTION "Preferences"
 FONT 8, "MS Sans Serif"
 BEGIN
+    CONTROL         "", IDC_SUBVIEW, "SubView", SS_LEFT | WS_CHILD | WS_VISIBLE,
+                    10, 180, 200, 100  // x, y, width, height
     DEFPUSHBUTTON   "OK",IDOK,110,285,50,14
     PUSHBUTTON      "Apply",IDAPPLY,54,285,50,14
     PUSHBUTTON      "Cancel",IDCANCEL,166,285,50,14

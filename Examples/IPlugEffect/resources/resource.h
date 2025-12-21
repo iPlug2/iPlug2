@@ -33,7 +33,7 @@
 #define ID_SHOW_BOUNDS                  40028
 #define IDC_STATIC_IN_L                 40029
 #define IDC_STATIC_IN_R                 40030
-
+#define IDC_SUBVIEW         40040
 
 // Next default values for new objects
 //
