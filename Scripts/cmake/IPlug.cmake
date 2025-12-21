@@ -130,6 +130,7 @@ if(NOT TARGET iPlug2::Extras::OSC)
 
   target_sources(iPlug2::Extras::OSC INTERFACE
     ${IPLUG_DIR}/Extras/OSC/IPlugOSC.cpp
+    ${IPLUG_DIR}/Extras/OSC/IPlugOSC_internal.cpp
     ${IPLUG_DIR}/Extras/OSC/IPlugOSC_msg.cpp
     ${WDL_DIR}/jnetlib/asyncdns.cpp
     ${WDL_DIR}/jnetlib/connection.cpp
