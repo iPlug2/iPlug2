@@ -21,7 +21,8 @@ The following examples are more specialized:
 * **IPlugVisualizer** : Demonstrates visualizing audio signals.
 
 * **IPlugCocoaUI** : An iOS/macOS project using AppKit/UIKit for the user interface 
-* **IPlugSwiftUI** : An iOS/macOS only project using SwiftUI for the user interface 
+* **IPlugSwiftUI** : An iOS/macOS only project using SwiftUI for the user interface
+* **IPlugMetalCppUI** : An iOS/macOS project using Metal-cpp for the user interface
 * **IPlugWebUI** : An example showing how UI can written in HTML/CSS/JS, using a platform web view
 * **IPlugP5js** : Another platform web view project this time using p5js to render using WebGL
 * **IPlugSvelteUI** : An example showing how to use [Svelte](https://svelte.dev/) to build the UI.
