@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		4F06B2E924BF720200C7EDDA /* IPlugOSC.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F06B2E824BF720200C7EDDA /* IPlugOSC.cpp */; };
+		4FD2F0D125A3B40100C7EDDA /* IPlugOSC_internal.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FD2F0D025A3B40100C7EDDA /* IPlugOSC_internal.cpp */; };
 		4F06B2F524BF72D400C7EDDA /* netinc.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F06B2EB24BF72D400C7EDDA /* netinc.h */; };
 		4F06B2F624BF72D400C7EDDA /* connection.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F06B2EC24BF72D400C7EDDA /* connection.h */; };
 		4F06B2F724BF72D400C7EDDA /* asyncdns.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F06B2ED24BF72D400C7EDDA /* asyncdns.cpp */; };
@@ -104,6 +105,8 @@
 
 /* Begin PBXFileReference section */
 		4F06B2E824BF720200C7EDDA /* IPlugOSC.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IPlugOSC.cpp; sourceTree = "<group>"; };
+		4FD2F0D025A3B40100C7EDDA /* IPlugOSC_internal.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IPlugOSC_internal.cpp; sourceTree = "<group>"; };
+		4FD2F0D025A3B40200C7EDDA /* IPlugOSC_internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IPlugOSC_internal.h; sourceTree = "<group>"; };
 		4F06B2EB24BF72D400C7EDDA /* netinc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = netinc.h; path = ../../../../WDL/jnetlib/netinc.h; sourceTree = "<group>"; };
 		4F06B2EC24BF72D400C7EDDA /* connection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = connection.h; path = ../../../../WDL/jnetlib/connection.h; sourceTree = "<group>"; };
 		4F06B2ED24BF72D400C7EDDA /* asyncdns.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = asyncdns.cpp; path = ../../../../WDL/jnetlib/asyncdns.cpp; sourceTree = "<group>"; };
@@ -468,6 +471,8 @@
 			children = (
 				4F977D3920CC9DD800D19F46 /* IPlugOSC.h */,
 				4F06B2E824BF720200C7EDDA /* IPlugOSC.cpp */,
+				4FD2F0D025A3B40200C7EDDA /* IPlugOSC_internal.h */,
+				4FD2F0D025A3B40100C7EDDA /* IPlugOSC_internal.cpp */,
 				4F977D3820CC9DD800D19F46 /* IPlugOSC_msg.h */,
 				4F977D3A20CC9DD800D19F46 /* IPlugOSC_msg.cpp */,
 			);
@@ -803,6 +808,7 @@
 				4FA61F8922E89B3700A92C58 /* IControls.cpp in Sources */,
 				4FA61F8222E89AFF00A92C58 /* IPlugTimer.cpp in Sources */,
 				4F06B2E924BF720200C7EDDA /* IPlugOSC.cpp in Sources */,
+				4FD2F0D125A3B40100C7EDDA /* IPlugOSC_internal.cpp in Sources */,
 				4FA61F8822E89B3700A92C58 /* ITextEntryControl.cpp in Sources */,
 				4FA61F8B22E89B3700A92C58 /* IGraphicsEditorDelegate.cpp in Sources */,
 				4FA61F8322E89AFF00A92C58 /* IPlugPaths.mm in Sources */,
