@@ -189,6 +189,60 @@ EResourceLocation LocateResource(const char* name, const char* type, WDL_String&
 {
   if (CStringHasContents(name))
   {
+    // Check the CLI resource base path first (for headless mode)
+    const char* basePath = GetResourceBasePath();
+    if (CStringHasContents(basePath))
+    {
+      WDL_String fullPath;
+      fullPath.SetFormatted(MAX_WIN32_PATH_LEN, "%s\\%s", basePath, name);
+      if (PathFileExistsW(UTF8AsUTF16(fullPath.Get()).Get()))
+      {
+        result.Set(fullPath.Get());
+        return EResourceLocation::kAbsolutePath;
+      }
+      // Try with extension
+      if (CStringHasContents(type))
+      {
+        fullPath.SetFormatted(MAX_WIN32_PATH_LEN, "%s\\%s.%s", basePath, name, type);
+        if (PathFileExistsW(UTF8AsUTF16(fullPath.Get()).Get()))
+        {
+          result.Set(fullPath.Get());
+          return EResourceLocation::kAbsolutePath;
+        }
+      }
+      // Try fonts/ subdirectory
+      fullPath.SetFormatted(MAX_WIN32_PATH_LEN, "%s\\fonts\\%s", basePath, name);
+      if (PathFileExistsW(UTF8AsUTF16(fullPath.Get()).Get()))
+      {
+        result.Set(fullPath.Get());
+        return EResourceLocation::kAbsolutePath;
+      }
+      if (CStringHasContents(type))
+      {
+        fullPath.SetFormatted(MAX_WIN32_PATH_LEN, "%s\\fonts\\%s.%s", basePath, name, type);
+        if (PathFileExistsW(UTF8AsUTF16(fullPath.Get()).Get()))
+        {
+          result.Set(fullPath.Get());
+          return EResourceLocation::kAbsolutePath;
+        }
+      }
+      // Try img/ subdirectory
+      fullPath.SetFormatted(MAX_WIN32_PATH_LEN, "%s\\img\\%s", basePath, name);
+      if (PathFileExistsW(UTF8AsUTF16(fullPath.Get()).Get()))
+      {
+        result.Set(fullPath.Get());
+        return EResourceLocation::kAbsolutePath;
+      }
+    }
+
+    // Check for absolute path first
+    if (PathFileExistsW(UTF8AsUTF16(name).Get()))
+    {
+      result.Set(name);
+      return EResourceLocation::kAbsolutePath;
+    }
+
+    // Fall back to binary resource search
     WinResourceSearch search(name);
     auto typeUpper = TypeToUpper(type);
 
@@ -200,14 +254,6 @@ EResourceLocation LocateResource(const char* name, const char* type, WDL_String&
     {
       result.Set(search.mName.Get());
       return EResourceLocation::kWinBinary;
-    }
-    else
-    {
-      if (PathFileExistsW(UTF8AsUTF16(name).Get()))
-      {
-        result.Set(name);
-        return EResourceLocation::kAbsolutePath;
-      }
     }
   }
   return EResourceLocation::kNotFound;

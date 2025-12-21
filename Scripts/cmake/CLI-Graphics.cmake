@@ -101,10 +101,15 @@ if(NOT TARGET iPlug2::CLI::Graphics)
 
   # Link Skia libraries directly
   if(WIN32)
-    set(SKIA_LIB_PATH ${SKIA_PATH}/out/Release-x64)
+    set(SKIA_LIB_PATH ${DEPS_DIR}/Build/win/x64/Release)
+    # Note: Link order matters for static libraries. Dependent libs must come before their dependencies.
     target_link_libraries(iPlug2::CLI::Graphics INTERFACE
-      ${SKIA_LIB_PATH}/skia.lib
       ${SKIA_LIB_PATH}/svg.lib
+      ${SKIA_LIB_PATH}/skshaper.lib
+      ${SKIA_LIB_PATH}/skparagraph.lib
+      ${SKIA_LIB_PATH}/skunicode_core.lib
+      ${SKIA_LIB_PATH}/skunicode_icu.lib
+      ${SKIA_LIB_PATH}/skia.lib
     )
   elseif(APPLE)
     set(SKIA_LIB_PATH ${DEPS_DIR}/Build/mac/lib)

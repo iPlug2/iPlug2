@@ -34,7 +34,6 @@ if(NOT TARGET iPlug2::IPlug)
     ${IPLUG_DIR}/IPlugParameter.h
     ${IPLUG_DIR}/IPlugParameter.cpp
     ${IPLUG_DIR}/IPlugPaths.h
-    ${IPLUG_DIR}/IPlugPaths.cpp
     ${IPLUG_DIR}/IPlugPlatform.h
     ${IPLUG_DIR}/IPlugPluginBase.h
     ${IPLUG_DIR}/IPlugPluginBase.cpp
@@ -47,8 +46,11 @@ if(NOT TARGET iPlug2::IPlug)
     ${IPLUG_DIR}/IPlugUtilities.h
   )
 
+  # IPlugPaths has platform-specific implementations - use .mm on Apple, .cpp elsewhere
   if(APPLE)
     list(APPEND IPLUG_SRC ${IPLUG_DIR}/IPlugPaths.mm)
+  else()
+    list(APPEND IPLUG_SRC ${IPLUG_DIR}/IPlugPaths.cpp)
   endif()
 
   if(WIN32)
