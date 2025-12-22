@@ -130,6 +130,10 @@ public:
   void RetainBitmap(const IBitmap& bitmap, const char * cacheName) override { }; // NO-OP
   bool BitmapExtSupported(const char* ext) override;
 
+  IBitmap CreateBitmapFromRGBA(const uint8_t* pData, int width, int height, float scale = 1.f) override;
+  void UpdateBitmapRGBA(IBitmap& bitmap, const uint8_t* pData) override;
+  void ReleaseDynamicBitmap(IBitmap& bitmap) override;
+
   void DeleteFBO(NVGframebuffer* pBuffer);
   
 protected:

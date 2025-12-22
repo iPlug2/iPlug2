@@ -381,7 +381,7 @@ APIBitmap* IGraphicsNanoVG::CreateAPIBitmap(int width, int height, float scale, 
   {
     nvgEndFrame(mVG);
   }
-  
+
   APIBitmap* pAPIBitmap = new Bitmap(this, mVG, width, height, scale, drawScale);
 
   if (mInDraw)
@@ -389,8 +389,34 @@ APIBitmap* IGraphicsNanoVG::CreateAPIBitmap(int width, int height, float scale, 
     nvgBindFramebuffer(mMainFrameBuffer); // begin main frame buffer update
     nvgBeginFrame(mVG, WindowWidth(), WindowHeight(), GetScreenScale());
   }
-  
+
   return pAPIBitmap;
+}
+
+IBitmap IGraphicsNanoVG::CreateBitmapFromRGBA(const uint8_t* pData, int width, int height, float scale)
+{
+  ScopedGLContext scopedGLCtx{this};
+  APIBitmap* pAPIBitmap = new Bitmap(mVG, width, height, pData, scale, 1.f);
+  return IBitmap(pAPIBitmap, 1, false);
+}
+
+void IGraphicsNanoVG::UpdateBitmapRGBA(IBitmap& bitmap, const uint8_t* pData)
+{
+  ScopedGLContext scopedGLCtx{this};
+  APIBitmap* pAPIBitmap = bitmap.GetAPIBitmap();
+  if (pAPIBitmap)
+  {
+    nvgUpdateImage(mVG, pAPIBitmap->GetBitmap(), pData);
+  }
+}
+
+void IGraphicsNanoVG::ReleaseDynamicBitmap(IBitmap& bitmap)
+{
+  APIBitmap* pAPIBitmap = bitmap.GetAPIBitmap();
+  if (pAPIBitmap)
+  {
+    delete pAPIBitmap;
+  }
 }
 
 void IGraphicsNanoVG::GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& data)

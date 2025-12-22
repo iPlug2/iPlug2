@@ -139,6 +139,13 @@ public:
    * @param pBlend Optional blend method */
   virtual void DrawRotatedBitmap(const IBitmap& bitmap, float destCentreX, float destCentreY, double angle, const IBlend* pBlend = 0);
 
+  /** Draw a region of a bitmap (raster) image to the graphics context, scaling to fit the destination bounds
+   * @param bitmap The bitmap image to draw to the graphics context
+   * @param srcBounds The source rectangle within the bitmap (in bitmap pixels)
+   * @param dstBounds The destination rectangle to draw to
+   * @param pBlend Optional blend method */
+  virtual void DrawBitmapRegion(const IBitmap& bitmap, const IRECT& srcBounds, const IRECT& dstBounds, const IBlend* pBlend = 0);
+
   /** Fill a rectangle corresponding to a pixel on a 1:1 screen with a color
    * @param color The color to fill the point with
    * @param x The X coordinate at which to draw
@@ -399,7 +406,26 @@ public:
   
   /** Checks a file extension and reports whether this drawing API supports loading that extension */
   virtual bool BitmapExtSupported(const char* ext) = 0;
-  
+
+  /** Creates an IBitmap from raw RGBA pixel data. The bitmap can be updated later with UpdateBitmapRGBA().
+   * The caller is responsible for managing the bitmap's lifetime.
+   * @param pData Pointer to RGBA pixel data (4 bytes per pixel, row-major order)
+   * @param width Width in pixels
+   * @param height Height in pixels
+   * @param scale The scale factor for the bitmap (default 1.0)
+   * @return IBitmap A new bitmap containing the pixel data */
+  virtual IBitmap CreateBitmapFromRGBA(const uint8_t* pData, int width, int height, float scale = 1.f) = 0;
+
+  /** Updates an existing IBitmap with new RGBA pixel data. The bitmap must have been created
+   * with CreateBitmapFromRGBA(). The dimensions must match the original bitmap.
+   * @param bitmap The bitmap to update
+   * @param pData Pointer to new RGBA pixel data (4 bytes per pixel, row-major order) */
+  virtual void UpdateBitmapRGBA(IBitmap& bitmap, const uint8_t* pData) = 0;
+
+  /** Releases resources associated with a bitmap created by CreateBitmapFromRGBA()
+   * @param bitmap The bitmap to release */
+  virtual void ReleaseDynamicBitmap(IBitmap& bitmap) = 0;
+
   /** NanoVG only */
   virtual void DrawFastDropShadow(const IRECT& innerBounds, const IRECT& outerBounds, float xyDrop = 5.f, float roundness = 0.f, float blur = 10.f, IBlend* pBlend = nullptr) { /* NO-OP*/ }
   

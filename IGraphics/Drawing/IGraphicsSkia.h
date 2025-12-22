@@ -122,6 +122,10 @@ public:
 
   APIBitmap* CreateAPIBitmap(int width, int height, float scale, double drawScale, bool cacheable = false) override;
 
+  IBitmap CreateBitmapFromRGBA(const uint8_t* pData, int width, int height, float scale = 1.f) override;
+  void UpdateBitmapRGBA(IBitmap& bitmap, const uint8_t* pData) override;
+  void ReleaseDynamicBitmap(IBitmap& bitmap) override;
+
   void ApplyLayerDropShadow(ILayerPtr& layer, const IShadow& shadow) override;
   void GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& data) override;
   void ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const IShadow& shadow) override;

@@ -969,6 +969,45 @@ APIBitmap* IGraphicsSkia::CreateAPIBitmap(int width, int height, float scale, do
   return new Bitmap(std::move(surface), width, height, scale, drawScale);
 }
 
+IBitmap IGraphicsSkia::CreateBitmapFromRGBA(const uint8_t* pData, int width, int height, float scale)
+{
+  SkImageInfo info = SkImageInfo::Make(width, height, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
+  SkPixmap pixmap(info, pData, width * 4);
+  sk_sp<SkImage> image = SkImages::RasterFromPixmapCopy(pixmap);
+
+  APIBitmap* pAPIBitmap = new Bitmap(image, scale);
+  return IBitmap(pAPIBitmap, 1, false);
+}
+
+void IGraphicsSkia::UpdateBitmapRGBA(IBitmap& bitmap, const uint8_t* pData)
+{
+  // For Skia, we need to recreate the image since SkImage is immutable
+  APIBitmap* pAPIBitmap = bitmap.GetAPIBitmap();
+  if (pAPIBitmap)
+  {
+    int width = pAPIBitmap->GetWidth();
+    int height = pAPIBitmap->GetHeight();
+    float scale = pAPIBitmap->GetScale();
+
+    SkImageInfo info = SkImageInfo::Make(width, height, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
+    SkPixmap pixmap(info, pData, width * 4);
+    sk_sp<SkImage> image = SkImages::RasterFromPixmapCopy(pixmap);
+
+    SkiaDrawable* pDrawable = pAPIBitmap->GetBitmap();
+    pDrawable->mImage = image;
+    pDrawable->mIsSurface = false;
+  }
+}
+
+void IGraphicsSkia::ReleaseDynamicBitmap(IBitmap& bitmap)
+{
+  APIBitmap* pAPIBitmap = bitmap.GetAPIBitmap();
+  if (pAPIBitmap)
+  {
+    delete pAPIBitmap;
+  }
+}
+
 void IGraphicsSkia::UpdateLayer()
 {
   mCanvas = mLayers.empty() ? mSurface->getCanvas() : mLayers.top()->GetAPIBitmap()->GetBitmap()->mSurface->getCanvas();
