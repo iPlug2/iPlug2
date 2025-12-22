@@ -121,99 +121,96 @@ bool IPlugAUv3::SendSysEx(const ISysEx& msg)
 void IPlugAUv3::ProcessWithEvents(AudioTimeStamp const* pTimestamp, uint32_t frameCount, AURenderEvent const* pEvents, ITimeInfo& timeInfo)
 {
   SetTimeInfo(timeInfo);
-  
+
+  mLastTimeStamp = *pTimestamp;
+  AUEventSampleTime startTime = AUEventSampleTime(pTimestamp->mSampleTime);
+
+  // Process MIDI messages from the editor (UI thread) with offset 0
+  // These are user-triggered events that should happen at the start of the buffer
   IMidiMsg midiMsg;
   while (mMidiMsgsFromEditor.Pop(midiMsg))
   {
     ProcessMidiMsg(midiMsg);
   }
-  
-  mLastTimeStamp = *pTimestamp;
-  AUEventSampleTime now = AUEventSampleTime(pTimestamp->mSampleTime);
-  uint32_t framesRemaining = frameCount;
-  
-  for (const AURenderEvent* pEvent = pEvents; pEvent != nullptr; pEvent = pEvent->head.next)
+
+  // Sample-accurate event processing: split the buffer around events
+  uint32_t bufferOffset = 0;
+  const AURenderEvent* pEvent = pEvents;
+
+  while (bufferOffset < frameCount)
   {
-    switch (pEvent->head.eventType)
+    // Find the next event's sample position (clamped to buffer bounds)
+    uint32_t nextEventOffset = frameCount;
+
+    // Skip events that are in the past (should process immediately)
+    while (pEvent != nullptr)
     {
-      case AURenderEventMIDI:
-      {
-        const AUMIDIEvent& midiEvent = pEvent->MIDI;
+      AUEventSampleTime eventTime = pEvent->head.eventSampleTime;
+      int32_t eventOffset = static_cast<int32_t>(eventTime - startTime);
 
-        midiMsg = {static_cast<int>(midiEvent.eventSampleTime - now), midiEvent.data[0], midiEvent.data[1], midiEvent.data[2] };
-        ProcessMidiMsg(midiMsg);
-        mMidiMsgsFromProcessor.Push(midiMsg);
-      }
-      break;
+      if (eventOffset < 0)
+        eventOffset = 0;
 
-      case AURenderEventParameter:
-      case AURenderEventParameterRamp:
+      if (static_cast<uint32_t>(eventOffset) <= bufferOffset)
       {
-        const AUParameterEvent& paramEvent = pEvent->parameter;
-        
-        if (paramEvent.parameterAddress < NParams())
+        // Event is at or before current position - process it now
+        switch (pEvent->head.eventType)
         {
-          const int paramIdx = GetParamIdx(paramEvent.parameterAddress);
-          
-          const double value = (double) paramEvent.value;
-          const int sampleOffset = (int) (paramEvent.eventSampleTime - now);
-          ENTER_PARAMS_MUTEX
-          GetParam(paramIdx)->Set(value);
-          LEAVE_PARAMS_MUTEX
-          OnParamChange(paramIdx, EParamSource::kHost, sampleOffset);
+          case AURenderEventMIDI:
+          {
+            const AUMIDIEvent& midiEvent = pEvent->MIDI;
+            midiMsg = {static_cast<int>(bufferOffset), midiEvent.data[0], midiEvent.data[1], midiEvent.data[2]};
+            ProcessMidiMsg(midiMsg);
+            mMidiMsgsFromProcessor.Push(midiMsg);
+            break;
+          }
+          case AURenderEventParameter:
+          case AURenderEventParameterRamp:
+          {
+            const AUParameterEvent& paramEvent = pEvent->parameter;
+            if (paramEvent.parameterAddress < NParams())
+            {
+              const int paramIdx = GetParamIdx(paramEvent.parameterAddress);
+              const double value = (double) paramEvent.value;
+              ENTER_PARAMS_MUTEX
+              GetParam(paramIdx)->Set(value);
+              LEAVE_PARAMS_MUTEX
+              OnParamChange(paramIdx, EParamSource::kHost, static_cast<int>(bufferOffset));
+            }
+            break;
+          }
+          default:
+            break;
         }
-
+        pEvent = pEvent->head.next;
+      }
+      else
+      {
+        // Event is in the future - record its position and break
+        nextEventOffset = static_cast<uint32_t>(eventOffset);
         break;
       }
-      break;
+    }
 
-      default:
-        break;
+    // Process audio from current position to the next event (or end of buffer)
+    uint32_t framesToProcess = nextEventOffset - bufferOffset;
+
+    if (framesToProcess > 0)
+    {
+      ENTER_PARAMS_MUTEX
+      ProcessBuffers(0.f, static_cast<int>(framesToProcess), static_cast<int>(bufferOffset));
+      LEAVE_PARAMS_MUTEX
+
+      bufferOffset += framesToProcess;
     }
   }
 
-  ENTER_PARAMS_MUTEX;
-  ProcessBuffers(0.f, framesRemaining); // what about bufferOffset
-  LEAVE_PARAMS_MUTEX;
-    
-  //Output SYSEX from the editor, which has bypassed ProcessSysEx()
+  // Output SYSEX from the editor, which has bypassed ProcessSysEx()
   while (mSysExDataFromEditor.Pop(mSysexBuf))
   {
     ISysEx smsg {mSysexBuf.mOffset, mSysexBuf.mData, mSysexBuf.mSize};
     SendSysEx(smsg);
   }
-  
-
-//  while (framesRemaining > 0) {
-//    // If there are no more events, we can process the entire remaining segment and exit.
-//    if (event == nullptr) {
-////      uint32_t const bufferOffset = frameCount - framesRemaining;
-// TODO - ProcessBuffers should be within param mutex lock
-//      ProcessBuffers(0.f, framesRemaining); // what about bufferOffset
-//      return;
-//    }
-//
-//    // **** start late events late.
-//    auto timeZero = AUEventSampleTime(0);
-//    auto headEventTime = event->head.eventSampleTime;
-//    uint32_t const framesThisSegment = uint32_t(std::max(timeZero, headEventTime - now));
-//
-//    // Compute everything before the next event.
-//    if (framesThisSegment > 0)
-//    {
-////      uint32_t const bufferOffset = frameCount - framesRemaining;
-// TODO - ProcessBuffers should be within param mutex lock
-//      ProcessBuffers(0.f, framesThisSegment); // what about bufferOffset
-//
-//      // Advance frames.
-//      framesRemaining -= framesThisSegment;
-//
-//      // Advance time.
-//      now += AUEventSampleTime(framesThisSegment);
-//    }
-//
-//    PerformAllSimultaneousEvents(now, event);
-//  }
 }
 
 // this is called on a secondary thread (not main thread, not audio thread)

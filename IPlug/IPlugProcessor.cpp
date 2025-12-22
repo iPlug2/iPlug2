@@ -542,6 +542,52 @@ void IPlugProcessor::ProcessBuffers(PLUG_SAMPLE_SRC type, int nFrames)
   }
 }
 
+void IPlugProcessor::ProcessBuffers(PLUG_SAMPLE_DST type, int nFrames, int bufferOffset)
+{
+  if (bufferOffset == 0)
+  {
+    ProcessBuffers(type, nFrames);
+    return;
+  }
+
+  // Offset all buffer pointers
+  sample** ppInData = mScratchData[ERoute::kInput].Get();
+  sample** ppOutData = mScratchData[ERoute::kOutput].Get();
+  const int nIn = mScratchData[ERoute::kInput].GetSize();
+  const int nOut = mScratchData[ERoute::kOutput].GetSize();
+
+  for (int i = 0; i < nIn; ++i)
+    ppInData[i] += bufferOffset;
+  for (int i = 0; i < nOut; ++i)
+    ppOutData[i] += bufferOffset;
+
+  // Process the block
+  ProcessBlock(ppInData, ppOutData, nFrames);
+
+  // Restore buffer pointers
+  for (int i = 0; i < nIn; ++i)
+    ppInData[i] -= bufferOffset;
+  for (int i = 0; i < nOut; ++i)
+    ppOutData[i] -= bufferOffset;
+}
+
+void IPlugProcessor::ProcessBuffers(PLUG_SAMPLE_SRC type, int nFrames, int bufferOffset)
+{
+  ProcessBuffers((PLUG_SAMPLE_DST) 0, nFrames, bufferOffset);
+  int i, n = MaxNChannels(ERoute::kOutput);
+  IChannelData<>** ppOutChannel = mChannelData[ERoute::kOutput].GetList();
+
+  for (i = 0; i < n; ++i, ++ppOutChannel)
+  {
+    IChannelData<>* pOutChannel = *ppOutChannel;
+
+    if (pOutChannel->mConnected)
+    {
+      CastCopy(pOutChannel->mIncomingData + bufferOffset, *(pOutChannel->mData) + bufferOffset, nFrames);
+    }
+  }
+}
+
 void IPlugProcessor::ProcessBuffersAccumulating(int nFrames)
 {
   ProcessBuffers((PLUG_SAMPLE_DST) 0, nFrames);
