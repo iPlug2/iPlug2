@@ -70,7 +70,8 @@ public:
                     const IColor& BK_COLOR = DEFAULT_BK_COLOR,
                     const IColor& PK_COLOR = DEFAULT_PK_COLOR,
                     const IColor& FR_COLOR = DEFAULT_FR_COLOR,
-                    const IColor& HK_COLOR = DEFAULT_HK_COLOR)
+                    const IColor& HK_COLOR = DEFAULT_HK_COLOR,
+                    bool onlyWhiteKeys = false)
   : IControl(bounds, kNoParameter)
   , mWK_COLOR(WK_COLOR)
   , mBK_COLOR(BK_COLOR)
@@ -78,6 +79,7 @@ public:
   , mFR_COLOR(FR_COLOR)
   , mHK_COLOR(HK_COLOR)
   , mRoundedKeys(roundedKeys)
+  , mOnlyWhiteKeys(onlyWhiteKeys)
   {
     mText.mFGColor = FR_COLOR;
     mDblAsSingleClick = true;
@@ -233,15 +235,10 @@ public:
 
   void Draw(IGraphics& g) override
   {
-    IColor shadowColor = IColor(60, 0, 0, 0);
-
-    float BKBottom = mRECT.T + mRECT.H() * mBKHeightRatio;
-    float BKWidth = GetBKWidth();
-
-    // first draw white keys
-    for (int i = 0; i < NKeys(); ++i)
+    if (mOnlyWhiteKeys)
     {
-      if (!IsBlackKey(i))
+      // Draw evenly spaced pads
+      for (int i = 0; i < NKeys(); ++i)
       {
         float kL = *GetKeyXPos(i);
         IRECT keyBounds = IRECT(kL, mRECT.T, kL + mWKWidth, mRECT.B);
@@ -250,101 +247,135 @@ public:
 
         if (GetKeyIsPressed(i))
         {
-          // draw played white key
           DrawKey(g, keyBounds, mPK_COLOR);
+          // Optional: Add shadows for pads if desired (similar to white key shadow logic)
+        }
 
-          if (mDrawShadows)
+        if (mDrawFrame && i != 0)
+        {
+          g.DrawLine(mFR_COLOR, kL, mRECT.T, kL, mRECT.B, &mBlend, mFrameThickness);
+        }
+      }
+
+       if (mDrawFrame)
+        g.DrawRect(mFR_COLOR, mRECT, &mBlend, mFrameThickness);
+    }
+    else
+    {
+      // Original drawing logic for standard keyboard
+      IColor shadowColor = IColor(60, 0, 0, 0);
+
+      float BKBottom = mRECT.T + mRECT.H() * mBKHeightRatio;
+      float BKWidth = GetBKWidth();
+
+      // first draw white keys
+      for (int i = 0; i < NKeys(); ++i)
+      {
+        if (!IsBlackKey(i))
+        {
+          float kL = *GetKeyXPos(i);
+          IRECT keyBounds = IRECT(kL, mRECT.T, kL + mWKWidth, mRECT.B);
+
+          DrawKey(g, keyBounds, i == mHighlight ? mHK_COLOR : mWK_COLOR);
+
+          if (GetKeyIsPressed(i))
           {
-            IRECT shadowBounds = keyBounds;
-            shadowBounds.R = shadowBounds.L + 0.35f * shadowBounds.W();
-            
-            if(!mRoundedKeys)
-              g.FillRect(shadowColor, shadowBounds, &mBlend);
-            else {
-              g.FillRoundRect(shadowColor, shadowBounds, 0., 0., mRoundness, mRoundness, &mBlend); // this one looks strange with rounded corners
+            // draw played white key
+            DrawKey(g, keyBounds, mPK_COLOR);
+
+            if (mDrawShadows)
+            {
+              IRECT shadowBounds = keyBounds;
+              shadowBounds.R = shadowBounds.L + 0.35f * shadowBounds.W();
+              
+              if(!mRoundedKeys)
+                g.FillRect(shadowColor, shadowBounds, &mBlend);
+              else {
+                g.FillRoundRect(shadowColor, shadowBounds, 0., 0., mRoundness, mRoundness, &mBlend); // this one looks strange with rounded corners
+              }
             }
           }
-        }
-        if (mDrawFrame && i != 0)
-        { // only draw the left border if it doesn't overlay mRECT left border
-          g.DrawLine(mFR_COLOR, kL, mRECT.T, kL, mRECT.B, &mBlend, mFrameThickness);
-          if (i == NKeys() - 2 && IsBlackKey(NKeys() - 1))
-            g.DrawLine(mFR_COLOR, kL + mWKWidth, mRECT.T, kL + mWKWidth, mRECT.B, &mBlend, mFrameThickness);
-        }
-      }
-    }
-
-    // then blacks
-    for (int i = 0; i < NKeys(); ++i)
-    {
-      if (IsBlackKey(i))
-      {
-        float kL = *GetKeyXPos(i);
-        IRECT keyBounds = IRECT(kL, mRECT.T, kL + BKWidth, BKBottom);
-        // first draw underlying shadows
-        if (mDrawShadows && !GetKeyIsPressed(i) && i < NKeys() - 1)
-        {
-          IRECT shadowBounds = keyBounds;
-          float w = shadowBounds.W();
-          shadowBounds.L += 0.6f * w;
-          if (GetKeyIsPressed(i + 1))
-          {
-            // if white to the right is pressed, shadow is longer
-            w *= 1.3f;
-            shadowBounds.B = shadowBounds.T + 1.05f * shadowBounds.H();
+          if (mDrawFrame && i != 0)
+          { // only draw the left border if it doesn't overlay mRECT left border
+            g.DrawLine(mFR_COLOR, kL, mRECT.T, kL, mRECT.B, &mBlend, mFrameThickness);
+            if (i == NKeys() - 2 && IsBlackKey(NKeys() - 1))
+              g.DrawLine(mFR_COLOR, kL + mWKWidth, mRECT.T, kL + mWKWidth, mRECT.B, &mBlend, mFrameThickness);
           }
-          shadowBounds.R = shadowBounds.L + w;
-          DrawKey(g, shadowBounds, shadowColor);
-        }
-        DrawKey(g, keyBounds, (i == mHighlight ? mHK_COLOR : mBK_COLOR.WithContrast(IsDisabled() ? GRAYED_ALPHA : 0.f)));
-
-        if (GetKeyIsPressed(i))
-        {
-          // draw pressed black key
-          IColor cBP = mPK_COLOR;
-          cBP.A = (int) mBKAlpha;
-          g.FillRect(cBP, keyBounds, &mBlend);
-        }
-
-        if(!mRoundedKeys)
-        {
-          // draw l, r and bottom if they don't overlay the mRECT borders
-          if (mBKHeightRatio != 1.0)
-            g.DrawLine(mFR_COLOR, kL, BKBottom, kL + BKWidth, BKBottom, &mBlend);
-          if (i > 0)
-            g.DrawLine(mFR_COLOR, kL, mRECT.T, kL, BKBottom, &mBlend);
-          if (i != NKeys() - 1)
-            g.DrawLine(mFR_COLOR, kL + BKWidth, mRECT.T, kL + BKWidth, BKBottom, &mBlend);
         }
       }
-    }
 
-    if (mDrawFrame)
-      g.DrawRect(mFR_COLOR, mRECT, &mBlend, mFrameThickness);
-
-    if (mShowNoteAndVel)
-    {
-      if (mMouseOverKey > -1)
+      // then blacks
+      for (int i = 0; i < NKeys(); ++i)
       {
-        IRECT r = IRECT(*GetKeyXPos(mMouseOverKey), mRECT.T, 0, 0);
-        r.B = r.T + 1.2f * mText.mSize;
-        r.R = r.L + 35.0f;
-        WDL_String t;
-        GetNoteNameStr(mMinNote + mMouseOverKey, false, t);
-        if (mLastTouchedKey > -1)
+        if (IsBlackKey(i))
         {
-          t.AppendFormatted(16, ", vel: %3.2f", mLastVelocity * 127.f);
-          r.R += 60.0;
+          float kL = *GetKeyXPos(i);
+          IRECT keyBounds = IRECT(kL, mRECT.T, kL + BKWidth, BKBottom);
+          // first draw underlying shadows
+          if (mDrawShadows && !GetKeyIsPressed(i) && i < NKeys() - 1)
+          {
+            IRECT shadowBounds = keyBounds;
+            float w = shadowBounds.W();
+            shadowBounds.L += 0.6f * w;
+            if (GetKeyIsPressed(i + 1))
+            {
+              // if white to the right is pressed, shadow is longer
+              w *= 1.3f;
+              shadowBounds.B = shadowBounds.T + 1.05f * shadowBounds.H();
+            }
+            shadowBounds.R = shadowBounds.L + w;
+            DrawKey(g, shadowBounds, shadowColor);
+          }
+          DrawKey(g, keyBounds, (i == mHighlight ? mHK_COLOR : mBK_COLOR.WithContrast(IsDisabled() ? GRAYED_ALPHA : 0.f)));
+
+          if (GetKeyIsPressed(i))
+          {
+            // draw pressed black key
+            IColor cBP = mPK_COLOR;
+            cBP.A = (int) mBKAlpha;
+            g.FillRect(cBP, keyBounds, &mBlend);
+          }
+
+          if(!mRoundedKeys)
+          {
+            // draw l, r and bottom if they don't overlay the mRECT borders
+            if (mBKHeightRatio != 1.0)
+              g.DrawLine(mFR_COLOR, kL, BKBottom, kL + BKWidth, BKBottom, &mBlend);
+            if (i > 0)
+              g.DrawLine(mFR_COLOR, kL, mRECT.T, kL, BKBottom, &mBlend);
+            if (i != NKeys() - 1)
+              g.DrawLine(mFR_COLOR, kL + BKWidth, mRECT.T, kL + BKWidth, BKBottom, &mBlend);
+          }
         }
-        float e = r.R - mRECT.R;
-        if (e > 0.0)
+      }
+
+      if (mDrawFrame)
+        g.DrawRect(mFR_COLOR, mRECT, &mBlend, mFrameThickness);
+
+      if (mShowNoteAndVel)
+      {
+        if (mMouseOverKey > -1)
         {
-          r.L -= e;
-          r.R -= e;
+          IRECT r = IRECT(*GetKeyXPos(mMouseOverKey), mRECT.T, 0, 0);
+          r.B = r.T + 1.2f * mText.mSize;
+          r.R = r.L + 35.0f;
+          WDL_String t;
+          GetNoteNameStr(mMinNote + mMouseOverKey, false, t);
+          if (mLastTouchedKey > -1)
+          {
+            t.AppendFormatted(16, ", vel: %3.2f", mLastVelocity * 127.f);
+            r.R += 60.0;
+          }
+          float e = r.R - mRECT.R;
+          if (e > 0.0)
+          {
+            r.L -= e;
+            r.R -= e;
+          }
+          g.FillRect(mWK_COLOR, r, &mBlend);
+          g.DrawRect(mFR_COLOR, r, &mBlend);
+          g.DrawText(mText, t.Get(), r, &mBlend);
         }
-        g.FillRect(mWK_COLOR, r, &mBlend);
-        g.DrawRect(mFR_COLOR, r, &mBlend);
-        g.DrawText(mText, t.Get(), r, &mBlend);
       }
     }
 
@@ -520,76 +551,91 @@ private:
     // create size-independent data.
     mIsBlackKeyList.Resize(NKeys());
     mKeyXPos.Resize(NKeys());
+    memset(mIsBlackKeyList.Get(), 0, mIsBlackKeyList.GetSize() * sizeof(bool)); // Initialize all as white first
 
-    float numWhites = 0.f;
-    for (int n = mMinNote, i = 0; n <= mMaxNote; ++n, i++)
+    if (mOnlyWhiteKeys)
     {
-      if (n % 12 == 1 || n % 12 == 3 || n % 12 == 6 || n % 12 == 8 || n % 12 == 10)
+      // Calculate bounds for evenly spaced pads
+      mWKWidth = mRECT.W() / static_cast<float>(NKeys());
+      for (int k = 0; k < NKeys(); ++k)
       {
-        mIsBlackKeyList.Get()[i] = true;
-      }
-      else
-      {
-        mIsBlackKeyList.Get()[i] = false;
-        numWhites += 1.f;
+        mKeyXPos.Get()[k] = mRECT.L + k * mWKWidth;
+        // mIsBlackKeyList already set to false above
       }
     }
-
-    // black key middle isn't aligned exactly between whites
-    float WKPadStart = 0.f; // 1st note may be black
-    float WKPadEnd = 0.f;   // last note may be black
-
-    auto GetShiftForPitchClass = [this](int pitch) {
-      // usually black key width + distance to the closest black key = white key width,
-      // and often b width is ~0.6 * w width
-      if (pitch == 0) return 0.f;
-      else if (pitch % 12 == 1)  return 7.f / 12.f;
-      else if (pitch % 12 == 3)  return 5.f / 12.f;
-      else if (pitch % 12 == 6)  return 2.f / 3.f;
-      else if (pitch % 12 == 8)  return 0.5f;
-      else if (pitch % 12 == 10) return 1.f / 3.f;
-      else return 0.f;
-    };
-
-    WKPadStart = GetShiftForPitchClass(mMinNote);
-
-    if (mMinNote != mMaxNote && IsBlackKey(mIsBlackKeyList.GetSize() - 1))
-      WKPadEnd = 1.f - GetShiftForPitchClass(mMaxNote);
-
-    // build rects
-    if (mWKWidth == 0.f)
-      mWKWidth = 0.2f * mRECT.H(); // first call from the constructor
-
-    if (keepWidth)
+    else
     {
-      mWKWidth = mRECT.W();
-      if (numWhites)
-        mWKWidth /= (numWhites + mBKWidthRatio * (WKPadStart + WKPadEnd));
-    }
-
-    float BKWidth = mWKWidth;
-
-    if (numWhites)
-      BKWidth *= mBKWidthRatio;
-
-    float prevWKLeft = mRECT.L;
-
-    for (int k = 0; k < mIsBlackKeyList.GetSize(); ++k)
-    {
-      if (IsBlackKey(k))
+      // Original logic for standard keyboard layout
+      float numWhites = 0.f;
+      for (int n = mMinNote, i = 0; n <= mMaxNote; ++n, i++)
       {
-        float l = prevWKLeft;
-        if (k != 0)
+        if (n % 12 == 1 || n % 12 == 3 || n % 12 == 6 || n % 12 == 8 || n % 12 == 10)
         {
-          l -= GetShiftForPitchClass(mMinNote + k) * BKWidth;
+          mIsBlackKeyList.Get()[i] = true;
         }
-        else prevWKLeft += WKPadStart * BKWidth;
-        mKeyXPos.Get()[k] = l;
+        else
+        {
+          // mIsBlackKeyList already set to false above
+          numWhites += 1.f;
+        }
       }
-      else
+
+      // black key middle isn't aligned exactly between whites
+      float WKPadStart = 0.f; // 1st note may be black
+      float WKPadEnd = 0.f;   // last note may be black
+
+      auto GetShiftForPitchClass = [this](int pitch) {
+        // usually black key width + distance to the closest black key = white key width,
+        // and often b width is ~0.6 * w width
+        if (pitch == 0) return 0.f;
+        else if (pitch % 12 == 1)  return 7.f / 12.f;
+        else if (pitch % 12 == 3)  return 5.f / 12.f;
+        else if (pitch % 12 == 6)  return 2.f / 3.f;
+        else if (pitch % 12 == 8)  return 0.5f;
+        else if (pitch % 12 == 10) return 1.f / 3.f;
+        else return 0.f;
+      };
+
+      WKPadStart = GetShiftForPitchClass(mMinNote);
+
+      if (mMinNote != mMaxNote && IsBlackKey(mIsBlackKeyList.GetSize() - 1))
+        WKPadEnd = 1.f - GetShiftForPitchClass(mMaxNote);
+
+      // build rects
+      if (mWKWidth == 0.f)
+        mWKWidth = 0.2f * mRECT.H(); // first call from the constructor
+
+      if (keepWidth)
       {
-        mKeyXPos.Get()[k] = prevWKLeft;
-        prevWKLeft += mWKWidth;
+        mWKWidth = mRECT.W();
+        if (numWhites)
+          mWKWidth /= (numWhites + mBKWidthRatio * (WKPadStart + WKPadEnd));
+      }
+
+      float BKWidth = mWKWidth;
+
+      if (numWhites)
+        BKWidth *= mBKWidthRatio;
+
+      float prevWKLeft = mRECT.L;
+
+      for (int k = 0; k < mIsBlackKeyList.GetSize(); ++k)
+      {
+        if (IsBlackKey(k))
+        {
+          float l = prevWKLeft;
+          if (k != 0)
+          {
+            l -= GetShiftForPitchClass(mMinNote + k) * BKWidth;
+          }
+          else prevWKLeft += WKPadStart * BKWidth;
+          mKeyXPos.Get()[k] = l;
+        }
+        else
+        {
+          mKeyXPos.Get()[k] = prevWKLeft;
+          prevWKLeft += mWKWidth;
+        }
       }
     }
 
@@ -602,33 +648,27 @@ private:
     IRECT clipRect = mRECT.GetPadded(-2);
     clipRect.Constrain(x, y);
 
-    float BKBottom = mRECT.T + mRECT.H() * mBKHeightRatio;
-    float BKWidth = GetBKWidth();
-
-    // black keys are on top
-    int k = -1;
-    for (int i = 0; i < NKeys(); ++i)
+    if (mOnlyWhiteKeys)
     {
-      if (IsBlackKey(i))
-      {
-        float kL = *GetKeyXPos(i);
-        IRECT keyBounds = IRECT(kL, mRECT.T, kL + BKWidth, BKBottom);
-        if (keyBounds.Contains(x, y))
-        {
-          k = i;
-          break;
-        }
-      }
+      // Hit testing for evenly spaced pads
+      if (!mRECT.Contains(x, y)) return -1; // Check bounds first
+      int k = static_cast<int>((x - mRECT.L) / mWKWidth);
+      return std::max(0, std::min(k, NKeys() - 1)); // Clamp to valid range
     }
-
-    if (k == -1)
+    else
     {
+      // Original hit testing logic for standard keyboard
+      float BKBottom = mRECT.T + mRECT.H() * mBKHeightRatio;
+      float BKWidth = GetBKWidth();
+
+      // black keys are on top
+      int k = -1;
       for (int i = 0; i < NKeys(); ++i)
       {
-        if (!IsBlackKey(i))
+        if (IsBlackKey(i))
         {
           float kL = *GetKeyXPos(i);
-          IRECT keyBounds = IRECT(kL, mRECT.T, kL + mWKWidth, mRECT.B);
+          IRECT keyBounds = IRECT(kL, mRECT.T, kL + BKWidth, BKBottom);
           if (keyBounds.Contains(x, y))
           {
             k = i;
@@ -636,9 +676,26 @@ private:
           }
         }
       }
-    }
 
-    return k;
+      if (k == -1)
+      {
+        for (int i = 0; i < NKeys(); ++i)
+        {
+          if (!IsBlackKey(i))
+          {
+            float kL = *GetKeyXPos(i);
+            IRECT keyBounds = IRECT(kL, mRECT.T, kL + mWKWidth, mRECT.B);
+            if (keyBounds.Contains(x, y))
+            {
+              k = i;
+              break;
+            }
+          }
+        }
+      }
+
+      return k;
+    }
   }
 
   float GetVelocity(float yPos)
@@ -649,7 +706,8 @@ private:
     {
       float h = mRECT.H();
 
-      if (IsBlackKey(mLastTouchedKey))
+      // Don't adjust height for black keys if in pad mode
+      if (!mOnlyWhiteKeys && IsBlackKey(mLastTouchedKey))
         h *= mBKHeightRatio;
 
       float fracPos = (yPos - mRECT.T) / (0.95f * h); // 0.95 is to get max velocity around the bottom
@@ -671,7 +729,10 @@ private:
       str.AppendFormatted(2, "%d", --oct);
   }
 
-  bool IsBlackKey(int i) const { return *(mIsBlackKeyList.Get() + i); }
+  bool IsBlackKey(int i) const {
+    if (mOnlyWhiteKeys) return false; // Always false in pad mode
+    return *(mIsBlackKeyList.Get() + i);
+  }
 
   float* GetKeyXPos(int i) { return mKeyXPos.Get() + i; }
 
@@ -715,6 +776,7 @@ protected:
   float mFrameThickness = 1.f;
   bool mShowNoteAndVel = false;
   float mWKWidth = 0.f;
+  float mPadWidth = 0.f; // Added width for pad mode
   float mBKWidthRatio = 0.6f;
   float mBKHeightRatio = 0.6f;
   float mBKAlpha = 100.f;
@@ -722,6 +784,7 @@ protected:
   float mLastVelocity = 0.f;
   int mMouseOverKey = -1;
   int mMinNote, mMaxNote;
+  bool mOnlyWhiteKeys; // Added mode flag
   WDL_TypedBuf<bool> mIsBlackKeyList;
   WDL_TypedBuf<bool> mPressedKeys;
   WDL_TypedBuf<float> mKeyXPos;
