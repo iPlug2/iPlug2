@@ -1,0 +1,3 @@
+[submodule "Dependencies/IPlug/Link"]
+	path = Dependencies/IPlug/Link
+	url = git@github.com:Ableton/link.git
