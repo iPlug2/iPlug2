@@ -2,6 +2,7 @@
 #include "IPlug_include_in_plug_src.h"
 #include "IControls.h"
 #include "IVBarGraphSpectrumAnalyzerControl.h"
+#include "ISpectrogramControl.h"
 
 constexpr int kCtrlTagSpectrumAnalyzer = 0;
 
@@ -31,12 +32,12 @@ IPlugVisualizer::IPlugVisualizer(const InstanceInfo& info)
     pGraphics->EnableMouseOver(true);
     pGraphics->SetLayoutOnResize(true);
 
-    IVStyle style = DEFAULT_STYLE
-      .WithColor(kBG, COLOR_BLACK)
-      .WithColor(kFG, {255, 128, 128, 128})
-      .WithLabelText(DEFAULT_LABEL_TEXT.WithFGColor(COLOR_WHITE))
-      .WithValueText(DEFAULT_VALUE_TEXT.WithFGColor(COLOR_WHITE));
-    pGraphics->AttachControl(new IVSpectrumAnalyzerControl<2>(b, "Spectrum", style), kCtrlTagSpectrumAnalyzer);
+//    IVStyle style = DEFAULT_STYLE
+//      .WithColor(kBG, COLOR_BLACK)
+//      .WithColor(kFG, {255, 128, 128, 128})
+//      .WithLabelText(DEFAULT_LABEL_TEXT.WithFGColor(COLOR_WHITE))
+//      .WithValueText(DEFAULT_VALUE_TEXT.WithFGColor(COLOR_WHITE));
+//    pGraphics->AttachControl(new IVSpectrumAnalyzerControl<2>(b, "Spectrum", style), kCtrlTagSpectrumAnalyzer);
     
 //    auto* pControl = new IVBarGraphSpectrumAnalyzerControl<2>(
 //       b, "Spectrum", DEFAULT_STYLE, 32, 16,
@@ -73,6 +74,9 @@ IPlugVisualizer::IPlugVisualizer(const InstanceInfo& info)
 //                                {SPEC_LED4, 0.7f},
 //                                {SPEC_LED5, 1.0f}})
 //     ), kCtrlTagSpectrumAnalyzer);
+    pGraphics->AttachControl(new ISpectrogramControl<2>(b, 1024, 2, 128,
+                                                         EDirection::Horizontal,
+                                                         ISpectrogramControl<2>::EFrequencyScale::Log), kCtrlTagSpectrumAnalyzer);
   };
 #endif
 }
