@@ -1856,6 +1856,10 @@ void WDL_UTF8_HookTabCtrl(HWND h)
 void WDL_UTF8_ListViewConvertDispInfoToW(void *_di)
 {
   NMLVDISPINFO *di = (NMLVDISPINFO *)_di;
+
+  // if this fires, then caller forgot to call HookListView or LVM_SETUNICODEFORMAT
+  WDL_ASSERT(!di || di->hdr.code != LVN_GETDISPINFOA || GetVersion() >= 0x80000000);
+
   if (di &&
       di->hdr.code == LVN_GETDISPINFOW &&
       (di->item.mask & LVIF_TEXT) && di->item.pszText && di->item.cchTextMax>0)
