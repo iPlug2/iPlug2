@@ -876,4 +876,9 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
   return mPlug->DoesMPE() ? YES : NO;
 }
 
+- (bool) getHostResizeEnabled
+{
+  return mPlug->GetHostResizeEnabled();
+}
+
 @end

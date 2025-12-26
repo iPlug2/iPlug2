@@ -72,6 +72,14 @@ bool IPlugAUv3::SendSysEx(const ISysEx& msg)
   return [(__bridge IPLUG_AUAUDIOUNIT*) mAUAudioUnit sendMidiData: sampleTime : msg.mSize : msg.mData];
 }
 
+bool IPlugAUv3::EditorResize(int viewWidth, int viewHeight)
+{
+  // AUv3 handles host-initiated resizing through NSLayoutConstraints in the view controller.
+  // Plugin-initiated resizing is not supported on macOS AUv3 - hosts ignore preferredContentSize
+  // changes after initial setup. Always return false to indicate resize was not performed here.
+  return false;
+}
+
 //void IPlugAUv3::HandleOneEvent(AURenderEvent const *event, AUEventSampleTime startTime)
 //{
 //  switch (event->head.eventType)

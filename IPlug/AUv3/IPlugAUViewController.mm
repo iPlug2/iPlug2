@@ -22,6 +22,13 @@
 @end
 
 @implementation IPLUG_AUVIEWCONTROLLER
+{
+#ifndef OS_IOS
+  __strong NSLayoutConstraint* mWidthConstraint;
+  __strong NSLayoutConstraint* mHeightConstraint;
+  NSView* mPlugView;
+#endif
+}
 
 - (AUAudioUnit*) createAudioUnitWithComponentDescription:(AudioComponentDescription) desc error:(NSError **)error
 {
@@ -70,19 +77,59 @@
 #else
 - (void) viewDidLayout
 {
+  [super viewDidLayout];
+
   if (self.audioUnit)
   {
-    [(IPLUG_AUAUDIOUNIT*) self.audioUnit hostResized: self.view.frame.size];
+    IPLUG_AUAUDIOUNIT* au = (IPLUG_AUAUDIOUNIT*) self.audioUnit;
+    CGSize containerSize = self.view.frame.size;
+
+    // Update constraints to fill container (for host-resize enabled plugins)
+    if ([au getHostResizeEnabled] && mWidthConstraint && mHeightConstraint)
+    {
+      mWidthConstraint.constant = containerSize.width;
+      mHeightConstraint.constant = containerSize.height;
+    }
+
+    // Notify plugin of size change
+    [au hostResized:containerSize];
   }
 }
 
 - (void) viewWillAppear
 {
-  [(IPLUG_AUAUDIOUNIT*) self.audioUnit openWindow:self.view];
+  [super viewWillAppear];
+
+  mPlugView = [(IPLUG_AUAUDIOUNIT*) self.audioUnit openWindow:self.view];
+
+  if (mPlugView)
+  {
+    // Use auto-layout constraints to pin the plugin view to the top-left of the container
+    mPlugView.translatesAutoresizingMaskIntoConstraints = NO;
+
+    mWidthConstraint = [mPlugView.widthAnchor constraintEqualToConstant:mPlugView.frame.size.width];
+    mHeightConstraint = [mPlugView.heightAnchor constraintEqualToConstant:mPlugView.frame.size.height];
+
+    [NSLayoutConstraint activateConstraints:@[
+      [mPlugView.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor],
+      [mPlugView.topAnchor constraintEqualToAnchor:self.view.topAnchor],
+      mWidthConstraint,
+      mHeightConstraint
+    ]];
+  }
 }
 
 - (void) viewDidDisappear
 {
+  // Deactivate constraints before closing to prevent conflicts on next viewWillAppear
+  if (mWidthConstraint && mHeightConstraint)
+  {
+    [NSLayoutConstraint deactivateConstraints:@[mWidthConstraint, mHeightConstraint]];
+    mWidthConstraint = nil;
+    mHeightConstraint = nil;
+  }
+  mPlugView = nil;
+
   [(IPLUG_AUAUDIOUNIT*) self.audioUnit closeWindow];
 }
 
@@ -91,6 +138,30 @@
   self = [super initWithNibName:nibNameOrNil bundle:[NSBundle bundleForClass:self.class]];
   
   return self;
+}
+
+- (void) viewDidLoad
+{
+  [super viewDidLoad];
+
+  // Disable auto-layout constraint translation for the view controller's view
+  // so we can rely on frame-based positioning from the host
+  self.view.translatesAutoresizingMaskIntoConstraints = YES;
+
+  // Set autoresizing to keep the view pinned to top-left when host container resizes
+  // flexibleMaxX = extra space on right, flexibleMinY = extra space below (stay at top)
+  self.view.autoresizingMask = NSViewMaxXMargin | NSViewMinYMargin;
+
+  // Set preferredContentSize here for out-of-process (OOP) hosts.
+  // For in-process hosts like REAPER, audioUnit is available synchronously in
+  // audioUnitInitialized (called from createAudioUnitWithComponentDescription),
+  // so we also set it there. Setting it twice is harmless.
+  if (self.audioUnit)
+  {
+    int width = (int) [(IPLUG_AUAUDIOUNIT*) self.audioUnit width];
+    int height = (int) [(IPLUG_AUAUDIOUNIT*) self.audioUnit height];
+    self.preferredContentSize = CGSizeMake(width, height);
+  }
 }
 
 
@@ -103,14 +174,16 @@
 
 - (void) audioUnitInitialized
 {
-  dispatch_async(dispatch_get_main_queue(), ^{
-    if (self.audioUnit)
-    {
-      int width = (int) [(IPLUG_AUAUDIOUNIT*) self.audioUnit width];
-      int height = (int) [(IPLUG_AUAUDIOUNIT*) self.audioUnit height];
-      self.preferredContentSize = CGSizeMake(width, height);
-    }
-  });
+  // Set preferredContentSize synchronously for in-process hosts (e.g. REAPER).
+  // In-process hosts call createAudioUnitWithComponentDescription on the main thread,
+  // so audioUnit is available here before viewDidLoad. For OOP hosts this runs on a
+  // background thread, so we also set preferredContentSize in viewDidLoad.
+  if ([NSThread isMainThread])
+  {
+    int width = (int) [(IPLUG_AUAUDIOUNIT*) self.audioUnit width];
+    int height = (int) [(IPLUG_AUAUDIOUNIT*) self.audioUnit height];
+    self.preferredContentSize = CGSizeMake(width, height);
+  }
 }
 
 @end

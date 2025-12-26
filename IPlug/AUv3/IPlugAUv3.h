@@ -56,6 +56,7 @@ public:
   bool SendMidiMsg(const IMidiMsg& msg) override;
 //  bool SendMidiMsgs(WDL_TypedBuf<IMidiMsg>& msgs) override;
   bool SendSysEx(const ISysEx& msg) override;
+  bool EditorResize(int viewWidth, int viewHeight) override;
 
   //IPlugAUv3
   void ProcessWithEvents(AudioTimeStamp const* timestamp, uint32_t frameCount, AURenderEvent const* events, ITimeInfo& timeInfo);
