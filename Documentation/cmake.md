@@ -555,7 +555,63 @@ cmake -G Ninja -DIPLUG_VST3_DEPLOY_PATH=/custom/path ..
 
 ### macOS
 
-**Code Signing (required for AUv3):**
+#### AUv3 with CMake (Xcode Generator)
+
+AUv3 requires proper code signing with a Development Team to register with the system. CMake handles this automatically when you provide your Development Team ID:
+
+```bash
+cmake -G Xcode -DIPLUG2_DEVELOPMENT_TEAM=YOUR_TEAM_ID ..
+cmake --build . --config Debug --target MyPlugin-app
+```
+
+The `IPLUG2_DEVELOPMENT_TEAM` variable enables:
+- **Hardened runtime** (`-o runtime`) on all binaries
+- **Entitlements** for the appex (sandbox, microphone, etc.)
+- **Proper signing order** (appex with entitlements, then app container)
+- **Launch Services registration** for AUv3 discovery
+
+**Finding your Team ID:**
+
+```bash
+# List available signing identities
+security find-identity -v -p codesigning
+
+# Team ID is the 10-character code in parentheses, e.g.:
+# "Apple Development: Your Name (XXXXXXXX)" YYYYYYYYYY
+#                                            ^^^^^^^^^^ Team ID
+```
+
+**Requirements for AUv3 registration:**
+
+1. **Entitlements file**: `projects/MyPlugin-macOS.entitlements` must exist with at minimum:
+   ```xml
+   <key>com.apple.security.app-sandbox</key>
+   <true/>
+   ```
+
+2. **Hardened runtime**: Required for system plugin discovery
+
+3. **Matching bundle identifiers**: The appex's `AudioComponentBundle` must match the framework's `CFBundleIdentifier`
+
+**Verifying AUv3 is registered:**
+
+```bash
+# List all registered Audio Units
+auval -a
+
+# Check plugin-specific registration
+auval -v aumu <subtype> <manufacturer>  # Instruments
+auval -v aufx <subtype> <manufacturer>  # Effects
+```
+
+If your AUv3 doesn't appear in `auval -a`, check:
+- App has been launched at least once
+- Signatures are valid: `codesign --verify --deep --strict MyPlugin.app`
+- Appex has entitlements: `codesign -d --entitlements - MyPlugin.app/Contents/PlugIns/MyPlugin.appex`
+
+#### Manual Code Signing (without Development Team)
+
+For local testing without a Development Team:
 
 ```bash
 # Sign from innermost to outermost
@@ -569,20 +625,12 @@ open out/MyPlugin.app
 
 > **Warning:** Ad-hoc signing (`-s -`) is for **local development only**. Ad-hoc signed apps cannot be distributed, will not run on other machines, and are blocked by Gatekeeper. For distribution, you must sign with a valid Developer ID certificate and notarize the app (see below).
 
-**Distribution signing:**
+#### Distribution Signing
 
 ```bash
 codesign -s "Developer ID Application: Your Name (TEAM_ID)" out/MyPlugin.app
 xcrun notarytool submit out/MyPlugin.app --apple-id your@email.com --team-id TEAM_ID --wait
 xcrun stapler staple out/MyPlugin.app
-```
-
-**Validating Audio Units:**
-
-```bash
-auval -a                              # List all registered AUs
-auval -v aufx <subtype> <manufacturer>  # Validate effect
-auval -v aumu <subtype> <manufacturer>  # Validate instrument
 ```
 
 ### Windows

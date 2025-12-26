@@ -89,25 +89,70 @@ function(iplug_embed_auv3_in_app app_target project_name)
 
   add_dependencies(${app_target} ${appex_target})
 
-  # Post-build: Embed framework at app level, then embed appex
+  # Get deployment path for APP (if deployment is enabled)
+  # This must happen AFTER signing, so we include it in this function
+  include(${IPLUG2_CMAKE_DIR}/Deploy.cmake)
+  iplug_get_default_deploy_path(APP)
+  set(deploy_path "${IPLUG_DEPLOY_PATH_APP}")
+
+  # Post-build: Embed framework at app level, then embed appex, then sign, then deploy
   # Use cp -R to preserve symlinks in framework bundle
   # Note: Paths use $<CONFIG> generator expression for Xcode compatibility
   if(XCODE)
-    add_custom_command(TARGET ${app_target} POST_BUILD
-      # Copy framework to App/Contents/Frameworks/ (preserving symlinks)
-      COMMAND ${CMAKE_COMMAND} -E make_directory
-        "$<TARGET_BUNDLE_DIR:${app_target}>/Contents/Frameworks"
-      COMMAND cp -R
-        "${CMAKE_BINARY_DIR}/out/$<CONFIG>/${project_name}AU.framework"
-        "$<TARGET_BUNDLE_DIR:${app_target}>/Contents/Frameworks/"
-      # Copy appex to App/Contents/PlugIns/
-      COMMAND ${CMAKE_COMMAND} -E make_directory
-        "$<TARGET_BUNDLE_DIR:${app_target}>/Contents/PlugIns"
-      COMMAND ${CMAKE_COMMAND} -E copy_directory
-        "${CMAKE_BINARY_DIR}/out/$<CONFIG>/${project_name}AUv3.appex"
-        "$<TARGET_BUNDLE_DIR:${app_target}>/Contents/PlugIns/${project_name}AUv3.appex"
-      COMMENT "Embedding AUv3 (framework + appex) in ${project_name}.app"
-    )
+    if(IPLUG2_DEVELOPMENT_TEAM)
+      add_custom_command(TARGET ${app_target} POST_BUILD
+        # Copy framework to App/Contents/Frameworks/ (preserving symlinks)
+        COMMAND ${CMAKE_COMMAND} -E make_directory
+          "$<TARGET_BUNDLE_DIR:${app_target}>/Contents/Frameworks"
+        COMMAND cp -R
+          "${CMAKE_BINARY_DIR}/out/$<CONFIG>/${project_name}AU.framework"
+          "$<TARGET_BUNDLE_DIR:${app_target}>/Contents/Frameworks/"
+        # Copy appex to App/Contents/PlugIns/
+        COMMAND ${CMAKE_COMMAND} -E make_directory
+          "$<TARGET_BUNDLE_DIR:${app_target}>/Contents/PlugIns"
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+          "${CMAKE_BINARY_DIR}/out/$<CONFIG>/${project_name}AUv3.appex"
+          "$<TARGET_BUNDLE_DIR:${app_target}>/Contents/PlugIns/${project_name}AUv3.appex"
+        # Sign embedded components with entitlements, then sign the app
+        # Re-sign the embedded appex with entitlements (--deep strips them)
+        COMMAND codesign --force --sign "Apple Development" -o runtime --timestamp=none
+          --entitlements "${CMAKE_CURRENT_SOURCE_DIR}/projects/${project_name}-macOS.entitlements"
+          "$<TARGET_BUNDLE_DIR:${app_target}>/Contents/PlugIns/${project_name}AUv3.appex"
+        # Sign the app with hardened runtime (must be after embedded content is signed)
+        COMMAND codesign --force --sign "Apple Development" -o runtime --timestamp=none
+          "$<TARGET_BUNDLE_DIR:${app_target}>"
+        COMMENT "Embedding AUv3 and signing ${project_name}.app"
+      )
+      # Deploy signed app and register with Launch Services (separate command to run after the above)
+      if(IPLUG_DEPLOY_PLUGINS AND NOT "${deploy_path}" STREQUAL "")
+        add_custom_command(TARGET ${app_target} POST_BUILD
+          COMMAND ${CMAKE_COMMAND} -E echo "[iPlug2] Deploying signed app: ${deploy_path}/${project_name}.app"
+          COMMAND ${CMAKE_COMMAND} -E make_directory "${deploy_path}"
+          COMMAND ${CMAKE_COMMAND} -E rm -rf "${deploy_path}/${project_name}.app"
+          COMMAND cp -R "$<TARGET_BUNDLE_DIR:${app_target}>" "${deploy_path}/"
+          # Register with Launch Services to enable AUv3 discovery
+          COMMAND /System/Library/Frameworks/CoreServices.framework/Versions/Current/Frameworks/LaunchServices.framework/Versions/Current/Support/lsregister
+            -f -R -trusted "${deploy_path}/${project_name}.app"
+          COMMENT "Deploying ${project_name}.app with AUv3"
+        )
+      endif()
+    else()
+      add_custom_command(TARGET ${app_target} POST_BUILD
+        # Copy framework to App/Contents/Frameworks/ (preserving symlinks)
+        COMMAND ${CMAKE_COMMAND} -E make_directory
+          "$<TARGET_BUNDLE_DIR:${app_target}>/Contents/Frameworks"
+        COMMAND cp -R
+          "${CMAKE_BINARY_DIR}/out/$<CONFIG>/${project_name}AU.framework"
+          "$<TARGET_BUNDLE_DIR:${app_target}>/Contents/Frameworks/"
+        # Copy appex to App/Contents/PlugIns/
+        COMMAND ${CMAKE_COMMAND} -E make_directory
+          "$<TARGET_BUNDLE_DIR:${app_target}>/Contents/PlugIns"
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+          "${CMAKE_BINARY_DIR}/out/$<CONFIG>/${project_name}AUv3.appex"
+          "$<TARGET_BUNDLE_DIR:${app_target}>/Contents/PlugIns/${project_name}AUv3.appex"
+        COMMENT "Embedding AUv3 (framework + appex) in ${project_name}.app"
+      )
+    endif()
   else()
     add_custom_command(TARGET ${app_target} POST_BUILD
       # Copy framework to App/Contents/Frameworks/ (preserving symlinks)

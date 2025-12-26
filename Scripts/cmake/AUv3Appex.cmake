@@ -32,7 +32,7 @@ function(iplug_configure_auv3appex target project_name)
     XCODE_ATTRIBUTE_WRAPPER_EXTENSION "appex"
     # Product type must be app-extension for proper Xcode validation
     XCODE_PRODUCT_TYPE "com.apple.product-type.app-extension"
-    # Skip code signing during build - we handle it separately
+    # Disable Xcode signing - we sign manually in post-build to ensure correct order
     XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED "NO"
     # Set bundle identifier to match what's in Info.plist
     XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "com.AcmeInc.app.${project_name}.AUv3"
@@ -77,17 +77,35 @@ function(iplug_configure_auv3appex target project_name)
     # Bundle is created as ${project_name}.appex, we rename to ${project_name}AUv3.appex
     set(APPEX_BUNDLE "${CMAKE_BINARY_DIR}/out/$<CONFIG>/${project_name}.appex")
     set(APPEX_FINAL "${CMAKE_BINARY_DIR}/out/$<CONFIG>/${project_name}AUv3.appex")
-    add_custom_command(TARGET ${target} POST_BUILD
-      # Create PkgInfo
-      COMMAND ${CMAKE_COMMAND} -DPKGINFO_PATH="${APPEX_BUNDLE}/Contents/PkgInfo"
-        -P "${PKGINFO_SCRIPT}"
-      # Rename bundle to final name with AUv3 suffix
-      COMMAND ${CMAKE_COMMAND} -E rm -rf "${APPEX_FINAL}"
-      COMMAND ${CMAKE_COMMAND} -E rename
-        "${APPEX_BUNDLE}"
-        "${APPEX_FINAL}"
-      COMMENT "Building ${project_name}AUv3.appex"
-    )
+    if(IPLUG2_DEVELOPMENT_TEAM)
+      add_custom_command(TARGET ${target} POST_BUILD
+        # Create PkgInfo
+        COMMAND ${CMAKE_COMMAND} -DPKGINFO_PATH="${APPEX_BUNDLE}/Contents/PkgInfo"
+          -P "${PKGINFO_SCRIPT}"
+        # Rename bundle to final name with AUv3 suffix
+        COMMAND ${CMAKE_COMMAND} -E rm -rf "${APPEX_FINAL}"
+        COMMAND ${CMAKE_COMMAND} -E rename
+          "${APPEX_BUNDLE}"
+          "${APPEX_FINAL}"
+        # Sign the appex with hardened runtime and entitlements (required for AUv3 to register)
+        COMMAND codesign --force --sign "Apple Development" -o runtime --timestamp=none
+          --entitlements "${CMAKE_CURRENT_SOURCE_DIR}/projects/${project_name}-macOS.entitlements"
+          "${APPEX_FINAL}"
+        COMMENT "Building and signing ${project_name}AUv3.appex"
+      )
+    else()
+      add_custom_command(TARGET ${target} POST_BUILD
+        # Create PkgInfo
+        COMMAND ${CMAKE_COMMAND} -DPKGINFO_PATH="${APPEX_BUNDLE}/Contents/PkgInfo"
+          -P "${PKGINFO_SCRIPT}"
+        # Rename bundle to final name with AUv3 suffix
+        COMMAND ${CMAKE_COMMAND} -E rm -rf "${APPEX_FINAL}"
+        COMMAND ${CMAKE_COMMAND} -E rename
+          "${APPEX_BUNDLE}"
+          "${APPEX_FINAL}"
+        COMMENT "Building ${project_name}AUv3.appex"
+      )
+    endif()
   else()
     # For Ninja/other generators: Convert .app to .appex and move to final location
     # Bundle is built in appex-build/ subdir to avoid collision with APP target

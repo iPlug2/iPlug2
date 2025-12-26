@@ -24,17 +24,31 @@ function(iplug_configure_auv3framework target project_name)
     PROPERTIES COMPILE_FLAGS "-fobjc-arc"
   )
 
+  # Generate Info.plist with correct CFBundleExecutable
+  # The source plist has "AUv3Framework" but the binary is named "${project_name}AU"
+  set(FRAMEWORK_PLIST_SOURCE "${PLUG_RESOURCES_DIR}/${project_name}-macOS-AUv3Framework-Info.plist")
+  set(FRAMEWORK_PLIST_OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/${project_name}-AUv3Framework-Info.plist")
+  if(EXISTS "${FRAMEWORK_PLIST_SOURCE}")
+    file(READ "${FRAMEWORK_PLIST_SOURCE}" PLIST_CONTENT)
+    # Replace generic "AUv3Framework" with actual binary name
+    string(REPLACE "<string>AUv3Framework</string>" "<string>${project_name}AU</string>" PLIST_CONTENT "${PLIST_CONTENT}")
+    file(WRITE "${FRAMEWORK_PLIST_OUTPUT}" "${PLIST_CONTENT}")
+  else()
+    message(WARNING "AUv3 Framework Info.plist not found: ${FRAMEWORK_PLIST_SOURCE}")
+    set(FRAMEWORK_PLIST_OUTPUT "${FRAMEWORK_PLIST_SOURCE}")
+  endif()
+
   set_target_properties(${target} PROPERTIES
     FRAMEWORK TRUE
     FRAMEWORK_VERSION A
-    MACOSX_FRAMEWORK_INFO_PLIST ${PLUG_RESOURCES_DIR}/${project_name}-macOS-AUv3Framework-Info.plist
+    MACOSX_FRAMEWORK_INFO_PLIST "${FRAMEWORK_PLIST_OUTPUT}"
     OUTPUT_NAME "${project_name}AU"
     LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/out"
-    # Skip code signing during build - sign manually later if needed
+    # Disable Xcode signing - we sign manually in post-build to ensure correct order
     XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED "NO"
   )
 
-  # Create PkgInfo file for framework bundle (FMWK = framework)
+  # Create PkgInfo file for framework bundle
   set(PKGINFO_SCRIPT "${CMAKE_CURRENT_BINARY_DIR}/write_pkginfo_${target}.cmake")
   file(WRITE ${PKGINFO_SCRIPT} "file(WRITE \"\${PKGINFO_PATH}\" \"FMWK????\")")
   add_custom_command(TARGET ${target} POST_BUILD
@@ -42,6 +56,15 @@ function(iplug_configure_auv3framework target project_name)
       -P "${PKGINFO_SCRIPT}"
     COMMENT "Creating PkgInfo for ${project_name}AU.framework"
   )
+
+  # Code sign framework with hardened runtime (required for AUv3 to register)
+  if(IPLUG2_DEVELOPMENT_TEAM)
+    add_custom_command(TARGET ${target} POST_BUILD
+      COMMAND codesign --force --sign "Apple Development" -o runtime --timestamp=none
+        "$<TARGET_BUNDLE_DIR:${target}>"
+      COMMENT "Signing ${project_name}AU.framework"
+    )
+  endif()
 
   # Add headers to framework (umbrella + public headers)
   # Check for umbrella header - support both naming conventions:

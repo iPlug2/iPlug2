@@ -25,6 +25,12 @@ if (APPLE)
   if(NOT CMAKE_OSX_DEPLOYMENT_TARGET)
     set(CMAKE_OSX_DEPLOYMENT_TARGET "10.13" CACHE STRING "Minimum macOS version")
   endif()
+
+  # Code signing for AUv3 (required for registration)
+  set(IPLUG2_DEVELOPMENT_TEAM "" CACHE STRING "Apple Development Team ID for code signing (required for AUv3)")
+  if(IPLUG2_DEVELOPMENT_TEAM)
+    set(CMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM "${IPLUG2_DEVELOPMENT_TEAM}")
+  endif()
 endif()
 
 # Tracer build support - enables TRACER_BUILD preprocessor define for profiling/tracing

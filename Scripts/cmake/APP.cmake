@@ -139,7 +139,7 @@ function(iplug_configure_app target project_name)
       MACOSX_BUNDLE_INFO_PLIST ${PLUG_RESOURCES_DIR}/${project_name}-macOS-Info.plist
       RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/out"
       OUTPUT_NAME "${project_name}"
-      # Skip code signing during build - sign manually later if needed
+      # Disable Xcode signing - app is signed after AUv3 embedding (see iplug_embed_auv3_in_app)
       XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED "NO"
     )
 
