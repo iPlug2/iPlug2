@@ -277,6 +277,8 @@ protected:
   void PassThroughBuffers(PLUG_SAMPLE_DST type, int nFrames);
   void ProcessBuffers(PLUG_SAMPLE_SRC type, int nFrames);
   void ProcessBuffers(PLUG_SAMPLE_DST type, int nFrames);
+  void ProcessBuffers(PLUG_SAMPLE_SRC type, int nFrames, int bufferOffset);
+  void ProcessBuffers(PLUG_SAMPLE_DST type, int nFrames, int bufferOffset);
   void ProcessBuffersAccumulating(int nFrames); // only for VST2 deprecated method single precision
   void ZeroScratchBuffers();
   void SetSampleRate(double sampleRate) { mSampleRate = sampleRate; }
