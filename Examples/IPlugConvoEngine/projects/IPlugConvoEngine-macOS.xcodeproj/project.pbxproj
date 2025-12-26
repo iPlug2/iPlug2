@@ -1427,6 +1427,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 4F78BE0E22E73D0800AD537E /* Build configuration list for PBXNativeTarget "AUv3Framework" */;
 			buildPhases = (
+				A0ED16B6F7E01EA5A7298248 /* Run Script prepare_resources-mac.py */,
 				4F78BDFD22E73D0800AD537E /* Headers */,
 				4F78BDFE22E73D0800AD537E /* Sources */,
 				4F78BDFF22E73D0800AD537E /* Frameworks */,
@@ -1677,6 +1678,24 @@
 /* End PBXRezBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		A0ED16B6F7E01EA5A7298248 /* Run Script prepare_resources-mac.py */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Run Script prepare_resources-mac.py";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "python3 ../scripts/prepare_resources-mac.py\n";
+		};
 		4F02E1D723144CDA00731A7D /* Run Script - Force register AUv3 */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;

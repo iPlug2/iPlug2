@@ -104,6 +104,9 @@ extern bool IsXPCAuHost();
 /** @return \c true if in an out-of-process AUv3  */
 extern bool IsOOPAuv3AppExtension();
 
+/** @return \c true if the bundleID indicates an AUv3 app extension bundle */
+extern bool IsAUv3AppExtensionBundleID(const char* bundleID);
+
 #endif
 
 END_IPLUG_NAMESPACE
