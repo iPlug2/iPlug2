@@ -20,6 +20,20 @@ sys.path.insert(0, os.path.join(os.getcwd(), IPLUG2_ROOT + '/Scripts'))
 
 from parse_config import parse_config, parse_xcconfig
 
+def copy_resources_to_destination(projectpath, dst, label=""):
+  """Copy image and font resources from project to destination folder."""
+  display_dst = label if label else dst
+
+  if os.path.exists(projectpath + "/resources/img/"):
+    for img in os.listdir(projectpath + "/resources/img/"):
+      print("copying " + img + " to " + display_dst)
+      shutil.copy(projectpath + "/resources/img/" + img, dst)
+
+  if os.path.exists(projectpath + "/resources/fonts/"):
+    for font in os.listdir(projectpath + "/resources/fonts/"):
+      print("copying " + font + " to " + display_dst)
+      shutil.copy(projectpath + "/resources/fonts/" + font, dst)
+
 def main():
   config = parse_config(projectpath)
   xcconfig = parse_xcconfig(os.path.join(os.getcwd(), IPLUG2_ROOT +  '/common-mac.xcconfig'))
@@ -40,17 +54,20 @@ def main():
   if os.path.exists(dst) == False:
     os.makedirs(dst + "/", 0o0755 )
 
-  if os.path.exists(projectpath + "/resources/img/"):
-    imgs = os.listdir(projectpath + "/resources/img/")
-    for img in imgs:
-      print("copying " + img + " to " + dst)
-      shutil.copy(projectpath + "/resources/img/" + img, dst)
+  copy_resources_to_destination(projectpath, dst)
 
-  if os.path.exists(projectpath + "/resources/fonts/"):
-    fonts = os.listdir(projectpath + "/resources/fonts/")
-    for font in fonts:
-      print("copying " + font + " to " + dst)
-      shutil.copy(projectpath + "/resources/fonts/" + font, dst)
+  # Also copy resources to AUv3 Framework for macOS sandbox compatibility
+  # (AUv3 appex cannot access container app's resources in sandbox)
+  if not config['PLUG_SHARED_RESOURCES']:
+    target_build_dir = os.environ.get("TARGET_BUILD_DIR", "")
+    if target_build_dir:
+      framework_dst = os.path.join(target_build_dir, config['BUNDLE_NAME'] + ".app/Contents/Frameworks/AUv3Framework.framework/Versions/A/Resources")
+
+      if os.path.exists(os.path.dirname(framework_dst)):
+        if not os.path.exists(framework_dst):
+          os.makedirs(framework_dst, 0o0755)
+
+        copy_resources_to_destination(projectpath, framework_dst, "AUv3 Framework")
 
   print("Processing Info.plist files...")
 
@@ -153,7 +170,7 @@ def main():
                                AudioComponents = [{}]),
 #                               NSExtensionServiceRoleType = "NSExtensionServiceRoleTypeEditor",
   NSExtensionPointIdentifier = NSEXTENSIONPOINTIDENTIFIER,
-  NSExtensionPrincipalClass = "IPlugAUViewController_vIGraphicsTest_vIGraphicsTest"
+  NSExtensionPrincipalClass = "IPlugAUViewController_vIGraphicsTest"
                              )
   auv3['NSExtension']['NSExtensionAttributes']['AudioComponents'] = [{}]
   auv3['NSExtension']['NSExtensionAttributes']['AudioComponents'][0]['description'] = config['PLUG_NAME']
