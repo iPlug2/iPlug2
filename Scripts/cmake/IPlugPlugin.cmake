@@ -191,13 +191,15 @@ function(_iplug_create_auv3_targets plugin_name formats sources ui_lib resources
   endif()
 
   # Framework containing AUv3 plugin code
-  # Note: Resources are NOT added to the framework - the appex loads them
-  # from the parent app's Resources folder (see IPlugPaths.mm)
   add_library(${plugin_name}AU-framework SHARED ${sources})
   iplug_add_target(${plugin_name}AU-framework PUBLIC
     LINK iPlug2::AUv3 ${ui_lib} ${base_lib}
   )
   iplug_configure_target(${plugin_name}AU-framework AUv3Framework ${plugin_name})
+  # Add resources to framework for macOS sandbox compatibility
+  # (AUv3 appex cannot access container app's resources in sandbox)
+  _iplug_add_resources(${plugin_name}AU-framework "${resources}")
+  _iplug_add_web_resources(${plugin_name}AU-framework "${web_resources}")
 
   # App Extension (appex) - executable using NSExtensionMain entry point
   iplug_get_auv3appex_source(${plugin_name} APPEX_SOURCE)

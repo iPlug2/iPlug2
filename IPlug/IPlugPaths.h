@@ -36,9 +36,12 @@ extern void HostPath(WDL_String& path, const char* bundleID = 0);
  * @param pExtra This should either be a const char* to bundleID (macOS) or an HMODULE handle (windows) */
 extern void PluginPath(WDL_String& path, PluginIDType pExtra);
 
-/** Get the path to the plug-in bundle resource path. On macOS and iOS if this is called in an AUv3 app extension it will return the bundle of the parent app
- * iOS bundles are flat, so the path is just to the .app where as macOS bundles contain a resources subfolder
- * On Windows this is only useful for VST3 plug-ins which have a "bundle" with a resource path since v3.6
+/** Get the path to the plug-in bundle resource path.
+ * On macOS AUv3, this returns the AUv3 Framework bundle's resources (not the container app)
+ * for sandbox compatibility - the appex cannot access the container app's resources.
+ * On iOS, if this is called in an AUv3 app extension it will return the bundle of the parent app.
+ * iOS bundles are flat, so the path is just to the .app, whereas macOS bundles contain a resources subfolder.
+ * On Windows this is only useful for VST3 plug-ins which have a "bundle" with a resource path since v3.6.
  * @param path WDL_String reference where the path will be put on success or empty string on failure
  * @param pExtra This should either be a const char* to bundleID (macOS/iOS) or an HMODULE handle (windows) */
 extern void BundleResourcePath(WDL_String& path, PluginIDType pExtra = 0);
@@ -103,6 +106,9 @@ extern bool IsXPCAuHost();
 
 /** @return \c true if in an out-of-process AUv3  */
 extern bool IsOOPAuv3AppExtension();
+
+/** @return \c true if the bundleID indicates an AUv3 app extension bundle */
+extern bool IsAUv3AppExtensionBundleID(const char* bundleID);
 
 #endif
 

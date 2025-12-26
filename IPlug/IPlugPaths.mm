@@ -72,7 +72,20 @@ void BundleResourcePath(WDL_String& path, PluginIDType bundleID)
 {
   @autoreleasepool
   {
-    NSBundle* pBundle = [NSBundle bundleWithIdentifier:[NSString stringWithUTF8String:bundleID]];
+    NSBundle* pBundle = nil;
+
+    if (IsAUv3AppExtensionBundleID(bundleID))
+    {
+      // For AUv3: use Framework bundle (appex can't access container app's resources in sandbox)
+      // Derive Framework bundle ID: "xxx.AUv3" -> "xxx.AUv3Framework"
+      NSString* frameworkBundleID = [[NSString stringWithUTF8String:bundleID] stringByAppendingString:@"Framework"];
+      pBundle = [NSBundle bundleWithIdentifier:frameworkBundleID];
+    }
+    else
+    {
+      pBundle = [NSBundle bundleWithIdentifier:[NSString stringWithUTF8String:bundleID]];
+    }
+
     NSString* pResPath = [pBundle resourcePath];
     
     path.Set([pResPath UTF8String]);
@@ -147,22 +160,29 @@ bool GetResourcePathFromBundle(const char* fileName, const char* searchExt, WDL_
     
     bool isCorrectType = !strcasecmp(ext, searchExt);
     
-    bool isAppExtension = IsOOPAuv3AppExtension();
+    bool isAppExtension = IsAUv3AppExtensionBundleID(bundleID);
     
-    NSBundle* pBundle = [NSBundle bundleWithIdentifier:[NSString stringWithUTF8String:bundleID]];
-    
+    NSBundle* pBundle = nil;
+
+    if (isAppExtension)
+    {
+      // For AUv3: use Framework bundle (appex can't access container app's resources in sandbox)
+      // Derive Framework bundle ID: "xxx.AUv3" -> "xxx.AUv3Framework"
+      NSString* frameworkBundleID = [[NSString stringWithUTF8String:bundleID] stringByAppendingString:@"Framework"];
+      pBundle = [NSBundle bundleWithIdentifier:frameworkBundleID];
+    }
+    else
+    {
+      pBundle = [NSBundle bundleWithIdentifier:[NSString stringWithUTF8String:bundleID]];
+    }
+
     NSString* pFile = [[NSString stringWithUTF8String:fileName] stringByDeletingPathExtension];
     NSString* pExt = [NSString stringWithUTF8String:searchExt];
     
     if (isCorrectType && pBundle && pFile)
     {
-      NSString* pBasePath;
-      
-      if(isAppExtension)
-        pBasePath = [[[[pBundle bundlePath] stringByDeletingLastPathComponent] stringByDeletingLastPathComponent] stringByAppendingString:@"/Resources/"];
-      else
-        pBasePath = [[pBundle resourcePath] stringByAppendingString:@"/"];
-      
+      NSString* pBasePath = [[pBundle resourcePath] stringByAppendingString:@"/"];
+
       NSString* pPath = [[[pBasePath stringByAppendingString:pFile] stringByAppendingString: @"."] stringByAppendingString:pExt];
       
       if (pPath && [[NSFileManager defaultManager] fileExistsAtPath : pPath] == YES)
@@ -218,12 +238,10 @@ EResourceLocation LocateResource(const char* name, const char* type, WDL_String&
 {
   if(CStringHasContents(name))
   {
-#ifndef AUv3_API
     // first check this bundle
     if(GetResourcePathFromBundle(name, type, result, bundleID))
       return EResourceLocation::kAbsolutePath;
-#endif
-    
+
     // then check ~/Music/sharedResourcesSubPath, which is a shared folder that can be accessed from app sandbox
     if(GetResourcePathFromSharedLocation(name, type, result, sharedResourcesSubPath))
       return EResourceLocation::kAbsolutePath;
@@ -258,6 +276,14 @@ bool IsXPCAuHost()
 bool IsOOPAuv3AppExtension()
 {
   return ([[[NSBundle mainBundle] bundleIdentifier] containsString:@"AUv3"]);
+}
+
+bool IsAUv3AppExtensionBundleID(const char* bundleID)
+{
+  if (!bundleID)
+    return false;
+
+  return [[NSString stringWithUTF8String:bundleID] containsString:@".AUv3"];
 }
 
 #elif defined OS_IOS
