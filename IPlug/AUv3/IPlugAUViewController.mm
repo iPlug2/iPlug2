@@ -22,6 +22,13 @@
 @end
 
 @implementation IPLUG_AUVIEWCONTROLLER
+{
+#ifndef OS_IOS
+  __strong NSLayoutConstraint* mWidthConstraint;
+  __strong NSLayoutConstraint* mHeightConstraint;
+  NSView* mPlugView;
+#endif
+}
 
 - (AUAudioUnit*) createAudioUnitWithComponentDescription:(AudioComponentDescription) desc error:(NSError **)error
 {
@@ -74,7 +81,18 @@
 
   if (self.audioUnit)
   {
-    [(IPLUG_AUAUDIOUNIT*) self.audioUnit hostResized: self.view.frame.size];
+    IPLUG_AUAUDIOUNIT* au = (IPLUG_AUAUDIOUNIT*) self.audioUnit;
+    CGSize containerSize = self.view.frame.size;
+
+    // Update constraints to fill container (for host-resize enabled plugins)
+    if ([au getHostResizeEnabled] && mWidthConstraint && mHeightConstraint)
+    {
+      mWidthConstraint.constant = containerSize.width;
+      mHeightConstraint.constant = containerSize.height;
+    }
+
+    // Notify plugin of size change
+    [au hostResized:containerSize];
   }
 }
 
@@ -82,24 +100,36 @@
 {
   [super viewWillAppear];
 
-  NSView* pPlugView = [(IPLUG_AUAUDIOUNIT*) self.audioUnit openWindow:self.view];
+  mPlugView = [(IPLUG_AUAUDIOUNIT*) self.audioUnit openWindow:self.view];
 
-  if (pPlugView)
+  if (mPlugView)
   {
     // Use auto-layout constraints to pin the plugin view to the top-left of the container
-    pPlugView.translatesAutoresizingMaskIntoConstraints = NO;
+    mPlugView.translatesAutoresizingMaskIntoConstraints = NO;
+
+    mWidthConstraint = [mPlugView.widthAnchor constraintEqualToConstant:mPlugView.frame.size.width];
+    mHeightConstraint = [mPlugView.heightAnchor constraintEqualToConstant:mPlugView.frame.size.height];
 
     [NSLayoutConstraint activateConstraints:@[
-      [pPlugView.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor],
-      [pPlugView.topAnchor constraintEqualToAnchor:self.view.topAnchor],
-      [pPlugView.widthAnchor constraintEqualToConstant:pPlugView.frame.size.width],
-      [pPlugView.heightAnchor constraintEqualToConstant:pPlugView.frame.size.height]
+      [mPlugView.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor],
+      [mPlugView.topAnchor constraintEqualToAnchor:self.view.topAnchor],
+      mWidthConstraint,
+      mHeightConstraint
     ]];
   }
 }
 
 - (void) viewDidDisappear
 {
+  // Deactivate constraints before closing to prevent conflicts on next viewWillAppear
+  if (mWidthConstraint && mHeightConstraint)
+  {
+    [NSLayoutConstraint deactivateConstraints:@[mWidthConstraint, mHeightConstraint]];
+    mWidthConstraint = nil;
+    mHeightConstraint = nil;
+  }
+  mPlugView = nil;
+
   [(IPLUG_AUAUDIOUNIT*) self.audioUnit closeWindow];
 }
 

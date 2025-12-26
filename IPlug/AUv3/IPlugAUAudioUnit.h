@@ -35,5 +35,6 @@
 - (void) closeWindow;
 - (bool) sendMidiData:(int64_t) sampleTime : (NSInteger) length : (const uint8_t*) midiBytes;
 - (id<AUMessageChannel>)messageChannelFor:(NSString *)channelName;
+- (bool) getHostResizeEnabled;
 
 @end
