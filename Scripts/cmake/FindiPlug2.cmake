@@ -274,8 +274,8 @@ function(iplug_configure_target target target_type project_name)
   # or uses IPLUG2_DEBUG_HOST if provided
   if(APPLE AND XCODE AND ${target_type} IN_LIST DEBUGGABLE_TYPES)
     set_target_properties(${target} PROPERTIES
-      XCODE_GENERATE_SCHEME YES
-      XCODE_SCHEME_DEBUG_DOCUMENT_VERSIONING NO
+      XCODE_GENERATE_SCHEME TRUE
+      XCODE_SCHEME_DEBUG_DOCUMENT_VERSIONING FALSE
     )
     if(IPLUG2_DEBUG_HOST)
       set_target_properties(${target} PROPERTIES
