@@ -2,6 +2,7 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="..\IPlugEffect.cpp" />
+    <ClCompile Include="..\..\..\WDL\win32_utf8.c" />
     <ClCompile Include="..\..\..\IGraphics\IGraphics.cpp">
       <Filter>IGraphics</Filter>
     </ClCompile>

@@ -390,6 +390,7 @@
     <ClCompile Include="..\..\..\WDL\fft.c" />
     <ClCompile Include="..\..\..\WDL\resample.cpp" />
     <ClCompile Include="..\IPlugConvoEngine.cpp" />
+    <ClCompile Include="..\..\..\WDL\win32_utf8.c" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuildStep Include="..\..\AAX_SDK\Libs\Release\AAXLibrary.lib">

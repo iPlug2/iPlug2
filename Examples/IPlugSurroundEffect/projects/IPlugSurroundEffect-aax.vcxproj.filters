@@ -2,6 +2,7 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="..\IPlugSurroundEffect.cpp" />
+    <ClCompile Include="..\..\..\WDL\win32_utf8.c" />
     <ClCompile Include="..\..\..\IPlug\AAX\IPlugAAX.cpp">
       <Filter>IPlug\AAX</Filter>
     </ClCompile>
