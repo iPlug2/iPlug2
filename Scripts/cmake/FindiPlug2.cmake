@@ -244,7 +244,12 @@ function(iplug_configure_target target target_type project_name)
   if(IPLUG2_AAX_SUPPORTED)
     list(APPEND DEBUGGABLE_TYPES AAX)
   endif()
-  list(APPEND DEBUGGABLE_TYPES AUv2)
+  if(IPLUG2_APP_SUPPORTED)
+    list(APPEND DEBUGGABLE_TYPES APP)
+  endif()
+  if(IPLUG2_AUv2_SUPPORTED)
+    list(APPEND DEBUGGABLE_TYPES AUv2)
+  endif()
 
   # Set Visual Studio debugger properties for plugin targets (Windows only)
   if(WIN32 AND IPLUG2_DEBUG_HOST AND ${target_type} IN_LIST DEBUGGABLE_TYPES)
@@ -269,7 +274,7 @@ function(iplug_configure_target target target_type project_name)
   # or uses IPLUG2_DEBUG_HOST if provided
   if(APPLE AND XCODE AND ${target_type} IN_LIST DEBUGGABLE_TYPES)
     set_target_properties(${target} PROPERTIES
-      XCODE_GENERATE_SCHEME TRUE
+      XCODE_GENERATE_SCHEME YES
       XCODE_SCHEME_DEBUG_DOCUMENT_VERSIONING NO
     )
     if(IPLUG2_DEBUG_HOST)
