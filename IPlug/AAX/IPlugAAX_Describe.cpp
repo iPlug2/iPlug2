@@ -23,6 +23,9 @@
 #define BUNDLE_ID BUNDLE_DOMAIN "." BUNDLE_MFR ".aax." BUNDLE_NAME
 #endif
 
+const AAX_CTypeID stdMeterIDs [2] = {'mtrI', 'mtrO'};
+const AAX_CTypeID grMeterIDs [3] = {'mtrI', 'mtrO', 'mtrG'};
+
 using namespace iplug;
 
 #ifndef CUSTOM_BUSTYPE_FUNC
@@ -172,8 +175,19 @@ AAX_Result GetEffectDescriptions(AAX_ICollection* pC)
     
     setupInfo.mNeedsTransport = true;
     setupInfo.mLatency = PLUG_LATENCY;
+    if(strcmp(AAX_PLUG_CATEGORY_STR, "Dynamics") == (0))
+    {
+        setupInfo.mNumMeters = 3;
+        setupInfo.mMeterIDs = grMeterIDs;
+    }
+    else
+    {
+        setupInfo.mNumMeters = 2;
+        setupInfo.mMeterIDs = stdMeterIDs;
+    };
   };
-  
+
+
   if((PLUG_TYPE != 1) && (totalNInBuses > 1)) // Effect with sidechain input
   {
     int aaxTypeIdIdx = 0;
@@ -244,7 +258,44 @@ AAX_Result GetEffectDescriptions(AAX_ICollection* pC)
 #if PLUG_HAS_UI
   err |= pDesc->AddProcPtr((void*) AAX_CEffectGUI_IPLUG::Create, kAAX_ProcPtrID_Create_EffectGUI);
 #endif
+
+  // Describe meter taps
+  AAX_IPropertyMap* meterProperties = pDesc->NewPropertyMap();
+
+  if ( !meterProperties )
+    err |= AAX_ERROR_NULL_OBJECT;
+  else
+  {
+    meterProperties->AddProperty ( AAX_eProperty_Meter_Type, AAX_eMeterType_Input );
+    meterProperties->AddProperty ( AAX_eProperty_Meter_Orientation, AAX_eMeterOrientation_Default );
+    pDesc->AddMeterDescription('mtrI', "Input", meterProperties );
+  }
+
+  meterProperties = pDesc->NewPropertyMap();
+
+  if ( !meterProperties )
+    err |= AAX_ERROR_NULL_OBJECT;
+  else
+  {
+    meterProperties->AddProperty ( AAX_eProperty_Meter_Type, AAX_eMeterType_Output );
+    meterProperties->AddProperty ( AAX_eProperty_Meter_Orientation, AAX_eMeterOrientation_Default );
+    pDesc->AddMeterDescription('mtrO', "Output", meterProperties );
+  }
   
+  if (category == AAX_ePlugInCategory_Dynamics)
+  {
+    meterProperties = pDesc->NewPropertyMap();
+
+    if ( !meterProperties )
+      err |= AAX_ERROR_NULL_OBJECT;
+    else
+    {
+      meterProperties->AddProperty ( AAX_eProperty_Meter_Type, AAX_eMeterType_CLGain );
+      meterProperties->AddProperty ( AAX_eProperty_Meter_Orientation, AAX_eMeterOrientation_Default );
+      pDesc->AddMeterDescription('mtrG', "GR", meterProperties );
+    }
+  };
+
   if (err == AAX_SUCCESS)
     err = pC->AddEffect(BUNDLE_ID, pDesc);
   

@@ -318,6 +318,7 @@ private:
 protected: // protected because it needs to be access by the API classes, and don't want a setter/getter
   /** Contains detailed information about the transport state */
   ITimeInfo mTimeInfo;
+
 };
 
 END_IPLUG_NAMESPACE
