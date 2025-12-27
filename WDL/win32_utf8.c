@@ -85,6 +85,7 @@ static void wdl_utf8_correctlongpath(WCHAR *buf)
 
 static ATOM s_combobox_atom;
 #define WDL_UTF8_OLDPROCPROP "WDLUTF8OldProc"
+#define WDL_UTF8_OLDPROCPROP_LVSTATE WDL_UTF8_OLDPROCPROP "BG"
 
 #ifdef _DEBUG
 static int wdl_utf8_validate_classname(HWND h, const char *n)
@@ -1700,13 +1701,13 @@ static LRESULT WINAPI lv_newProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPar
 
   if (msg==WM_NCDESTROY)
   {
-    struct lv_tmpbuf_state *buf = (struct lv_tmpbuf_state *)GetProp(hwnd,WDL_UTF8_OLDPROCPROP "B");
+    struct lv_tmpbuf_state *buf = (struct lv_tmpbuf_state *)GetProp(hwnd,WDL_UTF8_OLDPROCPROP_LVSTATE);
     if (buf)
     {
       if (buf->buf) GlobalFree(buf->buf);
       GlobalFree(buf);
     }
-    RemoveProp(hwnd,WDL_UTF8_OLDPROCPROP "B");
+    RemoveProp(hwnd,WDL_UTF8_OLDPROCPROP_LVSTATE);
 
     SetWindowLongPtr(hwnd, GWLP_WNDPROC,(INT_PTR)oldproc);
     RemoveProp(hwnd,WDL_UTF8_OLDPROCPROP);
@@ -1819,7 +1820,7 @@ void WDL_UTF8_HookListView(HWND h)
     GetProp(h,WDL_UTF8_OLDPROCPROP)) return;
   SetProp(h,WDL_UTF8_OLDPROCPROP,(HANDLE)SetWindowLongPtr(h,GWLP_WNDPROC,(INT_PTR)lv_newProc));
 
-  SetProp(h,WDL_UTF8_OLDPROCPROP "B", (HANDLE)GlobalAlloc(GMEM_ZEROINIT,sizeof(struct lv_tmpbuf_state)));
+  SetProp(h,WDL_UTF8_OLDPROCPROP_LVSTATE, (HANDLE)GlobalAlloc(GMEM_ZEROINIT,sizeof(struct lv_tmpbuf_state)));
   if (WDL_NORMALLY(GetClassName(h,buf,sizeof(buf))) &&
       WDL_NORMALLY(!strcmp(buf,"SysListView32"))
       // && (GetWindowLong(h,GWL_STYLE) & LVS_OWNERDATA) // probably best to always do this?
@@ -1867,7 +1868,7 @@ void WDL_UTF8_ListViewConvertDispInfoToW(void *_di)
     static struct lv_tmpbuf_state s_buf;
     const char *src = (const char *)di->item.pszText;
     const size_t src_sz = strlen(src);
-    struct lv_tmpbuf_state *sb = (struct lv_tmpbuf_state *)GetProp(di->hdr.hwndFrom,WDL_UTF8_OLDPROCPROP "B");
+    struct lv_tmpbuf_state *sb = (struct lv_tmpbuf_state *)GetProp(di->hdr.hwndFrom,WDL_UTF8_OLDPROCPROP_LVSTATE);
     if (WDL_NOT_NORMALLY(!sb)) sb = &s_buf; // if the caller forgot to call HookListView...
 
     if (!sb->buf || sb->buf_sz < src_sz)
