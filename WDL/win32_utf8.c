@@ -1689,7 +1689,7 @@ static LRESULT WINAPI tv_newProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPar
 }
 
 struct lv_tmpbuf_state {
-  WCHAR *buf;
+  WCHAR *buf; // must be allocated with GlobalAlloc/GlobalFree
   int buf_sz;
 };
 
@@ -1703,8 +1703,8 @@ static LRESULT WINAPI lv_newProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPar
     struct lv_tmpbuf_state *buf = (struct lv_tmpbuf_state *)GetProp(hwnd,WDL_UTF8_OLDPROCPROP "B");
     if (buf)
     {
-      free(buf->buf);
-      free(buf);
+      if (buf->buf) GlobalFree(buf->buf);
+      GlobalFree(buf);
     }
     RemoveProp(hwnd,WDL_UTF8_OLDPROCPROP "B");
 
@@ -1819,7 +1819,7 @@ void WDL_UTF8_HookListView(HWND h)
     GetProp(h,WDL_UTF8_OLDPROCPROP)) return;
   SetProp(h,WDL_UTF8_OLDPROCPROP,(HANDLE)SetWindowLongPtr(h,GWLP_WNDPROC,(INT_PTR)lv_newProc));
 
-  SetProp(h,WDL_UTF8_OLDPROCPROP "B", (HANDLE)calloc(sizeof(struct lv_tmpbuf_state),1));
+  SetProp(h,WDL_UTF8_OLDPROCPROP "B", (HANDLE)GlobalAlloc(GMEM_ZEROINIT,sizeof(struct lv_tmpbuf_state)));
   if (WDL_NORMALLY(GetClassName(h,buf,sizeof(buf))) &&
       WDL_NORMALLY(!strcmp(buf,"SysListView32"))
       // && (GetWindowLong(h,GWL_STYLE) & LVS_OWNERDATA) // probably best to always do this?
@@ -1875,8 +1875,8 @@ void WDL_UTF8_ListViewConvertDispInfoToW(void *_di)
       const int newsz = (int) wdl_min(src_sz * 2 + 256, 0x7fffFFFF);
       if (!sb->buf || sb->buf_sz < newsz)
       {
-        free(sb->buf);
-        sb->buf = (WCHAR *)malloc((sb->buf_sz = newsz) * sizeof(WCHAR));
+        if (sb->buf) GlobalFree(sb->buf);
+        sb->buf = (WCHAR *)GlobalAlloc(GMEM_ZEROINIT,(sb->buf_sz = newsz) * sizeof(WCHAR));
       }
     }
     if (WDL_NOT_NORMALLY(!sb->buf))
