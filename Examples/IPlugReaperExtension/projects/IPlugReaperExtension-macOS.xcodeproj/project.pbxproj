@@ -34,7 +34,7 @@
 		4F4A44B822D361A400A9D1A1 /* IGraphicsSkia.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IGraphicsSkia.h; sourceTree = "<group>"; };
 		4F56E319227F43A400F3E839 /* IGraphicsCoreText.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = IGraphicsCoreText.mm; sourceTree = "<group>"; };
 		4F56E31A227F43A400F3E839 /* IGraphicsCoreText.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsCoreText.h; sourceTree = "<group>"; };
-		4F56E327227F9E7C00F3E839 /* IPlugReaperExtension.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = IPlugReaperExtension.xcconfig; path = ../config/IPlugReaperExtension.xcconfig; sourceTree = "<group>"; };
+		4F56E327227F9E7C00F3E839 /* IPlugReaperExtension-mac.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = IPlugReaperExtension-mac.xcconfig; path = ../config/IPlugReaperExtension-mac.xcconfig; sourceTree = "<group>"; };
 		4F56E328227FA3C400F3E839 /* IPlugTimer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugTimer.cpp; path = ../../../IPlug/IPlugTimer.cpp; sourceTree = "<group>"; };
 		4F56E329227FA3C400F3E839 /* IPlugTimer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugTimer.h; path = ../../../IPlug/IPlugTimer.h; sourceTree = "<group>"; };
 		4F56E32B227FADCD00F3E839 /* IPlugEditorDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IPlugEditorDelegate.h; path = ../../../IPlug/IPlugEditorDelegate.h; sourceTree = "<group>"; };
@@ -206,7 +206,7 @@
 				4FBBD7F320B6AB9800A37DE2 /* config */,
 				4F3862FF2014BCC70009F402 /* scripts */,
 				4FF7B0D4156A825000E6CB12 /* common-mac.xcconfig */,
-				4F56E327227F9E7C00F3E839 /* IPlugReaperExtension.xcconfig */,
+				4F56E327227F9E7C00F3E839 /* IPlugReaperExtension-mac.xcconfig */,
 			);
 			name = "Other Sources";
 			sourceTree = "<group>";
@@ -634,7 +634,7 @@
 		};
 		4FBA83AE20ECAF0B00423B90 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 4F56E327227F9E7C00F3E839 /* IPlugReaperExtension.xcconfig */;
+			baseConfigurationReference = 4F56E327227F9E7C00F3E839 /* IPlugReaperExtension-mac.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -667,7 +667,7 @@
 		};
 		4FBA83AF20ECAF0B00423B90 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 4F56E327227F9E7C00F3E839 /* IPlugReaperExtension.xcconfig */;
+			baseConfigurationReference = 4F56E327227F9E7C00F3E839 /* IPlugReaperExtension-mac.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -695,7 +695,7 @@
 		};
 		4FBA83B020ECAF0B00423B90 /* Tracer */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 4F56E327227F9E7C00F3E839 /* IPlugReaperExtension.xcconfig */;
+			baseConfigurationReference = 4F56E327227F9E7C00F3E839 /* IPlugReaperExtension-mac.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;

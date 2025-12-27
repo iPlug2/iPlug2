@@ -237,16 +237,20 @@ def main():
 
   copy('gitignore_template', outputpath + "/.gitignore")
 
-  config = parse_config(outputpath)
+  try:
+    config = parse_config(outputpath)
 
-  config["PLUG_UNIQUE_ID"] = randomFourChar()
+    config["PLUG_UNIQUE_ID"] = randomFourChar()
 
-  set_uniqueid(outputpath, config["PLUG_UNIQUE_ID"])
+    set_uniqueid(outputpath, config["PLUG_UNIQUE_ID"])
 
-  pp = pprint.PrettyPrinter(indent=4)
-  pp.pprint(config)
+    pp = pprint.PrettyPrinter(indent=4)
+    pp.pprint(config)
 
-  print("\ndone - don't forget to change PLUG_UNIQUE_ID and PLUG_MFR_ID in config.h")
+    print("\ndone - don't forget to change PLUG_UNIQUE_ID and PLUG_MFR_ID in config.h")
+  except (ValueError, KeyError) as e:
+    print("\nnote: could not parse full plugin config (this is expected for REAPER extensions)")
+    print("done")
 
 if __name__ == '__main__':
   main()
