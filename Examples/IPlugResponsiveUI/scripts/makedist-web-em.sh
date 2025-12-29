@@ -130,6 +130,8 @@ cd $PROJECT_ROOT/build-web-em
 
 # Copy the template HTML
 cp $IPLUG2_ROOT/IPlug/WEB/TemplateEm/index.html index.html
+PROJECT_NAME_LC=$(echo "$PROJECT_NAME" | tr '[:upper:]' '[:lower:]')
+sed -i.bak s/NAME_PLACEHOLDER_LC/$PROJECT_NAME_LC/g index.html
 sed -i.bak s/NAME_PLACEHOLDER/$PROJECT_NAME/g index.html
 
 # Update I/O details based on config.h channel io str

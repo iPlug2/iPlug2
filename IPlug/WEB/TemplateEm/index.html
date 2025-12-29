@@ -12,13 +12,10 @@
     <script async src="svgs.js"></script>
     <script async src="imgs.js"></script>
     <script async src="imgs@2x.js"></script>
-    <script async src="scripts/NAME_PLACEHOLDER-em.js"></script>
   </head>
   <body class="HOST_RESIZE_CLASS_PLACEHOLDER">
-    <!-- Canvas container - resizable or fixed based on plugin config -->
-    <div id="canvas-container">
-      <canvas id="canvas" oncontextmenu="event.preventDefault()"></canvas>
-    </div>
+    <!-- Plugin web component -->
+    <iplug-NAME_PLACEHOLDER_LC></iplug-NAME_PLACEHOLDER_LC>
 
     <!-- Floating control panel -->
     <div id="controls" class="hidden">
@@ -37,14 +34,100 @@
     </div>
 
     <script type='text/javascript'>
-      let pluginController = null;
       const PLUGIN_NAME = "NAME_PLACEHOLDER";
+      const PLUGIN_TAG = "iplug-NAME_PLACEHOLDER_LC";
       const NUM_INPUTS = MAXNINPUTS_PLACEHOLDER;
       const NUM_OUTPUTS = MAXNOUTPUTS_PLACEHOLDER;
+
+      let pluginElement = null;
+      let pluginController = null;
 
       // Prevent default behaviors
       document.addEventListener("keydown", e => { if(e.keyCode === 9) e.preventDefault(); });
       document.addEventListener("touchmove", e => e.preventDefault(), {passive: false});
+
+      /**
+       * Define the plugin as a Web Component with Shadow DOM
+       */
+      class IPlugPluginElement extends HTMLElement {
+        constructor() {
+          super();
+          this.attachShadow({ mode: 'open' });
+          this._canvas = null;
+          this._controller = null;
+        }
+
+        connectedCallback() {
+          // Create canvas inside shadow DOM
+          this._canvas = document.createElement('canvas');
+          this._canvas.style.width = '100%';
+          this._canvas.style.height = '100%';
+          this._canvas.style.display = 'block';
+          this._canvas.oncontextmenu = e => e.preventDefault();
+          this._canvas.addEventListener("webglcontextlost", e => {
+            alert('WebGL context lost. Reload the page.');
+            e.preventDefault();
+          }, false);
+          this.shadowRoot.appendChild(this._canvas);
+
+          // Initialize Module with our shadow DOM canvas
+          this._initModule();
+        }
+
+        _initModule() {
+          const canvas = this._canvas;
+          const shadowRoot = this.shadowRoot;
+
+          // Configure Module to use our shadow DOM canvas
+          window.Module = {
+            canvas: canvas,
+            printErr: text => console.error('stderr: ' + text),
+            preRun: [],
+            postRun: () => {
+              document.getElementById('startBtn').removeAttribute("disabled");
+              document.getElementById('loading').classList.add('hidden');
+              document.getElementById('controls').classList.remove('hidden');
+            },
+            onRuntimeInitialized: () => console.log("WASM runtime initialized"),
+            setStatus: function(text) {
+              if (!Module.setStatus.last) Module.setStatus.last = { time: Date.now(), text: '' };
+              if (text === Module.setStatus.text) return;
+              const m = text.match(/([^(]+)\((\d+(\.\d+)?)\/(\d+)\)/);
+              const statusEl = document.getElementById('status');
+              const progressEl = document.getElementById('progress');
+              if (m) {
+                statusEl.textContent = m[1];
+                progressEl.value = parseInt(m[2]) * 100;
+                progressEl.max = parseInt(m[4]) * 100;
+                progressEl.style.display = 'block';
+              } else {
+                statusEl.textContent = text;
+                progressEl.style.display = 'none';
+              }
+            },
+            totalDependencies: 0,
+            monitorRunDependencies: function(left) {
+              this.totalDependencies = Math.max(this.totalDependencies, left);
+              Module.setStatus(left ? `Loading... (${this.totalDependencies - left}/${this.totalDependencies})` : 'Ready');
+            }
+          };
+
+          Module.setStatus('Loading...');
+
+          // Load the WASM script
+          const script = document.createElement('script');
+          script.src = `scripts/${PLUGIN_NAME}-em.js`;
+          script.async = true;
+          document.head.appendChild(script);
+        }
+
+        get canvas() { return this._canvas; }
+        get controller() { return this._controller; }
+        set controller(c) { this._controller = c; }
+      }
+
+      // Register the custom element
+      customElements.define(PLUGIN_TAG, IPlugPluginElement);
 
       function toggleFullScreen() {
         if (!document.fullscreenElement) {
@@ -119,6 +202,7 @@
 
       async function startWebAudio() {
         pluginController = new IPlugController(PLUGIN_NAME);
+        pluginElement.controller = pluginController;
 
         pluginController.onReadyCallback = () => {
           console.log("AudioWorklet ready!");
@@ -151,52 +235,13 @@
         }
       }
 
-      // Module configuration
-      var Module = {
-        printErr: text => console.error('stderr: ' + text),
-        preRun: [],
-        postRun: function() {
-          document.getElementById('startBtn').removeAttribute("disabled");
-          document.getElementById('loading').classList.add('hidden');
-          document.getElementById('controls').classList.remove('hidden');
-        },
-        onRuntimeInitialized: () => console.log("WASM runtime initialized"),
-        setStatus: function(text) {
-          if (!Module.setStatus.last) Module.setStatus.last = { time: Date.now(), text: '' };
-          if (text === Module.setStatus.text) return;
-          const m = text.match(/([^(]+)\((\d+(\.\d+)?)\/(\d+)\)/);
-          const statusEl = document.getElementById('status');
-          const progressEl = document.getElementById('progress');
-          if (m) {
-            statusEl.textContent = m[1];
-            progressEl.value = parseInt(m[2]) * 100;
-            progressEl.max = parseInt(m[4]) * 100;
-            progressEl.style.display = 'block';
-          } else {
-            statusEl.textContent = text;
-            progressEl.style.display = 'none';
-          }
-        },
-        canvas: (() => {
-          const canvas = document.getElementById('canvas');
-          canvas.addEventListener("webglcontextlost", e => {
-            alert('WebGL context lost. Reload the page.');
-            e.preventDefault();
-          }, false);
-          return canvas;
-        })(),
-        totalDependencies: 0,
-        monitorRunDependencies: function(left) {
-          this.totalDependencies = Math.max(this.totalDependencies, left);
-          Module.setStatus(left ? `Loading... (${this.totalDependencies - left}/${this.totalDependencies})` : 'Ready');
-        }
-      };
-
-      Module.setStatus('Loading...');
       window.onerror = event => {
         Module.setStatus('Error - see console');
         Module.setStatus = text => { if (text) console.error('[error] ' + text); };
       };
+
+      // Get reference to plugin element
+      pluginElement = document.querySelector(PLUGIN_TAG);
 
       // Button handlers
       document.getElementById('startBtn').onclick = startWebAudio;
