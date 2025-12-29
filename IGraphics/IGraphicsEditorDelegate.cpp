@@ -61,10 +61,20 @@ void IGEditorDelegate::CloseWindow()
 
 void IGEditorDelegate::OnParentWindowResize(int width, int height)
 {
-  if (auto* pGraphics = GetUI()) 
+  if (auto* pGraphics = GetUI())
   {
+    // Only resize if the plugin supports host resizing
+    if (!GetHostResizeEnabled())
+      return;
+
     const auto scale = pGraphics->GetPlatformWindowScale();
-    pGraphics->Resize(static_cast<int>(width / scale), static_cast<int>(height / scale), 1.0f, false);
+    int w = static_cast<int>(width / scale);
+    int h = static_cast<int>(height / scale);
+
+    // Apply size constraints
+    ConstrainEditorResize(w, h);
+
+    pGraphics->Resize(w, h, 1.0f, false);
   }
 }
 

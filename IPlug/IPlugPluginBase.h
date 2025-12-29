@@ -99,7 +99,7 @@ public:
   bool HasUI() const { return mHasUI; }
   
   /** @return \c true if the plug-in allows reszing via the host's window chrome, as defined in config.h */
-  bool GetHostResizeEnabled() const { return mHostResize; }
+  bool GetHostResizeEnabled() const override { return mHostResize; }
   
   /*** @return a CString with the bundle identifier (macOS/IOS only) */
   const char* GetBundleID() const { return mBundleID.Get(); }

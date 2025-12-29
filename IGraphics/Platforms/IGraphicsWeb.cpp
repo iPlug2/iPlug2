@@ -11,6 +11,7 @@
 #include <cstring>
 #include <cstdio>
 #include <cstdint>
+#include <string>
 
 #include "IGraphicsWeb.h"
 
@@ -692,10 +693,14 @@ bool IGraphicsWeb::OpenURL(const char* url, const char* msgWindowTitle, const ch
 void IGraphicsWeb::DrawResize()
 {
   val canvas = GetCanvas();
-  
-  canvas["style"].set("width", val(Width() * GetDrawScale()));
-  canvas["style"].set("height", val(Height() * GetDrawScale()));
-  
+
+  // CSS style.width/height need "px" suffix
+  std::string widthPx = std::to_string(static_cast<int>(Width() * GetDrawScale())) + "px";
+  std::string heightPx = std::to_string(static_cast<int>(Height() * GetDrawScale())) + "px";
+  canvas["style"].set("width", val(widthPx));
+  canvas["style"].set("height", val(heightPx));
+
+  // Canvas element width/height attributes are integers (no px)
   canvas.set("width", Width() * GetBackingPixelScale());
   canvas.set("height", Height() * GetBackingPixelScale());
   
