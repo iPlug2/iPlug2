@@ -128,13 +128,10 @@ fi
 
 cd $PROJECT_ROOT/build-web-em
 
-# Copy the template HTML
-cp $IPLUG2_ROOT/IPlug/WEB/TemplateEm/index.html index.html
+# Generate lowercase name for web component tag
 PROJECT_NAME_LC=$(echo "$PROJECT_NAME" | tr '[:upper:]' '[:lower:]')
-sed -i.bak s/NAME_PLACEHOLDER_LC/$PROJECT_NAME_LC/g index.html
-sed -i.bak s/NAME_PLACEHOLDER/$PROJECT_NAME/g index.html
 
-# Update I/O details based on config.h channel io str
+# Get I/O details from config.h
 MAXNINPUTS=$(python3 $IPLUG2_ROOT/Scripts/parse_iostr.py "$PROJECT_ROOT" inputs)
 MAXNOUTPUTS=$(python3 $IPLUG2_ROOT/Scripts/parse_iostr.py "$PROJECT_ROOT" outputs)
 
@@ -142,29 +139,46 @@ if [ "$MAXNINPUTS" = "" ] || [ "$MAXNINPUTS" = "0" ]; then
   MAXNINPUTS="0"
 fi
 
-sed -i.bak s/"MAXNINPUTS_PLACEHOLDER"/"$MAXNINPUTS"/g index.html
-sed -i.bak s/"MAXNOUTPUTS_PLACEHOLDER"/"$MAXNOUTPUTS"/g index.html
-
 # Check if plugin supports host resize
 HOST_RESIZE=$(grep -E "^\s*#define\s+PLUG_HOST_RESIZE\s+" "$PROJECT_ROOT/config.h" | awk '{print $3}')
-if [ "$HOST_RESIZE" = "1" ]; then
-  sed -i.bak s/HOST_RESIZE_CLASS_PLACEHOLDER/resizable/g index.html
+if [ "$HOST_RESIZE" != "1" ]; then
+  HOST_RESIZE="false"
 else
-  sed -i.bak s/HOST_RESIZE_CLASS_PLACEHOLDER//g index.html
+  HOST_RESIZE="true"
+fi
+HOST_RESIZE_CLASS=""
+if [ "$HOST_RESIZE" = "true" ]; then
+  HOST_RESIZE_CLASS="resizable"
 fi
 
+echo GENERATING BUNDLE -----------------------------
+
+# Generate bundle from template
+cp $IPLUG2_ROOT/IPlug/WEB/TemplateEm/scripts/IPlugBundle.js.template scripts/$PROJECT_NAME-bundle.js
+sed -i.bak "s/NAME_PLACEHOLDER_LC/$PROJECT_NAME_LC/g" scripts/$PROJECT_NAME-bundle.js
+sed -i.bak "s/NAME_PLACEHOLDER/$PROJECT_NAME/g" scripts/$PROJECT_NAME-bundle.js
+sed -i.bak "s/MAXNINPUTS_PLACEHOLDER/$MAXNINPUTS/g" scripts/$PROJECT_NAME-bundle.js
+sed -i.bak "s/MAXNOUTPUTS_PLACEHOLDER/$MAXNOUTPUTS/g" scripts/$PROJECT_NAME-bundle.js
+sed -i.bak "s/HOST_RESIZE_PLACEHOLDER/$HOST_RESIZE/g" scripts/$PROJECT_NAME-bundle.js
+rm -f scripts/*.bak
+
+# Copy the template HTML
+cp $IPLUG2_ROOT/IPlug/WEB/TemplateEm/index.html index.html
+sed -i.bak "s/NAME_PLACEHOLDER_LC/$PROJECT_NAME_LC/g" index.html
+sed -i.bak "s/NAME_PLACEHOLDER/$PROJECT_NAME/g" index.html
+sed -i.bak "s/HOST_RESIZE_CLASS_PLACEHOLDER/$HOST_RESIZE_CLASS/g" index.html
+
 # Comment out resource scripts that don't exist
-if [ $FOUND_FONTS -eq "0" ]; then sed -i.bak s/'<script async src="fonts.js"><\/script>'/'<!--<script async src="fonts.js"><\/script>-->'/g index.html; fi
-if [ $FOUND_SVGS -eq "0" ]; then sed -i.bak s/'<script async src="svgs.js"><\/script>'/'<!--<script async src="svgs.js"><\/script>-->'/g index.html; fi
-if [ $FOUND_PNGS -eq "0" ]; then sed -i.bak s/'<script async src="imgs.js"><\/script>'/'<!--<script async src="imgs.js"><\/script>-->'/g index.html; fi
-if [ $FOUND_2XPNGS -eq "0" ]; then sed -i.bak s/'<script async src="imgs@2x.js"><\/script>'/'<!--<script async src="imgs@2x.js"><\/script>-->'/g index.html; fi
+if [ $FOUND_FONTS -eq "0" ]; then sed -i.bak 's|<script src="fonts.js"></script>|<!--<script src="fonts.js"></script>-->|g' index.html; fi
+if [ $FOUND_SVGS -eq "0" ]; then sed -i.bak 's|<script src="svgs.js"></script>|<!--<script src="svgs.js"></script>-->|g' index.html; fi
+if [ $FOUND_PNGS -eq "0" ]; then sed -i.bak 's|<script src="imgs.js"></script>|<!--<script src="imgs.js"></script>-->|g' index.html; fi
+if [ $FOUND_2XPNGS -eq "0" ]; then sed -i.bak 's|<script src="imgs@2x.js"></script>|<!--<script src="imgs@2x.js"></script>-->|g' index.html; fi
 
 rm -f *.bak
 
-# Copy styles and controller script
+# Copy styles and favicon
 cp $IPLUG2_ROOT/IPlug/WEB/TemplateEm/styles/style.css styles/style.css
 cp $IPLUG2_ROOT/IPlug/WEB/TemplateEm/favicon.ico favicon.ico
-cp $IPLUG2_ROOT/IPlug/WEB/TemplateEm/scripts/IPlugController.js scripts/IPlugController.js
 
 # Print payload
 echo "Build complete! Payload:"

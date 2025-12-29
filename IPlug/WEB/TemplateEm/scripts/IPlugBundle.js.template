@@ -1,0 +1,343 @@
+/**
+ * NAME_PLACEHOLDER - iPlug2 Web Component Bundle
+ * Self-contained bundle with embedded CSS and resources
+ *
+ * Usage:
+ *   <script src="NAME_PLACEHOLDER-bundle.js"></script>
+ *   <iplug-NAME_PLACEHOLDER_LC></iplug-NAME_PLACEHOLDER_LC>
+ */
+
+// Initialize Module immediately so resource scripts can add preloaded data
+window.Module = window.Module || {
+  preRun: [],
+  postRun: [],
+  print: text => console.log('[NAME_PLACEHOLDER]', text),
+  printErr: text => console.error('[NAME_PLACEHOLDER] stderr:', text)
+};
+
+(function() {
+  'use strict';
+
+  const PLUGIN_NAME = 'NAME_PLACEHOLDER';
+  const PLUGIN_TAG = 'iplug-NAME_PLACEHOLDER_LC';
+  const NUM_INPUTS = MAXNINPUTS_PLACEHOLDER;
+  const NUM_OUTPUTS = MAXNOUTPUTS_PLACEHOLDER;
+  const HOST_RESIZE = HOST_RESIZE_PLACEHOLDER;
+
+  // Embedded CSS for shadow DOM
+  const COMPONENT_CSS = `
+:host {
+  display: block;
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.loading {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(26, 26, 26, 0.95);
+  color: #fff;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 14px;
+}
+.loading.hidden {
+  display: none;
+}
+.loading-content {
+  text-align: center;
+}
+.loading progress {
+  width: 200px;
+  height: 4px;
+  appearance: none;
+  -webkit-appearance: none;
+  border: none;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.2);
+  margin-top: 12px;
+}
+.loading progress::-webkit-progress-bar {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+}
+.loading progress::-webkit-progress-value {
+  background: #0a84ff;
+  border-radius: 2px;
+}
+`;
+
+  // Embedded resources (base64)
+  // RESOURCES_PLACEHOLDER
+
+  // ===========================================================================
+  // IPlugController - AudioWorklet controller
+  // ===========================================================================
+  class IPlugController {
+    constructor(pluginName, moduleRef) {
+      this.pluginName = pluginName;
+      this.instanceId = crypto.randomUUID();
+      this.audioContext = null;
+      this.isReady = false;
+      this.onReadyCallback = null;
+      this.idleTimerId = null;
+      this._module = moduleRef || (typeof Module !== 'undefined' ? Module : null);
+      this._listeners = new Map();
+      this.onParamChange = null;
+      this.onControlValue = null;
+      this.onControlMsg = null;
+      this.onMidiMsg = null;
+      this.onArbitraryMsg = null;
+    }
+
+    on(event, listener) {
+      if (!this._listeners.has(event)) {
+        this._listeners.set(event, new Set());
+      }
+      this._listeners.get(event).add(listener);
+      return () => this.off(event, listener);
+    }
+
+    off(event, listener) {
+      const listeners = this._listeners.get(event);
+      if (listeners) listeners.delete(listener);
+    }
+
+    emit(event, data) {
+      const listeners = this._listeners.get(event);
+      if (listeners) {
+        listeners.forEach(listener => {
+          try { listener(data); }
+          catch (err) { console.error(`IPlugController: Error in ${event} listener:`, err); }
+        });
+      }
+    }
+
+    async init(options = {}) {
+      const mod = this._module;
+      if (!mod) throw new Error('IPlugController: Module not available');
+
+      return new Promise((resolve, reject) => {
+        mod.onAudioWorkletReady = () => {
+          this.isReady = true;
+          this.audioContext = mod.audioContext;
+          this._startIdleTimer();
+          this.emit('ready', undefined);
+          if (this.onReadyCallback) this.onReadyCallback();
+          resolve();
+        };
+
+        mod.SPVFD = (paramIdx, value) => {
+          this.emit('paramChange', { paramIdx, value });
+          if (this.onParamChange) this.onParamChange(paramIdx, value);
+        };
+        mod.SCVFD = (ctrlTag, normalizedValue) => {
+          this.emit('controlValue', { ctrlTag, value: normalizedValue });
+          if (this.onControlValue) this.onControlValue(ctrlTag, normalizedValue);
+        };
+        mod.SCMFD = (ctrlTag, msgTag, data) => {
+          this.emit('controlMsg', { ctrlTag, msgTag, data });
+          if (this.onControlMsg) this.onControlMsg(ctrlTag, msgTag, data);
+        };
+        mod.SMMFD = (status, data1, data2) => {
+          this.emit('midiMsg', { status, data1, data2 });
+          if (this.onMidiMsg) this.onMidiMsg(status, data1, data2);
+        };
+        mod.SAMFD = (msgTag, data) => {
+          this.emit('arbitraryMsg', { msgTag, data });
+          if (this.onArbitraryMsg) this.onArbitraryMsg(msgTag, data);
+        };
+
+        if (mod.calledRun && mod._initAudioWorklet) {
+          mod._initAudioWorklet(options.sampleRate || 0);
+        }
+      });
+    }
+
+    startAudio() {
+      const mod = this._module;
+      if (mod && mod.startAudio) mod.startAudio();
+    }
+
+    stopAudio() {
+      const mod = this._module;
+      if (mod && mod.stopAudio) mod.stopAudio();
+    }
+
+    setParam(paramIdx, value) {
+      const mod = this._module;
+      if (mod && mod.setParam) mod.setParam(paramIdx, value);
+    }
+
+    beginParamChange(paramIdx) {
+      const mod = this._module;
+      if (mod && mod.beginParamChange) mod.beginParamChange(paramIdx);
+    }
+
+    endParamChange(paramIdx) {
+      const mod = this._module;
+      if (mod && mod.endParamChange) mod.endParamChange(paramIdx);
+    }
+
+    sendMidi(status, data1, data2) {
+      const mod = this._module;
+      if (mod && mod.sendMidi) mod.sendMidi(status, data1, data2);
+    }
+
+    sendMessage(verb, res, data) {
+      const mod = this._module;
+      if (verb === "SMMFUI") {
+        const parts = res.split(":");
+        this.sendMidi(parseInt(parts[0]), parseInt(parts[1]), parseInt(parts[2]));
+      } else if (verb === "TICK") {
+        if (mod && mod.onIdleTick) mod.onIdleTick();
+      }
+    }
+
+    async resumeAudio() {
+      if (this.audioContext && this.audioContext.state === 'suspended') {
+        await this.audioContext.resume();
+      }
+    }
+
+    getAudioState() {
+      return this.audioContext ? this.audioContext.state : 'closed';
+    }
+
+    _startIdleTimer() {
+      if (this.idleTimerId) cancelAnimationFrame(this.idleTimerId);
+      const mod = this._module;
+      const tick = () => {
+        if (mod && mod.onIdleTick) mod.onIdleTick();
+        this.idleTimerId = requestAnimationFrame(tick);
+      };
+      this.idleTimerId = requestAnimationFrame(tick);
+    }
+
+    _stopIdleTimer() {
+      if (this.idleTimerId) {
+        cancelAnimationFrame(this.idleTimerId);
+        this.idleTimerId = null;
+      }
+    }
+
+    destroy() {
+      this._stopIdleTimer();
+      this.stopAudio();
+      if (this.audioContext) {
+        this.audioContext.close();
+        this.audioContext = null;
+      }
+    }
+  }
+
+  // ===========================================================================
+  // Web Component
+  // ===========================================================================
+  class IPlugElement extends HTMLElement {
+    constructor() {
+      super();
+      this.attachShadow({ mode: 'open' });
+      this._canvas = null;
+      this._controller = null;
+      this._module = null;
+    }
+
+    connectedCallback() {
+      // Inject CSS
+      const style = document.createElement('style');
+      style.textContent = COMPONENT_CSS;
+      this.shadowRoot.appendChild(style);
+
+      // Loading overlay
+      this._loading = document.createElement('div');
+      this._loading.className = 'loading';
+      this._loading.innerHTML = '<div class="loading-content"><div class="status">Loading...</div><progress value="0" max="100"></progress></div>';
+      this.shadowRoot.appendChild(this._loading);
+
+      // Canvas
+      this._canvas = document.createElement('canvas');
+      this._canvas.oncontextmenu = e => e.preventDefault();
+      this._canvas.addEventListener('webglcontextlost', e => {
+        alert('WebGL context lost. Reload the page.');
+        e.preventDefault();
+      }, false);
+      this.shadowRoot.appendChild(this._canvas);
+
+      this._initModule();
+    }
+
+    _initModule() {
+      const canvas = this._canvas;
+      const loading = this._loading;
+      const statusEl = loading.querySelector('.status');
+      const progressEl = loading.querySelector('progress');
+      const self = this;
+
+      // Extend existing Module (already initialized with preRun from resource scripts)
+      const mod = window.Module;
+      mod.canvas = canvas;
+      mod.postRun.push(() => {
+        loading.classList.add('hidden');
+        self.dispatchEvent(new CustomEvent('ready'));
+      });
+      mod.onRuntimeInitialized = () => console.log(`[${PLUGIN_NAME}] WASM runtime initialized`);
+      mod.setStatus = function(text) {
+        if (!mod.setStatus.last) mod.setStatus.last = { time: Date.now(), text: '' };
+        if (text === mod.setStatus.text) return;
+        const m = text.match(/([^(]+)\((\d+(\.\d+)?)\/(\d+)\)/);
+        if (m) {
+          statusEl.textContent = m[1];
+          progressEl.value = parseInt(m[2]) * 100;
+          progressEl.max = parseInt(m[4]) * 100;
+          progressEl.style.display = 'block';
+        } else {
+          statusEl.textContent = text;
+          progressEl.style.display = text ? 'block' : 'none';
+        }
+      };
+      mod.totalDependencies = 0;
+      mod.monitorRunDependencies = function(left) {
+        mod.totalDependencies = Math.max(mod.totalDependencies, left);
+        mod.setStatus(left ? `Loading... (${mod.totalDependencies - left}/${mod.totalDependencies})` : 'Ready');
+      };
+
+      this._module = mod;
+      mod.setStatus('Loading...');
+
+      // Load WASM script
+      const script = document.createElement('script');
+      script.src = `scripts/${PLUGIN_NAME}-em.js`;
+      script.async = true;
+      document.head.appendChild(script);
+    }
+
+    get canvas() { return this._canvas; }
+    get controller() { return this._controller; }
+    set controller(c) { this._controller = c; }
+    get module() { return this._module; }
+
+    get numInputs() { return NUM_INPUTS; }
+    get numOutputs() { return NUM_OUTPUTS; }
+    get hostResize() { return HOST_RESIZE; }
+  }
+
+  // Register the custom element
+  if (!customElements.get(PLUGIN_TAG)) {
+    customElements.define(PLUGIN_TAG, IPlugElement);
+  }
+
+  // Export
+  window.IPlugController = IPlugController;
+  window[`${PLUGIN_NAME}Element`] = IPlugElement;
+})();
