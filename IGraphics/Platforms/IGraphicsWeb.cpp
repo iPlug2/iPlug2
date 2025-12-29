@@ -16,6 +16,16 @@
 
 #include "IGraphicsWeb.h"
 
+// Helper to create WebGL context for Shadow DOM (CSS selectors don't work)
+EM_JS(int, createWebGLContextForShadowDOM, (), {
+  var canvas = Module.canvas;
+  if (!canvas) return 0;
+  var attrs = { stencil: true, depth: true, antialias: true, alpha: true };
+  var ctx = canvas.getContext("webgl", attrs) || canvas.getContext("experimental-webgl", attrs);
+  if (!ctx) return 0;
+  return GL.registerContext(ctx, attrs);
+});
+
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
 
@@ -422,10 +432,20 @@ IGraphicsWeb::IGraphicsWeb(IGEditorDelegate& dlg, int w, int h, int fps, float s
 
   DBGMSG("Preloaded %i images\n", keys["length"].as<int>());
 
-  // Initialize canvas - use provided element or fall back to document.getElementById("canvas")
+  // Initialize canvas - use provided element, Module.canvas, or fall back to getElementById
   if (canvas.isUndefined() || canvas.isNull())
   {
-    mCanvas = val::global("document").call<val>("getElementById", std::string("canvas"));
+    // Try Module.canvas first (set by web component or HTML template)
+    val moduleCanvas = val::global("Module")["canvas"];
+    if (!moduleCanvas.isUndefined() && !moduleCanvas.isNull())
+    {
+      mCanvas = moduleCanvas;
+    }
+    else
+    {
+      // Fall back to getElementById for legacy templates
+      mCanvas = val::global("document").call<val>("getElementById", std::string("canvas"));
+    }
   }
   else
   {
@@ -500,7 +520,19 @@ void* IGraphicsWeb::OpenWindow(void* pHandle)
   attr.depth = true;
 //  attr.explicitSwapControl = 1;
 
-  EMSCRIPTEN_WEBGL_CONTEXT_HANDLE ctx = emscripten_webgl_create_context(mCanvasSelector.c_str(), &attr);
+  EMSCRIPTEN_WEBGL_CONTEXT_HANDLE ctx;
+
+  if (mInShadowDOM)
+  {
+    // Shadow DOM: create context via JS since CSS selectors don't work
+    ctx = createWebGLContextForShadowDOM();
+  }
+  else
+  {
+    // Regular DOM: use standard emscripten API
+    ctx = emscripten_webgl_create_context(mCanvasSelector.c_str(), &attr);
+  }
+
   emscripten_webgl_make_context_current(ctx);
 #endif
   
