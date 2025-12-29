@@ -273,9 +273,22 @@
 #include <memory>
 #include "config.h"
 #include <emscripten/webaudio.h>
+#include <emscripten.h>
 
   std::unique_ptr<iplug::IPlugEmAudioWorklet> gPlugAudioWorklet;
+
+#ifdef NO_IGRAPHICS
+  // Stub for headless builds - provide minimal main loop
+  void StartMainLoopTimer()
+  {
+    // For headless plugins, we need a simple timer for idle processing
+    emscripten_set_main_loop([]() {
+      if (gPlugAudioWorklet) gPlugAudioWorklet->OnEditorIdleTick();
+    }, 20, 1);
+  }
+#else
   extern void StartMainLoopTimer();
+#endif
 
   extern "C"
   {

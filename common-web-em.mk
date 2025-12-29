@@ -67,6 +67,10 @@ EM_SRC = $(IPLUG_WEB_PATH)/IPlugEmAudioWorklet.cpp \
 	$(IGRAPHICS_SRC) \
 	$(IGRAPHICS_PATH)/IGraphicsEditorDelegate.cpp
 
+# Source files for headless (no IGraphics) Emscripten AudioWorklet build
+EM_SRC_HEADLESS = $(IPLUG_WEB_PATH)/IPlugEmAudioWorklet.cpp \
+	$(IPLUG_PATH)/IPlugProcessor.cpp
+
 NANOVG_LDFLAGS = -s USE_WEBGL2=0 -s FULL_ES3=1
 
 # Common CFLAGS for all builds
@@ -76,10 +80,16 @@ CFLAGS = $(INCLUDE_PATHS) \
 -DWDL_NO_DEFINE_MINMAX \
 -DNDEBUG=1
 
-# Emscripten AudioWorklet specific flags
+# Emscripten AudioWorklet specific flags (with IGraphics)
 EM_CFLAGS = -DEM_AUDIOWORKLET_API \
 -DIPLUG_DSP=1 \
 -DIPLUG_EDITOR=1 \
+-DSAMPLE_TYPE_FLOAT
+
+# Emscripten AudioWorklet flags for headless builds (no IGraphics)
+EM_CFLAGS_HEADLESS = -DEM_AUDIOWORKLET_API \
+-DIPLUG_DSP=1 \
+-DNO_IGRAPHICS \
 -DSAMPLE_TYPE_FLOAT
 
 # Functions exported to JavaScript
@@ -98,6 +108,19 @@ EM_LDFLAGS = -s EXPORTED_FUNCTIONS=$(EM_EXPORTS) \
 -s FORCE_FILESYSTEM=1 \
 -s ENVIRONMENT=web,worker \
 -s DEFAULT_LIBRARY_FUNCS_TO_INCLUDE="['\$$Browser']" \
+-msimd128 \
+-lidbfs.js \
+-pthread \
+-s PTHREAD_POOL_SIZE=1
+
+# Headless linker flags (no WebGL/graphics)
+EM_LDFLAGS_HEADLESS = -s EXPORTED_FUNCTIONS=$(EM_EXPORTS) \
+-s EXPORTED_RUNTIME_METHODS="['ccall', 'cwrap', 'setValue', 'UTF8ToString']" \
+-s AUDIO_WORKLET=1 \
+-s WASM_WORKERS=1 \
+-s BINARYEN_ASYNC_COMPILATION=1 \
+-s FORCE_FILESYSTEM=1 \
+-s ENVIRONMENT=web,worker \
 -msimd128 \
 -lidbfs.js \
 -pthread \
