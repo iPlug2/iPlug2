@@ -51,6 +51,9 @@
 #elif defined WEB_API
   #include "IPlugWeb.h"
   #define PLUGIN_API_BASE IPlugWeb
+#elif defined EM_AUDIOWORKLET_API
+  #include "IPlugEmAudioWorklet.h"
+  #define PLUGIN_API_BASE IPlugEmAudioWorklet
 #elif defined VST3_API
   #define IPLUG_VST3
   #include "IPlugVST3.h"
