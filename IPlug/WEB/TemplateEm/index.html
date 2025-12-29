@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- COOP/COEP headers required for SharedArrayBuffer - must be set by server -->
+    <title>NAME_PLACEHOLDER</title>
+    <link href="styles/style.css" rel="stylesheet" type="text/css"/>
+    <script src="scripts/IPlugController.js"></script>
+    <script async src="fonts.js"></script>
+    <script async src="svgs.js"></script>
+    <script async src="imgs.js"></script>
+    <script async src="imgs@2x.js"></script>
+    <script async src="scripts/NAME_PLACEHOLDER-em.js"></script>
+  </head>
+  <body class="HOST_RESIZE_CLASS_PLACEHOLDER">
+    <!-- Canvas container - resizable or fixed based on plugin config -->
+    <div id="canvas-container">
+      <canvas id="canvas" oncontextmenu="event.preventDefault()"></canvas>
+    </div>
+
+    <!-- Floating control panel -->
+    <div id="controls" class="hidden">
+      <button type="button" id="startBtn" disabled>Start Audio</button>
+      <button type="button" id="fullscreenBtn">Fullscreen</button>
+      <select id="midiInSelect" disabled><option>MIDI In</option></select>
+      <select id="midiOutSelect" disabled><option>MIDI Out</option></select>
+    </div>
+
+    <!-- Loading overlay -->
+    <div id="loading">
+      <div id="loading-content">
+        <div id="status">Loading...</div>
+        <progress id="progress" value="0" max="100"></progress>
+      </div>
+    </div>
+
+    <script type='text/javascript'>
+      let pluginController = null;
+      const PLUGIN_NAME = "NAME_PLACEHOLDER";
+      const NUM_INPUTS = MAXNINPUTS_PLACEHOLDER;
+      const NUM_OUTPUTS = MAXNOUTPUTS_PLACEHOLDER;
+
+      // Prevent default behaviors
+      document.addEventListener("keydown", e => { if(e.keyCode === 9) e.preventDefault(); });
+      document.addEventListener("touchmove", e => e.preventDefault(), {passive: false});
+
+      function toggleFullScreen() {
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen().catch(err => {
+            console.log(`Fullscreen error: ${err.message}`);
+          });
+        } else {
+          document.exitFullscreen();
+        }
+      }
+
+      function initMidiComboBox(isOutput, selectId) {
+        const combo = document.getElementById(selectId);
+        combo.innerHTML = '';
+
+        if (!navigator.requestMIDIAccess) return;
+
+        navigator.requestMIDIAccess().then(midiIF => {
+          const ports = isOutput ? midiIF.outputs : midiIF.inputs;
+          for (let port of ports.values()) {
+            const option = new Option(port.name);
+            option.port = port;
+            combo.appendChild(option);
+          }
+
+          if (combo.options.length > 0) {
+            combo.removeAttribute("disabled");
+            combo.onchange = e => {
+              const port = e.target.options[e.target.selectedIndex].port;
+              if (isOutput) {
+                pluginController.midiOut = port;
+              } else {
+                port.onmidimessage = msg => {
+                  if (pluginController) {
+                    pluginController.sendMidi(msg.data[0], msg.data[1] || 0, msg.data[2] || 0);
+                  }
+                };
+              }
+            };
+            combo.onchange({ target: combo });
+          }
+        });
+      }
+
+      function onAudioReady() {
+        document.getElementById('controls').classList.remove('hidden');
+        const btn = document.getElementById('startBtn');
+        btn.textContent = 'Stop Audio';
+        btn.disabled = false;
+        btn.onclick = stopWebAudio;
+        initMidiComboBox(false, 'midiInSelect');
+        initMidiComboBox(true, 'midiOutSelect');
+      }
+
+      function stopWebAudio() {
+        if (pluginController) {
+          pluginController.stopAudio();
+          const btn = document.getElementById('startBtn');
+          btn.textContent = 'Start Audio';
+          btn.onclick = resumeWebAudio;
+        }
+      }
+
+      function resumeWebAudio() {
+        if (pluginController) {
+          pluginController.startAudio();
+          const btn = document.getElementById('startBtn');
+          btn.textContent = 'Stop Audio';
+          btn.onclick = stopWebAudio;
+        }
+      }
+
+      async function startWebAudio() {
+        pluginController = new IPlugController(PLUGIN_NAME);
+
+        pluginController.onReadyCallback = () => {
+          console.log("AudioWorklet ready!");
+
+          if (NUM_INPUTS > 0) {
+            navigator.mediaDevices.getUserMedia({ audio: true, video: false })
+              .then(stream => {
+                if (Module.audioContext && Module.workletNode) {
+                  const audioSource = Module.audioContext.createMediaStreamSource(stream);
+                  audioSource.connect(Module.workletNode);
+                }
+                pluginController.startAudio();
+                onAudioReady();
+              })
+              .catch(err => {
+                console.log('Mic access denied: ' + err);
+                pluginController.startAudio();
+                onAudioReady();
+              });
+          } else {
+            pluginController.startAudio();
+            onAudioReady();
+          }
+        };
+
+        try {
+          await pluginController.init({ sampleRate: 0 });
+        } catch (err) {
+          console.error("Failed to initialize plugin:", err);
+        }
+      }
+
+      // Module configuration
+      var Module = {
+        printErr: text => console.error('stderr: ' + text),
+        preRun: [],
+        postRun: function() {
+          document.getElementById('startBtn').removeAttribute("disabled");
+          document.getElementById('loading').classList.add('hidden');
+          document.getElementById('controls').classList.remove('hidden');
+        },
+        onRuntimeInitialized: () => console.log("WASM runtime initialized"),
+        setStatus: function(text) {
+          if (!Module.setStatus.last) Module.setStatus.last = { time: Date.now(), text: '' };
+          if (text === Module.setStatus.text) return;
+          const m = text.match(/([^(]+)\((\d+(\.\d+)?)\/(\d+)\)/);
+          const statusEl = document.getElementById('status');
+          const progressEl = document.getElementById('progress');
+          if (m) {
+            statusEl.textContent = m[1];
+            progressEl.value = parseInt(m[2]) * 100;
+            progressEl.max = parseInt(m[4]) * 100;
+            progressEl.style.display = 'block';
+          } else {
+            statusEl.textContent = text;
+            progressEl.style.display = 'none';
+          }
+        },
+        canvas: (() => {
+          const canvas = document.getElementById('canvas');
+          canvas.addEventListener("webglcontextlost", e => {
+            alert('WebGL context lost. Reload the page.');
+            e.preventDefault();
+          }, false);
+          return canvas;
+        })(),
+        totalDependencies: 0,
+        monitorRunDependencies: function(left) {
+          this.totalDependencies = Math.max(this.totalDependencies, left);
+          Module.setStatus(left ? `Loading... (${this.totalDependencies - left}/${this.totalDependencies})` : 'Ready');
+        }
+      };
+
+      Module.setStatus('Loading...');
+      window.onerror = event => {
+        Module.setStatus('Error - see console');
+        Module.setStatus = text => { if (text) console.error('[error] ' + text); };
+      };
+
+      // Button handlers
+      document.getElementById('startBtn').onclick = startWebAudio;
+      document.getElementById('fullscreenBtn').onclick = toggleFullScreen;
+
+      // Auto-start audio on first user interaction anywhere on the page
+      function onFirstInteraction() {
+        document.removeEventListener('click', onFirstInteraction);
+        document.removeEventListener('keydown', onFirstInteraction);
+        document.removeEventListener('touchstart', onFirstInteraction);
+        if (!document.getElementById('startBtn').disabled) {
+          startWebAudio();
+        }
+      }
+      document.addEventListener('click', onFirstInteraction);
+      document.addEventListener('keydown', onFirstInteraction);
+      document.addEventListener('touchstart', onFirstInteraction);
+    </script>
+  </body>
+</html>

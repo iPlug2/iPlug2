@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>PLUG_NAME</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      max-width: 600px;
+      margin: 40px auto;
+      padding: 20px;
+      background: #1a1a1a;
+      color: #fff;
+    }
+    h1 { margin-bottom: 10px; }
+    .info { color: #888; margin-bottom: 20px; }
+    .controls {
+      background: #2a2a2a;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+    button {
+      background: #4a4a4a;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-right: 10px;
+    }
+    button:hover { background: #5a5a5a; }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    button.active { background: #0a84ff; }
+    .status {
+      margin-top: 20px;
+      padding: 10px;
+      background: #333;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 12px;
+    }
+    .params {
+      margin-top: 20px;
+    }
+    .param {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .param label {
+      width: 100px;
+    }
+    .param input[type="range"] {
+      flex: 1;
+      margin: 0 10px;
+    }
+    .param .value {
+      width: 50px;
+      text-align: right;
+    }
+  </style>
+</head>
+<body>
+  <h1>PLUG_NAME</h1>
+  <p class="info">Headless Audio Plugin (Emscripten AudioWorklet)</p>
+
+  <div class="controls">
+    <button id="startBtn" disabled>Start Audio</button>
+    <button id="stopBtn" disabled>Stop Audio</button>
+    <button id="micBtn" disabled>Enable Mic</button>
+  </div>
+
+  <div id="paramsContainer" class="controls params" style="display: none;">
+    <!-- Parameters will be added dynamically -->
+  </div>
+
+  <div class="status" id="status">Loading...</div>
+
+  <script>
+    const statusEl = document.getElementById('status');
+    const startBtn = document.getElementById('startBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const micBtn = document.getElementById('micBtn');
+    const paramsContainer = document.getElementById('paramsContainer');
+
+    function log(msg) {
+      console.log(msg);
+      statusEl.textContent = msg;
+    }
+
+    // Module callbacks
+    var Module = {
+      onRuntimeInitialized: function() {
+        log('WASM runtime initialized, initializing audio...');
+        Module._initAudioWorklet(44100);
+      },
+      onAudioWorkletReady: function() {
+        log('Audio worklet ready');
+        startBtn.disabled = false;
+        micBtn.disabled = false;
+        buildParamsUI();
+      },
+      SPVFD: function(paramIdx, value) {
+        // Parameter value from delegate - update UI
+        const slider = document.getElementById('param-' + paramIdx);
+        const valueEl = document.getElementById('param-value-' + paramIdx);
+        if (slider && valueEl) {
+          slider.value = value;
+          valueEl.textContent = value.toFixed(3);
+        }
+      }
+    };
+
+    function buildParamsUI() {
+      // For headless plugins, we need to know the parameters
+      // This is a simplified version - real implementation would query the plugin
+      // For IPlugConvoEngine: Dry (0) and Wet (1)
+      const params = [
+        { idx: 0, name: 'Dry', min: 0, max: 1, value: 0 },
+        { idx: 1, name: 'Wet', min: 0, max: 1, value: 1 }
+      ];
+
+      if (params.length > 0) {
+        paramsContainer.style.display = 'block';
+        paramsContainer.innerHTML = '<h3>Parameters</h3>';
+
+        params.forEach(p => {
+          const div = document.createElement('div');
+          div.className = 'param';
+          div.innerHTML = `
+            <label>${p.name}</label>
+            <input type="range" id="param-${p.idx}" min="${p.min}" max="${p.max}" step="0.001" value="${p.value}">
+            <span class="value" id="param-value-${p.idx}">${p.value.toFixed(3)}</span>
+          `;
+          paramsContainer.appendChild(div);
+
+          const slider = div.querySelector('input');
+          slider.addEventListener('input', () => {
+            const val = parseFloat(slider.value);
+            document.getElementById('param-value-' + p.idx).textContent = val.toFixed(3);
+            Module.setParam(p.idx, val);
+          });
+        });
+      }
+    }
+
+    startBtn.addEventListener('click', () => {
+      Module.startAudio();
+      startBtn.disabled = true;
+      stopBtn.disabled = false;
+      log('Audio started');
+    });
+
+    stopBtn.addEventListener('click', () => {
+      Module.stopAudio();
+      startBtn.disabled = false;
+      stopBtn.disabled = true;
+      log('Audio stopped');
+    });
+
+    micBtn.addEventListener('click', async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const audioCtx = Module.audioContext;
+        const source = audioCtx.createMediaStreamSource(stream);
+        source.connect(Module.workletNode);
+        micBtn.classList.add('active');
+        micBtn.textContent = 'Mic Active';
+        micBtn.disabled = true;
+        log('Microphone connected');
+      } catch (err) {
+        log('Mic error: ' + err.message);
+      }
+    });
+
+    // Idle tick for parameter updates
+    setInterval(() => {
+      if (Module.onIdleTick) Module.onIdleTick();
+    }, 50);
+  </script>
+  <script async src="scripts/PLUG_NAME-em.js"></script>
+</body>
+</html>

@@ -1,0 +1,159 @@
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: #1a1a1a;
+
+  /* Disable selection */
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Canvas container - centered by default (fixed-size plugins) */
+#canvas-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#canvas {
+  display: block;
+  outline: none;
+  border: none;
+}
+
+/* Resizable plugins: canvas fills container */
+body.resizable #canvas-container {
+  display: block;
+}
+
+body.resizable #canvas {
+  width: 100%;
+  height: 100%;
+}
+
+/* Floating control panel */
+#controls {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  z-index: 1000;
+  display: flex;
+  gap: 8px;
+  padding: 8px 12px;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transition: opacity 0.3s ease;
+}
+
+#controls.hidden {
+  display: none;
+}
+
+#controls button,
+#controls select {
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+#controls button:hover:not(:disabled),
+#controls select:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+#controls button:disabled,
+#controls select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+#controls select {
+  min-width: 80px;
+}
+
+/* Loading overlay */
+#loading {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(26, 26, 26, 0.95);
+  transition: opacity 0.3s ease;
+}
+
+#loading.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+#loading-content {
+  text-align: center;
+  color: #fff;
+}
+
+#status {
+  font-size: 14px;
+  margin-bottom: 12px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+#progress {
+  width: 200px;
+  height: 4px;
+  appearance: none;
+  -webkit-appearance: none;
+  border: none;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+#progress::-webkit-progress-bar {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+}
+
+#progress::-webkit-progress-value {
+  background: #0a84ff;
+  border-radius: 2px;
+}
+
+#progress::-moz-progress-bar {
+  background: #0a84ff;
+  border-radius: 2px;
+}
+
+/* Prevent image dragging */
+img {
+  pointer-events: none;
+}
