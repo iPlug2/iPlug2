@@ -148,15 +148,18 @@ class IPlugController {
 
   _startIdleTimer() {
     // Start a timer to pump idle messages to the DSP
-    if (this.idleTimerId) clearInterval(this.idleTimerId);
-    this.idleTimerId = setInterval(() => {
+    // Using requestAnimationFrame for smooth ~60fps updates
+    if (this.idleTimerId) cancelAnimationFrame(this.idleTimerId);
+    const tick = () => {
       if (Module.onIdleTick) Module.onIdleTick();
-    }, 50); // 20Hz idle tick rate
+      this.idleTimerId = requestAnimationFrame(tick);
+    };
+    this.idleTimerId = requestAnimationFrame(tick);
   }
 
   _stopIdleTimer() {
     if (this.idleTimerId) {
-      clearInterval(this.idleTimerId);
+      cancelAnimationFrame(this.idleTimerId);
       this.idleTimerId = null;
     }
   }
