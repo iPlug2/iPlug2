@@ -304,13 +304,16 @@ void IPlugEmAudioWorklet::SendControlMsgFromDelegate(int ctrlTag, int msgTag, in
   // Call base class to update IGraphics controls (this is critical for ISender to work)
   EDITOR_DELEGATE_CLASS::SendControlMsgFromDelegate(ctrlTag, msgTag, dataSize, pData);
 
-  // Also notify JS (for external listeners)
-  EM_ASM({
-    if (Module.SCMFD) {
-      var data = Module.HEAPU8.slice($2, $2 + $3);
-      Module.SCMFD($0, $1, data);
-    }
-  }, ctrlTag, msgTag, (intptr_t)pData, dataSize);
+  // Also notify JS (for external listeners) - only if there's valid data
+  if (dataSize > 0 && pData)
+  {
+    EM_ASM({
+      if (Module.SCMFD) {
+        var data = Module.HEAPU8.slice($2, $2 + $3);
+        Module.SCMFD($0, $1, data);
+      }
+    }, ctrlTag, msgTag, (intptr_t)pData, dataSize);
+  }
 }
 
 void IPlugEmAudioWorklet::SendParameterValueFromDelegate(int paramIdx, double value, bool normalized)
