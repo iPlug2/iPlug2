@@ -26,6 +26,7 @@ EM_JS(int, createWebGLContextForShadowDOM, (), {
   return GL.registerContext(ctx, attrs);
 });
 
+
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
 
@@ -470,21 +471,60 @@ IGraphicsWeb::IGraphicsWeb(IGEditorDelegate& dlg, int w, int h, int fps, float s
 
 void IGraphicsWeb::RegisterCanvasEvents()
 {
-  const char* target = mCanvasSelector.c_str();
-
-  emscripten_set_mousedown_callback(target, this, 1, mouse_callback);
-  emscripten_set_mouseup_callback(target, this, 1, mouse_callback);
-  emscripten_set_mousemove_callback(target, this, 1, mouse_callback);
-  emscripten_set_mouseenter_callback(target, this, 1, mouse_callback);
-  emscripten_set_mouseleave_callback(target, this, 1, mouse_callback);
-  emscripten_set_wheel_callback(target, this, 1, wheel_callback);
+  // Window-level events always work
   emscripten_set_keydown_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, this, 1, key_callback);
   emscripten_set_keyup_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, this, 1, key_callback);
-  emscripten_set_touchstart_callback(target, this, 1, touch_callback);
-  emscripten_set_touchend_callback(target, this, 1, touch_callback);
-  emscripten_set_touchmove_callback(target, this, 1, touch_callback);
-  emscripten_set_touchcancel_callback(target, this, 1, touch_callback);
   emscripten_set_resize_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, this, 1, uievent_callback);
+
+  if (mInShadowDOM)
+  {
+    // Shadow DOM: emscripten's CSS selector-based callbacks don't work
+    // Set up events via JavaScript on the canvas element directly
+    EM_ASM({
+      var pGraphics = $0;
+      var canvas = Module.canvas;
+      if (!canvas) return;
+
+      // Store reference for cleanup
+      canvas._iplugGraphics = pGraphics;
+
+      canvas.addEventListener('mousedown', function(e) {
+        Module._iGraphicsMouseCallback(pGraphics, 0, e.offsetX, e.offsetY, e.movementX, e.movementY, e.buttons, e.button, e.shiftKey, e.ctrlKey, e.altKey);
+      });
+      canvas.addEventListener('mouseup', function(e) {
+        Module._iGraphicsMouseCallback(pGraphics, 1, e.offsetX, e.offsetY, e.movementX, e.movementY, e.buttons, e.button, e.shiftKey, e.ctrlKey, e.altKey);
+      });
+      canvas.addEventListener('mousemove', function(e) {
+        Module._iGraphicsMouseCallback(pGraphics, 2, e.offsetX, e.offsetY, e.movementX, e.movementY, e.buttons, e.button, e.shiftKey, e.ctrlKey, e.altKey);
+      });
+      canvas.addEventListener('mouseenter', function(e) {
+        Module._iGraphicsMouseCallback(pGraphics, 3, e.offsetX, e.offsetY, e.movementX, e.movementY, e.buttons, e.button, e.shiftKey, e.ctrlKey, e.altKey);
+      });
+      canvas.addEventListener('mouseleave', function(e) {
+        Module._iGraphicsMouseCallback(pGraphics, 4, e.offsetX, e.offsetY, e.movementX, e.movementY, e.buttons, e.button, e.shiftKey, e.ctrlKey, e.altKey);
+      });
+      canvas.addEventListener('wheel', function(e) {
+        Module._iGraphicsWheelCallback(pGraphics, e.offsetX, e.offsetY, e.deltaY, e.shiftKey, e.ctrlKey, e.altKey);
+        e.preventDefault();
+      }, { passive: false });
+      // TODO: Touch events for Shadow DOM
+    }, this);
+  }
+  else
+  {
+    // Regular DOM: use emscripten's callback system
+    const char* target = mCanvasSelector.c_str();
+    emscripten_set_mousedown_callback(target, this, 1, mouse_callback);
+    emscripten_set_mouseup_callback(target, this, 1, mouse_callback);
+    emscripten_set_mousemove_callback(target, this, 1, mouse_callback);
+    emscripten_set_mouseenter_callback(target, this, 1, mouse_callback);
+    emscripten_set_mouseleave_callback(target, this, 1, mouse_callback);
+    emscripten_set_wheel_callback(target, this, 1, wheel_callback);
+    emscripten_set_touchstart_callback(target, this, 1, touch_callback);
+    emscripten_set_touchend_callback(target, this, 1, touch_callback);
+    emscripten_set_touchmove_callback(target, this, 1, touch_callback);
+    emscripten_set_touchcancel_callback(target, this, 1, touch_callback);
+  }
 }
 
 void IGraphicsWeb::UnregisterCanvasEvents()
@@ -823,6 +863,63 @@ PlatformFontPtr IGraphicsWeb::LoadPlatformFont(const char* fontID, void* pData, 
 {
   return PlatformFontPtr(new MemoryFont(fontID, "", pData, dataSize));
 }
+
+// Shadow DOM event callback implementations (called from JavaScript)
+extern "C" {
+
+EMSCRIPTEN_KEEPALIVE
+void iGraphicsMouseCallback(void* pGraphics, int eventType, double x, double y, double dx, double dy, int buttons, int button, int shift, int ctrl, int alt)
+{
+  IGraphicsWeb* pG = static_cast<IGraphicsWeb*>(pGraphics);
+  float scale = pG->GetDrawScale();
+
+  IMouseInfo info;
+  info.x = x / scale;
+  info.y = y / scale;
+  info.dX = dx;
+  info.dY = dy;
+  info.ms = {(buttons & 1) != 0, (buttons & 2) != 0, static_cast<bool>(shift), static_cast<bool>(ctrl), static_cast<bool>(alt)};
+  std::vector<IMouseInfo> list{info};
+
+  switch (eventType)
+  {
+    case 0: // mousedown
+      pG->OnMouseDown(list);
+      break;
+    case 1: // mouseup
+      list[0].ms.L = button == 0;
+      list[0].ms.R = button == 2;
+      pG->OnMouseUp(list);
+      break;
+    case 2: // mousemove
+      if (buttons == 0)
+        pG->OnMouseOver(info.x, info.y, info.ms);
+      else if (!pG->IsInPlatformTextEntry())
+        pG->OnMouseDrag(list);
+      break;
+    case 3: // mouseenter
+      pG->OnSetCursor();
+      pG->OnMouseOver(info.x, info.y, info.ms);
+      break;
+    case 4: // mouseleave
+      pG->OnMouseOut();
+      break;
+  }
+
+  pG->mPrevX = info.x;
+  pG->mPrevY = info.y;
+}
+
+EMSCRIPTEN_KEEPALIVE
+void iGraphicsWheelCallback(void* pGraphics, double x, double y, double deltaY, int shift, int ctrl, int alt)
+{
+  IGraphicsWeb* pG = static_cast<IGraphicsWeb*>(pGraphics);
+  float scale = pG->GetDrawScale();
+  IMouseMod mod(false, false, static_cast<bool>(shift), static_cast<bool>(ctrl), static_cast<bool>(alt));
+  pG->OnMouseWheel(x / scale, y / scale, mod, deltaY);
+}
+
+} // extern "C"
 
 #if defined IGRAPHICS_NANOVG
 #include "IGraphicsNanoVG.cpp"
