@@ -98,6 +98,7 @@ EM_LDFLAGS = -s EXPORTED_FUNCTIONS=$(EM_EXPORTS) \
 -s FORCE_FILESYSTEM=1 \
 -s ENVIRONMENT=web,worker \
 -s DEFAULT_LIBRARY_FUNCS_TO_INCLUDE="['\$$Browser']" \
+-msimd128 \
 -lidbfs.js \
 -pthread \
 -s PTHREAD_POOL_SIZE=1
