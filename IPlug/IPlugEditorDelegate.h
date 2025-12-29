@@ -314,6 +314,10 @@ public:
   int GetMinHeight() const { return mMinHeight; }
   int GetMaxHeight() const { return mMaxHeight; }
 
+  /** @return true if the plug-in supports host-initiated resizing.
+   * Override in plugin class to return the actual PLUG_HOST_RESIZE value. */
+  virtual bool GetHostResizeEnabled() const { return false; }
+
   /** Constrain the incoming editor width and height values based on the minimum and maximum
    * @param w the incoming width value to test/set if clipping needed
    * @param h the incoming height value to test/set if clipping needed

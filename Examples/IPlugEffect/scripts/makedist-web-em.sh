@@ -126,6 +126,14 @@ fi
 sed -i.bak s/"MAXNINPUTS_PLACEHOLDER"/"$MAXNINPUTS"/g index.html
 sed -i.bak s/"MAXNOUTPUTS_PLACEHOLDER"/"$MAXNOUTPUTS"/g index.html
 
+# Check if plugin supports host resize
+HOST_RESIZE=$(grep -E "^\s*#define\s+PLUG_HOST_RESIZE\s+" "$PROJECT_ROOT/config.h" | awk '{print $3}')
+if [ "$HOST_RESIZE" = "1" ]; then
+  sed -i.bak s/HOST_RESIZE_CLASS_PLACEHOLDER/resizable/g index.html
+else
+  sed -i.bak s/HOST_RESIZE_CLASS_PLACEHOLDER//g index.html
+fi
+
 # Comment out resource scripts that don't exist
 if [ $FOUND_FONTS -eq "0" ]; then sed -i.bak s/'<script async src="fonts.js"><\/script>'/'<!--<script async src="fonts.js"><\/script>-->'/g index.html; fi
 if [ $FOUND_SVGS -eq "0" ]; then sed -i.bak s/'<script async src="svgs.js"><\/script>'/'<!--<script async src="svgs.js"><\/script>-->'/g index.html; fi

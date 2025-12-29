@@ -20,21 +20,32 @@ html, body {
   user-select: none;
 }
 
-/* Full-page canvas container */
+/* Canvas container - centered by default (fixed-size plugins) */
 #canvas-container {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 #canvas {
-  width: 100%;
-  height: 100%;
   display: block;
   outline: none;
   border: none;
+}
+
+/* Resizable plugins: canvas fills container */
+body.resizable #canvas-container {
+  display: block;
+}
+
+body.resizable #canvas {
+  width: 100%;
+  height: 100%;
 }
 
 /* Floating control panel */
