@@ -305,7 +305,106 @@ class IPlugController {
   }
 }
 
+/**
+ * IPlugWebComponent - Base class for creating iPlug2 web components with Shadow DOM
+ *
+ * @example
+ * ```javascript
+ * class MyPluginElement extends IPlugWebComponent {
+ *   get pluginName() { return 'MyPlugin'; }
+ *   get wasmPath() { return './MyPlugin.js'; }
+ * }
+ * customElements.define('my-plugin', MyPluginElement);
+ *
+ * // Usage in HTML:
+ * <my-plugin></my-plugin>
+ * ```
+ */
+class IPlugWebComponent extends HTMLElement {
+  constructor() {
+    super();
+    this.attachShadow({ mode: 'open' });
+    this._module = null;
+    this._controller = null;
+    this._canvas = null;
+  }
+
+  /** Override to return your plugin name */
+  get pluginName() {
+    return 'IPlugPlugin';
+  }
+
+  /** Override to return path to the WASM JS file */
+  get wasmPath() {
+    return `./${this.pluginName}.js`;
+  }
+
+  async connectedCallback() {
+    // Create canvas in shadow DOM
+    this._canvas = document.createElement('canvas');
+    this._canvas.style.width = '100%';
+    this._canvas.style.height = '100%';
+    this._canvas.oncontextmenu = e => e.preventDefault();
+    this.shadowRoot.appendChild(this._canvas);
+
+    // Load WASM module with isolated Module instance
+    await this._loadModule();
+  }
+
+  disconnectedCallback() {
+    if (this._controller) {
+      this._controller.destroy();
+    }
+  }
+
+  async _loadModule() {
+    // Create isolated Module instance for this web component
+    const shadowRoot = this.shadowRoot;
+    const canvas = this._canvas;
+
+    // Module configuration - isolated per instance
+    this._module = {
+      canvas: canvas,
+      // Shadow DOM canvas getter for C++ code
+      getCanvas: () => canvas,
+      shadowDOMRoot: shadowRoot,
+      shadowDOMContainer: shadowRoot,
+      printErr: text => console.error(`[${this.pluginName}] stderr:`, text),
+      print: text => console.log(`[${this.pluginName}] stdout:`, text),
+    };
+
+    // Load the WASM script
+    const script = document.createElement('script');
+    script.src = this.wasmPath;
+
+    // Make Module available to the script
+    const originalModule = window.Module;
+    window.Module = this._module;
+
+    await new Promise((resolve, reject) => {
+      script.onload = resolve;
+      script.onerror = reject;
+      document.head.appendChild(script);
+    });
+
+    // Restore original Module
+    if (originalModule) {
+      window.Module = originalModule;
+    }
+
+    // Create controller for this instance
+    this._controller = new IPlugController(this.pluginName, this._module);
+    await this._controller.init();
+  }
+
+  /** Get the controller instance for this plugin */
+  get controller() {
+    return this._controller;
+  }
+}
+
 // Export for use as global or module
 if (typeof window !== 'undefined') {
   window.IPlugController = IPlugController;
+  window.IPlugWebComponent = IPlugWebComponent;
 }
