@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IPlugSvelteUI</title>
+</head>
+<body>
+  <!-- Svelte app mounts here -->
+  <div id="app"></div>
+
+  <!-- Audio controls - styled by Svelte or inline -->
+  <div id="audio-controls" style="position: fixed; bottom: 10px; left: 10px; z-index: 1000; background: rgba(0,0,0,0.7); padding: 10px; border-radius: 5px;">
+    <button type="button" id="startBtn" disabled style="padding: 8px 16px; cursor: pointer;">Start Audio</button>
+    <span id="status" style="color: white; margin-left: 10px;">Loading...</span>
+  </div>
+
+  <!-- WASM Module setup - inline to avoid Vite bundling -->
+  <script>
+    const PLUGIN_NAME = "IPlugSvelteUI";
+
+    // Make controller available globally for Svelte
+    window.pluginController = null;
+
+    var Module = {
+      preRun: [],
+      postRun: [],
+      print: function(text) { console.log('[WASM]', text); },
+      printErr: function(text) { console.error('[WASM]', text); },
+      onRuntimeInitialized: function() {
+        document.getElementById('status').textContent = 'WASM loaded, click Start';
+        document.getElementById('startBtn').disabled = false;
+      }
+    };
+
+    async function startWebAudio() {
+      document.getElementById('status').textContent = 'Starting...';
+      document.getElementById('startBtn').disabled = true;
+
+      const controller = new IPlugController(PLUGIN_NAME);
+      window.pluginController = controller;
+
+      // Bridge controller events to global functions for Svelte
+      controller.on('paramChange', ({ paramIdx, value }) => {
+        if (window.SPVFD) window.SPVFD(paramIdx, value);
+      });
+
+      controller.on('controlValue', ({ ctrlTag, value }) => {
+        if (window.SCVFD) window.SCVFD(ctrlTag, value);
+      });
+
+      controller.on('controlMsg', ({ ctrlTag, msgTag, data }) => {
+        if (window.SCMFD) window.SCMFD(ctrlTag, msgTag, data?.byteLength || 0, data);
+      });
+
+      controller.on('midiMsg', ({ status, data1, data2 }) => {
+        if (window.SMMFD) window.SMMFD(status, data1, data2);
+      });
+
+      controller.onReadyCallback = async () => {
+        // Request mic access for audio input effects
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+          if (Module.audioContext && Module.workletNode) {
+            const audioSource = Module.audioContext.createMediaStreamSource(stream);
+            audioSource.connect(Module.workletNode);
+            console.log('Microphone connected');
+          }
+        } catch (err) {
+          console.log('Mic access denied:', err.message);
+        }
+
+        controller.startAudio();
+        document.getElementById('status').textContent = 'Running';
+        document.getElementById('startBtn').textContent = 'Stop Audio';
+        document.getElementById('startBtn').disabled = false;
+        document.getElementById('startBtn').onclick = stopWebAudio;
+      };
+
+      await controller.init({ sampleRate: 0 });
+    }
+
+    function stopWebAudio() {
+      if (window.pluginController) {
+        window.pluginController.stopAudio();
+        document.getElementById('status').textContent = 'Stopped';
+        document.getElementById('startBtn').textContent = 'Start Audio';
+        document.getElementById('startBtn').onclick = startWebAudio;
+      }
+    }
+
+    document.getElementById('startBtn').onclick = startWebAudio;
+
+    // Auto-start audio on first user interaction anywhere on the page
+    function onFirstInteraction() {
+      document.removeEventListener('click', onFirstInteraction);
+      document.removeEventListener('keydown', onFirstInteraction);
+      document.removeEventListener('touchstart', onFirstInteraction);
+      if (!document.getElementById('startBtn').disabled) {
+        startWebAudio();
+      }
+    }
+    document.addEventListener('click', onFirstInteraction);
+    document.addEventListener('keydown', onFirstInteraction);
+    document.addEventListener('touchstart', onFirstInteraction);
+
+    // Dynamically load external WASM scripts (not bundled by Vite)
+    function loadScript(src) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = src;
+        script.onload = resolve;
+        script.onerror = reject;
+        document.head.appendChild(script);
+      });
+    }
+
+    // Load IPlugController and WASM module
+    (async () => {
+      await loadScript('./scripts/IPlugController.js');
+      await loadScript('./scripts/IPlugSvelteUI-em.js');
+    })();
+  </script>
+
+  <!-- Svelte app entry -->
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>

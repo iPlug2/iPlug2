@@ -15,17 +15,22 @@
     }
   };
 
-  globalThis.SCMFD = (ctrlTag: number, msgTag: number, dataSize: number, msg: string) => {
-    if (ctrlTag === 0) {
-      // Decode base64 to binary string
-      const msgData = atob(msg);
-      
-      // Convert binary string to Uint8Array
-      const bytes = new Uint8Array(msgData.length);
-      for (let i = 0; i < msgData.length; i++) {
-        bytes[i] = msgData.charCodeAt(i);
+  globalThis.SCMFD = (ctrlTag: number, msgTag: number, dataSize: number, msg: ArrayBuffer | string | null) => {
+    if (ctrlTag === 0 && msg) {
+      let bytes: Uint8Array;
+
+      if (msg instanceof ArrayBuffer) {
+        // WASM mode: data is already an ArrayBuffer
+        bytes = new Uint8Array(msg);
+      } else {
+        // WebView mode: data is base64 encoded
+        const msgData = atob(msg);
+        bytes = new Uint8Array(msgData.length);
+        for (let i = 0; i < msgData.length; i++) {
+          bytes[i] = msgData.charCodeAt(i);
+        }
       }
-      
+
       // Create a single Int32Array view for all three integers
       const intView = new Int32Array(bytes.buffer, 0, 3);
       const [controlTag, nChans, chanOffset] = intView;

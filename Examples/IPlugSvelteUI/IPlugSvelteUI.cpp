@@ -6,7 +6,9 @@ IPlugSvelteUI::IPlugSvelteUI(const InstanceInfo& info)
 : iplug::Plugin(info, MakeConfig(kNumParams, kNumPresets))
 {
   GetParam(kGain)->InitGain("Gain", -70., -70, 0.);
-  
+
+#ifndef EM_AUDIOWORKLET_API
+  // WebView-specific initialization (not used in EMAudioWorklet builds)
 //#ifdef DEBUG
   SetCustomUrlScheme("iplug2");
   SetEnableDevTools(true);
@@ -17,7 +19,8 @@ IPlugSvelteUI::IPlugSvelteUI(const InstanceInfo& info)
 //    LoadURL("http://localhost:5173/");
     EnableScroll(false);
   };
-  
+#endif
+
   MakePreset("One", -70.);
   MakePreset("Two", -30.);
   MakePreset("Three", 0.);
