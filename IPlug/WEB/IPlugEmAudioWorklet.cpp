@@ -287,67 +287,25 @@ void IPlugEmAudioWorklet::SendMidiMsgFromUI(const IMidiMsg& msg)
   ProcessMidiMsg(msg);
 }
 
-// IEditorDelegate methods - call base class to update IGraphics controls, then notify JS
+// IEditorDelegate methods - delegate to base class (IGEditorDelegate) for IGraphics control updates
 void IPlugEmAudioWorklet::SendControlValueFromDelegate(int ctrlTag, double normalizedValue)
 {
-  // Call base class to update IGraphics controls
   EDITOR_DELEGATE_CLASS::SendControlValueFromDelegate(ctrlTag, normalizedValue);
-
-  // Also notify JS (for external listeners)
-  EM_ASM({
-    if (Module.SCVFD) Module.SCVFD($0, $1);
-  }, ctrlTag, normalizedValue);
 }
 
 void IPlugEmAudioWorklet::SendControlMsgFromDelegate(int ctrlTag, int msgTag, int dataSize, const void* pData)
 {
-  // Call base class to update IGraphics controls (this is critical for ISender to work)
   EDITOR_DELEGATE_CLASS::SendControlMsgFromDelegate(ctrlTag, msgTag, dataSize, pData);
-
-  // Also notify JS (for external listeners) - only if there's valid data
-  if (dataSize > 0 && pData)
-  {
-    EM_ASM({
-      if (Module.SCMFD) {
-        var data = Module.HEAPU8.slice($2, $2 + $3);
-        Module.SCMFD($0, $1, data);
-      }
-    }, ctrlTag, msgTag, (intptr_t)pData, dataSize);
-  }
 }
 
 void IPlugEmAudioWorklet::SendParameterValueFromDelegate(int paramIdx, double value, bool normalized)
 {
-  // Call base class to update IGraphics controls
   EDITOR_DELEGATE_CLASS::SendParameterValueFromDelegate(paramIdx, value, normalized);
-
-  // Also notify JS (for external listeners)
-  EM_ASM({
-    if (Module.SPVFD) Module.SPVFD($0, $1);
-  }, paramIdx, value);
 }
 
 void IPlugEmAudioWorklet::SendArbitraryMsgFromDelegate(int msgTag, int dataSize, const void* pData)
 {
-  // Call base class
   EDITOR_DELEGATE_CLASS::SendArbitraryMsgFromDelegate(msgTag, dataSize, pData);
-
-  // Also notify JS
-  if (dataSize > 0 && pData)
-  {
-    EM_ASM({
-      if (Module.SAMFD) {
-        var data = Module.HEAPU8.slice($1, $1 + $2);
-        Module.SAMFD($0, data);
-      }
-    }, msgTag, (intptr_t)pData, dataSize);
-  }
-  else
-  {
-    EM_ASM({
-      if (Module.SAMFD) Module.SAMFD($0, null);
-    }, msgTag);
-  }
 }
 
 // Emscripten bindings for JS to call C++ functions
