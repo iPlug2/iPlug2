@@ -1,7 +1,8 @@
 #!/bin/bash
 
 # makedist-web-hybrid.sh builds a Web version of an iPlug2 project using the hybrid approach
-# This creates two separate WASM modules (DSP + UI) with web component support
+# For headless plugins (no IGraphics), only the DSP module is built and the template
+# auto-generates parameter controls.
 #
 # Arguments:
 # 1st argument : either "on" or "off" - whether to launch emrun after compilation
@@ -16,6 +17,12 @@ PROJECT_NAME=IPlugControls
 PROJECT_NAME_LC=$(echo "$PROJECT_NAME" | tr '[:upper:]' '[:lower:]')
 EMRUN_BROWSER=chrome
 LAUNCH_EMRUN=1
+
+# Check if plugin has UI (PLUG_HAS_UI in config.h)
+HAS_UI=0
+if grep -q "PLUG_HAS_UI 1" "$PROJECT_ROOT/config.h" 2>/dev/null; then
+  HAS_UI=1
+fi
 
 cd $PROJECT_ROOT
 
@@ -124,16 +131,26 @@ mv $PROJECT_NAME-dsp.tmp.js $PROJECT_NAME-dsp.js
 
 cd $PROJECT_ROOT/projects
 
-echo ""
-echo "============================================================"
-echo "BUILDING UI WASM MODULE (IGraphics)"
-echo "============================================================"
+# Only build UI module if plugin has IGraphics
+if [ "$HAS_UI" -eq 1 ]; then
+  echo ""
+  echo "============================================================"
+  echo "BUILDING UI WASM MODULE (IGraphics)"
+  echo "============================================================"
 
-emmake make --makefile $PROJECT_NAME-hybrid-ui.mk
+  emmake make --makefile $PROJECT_NAME-hybrid-ui.mk
 
-if [ $? -ne 0 ]; then
-  echo "ERROR: UI WASM compilation failed"
-  exit 1
+  if [ $? -ne 0 ]; then
+    echo "ERROR: UI WASM compilation failed"
+    exit 1
+  fi
+else
+  echo ""
+  echo "============================================================"
+  echo "HEADLESS PLUGIN - NO UI MODULE"
+  echo "============================================================"
+  echo "Plugin has PLUG_HAS_UI=0, skipping UI WASM build."
+  echo "Parameter controls will be auto-generated in browser."
 fi
 
 cd $PROJECT_ROOT/build-web-hybrid
@@ -168,7 +185,13 @@ sed -i.bak "s/MAXNINPUTS_PLACEHOLDER/$MAXNINPUTS/g" scripts/$PROJECT_NAME-bundle
 sed -i.bak "s/MAXNOUTPUTS_PLACEHOLDER/$MAXNOUTPUTS/g" scripts/$PROJECT_NAME-bundle.js
 sed -i.bak "s/IS_INSTRUMENT_PLACEHOLDER/$IS_INSTRUMENT/g" scripts/$PROJECT_NAME-bundle.js
 sed -i.bak "s/HOST_RESIZE_PLACEHOLDER/$HOST_RESIZE/g" scripts/$PROJECT_NAME-bundle.js
-sed -i.bak "s/HAS_UI_PLACEHOLDER/true/g" scripts/$PROJECT_NAME-bundle.js
+
+# Set HAS_UI placeholder based on PLUG_HAS_UI
+if [ "$HAS_UI" -eq 1 ]; then
+  sed -i.bak "s/HAS_UI_PLACEHOLDER/true/g" scripts/$PROJECT_NAME-bundle.js
+else
+  sed -i.bak "s/HAS_UI_PLACEHOLDER/false/g" scripts/$PROJECT_NAME-bundle.js
+fi
 
 # Copy and process processor template
 # IMPORTANT: Replace NAME_PLACEHOLDER_LC first (longer match) before NAME_PLACEHOLDER
