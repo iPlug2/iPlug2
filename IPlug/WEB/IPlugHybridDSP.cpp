@@ -123,40 +123,72 @@ bool IPlugHybridDSP::SendSysEx(const ISysEx& msg)
 
 void IPlugHybridDSP::SendControlValueFromDelegate(int ctrlTag, double normalizedValue)
 {
-  EM_ASM({
-    Module.port.postMessage({
-      verb: 'SCVFD',
-      ctrlTag: $0,
-      value: $1
-    });
+  // Try SAB first for low-latency visualization data
+  bool usedSAB = EM_ASM_INT({
+    if (Module.processor && Module.processor.sabBuffer) {
+      // Pack value as float
+      var ptr = Module._malloc(4);
+      Module.HEAPF32[ptr >> 2] = $1;
+      var result = Module.processor._writeSABMessage(0, $0, 0, ptr, 4);
+      Module._free(ptr);
+      return result ? 1 : 0;
+    }
+    return 0;
   }, ctrlTag, normalizedValue);
+
+  // Fallback to postMessage
+  if (!usedSAB) {
+    EM_ASM({
+      Module.port.postMessage({
+        verb: 'SCVFD',
+        ctrlTag: $0,
+        value: $1
+      });
+    }, ctrlTag, normalizedValue);
+  }
 }
 
 void IPlugHybridDSP::SendControlMsgFromDelegate(int ctrlTag, int msgTag, int dataSize, const void* pData)
 {
+  // Try SAB first for low-latency visualization data
+  bool usedSAB = false;
   if (dataSize > 0 && pData)
   {
-    EM_ASM({
-      var data = new Uint8Array($3);
-      data.set(HEAPU8.subarray($2, $2 + $3));
-      Module.port.postMessage({
-        verb: 'SCMFD',
-        ctrlTag: $0,
-        msgTag: $1,
-        data: data.buffer
-      });
+    usedSAB = EM_ASM_INT({
+      if (Module.processor && Module.processor.sabBuffer) {
+        return Module.processor._writeSABMessage(1, $0, $1, $2, $3) ? 1 : 0;
+      }
+      return 0;
     }, ctrlTag, msgTag, reinterpret_cast<intptr_t>(pData), dataSize);
   }
-  else
+
+  // Fallback to postMessage
+  if (!usedSAB)
   {
-    EM_ASM({
-      Module.port.postMessage({
-        verb: 'SCMFD',
-        ctrlTag: $0,
-        msgTag: $1,
-        data: null
-      });
-    }, ctrlTag, msgTag);
+    if (dataSize > 0 && pData)
+    {
+      EM_ASM({
+        var data = new Uint8Array($3);
+        data.set(HEAPU8.subarray($2, $2 + $3));
+        Module.port.postMessage({
+          verb: 'SCMFD',
+          ctrlTag: $0,
+          msgTag: $1,
+          data: data.buffer
+        });
+      }, ctrlTag, msgTag, reinterpret_cast<intptr_t>(pData), dataSize);
+    }
+    else
+    {
+      EM_ASM({
+        Module.port.postMessage({
+          verb: 'SCMFD',
+          ctrlTag: $0,
+          msgTag: $1,
+          data: null
+        });
+      }, ctrlTag, msgTag);
+    }
   }
 }
 
@@ -173,27 +205,43 @@ void IPlugHybridDSP::SendParameterValueFromDelegate(int paramIdx, double value, 
 
 void IPlugHybridDSP::SendArbitraryMsgFromDelegate(int msgTag, int dataSize, const void* pData)
 {
+  // Try SAB first for low-latency visualization data
+  bool usedSAB = false;
   if (dataSize > 0 && pData)
   {
-    EM_ASM({
-      var data = new Uint8Array($2);
-      data.set(HEAPU8.subarray($1, $1 + $2));
-      Module.port.postMessage({
-        verb: 'SAMFD',
-        msgTag: $0,
-        data: data.buffer
-      });
+    usedSAB = EM_ASM_INT({
+      if (Module.processor && Module.processor.sabBuffer) {
+        return Module.processor._writeSABMessage(2, 0, $0, $1, $2) ? 1 : 0;
+      }
+      return 0;
     }, msgTag, reinterpret_cast<intptr_t>(pData), dataSize);
   }
-  else
+
+  // Fallback to postMessage
+  if (!usedSAB)
   {
-    EM_ASM({
-      Module.port.postMessage({
-        verb: 'SAMFD',
-        msgTag: $0,
-        data: null
-      });
-    }, msgTag);
+    if (dataSize > 0 && pData)
+    {
+      EM_ASM({
+        var data = new Uint8Array($2);
+        data.set(HEAPU8.subarray($1, $1 + $2));
+        Module.port.postMessage({
+          verb: 'SAMFD',
+          msgTag: $0,
+          data: data.buffer
+        });
+      }, msgTag, reinterpret_cast<intptr_t>(pData), dataSize);
+    }
+    else
+    {
+      EM_ASM({
+        Module.port.postMessage({
+          verb: 'SAMFD',
+          msgTag: $0,
+          data: null
+        });
+      }, msgTag);
+    }
   }
 }
 

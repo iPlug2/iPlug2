@@ -23,6 +23,12 @@ class NAME_PLACEHOLDERProcessor extends AudioWorkletProcessor {
     this.inputPtrArray = 0;
     this.outputPtrArray = 0;
 
+    // SharedArrayBuffer for low-latency visualization data (optional)
+    this.sabBuffer = null;
+    this.sabDataView = null;
+    this.sabWriteIdx = null;
+    this.sabCapacity = 0;
+
     // Get the Module from globalThis (loaded by addModule)
     this.Module = globalThis.Module;
 
@@ -33,6 +39,9 @@ class NAME_PLACEHOLDERProcessor extends AudioWorkletProcessor {
 
     // Give WASM access to the message port (like WAM SDK does)
     this.Module.port = this.port;
+
+    // Give WASM access to processor for SAB writes
+    this.Module.processor = this;
 
     // Allocate audio buffers in WASM memory
     this._allocateBuffers();
@@ -114,7 +123,66 @@ class NAME_PLACEHOLDERProcessor extends AudioWorkletProcessor {
       case 'tick':
         this.Module.onIdleTick();
         break;
+
+      case 'attachSAB':
+        // Attach SharedArrayBuffer for low-latency visualization data
+        this.sabBuffer = msg.sab;
+        this.sabDataView = new DataView(msg.sab);
+        this.sabWriteIdx = new Uint32Array(msg.sab, 0, 1);
+        this.sabCapacity = this.sabDataView.getUint32(8, true);
+        break;
     }
+  }
+
+  /**
+   * Write a message to the SharedArrayBuffer ring buffer
+   * Called by DSP WASM via Module.processor._writeSABMessage()
+   * @param {number} msgType - 0=SCVFD, 1=SCMFD, 2=SAMFD
+   * @param {number} ctrlTag - Control tag
+   * @param {number} msgTag - Message tag (for SCMFD/SAMFD)
+   * @param {number} dataPtr - Pointer to data in WASM memory
+   * @param {number} dataSize - Size of data in bytes
+   * @returns {boolean} true if write succeeded
+   */
+  _writeSABMessage(msgType, ctrlTag, msgTag, dataPtr, dataSize) {
+    if (!this.sabBuffer) return false;
+
+    const headerSize = 16;  // SAB header
+    const msgHeaderSize = 12; // message header (type + reserved + size + ctrlTag + msgTag)
+    const alignedDataSize = (dataSize + 3) & ~3; // 4-byte align
+    const totalMsgSize = msgHeaderSize + alignedDataSize;
+
+    const writeIdx = Atomics.load(this.sabWriteIdx, 0);
+    const readIdx = Atomics.load(new Uint32Array(this.sabBuffer, 4, 1), 0);
+
+    // Check available space (simplified - doesn't handle wraparound edge cases)
+    const available = readIdx <= writeIdx
+      ? this.sabCapacity - writeIdx + readIdx
+      : readIdx - writeIdx;
+
+    if (available < totalMsgSize + 4) return false; // +4 for safety margin
+
+    const offset = headerSize + writeIdx;
+
+    // Write message header
+    this.sabDataView.setUint8(offset, msgType);
+    this.sabDataView.setUint8(offset + 1, 0); // reserved
+    this.sabDataView.setUint16(offset + 2, dataSize, true);
+    this.sabDataView.setInt32(offset + 4, ctrlTag, true);
+    this.sabDataView.setInt32(offset + 8, msgTag, true);
+
+    // Copy payload from WASM memory to SAB
+    if (dataSize > 0 && dataPtr) {
+      const src = new Uint8Array(this.Module.HEAPU8.buffer, dataPtr, dataSize);
+      const dst = new Uint8Array(this.sabBuffer, offset + msgHeaderSize, dataSize);
+      dst.set(src);
+    }
+
+    // Update write index atomically (with wraparound)
+    const nextWrite = (writeIdx + totalMsgSize) % this.sabCapacity;
+    Atomics.store(this.sabWriteIdx, 0, nextWrite);
+
+    return true;
   }
 
   process(inputs, outputs, parameters) {
