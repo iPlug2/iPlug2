@@ -30,6 +30,7 @@
     const pluginElement = document.querySelector('iplug-NAME_PLACEHOLDER_LC');
     let audioStarted = false;
     let testOscillator = null;
+    let audioContext = null;
 
     // Wait for UI to be ready
     pluginElement.addEventListener('uiready', () => {
@@ -48,7 +49,20 @@
     document.getElementById('startBtn').addEventListener('click', async () => {
       if (!audioStarted) {
         try {
-          const controller = await pluginElement.initAudio();
+          // Option 1: Simple - let the component create AudioContext
+          // const controller = await pluginElement.initAudio();
+
+          // Option 2: External AudioContext - more control
+          audioContext = new AudioContext({ latencyHint: 'interactive' });
+          const controller = new IPlugHybridController('NAME_PLACEHOLDER');
+          await controller.init({
+            audioContext: audioContext,
+            numInputChannels: pluginElement.numInputs,
+            numOutputChannels: pluginElement.numOutputs,
+            isInstrument: pluginElement.isInstrument
+          });
+          pluginElement.connectController(controller);
+
           controller.startAudio();
         } catch (err) {
           console.error('Failed to start audio:', err);

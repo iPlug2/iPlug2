@@ -10,17 +10,22 @@
 
 class IPlugHybridController {
   /**
-   * Create a new IPlugHybridController
-   * @param {string} pluginName - The plugin name (used for script paths)
-   * @param {Object} uiModule - Reference to the UI WASM Module (optional)
+   * Create a controller for DSP/UI communication
+   * @param {string} pluginName - Plugin name (for script paths)
+   * @param {Object} options - Configuration options
+   * @param {Module} options.uiModule - Reference to UI WASM Module
+   * @param {string} options.baseUrl - Base URL for loading scripts (default: '')
    */
-  constructor(pluginName, uiModule = null) {
+  constructor(pluginName, options = {}) {
     this.pluginName = pluginName;
     this.pluginNameLC = pluginName.toLowerCase();
-    this.uiModule = uiModule;
+    this.uiModule = options.uiModule || options; // backwards compat: options can be uiModule directly
+    if (this.uiModule === options) this.uiModule = null;
+    this.baseUrl = options.baseUrl || '';
     this.audioContext = null;
     this.workletNode = null;
     this.isReady = false;
+    this._ownsContext = false;
 
     // Event listeners
     this._listeners = new Map();
@@ -41,77 +46,91 @@ class IPlugHybridController {
   }
 
   /**
-   * Initialize the audio system
+   * Initialize the DSP worklet
    * @param {Object} options - Initialization options
-   * @param {number} options.sampleRate - Desired sample rate (0 = use default)
+   * @param {AudioContext} options.audioContext - Existing AudioContext (creates new if not provided)
+   * @param {number} options.sampleRate - Desired sample rate (only used if creating new context)
    * @param {number} options.numInputChannels - Number of input channels
    * @param {number} options.numOutputChannels - Number of output channels
    * @param {boolean} options.isInstrument - Whether plugin is an instrument
-   * @returns {Promise} Resolves when audio is ready
+   * @param {boolean} options.connectToOutput - Auto-connect to destination (default: true)
+   * @returns {Promise<AudioWorkletNode>} The created worklet node
    */
   async init(options = {}) {
     this.numInputChannels = options.numInputChannels ?? 0;
     this.numOutputChannels = options.numOutputChannels ?? 2;
     this.isInstrument = options.isInstrument ?? false;
+    const connectToOutput = options.connectToOutput ?? true;
 
-    return new Promise(async (resolve, reject) => {
-      try {
-        // Create AudioContext
-        const contextOptions = {
-          latencyHint: 'interactive'
-        };
+    try {
+      // Use provided AudioContext or create new one
+      if (options.audioContext) {
+        this.audioContext = options.audioContext;
+        this._ownsContext = false;
+      } else {
+        const contextOptions = { latencyHint: 'interactive' };
         if (options.sampleRate && options.sampleRate > 0) {
           contextOptions.sampleRate = options.sampleRate;
         }
-
         this.audioContext = new AudioContext(contextOptions);
-
-        // Load the DSP module into AudioWorklet
-        // The DSP module is a single JS file with embedded WASM (SINGLE_FILE=1)
-        const dspModuleUrl = `scripts/${this.pluginName}-dsp.js`;
-        await this.audioContext.audioWorklet.addModule(dspModuleUrl);
-
-        // Load our processor wrapper
-        const processorUrl = `scripts/${this.pluginName}-processor.js`;
-        await this.audioContext.audioWorklet.addModule(processorUrl);
-
-        // Create the AudioWorkletNode
-        this.workletNode = new AudioWorkletNode(
-          this.audioContext,
-          `${this.pluginNameLC}-processor`,
-          {
-            numberOfInputs: this.numInputChannels > 0 ? 1 : 0,
-            numberOfOutputs: 1,
-            outputChannelCount: [this.numOutputChannels],
-            processorOptions: {
-              numInputChannels: this.numInputChannels,
-              numOutputChannels: this.numOutputChannels,
-              isInstrument: this.isInstrument
-            }
-          }
-        );
-
-        // Handle messages from DSP (via processor port)
-        this.workletNode.port.onmessage = this._onDSPMessage.bind(this);
-
-        // Connect to destination
-        this.workletNode.connect(this.audioContext.destination);
-
-        this.isReady = true;
-
-        // Start idle timer
-        this._startIdleTimer();
-
-        // Notify listeners
-        this.emit('ready');
-        if (this.onReadyCallback) this.onReadyCallback();
-
-        resolve();
-      } catch (err) {
-        console.error('IPlugHybridController: init failed', err);
-        reject(err);
+        this._ownsContext = true;
       }
-    });
+
+      // Load the DSP module into AudioWorklet
+      const baseUrl = this.baseUrl ? this.baseUrl.replace(/\/$/, '') + '/' : '';
+      const dspModuleUrl = `${baseUrl}scripts/${this.pluginName}-dsp.js`;
+      await this.audioContext.audioWorklet.addModule(dspModuleUrl);
+
+      // Load our processor wrapper
+      const processorUrl = `${baseUrl}scripts/${this.pluginName}-processor.js`;
+      await this.audioContext.audioWorklet.addModule(processorUrl);
+
+      // Create the AudioWorkletNode
+      this.workletNode = new AudioWorkletNode(
+        this.audioContext,
+        `${this.pluginNameLC}-processor`,
+        {
+          numberOfInputs: this.numInputChannels > 0 ? 1 : 0,
+          numberOfOutputs: 1,
+          outputChannelCount: [this.numOutputChannels],
+          processorOptions: {
+            numInputChannels: this.numInputChannels,
+            numOutputChannels: this.numOutputChannels,
+            isInstrument: this.isInstrument
+          }
+        }
+      );
+
+      // Handle messages from DSP (via processor port)
+      this.workletNode.port.onmessage = this._onDSPMessage.bind(this);
+
+      // Connect to destination
+      if (connectToOutput) {
+        this.workletNode.connect(this.audioContext.destination);
+      }
+
+      this.isReady = true;
+
+      // Start idle timer
+      this._startIdleTimer();
+
+      // Notify listeners
+      this.emit('ready');
+      if (this.onReadyCallback) this.onReadyCallback();
+
+      return this.workletNode;
+    } catch (err) {
+      console.error('IPlugHybridController: init failed', err);
+      throw err;
+    }
+  }
+
+  /**
+   * Connect UI module for bidirectional communication
+   * @param {Module} uiModule - UI WASM Module
+   */
+  connectUI(uiModule) {
+    this.uiModule = uiModule;
   }
 
   /**
@@ -356,7 +375,10 @@ class IPlugHybridController {
    */
   destroy() {
     this.workletNode?.disconnect();
-    this.audioContext?.close();
+    // Only close AudioContext if we created it
+    if (this._ownsContext) {
+      this.audioContext?.close();
+    }
     this._listeners.clear();
     this.isReady = false;
   }
