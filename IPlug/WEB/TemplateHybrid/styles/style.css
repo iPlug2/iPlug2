@@ -43,16 +43,19 @@ iplug-NAME_PLACEHOLDER_LC.resizable {
   background: #2a2a2a;
   border-top: 1px solid #333;
   padding: 0 16px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
 }
 
 #controls button {
   padding: 8px 16px;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
   border: none;
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.15s ease;
+  white-space: nowrap;
 }
 
 #controls button:disabled {
@@ -83,6 +86,176 @@ iplug-NAME_PLACEHOLDER_LC.resizable {
   color: white;
 }
 
+/* Control groups */
+.control-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.control-group label {
+  font-size: 12px;
+  color: #888;
+  white-space: nowrap;
+}
+
+.control-group select {
+  padding: 6px 10px;
+  font-size: 13px;
+  border: 1px solid #444;
+  border-radius: 4px;
+  background: #333;
+  color: #fff;
+  cursor: pointer;
+}
+
+.control-group select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Separator */
+.separator {
+  width: 1px;
+  height: 24px;
+  background: #444;
+  margin: 0 4px;
+}
+
+/* Hidden class */
+.hidden {
+  display: none !important;
+}
+
+/* Frequency sliders */
+.freq-slider {
+  width: 80px;
+  accent-color: #6366f1;
+}
+
+.freq-val {
+  font-size: 11px;
+  color: #6366f1;
+  min-width: 32px;
+  text-align: right;
+  font-family: monospace;
+}
+
+/* Link button */
+.link-btn {
+  padding: 4px 8px !important;
+  font-size: 14px !important;
+  background: #333;
+  color: #666;
+  border-radius: 4px !important;
+  min-width: 32px;
+}
+
+.link-btn:hover {
+  background: #444;
+  color: #888;
+}
+
+.link-btn.active {
+  background: #6366f1;
+  color: white;
+}
+
+/* File controls */
+#loadFileBtn,
+#playPauseBtn {
+  background: #444;
+  color: #ccc;
+  padding: 6px 12px;
+}
+
+#loadFileBtn:hover,
+#playPauseBtn:hover:not(:disabled) {
+  background: #555;
+  color: white;
+}
+
+.file-name {
+  font-size: 12px;
+  color: #888;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Checkbox styling */
+#loopCheck {
+  width: 14px;
+  height: 14px;
+  accent-color: #6366f1;
+}
+
+/* Gain slider */
+#gainSlider {
+  width: 60px;
+  accent-color: #6366f1;
+}
+
+/* VU Meters */
+.vu-meters {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.vu-meter {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.vu-label {
+  font-size: 10px;
+  color: #666;
+  width: 10px;
+}
+
+.vu-bar-container {
+  width: 80px;
+  height: 8px;
+  background: #222;
+  border-radius: 2px;
+  overflow: hidden;
+  border: 1px solid #333;
+}
+
+.vu-bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #22c55e 0%, #22c55e 100%);
+  transition: width 0.05s ease-out;
+  border-radius: 1px;
+}
+
+.vu-bar.warm {
+  background: linear-gradient(90deg, #22c55e 0%, #eab308 100%);
+}
+
+.vu-bar.hot {
+  background: linear-gradient(90deg, #22c55e 0%, #eab308 60%, #ef4444 100%);
+}
+
+.vu-db {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  font-size: 9px;
+  font-family: monospace;
+  color: #666;
+  min-width: 32px;
+  text-align: right;
+}
+
+.vu-db span {
+  line-height: 1.1;
+}
+
 /* Fullscreen mode */
 :fullscreen {
   background: #1a1a1a;
@@ -94,4 +267,40 @@ iplug-NAME_PLACEHOLDER_LC.resizable {
 
 :fullscreen iplug-NAME_PLACEHOLDER_LC {
   height: 100%;
+}
+
+/* Responsive - hide some controls on small screens */
+@media (max-width: 900px) {
+  .vu-db {
+    display: none;
+  }
+}
+
+@media (max-width: 800px) {
+  .freq-val {
+    display: none;
+  }
+  .freq-slider {
+    width: 60px;
+  }
+  .vu-bar-container {
+    width: 50px;
+  }
+}
+
+@media (max-width: 600px) {
+  #controls {
+    gap: 8px;
+    padding: 0 8px;
+  }
+  #controls button {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+  .separator {
+    display: none;
+  }
+  .vu-meters {
+    display: none;
+  }
 }

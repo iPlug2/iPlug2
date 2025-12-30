@@ -356,14 +356,11 @@ window.Module = window.Module || {
 
             case 1: // SCMFD - Send Control Message From Delegate
               this.emit('controlMsg', { ctrlTag, msgTag, data: payload });
-              console.log('SAB SCMFD received:', ctrlTag, msgTag, payload?.length);
               if (this.uiModule?.SCMFD && this.uiModule?.HEAPU8 && payload) {
                 const ptr = this.uiModule._malloc(payload.length);
                 this.uiModule.HEAPU8.set(payload, ptr);
                 this.uiModule.SCMFD(ctrlTag, msgTag, payload.length, ptr);
                 this.uiModule._free(ptr);
-              } else {
-                console.log('SAB SCMFD not forwarded:', !!this.uiModule?.SCMFD, !!this.uiModule?.HEAPU8, !!payload);
               }
               break;
 

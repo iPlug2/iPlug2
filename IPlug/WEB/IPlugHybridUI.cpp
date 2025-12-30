@@ -142,7 +142,8 @@ static void _StartIdleTimer()
 
 static void _OnParentWindowResize(int width, int height)
 {
-  gPlug->OnParentWindowResize(width, height);
+  if (gPlug)
+    gPlug->OnParentWindowResize(width, height);
 }
 
 EMSCRIPTEN_BINDINGS(IPlugHybridUI) {

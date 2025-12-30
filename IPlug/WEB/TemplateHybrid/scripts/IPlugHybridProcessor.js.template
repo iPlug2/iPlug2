@@ -203,7 +203,6 @@ class NAME_PLACEHOLDERProcessor extends AudioWorkletProcessor {
       const nextWrite = actualWriteIdx + totalMsgSize;
       Atomics.store(this.sabWriteIdx, 0, nextWrite);
 
-      console.log('SAB write success:', msgType, ctrlTag, dataSize, 'writeIdx now:', nextWrite);
       return true;
     } catch (e) {
       console.error('_writeSABMessage error:', e);

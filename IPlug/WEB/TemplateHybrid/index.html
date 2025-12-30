@@ -22,37 +22,232 @@
   <!-- Audio Controls -->
   <div id="controls">
     <button id="startBtn" disabled>Start Audio</button>
-    <button id="testToneBtn" disabled>Test Tone</button>
+
+    <div class="separator"></div>
+
+    <!-- Source Selection -->
+    <div class="control-group">
+      <label>Source</label>
+      <select id="sourceSelect" disabled>
+        <option value="none">None</option>
+        <option value="tone">Test Tone</option>
+        <option value="noise">Noise</option>
+        <option value="file">Audio File</option>
+      </select>
+    </div>
+
+    <!-- Tone Controls (shown when tone selected) -->
+    <div id="toneControls" class="control-group hidden">
+      <label>Wave</label>
+      <select id="waveformSelect">
+        <option value="sine">Sine</option>
+        <option value="sawtooth" selected>Saw</option>
+        <option value="square">Square</option>
+        <option value="triangle">Tri</option>
+      </select>
+      <label>L</label>
+      <input type="range" id="freqL" min="20" max="2000" value="220" class="freq-slider">
+      <span id="freqLVal" class="freq-val">220</span>
+      <button id="linkBtn" class="link-btn" title="Link L/R frequencies">&#x1F517;</button>
+      <label>R</label>
+      <input type="range" id="freqR" min="20" max="2000" value="277" class="freq-slider">
+      <span id="freqRVal" class="freq-val">277</span>
+    </div>
+
+    <!-- File Controls (shown when file selected) -->
+    <div id="fileControls" class="control-group hidden">
+      <button id="loadFileBtn">Load File</button>
+      <span id="fileName" class="file-name">No file loaded</span>
+      <button id="playPauseBtn" disabled>Play</button>
+      <input type="checkbox" id="loopCheck" checked>
+      <label for="loopCheck">Loop</label>
+    </div>
+
+    <!-- Gain (always visible when source active) -->
+    <div id="gainControl" class="control-group hidden">
+      <label>Gain</label>
+      <input type="range" id="gainSlider" min="0" max="100" value="50">
+    </div>
+
+    <div class="separator"></div>
+
+    <!-- VU Meters -->
+    <div id="vuMeters" class="vu-meters hidden">
+      <div class="vu-meter">
+        <div class="vu-label">L</div>
+        <div class="vu-bar-container">
+          <div id="vuL" class="vu-bar"></div>
+        </div>
+      </div>
+      <div class="vu-meter">
+        <div class="vu-label">R</div>
+        <div class="vu-bar-container">
+          <div id="vuR" class="vu-bar"></div>
+        </div>
+      </div>
+      <div class="vu-db">
+        <span id="vuLdB">-inf</span>
+        <span id="vuRdB">-inf</span>
+      </div>
+    </div>
+
+    <div class="separator"></div>
+
     <button id="fullscreenBtn">Fullscreen</button>
   </div>
+
+  <!-- Hidden file input -->
+  <input type="file" id="fileInput" accept="audio/*" style="display: none">
 
   <script>
     const pluginElement = document.querySelector('iplug-NAME_PLACEHOLDER_LC');
     let audioStarted = false;
-    let testOscillator = null;
     let audioContext = null;
+
+    // Audio source nodes
+    let oscillatorL = null;
+    let oscillatorR = null;
+    let noiseNode = null;
+    let fileSource = null;
+    let audioBuffer = null;
+    let gainNode = null;
+    let channelMerger = null;
+    let isFilePlaying = false;
+
+    // Frequency link state
+    let freqLinked = false;
+
+    // VU metering
+    let analyserL = null;
+    let analyserR = null;
+    let channelSplitter = null;
+    let vuAnimationId = null;
+    let vuDataL = null;
+    let vuDataR = null;
+
+    // DOM elements
+    const startBtn = document.getElementById('startBtn');
+    const sourceSelect = document.getElementById('sourceSelect');
+    const toneControls = document.getElementById('toneControls');
+    const fileControls = document.getElementById('fileControls');
+    const gainControl = document.getElementById('gainControl');
+    const waveformSelect = document.getElementById('waveformSelect');
+    const freqL = document.getElementById('freqL');
+    const freqR = document.getElementById('freqR');
+    const freqLVal = document.getElementById('freqLVal');
+    const freqRVal = document.getElementById('freqRVal');
+    const linkBtn = document.getElementById('linkBtn');
+    const loadFileBtn = document.getElementById('loadFileBtn');
+    const fileInput = document.getElementById('fileInput');
+    const fileName = document.getElementById('fileName');
+    const playPauseBtn = document.getElementById('playPauseBtn');
+    const loopCheck = document.getElementById('loopCheck');
+    const gainSlider = document.getElementById('gainSlider');
+    const fullscreenBtn = document.getElementById('fullscreenBtn');
+    const vuMeters = document.getElementById('vuMeters');
+    const vuLBar = document.getElementById('vuL');
+    const vuRBar = document.getElementById('vuR');
+    const vuLdB = document.getElementById('vuLdB');
+    const vuRdB = document.getElementById('vuRdB');
 
     // Wait for UI to be ready
     pluginElement.addEventListener('uiready', () => {
-      document.getElementById('startBtn').disabled = false;
+      startBtn.disabled = false;
     });
 
     // Wait for audio to be ready
     pluginElement.addEventListener('audioready', (e) => {
       console.log('Audio ready:', e.detail.controller);
-      document.getElementById('startBtn').textContent = 'Stop Audio';
-      document.getElementById('testToneBtn').disabled = false;
+      startBtn.textContent = 'Stop Audio';
+      sourceSelect.disabled = false;
       audioStarted = true;
+
+      const ctx = pluginElement.controller.getAudioContext();
+      const workletNode = pluginElement.controller.getWorkletNode();
+
+      // Create gain node for input
+      gainNode = ctx.createGain();
+      gainNode.gain.value = 0.5;
+      gainNode.connect(workletNode);
+
+      // Create channel merger for stereo input
+      channelMerger = ctx.createChannelMerger(2);
+      channelMerger.connect(gainNode);
+
+      // Create VU metering chain on output
+      channelSplitter = ctx.createChannelSplitter(2);
+      workletNode.connect(channelSplitter);
+
+      analyserL = ctx.createAnalyser();
+      analyserL.fftSize = 256;
+      analyserL.smoothingTimeConstant = 0.8;
+      channelSplitter.connect(analyserL, 0);
+
+      analyserR = ctx.createAnalyser();
+      analyserR.fftSize = 256;
+      analyserR.smoothingTimeConstant = 0.8;
+      channelSplitter.connect(analyserR, 1);
+
+      vuDataL = new Float32Array(analyserL.fftSize);
+      vuDataR = new Float32Array(analyserR.fftSize);
+
+      // Show VU meters and start animation
+      vuMeters.classList.remove('hidden');
+      startVuMetering();
     });
 
+    function startVuMetering() {
+      function updateVu() {
+        if (!analyserL || !analyserR) return;
+
+        analyserL.getFloatTimeDomainData(vuDataL);
+        analyserR.getFloatTimeDomainData(vuDataR);
+
+        // Calculate RMS
+        let sumL = 0, sumR = 0;
+        for (let i = 0; i < vuDataL.length; i++) {
+          sumL += vuDataL[i] * vuDataL[i];
+          sumR += vuDataR[i] * vuDataR[i];
+        }
+        const rmsL = Math.sqrt(sumL / vuDataL.length);
+        const rmsR = Math.sqrt(sumR / vuDataR.length);
+
+        // Convert to dB
+        const dbL = rmsL > 0 ? 20 * Math.log10(rmsL) : -100;
+        const dbR = rmsR > 0 ? 20 * Math.log10(rmsR) : -100;
+
+        // Map dB to percentage (range: -60dB to 0dB)
+        const minDb = -60;
+        const pctL = Math.max(0, Math.min(100, ((dbL - minDb) / -minDb) * 100));
+        const pctR = Math.max(0, Math.min(100, ((dbR - minDb) / -minDb) * 100));
+
+        vuLBar.style.width = pctL + '%';
+        vuRBar.style.width = pctR + '%';
+
+        // Color based on level
+        vuLBar.className = 'vu-bar' + (dbL > -6 ? ' hot' : dbL > -12 ? ' warm' : '');
+        vuRBar.className = 'vu-bar' + (dbR > -6 ? ' hot' : dbR > -12 ? ' warm' : '');
+
+        // Update dB display
+        vuLdB.textContent = dbL > -100 ? dbL.toFixed(1) : '-inf';
+        vuRdB.textContent = dbR > -100 ? dbR.toFixed(1) : '-inf';
+
+        vuAnimationId = requestAnimationFrame(updateVu);
+      }
+      updateVu();
+    }
+
+    function stopVuMetering() {
+      if (vuAnimationId) {
+        cancelAnimationFrame(vuAnimationId);
+        vuAnimationId = null;
+      }
+    }
+
     // Start/stop audio button
-    document.getElementById('startBtn').addEventListener('click', async () => {
+    startBtn.addEventListener('click', async () => {
       if (!audioStarted) {
         try {
-          // Option 1: Simple - let the component create AudioContext
-          // const controller = await pluginElement.initAudio();
-
-          // Option 2: External AudioContext - more control
           audioContext = new AudioContext({ latencyHint: 'interactive' });
           const controller = new IPlugHybridController('NAME_PLACEHOLDER');
           await controller.init({
@@ -62,57 +257,228 @@
             isInstrument: pluginElement.isInstrument
           });
           pluginElement.connectController(controller);
-
           controller.startAudio();
         } catch (err) {
           console.error('Failed to start audio:', err);
           alert('Failed to start audio. Make sure your browser supports AudioWorklet.');
         }
       } else {
+        stopCurrentSource();
+        stopVuMetering();
         const controller = pluginElement.controller;
         if (controller) {
-          if (testOscillator) {
-            testOscillator.stop();
-            testOscillator = null;
-          }
           controller.stopAudio();
-          document.getElementById('startBtn').textContent = 'Start Audio';
-          document.getElementById('testToneBtn').disabled = true;
+          startBtn.textContent = 'Start Audio';
+          sourceSelect.disabled = true;
+          sourceSelect.value = 'none';
+          updateSourceControls();
+          vuMeters.classList.add('hidden');
           audioStarted = false;
         }
       }
     });
 
-    // Test tone button (for effects that need audio input)
-    document.getElementById('testToneBtn').addEventListener('click', () => {
-      const controller = pluginElement.controller;
-      if (!controller) return;
+    // Source selection
+    sourceSelect.addEventListener('change', () => {
+      stopCurrentSource();
+      updateSourceControls();
+      startCurrentSource();
+    });
 
-      if (testOscillator) {
-        testOscillator.stop();
-        testOscillator = null;
-        document.getElementById('testToneBtn').textContent = 'Test Tone';
+    function updateSourceControls() {
+      const source = sourceSelect.value;
+      toneControls.classList.toggle('hidden', source !== 'tone');
+      fileControls.classList.toggle('hidden', source !== 'file');
+      gainControl.classList.toggle('hidden', source === 'none');
+    }
+
+    function stopCurrentSource() {
+      if (oscillatorL) {
+        oscillatorL.stop();
+        oscillatorL = null;
+      }
+      if (oscillatorR) {
+        oscillatorR.stop();
+        oscillatorR = null;
+      }
+      if (noiseNode) {
+        noiseNode.disconnect();
+        noiseNode = null;
+      }
+      if (fileSource) {
+        fileSource.stop();
+        fileSource = null;
+        isFilePlaying = false;
+        playPauseBtn.textContent = 'Play';
+      }
+    }
+
+    function startCurrentSource() {
+      const source = sourceSelect.value;
+      const ctx = pluginElement.controller?.getAudioContext();
+      if (!ctx || source === 'none') return;
+
+      if (source === 'tone') {
+        startTone();
+      } else if (source === 'noise') {
+        startNoise();
+      }
+      // File source starts via play button
+    }
+
+    function startTone() {
+      const ctx = pluginElement.controller.getAudioContext();
+      const waveform = waveformSelect.value;
+
+      // Left channel oscillator
+      oscillatorL = ctx.createOscillator();
+      oscillatorL.type = waveform;
+      oscillatorL.frequency.value = parseFloat(freqL.value);
+
+      // Right channel oscillator
+      oscillatorR = ctx.createOscillator();
+      oscillatorR.type = waveform;
+      oscillatorR.frequency.value = parseFloat(freqR.value);
+
+      // Route to channel merger
+      oscillatorL.connect(channelMerger, 0, 0);
+      oscillatorR.connect(channelMerger, 0, 1);
+
+      oscillatorL.start();
+      oscillatorR.start();
+    }
+
+    function startNoise() {
+      const ctx = pluginElement.controller.getAudioContext();
+      const bufferSize = 2 * ctx.sampleRate;
+      const noiseBuffer = ctx.createBuffer(2, bufferSize, ctx.sampleRate);
+
+      for (let channel = 0; channel < 2; channel++) {
+        const data = noiseBuffer.getChannelData(channel);
+        for (let i = 0; i < bufferSize; i++) {
+          data[i] = Math.random() * 2 - 1;
+        }
+      }
+
+      noiseNode = ctx.createBufferSource();
+      noiseNode.buffer = noiseBuffer;
+      noiseNode.loop = true;
+      noiseNode.connect(gainNode);
+      noiseNode.start();
+    }
+
+    function startFilePlayback() {
+      if (!audioBuffer) return;
+
+      const ctx = pluginElement.controller.getAudioContext();
+      fileSource = ctx.createBufferSource();
+      fileSource.buffer = audioBuffer;
+      fileSource.loop = loopCheck.checked;
+      fileSource.connect(gainNode);
+      fileSource.onended = () => {
+        if (!fileSource.loop) {
+          isFilePlaying = false;
+          playPauseBtn.textContent = 'Play';
+          fileSource = null;
+        }
+      };
+      fileSource.start();
+      isFilePlaying = true;
+      playPauseBtn.textContent = 'Stop';
+    }
+
+    // Waveform change
+    waveformSelect.addEventListener('change', () => {
+      if (oscillatorL && oscillatorR) {
+        oscillatorL.type = waveformSelect.value;
+        oscillatorR.type = waveformSelect.value;
+      }
+    });
+
+    // Link button
+    linkBtn.addEventListener('click', () => {
+      freqLinked = !freqLinked;
+      linkBtn.classList.toggle('active', freqLinked);
+      if (freqLinked) {
+        // Sync R to L
+        freqR.value = freqL.value;
+        freqRVal.textContent = freqL.value;
+        if (oscillatorR) oscillatorR.frequency.value = parseFloat(freqL.value);
+      }
+    });
+
+    // Frequency sliders
+    freqL.addEventListener('input', () => {
+      const freq = parseFloat(freqL.value);
+      freqLVal.textContent = freq;
+      if (oscillatorL) oscillatorL.frequency.value = freq;
+      if (freqLinked) {
+        freqR.value = freq;
+        freqRVal.textContent = freq;
+        if (oscillatorR) oscillatorR.frequency.value = freq;
+      }
+    });
+
+    freqR.addEventListener('input', () => {
+      const freq = parseFloat(freqR.value);
+      freqRVal.textContent = freq;
+      if (oscillatorR) oscillatorR.frequency.value = freq;
+      if (freqLinked) {
+        freqL.value = freq;
+        freqLVal.textContent = freq;
+        if (oscillatorL) oscillatorL.frequency.value = freq;
+      }
+    });
+
+    // Gain slider
+    gainSlider.addEventListener('input', () => {
+      if (gainNode) {
+        gainNode.gain.value = parseFloat(gainSlider.value) / 100;
+      }
+    });
+
+    // File loading
+    loadFileBtn.addEventListener('click', () => fileInput.click());
+
+    fileInput.addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      try {
+        const ctx = pluginElement.controller.getAudioContext();
+        const arrayBuffer = await file.arrayBuffer();
+        audioBuffer = await ctx.decodeAudioData(arrayBuffer);
+        fileName.textContent = file.name.length > 20 ? file.name.slice(0, 17) + '...' : file.name;
+        playPauseBtn.disabled = false;
+      } catch (err) {
+        console.error('Failed to load audio file:', err);
+        fileName.textContent = 'Load failed';
+      }
+    });
+
+    // Play/pause file
+    playPauseBtn.addEventListener('click', () => {
+      if (isFilePlaying) {
+        if (fileSource) {
+          fileSource.stop();
+          fileSource = null;
+        }
+        isFilePlaying = false;
+        playPauseBtn.textContent = 'Play';
       } else {
-        const ctx = controller.getAudioContext();
-        const workletNode = controller.getWorkletNode();
+        startFilePlayback();
+      }
+    });
 
-        // Create oscillator -> gain -> plugin input
-        testOscillator = ctx.createOscillator();
-        const gain = ctx.createGain();
-        gain.gain.value = 0.3;
-        testOscillator.type = 'sawtooth';
-        testOscillator.frequency.value = 220;
-
-        testOscillator.connect(gain);
-        gain.connect(workletNode);
-        testOscillator.start();
-
-        document.getElementById('testToneBtn').textContent = 'Stop Tone';
+    // Loop checkbox
+    loopCheck.addEventListener('change', () => {
+      if (fileSource) {
+        fileSource.loop = loopCheck.checked;
       }
     });
 
     // Fullscreen button
-    document.getElementById('fullscreenBtn').addEventListener('click', () => {
+    fullscreenBtn.addEventListener('click', () => {
       if (document.fullscreenElement) {
         document.exitFullscreen();
       } else {
