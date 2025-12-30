@@ -31,6 +31,9 @@ class NAME_PLACEHOLDERProcessor extends AudioWorkletProcessor {
       return;
     }
 
+    // Give WASM access to the message port (like WAM SDK does)
+    this.Module.port = this.port;
+
     // Allocate audio buffers in WASM memory
     this._allocateBuffers();
 

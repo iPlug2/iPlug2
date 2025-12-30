@@ -41,11 +41,6 @@ void IPlugHybridDSP::Init(int sampleRate, int blockSize)
 
   OnParamReset(kReset);
   OnReset();
-
-  // Notify UI that DSP is ready and should start idle timer
-  EM_ASM({
-    self.postMessage({ verb: 'StartIdleTimer' });
-  });
 }
 
 void IPlugHybridDSP::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
@@ -114,11 +109,11 @@ bool IPlugHybridDSP::SendMidiMsg(const IMidiMsg& msg)
 
 bool IPlugHybridDSP::SendSysEx(const ISysEx& msg)
 {
-  // Post SysEx to UI via postMessage
+  // Post SysEx to UI via Module.port (set by processor)
   EM_ASM({
     var data = new Uint8Array($1);
     data.set(HEAPU8.subarray($0, $0 + $1));
-    self.postMessage({
+    Module.port.postMessage({
       verb: 'SSMFD',
       data: data.buffer
     });
@@ -129,7 +124,7 @@ bool IPlugHybridDSP::SendSysEx(const ISysEx& msg)
 void IPlugHybridDSP::SendControlValueFromDelegate(int ctrlTag, double normalizedValue)
 {
   EM_ASM({
-    self.postMessage({
+    Module.port.postMessage({
       verb: 'SCVFD',
       ctrlTag: $0,
       value: $1
@@ -144,7 +139,7 @@ void IPlugHybridDSP::SendControlMsgFromDelegate(int ctrlTag, int msgTag, int dat
     EM_ASM({
       var data = new Uint8Array($3);
       data.set(HEAPU8.subarray($2, $2 + $3));
-      self.postMessage({
+      Module.port.postMessage({
         verb: 'SCMFD',
         ctrlTag: $0,
         msgTag: $1,
@@ -155,7 +150,7 @@ void IPlugHybridDSP::SendControlMsgFromDelegate(int ctrlTag, int msgTag, int dat
   else
   {
     EM_ASM({
-      self.postMessage({
+      Module.port.postMessage({
         verb: 'SCMFD',
         ctrlTag: $0,
         msgTag: $1,
@@ -168,7 +163,7 @@ void IPlugHybridDSP::SendControlMsgFromDelegate(int ctrlTag, int msgTag, int dat
 void IPlugHybridDSP::SendParameterValueFromDelegate(int paramIdx, double value, bool normalized)
 {
   EM_ASM({
-    self.postMessage({
+    Module.port.postMessage({
       verb: 'SPVFD',
       paramIdx: $0,
       value: $1
@@ -183,7 +178,7 @@ void IPlugHybridDSP::SendArbitraryMsgFromDelegate(int msgTag, int dataSize, cons
     EM_ASM({
       var data = new Uint8Array($2);
       data.set(HEAPU8.subarray($1, $1 + $2));
-      self.postMessage({
+      Module.port.postMessage({
         verb: 'SAMFD',
         msgTag: $0,
         data: data.buffer
@@ -193,7 +188,7 @@ void IPlugHybridDSP::SendArbitraryMsgFromDelegate(int msgTag, int dataSize, cons
   else
   {
     EM_ASM({
-      self.postMessage({
+      Module.port.postMessage({
         verb: 'SAMFD',
         msgTag: $0,
         data: null
@@ -202,9 +197,21 @@ void IPlugHybridDSP::SendArbitraryMsgFromDelegate(int msgTag, int dataSize, cons
   }
 }
 
+// Forward declaration for MakePlug
+BEGIN_IPLUG_NAMESPACE
+extern IPlugHybridDSP* MakePlug(const InstanceInfo& info);
+END_IPLUG_NAMESPACE
+
 // Static wrapper functions for Emscripten bindings
 static void _init(int sampleRate, int blockSize)
 {
+  // Create the plugin instance if it doesn't exist yet
+  if (!sInstance)
+  {
+    iplug::MakePlug(iplug::InstanceInfo());
+    // Constructor sets sInstance = this
+  }
+
   if (sInstance) sInstance->Init(sampleRate, blockSize);
 }
 
