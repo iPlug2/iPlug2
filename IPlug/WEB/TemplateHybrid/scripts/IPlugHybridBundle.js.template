@@ -564,6 +564,25 @@ window.Module = window.Module || {
         this._uiModule = mod;
         this._uiReady = true;
 
+        // Set up resize observer if HOST_RESIZE is enabled
+        if (HOST_RESIZE && mod.OnParentWindowResize) {
+          this._resizeObserver = new ResizeObserver(entries => {
+            for (const entry of entries) {
+              const { width, height } = entry.contentRect;
+              if (width > 0 && height > 0) {
+                mod.OnParentWindowResize(Math.round(width), Math.round(height));
+              }
+            }
+          });
+          this._resizeObserver.observe(this);
+
+          // Trigger initial resize to fill parent
+          const rect = this.getBoundingClientRect();
+          if (rect.width > 0 && rect.height > 0) {
+            mod.OnParentWindowResize(Math.round(rect.width), Math.round(rect.height));
+          }
+        }
+
         // Hide loading overlay
         this._loading.classList.add('hidden');
 

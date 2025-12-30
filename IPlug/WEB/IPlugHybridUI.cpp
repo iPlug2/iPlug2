@@ -140,6 +140,11 @@ static void _StartIdleTimer()
   gPlug->CreateTimer();
 }
 
+static void _OnParentWindowResize(int width, int height)
+{
+  gPlug->OnParentWindowResize(width, height);
+}
+
 EMSCRIPTEN_BINDINGS(IPlugHybridUI) {
   function("SPVFD", &_SendParameterValueFromDelegate);
   function("SCVFD", &_SendControlValueFromDelegate);
@@ -148,4 +153,5 @@ EMSCRIPTEN_BINDINGS(IPlugHybridUI) {
   function("SMMFD", &_SendMidiMsgFromDelegate);
   function("SSMFD", &_SendSysexMsgFromDelegate);
   function("StartIdleTimer", &_StartIdleTimer);
+  function("OnParentWindowResize", &_OnParentWindowResize);
 }
