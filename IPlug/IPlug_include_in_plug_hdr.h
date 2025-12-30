@@ -54,6 +54,12 @@
 #elif defined EM_AUDIOWORKLET_API
   #include "IPlugEmAudioWorklet.h"
   #define PLUGIN_API_BASE IPlugEmAudioWorklet
+#elif defined HYBRID_DSP_API
+  #include "IPlugHybridDSP.h"
+  #define PLUGIN_API_BASE IPlugHybridDSP
+#elif defined HYBRID_UI_API
+  #include "IPlugHybridUI.h"
+  #define PLUGIN_API_BASE IPlugHybridUI
 #elif defined VST3_API
   #define IPLUG_VST3
   #include "IPlugVST3.h"

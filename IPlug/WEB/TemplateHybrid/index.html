@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NAME_PLACEHOLDER</title>
+  <link href="styles/style.css" rel="stylesheet">
+
+  <!-- Bundle must load first (initializes Module and web component) -->
+  <script src="scripts/NAME_PLACEHOLDER-bundle.js"></script>
+
+  <!-- Resource data files (fonts, SVGs, images) -->
+  <!--FONTS--><script src="scripts/fonts.js"></script>
+  <!--SVGS--><script src="scripts/svgs.js"></script>
+  <!--IMGS--><script src="scripts/imgs.js"></script>
+  <!--IMGS2X--><script src="scripts/imgs@2x.js"></script>
+</head>
+<body>
+  <!-- Plugin Web Component -->
+  <iplug-NAME_PLACEHOLDER_LC></iplug-NAME_PLACEHOLDER_LC>
+
+  <!-- Audio Controls -->
+  <div id="controls">
+    <button id="startBtn" disabled>Start Audio</button>
+    <button id="testToneBtn" disabled>Test Tone</button>
+    <button id="fullscreenBtn">Fullscreen</button>
+  </div>
+
+  <script>
+    const pluginElement = document.querySelector('iplug-NAME_PLACEHOLDER_LC');
+    let audioStarted = false;
+    let testOscillator = null;
+
+    // Wait for UI to be ready
+    pluginElement.addEventListener('uiready', () => {
+      document.getElementById('startBtn').disabled = false;
+    });
+
+    // Wait for audio to be ready
+    pluginElement.addEventListener('audioready', (e) => {
+      console.log('Audio ready:', e.detail.controller);
+      document.getElementById('startBtn').textContent = 'Stop Audio';
+      document.getElementById('testToneBtn').disabled = false;
+      audioStarted = true;
+    });
+
+    // Start/stop audio button
+    document.getElementById('startBtn').addEventListener('click', async () => {
+      if (!audioStarted) {
+        try {
+          const controller = await pluginElement.initAudio();
+          controller.startAudio();
+        } catch (err) {
+          console.error('Failed to start audio:', err);
+          alert('Failed to start audio. Make sure your browser supports AudioWorklet.');
+        }
+      } else {
+        const controller = pluginElement.controller;
+        if (controller) {
+          if (testOscillator) {
+            testOscillator.stop();
+            testOscillator = null;
+          }
+          controller.stopAudio();
+          document.getElementById('startBtn').textContent = 'Start Audio';
+          document.getElementById('testToneBtn').disabled = true;
+          audioStarted = false;
+        }
+      }
+    });
+
+    // Test tone button (for effects that need audio input)
+    document.getElementById('testToneBtn').addEventListener('click', () => {
+      const controller = pluginElement.controller;
+      if (!controller) return;
+
+      if (testOscillator) {
+        testOscillator.stop();
+        testOscillator = null;
+        document.getElementById('testToneBtn').textContent = 'Test Tone';
+      } else {
+        const ctx = controller.getAudioContext();
+        const workletNode = controller.getWorkletNode();
+
+        // Create oscillator -> gain -> plugin input
+        testOscillator = ctx.createOscillator();
+        const gain = ctx.createGain();
+        gain.gain.value = 0.3;
+        testOscillator.type = 'sawtooth';
+        testOscillator.frequency.value = 220;
+
+        testOscillator.connect(gain);
+        gain.connect(workletNode);
+        testOscillator.start();
+
+        document.getElementById('testToneBtn').textContent = 'Stop Tone';
+      }
+    });
+
+    // Fullscreen button
+    document.getElementById('fullscreenBtn').addEventListener('click', () => {
+      if (document.fullscreenElement) {
+        document.exitFullscreen();
+      } else {
+        pluginElement.requestFullscreen();
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,294 @@
+/*
+ ==============================================================================
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
+ See LICENSE.txt for  more info.
+
+ ==============================================================================
+*/
+
+#include "IPlugHybridDSP.h"
+
+#include <emscripten.h>
+#include <emscripten/bind.h>
+
+using namespace iplug;
+using namespace emscripten;
+
+// Global instance pointer for Emscripten bindings
+static IPlugHybridDSP* sInstance = nullptr;
+
+IPlugHybridDSP::IPlugHybridDSP(const InstanceInfo& info, const Config& config)
+: IPlugAPIBase(config, kAPIWAM) // Reuse WAM API type for compatibility
+, IPlugProcessor(config, kAPIWAM)
+{
+  sInstance = this;
+
+  int nInputs = MaxNChannels(ERoute::kInput);
+  int nOutputs = MaxNChannels(ERoute::kOutput);
+
+  SetChannelConnections(ERoute::kInput, 0, nInputs, true);
+  SetChannelConnections(ERoute::kOutput, 0, nOutputs, true);
+}
+
+void IPlugHybridDSP::Init(int sampleRate, int blockSize)
+{
+  DBGMSG("IPlugHybridDSP::Init(%d, %d)\n", sampleRate, blockSize);
+
+  SetSampleRate(sampleRate);
+  SetBlockSize(blockSize);
+
+  OnParamReset(kReset);
+  OnReset();
+
+  // Notify UI that DSP is ready and should start idle timer
+  EM_ASM({
+    self.postMessage({ verb: 'StartIdleTimer' });
+  });
+}
+
+void IPlugHybridDSP::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
+{
+  SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), !IsInstrument());
+  SetChannelConnections(ERoute::kOutput, 0, MaxNChannels(ERoute::kOutput), true);
+  AttachBuffers(ERoute::kInput, 0, NChannelsConnected(ERoute::kInput), inputs, nFrames);
+  AttachBuffers(ERoute::kOutput, 0, NChannelsConnected(ERoute::kOutput), outputs, nFrames);
+
+  ENTER_PARAMS_MUTEX
+  ProcessBuffers(0.0f, nFrames);
+  LEAVE_PARAMS_MUTEX
+}
+
+void IPlugHybridDSP::OnIdleTick()
+{
+  // Flush queued parameter changes from DSP to UI
+  while (mParamChangeFromProcessor.ElementsAvailable())
+  {
+    ParamTuple p;
+    mParamChangeFromProcessor.Pop(p);
+    SendParameterValueFromDelegate(p.idx, p.value, false);
+  }
+
+  // Flush queued MIDI messages from DSP to UI
+  while (mMidiMsgsFromProcessor.ElementsAvailable())
+  {
+    IMidiMsg msg;
+    mMidiMsgsFromProcessor.Pop(msg);
+    SendMidiMsgFromDelegate(msg);
+  }
+
+  OnIdle();
+}
+
+void IPlugHybridDSP::OnParamMessage(int paramIdx, double value)
+{
+  ENTER_PARAMS_MUTEX
+  SetParameterValue(paramIdx, value);
+  LEAVE_PARAMS_MUTEX
+}
+
+void IPlugHybridDSP::OnMidiMessage(int status, int data1, int data2)
+{
+  IMidiMsg msg = {0, (uint8_t)status, (uint8_t)data1, (uint8_t)data2};
+  ProcessMidiMsg(msg);
+}
+
+void IPlugHybridDSP::OnSysexMessage(const uint8_t* pData, int size)
+{
+  ISysEx sysex = {0, pData, size};
+  ProcessSysEx(sysex);
+}
+
+void IPlugHybridDSP::OnArbitraryMessage(int msgTag, int ctrlTag, int dataSize, const void* pData)
+{
+  OnMessage(msgTag, ctrlTag, dataSize, pData);
+}
+
+bool IPlugHybridDSP::SendMidiMsg(const IMidiMsg& msg)
+{
+  // Queue MIDI message to be sent to UI on idle tick
+  mMidiMsgsFromProcessor.Push(msg);
+  return true;
+}
+
+bool IPlugHybridDSP::SendSysEx(const ISysEx& msg)
+{
+  // Post SysEx to UI via postMessage
+  EM_ASM({
+    var data = new Uint8Array($1);
+    data.set(HEAPU8.subarray($0, $0 + $1));
+    self.postMessage({
+      verb: 'SSMFD',
+      data: data.buffer
+    });
+  }, reinterpret_cast<intptr_t>(msg.mData), msg.mSize);
+  return true;
+}
+
+void IPlugHybridDSP::SendControlValueFromDelegate(int ctrlTag, double normalizedValue)
+{
+  EM_ASM({
+    self.postMessage({
+      verb: 'SCVFD',
+      ctrlTag: $0,
+      value: $1
+    });
+  }, ctrlTag, normalizedValue);
+}
+
+void IPlugHybridDSP::SendControlMsgFromDelegate(int ctrlTag, int msgTag, int dataSize, const void* pData)
+{
+  if (dataSize > 0 && pData)
+  {
+    EM_ASM({
+      var data = new Uint8Array($3);
+      data.set(HEAPU8.subarray($2, $2 + $3));
+      self.postMessage({
+        verb: 'SCMFD',
+        ctrlTag: $0,
+        msgTag: $1,
+        data: data.buffer
+      });
+    }, ctrlTag, msgTag, reinterpret_cast<intptr_t>(pData), dataSize);
+  }
+  else
+  {
+    EM_ASM({
+      self.postMessage({
+        verb: 'SCMFD',
+        ctrlTag: $0,
+        msgTag: $1,
+        data: null
+      });
+    }, ctrlTag, msgTag);
+  }
+}
+
+void IPlugHybridDSP::SendParameterValueFromDelegate(int paramIdx, double value, bool normalized)
+{
+  EM_ASM({
+    self.postMessage({
+      verb: 'SPVFD',
+      paramIdx: $0,
+      value: $1
+    });
+  }, paramIdx, value);
+}
+
+void IPlugHybridDSP::SendArbitraryMsgFromDelegate(int msgTag, int dataSize, const void* pData)
+{
+  if (dataSize > 0 && pData)
+  {
+    EM_ASM({
+      var data = new Uint8Array($2);
+      data.set(HEAPU8.subarray($1, $1 + $2));
+      self.postMessage({
+        verb: 'SAMFD',
+        msgTag: $0,
+        data: data.buffer
+      });
+    }, msgTag, reinterpret_cast<intptr_t>(pData), dataSize);
+  }
+  else
+  {
+    EM_ASM({
+      self.postMessage({
+        verb: 'SAMFD',
+        msgTag: $0,
+        data: null
+      });
+    }, msgTag);
+  }
+}
+
+// Static wrapper functions for Emscripten bindings
+static void _init(int sampleRate, int blockSize)
+{
+  if (sInstance) sInstance->Init(sampleRate, blockSize);
+}
+
+static void _processBlock(uintptr_t inputPtrs, uintptr_t outputPtrs, int nFrames)
+{
+  if (sInstance)
+  {
+    sample** inputs = reinterpret_cast<sample**>(inputPtrs);
+    sample** outputs = reinterpret_cast<sample**>(outputPtrs);
+    sInstance->ProcessBlock(inputs, outputs, nFrames);
+  }
+}
+
+static void _onParam(int paramIdx, double value)
+{
+  if (sInstance) sInstance->OnParamMessage(paramIdx, value);
+}
+
+static void _onMidi(int status, int data1, int data2)
+{
+  if (sInstance) sInstance->OnMidiMessage(status, data1, data2);
+}
+
+static void _onSysex(uintptr_t pData, int size)
+{
+  if (sInstance)
+  {
+    const uint8_t* pDataPtr = reinterpret_cast<const uint8_t*>(pData);
+    sInstance->OnSysexMessage(pDataPtr, size);
+  }
+}
+
+static void _onArbitraryMsg(int msgTag, int ctrlTag, int dataSize, uintptr_t pData)
+{
+  if (sInstance)
+  {
+    const void* pDataPtr = reinterpret_cast<const void*>(pData);
+    sInstance->OnArbitraryMessage(msgTag, ctrlTag, dataSize, pDataPtr);
+  }
+}
+
+static void _onIdleTick()
+{
+  if (sInstance) sInstance->OnIdleTick();
+}
+
+static int _getNumInputChannels()
+{
+  return sInstance ? sInstance->GetNumInputChannels() : 0;
+}
+
+static int _getNumOutputChannels()
+{
+  return sInstance ? sInstance->GetNumOutputChannels() : 0;
+}
+
+static bool _isInstrument()
+{
+  return sInstance ? sInstance->IsPlugInstrument() : false;
+}
+
+static int _getNumParams()
+{
+  return sInstance ? sInstance->NParams() : 0;
+}
+
+static double _getParamDefault(int paramIdx)
+{
+  if (sInstance && paramIdx >= 0 && paramIdx < sInstance->NParams())
+    return sInstance->GetParam(paramIdx)->GetDefault(true);
+  return 0.0;
+}
+
+EMSCRIPTEN_BINDINGS(IPlugHybridDSP) {
+  function("init", &_init);
+  function("processBlock", &_processBlock);
+  function("onParam", &_onParam);
+  function("onMidi", &_onMidi);
+  function("onSysex", &_onSysex);
+  function("onArbitraryMsg", &_onArbitraryMsg);
+  function("onIdleTick", &_onIdleTick);
+  function("getNumInputChannels", &_getNumInputChannels);
+  function("getNumOutputChannels", &_getNumOutputChannels);
+  function("isInstrument", &_isInstrument);
+  function("getNumParams", &_getNumParams);
+  function("getParamDefault", &_getParamDefault);
+}

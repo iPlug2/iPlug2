@@ -1,0 +1,441 @@
+/**
+ * NAME_PLACEHOLDER - iPlug2 Hybrid Web Component Bundle
+ *
+ * This is a self-contained bundle that includes:
+ * - Web Component with Shadow DOM
+ * - IPlugHybridController for DSP/UI communication
+ * - Embedded CSS styles
+ *
+ * Split DSP/UI build with postMessage communication.
+ */
+
+// Initialize Module early so resource scripts can add preloaded data
+window.Module = window.Module || {
+  preRun: [],
+  postRun: [],
+  print: text => console.log('[NAME_PLACEHOLDER]', text),
+  printErr: text => console.error('[NAME_PLACEHOLDER] stderr:', text)
+};
+
+(function() {
+  'use strict';
+
+  const PLUGIN_NAME = 'NAME_PLACEHOLDER';
+  const PLUGIN_NAME_LC = 'NAME_PLACEHOLDER_LC';
+  const PLUGIN_TAG = 'iplug-NAME_PLACEHOLDER_LC';
+  const NUM_INPUTS = MAXNINPUTS_PLACEHOLDER;
+  const NUM_OUTPUTS = MAXNOUTPUTS_PLACEHOLDER;
+  const IS_INSTRUMENT = IS_INSTRUMENT_PLACEHOLDER;
+  const HOST_RESIZE = HOST_RESIZE_PLACEHOLDER;
+
+  // Embedded CSS for Shadow DOM
+  const COMPONENT_CSS = `
+    :host {
+      display: block;
+      width: 100%;
+      height: 100%;
+      position: relative;
+      contain: content;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .loading {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: rgba(26, 26, 26, 0.95);
+      color: #fff;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      z-index: 1000;
+      transition: opacity 0.3s ease;
+    }
+
+    .loading.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .loading-spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid #333;
+      border-top-color: #6366f1;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 16px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .loading-text {
+      font-size: 14px;
+      color: #888;
+    }
+
+    .loading-progress {
+      width: 200px;
+      height: 4px;
+      background: #333;
+      border-radius: 2px;
+      margin-top: 12px;
+      overflow: hidden;
+    }
+
+    .loading-progress-bar {
+      height: 100%;
+      background: #6366f1;
+      transition: width 0.2s ease;
+    }
+  `;
+
+  //==========================================================================
+  // IPlugHybridController Class (embedded)
+  //==========================================================================
+
+  class IPlugHybridController {
+    constructor(pluginName, uiModule = null) {
+      this.pluginName = pluginName;
+      this.pluginNameLC = pluginName.toLowerCase();
+      this.uiModule = uiModule;
+      this.audioContext = null;
+      this.workletNode = null;
+      this.isReady = false;
+      this._listeners = new Map();
+      this.onReadyCallback = null;
+      this.numInputChannels = 0;
+      this.numOutputChannels = 2;
+      this.isInstrument = false;
+    }
+
+    async init(options = {}) {
+      this.numInputChannels = options.numInputChannels ?? 0;
+      this.numOutputChannels = options.numOutputChannels ?? 2;
+      this.isInstrument = options.isInstrument ?? false;
+
+      return new Promise(async (resolve, reject) => {
+        try {
+          const contextOptions = { latencyHint: 'interactive' };
+          if (options.sampleRate && options.sampleRate > 0) {
+            contextOptions.sampleRate = options.sampleRate;
+          }
+
+          this.audioContext = new AudioContext(contextOptions);
+
+          // Load DSP module and processor into AudioWorklet
+          const dspModuleUrl = `scripts/${this.pluginName}-dsp.js`;
+          await this.audioContext.audioWorklet.addModule(dspModuleUrl);
+
+          const processorUrl = `scripts/${this.pluginName}-processor.js`;
+          await this.audioContext.audioWorklet.addModule(processorUrl);
+
+          // Create AudioWorkletNode
+          this.workletNode = new AudioWorkletNode(
+            this.audioContext,
+            `${this.pluginNameLC}-processor`,
+            {
+              numberOfInputs: this.numInputChannels > 0 ? 1 : 0,
+              numberOfOutputs: 1,
+              outputChannelCount: [this.numOutputChannels],
+              processorOptions: {
+                numInputChannels: this.numInputChannels,
+                numOutputChannels: this.numOutputChannels,
+                isInstrument: this.isInstrument
+              }
+            }
+          );
+
+          this.workletNode.port.onmessage = this._onDSPMessage.bind(this);
+          this.workletNode.connect(this.audioContext.destination);
+
+          this.isReady = true;
+          this._startIdleTimer();
+
+          this.emit('ready');
+          if (this.onReadyCallback) this.onReadyCallback();
+
+          resolve();
+        } catch (err) {
+          console.error('IPlugHybridController: init failed', err);
+          reject(err);
+        }
+      });
+    }
+
+    _onDSPMessage(e) {
+      const msg = e.data;
+
+      switch (msg.verb) {
+        case 'SPVFD':
+          this.emit('paramChange', { paramIdx: msg.paramIdx, value: msg.value });
+          if (this.uiModule?.SPVFD) this.uiModule.SPVFD(msg.paramIdx, msg.value);
+          break;
+
+        case 'SCVFD':
+          this.emit('controlValue', { ctrlTag: msg.ctrlTag, value: msg.value });
+          if (this.uiModule?.SCVFD) this.uiModule.SCVFD(msg.ctrlTag, msg.value);
+          break;
+
+        case 'SCMFD':
+          this.emit('controlMsg', { ctrlTag: msg.ctrlTag, msgTag: msg.msgTag, data: msg.data });
+          if (this.uiModule?.SCMFD && msg.data) {
+            const dataArray = new Uint8Array(msg.data);
+            const ptr = this.uiModule._malloc(dataArray.length);
+            this.uiModule.HEAPU8.set(dataArray, ptr);
+            this.uiModule.SCMFD(msg.ctrlTag, msg.msgTag, dataArray.length, ptr);
+            this.uiModule._free(ptr);
+          }
+          break;
+
+        case 'SAMFD':
+          this.emit('arbitraryMsg', { msgTag: msg.msgTag, data: msg.data });
+          if (this.uiModule?.SAMFD && msg.data) {
+            const dataArray = new Uint8Array(msg.data);
+            const ptr = this.uiModule._malloc(dataArray.length);
+            this.uiModule.HEAPU8.set(dataArray, ptr);
+            this.uiModule.SAMFD(msg.msgTag, dataArray.length, ptr);
+            this.uiModule._free(ptr);
+          }
+          break;
+
+        case 'StartIdleTimer':
+          if (this.uiModule?.StartIdleTimer) this.uiModule.StartIdleTimer();
+          break;
+      }
+    }
+
+    _startIdleTimer() {
+      const tick = () => {
+        if (this.workletNode) {
+          this.workletNode.port.postMessage({ type: 'tick' });
+        }
+        requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    }
+
+    setParam(paramIdx, value) {
+      this.workletNode?.port.postMessage({ type: 'param', paramIdx, value });
+    }
+
+    sendMidi(status, data1, data2) {
+      this.workletNode?.port.postMessage({ type: 'midi', status, data1, data2 });
+    }
+
+    sendSysex(data) {
+      this.workletNode?.port.postMessage({ type: 'sysex', data: data.buffer });
+    }
+
+    sendArbitraryMsg(msgTag, ctrlTag, data = null) {
+      this.workletNode?.port.postMessage({
+        type: 'arbitrary', msgTag, ctrlTag, data: data?.buffer ?? null
+      });
+    }
+
+    sendIdleTick() {
+      this.workletNode?.port.postMessage({ type: 'tick' });
+    }
+
+    startAudio() { this.audioContext?.resume(); }
+    stopAudio() { this.audioContext?.suspend(); }
+    getAudioContext() { return this.audioContext; }
+    getWorkletNode() { return this.workletNode; }
+
+    connect(destination, output = 0, input = 0) {
+      this.workletNode?.connect(destination, output, input);
+    }
+
+    disconnect(destination = null) {
+      if (destination) {
+        this.workletNode?.disconnect(destination);
+      } else {
+        this.workletNode?.disconnect();
+      }
+    }
+
+    on(event, listener) {
+      if (!this._listeners.has(event)) {
+        this._listeners.set(event, new Set());
+      }
+      this._listeners.get(event).add(listener);
+      return () => this.off(event, listener);
+    }
+
+    off(event, listener) {
+      this._listeners.get(event)?.delete(listener);
+    }
+
+    emit(event, data) {
+      this._listeners.get(event)?.forEach(fn => fn(data));
+    }
+
+    destroy() {
+      this.workletNode?.disconnect();
+      this.audioContext?.close();
+      this._listeners.clear();
+      this.isReady = false;
+    }
+  }
+
+  //==========================================================================
+  // Web Component Class
+  //==========================================================================
+
+  class IPlugHybridElement extends HTMLElement {
+    constructor() {
+      super();
+      this.attachShadow({ mode: 'open' });
+      this._controller = null;
+      this._uiModule = null;
+      this._uiReady = false;
+    }
+
+    connectedCallback() {
+      // Inject CSS
+      const style = document.createElement('style');
+      style.textContent = COMPONENT_CSS;
+      this.shadowRoot.appendChild(style);
+
+      // Loading overlay
+      this._loading = document.createElement('div');
+      this._loading.className = 'loading';
+      this._loading.innerHTML = `
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Loading ${PLUGIN_NAME}...</div>
+        <div class="loading-progress">
+          <div class="loading-progress-bar" style="width: 0%"></div>
+        </div>
+      `;
+      this.shadowRoot.appendChild(this._loading);
+
+      // Canvas
+      this._canvas = document.createElement('canvas');
+      this._canvas.oncontextmenu = e => e.preventDefault();
+      this.shadowRoot.appendChild(this._canvas);
+
+      // Initialize UI module
+      this._initUI();
+    }
+
+    disconnectedCallback() {
+      if (this._controller) {
+        this._controller.destroy();
+        this._controller = null;
+      }
+    }
+
+    async _initUI() {
+      const mod = window.Module;
+
+      // Set canvas reference for WASM
+      mod.canvas = this._canvas;
+      mod.shadowDOMRoot = this.shadowRoot;
+
+      // Progress tracking
+      let lastProgress = 0;
+      const progressBar = this._loading.querySelector('.loading-progress-bar');
+      const loadingText = this._loading.querySelector('.loading-text');
+
+      mod.setStatus = (text) => {
+        if (text) {
+          loadingText.textContent = text;
+        }
+      };
+
+      mod.monitorRunDependencies = (left) => {
+        const progress = Math.max(0, Math.min(100, (1 - left / 10) * 100));
+        if (progress > lastProgress) {
+          lastProgress = progress;
+          progressBar.style.width = `${progress}%`;
+        }
+      };
+
+      // Load UI WASM module
+      try {
+        await new Promise((resolve, reject) => {
+          const script = document.createElement('script');
+          script.src = `scripts/${PLUGIN_NAME}-ui.js`;
+          script.onload = resolve;
+          script.onerror = reject;
+          document.head.appendChild(script);
+        });
+
+        this._uiModule = mod;
+        this._uiReady = true;
+
+        // Hide loading overlay
+        this._loading.classList.add('hidden');
+
+        // Dispatch ready event
+        this.dispatchEvent(new CustomEvent('uiready', { detail: { module: mod } }));
+
+      } catch (err) {
+        console.error('Failed to load UI module:', err);
+        loadingText.textContent = 'Failed to load plugin';
+      }
+    }
+
+    /**
+     * Initialize audio (call this after user interaction)
+     * @param {Object} options - Audio options
+     * @returns {Promise<IPlugHybridController>}
+     */
+    async initAudio(options = {}) {
+      if (!this._uiReady) {
+        throw new Error('UI not ready. Wait for uiready event.');
+      }
+
+      // Set global reference for UI module to find controller
+      window.iPlugController = null;
+
+      this._controller = new IPlugHybridController(PLUGIN_NAME, this._uiModule);
+
+      // Set global reference for UI module communication
+      window.iPlugController = this._controller;
+
+      await this._controller.init({
+        numInputChannels: NUM_INPUTS,
+        numOutputChannels: NUM_OUTPUTS,
+        isInstrument: IS_INSTRUMENT,
+        ...options
+      });
+
+      this.dispatchEvent(new CustomEvent('audioready', { detail: { controller: this._controller } }));
+
+      return this._controller;
+    }
+
+    // Getters
+    get controller() { return this._controller; }
+    get module() { return this._uiModule; }
+    get canvas() { return this._canvas; }
+    get numInputs() { return NUM_INPUTS; }
+    get numOutputs() { return NUM_OUTPUTS; }
+    get isInstrument() { return IS_INSTRUMENT; }
+    get hostResize() { return HOST_RESIZE; }
+    get isUIReady() { return this._uiReady; }
+    get isAudioReady() { return this._controller?.isReady ?? false; }
+  }
+
+  // Register custom element
+  if (!customElements.get(PLUGIN_TAG)) {
+    customElements.define(PLUGIN_TAG, IPlugHybridElement);
+  }
+
+  // Export to global scope
+  window.IPlugHybridController = IPlugHybridController;
+  window[PLUGIN_NAME + 'Element'] = IPlugHybridElement;
+
+})();

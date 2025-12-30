@@ -225,6 +225,7 @@ private:
   friend class IPlugWAM;
   friend class IPlugWEB;
   friend class IPlugEmAudioWorklet;
+  friend class IPlugHybridDSP;
 
 private:
   WDL_String mParamDisplayStr;
