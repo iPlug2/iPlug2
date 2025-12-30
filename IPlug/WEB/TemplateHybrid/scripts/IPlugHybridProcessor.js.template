@@ -145,44 +145,70 @@ class NAME_PLACEHOLDERProcessor extends AudioWorkletProcessor {
    * @returns {boolean} true if write succeeded
    */
   _writeSABMessage(msgType, ctrlTag, msgTag, dataPtr, dataSize) {
-    if (!this.sabBuffer) return false;
+    try {
+      if (!this.sabBuffer) return false;
 
-    const headerSize = 16;  // SAB header
-    const msgHeaderSize = 12; // message header (type + reserved + size + ctrlTag + msgTag)
-    const alignedDataSize = (dataSize + 3) & ~3; // 4-byte align
-    const totalMsgSize = msgHeaderSize + alignedDataSize;
+      const headerSize = 16;  // SAB header
+      const msgHeaderSize = 12; // message header (type + reserved + size + ctrlTag + msgTag)
+      const alignedDataSize = (dataSize + 3) & ~3; // 4-byte align
+      const totalMsgSize = msgHeaderSize + alignedDataSize;
 
-    const writeIdx = Atomics.load(this.sabWriteIdx, 0);
-    const readIdx = Atomics.load(new Uint32Array(this.sabBuffer, 4, 1), 0);
+      // Limit message size to prevent buffer overflow
+      if (totalMsgSize > this.sabCapacity / 2) return false;
 
-    // Check available space (simplified - doesn't handle wraparound edge cases)
-    const available = readIdx <= writeIdx
-      ? this.sabCapacity - writeIdx + readIdx
-      : readIdx - writeIdx;
+      const writeIdx = Atomics.load(this.sabWriteIdx, 0);
+      const readIdx = Atomics.load(new Uint32Array(this.sabBuffer, 4, 1), 0);
 
-    if (available < totalMsgSize + 4) return false; // +4 for safety margin
+      // Check available CONTIGUOUS space (message cannot wrap around)
+      const spaceToEnd = this.sabCapacity - writeIdx;
 
-    const offset = headerSize + writeIdx;
+      // If message doesn't fit contiguously, reset write index to 0
+      let actualWriteIdx = writeIdx;
+      if (totalMsgSize > spaceToEnd) {
+        // Reset to beginning if there's space there
+        if (totalMsgSize <= readIdx || readIdx <= writeIdx) {
+          actualWriteIdx = 0;
+        } else {
+          return false; // No contiguous space available
+        }
+      }
 
-    // Write message header
-    this.sabDataView.setUint8(offset, msgType);
-    this.sabDataView.setUint8(offset + 1, 0); // reserved
-    this.sabDataView.setUint16(offset + 2, dataSize, true);
-    this.sabDataView.setInt32(offset + 4, ctrlTag, true);
-    this.sabDataView.setInt32(offset + 8, msgTag, true);
+      // Check we don't overwrite unread data
+      if (readIdx > actualWriteIdx && (actualWriteIdx + totalMsgSize) >= readIdx) {
+        return false;
+      }
 
-    // Copy payload from WASM memory to SAB
-    if (dataSize > 0 && dataPtr) {
-      const src = new Uint8Array(this.Module.HEAPU8.buffer, dataPtr, dataSize);
-      const dst = new Uint8Array(this.sabBuffer, offset + msgHeaderSize, dataSize);
-      dst.set(src);
+      const offset = headerSize + actualWriteIdx;
+
+      // Bounds check
+      if (offset + msgHeaderSize + dataSize > this.sabBuffer.byteLength) {
+        return false;
+      }
+
+      // Write message header
+      this.sabDataView.setUint8(offset, msgType);
+      this.sabDataView.setUint8(offset + 1, 0); // reserved
+      this.sabDataView.setUint16(offset + 2, dataSize, true);
+      this.sabDataView.setInt32(offset + 4, ctrlTag, true);
+      this.sabDataView.setInt32(offset + 8, msgTag, true);
+
+      // Copy payload from WASM memory to SAB
+      if (dataSize > 0 && dataPtr) {
+        const src = new Uint8Array(this.Module.HEAPU8.buffer, dataPtr, dataSize);
+        const dst = new Uint8Array(this.sabBuffer, offset + msgHeaderSize, dataSize);
+        dst.set(src);
+      }
+
+      // Update write index atomically
+      const nextWrite = actualWriteIdx + totalMsgSize;
+      Atomics.store(this.sabWriteIdx, 0, nextWrite);
+
+      console.log('SAB write success:', msgType, ctrlTag, dataSize, 'writeIdx now:', nextWrite);
+      return true;
+    } catch (e) {
+      console.error('_writeSABMessage error:', e);
+      return false;
     }
-
-    // Update write index atomically (with wraparound)
-    const nextWrite = (writeIdx + totalMsgSize) % this.sabCapacity;
-    Atomics.store(this.sabWriteIdx, 0, nextWrite);
-
-    return true;
   }
 
   process(inputs, outputs, parameters) {

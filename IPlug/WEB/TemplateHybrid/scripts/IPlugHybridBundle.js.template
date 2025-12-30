@@ -128,6 +128,13 @@ window.Module = window.Module || {
       this.numInputChannels = 0;
       this.numOutputChannels = 2;
       this.isInstrument = false;
+
+      // SharedArrayBuffer for low-latency visualization data
+      this.sabBuffer = null;
+      this.sabDataView = null;
+      this.sabReadIdx = null;
+      this.sabCapacity = 0;
+      this.usingSAB = false;
     }
 
     /**
@@ -190,6 +197,34 @@ window.Module = window.Module || {
           this.workletNode.connect(this.audioContext.destination);
         }
 
+        // Try to set up SharedArrayBuffer for low-latency visualization data
+        if (options.useSAB !== false && typeof SharedArrayBuffer !== 'undefined') {
+          try {
+            const sabSize = options.sabSize || 262144; // 256KB default (needed for FFT data)
+            this.sabBuffer = new SharedArrayBuffer(sabSize);
+            this.sabDataView = new DataView(this.sabBuffer);
+            this.sabReadIdx = new Uint32Array(this.sabBuffer, 4, 1);
+            this.sabCapacity = sabSize - 16; // subtract header size
+
+            // Initialize header
+            this.sabDataView.setUint32(0, 0, true);  // writeIdx = 0
+            this.sabDataView.setUint32(4, 0, true);  // readIdx = 0
+            this.sabDataView.setUint32(8, this.sabCapacity, true);  // capacity
+
+            // Send SAB to processor
+            this.workletNode.port.postMessage({
+              type: 'attachSAB',
+              sab: this.sabBuffer
+            });
+
+            this.usingSAB = true;
+            console.log('IPlugHybridController: SharedArrayBuffer enabled for visualization data');
+          } catch (e) {
+            console.warn('IPlugHybridController: SharedArrayBuffer not available:', e.message);
+            this.usingSAB = false;
+          }
+        }
+
         this.isReady = true;
         this._startIdleTimer();
 
@@ -227,7 +262,7 @@ window.Module = window.Module || {
 
         case 'SCMFD':
           this.emit('controlMsg', { ctrlTag: msg.ctrlTag, msgTag: msg.msgTag, data: msg.data });
-          if (this.uiModule?.SCMFD && msg.data) {
+          if (this.uiModule?.SCMFD && this.uiModule?.HEAPU8 && msg.data) {
             const dataArray = new Uint8Array(msg.data);
             const ptr = this.uiModule._malloc(dataArray.length);
             this.uiModule.HEAPU8.set(dataArray, ptr);
@@ -238,7 +273,7 @@ window.Module = window.Module || {
 
         case 'SAMFD':
           this.emit('arbitraryMsg', { msgTag: msg.msgTag, data: msg.data });
-          if (this.uiModule?.SAMFD && msg.data) {
+          if (this.uiModule?.SAMFD && this.uiModule?.HEAPU8 && msg.data) {
             const dataArray = new Uint8Array(msg.data);
             const ptr = this.uiModule._malloc(dataArray.length);
             this.uiModule.HEAPU8.set(dataArray, ptr);
@@ -258,9 +293,102 @@ window.Module = window.Module || {
         if (this.workletNode) {
           this.workletNode.port.postMessage({ type: 'tick' });
         }
+
+        // Poll SAB for visualization messages
+        if (this.usingSAB) {
+          this._pollSAB();
+        }
+
         requestAnimationFrame(tick);
       };
       requestAnimationFrame(tick);
+    }
+
+    /**
+     * Poll SharedArrayBuffer for visualization messages from DSP
+     */
+    _pollSAB() {
+      if (!this.sabBuffer || !this.sabDataView) return;
+
+      try {
+        const headerSize = 16;
+        const msgHeaderSize = 12;
+
+        const writeIdx = Atomics.load(new Uint32Array(this.sabBuffer, 0, 1), 0);
+        let readIdx = Atomics.load(this.sabReadIdx, 0);
+
+        // Handle writer reset: if writeIdx < readIdx, reset readIdx to 0
+        if (writeIdx < readIdx) {
+          readIdx = 0;
+        }
+
+        // Process all available messages (from readIdx to writeIdx)
+        while (readIdx < writeIdx) {
+          const offset = headerSize + readIdx;
+
+          // Bounds check
+          if (offset + msgHeaderSize > this.sabBuffer.byteLength) break;
+
+          // Read message header
+          const msgType = this.sabDataView.getUint8(offset);
+          const dataSize = this.sabDataView.getUint16(offset + 2, true);
+          const ctrlTag = this.sabDataView.getInt32(offset + 4, true);
+          const msgTag = this.sabDataView.getInt32(offset + 8, true);
+
+          // Bounds check for payload
+          if (offset + msgHeaderSize + dataSize > this.sabBuffer.byteLength) break;
+
+          // Extract payload (if any)
+          let payload = null;
+          if (dataSize > 0) {
+            payload = new Uint8Array(this.sabBuffer, offset + msgHeaderSize, dataSize);
+          }
+
+          // Route message based on type
+          switch (msgType) {
+            case 0: // SCVFD - Send Control Value From Delegate
+              const value = payload && payload.length >= 4
+                ? new DataView(payload.buffer, payload.byteOffset, 4).getFloat32(0, true)
+                : 0;
+              this.emit('controlValue', { ctrlTag, value });
+              if (this.uiModule?.SCVFD) this.uiModule.SCVFD(ctrlTag, value);
+              break;
+
+            case 1: // SCMFD - Send Control Message From Delegate
+              this.emit('controlMsg', { ctrlTag, msgTag, data: payload });
+              console.log('SAB SCMFD received:', ctrlTag, msgTag, payload?.length);
+              if (this.uiModule?.SCMFD && this.uiModule?.HEAPU8 && payload) {
+                const ptr = this.uiModule._malloc(payload.length);
+                this.uiModule.HEAPU8.set(payload, ptr);
+                this.uiModule.SCMFD(ctrlTag, msgTag, payload.length, ptr);
+                this.uiModule._free(ptr);
+              } else {
+                console.log('SAB SCMFD not forwarded:', !!this.uiModule?.SCMFD, !!this.uiModule?.HEAPU8, !!payload);
+              }
+              break;
+
+            case 2: // SAMFD - Send Arbitrary Message From Delegate
+              this.emit('arbitraryMsg', { msgTag, data: payload });
+              if (this.uiModule?.SAMFD && this.uiModule?.HEAPU8 && payload) {
+                const ptr = this.uiModule._malloc(payload.length);
+                this.uiModule.HEAPU8.set(payload, ptr);
+                this.uiModule.SAMFD(msgTag, payload.length, ptr);
+                this.uiModule._free(ptr);
+              }
+              break;
+          }
+
+          // Advance read index
+          const alignedDataSize = (dataSize + 3) & ~3;
+          const totalMsgSize = msgHeaderSize + alignedDataSize;
+          readIdx += totalMsgSize;
+        }
+
+        // Update read index atomically
+        Atomics.store(this.sabReadIdx, 0, readIdx);
+      } catch (e) {
+        console.error('_pollSAB error:', e);
+      }
     }
 
     setParam(paramIdx, value) {
@@ -404,13 +532,34 @@ window.Module = window.Module || {
 
       // Load UI WASM module
       try {
+        // Wait for both script load AND runtime initialization
         await new Promise((resolve, reject) => {
+          // Set up runtime callback before loading script
+          const existingCallback = mod.onRuntimeInitialized;
+          mod.onRuntimeInitialized = () => {
+            if (existingCallback) existingCallback();
+            // Wait a tick for HEAPU8 etc to be set up
+            setTimeout(resolve, 0);
+          };
+
           const script = document.createElement('script');
           script.src = `scripts/${PLUGIN_NAME}-ui.js`;
-          script.onload = resolve;
           script.onerror = reject;
           document.head.appendChild(script);
         });
+
+        // Verify HEAPU8 is available
+        if (!mod.HEAPU8) {
+          console.warn('Waiting for HEAPU8...');
+          await new Promise(resolve => {
+            const check = () => {
+              if (mod.HEAPU8) resolve();
+              else setTimeout(check, 10);
+            };
+            check();
+          });
+        }
+        console.log('UI Module ready, HEAPU8:', !!mod.HEAPU8);
 
         this._uiModule = mod;
         this._uiReady = true;

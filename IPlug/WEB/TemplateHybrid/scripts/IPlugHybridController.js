@@ -121,7 +121,7 @@ class IPlugHybridController {
       // Try to set up SharedArrayBuffer for low-latency visualization data
       if (options.useSAB !== false && typeof SharedArrayBuffer !== 'undefined') {
         try {
-          const sabSize = options.sabSize || 65536; // 64KB default
+          const sabSize = options.sabSize || 262144; // 256KB default (needed for FFT data)
           this.sabBuffer = new SharedArrayBuffer(sabSize);
           this.sabDataView = new DataView(this.sabBuffer);
           this.sabReadIdx = new Uint32Array(this.sabBuffer, 4, 1);
@@ -268,70 +268,85 @@ class IPlugHybridController {
   _pollSAB() {
     if (!this.sabBuffer || !this.sabDataView) return;
 
-    const headerSize = 16;
-    const msgHeaderSize = 12;
+    try {
+      const headerSize = 16;
+      const msgHeaderSize = 12;
 
-    const writeIdx = Atomics.load(new Uint32Array(this.sabBuffer, 0, 1), 0);
-    let readIdx = Atomics.load(this.sabReadIdx, 0);
+      const writeIdx = Atomics.load(new Uint32Array(this.sabBuffer, 0, 1), 0);
+      let readIdx = Atomics.load(this.sabReadIdx, 0);
 
-    // Process all available messages
-    while (readIdx !== writeIdx) {
-      const offset = headerSize + readIdx;
-
-      // Read message header
-      const msgType = this.sabDataView.getUint8(offset);
-      const dataSize = this.sabDataView.getUint16(offset + 2, true);
-      const ctrlTag = this.sabDataView.getInt32(offset + 4, true);
-      const msgTag = this.sabDataView.getInt32(offset + 8, true);
-
-      // Extract payload (if any)
-      let payload = null;
-      if (dataSize > 0) {
-        payload = new Uint8Array(this.sabBuffer, offset + msgHeaderSize, dataSize);
+      // Handle writer reset: if writeIdx < readIdx, reset readIdx to 0
+      if (writeIdx < readIdx) {
+        readIdx = 0;
       }
 
-      // Route message based on type
-      switch (msgType) {
-        case 0: // SCVFD - Send Control Value From Delegate
-          const value = payload && payload.length >= 4
-            ? new DataView(payload.buffer, payload.byteOffset, 4).getFloat32(0, true)
-            : 0;
-          this.emit('controlValue', { ctrlTag, value });
-          if (this.onControlValue) this.onControlValue(ctrlTag, value);
-          if (this.uiModule?.SCVFD) this.uiModule.SCVFD(ctrlTag, value);
-          break;
+      // Process all available messages (from readIdx to writeIdx)
+      while (readIdx < writeIdx) {
+        const offset = headerSize + readIdx;
 
-        case 1: // SCMFD - Send Control Message From Delegate
-          this.emit('controlMsg', { ctrlTag, msgTag, data: payload });
-          if (this.onControlMsg) this.onControlMsg(ctrlTag, msgTag, payload);
-          if (this.uiModule?.SCMFD && payload) {
-            const ptr = this.uiModule._malloc(payload.length);
-            this.uiModule.HEAPU8.set(payload, ptr);
-            this.uiModule.SCMFD(ctrlTag, msgTag, payload.length, ptr);
-            this.uiModule._free(ptr);
-          }
-          break;
+        // Bounds check
+        if (offset + msgHeaderSize > this.sabBuffer.byteLength) break;
 
-        case 2: // SAMFD - Send Arbitrary Message From Delegate
-          this.emit('arbitraryMsg', { msgTag, data: payload });
-          if (this.onArbitraryMsg) this.onArbitraryMsg(msgTag, payload);
-          if (this.uiModule?.SAMFD && payload) {
-            const ptr = this.uiModule._malloc(payload.length);
-            this.uiModule.HEAPU8.set(payload, ptr);
-            this.uiModule.SAMFD(msgTag, payload.length, ptr);
-            this.uiModule._free(ptr);
-          }
-          break;
+        // Read message header
+        const msgType = this.sabDataView.getUint8(offset);
+        const dataSize = this.sabDataView.getUint16(offset + 2, true);
+        const ctrlTag = this.sabDataView.getInt32(offset + 4, true);
+        const msgTag = this.sabDataView.getInt32(offset + 8, true);
+
+        // Bounds check for payload
+        if (offset + msgHeaderSize + dataSize > this.sabBuffer.byteLength) break;
+
+        // Extract payload (if any)
+        let payload = null;
+        if (dataSize > 0) {
+          payload = new Uint8Array(this.sabBuffer, offset + msgHeaderSize, dataSize);
+        }
+
+        // Route message based on type
+        switch (msgType) {
+          case 0: // SCVFD - Send Control Value From Delegate
+            const value = payload && payload.length >= 4
+              ? new DataView(payload.buffer, payload.byteOffset, 4).getFloat32(0, true)
+              : 0;
+            this.emit('controlValue', { ctrlTag, value });
+            if (this.onControlValue) this.onControlValue(ctrlTag, value);
+            if (this.uiModule?.SCVFD) this.uiModule.SCVFD(ctrlTag, value);
+            break;
+
+          case 1: // SCMFD - Send Control Message From Delegate
+            this.emit('controlMsg', { ctrlTag, msgTag, data: payload });
+            if (this.onControlMsg) this.onControlMsg(ctrlTag, msgTag, payload);
+            if (this.uiModule?.SCMFD && this.uiModule?.HEAPU8 && payload) {
+              const ptr = this.uiModule._malloc(payload.length);
+              this.uiModule.HEAPU8.set(payload, ptr);
+              this.uiModule.SCMFD(ctrlTag, msgTag, payload.length, ptr);
+              this.uiModule._free(ptr);
+            }
+            break;
+
+          case 2: // SAMFD - Send Arbitrary Message From Delegate
+            this.emit('arbitraryMsg', { msgTag, data: payload });
+            if (this.onArbitraryMsg) this.onArbitraryMsg(msgTag, payload);
+            if (this.uiModule?.SAMFD && this.uiModule?.HEAPU8 && payload) {
+              const ptr = this.uiModule._malloc(payload.length);
+              this.uiModule.HEAPU8.set(payload, ptr);
+              this.uiModule.SAMFD(msgTag, payload.length, ptr);
+              this.uiModule._free(ptr);
+            }
+            break;
+        }
+
+        // Advance read index
+        const alignedDataSize = (dataSize + 3) & ~3;
+        const totalMsgSize = msgHeaderSize + alignedDataSize;
+        readIdx += totalMsgSize;
       }
 
-      // Advance read index (with wraparound)
-      const alignedDataSize = (dataSize + 3) & ~3;
-      const totalMsgSize = msgHeaderSize + alignedDataSize;
-      readIdx = (readIdx + totalMsgSize) % this.sabCapacity;
+      // Update read index atomically
+      Atomics.store(this.sabReadIdx, 0, readIdx);
+    } catch (e) {
+      console.error('_pollSAB error:', e);
     }
-
-    // Update read index atomically
-    Atomics.store(this.sabReadIdx, 0, readIdx);
   }
 
   // ----- UI -> DSP Communication -----
