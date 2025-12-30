@@ -16,8 +16,14 @@
   <!--IMGS2X--><script src="scripts/imgs@2x.js"></script>
 </head>
 <body>
-  <!-- Plugin Web Component -->
+  <!-- Plugin Web Component (hidden for headless plugins) -->
   <iplug-NAME_PLACEHOLDER_LC></iplug-NAME_PLACEHOLDER_LC>
+
+  <!-- Plugin Parameters Panel (for headless plugins - shown in main body) -->
+  <div id="paramPanel" class="param-panel hidden">
+    <h1 id="pluginTitle">NAME_PLACEHOLDER</h1>
+    <div id="mainParams" class="main-params"></div>
+  </div>
 
   <!-- Audio Controls -->
   <div id="controls">
@@ -90,6 +96,11 @@
         <span id="vuRdB">-inf</span>
       </div>
     </div>
+
+    <div class="separator"></div>
+
+    <!-- Plugin Parameters (auto-generated for headless plugins) -->
+    <div id="pluginParams" class="plugin-params hidden"></div>
 
     <div class="separator"></div>
 
@@ -483,6 +494,127 @@
         document.exitFullscreen();
       } else {
         pluginElement.requestFullscreen();
+      }
+    });
+
+    // Plugin parameters (for headless plugins - shown in main body)
+    const paramPanel = document.getElementById('paramPanel');
+    const mainParams = document.getElementById('mainParams');
+    const pluginTitle = document.getElementById('pluginTitle');
+    let paramSliders = new Map();
+    let isHeadless = false;
+
+    // Check if this is a headless plugin (no UI module)
+    pluginElement.addEventListener('uiready', (e) => {
+      if (!e.detail.module) {
+        // Headless plugin - show parameter panel
+        isHeadless = true;
+        pluginElement.style.display = 'none';
+        paramPanel.classList.remove('hidden');
+        startBtn.disabled = false; // Enable start button immediately for headless
+      }
+    });
+
+    // Generate parameter controls from plugin info (in main body for headless)
+    function generateParamControls(params, pluginName) {
+      if (!params || params.length === 0) return;
+
+      if (pluginName) {
+        pluginTitle.textContent = pluginName;
+      }
+
+      mainParams.innerHTML = '';
+
+      for (const param of params) {
+        const row = document.createElement('div');
+        row.className = 'main-param-row';
+
+        const labelContainer = document.createElement('div');
+        labelContainer.className = 'main-param-label';
+
+        const label = document.createElement('span');
+        label.className = 'main-param-name';
+        label.textContent = param.name;
+
+        const value = document.createElement('span');
+        value.className = 'main-param-value';
+        value.textContent = formatParamValue(param.value, param);
+
+        labelContainer.appendChild(label);
+        labelContainer.appendChild(value);
+
+        const slider = document.createElement('input');
+        slider.type = 'range';
+        slider.className = 'main-param-slider';
+        slider.min = param.min;
+        slider.max = param.max;
+        slider.step = param.step > 0 ? param.step : (param.max - param.min) / 1000;
+        slider.value = param.value;
+        slider.dataset.paramIdx = param.idx;
+
+        slider.addEventListener('input', () => {
+          const val = parseFloat(slider.value);
+          value.textContent = formatParamValue(val, param);
+          // Send to DSP
+          if (pluginElement.controller) {
+            // Convert to normalized (0-1) value for setParam
+            const normalized = (val - param.min) / (param.max - param.min);
+            pluginElement.controller.setParam(param.idx, normalized);
+          }
+        });
+
+        paramSliders.set(param.idx, { slider, value, param });
+
+        row.appendChild(labelContainer);
+        row.appendChild(slider);
+        mainParams.appendChild(row);
+      }
+    }
+
+    function formatParamValue(val, param) {
+      const decimals = param.step >= 1 ? 0 : param.step >= 0.1 ? 1 : param.step >= 0.01 ? 2 : 3;
+      return val.toFixed(decimals) + (param.label ? ' ' + param.label : '');
+    }
+
+    // Update parameter display when DSP sends new values
+    function updateParamDisplay(paramIdx, normalizedValue) {
+      const entry = paramSliders.get(paramIdx);
+      if (entry) {
+        const { slider, value, param } = entry;
+        const realValue = param.min + normalizedValue * (param.max - param.min);
+        slider.value = realValue;
+        value.textContent = formatParamValue(realValue, param);
+      }
+    }
+
+    // Listen for plugin info from DSP (for headless plugins)
+    pluginElement.addEventListener('audioready', (e) => {
+      console.log('audioready event received, isHeadless:', isHeadless);
+      const controller = e.detail.controller;
+      console.log('Controller:', controller);
+      console.log('Controller.pluginInfo at audioready:', controller?.pluginInfo);
+      if (controller) {
+        // Listen for plugin info
+        controller.on('pluginInfo', (info) => {
+          console.log('pluginInfo event received from controller:', info);
+          console.log('isHeadless:', isHeadless, 'params:', info?.params);
+          if (isHeadless && info.params && info.params.length > 0) {
+            console.log('Generating param controls...');
+            generateParamControls(info.params, info.name);
+          }
+        });
+
+        // Listen for parameter changes from DSP
+        controller.on('paramChange', ({ paramIdx, value }) => {
+          updateParamDisplay(paramIdx, value);
+        });
+
+        // If pluginInfo already received, generate controls
+        console.log('Checking if pluginInfo already received:', controller.pluginInfo);
+        if (isHeadless && controller.pluginInfo?.params) {
+          console.log('pluginInfo already received, generating controls now');
+          generateParamControls(controller.pluginInfo.params, controller.pluginInfo.name);
+        }
       }
     });
   </script>

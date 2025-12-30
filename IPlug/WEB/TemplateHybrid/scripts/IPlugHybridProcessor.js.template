@@ -49,6 +49,22 @@ class NAME_PLACEHOLDERProcessor extends AudioWorkletProcessor {
     // Initialize DSP
     this.Module.init(this.sr, this.bufsize);
 
+    // Send plugin info to main thread (for headless UI generation)
+    if (this.Module.getPluginInfoJSON) {
+      try {
+        const jsonStr = this.Module.getPluginInfoJSON();
+        console.log('NAME_PLACEHOLDER Processor: Raw pluginInfo JSON:', jsonStr);
+        const pluginInfo = JSON.parse(jsonStr);
+        console.log('NAME_PLACEHOLDER Processor: Parsed pluginInfo:', pluginInfo);
+        this.port.postMessage({ verb: 'pluginInfo', data: pluginInfo });
+        console.log('NAME_PLACEHOLDER Processor: Posted pluginInfo message');
+      } catch (e) {
+        console.warn('NAME_PLACEHOLDER: Failed to send plugin info:', e);
+      }
+    } else {
+      console.warn('NAME_PLACEHOLDER Processor: getPluginInfoJSON not available');
+    }
+
     // Handle messages from main thread (parameter/MIDI changes)
     this.port.onmessage = this._onMessage.bind(this);
     this.port.start();

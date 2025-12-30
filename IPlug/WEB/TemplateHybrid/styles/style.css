@@ -256,6 +256,117 @@ iplug-NAME_PLACEHOLDER_LC.resizable {
   line-height: 1.1;
 }
 
+/* Main Parameter Panel (for headless plugins - fills main body) */
+.param-panel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 50px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+}
+
+.param-panel.hidden {
+  display: none;
+}
+
+.param-panel h1 {
+  font-size: 32px;
+  font-weight: 300;
+  color: #e0e0e0;
+  margin-bottom: 40px;
+  letter-spacing: 2px;
+}
+
+.main-params {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+  max-width: 500px;
+}
+
+.main-param-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.main-param-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.main-param-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #ccc;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.main-param-value {
+  font-size: 16px;
+  font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+  color: #6366f1;
+  font-weight: 500;
+}
+
+.main-param-slider {
+  width: 100%;
+  height: 8px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: #333;
+  border-radius: 4px;
+  cursor: pointer;
+  outline: none;
+}
+
+.main-param-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  background: #6366f1;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.4);
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.main-param-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.6);
+}
+
+.main-param-slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  background: #6366f1;
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.4);
+}
+
+.main-param-slider::-webkit-slider-runnable-track {
+  height: 8px;
+  border-radius: 4px;
+}
+
+.main-param-slider::-moz-range-track {
+  height: 8px;
+  background: #333;
+  border-radius: 4px;
+}
+
 /* Fullscreen mode */
 :fullscreen {
   background: #1a1a1a;

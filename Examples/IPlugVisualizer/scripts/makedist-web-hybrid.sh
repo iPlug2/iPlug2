@@ -168,6 +168,7 @@ sed -i.bak "s/MAXNINPUTS_PLACEHOLDER/$MAXNINPUTS/g" scripts/$PROJECT_NAME-bundle
 sed -i.bak "s/MAXNOUTPUTS_PLACEHOLDER/$MAXNOUTPUTS/g" scripts/$PROJECT_NAME-bundle.js
 sed -i.bak "s/IS_INSTRUMENT_PLACEHOLDER/$IS_INSTRUMENT/g" scripts/$PROJECT_NAME-bundle.js
 sed -i.bak "s/HOST_RESIZE_PLACEHOLDER/$HOST_RESIZE/g" scripts/$PROJECT_NAME-bundle.js
+sed -i.bak "s/HAS_UI_PLACEHOLDER/true/g" scripts/$PROJECT_NAME-bundle.js
 
 # Copy and process processor template
 # IMPORTANT: Replace NAME_PLACEHOLDER_LC first (longer match) before NAME_PLACEHOLDER

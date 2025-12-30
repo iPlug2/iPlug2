@@ -27,6 +27,7 @@ window.Module = window.Module || {
   const NUM_OUTPUTS = MAXNOUTPUTS_PLACEHOLDER;
   const IS_INSTRUMENT = IS_INSTRUMENT_PLACEHOLDER;
   const HOST_RESIZE = HOST_RESIZE_PLACEHOLDER;
+  const HAS_UI = HAS_UI_PLACEHOLDER; // false for headless plugins
 
   // Embedded CSS for Shadow DOM
   const COMPONENT_CSS = `
@@ -527,69 +528,78 @@ window.Module = window.Module || {
         }
       };
 
-      // Load UI WASM module
-      try {
-        // Wait for both script load AND runtime initialization
-        await new Promise((resolve, reject) => {
-          // Set up runtime callback before loading script
-          const existingCallback = mod.onRuntimeInitialized;
-          mod.onRuntimeInitialized = () => {
-            if (existingCallback) existingCallback();
-            // Wait a tick for HEAPU8 etc to be set up
-            setTimeout(resolve, 0);
-          };
-
-          const script = document.createElement('script');
-          script.src = `scripts/${PLUGIN_NAME}-ui.js`;
-          script.onerror = reject;
-          document.head.appendChild(script);
-        });
-
-        // Verify HEAPU8 is available
-        if (!mod.HEAPU8) {
-          console.warn('Waiting for HEAPU8...');
-          await new Promise(resolve => {
-            const check = () => {
-              if (mod.HEAPU8) resolve();
-              else setTimeout(check, 10);
+      // Load UI WASM module (only if plugin has IGraphics)
+      if (HAS_UI) {
+        try {
+          // Wait for both script load AND runtime initialization
+          await new Promise((resolve, reject) => {
+            // Set up runtime callback before loading script
+            const existingCallback = mod.onRuntimeInitialized;
+            mod.onRuntimeInitialized = () => {
+              if (existingCallback) existingCallback();
+              // Wait a tick for HEAPU8 etc to be set up
+              setTimeout(resolve, 0);
             };
-            check();
+
+            const script = document.createElement('script');
+            script.src = `scripts/${PLUGIN_NAME}-ui.js`;
+            script.onerror = reject;
+            document.head.appendChild(script);
           });
-        }
-        console.log('UI Module ready, HEAPU8:', !!mod.HEAPU8);
 
-        this._uiModule = mod;
-        this._uiReady = true;
-
-        // Set up resize observer if HOST_RESIZE is enabled
-        if (HOST_RESIZE && mod.OnParentWindowResize) {
-          this._resizeObserver = new ResizeObserver(entries => {
-            for (const entry of entries) {
-              const { width, height } = entry.contentRect;
-              if (width > 0 && height > 0) {
-                mod.OnParentWindowResize(Math.round(width), Math.round(height));
-              }
-            }
-          });
-          this._resizeObserver.observe(this);
-
-          // Trigger initial resize to fill parent
-          const rect = this.getBoundingClientRect();
-          if (rect.width > 0 && rect.height > 0) {
-            mod.OnParentWindowResize(Math.round(rect.width), Math.round(rect.height));
+          // Verify HEAPU8 is available
+          if (!mod.HEAPU8) {
+            console.warn('Waiting for HEAPU8...');
+            await new Promise(resolve => {
+              const check = () => {
+                if (mod.HEAPU8) resolve();
+                else setTimeout(check, 10);
+              };
+              check();
+            });
           }
+          console.log('UI Module ready, HEAPU8:', !!mod.HEAPU8);
+
+          this._uiModule = mod;
+          this._uiReady = true;
+
+          // Set up resize observer if HOST_RESIZE is enabled
+          if (HOST_RESIZE && mod.OnParentWindowResize) {
+            this._resizeObserver = new ResizeObserver(entries => {
+              for (const entry of entries) {
+                const { width, height } = entry.contentRect;
+                if (width > 0 && height > 0) {
+                  mod.OnParentWindowResize(Math.round(width), Math.round(height));
+                }
+              }
+            });
+            this._resizeObserver.observe(this);
+
+            // Trigger initial resize to fill parent
+            const rect = this.getBoundingClientRect();
+            if (rect.width > 0 && rect.height > 0) {
+              mod.OnParentWindowResize(Math.round(rect.width), Math.round(rect.height));
+            }
+          }
+
+        } catch (err) {
+          console.error('Failed to load UI module:', err);
+          loadingText.textContent = 'Failed to load plugin';
+          return;
         }
-
-        // Hide loading overlay
-        this._loading.classList.add('hidden');
-
-        // Dispatch ready event
-        this.dispatchEvent(new CustomEvent('uiready', { detail: { module: mod } }));
-
-      } catch (err) {
-        console.error('Failed to load UI module:', err);
-        loadingText.textContent = 'Failed to load plugin';
+      } else {
+        // Headless plugin - no UI module to load
+        console.log('Headless plugin - no UI module');
+        this._uiReady = true;
       }
+
+      // Hide loading overlay
+      this._loading.classList.add('hidden');
+
+      // Dispatch ready event (defer to ensure listeners are set up)
+      setTimeout(() => {
+        this.dispatchEvent(new CustomEvent('uiready', { detail: { module: HAS_UI ? mod : null } }));
+      }, 0);
     }
 
     /**

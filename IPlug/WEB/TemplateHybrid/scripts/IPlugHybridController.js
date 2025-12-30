@@ -43,6 +43,7 @@ class IPlugHybridController {
     this.numInputChannels = 0;
     this.numOutputChannels = 2;
     this.isInstrument = false;
+    this.pluginInfo = null; // Full plugin info from DSP (params, etc.)
 
     // SharedArrayBuffer for low-latency visualization data (optional)
     this.sabBuffer = null;
@@ -112,6 +113,7 @@ class IPlugHybridController {
 
       // Handle messages from DSP (via processor port)
       this.workletNode.port.onmessage = this._onDSPMessage.bind(this);
+      this.workletNode.port.start();
 
       // Connect to destination
       if (connectToOutput) {
@@ -175,6 +177,7 @@ class IPlugHybridController {
    */
   _onDSPMessage(e) {
     const msg = e.data;
+    console.log('Controller _onDSPMessage received:', msg);
 
     switch (msg.verb) {
       case 'SPVFD': // Send Parameter Value From Delegate
@@ -239,6 +242,14 @@ class IPlugHybridController {
       case 'StartIdleTimer':
         // DSP is ready, notify UI to start idle timer
         if (this.uiModule?.StartIdleTimer) this.uiModule.StartIdleTimer();
+        break;
+
+      case 'pluginInfo':
+        // Store plugin info from DSP (includes parameter metadata)
+        console.log('Controller: Received pluginInfo from processor:', msg.data);
+        this.pluginInfo = msg.data;
+        this.emit('pluginInfo', msg.data);
+        console.log('Controller: Emitted pluginInfo event');
         break;
     }
   }

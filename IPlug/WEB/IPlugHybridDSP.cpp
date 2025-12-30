@@ -333,6 +333,85 @@ static double _getParamDefault(int paramIdx)
   return 0.0;
 }
 
+static std::string _getParamName(int paramIdx)
+{
+  if (sInstance && paramIdx >= 0 && paramIdx < sInstance->NParams())
+    return sInstance->GetParam(paramIdx)->GetName();
+  return "";
+}
+
+static std::string _getParamLabel(int paramIdx)
+{
+  if (sInstance && paramIdx >= 0 && paramIdx < sInstance->NParams())
+    return sInstance->GetParam(paramIdx)->GetLabel();
+  return "";
+}
+
+static double _getParamMin(int paramIdx)
+{
+  if (sInstance && paramIdx >= 0 && paramIdx < sInstance->NParams())
+    return sInstance->GetParam(paramIdx)->GetMin();
+  return 0.0;
+}
+
+static double _getParamMax(int paramIdx)
+{
+  if (sInstance && paramIdx >= 0 && paramIdx < sInstance->NParams())
+    return sInstance->GetParam(paramIdx)->GetMax();
+  return 1.0;
+}
+
+static double _getParamStep(int paramIdx)
+{
+  if (sInstance && paramIdx >= 0 && paramIdx < sInstance->NParams())
+    return sInstance->GetParam(paramIdx)->GetStep();
+  return 0.001;
+}
+
+static double _getParamValue(int paramIdx)
+{
+  if (sInstance && paramIdx >= 0 && paramIdx < sInstance->NParams())
+    return sInstance->GetParam(paramIdx)->Value();
+  return 0.0;
+}
+
+static std::string _getPluginName()
+{
+  return sInstance ? sInstance->GetPluginName() : "";
+}
+
+static std::string _getPluginInfoJSON()
+{
+  if (!sInstance) return "{}";
+
+  std::string json = "{";
+  json += "\"name\":\"" + std::string(sInstance->GetPluginName()) + "\",";
+  json += "\"numInputChannels\":" + std::to_string(sInstance->GetNumInputChannels()) + ",";
+  json += "\"numOutputChannels\":" + std::to_string(sInstance->GetNumOutputChannels()) + ",";
+  json += "\"isInstrument\":" + std::string(sInstance->IsPlugInstrument() ? "true" : "false") + ",";
+  json += "\"params\":[";
+
+  int nParams = sInstance->NParams();
+  for (int i = 0; i < nParams; i++)
+  {
+    IParam* pParam = sInstance->GetParam(i);
+    if (i > 0) json += ",";
+    json += "{";
+    json += "\"idx\":" + std::to_string(i) + ",";
+    json += "\"name\":\"" + std::string(pParam->GetName()) + "\",";
+    json += "\"label\":\"" + std::string(pParam->GetLabel()) + "\",";
+    json += "\"min\":" + std::to_string(pParam->GetMin()) + ",";
+    json += "\"max\":" + std::to_string(pParam->GetMax()) + ",";
+    json += "\"default\":" + std::to_string(pParam->GetDefault()) + ",";
+    json += "\"step\":" + std::to_string(pParam->GetStep()) + ",";
+    json += "\"value\":" + std::to_string(pParam->Value());
+    json += "}";
+  }
+
+  json += "]}";
+  return json;
+}
+
 EMSCRIPTEN_BINDINGS(IPlugHybridDSP) {
   function("init", &_init);
   function("processBlock", &_processBlock);
@@ -346,4 +425,12 @@ EMSCRIPTEN_BINDINGS(IPlugHybridDSP) {
   function("isInstrument", &_isInstrument);
   function("getNumParams", &_getNumParams);
   function("getParamDefault", &_getParamDefault);
+  function("getParamName", &_getParamName);
+  function("getParamLabel", &_getParamLabel);
+  function("getParamMin", &_getParamMin);
+  function("getParamMax", &_getParamMax);
+  function("getParamStep", &_getParamStep);
+  function("getParamValue", &_getParamValue);
+  function("getPluginName", &_getPluginName);
+  function("getPluginInfoJSON", &_getPluginInfoJSON);
 }
