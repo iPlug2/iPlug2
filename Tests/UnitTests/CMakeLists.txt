@@ -23,15 +23,36 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(Catch2)
 
+# iPlug2 source files needed for tests
+set(IPLUG_SOURCES
+  ${CMAKE_CURRENT_SOURCE_DIR}/../../IPlug/IPlugParameter.cpp
+)
+
+# Test source files
+set(TEST_SOURCES
+  IPlugQueueTest.cpp
+  IPlugParameterTest.cpp
+  ISenderTest.cpp
+)
+
 # Define the test executable
 add_executable(IPlug2UnitTests
-  IPlugQueueTest.cpp
+  ${TEST_SOURCES}
+  ${IPLUG_SOURCES}
 )
 
 # Include iPlug2 headers
 target_include_directories(IPlug2UnitTests PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/../../IPlug
+  ${CMAKE_CURRENT_SOURCE_DIR}/../../IPlug/Extras
   ${CMAKE_CURRENT_SOURCE_DIR}/../../WDL
+  ${CMAKE_CURRENT_SOURCE_DIR}/../../WDL/fft
+)
+
+# Define IPLUG2_TESTS to allow test-specific code paths if needed
+target_compile_definitions(IPlug2UnitTests PRIVATE
+  IPLUG2_TESTS
+  SAMPLE_TYPE_FLOAT  # Use float for sample type in tests
 )
 
 # Link Catch2
