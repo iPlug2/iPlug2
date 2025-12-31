@@ -268,6 +268,64 @@
     return 0;
   }
 
+
+#pragma mark - Wasm UI
+#elif defined WASM_UI_API
+#include <memory>
+#include "config.h"
+
+  std::unique_ptr<iplug::IPlugWasmUI> gPlug;
+  extern void StartMainLoopTimer();
+
+  extern "C"
+  {
+    EMSCRIPTEN_KEEPALIVE void iplug_syncfs()
+    {
+      EM_ASM({
+        if(Module.syncdone == 1) {
+          Module.syncdone = 0;
+          FS.syncfs(false, function (err) {
+            assert(!err);
+            console.log("Synced to IDBFS...");
+            Module.syncdone = 1;
+          });
+        }
+      });
+    }
+
+    EMSCRIPTEN_KEEPALIVE void iplug_fsready()
+    {
+      gPlug = std::unique_ptr<iplug::IPlugWasmUI>(iplug::MakePlug(iplug::InstanceInfo()));
+      gPlug->SetHost("www", 0);
+      gPlug->OpenWindow(nullptr);
+      iplug_syncfs();
+    }
+  }
+
+  int main()
+  {
+    // Create persistent data file system and synchronize
+    EM_ASM(
+           var name = '/' + UTF8ToString($0) + '_data';
+           FS.mkdir(name);
+           FS.mount(IDBFS, {}, name);
+
+           Module.syncdone = 0;
+           FS.syncfs(true, function (err) {
+            assert(!err);
+            console.log("Synced from IDBFS...");
+            Module.syncdone = 1;
+            ccall('iplug_fsready', 'v');
+          });
+        , PLUG_NAME);
+
+    StartMainLoopTimer();
+
+    gPlug = nullptr;
+
+    return 0;
+  }
+
 #pragma mark - CLAP
 #elif defined CLAP_API
 
@@ -373,7 +431,7 @@ CLAP_EXPORT const clap_plugin_entry_t clap_entry = {
   clap_get_factory,
 };
 
-#elif defined AUv3_API || defined AAX_API || defined APP_API
+#elif defined AUv3_API || defined AAX_API || defined APP_API || defined WAM_API || defined WEB_API || defined WASM_DSP_API || defined WASM_UI_API
 // Nothing to do here
 #else
   #error "No API defined!"
@@ -386,7 +444,7 @@ BEGIN_IPLUG_NAMESPACE
 #pragma mark -
 #pragma mark VST2, VST3, AAX, AUv3, APP, WAM, WEB, CLAP
 
-#if defined VST2_API || defined VST3_API || defined AAX_API || defined AUv3_API || defined APP_API  || defined WAM_API || defined WEB_API || defined CLAP_API
+#if defined VST2_API || defined VST3_API || defined AAX_API || defined AUv3_API || defined APP_API  || defined WAM_API || defined WEB_API || defined WASM_DSP_API || defined WASM_UI_API || defined CLAP_API
 
 Plugin* MakePlug(const iplug::InstanceInfo& info)
 {

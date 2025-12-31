@@ -224,6 +224,7 @@ private:
   friend class IPlugVST3Processor;
   friend class IPlugWAM;
   friend class IPlugWEB;
+  friend class IPlugWasmDSP;
 
 private:
   WDL_String mParamDisplayStr;

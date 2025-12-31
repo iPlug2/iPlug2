@@ -51,6 +51,12 @@
 #elif defined WEB_API
   #include "IPlugWeb.h"
   #define PLUGIN_API_BASE IPlugWeb
+#elif defined WASM_DSP_API
+  #include "IPlugWasmDSP.h"
+  #define PLUGIN_API_BASE IPlugWasmDSP
+#elif defined WASM_UI_API
+  #include "IPlugWasmUI.h"
+  #define PLUGIN_API_BASE IPlugWasmUI
 #elif defined VST3_API
   #define IPLUG_VST3
   #include "IPlugVST3.h"
