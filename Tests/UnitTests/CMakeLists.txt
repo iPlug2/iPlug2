@@ -26,6 +26,8 @@ FetchContent_MakeAvailable(Catch2)
 # iPlug2 source files needed for tests
 set(IPLUG_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/../../IPlug/IPlugParameter.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/../../IPlug/Extras/Synth/VoiceAllocator.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/../../IPlug/Extras/Synth/MidiSynth.cpp
 )
 
 # Test source files
@@ -34,6 +36,7 @@ set(TEST_SOURCES
   IPlugParameterTest.cpp
   ISenderTest.cpp
   DSPTest.cpp
+  MidiSynthTest.cpp
 )
 
 # Define the test executable
@@ -46,6 +49,7 @@ add_executable(IPlug2UnitTests
 target_include_directories(IPlug2UnitTests PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/../../IPlug
   ${CMAKE_CURRENT_SOURCE_DIR}/../../IPlug/Extras
+  ${CMAKE_CURRENT_SOURCE_DIR}/../../IPlug/Extras/Synth
   ${CMAKE_CURRENT_SOURCE_DIR}/../../WDL
   ${CMAKE_CURRENT_SOURCE_DIR}/../../WDL/fft
 )
