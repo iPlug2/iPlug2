@@ -32,6 +32,7 @@ import sys
 import re
 import argparse
 import json
+import os
 
 # Available projects (must match projects.yml)
 ALL_PROJECTS = [
@@ -162,6 +163,78 @@ def parse_ci_commands(text):
     return result
 
 
+def apply_defaults(config):
+    """Apply default values to configuration."""
+    # Apply defaults if nothing specified
+    if config['full'] or config['build_all_projects']:
+        config['projects'] = ALL_PROJECTS[:]
+    elif not config['projects']:
+        config['projects'] = ['IPlugEffect']
+
+    if not config['platforms']:
+        config['platforms'] = ['mac', 'win']
+
+    if not config['formats']:
+        config['formats'] = ['app', 'vst3', 'clap', 'auv2']
+
+    if not config['graphics']:
+        config['graphics'] = ['nanovg']
+
+    return config
+
+
+def output_github_actions(config, should_build=True):
+    """Output GitHub Actions workflow commands."""
+    github_output = os.environ.get('GITHUB_OUTPUT', '')
+
+    def set_output(name, value):
+        if github_output:
+            with open(github_output, 'a') as f:
+                f.write(f"{name}={value}\n")
+        else:
+            # Fallback for local testing
+            print(f"{name}={value}")
+
+    # Build summary
+    summary_parts = []
+    if config['full'] or config['build_all_projects']:
+        summary_parts.append('Projects: ALL')
+    else:
+        summary_parts.append(f"Projects: {', '.join(config['projects'])}")
+    summary_parts.append(f"Platforms: {', '.join(config['platforms'])}")
+    summary_parts.append(f"Formats: {', '.join(config['formats'])}")
+    summary_parts.append(f"Graphics: {', '.join(config['graphics'])}")
+    if config['test']:
+        summary_parts.append('Testing: enabled')
+    summary = ' | '.join(summary_parts)
+
+    # Write outputs
+    set_output('should_build', 'true' if should_build else 'false')
+    set_output('skip', 'true' if config['skip'] else 'false')
+    set_output('projects', ','.join(config['projects']))
+    set_output('platforms', ','.join(config['platforms']))
+    set_output('formats', ','.join(config['formats']))
+    set_output('graphics', ','.join(config['graphics']))
+    set_output('test', 'true' if config['test'] else 'false')
+    set_output('build_all', 'true' if config['full'] or config['build_all_projects'] else 'false')
+    set_output('build_mac', 'true' if 'mac' in config['platforms'] else 'false')
+    set_output('build_win', 'true' if 'win' in config['platforms'] else 'false')
+    set_output('build_ios', 'true' if 'ios' in config['platforms'] else 'false')
+    set_output('build_web', 'true' if 'web' in config['platforms'] else 'false')
+    set_output('build_skia', 'true' if 'skia' in config['graphics'] else 'false')
+    set_output('summary', summary)
+
+    # Print summary to stdout for logs
+    print(f"Parsed configuration:")
+    print(f"  Should build: {should_build}")
+    print(f"  Skip: {config['skip']}")
+    print(f"  Projects: {config['projects']}")
+    print(f"  Platforms: {config['platforms']}")
+    print(f"  Formats: {config['formats']}")
+    print(f"  Graphics: {config['graphics']}")
+    print(f"  Test: {config['test']}")
+
+
 def output_azure_variables(config):
     """Output Azure Pipeline variable commands."""
 
@@ -255,6 +328,9 @@ def main():
     parser.add_argument('text', nargs='?', help='PR body text')
     parser.add_argument('--file', '-f', help='Path to file containing PR body')
     parser.add_argument('--json', '-j', action='store_true', help='Output as JSON instead of Azure variables')
+    parser.add_argument('--github', '-g', action='store_true', help='Output as GitHub Actions workflow commands')
+    parser.add_argument('--event-type', '-e', choices=['pr', 'comment', 'dispatch'],
+                        default='pr', help='Event type for should_build logic')
 
     args = parser.parse_args()
 
@@ -274,8 +350,25 @@ def main():
 
     config = parse_ci_commands(text)
 
+    # Determine should_build based on event type
+    should_build = True
+    if args.event_type == 'dispatch':
+        # Manual dispatch always builds
+        should_build = not config['skip']
+    elif args.event_type == 'comment':
+        # Comment: build if /ci found and not skip
+        should_build = '/ci' in text.lower() and not config['skip']
+    else:  # pr
+        # PR: build only if explicit /ci command present
+        should_build = bool(re.search(r'^/ci\s', text, re.MULTILINE | re.IGNORECASE)) and not config['skip']
+
+    # Apply defaults
+    config = apply_defaults(config)
+
     if args.json:
         output_json(config)
+    elif args.github:
+        output_github_actions(config, should_build)
     else:
         output_azure_variables(config)
 

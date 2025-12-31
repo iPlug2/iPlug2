@@ -115,186 +115,22 @@ jobs:
           INPUT_GRAPHICS: ${{ github.event.inputs.graphics || '' }}
           INPUT_TEST: ${{ github.event.inputs.test || 'false' }}
         run: |
-          python3 << 'PYTHON_SCRIPT'
-          import os
-          import re
-          import json
+          # Determine input text and event type based on trigger
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            # Construct /ci command from manual inputs
+            INPUT_TEXT="/ci projects=${INPUT_PROJECTS} platforms=${INPUT_PLATFORMS} formats=${INPUT_FORMATS} graphics=${INPUT_GRAPHICS}"
+            [ "$INPUT_TEST" = "true" ] && INPUT_TEXT="$INPUT_TEXT test"
+            EVENT_TYPE="dispatch"
+          elif [ "$EVENT_NAME" = "issue_comment" ]; then
+            INPUT_TEXT="$COMMENT_BODY"
+            EVENT_TYPE="comment"
+          else
+            INPUT_TEXT="$PR_BODY"
+            EVENT_TYPE="pr"
+          fi
 
-          # Available options
-          ALL_PROJECTS = [
-              'IPlugEffect', 'IPlugInstrument', 'IPlugMidiEffect', 'IPlugControls',
-              'IPlugResponsiveUI', 'IPlugChunks', 'IPlugSideChain', 'IPlugSurroundEffect',
-              'IPlugDrumSynth', 'IPlugConvoEngine', 'IPlugOSCEditor', 'IPlugVisualizer',
-              'IPlugReaperPlugin', 'IPlugCocoaUI', 'IPlugSwiftUI', 'IPlugWebUI',
-              'IPlugP5js', 'IPlugSvelteUI', 'IGraphicsStressTest', 'IGraphicsTest', 'MetaParamTest'
-          ]
-          ALL_PLATFORMS = ['mac', 'win', 'ios', 'web']
-          ALL_FORMATS = ['app', 'vst3', 'clap', 'auv2', 'aax', 'vst2']
-          ALL_GRAPHICS = ['nanovg', 'skia']
-
-          def parse_ci_commands(text):
-              """Parse /ci commands from text."""
-              result = {
-                  'projects': [],
-                  'platforms': [],
-                  'formats': [],
-                  'graphics': [],
-                  'test': False,
-                  'skip': False,
-                  'full': False,
-              }
-
-              if not text:
-                  return result
-
-              ci_pattern = re.compile(r'^/ci\s+(.*)$', re.MULTILINE | re.IGNORECASE)
-              matches = ci_pattern.findall(text)
-
-              for match in matches:
-                  args = match.strip()
-
-                  # Shortcuts
-                  if args.lower() == 'skip':
-                      result['skip'] = True
-                      continue
-                  if args.lower() == 'full':
-                      result['full'] = True
-                      continue
-                  if args.lower() == 'quick':
-                      result['projects'] = ['IPlugEffect']
-                      continue
-                  if args.lower() in ['web', 'mac', 'win', 'ios']:
-                      result['platforms'].append(args.lower())
-                      continue
-
-                  # Parse tokens
-                  tokens = args.split()
-                  for token in tokens:
-                      token_lower = token.lower()
-
-                      if token_lower == 'test':
-                          result['test'] = True
-                          continue
-                      if token_lower == 'skip':
-                          result['skip'] = True
-                          continue
-                      if token_lower == 'full':
-                          result['full'] = True
-                          continue
-
-                      if '=' in token:
-                          key, value = token.split('=', 1)
-                          key = key.lower()
-                          values = [v.strip() for v in value.split(',') if v.strip()]
-
-                          if key in ['projects', 'project']:
-                              if values == ['all']:
-                                  result['full'] = True
-                              else:
-                                  for v in values:
-                                      for proj in ALL_PROJECTS:
-                                          if proj.lower() == v.lower():
-                                              if proj not in result['projects']:
-                                                  result['projects'].append(proj)
-                                              break
-                          elif key in ['platforms', 'platform']:
-                              for v in values:
-                                  if v.lower() in ALL_PLATFORMS and v.lower() not in result['platforms']:
-                                      result['platforms'].append(v.lower())
-                          elif key in ['formats', 'format']:
-                              for v in values:
-                                  if v.lower() in ALL_FORMATS and v.lower() not in result['formats']:
-                                      result['formats'].append(v.lower())
-                          elif key in ['graphics', 'gfx']:
-                              for v in values:
-                                  if v.lower() == 'both':
-                                      result['graphics'] = ['nanovg', 'skia']
-                                  elif v.lower() in ALL_GRAPHICS and v.lower() not in result['graphics']:
-                                      result['graphics'].append(v.lower())
-
-              return result
-
-          event_name = os.environ.get('EVENT_NAME', '')
-          pr_body = os.environ.get('PR_BODY', '')
-          comment_body = os.environ.get('COMMENT_BODY', '')
-
-          # Determine what text to parse
-          if event_name == 'workflow_dispatch':
-              # Use manual inputs
-              config = {
-                  'projects': [p.strip() for p in os.environ.get('INPUT_PROJECTS', '').split(',') if p.strip()],
-                  'platforms': [p.strip().lower() for p in os.environ.get('INPUT_PLATFORMS', '').split(',') if p.strip()],
-                  'formats': [f.strip().lower() for f in os.environ.get('INPUT_FORMATS', '').split(',') if f.strip()],
-                  'graphics': [g.strip().lower() for g in os.environ.get('INPUT_GRAPHICS', '').split(',') if g.strip()],
-                  'test': os.environ.get('INPUT_TEST', 'false').lower() == 'true',
-                  'skip': False,
-                  'full': 'all' in os.environ.get('INPUT_PROJECTS', '').lower(),
-              }
-              should_build = True
-          elif event_name == 'issue_comment':
-              # Parse the comment for /ci commands
-              config = parse_ci_commands(comment_body)
-              should_build = '/ci' in comment_body.lower() and not config['skip']
-          else:
-              # Parse PR body for /ci commands
-              config = parse_ci_commands(pr_body)
-              # Only auto-build on PR if explicit /ci commands are present
-              should_build = bool(re.search(r'^/ci\s', pr_body, re.MULTILINE | re.IGNORECASE)) and not config['skip']
-
-          # Apply defaults if nothing specified
-          if config['full']:
-              config['projects'] = ALL_PROJECTS
-          elif not config['projects']:
-              config['projects'] = ['IPlugEffect']
-
-          if not config['platforms']:
-              config['platforms'] = ['mac', 'win']
-
-          if not config['formats']:
-              config['formats'] = ['app', 'vst3', 'clap', 'auv2']
-
-          if not config['graphics']:
-              config['graphics'] = ['nanovg']
-
-          # Build summary
-          summary_parts = []
-          if config['full']:
-              summary_parts.append('Projects: ALL')
-          else:
-              summary_parts.append(f"Projects: {', '.join(config['projects'])}")
-          summary_parts.append(f"Platforms: {', '.join(config['platforms'])}")
-          summary_parts.append(f"Formats: {', '.join(config['formats'])}")
-          summary_parts.append(f"Graphics: {', '.join(config['graphics'])}")
-          if config['test']:
-              summary_parts.append('Testing: enabled')
-          summary = ' | '.join(summary_parts)
-
-          # Write outputs
-          with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
-              f.write(f"should_build={'true' if should_build else 'false'}\n")
-              f.write(f"skip={'true' if config['skip'] else 'false'}\n")
-              f.write(f"projects={','.join(config['projects'])}\n")
-              f.write(f"platforms={','.join(config['platforms'])}\n")
-              f.write(f"formats={','.join(config['formats'])}\n")
-              f.write(f"graphics={','.join(config['graphics'])}\n")
-              f.write(f"test={'true' if config['test'] else 'false'}\n")
-              f.write(f"build_all={'true' if config['full'] else 'false'}\n")
-              f.write(f"build_mac={'true' if 'mac' in config['platforms'] else 'false'}\n")
-              f.write(f"build_win={'true' if 'win' in config['platforms'] else 'false'}\n")
-              f.write(f"build_ios={'true' if 'ios' in config['platforms'] else 'false'}\n")
-              f.write(f"build_web={'true' if 'web' in config['platforms'] else 'false'}\n")
-              f.write(f"build_skia={'true' if 'skia' in config['graphics'] else 'false'}\n")
-              f.write(f"summary={summary}\n")
-
-          print(f"Parsed configuration:")
-          print(f"  Should build: {should_build}")
-          print(f"  Skip: {config['skip']}")
-          print(f"  Projects: {config['projects']}")
-          print(f"  Platforms: {config['platforms']}")
-          print(f"  Formats: {config['formats']}")
-          print(f"  Graphics: {config['graphics']}")
-          print(f"  Test: {config['test']}")
-          PYTHON_SCRIPT
+          # Call the centralized parser
+          echo "$INPUT_TEXT" | python3 Scripts/ci/parse_ci_commands.py --github --event-type "$EVENT_TYPE"
 
       - name: Post acknowledgment comment
         if: github.event_name == 'issue_comment' && steps.parse.outputs.should_build == 'true'
@@ -312,56 +148,6 @@ jobs:
       - name: Skip notification
         if: steps.parse.outputs.skip == 'true'
         run: echo "CI build skipped by /ci skip command"
-
-  # Trigger Azure Pipeline (if AZURE_DEVOPS_PAT secret is configured)
-  trigger-azure:
-    name: Trigger Azure Pipeline
-    needs: parse-commands
-    if: |
-      needs.parse-commands.outputs.should_build == 'true' &&
-      needs.parse-commands.outputs.skip != 'true'
-    runs-on: ubuntu-latest
-    # This job requires AZURE_DEVOPS_PAT and AZURE_DEVOPS_ORG secrets to be configured
-    # If not configured, this job will be skipped
-
-    steps:
-      - name: Check Azure credentials
-        id: check-azure
-        run: |
-          if [ -n "${{ secrets.AZURE_DEVOPS_PAT }}" ] && [ -n "${{ secrets.AZURE_DEVOPS_ORG }}" ]; then
-            echo "has_azure=true" >> $GITHUB_OUTPUT
-          else
-            echo "has_azure=false" >> $GITHUB_OUTPUT
-            echo "Azure DevOps credentials not configured. Skipping Azure Pipeline trigger."
-            echo "To enable Azure Pipeline triggering, set AZURE_DEVOPS_PAT and AZURE_DEVOPS_ORG secrets."
-          fi
-
-      - name: Trigger Azure Pipeline
-        if: steps.check-azure.outputs.has_azure == 'true'
-        env:
-          AZURE_DEVOPS_PAT: ${{ secrets.AZURE_DEVOPS_PAT }}
-          AZURE_DEVOPS_ORG: ${{ secrets.AZURE_DEVOPS_ORG }}
-          AZURE_DEVOPS_PROJECT: ${{ secrets.AZURE_DEVOPS_PROJECT || 'iPlug2' }}
-          AZURE_PIPELINE_ID: ${{ secrets.AZURE_PIPELINE_ID || '1' }}
-        run: |
-          # Azure Pipeline API to queue a build with parameters
-          # This would queue the build with the parsed configuration
-          echo "Would trigger Azure Pipeline with:"
-          echo "  Projects: ${{ needs.parse-commands.outputs.projects }}"
-          echo "  Platforms: ${{ needs.parse-commands.outputs.platforms }}"
-          echo "  Build all: ${{ needs.parse-commands.outputs.build_all }}"
-          echo "  Test: ${{ needs.parse-commands.outputs.test }}"
-
-          # Uncomment to actually trigger (requires proper Azure setup):
-          # curl -X POST \
-          #   -u ":${AZURE_DEVOPS_PAT}" \
-          #   -H "Content-Type: application/json" \
-          #   "https://dev.azure.com/${AZURE_DEVOPS_ORG}/${AZURE_DEVOPS_PROJECT}/_apis/pipelines/${AZURE_PIPELINE_ID}/runs?api-version=7.0" \
-          #   -d '{
-          #     "templateParameters": {
-          #       "buildAllProjects": "${{ needs.parse-commands.outputs.build_all }}"
-          #     }
-          #   }'
 
   # macOS build job
   build-mac:
@@ -394,6 +180,15 @@ jobs:
           FORMATS: ${{ needs.parse-commands.outputs.formats }}
           GRAPHICS: ${{ matrix.graphics }}
         run: |
+          # Defense-in-depth: validate graphics backend at runtime
+          case "$GRAPHICS" in
+            nanovg|skia) ;;
+            *) echo "Error: Invalid graphics backend: $GRAPHICS"; exit 1 ;;
+          esac
+
+          # Convert to uppercase for preprocessor definition
+          GRAPHICS_UPPER=$(echo "$GRAPHICS" | tr '[:lower:]' '[:upper:]')
+
           echo "Building macOS with $GRAPHICS graphics backend"
           echo "Projects: $PROJECTS"
           echo "Formats: $FORMATS"
@@ -425,7 +220,7 @@ jobs:
                     -configuration Release \
                     -destination 'platform=macOS' \
                     build \
-                    GCC_PREPROCESSOR_DEFINITIONS='$GCC_PREPROCESSOR_DEFINITIONS IGRAPHICS_${{ matrix.graphics }}' \
+                    GCC_PREPROCESSOR_DEFINITIONS="\$GCC_PREPROCESSOR_DEFINITIONS IGRAPHICS_${GRAPHICS_UPPER}" \
                     2>&1 | tail -50 || echo "Build completed with warnings/errors"
                 fi
               done
@@ -484,6 +279,12 @@ jobs:
           FORMATS: ${{ needs.parse-commands.outputs.formats }}
           GRAPHICS: ${{ matrix.graphics }}
         run: |
+          # Defense-in-depth: validate graphics backend at runtime
+          if ($env:GRAPHICS -notin @('nanovg', 'skia')) {
+            Write-Error "Invalid graphics backend: $env:GRAPHICS"
+            exit 1
+          }
+
           Write-Host "Building Windows with $env:GRAPHICS graphics backend"
           Write-Host "Projects: $env:PROJECTS"
           Write-Host "Formats: $env:FORMATS"
