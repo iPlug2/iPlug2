@@ -33,6 +33,7 @@ set(TEST_SOURCES
   IPlugQueueTest.cpp
   IPlugParameterTest.cpp
   ISenderTest.cpp
+  DSPTest.cpp
 )
 
 # Define the test executable
