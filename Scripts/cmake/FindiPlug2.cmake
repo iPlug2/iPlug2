@@ -38,11 +38,14 @@ if(IOS)
   include(${CMAKE_CURRENT_LIST_DIR}/AUv3iOS.cmake)
 endif()
 
-# Include WAM/Web modules for Emscripten builds
+# Include WAM/Web/Wasm modules for Emscripten builds
 if(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
   include(${CMAKE_CURRENT_LIST_DIR}/WAM.cmake)
   include(${CMAKE_CURRENT_LIST_DIR}/Web.cmake)
   include(${CMAKE_CURRENT_LIST_DIR}/WAMDist.cmake)
+  include(${CMAKE_CURRENT_LIST_DIR}/WasmDSP.cmake)
+  include(${CMAKE_CURRENT_LIST_DIR}/WasmUI.cmake)
+  include(${CMAKE_CURRENT_LIST_DIR}/WasmDist.cmake)
 endif()
 
 # Include the plugin helper macro (iplug_add_plugin)
