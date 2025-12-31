@@ -38,6 +38,7 @@ set(TEST_SOURCES
   DSPTest.cpp
   MidiSynthTest.cpp
   SerializationTest.cpp
+  UtilitiesTest.cpp
 )
 
 # Define the test executable
