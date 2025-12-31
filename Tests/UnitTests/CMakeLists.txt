@@ -24,10 +24,9 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(Catch2)
 
 # iPlug2 source files needed for tests
+# Note: Synth cpp files excluded due to complex WDL dependencies
 set(IPLUG_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/../../IPlug/IPlugParameter.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/../../IPlug/Extras/Synth/VoiceAllocator.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/../../IPlug/Extras/Synth/MidiSynth.cpp
 )
 
 # Test source files
