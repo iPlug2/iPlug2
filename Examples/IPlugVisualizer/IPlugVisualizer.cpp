@@ -109,12 +109,14 @@ void IPlugVisualizer::OnIdle()
 
 void IPlugVisualizer::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
 {
-  mSender.ProcessBlock(inputs, nFrames, kCtrlTagSpectrumAnalyzer, NInChansConnected());
-  const int nChans = NOutChansConnected();
-  
+  const int nInChans = NInChansConnected();
+  const int nOutChans = NOutChansConnected();
+
+  mSender.ProcessBlock(inputs, nFrames, kCtrlTagSpectrumAnalyzer, nInChans);
+
   for (int s = 0; s < nFrames; s++) {
-    for (int c = 0; c < nChans; c++) {
-      outputs[c][s] = inputs[0][s];
+    for (int c = 0; c < nOutChans; c++) {
+      outputs[c][s] = inputs[c % nInChans][s];
     }
   }
 }
@@ -122,18 +124,6 @@ void IPlugVisualizer::ProcessBlock(sample** inputs, sample** outputs, int nFrame
 void IPlugVisualizer::OnReset()
 {
   SyncUIControl();
-}
-
-#endif
-
-#if IPLUG_EDITOR
-void IPlugVisualizer::OnParamChangeUI(int paramIdx, EParamSource source)
-{
-  if (paramIdx == kOctaveGain)
-  {
-    double octaveGain = GetParam(kOctaveGain)->Value();
-    SendControlMsgFromDelegate(kCtrlTagSpectrumAnalyzer, IVSpectrumAnalyzerControl<>::kMsgTagOctaveGain, sizeof(double), &octaveGain);
-  }
 }
 
 bool IPlugVisualizer::SerializeState(IByteChunk &chunk) const
@@ -161,22 +151,33 @@ int IPlugVisualizer::UnserializeState(const IByteChunk &chunk, int startPos)
 
 void IPlugVisualizer::SyncUIControl()
 {
-  if (GetUI())
+  auto sr = GetSampleRate();
+  auto fftSize = mSender.GetFFTSize();
+  auto overlap = mSender.GetOverlap();
+  auto windowType = static_cast<int>(mSender.GetWindowType());
+  SendControlMsgFromDelegate(kCtrlTagSpectrumAnalyzer, IVSpectrumAnalyzerControl<>::kMsgTagSampleRate, sizeof(double), &sr);
+  SendControlMsgFromDelegate(kCtrlTagSpectrumAnalyzer, IVSpectrumAnalyzerControl<>::kMsgTagFFTSize, sizeof(int), &fftSize);
+  SendControlMsgFromDelegate(kCtrlTagSpectrumAnalyzer, IVSpectrumAnalyzerControl<>::kMsgTagOverlap, sizeof(int), &overlap);
+  SendControlMsgFromDelegate(kCtrlTagSpectrumAnalyzer, IVSpectrumAnalyzerControl<>::kMsgTagWindowType, sizeof(int), &windowType);
+}
+
+#endif
+
+#if IPLUG_EDITOR
+void IPlugVisualizer::OnParamChangeUI(int paramIdx, EParamSource source)
+{
+  if (paramIdx == kOctaveGain)
   {
-    auto sr = GetSampleRate();
-    auto fftSize = mSender.GetFFTSize();
-    auto overlap = mSender.GetOverlap();
-    auto windowType = static_cast<int>(mSender.GetWindowType());
-    SendControlMsgFromDelegate(kCtrlTagSpectrumAnalyzer, IVSpectrumAnalyzerControl<>::kMsgTagSampleRate, sizeof(double), &sr);
-    SendControlMsgFromDelegate(kCtrlTagSpectrumAnalyzer, IVSpectrumAnalyzerControl<>::kMsgTagFFTSize, sizeof(int), &fftSize);
-    SendControlMsgFromDelegate(kCtrlTagSpectrumAnalyzer, IVSpectrumAnalyzerControl<>::kMsgTagOverlap, sizeof(int), &overlap);
-    SendControlMsgFromDelegate(kCtrlTagSpectrumAnalyzer, IVSpectrumAnalyzerControl<>::kMsgTagWindowType, sizeof(int), &windowType);
+    double octaveGain = GetParam(kOctaveGain)->Value();
+    SendControlMsgFromDelegate(kCtrlTagSpectrumAnalyzer, IVSpectrumAnalyzerControl<>::kMsgTagOctaveGain, sizeof(double), &octaveGain);
   }
 }
 
 void IPlugVisualizer::OnUIOpen()
 {
+#if IPLUG_DSP
   SyncUIControl();
+#endif
 }
 
 #endif

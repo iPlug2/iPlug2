@@ -4,29 +4,33 @@
 IPlugSideChain::IPlugSideChain(const InstanceInfo& info)
 : iplug::Plugin(info, MakeConfig(kNumParams, kNumPresets))
 {
+#if IPLUG_DSP
   SetChannelLabel(ERoute::kInput, 0, "Main L");
   SetChannelLabel(ERoute::kInput, 1, "Main R");
   SetChannelLabel(ERoute::kInput, 2, "SideChain L");
   SetChannelLabel(ERoute::kInput, 3, "SideChain R");
+#endif
 
   GetParam(kGain)->InitGain("Gain");
 
+#if IPLUG_EDITOR
   mMakeGraphicsFunc = [&]() {
     return MakeGraphics(*this, PLUG_WIDTH, PLUG_HEIGHT, PLUG_FPS, 1.);
   };
-  
+
   mLayoutFunc = [&](IGraphics* pGraphics) {
     pGraphics->AttachCornerResizer(EUIResizerMode::Scale, false);
     pGraphics->AttachPanelBackground(COLOR_GRAY);
     pGraphics->LoadFont("Roboto-Regular", ROBOTO_FN);
     IRECT b = pGraphics->GetBounds().GetPadded(-10.f);
     IRECT s = b.ReduceFromRight(50.f);
-    
+
     const IVStyle meterStyle = DEFAULT_STYLE.WithColor(kFG, COLOR_WHITE.WithOpacity(0.3f));
     pGraphics->AttachControl(mInputMeter = new IVPeakAvgMeterControl<4>(b.FracRectVertical(0.5, true), "Inputs", meterStyle, EDirection::Horizontal, {"Main L", "Main R", "SideChain L", "SideChain R"}), kCtrlTagInputMeter);
     pGraphics->AttachControl(mOutputMeter = new IVPeakAvgMeterControl<2>(b.FracRectVertical(0.5, false), "Outputs", meterStyle, EDirection::Vertical, {"Main L", "Main R"}), kCtrlTagOutputMeter);
     pGraphics->AttachControl(new IVSliderControl(s, kGain));
   };
+#endif
 
 }
 
@@ -34,7 +38,8 @@ void IPlugSideChain::OnIdle()
 {
   mInputPeakSender.TransmitData(*this);
   mOutputPeakSender.TransmitData(*this);
-  
+
+#if IPLUG_EDITOR
   if (mSendUpdate)
   {
     if(GetUI())
@@ -43,16 +48,18 @@ void IPlugSideChain::OnIdle()
       mInputMeter->SetTrackName(1, mInputChansConnected[1] ? "Main R (Connected)" : "Main R (Not connected)");
       mInputMeter->SetTrackName(2, mInputChansConnected[2] ? "SideChain L (Connected)" : "SideChain L (Not connected)");
       mInputMeter->SetTrackName(3, mInputChansConnected[3] ? "SideChain R (Connected)" : "SideChain R (Not connected)");
-      
+
       mOutputMeter->SetTrackName(0, mOutputChansConnected[0] ? "Main L (Connected)" : "Main L (Not connected)");
       mOutputMeter->SetTrackName(1, mOutputChansConnected[1] ? "Main R (Connected)" : "Main R (Not connected)");
-      
+
       GetUI()->SetAllControlsDirty();
     }
     mSendUpdate = false;
   }
+#endif
 }
 
+#if IPLUG_DSP
 void IPlugSideChain::OnReset()
 {
   mInputPeakSender.Reset(GetSampleRate());
@@ -131,3 +138,4 @@ void IPlugSideChain::ProcessBlock(sample** inputs, sample** outputs, int nFrames
   mInputPeakSender.ProcessBlock(inputs, nFrames, kCtrlTagInputMeter, 4, 0);
   mOutputPeakSender.ProcessBlock(outputs, nFrames, kCtrlTagOutputMeter, 2, 0);
 }
+#endif // IPLUG_DSP

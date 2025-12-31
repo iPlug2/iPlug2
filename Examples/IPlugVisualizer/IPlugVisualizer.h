@@ -24,15 +24,14 @@ public:
   void OnIdle() override;
   void ProcessBlock(sample** inputs, sample** outputs, int nFrames) override;
   bool OnMessage(int msgTag, int ctrlTag, int dataSize, const void* pData) override;
+  bool SerializeState(IByteChunk &chunk) const override;
+  int UnserializeState(const IByteChunk &chunk, int startPos) override;
   ISpectrumSender<2> mSender;
+private:
+  void SyncUIControl();
 #endif
 #if IPLUG_EDITOR
   void OnParamChangeUI(int paramIdx, EParamSource source) override;
-  bool SerializeState(IByteChunk &chunk) const override;
-  int UnserializeState(const IByteChunk &chunk, int startPos) override;
   void OnUIOpen() override;
 #endif
-  
-private:
-  void SyncUIControl();
 };

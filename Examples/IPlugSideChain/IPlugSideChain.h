@@ -34,10 +34,12 @@ public:
   IPlugSideChain(const InstanceInfo& info);
 
   void OnIdle() override;
+#if IPLUG_DSP
   void ProcessBlock(sample** inputs, sample** outputs, int nFrames) override;
   void OnActivate(bool enable) override;
   void OnReset() override;
   void GetBusName(ERoute direction, int busIdx, int nBuses, WDL_String& str) const override;
+#endif
 
   bool mInputChansConnected[4] = {};
   bool mOutputChansConnected[2] = {};
@@ -45,6 +47,8 @@ public:
   
   IPeakAvgSender<4> mInputPeakSender;
   IPeakAvgSender<2> mOutputPeakSender;
+#if IPLUG_EDITOR
   IVMeterControl<4>* mInputMeter = nullptr;
   IVMeterControl<2>* mOutputMeter = nullptr;
+#endif
 };

@@ -57,9 +57,11 @@ int IPlugChunks::UnserializeState(const IByteChunk &chunk, int startPos)
   }
   
   // If UI exists
+#if IPLUG_EDITOR
   if(GetUI())
     UpdateUIControls();
-  
+#endif
+
   // must remember to call UnserializeParams at the end
   return UnserializeParams(chunk, startPos);
 }
@@ -88,6 +90,7 @@ void IPlugChunks::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
 }
 #endif
 
+#if IPLUG_EDITOR
 void IPlugChunks::OnUIOpen()
 {
   UpdateUIControls();
@@ -96,14 +99,15 @@ void IPlugChunks::OnUIOpen()
 void IPlugChunks::UpdateUIControls()
 {
   auto* pMultiSlider = GetUI()->GetControlWithTag(kCtrlMultiSlider);
-  
+
   for (int i = 0; i< kNumSteps; i++)
   {
     pMultiSlider->SetValue(mSteps[i], i);
   }
-  
+
   GetUI()->SetAllControlsDirty();
 }
+#endif
 
 bool IPlugChunks::OnMessage(int msgTag, int ctrlTag, int dataSize, const void* pData)
 {
