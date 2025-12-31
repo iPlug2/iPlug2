@@ -1,0 +1,283 @@
+/**
+ * NAME_PLACEHOLDER - iPlug2 Wasm AudioWorklet Processor
+ *
+ * This AudioWorkletProcessor loads the DSP WASM module and handles
+ * audio processing and message passing with the main thread.
+ *
+ * The DSP module is loaded via addModule() with the WASM embedded as BASE64.
+ */
+
+class NAME_PLACEHOLDERProcessor extends AudioWorkletProcessor {
+  constructor(options) {
+    super();
+
+    this.bufsize = 128; // Fixed by Web Audio API
+    this.sr = sampleRate;
+    this.numInputChannels = options.processorOptions?.numInputChannels || 0;
+    this.numOutputChannels = options.processorOptions?.numOutputChannels || 2;
+    this.isInstrument = options.processorOptions?.isInstrument || false;
+
+    // Audio buffer pointers (allocated in WASM memory)
+    this.inputPtrs = null;
+    this.outputPtrs = null;
+    this.inputPtrArray = 0;
+    this.outputPtrArray = 0;
+
+    // SharedArrayBuffer for low-latency visualization data (optional)
+    this.sabBuffer = null;
+    this.sabDataView = null;
+    this.sabWriteIdx = null;
+    this.sabCapacity = 0;
+
+    // Get the Module from globalThis (loaded by addModule)
+    this.Module = globalThis.Module;
+
+    if (!this.Module) {
+      console.error('NAME_PLACEHOLDER: DSP Module not found in globalThis');
+      return;
+    }
+
+    // Give WASM access to the message port (like WAM SDK does)
+    this.Module.port = this.port;
+
+    // Give WASM access to processor for SAB writes
+    this.Module.processor = this;
+
+    // Allocate audio buffers in WASM memory
+    this._allocateBuffers();
+
+    // Initialize DSP
+    this.Module.init(this.sr, this.bufsize);
+
+    // Send plugin info to main thread (for headless UI generation)
+    if (this.Module.getPluginInfoJSON) {
+      try {
+        const jsonStr = this.Module.getPluginInfoJSON();
+        console.log('NAME_PLACEHOLDER Processor: Raw pluginInfo JSON:', jsonStr);
+        const pluginInfo = JSON.parse(jsonStr);
+        console.log('NAME_PLACEHOLDER Processor: Parsed pluginInfo:', pluginInfo);
+        this.port.postMessage({ verb: 'pluginInfo', data: pluginInfo });
+        console.log('NAME_PLACEHOLDER Processor: Posted pluginInfo message');
+      } catch (e) {
+        console.warn('NAME_PLACEHOLDER: Failed to send plugin info:', e);
+      }
+    } else {
+      console.warn('NAME_PLACEHOLDER Processor: getPluginInfoJSON not available');
+    }
+
+    // Handle messages from main thread (parameter/MIDI changes)
+    this.port.onmessage = this._onMessage.bind(this);
+    this.port.start();
+  }
+
+  _allocateBuffers() {
+    const Module = this.Module;
+    const bufsize = this.bufsize;
+
+    // Allocate input channel buffers
+    this.inputPtrs = [];
+    for (let i = 0; i < this.numInputChannels; i++) {
+      const ptr = Module._malloc(bufsize * 4); // 4 bytes per float
+      this.inputPtrs.push(ptr);
+    }
+
+    // Allocate output channel buffers
+    this.outputPtrs = [];
+    for (let i = 0; i < this.numOutputChannels; i++) {
+      const ptr = Module._malloc(bufsize * 4);
+      this.outputPtrs.push(ptr);
+    }
+
+    // Allocate pointer arrays for C++ (array of float*)
+    const ptrSize = 4; // 32-bit pointers in WASM
+    this.inputPtrArray = Module._malloc(this.numInputChannels * ptrSize);
+    this.outputPtrArray = Module._malloc(this.numOutputChannels * ptrSize);
+
+    // Set up pointer arrays
+    for (let i = 0; i < this.numInputChannels; i++) {
+      Module.setValue(this.inputPtrArray + i * ptrSize, this.inputPtrs[i], 'i32');
+    }
+    for (let i = 0; i < this.numOutputChannels; i++) {
+      Module.setValue(this.outputPtrArray + i * ptrSize, this.outputPtrs[i], 'i32');
+    }
+  }
+
+  _onMessage(e) {
+    const msg = e.data;
+
+    switch (msg.type) {
+      case 'param':
+        this.Module.onParam(msg.paramIdx, msg.value);
+        break;
+
+      case 'midi':
+        this.Module.onMidi(msg.status, msg.data1, msg.data2);
+        break;
+
+      case 'sysex':
+        if (msg.data) {
+          const data = new Uint8Array(msg.data);
+          const ptr = this.Module._malloc(data.length);
+          this.Module.HEAPU8.set(data, ptr);
+          this.Module.onSysex(ptr, data.length);
+          this.Module._free(ptr);
+        }
+        break;
+
+      case 'arbitrary':
+        if (msg.data) {
+          const data = new Uint8Array(msg.data);
+          const ptr = this.Module._malloc(data.length);
+          this.Module.HEAPU8.set(data, ptr);
+          this.Module.onArbitraryMsg(msg.msgTag, msg.ctrlTag, data.length, ptr);
+          this.Module._free(ptr);
+        } else {
+          this.Module.onArbitraryMsg(msg.msgTag, msg.ctrlTag, 0, 0);
+        }
+        break;
+
+      case 'tick':
+        this.Module.onIdleTick();
+        break;
+
+      case 'attachSAB':
+        // Attach SharedArrayBuffer for low-latency visualization data
+        this.sabBuffer = msg.sab;
+        this.sabDataView = new DataView(msg.sab);
+        this.sabWriteIdx = new Uint32Array(msg.sab, 0, 1);
+        this.sabCapacity = this.sabDataView.getUint32(8, true);
+        break;
+
+      case 'getPluginInfo':
+        // Controller is requesting plugin info (in case it missed the initial broadcast)
+        this._sendPluginInfo();
+        break;
+    }
+  }
+
+  /**
+   * Send plugin info to main thread
+   */
+  _sendPluginInfo() {
+    if (this.Module.getPluginInfoJSON) {
+      try {
+        const jsonStr = this.Module.getPluginInfoJSON();
+        console.log('NAME_PLACEHOLDER Processor: Sending pluginInfo JSON:', jsonStr);
+        const pluginInfo = JSON.parse(jsonStr);
+        this.port.postMessage({ verb: 'pluginInfo', data: pluginInfo });
+      } catch (e) {
+        console.warn('NAME_PLACEHOLDER: Failed to send plugin info:', e);
+      }
+    }
+  }
+
+  /**
+   * Write a message to the SharedArrayBuffer ring buffer
+   * Called by DSP WASM via Module.processor._writeSABMessage()
+   * @param {number} msgType - 0=SCVFD, 1=SCMFD, 2=SAMFD
+   * @param {number} ctrlTag - Control tag
+   * @param {number} msgTag - Message tag (for SCMFD/SAMFD)
+   * @param {number} dataPtr - Pointer to data in WASM memory
+   * @param {number} dataSize - Size of data in bytes
+   * @returns {boolean} true if write succeeded
+   */
+  _writeSABMessage(msgType, ctrlTag, msgTag, dataPtr, dataSize) {
+    try {
+      if (!this.sabBuffer) return false;
+
+      const headerSize = 16;  // SAB header
+      const msgHeaderSize = 12; // message header (type + reserved + size + ctrlTag + msgTag)
+      const alignedDataSize = (dataSize + 3) & ~3; // 4-byte align
+      const totalMsgSize = msgHeaderSize + alignedDataSize;
+
+      // Limit message size to prevent buffer overflow
+      if (totalMsgSize > this.sabCapacity / 2) return false;
+
+      const writeIdx = Atomics.load(this.sabWriteIdx, 0);
+      const readIdx = Atomics.load(new Uint32Array(this.sabBuffer, 4, 1), 0);
+
+      // Check available CONTIGUOUS space (message cannot wrap around)
+      const spaceToEnd = this.sabCapacity - writeIdx;
+
+      // If message doesn't fit contiguously, reset write index to 0
+      let actualWriteIdx = writeIdx;
+      if (totalMsgSize > spaceToEnd) {
+        // Reset to beginning if there's space there
+        if (totalMsgSize <= readIdx || readIdx <= writeIdx) {
+          actualWriteIdx = 0;
+        } else {
+          return false; // No contiguous space available
+        }
+      }
+
+      // Check we don't overwrite unread data
+      if (readIdx > actualWriteIdx && (actualWriteIdx + totalMsgSize) >= readIdx) {
+        return false;
+      }
+
+      const offset = headerSize + actualWriteIdx;
+
+      // Bounds check
+      if (offset + msgHeaderSize + dataSize > this.sabBuffer.byteLength) {
+        return false;
+      }
+
+      // Write message header
+      this.sabDataView.setUint8(offset, msgType);
+      this.sabDataView.setUint8(offset + 1, 0); // reserved
+      this.sabDataView.setUint16(offset + 2, dataSize, true);
+      this.sabDataView.setInt32(offset + 4, ctrlTag, true);
+      this.sabDataView.setInt32(offset + 8, msgTag, true);
+
+      // Copy payload from WASM memory to SAB
+      if (dataSize > 0 && dataPtr) {
+        const src = new Uint8Array(this.Module.HEAPU8.buffer, dataPtr, dataSize);
+        const dst = new Uint8Array(this.sabBuffer, offset + msgHeaderSize, dataSize);
+        dst.set(src);
+      }
+
+      // Update write index atomically
+      const nextWrite = actualWriteIdx + totalMsgSize;
+      Atomics.store(this.sabWriteIdx, 0, nextWrite);
+
+      return true;
+    } catch (e) {
+      console.error('_writeSABMessage error:', e);
+      return false;
+    }
+  }
+
+  process(inputs, outputs, parameters) {
+    const Module = this.Module;
+    const bufsize = this.bufsize;
+
+    // Copy input samples to WASM memory
+    if (inputs.length > 0 && inputs[0].length > 0) {
+      for (let ch = 0; ch < this.numInputChannels && ch < inputs[0].length; ch++) {
+        Module.HEAPF32.set(inputs[0][ch], this.inputPtrs[ch] >> 2);
+      }
+    } else if (!this.isInstrument) {
+      // Zero input buffers if no input available (for effects)
+      for (let ch = 0; ch < this.numInputChannels; ch++) {
+        Module.HEAPF32.fill(0, this.inputPtrs[ch] >> 2, (this.inputPtrs[ch] >> 2) + bufsize);
+      }
+    }
+
+    // Call DSP processBlock via emscripten bindings
+    // We pass the pointer arrays (array of channel pointers)
+    Module.processBlock(this.inputPtrArray, this.outputPtrArray, bufsize);
+
+    // Copy output samples from WASM memory
+    if (outputs.length > 0 && outputs[0].length > 0) {
+      for (let ch = 0; ch < this.numOutputChannels && ch < outputs[0].length; ch++) {
+        outputs[0][ch].set(
+          Module.HEAPF32.subarray(this.outputPtrs[ch] >> 2, (this.outputPtrs[ch] >> 2) + bufsize)
+        );
+      }
+    }
+
+    return true; // Keep processor alive
+  }
+}
+
+registerProcessor('NAME_PLACEHOLDER_LC-processor', NAME_PLACEHOLDERProcessor);

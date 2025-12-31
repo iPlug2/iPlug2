@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NAME_PLACEHOLDER</title>
+  <link href="styles/style.css" rel="stylesheet">
+
+  <!-- Bundle must load first (initializes Module and web component) -->
+  <script src="scripts/NAME_PLACEHOLDER-bundle.js"></script>
+
+  <!-- Resource data files (fonts, SVGs, images) -->
+  <!--FONTS--><script src="scripts/fonts.js"></script>
+  <!--SVGS--><script src="scripts/svgs.js"></script>
+  <!--IMGS--><script src="scripts/imgs.js"></script>
+  <!--IMGS2X--><script src="scripts/imgs@2x.js"></script>
+</head>
+<body>
+  <!-- Plugin Web Component (hidden for headless plugins) -->
+  <iplug-NAME_PLACEHOLDER_LC></iplug-NAME_PLACEHOLDER_LC>
+
+  <!-- Plugin Parameters Panel (for headless plugins - shown in main body) -->
+  <div id="paramPanel" class="param-panel hidden">
+    <h1 id="pluginTitle">NAME_PLACEHOLDER</h1>
+    <div id="mainParams" class="main-params"></div>
+  </div>
+
+  <!-- Audio Controls -->
+  <div id="controls">
+    <button id="startBtn" disabled>Start Audio</button>
+
+    <!-- Source Section (hidden for instruments/no-input plugins) -->
+    <div id="sourceSection" class="control-section">
+      <div class="separator"></div>
+
+      <!-- Source Selection -->
+      <div class="control-group">
+        <label>Source</label>
+        <select id="sourceSelect" disabled>
+          <option value="none">None</option>
+          <option value="tone">Tone</option>
+          <option value="noise">Noise</option>
+          <option value="file">File</option>
+        </select>
+      </div>
+
+      <!-- Tone Controls (shown when tone selected) -->
+      <div id="toneControls" class="control-group hidden">
+        <select id="waveformSelect">
+          <option value="sine">Sin</option>
+          <option value="sawtooth" selected>Saw</option>
+          <option value="square">Sqr</option>
+          <option value="triangle">Tri</option>
+        </select>
+        <input type="range" id="freqL" min="20" max="2000" value="220" class="freq-slider" title="Left frequency">
+        <button id="linkBtn" class="link-btn" title="Link L/R frequencies">🔗</button>
+        <input type="range" id="freqR" min="20" max="2000" value="277" class="freq-slider" title="Right frequency">
+      </div>
+
+      <!-- File Controls (shown when file selected) -->
+      <div id="fileControls" class="control-group hidden">
+        <button id="loadFileBtn">📁</button>
+        <span id="fileName" class="file-name">No file</span>
+        <button id="playPauseBtn" disabled>▶</button>
+        <input type="checkbox" id="loopCheck" checked title="Loop">
+      </div>
+
+      <!-- Gain (always visible when source active) -->
+      <div id="gainControl" class="control-group hidden">
+        <label>Gain</label>
+        <input type="range" id="gainSlider" min="0" max="100" value="50">
+      </div>
+
+      <!-- Input VU Meters (effects only) -->
+      <div id="inputVuMeters" class="vu-meters">
+        <span class="vu-label">IN</span>
+        <div class="vu-bar-container"><div id="vuInL" class="vu-bar"></div></div>
+        <div class="vu-bar-container"><div id="vuInR" class="vu-bar"></div></div>
+      </div>
+    </div>
+
+    <!-- MIDI Section (MIDI-capable plugins only) -->
+    <div id="midiSection" class="control-section hidden">
+      <div class="separator"></div>
+      <div id="midiInGroup" class="control-group">
+        <select id="midiInSelect" title="MIDI Input">
+          <option value="">In: None</option>
+        </select>
+        <span id="midiInLed" class="midi-activity" title="MIDI In"></span>
+      </div>
+      <div id="midiOutGroup" class="control-group">
+        <select id="midiOutSelect" title="MIDI Output">
+          <option value="">Out: None</option>
+        </select>
+        <span id="midiOutLed" class="midi-activity" title="MIDI Out"></span>
+      </div>
+    </div>
+
+    <!-- Spacer to push right-aligned items -->
+    <div class="spacer"></div>
+
+    <!-- Output VU Meters (always visible) -->
+    <div id="outputVuMeters" class="vu-meters hidden">
+      <span class="vu-label">OUT</span>
+      <div class="vu-bar-container"><div id="vuOutL" class="vu-bar"></div></div>
+      <div class="vu-bar-container"><div id="vuOutR" class="vu-bar"></div></div>
+    </div>
+
+    <button id="fullscreenBtn" title="Fullscreen">⛶</button>
+
+    <!-- Plugin Parameters (auto-generated for headless plugins) -->
+    <div id="pluginParams" class="plugin-params hidden"></div>
+  </div>
+
+  <!-- Hidden file input -->
+  <input type="file" id="fileInput" accept="audio/*" style="display: none">
+
+  <script>
+    const pluginElement = document.querySelector('iplug-NAME_PLACEHOLDER_LC');
+    let audioStarted = false;
+    let audioContext = null;
+
+    // Audio source nodes
+    let oscillatorL = null;
+    let oscillatorR = null;
+    let noiseNode = null;
+    let fileSource = null;
+    let audioBuffer = null;
+    let gainNode = null;
+    let channelMerger = null;
+    let isFilePlaying = false;
+
+    // Frequency link state
+    let freqLinked = false;
+
+    // Output VU metering
+    let outAnalyserL = null;
+    let outAnalyserR = null;
+    let outSplitter = null;
+    let vuAnimationId = null;
+    let outVuDataL = null;
+    let outVuDataR = null;
+
+    // Input VU metering (effects only)
+    let inAnalyserL = null;
+    let inAnalyserR = null;
+    let inSplitter = null;
+    let inVuDataL = null;
+    let inVuDataR = null;
+
+    // MIDI state
+    let midiAccess = null;
+    let currentMidiIn = null;
+    let currentMidiOut = null;
+    let midiInTimeout = null;
+    let midiOutTimeout = null;
+
+    // DOM elements
+    const startBtn = document.getElementById('startBtn');
+    const sourceSelect = document.getElementById('sourceSelect');
+    const toneControls = document.getElementById('toneControls');
+    const fileControls = document.getElementById('fileControls');
+    const gainControl = document.getElementById('gainControl');
+    const waveformSelect = document.getElementById('waveformSelect');
+    const freqL = document.getElementById('freqL');
+    const freqR = document.getElementById('freqR');
+    const linkBtn = document.getElementById('linkBtn');
+    const loadFileBtn = document.getElementById('loadFileBtn');
+    const fileInput = document.getElementById('fileInput');
+    const fileName = document.getElementById('fileName');
+    const playPauseBtn = document.getElementById('playPauseBtn');
+    const loopCheck = document.getElementById('loopCheck');
+    const gainSlider = document.getElementById('gainSlider');
+    const fullscreenBtn = document.getElementById('fullscreenBtn');
+    // Output VU meters
+    const outputVuMeters = document.getElementById('outputVuMeters');
+    const vuOutLBar = document.getElementById('vuOutL');
+    const vuOutRBar = document.getElementById('vuOutR');
+    // Input VU meters
+    const inputVuMeters = document.getElementById('inputVuMeters');
+    const vuInLBar = document.getElementById('vuInL');
+    const vuInRBar = document.getElementById('vuInR');
+    // MIDI controls
+    const midiSection = document.getElementById('midiSection');
+    const midiInGroup = document.getElementById('midiInGroup');
+    const midiOutGroup = document.getElementById('midiOutGroup');
+    const midiInSelect = document.getElementById('midiInSelect');
+    const midiOutSelect = document.getElementById('midiOutSelect');
+    const midiInLed = document.getElementById('midiInLed');
+    const midiOutLed = document.getElementById('midiOutLed');
+
+    // Initialize WebMIDI
+    async function initMidi() {
+      try {
+        midiAccess = await navigator.requestMIDIAccess({ sysex: false });
+        updateMidiDevices();
+        midiAccess.onstatechange = updateMidiDevices;
+      } catch (err) {
+        console.log('WebMIDI not available:', err.message);
+        midiInSelect.disabled = true;
+        midiOutSelect.disabled = true;
+        midiInSelect.innerHTML = '<option>MIDI unavailable</option>';
+        midiOutSelect.innerHTML = '<option>MIDI unavailable</option>';
+      }
+    }
+
+    function updateMidiDevices() {
+      const currentInValue = midiInSelect.value;
+      const currentOutValue = midiOutSelect.value;
+
+      // Update inputs
+      midiInSelect.innerHTML = '<option value="">In: None</option>';
+      for (const input of midiAccess.inputs.values()) {
+        const opt = document.createElement('option');
+        opt.value = input.id;
+        opt.textContent = 'In: ' + (input.name.length > 20 ? input.name.slice(0, 18) + '…' : input.name);
+        opt.title = input.name;
+        midiInSelect.appendChild(opt);
+      }
+
+      // Update outputs
+      midiOutSelect.innerHTML = '<option value="">Out: None</option>';
+      for (const output of midiAccess.outputs.values()) {
+        const opt = document.createElement('option');
+        opt.value = output.id;
+        opt.textContent = 'Out: ' + (output.name.length > 18 ? output.name.slice(0, 16) + '…' : output.name);
+        opt.title = output.name;
+        midiOutSelect.appendChild(opt);
+      }
+
+      // Restore selection if still available
+      if (currentInValue && midiInSelect.querySelector(`option[value="${currentInValue}"]`)) {
+        midiInSelect.value = currentInValue;
+      }
+      if (currentOutValue && midiOutSelect.querySelector(`option[value="${currentOutValue}"]`)) {
+        midiOutSelect.value = currentOutValue;
+      }
+    }
+
+    function showMidiInActivity() {
+      midiInLed.classList.add('active');
+      clearTimeout(midiInTimeout);
+      midiInTimeout = setTimeout(() => midiInLed.classList.remove('active'), 100);
+    }
+
+    function showMidiOutActivity() {
+      midiOutLed.classList.add('active');
+      clearTimeout(midiOutTimeout);
+      midiOutTimeout = setTimeout(() => midiOutLed.classList.remove('active'), 100);
+    }
+
+    function handleMidiMessage(e) {
+      showMidiInActivity();
+      const controller = pluginElement.controller;
+      if (controller && e.data.length >= 1) {
+        const status = e.data[0];
+        const data1 = e.data.length > 1 ? e.data[1] : 0;
+        const data2 = e.data.length > 2 ? e.data[2] : 0;
+        controller.sendMidi(status, data1, data2);
+      }
+    }
+
+    function connectMidiInput(inputId) {
+      // Disconnect previous
+      if (currentMidiIn) {
+        currentMidiIn.onmidimessage = null;
+        currentMidiIn = null;
+      }
+
+      if (!inputId || !midiAccess) return;
+
+      const input = midiAccess.inputs.get(inputId);
+      if (input) {
+        input.onmidimessage = handleMidiMessage;
+        currentMidiIn = input;
+        console.log('MIDI Input connected:', input.name);
+      }
+    }
+
+    function connectMidiOutput(outputId) {
+      currentMidiOut = null;
+      if (!outputId || !midiAccess) return;
+
+      const output = midiAccess.outputs.get(outputId);
+      if (output) {
+        currentMidiOut = output;
+        console.log('MIDI Output connected:', output.name);
+      }
+    }
+
+    midiInSelect.addEventListener('change', () => connectMidiInput(midiInSelect.value));
+    midiOutSelect.addEventListener('change', () => connectMidiOutput(midiOutSelect.value));
+
+    // Initialize MIDI on page load
+    initMidi();
+
+    // Wait for UI to be ready
+    pluginElement.addEventListener('uiready', () => {
+      startBtn.disabled = false;
+    });
+
+    // Wait for audio to be ready
+    pluginElement.addEventListener('audioready', (e) => {
+      console.log('Audio ready:', e.detail.controller);
+      startBtn.textContent = 'Stop';
+      audioStarted = true;
+
+      const ctx = pluginElement.controller.getAudioContext();
+      const workletNode = pluginElement.controller.getWorkletNode();
+
+      // Determine plugin capabilities
+      const hasInputs = pluginElement.numInputs > 0 && !pluginElement.isInstrument;
+      const receivesMidi = pluginElement.receivesMidi;
+      const sendsMidi = pluginElement.sendsMidi;
+      const hasMidi = receivesMidi || sendsMidi;
+
+      // Source section (effects with audio inputs only)
+      const sourceSection = document.getElementById('sourceSection');
+      if (hasInputs) {
+        sourceSection.classList.remove('hidden');
+        sourceSelect.disabled = false;
+
+        // Create input routing
+        gainNode = ctx.createGain();
+        gainNode.gain.value = 0.5;
+        gainNode.connect(workletNode);
+
+        channelMerger = ctx.createChannelMerger(2);
+        channelMerger.connect(gainNode);
+
+        // Create input VU metering (tap signal going to plugin)
+        inSplitter = ctx.createChannelSplitter(2);
+        gainNode.connect(inSplitter);
+
+        inAnalyserL = ctx.createAnalyser();
+        inAnalyserL.fftSize = 256;
+        inAnalyserL.smoothingTimeConstant = 0.8;
+        inSplitter.connect(inAnalyserL, 0);
+
+        inAnalyserR = ctx.createAnalyser();
+        inAnalyserR.fftSize = 256;
+        inAnalyserR.smoothingTimeConstant = 0.8;
+        inSplitter.connect(inAnalyserR, 1);
+
+        inVuDataL = new Float32Array(inAnalyserL.fftSize);
+        inVuDataR = new Float32Array(inAnalyserR.fftSize);
+      } else {
+        sourceSection.classList.add('hidden');
+      }
+
+      // MIDI section (show if plugin supports MIDI)
+      if (hasMidi) {
+        midiSection.classList.remove('hidden');
+        midiInGroup.classList.toggle('hidden', !receivesMidi);
+        midiOutGroup.classList.toggle('hidden', !sendsMidi);
+      } else {
+        midiSection.classList.add('hidden');
+      }
+
+      // Create output VU metering (always)
+      outSplitter = ctx.createChannelSplitter(2);
+      workletNode.connect(outSplitter);
+
+      outAnalyserL = ctx.createAnalyser();
+      outAnalyserL.fftSize = 256;
+      outAnalyserL.smoothingTimeConstant = 0.8;
+      outSplitter.connect(outAnalyserL, 0);
+
+      outAnalyserR = ctx.createAnalyser();
+      outAnalyserR.fftSize = 256;
+      outAnalyserR.smoothingTimeConstant = 0.8;
+      outSplitter.connect(outAnalyserR, 1);
+
+      outVuDataL = new Float32Array(outAnalyserL.fftSize);
+      outVuDataR = new Float32Array(outAnalyserR.fftSize);
+
+      // Show output VU meters and start animation
+      outputVuMeters.classList.remove('hidden');
+      startVuMetering();
+
+      // Connect MIDI output from plugin to hardware
+      const controller = e.detail.controller;
+      controller.on('midiMsg', ({ status, data1, data2 }) => {
+        showMidiOutActivity();
+        if (currentMidiOut) {
+          currentMidiOut.send([status, data1, data2]);
+        }
+      });
+    });
+
+    function startVuMetering() {
+      function updateVu() {
+        const minDb = -60;
+
+        // Update output VU meters (always)
+        if (outAnalyserL && outAnalyserR) {
+          outAnalyserL.getFloatTimeDomainData(outVuDataL);
+          outAnalyserR.getFloatTimeDomainData(outVuDataR);
+
+          let sumL = 0, sumR = 0;
+          for (let i = 0; i < outVuDataL.length; i++) {
+            sumL += outVuDataL[i] * outVuDataL[i];
+            sumR += outVuDataR[i] * outVuDataR[i];
+          }
+          const rmsL = Math.sqrt(sumL / outVuDataL.length);
+          const rmsR = Math.sqrt(sumR / outVuDataR.length);
+
+          const dbL = rmsL > 0 ? 20 * Math.log10(rmsL) : -100;
+          const dbR = rmsR > 0 ? 20 * Math.log10(rmsR) : -100;
+
+          const pctL = Math.max(0, Math.min(100, ((dbL - minDb) / -minDb) * 100));
+          const pctR = Math.max(0, Math.min(100, ((dbR - minDb) / -minDb) * 100));
+
+          vuOutLBar.style.height = pctL + '%';
+          vuOutRBar.style.height = pctR + '%';
+
+          vuOutLBar.className = 'vu-bar' + (dbL > -6 ? ' hot' : dbL > -12 ? ' warm' : '');
+          vuOutRBar.className = 'vu-bar' + (dbR > -6 ? ' hot' : dbR > -12 ? ' warm' : '');
+        }
+
+        // Update input VU meters (effects only)
+        if (inAnalyserL && inAnalyserR) {
+          inAnalyserL.getFloatTimeDomainData(inVuDataL);
+          inAnalyserR.getFloatTimeDomainData(inVuDataR);
+
+          let sumL = 0, sumR = 0;
+          for (let i = 0; i < inVuDataL.length; i++) {
+            sumL += inVuDataL[i] * inVuDataL[i];
+            sumR += inVuDataR[i] * inVuDataR[i];
+          }
+          const rmsL = Math.sqrt(sumL / inVuDataL.length);
+          const rmsR = Math.sqrt(sumR / inVuDataR.length);
+
+          const dbL = rmsL > 0 ? 20 * Math.log10(rmsL) : -100;
+          const dbR = rmsR > 0 ? 20 * Math.log10(rmsR) : -100;
+
+          const pctL = Math.max(0, Math.min(100, ((dbL - minDb) / -minDb) * 100));
+          const pctR = Math.max(0, Math.min(100, ((dbR - minDb) / -minDb) * 100));
+
+          vuInLBar.style.height = pctL + '%';
+          vuInRBar.style.height = pctR + '%';
+
+          vuInLBar.className = 'vu-bar' + (dbL > -6 ? ' hot' : dbL > -12 ? ' warm' : '');
+          vuInRBar.className = 'vu-bar' + (dbR > -6 ? ' hot' : dbR > -12 ? ' warm' : '');
+        }
+
+        vuAnimationId = requestAnimationFrame(updateVu);
+      }
+      updateVu();
+    }
+
+    function stopVuMetering() {
+      if (vuAnimationId) {
+        cancelAnimationFrame(vuAnimationId);
+        vuAnimationId = null;
+      }
+    }
+
+    // Start/stop audio button
+    startBtn.addEventListener('click', async () => {
+      if (!audioStarted) {
+        try {
+          audioContext = new AudioContext({ latencyHint: 'interactive' });
+          const controller = new IPlugWasmController('NAME_PLACEHOLDER');
+          await controller.init({
+            audioContext: audioContext,
+            numInputChannels: pluginElement.numInputs,
+            numOutputChannels: pluginElement.numOutputs,
+            isInstrument: pluginElement.isInstrument
+          });
+          pluginElement.connectController(controller);
+          controller.startAudio();
+        } catch (err) {
+          console.error('Failed to start audio:', err);
+          alert('Failed to start audio. Make sure your browser supports AudioWorklet.');
+        }
+      } else {
+        stopCurrentSource();
+        stopVuMetering();
+        const controller = pluginElement.controller;
+        if (controller) {
+          controller.stopAudio();
+          startBtn.textContent = 'Start Audio';
+          sourceSelect.disabled = true;
+          sourceSelect.value = 'none';
+          updateSourceControls();
+          outputVuMeters.classList.add('hidden');
+          audioStarted = false;
+        }
+      }
+    });
+
+    // Source selection
+    sourceSelect.addEventListener('change', () => {
+      stopCurrentSource();
+      updateSourceControls();
+      startCurrentSource();
+    });
+
+    function updateSourceControls() {
+      const source = sourceSelect.value;
+      toneControls.classList.toggle('hidden', source !== 'tone');
+      fileControls.classList.toggle('hidden', source !== 'file');
+      gainControl.classList.toggle('hidden', source === 'none');
+    }
+
+    function stopCurrentSource() {
+      if (oscillatorL) {
+        oscillatorL.stop();
+        oscillatorL = null;
+      }
+      if (oscillatorR) {
+        oscillatorR.stop();
+        oscillatorR = null;
+      }
+      if (noiseNode) {
+        noiseNode.disconnect();
+        noiseNode = null;
+      }
+      if (fileSource) {
+        fileSource.stop();
+        fileSource = null;
+        isFilePlaying = false;
+        playPauseBtn.textContent = '▶';
+      }
+    }
+
+    function startCurrentSource() {
+      const source = sourceSelect.value;
+      const ctx = pluginElement.controller?.getAudioContext();
+      if (!ctx || source === 'none') return;
+
+      if (source === 'tone') {
+        startTone();
+      } else if (source === 'noise') {
+        startNoise();
+      }
+      // File source starts via play button
+    }
+
+    function startTone() {
+      if (!channelMerger) return;
+      const ctx = pluginElement.controller.getAudioContext();
+      const waveform = waveformSelect.value;
+
+      // Left channel oscillator
+      oscillatorL = ctx.createOscillator();
+      oscillatorL.type = waveform;
+      oscillatorL.frequency.value = parseFloat(freqL.value);
+
+      // Right channel oscillator
+      oscillatorR = ctx.createOscillator();
+      oscillatorR.type = waveform;
+      oscillatorR.frequency.value = parseFloat(freqR.value);
+
+      // Route to channel merger
+      oscillatorL.connect(channelMerger, 0, 0);
+      oscillatorR.connect(channelMerger, 0, 1);
+
+      oscillatorL.start();
+      oscillatorR.start();
+    }
+
+    function startNoise() {
+      if (!gainNode) return;
+      const ctx = pluginElement.controller.getAudioContext();
+      const bufferSize = 2 * ctx.sampleRate;
+      const noiseBuffer = ctx.createBuffer(2, bufferSize, ctx.sampleRate);
+
+      for (let channel = 0; channel < 2; channel++) {
+        const data = noiseBuffer.getChannelData(channel);
+        for (let i = 0; i < bufferSize; i++) {
+          data[i] = Math.random() * 2 - 1;
+        }
+      }
+
+      noiseNode = ctx.createBufferSource();
+      noiseNode.buffer = noiseBuffer;
+      noiseNode.loop = true;
+      noiseNode.connect(gainNode);
+      noiseNode.start();
+    }
+
+    function startFilePlayback() {
+      if (!audioBuffer || !gainNode) return;
+
+      const ctx = pluginElement.controller.getAudioContext();
+      fileSource = ctx.createBufferSource();
+      fileSource.buffer = audioBuffer;
+      fileSource.loop = loopCheck.checked;
+      fileSource.connect(gainNode);
+      fileSource.onended = () => {
+        if (!fileSource.loop) {
+          isFilePlaying = false;
+          playPauseBtn.textContent = '▶';
+          fileSource = null;
+        }
+      };
+      fileSource.start();
+      isFilePlaying = true;
+      playPauseBtn.textContent = '⏹';
+    }
+
+    // Waveform change
+    waveformSelect.addEventListener('change', () => {
+      if (oscillatorL && oscillatorR) {
+        oscillatorL.type = waveformSelect.value;
+        oscillatorR.type = waveformSelect.value;
+      }
+    });
+
+    // Link button
+    linkBtn.addEventListener('click', () => {
+      freqLinked = !freqLinked;
+      linkBtn.classList.toggle('active', freqLinked);
+      if (freqLinked) {
+        freqR.value = freqL.value;
+        if (oscillatorR) oscillatorR.frequency.value = parseFloat(freqL.value);
+      }
+    });
+
+    // Frequency sliders
+    freqL.addEventListener('input', () => {
+      const freq = parseFloat(freqL.value);
+      if (oscillatorL) oscillatorL.frequency.value = freq;
+      if (freqLinked) {
+        freqR.value = freq;
+        if (oscillatorR) oscillatorR.frequency.value = freq;
+      }
+    });
+
+    freqR.addEventListener('input', () => {
+      const freq = parseFloat(freqR.value);
+      if (oscillatorR) oscillatorR.frequency.value = freq;
+      if (freqLinked) {
+        freqL.value = freq;
+        if (oscillatorL) oscillatorL.frequency.value = freq;
+      }
+    });
+
+    // Gain slider
+    gainSlider.addEventListener('input', () => {
+      if (gainNode) {
+        gainNode.gain.value = parseFloat(gainSlider.value) / 100;
+      }
+    });
+
+    // File loading
+    loadFileBtn.addEventListener('click', () => fileInput.click());
+
+    fileInput.addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      try {
+        const ctx = pluginElement.controller.getAudioContext();
+        const arrayBuffer = await file.arrayBuffer();
+        audioBuffer = await ctx.decodeAudioData(arrayBuffer);
+        fileName.textContent = file.name.length > 12 ? file.name.slice(0, 10) + '…' : file.name;
+        fileName.title = file.name;
+        playPauseBtn.disabled = false;
+      } catch (err) {
+        console.error('Failed to load audio file:', err);
+        fileName.textContent = 'Error';
+      }
+    });
+
+    // Play/pause file
+    playPauseBtn.addEventListener('click', () => {
+      if (isFilePlaying) {
+        if (fileSource) {
+          fileSource.stop();
+          fileSource = null;
+        }
+        isFilePlaying = false;
+        playPauseBtn.textContent = '▶';
+      } else {
+        startFilePlayback();
+      }
+    });
+
+    // Loop checkbox
+    loopCheck.addEventListener('change', () => {
+      if (fileSource) {
+        fileSource.loop = loopCheck.checked;
+      }
+    });
+
+    // Fullscreen button
+    fullscreenBtn.addEventListener('click', () => {
+      if (document.fullscreenElement) {
+        document.exitFullscreen();
+      } else {
+        pluginElement.requestFullscreen();
+      }
+    });
+
+    // Plugin parameters (for headless plugins - shown in main body)
+    const paramPanel = document.getElementById('paramPanel');
+    const mainParams = document.getElementById('mainParams');
+    const pluginTitle = document.getElementById('pluginTitle');
+    let paramSliders = new Map();
+    let isHeadless = false;
+
+    // Check if this is a headless plugin (no UI module)
+    pluginElement.addEventListener('uiready', (e) => {
+      if (!e.detail.module) {
+        // Headless plugin - show parameter panel
+        isHeadless = true;
+        pluginElement.style.display = 'none';
+        paramPanel.classList.remove('hidden');
+        startBtn.disabled = false; // Enable start button immediately for headless
+      }
+    });
+
+    // Generate parameter controls from plugin info (in main body for headless)
+    function generateParamControls(params, pluginName) {
+      if (!params || params.length === 0) return;
+
+      if (pluginName) {
+        pluginTitle.textContent = pluginName;
+      }
+
+      mainParams.innerHTML = '';
+
+      for (const param of params) {
+        const row = document.createElement('div');
+        row.className = 'main-param-row';
+
+        const labelContainer = document.createElement('div');
+        labelContainer.className = 'main-param-label';
+
+        const label = document.createElement('span');
+        label.className = 'main-param-name';
+        label.textContent = param.name;
+
+        const value = document.createElement('span');
+        value.className = 'main-param-value';
+        value.textContent = formatParamValue(param.value, param);
+
+        labelContainer.appendChild(label);
+        labelContainer.appendChild(value);
+
+        const slider = document.createElement('input');
+        slider.type = 'range';
+        slider.className = 'main-param-slider';
+        slider.min = param.min;
+        slider.max = param.max;
+        slider.step = param.step > 0 ? param.step : (param.max - param.min) / 1000;
+        slider.value = param.value;
+        slider.dataset.paramIdx = param.idx;
+
+        slider.addEventListener('input', () => {
+          const val = parseFloat(slider.value);
+          value.textContent = formatParamValue(val, param);
+          // Send to DSP
+          if (pluginElement.controller) {
+            // Convert to normalized (0-1) value for setParam
+            const normalized = (val - param.min) / (param.max - param.min);
+            pluginElement.controller.setParam(param.idx, normalized);
+          }
+        });
+
+        paramSliders.set(param.idx, { slider, value, param });
+
+        row.appendChild(labelContainer);
+        row.appendChild(slider);
+        mainParams.appendChild(row);
+      }
+    }
+
+    function formatParamValue(val, param) {
+      const decimals = param.step >= 1 ? 0 : param.step >= 0.1 ? 1 : param.step >= 0.01 ? 2 : 3;
+      return val.toFixed(decimals) + (param.label ? ' ' + param.label : '');
+    }
+
+    // Update parameter display when DSP sends new values
+    function updateParamDisplay(paramIdx, normalizedValue) {
+      const entry = paramSliders.get(paramIdx);
+      if (entry) {
+        const { slider, value, param } = entry;
+        const realValue = param.min + normalizedValue * (param.max - param.min);
+        slider.value = realValue;
+        value.textContent = formatParamValue(realValue, param);
+      }
+    }
+
+    // Listen for plugin info from DSP (for headless plugins)
+    pluginElement.addEventListener('audioready', (e) => {
+      const controller = e.detail.controller;
+      if (controller) {
+        // Listen for plugin info
+        controller.on('pluginInfo', (info) => {
+          if (isHeadless && info.params && info.params.length > 0) {
+            generateParamControls(info.params, info.name);
+          }
+        });
+
+        // Listen for parameter changes from DSP
+        controller.on('paramChange', ({ paramIdx, value }) => {
+          updateParamDisplay(paramIdx, value);
+        });
+
+        // If pluginInfo already received, generate controls
+        if (isHeadless && controller.pluginInfo?.params) {
+          generateParamControls(controller.pluginInfo.params, controller.pluginInfo.name);
+        }
+      }
+    });
+  </script>
+</body>
+</html>

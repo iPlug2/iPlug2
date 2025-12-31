@@ -1,0 +1,716 @@
+/**
+ * NAME_PLACEHOLDER - iPlug2 Wasm Web Component Bundle
+ *
+ * This is a self-contained bundle that includes:
+ * - Web Component with Shadow DOM
+ * - IPlugWasmController for DSP/UI communication
+ * - Embedded CSS styles
+ *
+ * Split DSP/UI build with postMessage communication.
+ */
+
+// Initialize Module early so resource scripts can add preloaded data
+window.Module = window.Module || {
+  preRun: [],
+  postRun: [],
+  print: text => console.log('[NAME_PLACEHOLDER]', text),
+  printErr: text => console.error('[NAME_PLACEHOLDER] stderr:', text)
+};
+
+(function() {
+  'use strict';
+
+  const PLUGIN_NAME = 'NAME_PLACEHOLDER';
+  const PLUGIN_NAME_LC = 'NAME_PLACEHOLDER_LC';
+  const PLUGIN_TAG = 'iplug-NAME_PLACEHOLDER_LC';
+  const NUM_INPUTS = MAXNINPUTS_PLACEHOLDER;
+  const NUM_OUTPUTS = MAXNOUTPUTS_PLACEHOLDER;
+  const IS_INSTRUMENT = IS_INSTRUMENT_PLACEHOLDER;
+  const HOST_RESIZE = HOST_RESIZE_PLACEHOLDER;
+  const HAS_UI = HAS_UI_PLACEHOLDER; // false for headless plugins
+  const DOES_MIDI_IN = DOES_MIDI_IN_PLACEHOLDER;
+  const DOES_MIDI_OUT = DOES_MIDI_OUT_PLACEHOLDER;
+
+  // Embedded CSS for Shadow DOM
+  const COMPONENT_CSS = `
+    :host {
+      display: block;
+      width: 100%;
+      height: 100%;
+      position: relative;
+      contain: content;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .loading {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: rgba(26, 26, 26, 0.95);
+      color: #fff;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      z-index: 1000;
+      transition: opacity 0.3s ease;
+    }
+
+    .loading.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .loading-spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid #333;
+      border-top-color: #888;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 16px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .loading-text {
+      font-size: 14px;
+      color: #888;
+    }
+
+    .loading-progress {
+      width: 200px;
+      height: 4px;
+      background: #333;
+      border-radius: 2px;
+      margin-top: 12px;
+      overflow: hidden;
+    }
+
+    .loading-progress-bar {
+      height: 100%;
+      background: #888;
+      transition: width 0.2s ease;
+    }
+  `;
+
+  //==========================================================================
+  // IPlugWasmController Class (embedded)
+  //==========================================================================
+
+  class IPlugWasmController {
+    /**
+     * Create a controller for DSP/UI communication
+     * @param {string} pluginName - Plugin name (for script paths)
+     * @param {Object} options - Configuration options
+     * @param {Module} options.uiModule - Reference to UI WASM Module
+     * @param {string} options.baseUrl - Base URL for loading scripts (default: '')
+     */
+    constructor(pluginName, options = {}) {
+      this.pluginName = pluginName;
+      this.pluginNameLC = pluginName.toLowerCase();
+      this.uiModule = options.uiModule || options; // backwards compat: options can be uiModule directly
+      if (this.uiModule === options) this.uiModule = null;
+      this.baseUrl = options.baseUrl || '';
+      this.audioContext = null;
+      this.workletNode = null;
+      this.isReady = false;
+      this._listeners = new Map();
+      this._ownsContext = false;
+      this.onReadyCallback = null;
+      this.numInputChannels = 0;
+      this.numOutputChannels = 2;
+      this.isInstrument = false;
+      this.pluginInfo = null; // Full plugin info from DSP (params, etc.)
+
+      // Legacy callbacks (for backwards compatibility)
+      this.onParamChange = null;
+      this.onMidiMsg = null;
+      this.onSysexMsg = null;
+
+      // SharedArrayBuffer for low-latency visualization data
+      this.sabBuffer = null;
+      this.sabDataView = null;
+      this.sabReadIdx = null;
+      this.sabCapacity = 0;
+      this.usingSAB = false;
+    }
+
+    /**
+     * Initialize the DSP worklet
+     * @param {Object} options - Initialization options
+     * @param {AudioContext} options.audioContext - Existing AudioContext (creates new if not provided)
+     * @param {number} options.numInputChannels - Number of input channels
+     * @param {number} options.numOutputChannels - Number of output channels
+     * @param {boolean} options.isInstrument - Whether plugin is an instrument
+     * @param {boolean} options.connectToOutput - Auto-connect to destination (default: true)
+     * @returns {Promise<AudioWorkletNode>}
+     */
+    async init(options = {}) {
+      this.numInputChannels = options.numInputChannels ?? 0;
+      this.numOutputChannels = options.numOutputChannels ?? 2;
+      this.isInstrument = options.isInstrument ?? false;
+      const connectToOutput = options.connectToOutput ?? true;
+
+      try {
+        // Use provided AudioContext or create new one
+        if (options.audioContext) {
+          this.audioContext = options.audioContext;
+          this._ownsContext = false;
+        } else {
+          const contextOptions = { latencyHint: 'interactive' };
+          if (options.sampleRate && options.sampleRate > 0) {
+            contextOptions.sampleRate = options.sampleRate;
+          }
+          this.audioContext = new AudioContext(contextOptions);
+          this._ownsContext = true;
+        }
+
+        // Load DSP module and processor into AudioWorklet
+        const baseUrl = this.baseUrl ? this.baseUrl.replace(/\/$/, '') + '/' : '';
+        const dspModuleUrl = `${baseUrl}scripts/${this.pluginName}-dsp.js`;
+        await this.audioContext.audioWorklet.addModule(dspModuleUrl);
+
+        const processorUrl = `${baseUrl}scripts/${this.pluginName}-processor.js`;
+        await this.audioContext.audioWorklet.addModule(processorUrl);
+
+        // Create AudioWorkletNode
+        this.workletNode = new AudioWorkletNode(
+          this.audioContext,
+          `${this.pluginNameLC}-processor`,
+          {
+            numberOfInputs: this.numInputChannels > 0 ? 1 : 0,
+            numberOfOutputs: 1,
+            outputChannelCount: [this.numOutputChannels],
+            processorOptions: {
+              numInputChannels: this.numInputChannels,
+              numOutputChannels: this.numOutputChannels,
+              isInstrument: this.isInstrument
+            }
+          }
+        );
+
+        // Handle messages from DSP (via processor port)
+        this.workletNode.port.onmessage = this._onDSPMessage.bind(this);
+        this.workletNode.port.start();
+
+        // Request plugin info now that message handler is set up
+        this.workletNode.port.postMessage({ type: 'getPluginInfo' });
+
+        if (connectToOutput) {
+          this.workletNode.connect(this.audioContext.destination);
+        }
+
+        // Try to set up SharedArrayBuffer for low-latency visualization data
+        if (options.useSAB !== false && typeof SharedArrayBuffer !== 'undefined') {
+          try {
+            const sabSize = options.sabSize || 262144; // 256KB default (needed for FFT data)
+            this.sabBuffer = new SharedArrayBuffer(sabSize);
+            this.sabDataView = new DataView(this.sabBuffer);
+            this.sabReadIdx = new Uint32Array(this.sabBuffer, 4, 1);
+            this.sabCapacity = sabSize - 16; // subtract header size
+
+            // Initialize header
+            this.sabDataView.setUint32(0, 0, true);  // writeIdx = 0
+            this.sabDataView.setUint32(4, 0, true);  // readIdx = 0
+            this.sabDataView.setUint32(8, this.sabCapacity, true);  // capacity
+
+            // Send SAB to processor
+            this.workletNode.port.postMessage({
+              type: 'attachSAB',
+              sab: this.sabBuffer
+            });
+
+            this.usingSAB = true;
+            console.log('IPlugWasmController: SharedArrayBuffer enabled for visualization data');
+          } catch (e) {
+            console.warn('IPlugWasmController: SharedArrayBuffer not available:', e.message);
+            this.usingSAB = false;
+          }
+        }
+
+        this.isReady = true;
+        this._startIdleTimer();
+
+        this.emit('ready');
+        if (this.onReadyCallback) this.onReadyCallback();
+
+        return this.workletNode;
+      } catch (err) {
+        console.error('IPlugWasmController: init failed', err);
+        throw err;
+      }
+    }
+
+    /**
+     * Connect UI module for bidirectional communication
+     * @param {Module} uiModule - UI WASM Module
+     */
+    connectUI(uiModule) {
+      this.uiModule = uiModule;
+    }
+
+    _onDSPMessage(e) {
+      const msg = e.data;
+
+      switch (msg.verb) {
+        case 'SPVFD': // Send Parameter Value From Delegate
+          this.emit('paramChange', { paramIdx: msg.paramIdx, value: msg.value });
+          if (this.onParamChange) this.onParamChange(msg.paramIdx, msg.value);
+          if (this.uiModule?.SPVFD) this.uiModule.SPVFD(msg.paramIdx, msg.value);
+          break;
+
+        case 'SCVFD': // Send Control Value From Delegate
+          this.emit('controlValue', { ctrlTag: msg.ctrlTag, value: msg.value });
+          if (this.uiModule?.SCVFD) this.uiModule.SCVFD(msg.ctrlTag, msg.value);
+          break;
+
+        case 'SCMFD': // Send Control Message From Delegate
+          this.emit('controlMsg', { ctrlTag: msg.ctrlTag, msgTag: msg.msgTag, data: msg.data });
+          if (this.uiModule?.SCMFD && this.uiModule?.HEAPU8 && msg.data) {
+            const dataArray = new Uint8Array(msg.data);
+            const ptr = this.uiModule._malloc(dataArray.length);
+            this.uiModule.HEAPU8.set(dataArray, ptr);
+            this.uiModule.SCMFD(msg.ctrlTag, msg.msgTag, dataArray.length, ptr);
+            this.uiModule._free(ptr);
+          }
+          break;
+
+        case 'SAMFD': // Send Arbitrary Message From Delegate
+          this.emit('arbitraryMsg', { msgTag: msg.msgTag, data: msg.data });
+          if (this.uiModule?.SAMFD && this.uiModule?.HEAPU8 && msg.data) {
+            const dataArray = new Uint8Array(msg.data);
+            const ptr = this.uiModule._malloc(dataArray.length);
+            this.uiModule.HEAPU8.set(dataArray, ptr);
+            this.uiModule.SAMFD(msg.msgTag, dataArray.length, ptr);
+            this.uiModule._free(ptr);
+          }
+          break;
+
+        case 'SMMFD': // Send MIDI Message From Delegate
+          if (typeof msg.data === 'string') {
+            const parts = msg.data.split(':').map(Number);
+            this.emit('midiMsg', { status: parts[0], data1: parts[1], data2: parts[2] });
+            if (this.onMidiMsg) this.onMidiMsg(parts[0], parts[1], parts[2]);
+            if (this.uiModule?.SMMFD) this.uiModule.SMMFD(parts[0], parts[1], parts[2]);
+          }
+          break;
+
+        case 'SSMFD': // Send Sysex Message From Delegate
+          this.emit('sysexMsg', { data: msg.data });
+          if (this.onSysexMsg) this.onSysexMsg(msg.data);
+          if (this.uiModule?.SSMFD && msg.data) {
+            const dataArray = new Uint8Array(msg.data);
+            const ptr = this.uiModule._malloc(dataArray.length);
+            this.uiModule.HEAPU8.set(dataArray, ptr);
+            this.uiModule.SSMFD(dataArray.length, ptr);
+            this.uiModule._free(ptr);
+          }
+          break;
+
+        case 'StartIdleTimer':
+          if (this.uiModule?.StartIdleTimer) this.uiModule.StartIdleTimer();
+          break;
+
+        case 'pluginInfo':
+          // Store plugin info from DSP (includes parameter metadata)
+          this.pluginInfo = msg.data;
+          this.emit('pluginInfo', msg.data);
+          break;
+      }
+    }
+
+    _startIdleTimer() {
+      const tick = () => {
+        if (this.workletNode) {
+          this.workletNode.port.postMessage({ type: 'tick' });
+        }
+
+        // Poll SAB for visualization messages
+        if (this.usingSAB) {
+          this._pollSAB();
+        }
+
+        requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    }
+
+    /**
+     * Poll SharedArrayBuffer for visualization messages from DSP
+     */
+    _pollSAB() {
+      if (!this.sabBuffer || !this.sabDataView) return;
+
+      try {
+        const headerSize = 16;
+        const msgHeaderSize = 12;
+
+        const writeIdx = Atomics.load(new Uint32Array(this.sabBuffer, 0, 1), 0);
+        let readIdx = Atomics.load(this.sabReadIdx, 0);
+
+        // Handle writer reset: if writeIdx < readIdx, reset readIdx to 0
+        if (writeIdx < readIdx) {
+          readIdx = 0;
+        }
+
+        // Process all available messages (from readIdx to writeIdx)
+        while (readIdx < writeIdx) {
+          const offset = headerSize + readIdx;
+
+          // Bounds check
+          if (offset + msgHeaderSize > this.sabBuffer.byteLength) break;
+
+          // Read message header
+          const msgType = this.sabDataView.getUint8(offset);
+          const dataSize = this.sabDataView.getUint16(offset + 2, true);
+          const ctrlTag = this.sabDataView.getInt32(offset + 4, true);
+          const msgTag = this.sabDataView.getInt32(offset + 8, true);
+
+          // Bounds check for payload
+          if (offset + msgHeaderSize + dataSize > this.sabBuffer.byteLength) break;
+
+          // Extract payload (if any)
+          let payload = null;
+          if (dataSize > 0) {
+            payload = new Uint8Array(this.sabBuffer, offset + msgHeaderSize, dataSize);
+          }
+
+          // Route message based on type
+          switch (msgType) {
+            case 0: // SCVFD - Send Control Value From Delegate
+              const value = payload && payload.length >= 4
+                ? new DataView(payload.buffer, payload.byteOffset, 4).getFloat32(0, true)
+                : 0;
+              this.emit('controlValue', { ctrlTag, value });
+              if (this.uiModule?.SCVFD) this.uiModule.SCVFD(ctrlTag, value);
+              break;
+
+            case 1: // SCMFD - Send Control Message From Delegate
+              this.emit('controlMsg', { ctrlTag, msgTag, data: payload });
+              if (this.uiModule?.SCMFD && this.uiModule?.HEAPU8 && payload) {
+                const ptr = this.uiModule._malloc(payload.length);
+                this.uiModule.HEAPU8.set(payload, ptr);
+                this.uiModule.SCMFD(ctrlTag, msgTag, payload.length, ptr);
+                this.uiModule._free(ptr);
+              }
+              break;
+
+            case 2: // SAMFD - Send Arbitrary Message From Delegate
+              this.emit('arbitraryMsg', { msgTag, data: payload });
+              if (this.uiModule?.SAMFD && this.uiModule?.HEAPU8 && payload) {
+                const ptr = this.uiModule._malloc(payload.length);
+                this.uiModule.HEAPU8.set(payload, ptr);
+                this.uiModule.SAMFD(msgTag, payload.length, ptr);
+                this.uiModule._free(ptr);
+              }
+              break;
+          }
+
+          // Advance read index
+          const alignedDataSize = (dataSize + 3) & ~3;
+          const totalMsgSize = msgHeaderSize + alignedDataSize;
+          readIdx += totalMsgSize;
+        }
+
+        // Update read index atomically
+        Atomics.store(this.sabReadIdx, 0, readIdx);
+      } catch (e) {
+        console.error('_pollSAB error:', e);
+      }
+    }
+
+    setParam(paramIdx, value) {
+      this.workletNode?.port.postMessage({ type: 'param', paramIdx, value });
+    }
+
+    sendMidi(status, data1, data2) {
+      this.workletNode?.port.postMessage({ type: 'midi', status, data1, data2 });
+    }
+
+    sendSysex(data) {
+      this.workletNode?.port.postMessage({ type: 'sysex', data: data.buffer });
+    }
+
+    sendArbitraryMsg(msgTag, ctrlTag, data = null) {
+      this.workletNode?.port.postMessage({
+        type: 'arbitrary', msgTag, ctrlTag, data: data?.buffer ?? null
+      });
+    }
+
+    sendIdleTick() {
+      this.workletNode?.port.postMessage({ type: 'tick' });
+    }
+
+    startAudio() { this.audioContext?.resume(); }
+    stopAudio() { this.audioContext?.suspend(); }
+    getAudioContext() { return this.audioContext; }
+    getWorkletNode() { return this.workletNode; }
+
+    connect(destination, output = 0, input = 0) {
+      this.workletNode?.connect(destination, output, input);
+    }
+
+    disconnect(destination = null) {
+      if (destination) {
+        this.workletNode?.disconnect(destination);
+      } else {
+        this.workletNode?.disconnect();
+      }
+    }
+
+    on(event, listener) {
+      if (!this._listeners.has(event)) {
+        this._listeners.set(event, new Set());
+      }
+      this._listeners.get(event).add(listener);
+      return () => this.off(event, listener);
+    }
+
+    off(event, listener) {
+      this._listeners.get(event)?.delete(listener);
+    }
+
+    emit(event, data) {
+      this._listeners.get(event)?.forEach(fn => fn(data));
+    }
+
+    destroy() {
+      this.workletNode?.disconnect();
+      // Only close AudioContext if we created it
+      if (this._ownsContext) {
+        this.audioContext?.close();
+      }
+      this._listeners.clear();
+      this.isReady = false;
+    }
+  }
+
+  //==========================================================================
+  // Web Component Class
+  //==========================================================================
+
+  class IPlugWasmElement extends HTMLElement {
+    constructor() {
+      super();
+      this.attachShadow({ mode: 'open' });
+      this._controller = null;
+      this._uiModule = null;
+      this._uiReady = false;
+    }
+
+    connectedCallback() {
+      // Inject CSS
+      const style = document.createElement('style');
+      style.textContent = COMPONENT_CSS;
+      this.shadowRoot.appendChild(style);
+
+      // Loading overlay
+      this._loading = document.createElement('div');
+      this._loading.className = 'loading';
+      this._loading.innerHTML = `
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Loading ${PLUGIN_NAME}...</div>
+        <div class="loading-progress">
+          <div class="loading-progress-bar" style="width: 0%"></div>
+        </div>
+      `;
+      this.shadowRoot.appendChild(this._loading);
+
+      // Canvas
+      this._canvas = document.createElement('canvas');
+      this._canvas.oncontextmenu = e => e.preventDefault();
+      this.shadowRoot.appendChild(this._canvas);
+
+      // Initialize UI module
+      this._initUI();
+    }
+
+    disconnectedCallback() {
+      if (this._controller) {
+        this._controller.destroy();
+        this._controller = null;
+      }
+    }
+
+    async _initUI() {
+      const mod = window.Module;
+
+      // Set canvas reference for WASM
+      mod.canvas = this._canvas;
+      mod.shadowDOMRoot = this.shadowRoot;
+
+      // Progress tracking
+      let lastProgress = 0;
+      const progressBar = this._loading.querySelector('.loading-progress-bar');
+      const loadingText = this._loading.querySelector('.loading-text');
+
+      mod.setStatus = (text) => {
+        if (text) {
+          loadingText.textContent = text;
+        }
+      };
+
+      mod.monitorRunDependencies = (left) => {
+        const progress = Math.max(0, Math.min(100, (1 - left / 10) * 100));
+        if (progress > lastProgress) {
+          lastProgress = progress;
+          progressBar.style.width = `${progress}%`;
+        }
+      };
+
+      // Load UI WASM module (only if plugin has IGraphics)
+      if (HAS_UI) {
+        try {
+          // Wait for both script load AND runtime initialization
+          await new Promise((resolve, reject) => {
+            // Set up runtime callback before loading script
+            const existingCallback = mod.onRuntimeInitialized;
+            mod.onRuntimeInitialized = () => {
+              if (existingCallback) existingCallback();
+              // Wait a tick for HEAPU8 etc to be set up
+              setTimeout(resolve, 0);
+            };
+
+            const script = document.createElement('script');
+            script.src = `scripts/${PLUGIN_NAME}-ui.js`;
+            script.onerror = reject;
+            document.head.appendChild(script);
+          });
+
+          // Verify HEAPU8 is available
+          if (!mod.HEAPU8) {
+            console.warn('Waiting for HEAPU8...');
+            await new Promise(resolve => {
+              const check = () => {
+                if (mod.HEAPU8) resolve();
+                else setTimeout(check, 10);
+              };
+              check();
+            });
+          }
+          console.log('UI Module ready, HEAPU8:', !!mod.HEAPU8);
+
+          this._uiModule = mod;
+          this._uiReady = true;
+
+          // Set up resize observer if HOST_RESIZE is enabled
+          if (HOST_RESIZE && mod.OnParentWindowResize) {
+            this._resizeObserver = new ResizeObserver(entries => {
+              for (const entry of entries) {
+                const { width, height } = entry.contentRect;
+                if (width > 0 && height > 0) {
+                  mod.OnParentWindowResize(Math.round(width), Math.round(height));
+                }
+              }
+            });
+            this._resizeObserver.observe(this);
+
+            // Trigger initial resize to fill parent
+            const rect = this.getBoundingClientRect();
+            if (rect.width > 0 && rect.height > 0) {
+              mod.OnParentWindowResize(Math.round(rect.width), Math.round(rect.height));
+            }
+          }
+
+        } catch (err) {
+          console.error('Failed to load UI module:', err);
+          loadingText.textContent = 'Failed to load plugin';
+          return;
+        }
+      } else {
+        // Headless plugin - no UI module to load
+        console.log('Headless plugin - no UI module');
+        this._uiReady = true;
+      }
+
+      // Hide loading overlay
+      this._loading.classList.add('hidden');
+
+      // Dispatch ready event (defer to ensure listeners are set up)
+      setTimeout(() => {
+        this.dispatchEvent(new CustomEvent('uiready', { detail: { module: HAS_UI ? mod : null } }));
+      }, 0);
+    }
+
+    /**
+     * Connect an external controller to this UI
+     * @param {IPlugWasmController} controller - The controller to connect
+     */
+    connectController(controller) {
+      if (!this._uiReady) {
+        throw new Error('UI not ready. Wait for uiready event.');
+      }
+
+      this._controller = controller;
+      controller.connectUI(this._uiModule);
+
+      // Set global reference for UI module communication
+      window.iPlugController = controller;
+
+      this.dispatchEvent(new CustomEvent('audioready', { detail: { controller } }));
+    }
+
+    /**
+     * Initialize audio with internal controller (convenience method)
+     * For more control, create IPlugWasmController externally and use connectController()
+     * @param {Object} options - Audio options
+     * @param {AudioContext} options.audioContext - Existing AudioContext (optional)
+     * @returns {Promise<IPlugWasmController>}
+     */
+    async initAudio(options = {}) {
+      if (!this._uiReady) {
+        throw new Error('UI not ready. Wait for uiready event.');
+      }
+
+      this._controller = new IPlugWasmController(PLUGIN_NAME, { uiModule: this._uiModule });
+
+      // Set global reference for UI module communication
+      window.iPlugController = this._controller;
+
+      await this._controller.init({
+        numInputChannels: NUM_INPUTS,
+        numOutputChannels: NUM_OUTPUTS,
+        isInstrument: IS_INSTRUMENT,
+        ...options
+      });
+
+      this.dispatchEvent(new CustomEvent('audioready', { detail: { controller: this._controller } }));
+
+      return this._controller;
+    }
+
+    // Getters
+    get controller() { return this._controller; }
+    get module() { return this._uiModule; }
+    get canvas() { return this._canvas; }
+    get numInputs() { return NUM_INPUTS; }
+    get numOutputs() { return NUM_OUTPUTS; }
+    get isInstrument() { return IS_INSTRUMENT; }
+    get hostResize() { return HOST_RESIZE; }
+    get receivesMidi() { return DOES_MIDI_IN; }
+    get sendsMidi() { return DOES_MIDI_OUT; }
+    get isUIReady() { return this._uiReady; }
+    get isAudioReady() { return this._controller?.isReady ?? false; }
+  }
+
+  // Register custom element
+  if (!customElements.get(PLUGIN_TAG)) {
+    customElements.define(PLUGIN_TAG, IPlugWasmElement);
+  }
+
+  // Export to global scope
+  window.IPlugWasmController = IPlugWasmController;
+  window[PLUGIN_NAME + 'Element'] = IPlugWasmElement;
+
+})();

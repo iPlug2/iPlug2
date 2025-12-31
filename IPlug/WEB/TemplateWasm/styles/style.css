@@ -1,0 +1,506 @@
+/* NAME_PLACEHOLDER - iPlug2 Wasm Web Plugin Styles */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #1a1a1a;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+}
+
+/* Plugin web component container */
+iplug-NAME_PLACEHOLDER_LC {
+  display: block;
+  width: 100%;
+  height: calc(100% - 40px);
+}
+
+/* Resizable host mode */
+iplug-NAME_PLACEHOLDER_LC.resizable {
+  resize: both;
+  overflow: hidden;
+  min-width: 200px;
+  min-height: 150px;
+}
+
+/* Controls bar - more compact */
+#controls {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #252525;
+  border-top: 1px solid #333;
+  padding: 0 10px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: #444 #252525;
+}
+
+#controls::-webkit-scrollbar {
+  height: 4px;
+}
+
+#controls::-webkit-scrollbar-track {
+  background: #252525;
+}
+
+#controls::-webkit-scrollbar-thumb {
+  background: #444;
+  border-radius: 2px;
+}
+
+#controls button {
+  padding: 5px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+#controls button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+#startBtn {
+  background: #888;
+  color: white;
+  min-width: 70px;
+}
+
+#startBtn:hover:not(:disabled) {
+  background: #777;
+}
+
+#startBtn:active:not(:disabled) {
+  background: #666;
+}
+
+#fullscreenBtn {
+  background: #333;
+  color: #aaa;
+  padding: 5px 8px;
+  font-size: 14px;
+}
+
+#fullscreenBtn:hover {
+  background: #444;
+  color: white;
+}
+
+/* Control sections (collapsible groups) */
+.control-section {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* Control groups */
+.control-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.control-group label {
+  font-size: 11px;
+  color: #666;
+  white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.control-group select {
+  padding: 4px 6px;
+  font-size: 11px;
+  border: 1px solid #444;
+  border-radius: 3px;
+  background: #333;
+  color: #ddd;
+  cursor: pointer;
+  max-width: 120px;
+}
+
+.control-group select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Separator */
+.separator {
+  width: 1px;
+  height: 20px;
+  background: #3a3a3a;
+  flex-shrink: 0;
+}
+
+/* Spacer (pushes items to the right) */
+.spacer {
+  flex-grow: 1;
+  min-width: 8px;
+}
+
+/* Hidden class */
+.hidden {
+  display: none !important;
+}
+
+/* Frequency sliders */
+.freq-slider {
+  width: 60px;
+  accent-color: #888;
+}
+
+/* Link button */
+.link-btn {
+  padding: 3px 6px !important;
+  font-size: 12px !important;
+  background: #333;
+  color: #555;
+  border-radius: 3px !important;
+}
+
+.link-btn:hover {
+  background: #444;
+  color: #888;
+}
+
+.link-btn.active {
+  background: #888;
+  color: white;
+}
+
+/* File controls */
+#loadFileBtn,
+#playPauseBtn {
+  background: #383838;
+  color: #aaa;
+  padding: 4px 8px;
+  font-size: 12px;
+}
+
+#loadFileBtn:hover,
+#playPauseBtn:hover:not(:disabled) {
+  background: #444;
+  color: white;
+}
+
+.file-name {
+  font-size: 11px;
+  color: #777;
+  max-width: 80px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Checkbox styling */
+#loopCheck {
+  width: 12px;
+  height: 12px;
+  accent-color: #888;
+}
+
+/* Gain slider */
+#gainSlider {
+  width: 50px;
+  accent-color: #888;
+}
+
+/* MIDI Controls */
+#midiSection select {
+  max-width: 130px;
+}
+
+.midi-activity {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #333;
+  border: 1px solid #444;
+  transition: background 0.05s ease;
+  flex-shrink: 0;
+}
+
+.midi-activity.active {
+  background: #22c55e;
+  border-color: #22c55e;
+  box-shadow: 0 0 6px #22c55e;
+}
+
+/* VU Meters - vertical */
+.vu-meters {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  flex-shrink: 0;
+  height: 32px;
+}
+
+.vu-label {
+  font-size: 9px;
+  color: #555;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+  align-self: center;
+}
+
+.vu-meter {
+  display: flex;
+  align-items: flex-end;
+}
+
+.vu-bar-container {
+  width: 8px;
+  height: 28px;
+  background: #1a1a1a;
+  border-radius: 2px;
+  overflow: hidden;
+  border: 1px solid #333;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.vu-bar {
+  width: 100%;
+  height: 0%;
+  background: linear-gradient(0deg, #22c55e 0%, #22c55e 100%);
+  transition: height 0.05s ease-out;
+  border-radius: 1px;
+}
+
+.vu-bar.warm {
+  background: linear-gradient(0deg, #22c55e 0%, #eab308 100%);
+}
+
+.vu-bar.hot {
+  background: linear-gradient(0deg, #22c55e 0%, #eab308 60%, #ef4444 100%);
+}
+
+.vu-db {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  font-size: 8px;
+  font-family: monospace;
+  color: #555;
+  min-width: 24px;
+  text-align: right;
+}
+
+.vu-db span {
+  line-height: 1;
+}
+
+/* Main Parameter Panel (for headless plugins - fills main body) */
+.param-panel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+}
+
+.param-panel.hidden {
+  display: none;
+}
+
+.param-panel h1 {
+  font-size: 28px;
+  font-weight: 300;
+  color: #e0e0e0;
+  margin-bottom: 32px;
+  letter-spacing: 2px;
+}
+
+.main-params {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+  max-width: 450px;
+}
+
+.main-param-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.main-param-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.main-param-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: #bbb;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.main-param-value {
+  font-size: 14px;
+  font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+  color: #888;
+  font-weight: 500;
+}
+
+.main-param-slider {
+  width: 100%;
+  height: 6px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: #333;
+  border-radius: 3px;
+  cursor: pointer;
+  outline: none;
+}
+
+.main-param-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  background: #888;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.main-param-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.1);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4);
+}
+
+.main-param-slider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  background: #888;
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.main-param-slider::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 3px;
+}
+
+.main-param-slider::-moz-range-track {
+  height: 6px;
+  background: #333;
+  border-radius: 3px;
+}
+
+/* Fullscreen mode */
+:fullscreen {
+  background: #1a1a1a;
+}
+
+:fullscreen #controls {
+  display: none;
+}
+
+:fullscreen iplug-NAME_PLACEHOLDER_LC {
+  height: 100%;
+}
+
+/* Responsive - progressive disclosure */
+@media (max-width: 1000px) {
+  .vu-db {
+    display: none;
+  }
+}
+
+@media (max-width: 850px) {
+  .vu-label {
+    display: none;
+  }
+}
+
+@media (max-width: 700px) {
+  .vu-bar-container {
+    height: 22px;
+    width: 6px;
+  }
+  .vu-meters {
+    height: 26px;
+  }
+}
+
+@media (max-width: 550px) {
+  #controls {
+    gap: 6px;
+    padding: 0 6px;
+  }
+  #controls button {
+    padding: 4px 8px;
+    font-size: 11px;
+  }
+  .separator {
+    display: none;
+  }
+  #midiSection {
+    display: none;
+  }
+  #startBtn {
+    min-width: 60px;
+  }
+  .control-group label {
+    display: none;
+  }
+}
+
+@media (max-width: 400px) {
+  #fullscreenBtn {
+    display: none;
+  }
+  .freq-slider {
+    width: 40px;
+  }
+  #gainSlider {
+    width: 40px;
+  }
+  .vu-bar-container {
+    height: 18px;
+    width: 5px;
+  }
+  .vu-meters {
+    height: 22px;
+  }
+  .vu-db {
+    display: none;
+  }
+}
