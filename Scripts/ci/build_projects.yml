@@ -1,5 +1,6 @@
 parameters:
   buildAllProjects: false
+  selectedProjects: ''  # Comma-separated list of specific projects to build
 
 jobs:
 - job: BUILD_MAC_PROJECTS
@@ -28,6 +29,7 @@ jobs:
       platform: build_project-mac.yml
       graphics: $(graphics)
       buildAllProjects: ${{parameters.buildAllProjects}}
+      selectedProjects: ${{parameters.selectedProjects}}
 
 - job: BUILD_IOS_PROJECTS
   condition: and(eq(variables.build_deps, false), eq(variables.build_ios, true))
@@ -54,6 +56,7 @@ jobs:
       platform: build_project-ios.yml
       graphics: $(graphics)
       buildAllProjects: ${{parameters.buildAllProjects}}
+      selectedProjects: ${{parameters.selectedProjects}}
 
 - job: BUILD_WIN_PROJECTS
   condition: and(eq(variables.build_deps, false), eq(variables.build_win, true))
@@ -90,6 +93,7 @@ jobs:
       platform: build_project-win.yml
       graphics: $(graphics)
       buildAllProjects: ${{parameters.buildAllProjects}}
+      selectedProjects: ${{parameters.selectedProjects}}
 
 - job: BUILD_WEB_PROJECTS
   condition: and(eq(variables.build_deps, false), eq(variables.build_web, true))
@@ -121,3 +125,4 @@ jobs:
       platform: build_project-web.yml
       graphics: $(graphics)
       buildAllProjects: ${{parameters.buildAllProjects}}
+      selectedProjects: ${{parameters.selectedProjects}}

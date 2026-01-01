@@ -1,4 +1,7 @@
-name: CMake CI
+name: CMake CI (GitHub Actions)
+
+# This workflow handles /ci-cmake commands for CMake-based builds
+# Note: Xcode/VS project builds use /ci-azp commands and are handled by Azure Pipelines
 
 on:
   push:
@@ -73,7 +76,7 @@ jobs:
     if: >-
       github.event_name != 'issue_comment' ||
       (github.event.issue.pull_request &&
-       startsWith(github.event.comment.body, '/ci'))
+       startsWith(github.event.comment.body, '/ci-cmake'))
     outputs:
       examples: ${{ steps.parse.outputs.examples }}
       all_generators: ${{ steps.parse.outputs.all_generators }}
@@ -116,14 +119,14 @@ jobs:
             if [[ "$COMMENT" =~ examples=([^[:space:]]+) ]]; then
               EXAMPLES_VALUE=$(validate_examples "${BASH_REMATCH[1]}")
               echo "examples=$EXAMPLES_VALUE" >> $GITHUB_OUTPUT
-            elif [[ "$COMMENT" == *"/ci all"* ]]; then
+            elif [[ "$COMMENT" == *"/ci-cmake all"* ]]; then
               echo "examples=all" >> $GITHUB_OUTPUT
             else
               echo "examples=$DEFAULT_EXAMPLES" >> $GITHUB_OUTPUT
             fi
 
             # Check for various commands
-            if [[ "$COMMENT" == *"/ci all"* ]]; then
+            if [[ "$COMMENT" == *"/ci-cmake all"* ]]; then
               echo "all_generators=true" >> $GITHUB_OUTPUT
               echo "ios=true" >> $GITHUB_OUTPUT
               echo "visionos=true" >> $GITHUB_OUTPUT
@@ -131,12 +134,12 @@ jobs:
               echo "universal=true" >> $GITHUB_OUTPUT
               echo "arm64ec=true" >> $GITHUB_OUTPUT
             else
-              [[ "$COMMENT" == *"/ci all-generators"* || "$COMMENT" == *"/ci generators"* ]] && echo "all_generators=true" >> $GITHUB_OUTPUT || echo "all_generators=false" >> $GITHUB_OUTPUT
-              [[ "$COMMENT" == *"/ci ios"* ]] && echo "ios=true" >> $GITHUB_OUTPUT || echo "ios=false" >> $GITHUB_OUTPUT
-              [[ "$COMMENT" == *"/ci visionos"* ]] && echo "visionos=true" >> $GITHUB_OUTPUT || echo "visionos=false" >> $GITHUB_OUTPUT
-              [[ "$COMMENT" == *"/ci wam"* ]] && echo "wam=true" >> $GITHUB_OUTPUT || echo "wam=false" >> $GITHUB_OUTPUT
-              [[ "$COMMENT" == *"/ci universal"* ]] && echo "universal=true" >> $GITHUB_OUTPUT || echo "universal=false" >> $GITHUB_OUTPUT
-              [[ "$COMMENT" == *"/ci arm64ec"* ]] && echo "arm64ec=true" >> $GITHUB_OUTPUT || echo "arm64ec=false" >> $GITHUB_OUTPUT
+              [[ "$COMMENT" == *"/ci-cmake all-generators"* || "$COMMENT" == *"/ci-cmake generators"* ]] && echo "all_generators=true" >> $GITHUB_OUTPUT || echo "all_generators=false" >> $GITHUB_OUTPUT
+              [[ "$COMMENT" == *"/ci-cmake ios"* ]] && echo "ios=true" >> $GITHUB_OUTPUT || echo "ios=false" >> $GITHUB_OUTPUT
+              [[ "$COMMENT" == *"/ci-cmake visionos"* ]] && echo "visionos=true" >> $GITHUB_OUTPUT || echo "visionos=false" >> $GITHUB_OUTPUT
+              [[ "$COMMENT" == *"/ci-cmake wam"* ]] && echo "wam=true" >> $GITHUB_OUTPUT || echo "wam=false" >> $GITHUB_OUTPUT
+              [[ "$COMMENT" == *"/ci-cmake universal"* ]] && echo "universal=true" >> $GITHUB_OUTPUT || echo "universal=false" >> $GITHUB_OUTPUT
+              [[ "$COMMENT" == *"/ci-cmake arm64ec"* ]] && echo "arm64ec=true" >> $GITHUB_OUTPUT || echo "arm64ec=false" >> $GITHUB_OUTPUT
             fi
             echo "should_run=true" >> $GITHUB_OUTPUT
           elif [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
