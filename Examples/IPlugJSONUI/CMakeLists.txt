@@ -22,9 +22,10 @@ iplug_add_plugin(${PROJECT_NAME}
     resources/ui.json
 )
 
-# Add nlohmann json include path to all targets
-foreach(target ${PROJECT_NAME}-app ${PROJECT_NAME}-vst3 ${PROJECT_NAME}-clap ${PROJECT_NAME}-au ${PROJECT_NAME}-aax)
-  if(TARGET ${target})
-    target_include_directories(${target} PRIVATE ${IPLUG2_DIR}/Dependencies/Extras/nlohmann)
-  endif()
-endforeach()
+# Add nlohmann json include path to base interface (inherited by all targets)
+target_include_directories(_${PROJECT_NAME}-base INTERFACE ${IPLUG2_DIR}/Dependencies/Extras/nlohmann)
+
+# For hot-reload in debug builds, provide path to source resources
+target_compile_definitions(_${PROJECT_NAME}-base INTERFACE
+  $<$<CONFIG:Debug>:IPLUG_SRCDIR="${CMAKE_CURRENT_SOURCE_DIR}">
+)

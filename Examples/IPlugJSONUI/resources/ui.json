@@ -1,17 +1,17 @@
 {
   "styles": {
     "main": {
-      "colorBG": "#333333",
-      "colorFG": "#FF6600",
+      "colorBG": "#FFFFFF",
+      "colorFG": "#FF0000",
       "colorPR": "#FF8833",
       "colorFR": "#666666",
       "roundness": 0.3,
       "drawFrame": true,
-      "drawShadows": true,
+      "drawShadows": false,
       "shadowOffset": 3.0
     },
     "slider": {
-      "colorBG": "#222222",
+      "colorBG": "#FFFFFF",
       "colorFG": "#44AAFF",
       "colorPR": "#66CCFF",
       "roundness": 0.1,
@@ -28,14 +28,14 @@
     {
       "type": "IPanelControl",
       "bounds": { "from": "parent" },
-      "color": "#2A2A2A"
+      "color": "#FFFFFF"
     },
     {
       "type": "ITextControl",
       "id": "title",
       "bounds": {
         "from": "parent",
-        "pad": -10,
+        "pad": 20,
         "fracV": [0.12, true]
       },
       "text": "JSON UI Demo",
@@ -48,9 +48,9 @@
       "id": "controlsGroup",
       "bounds": {
         "from": "parent",
-        "pad": -20,
+        "pad": -30,
         "fracV": [0.15, true],
-        "reduceFromTop": 60
+        "reduceFromTop": 120
       },
       "label": "Controls",
       "style": "main",
@@ -65,19 +65,6 @@
             "fracH": [0.33, true]
           },
           "label": "Gain",
-          "style": "main"
-        },
-        {
-          "type": "IVKnobControl",
-          "id": "panKnob",
-          "param": "kPan",
-          "bounds": {
-            "from": "parent",
-            "pad": -10,
-            "fracH": [0.33, true],
-            "hShift": "33%"
-          },
-          "label": "Pan",
           "style": "main"
         },
         {

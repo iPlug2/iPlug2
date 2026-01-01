@@ -1,9 +1,11 @@
 #include "IPlugJSONUI.h"
 #include "IPlug_include_in_plug_src.h"
 #include "IControls.h"
+#include "IPlugPaths.h"
+#include <string>
 
 IPlugJSONUI::IPlugJSONUI(const InstanceInfo& info)
-: Plugin(info, MakeConfig(kNumParams, 1))
+: iplug::Plugin(info, MakeConfig(kNumParams, 1))
 {
   GetParam(kGain)->InitDouble("Gain", 100., 0., 100., 0.1, "%");
   GetParam(kPan)->InitDouble("Pan", 0., -100., 100., 0.1, "%");
@@ -40,20 +42,29 @@ IPlugJSONUI::IPlugJSONUI(const InstanceInfo& info)
         {"mixSlider", kMixSlider}
       });
 
-#ifdef _DEBUG
-      // In debug: load from file for hot-reload
-      WDL_String path;
-      pGraphics->GetResourcesPath(path);
-      path.Append("/ui.json");
-      mJSONUI->Load(path.Get());
+#if defined(IPLUG_SRCDIR)
+      // In debug with source dir: load from source for hot-reload
+      mJSONUI->Load(IPLUG_SRCDIR "/resources/ui.json");
       mJSONUI->EnableHotReload(true);
-#else
-      // In release: could embed JSON as string resource
-      // For now, still load from file
+#elif defined(_DEBUG)
+      // In debug: load from bundle for hot-reload
       WDL_String path;
-      pGraphics->GetResourcesPath(path);
-      path.Append("/ui.json");
-      mJSONUI->Load(path.Get());
+      EResourceLocation loc = LocateResource("ui.json", "json", path,
+        pGraphics->GetBundleID(), pGraphics->GetWinModuleHandle(),
+        pGraphics->GetSharedResourcesSubPath());
+      if (loc != EResourceLocation::kNotFound)
+      {
+        mJSONUI->Load(path.Get());
+        mJSONUI->EnableHotReload(true);
+      }
+#else
+      // In release: load JSON content via resource system
+      WDL_TypedBuf<uint8_t> data = pGraphics->LoadResource("ui.json", "json");
+      if (data.GetSize() > 0)
+      {
+        std::string jsonStr(reinterpret_cast<const char*>(data.Get()), data.GetSize());
+        mJSONUI->LoadFromString(jsonStr.c_str());
+      }
 #endif
     }
 
