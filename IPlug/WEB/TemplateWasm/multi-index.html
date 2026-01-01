@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>iPlug2 Multi-Device Chain</title>
+  <link href="styles/multi-chain.css" rel="stylesheet">
+  <script src="scripts/PluginChainManager.js"></script>
+</head>
+<body>
+  <div id="app">
+    <!-- Header -->
+    <header id="header">
+      <h1>iPlug2 Device Chain</h1>
+      <div id="transportControls">
+        <button id="startBtn" disabled>Start Audio</button>
+        <div id="masterSection">
+          <label>Master</label>
+          <input type="range" id="masterGain" min="0" max="100" value="80">
+          <div class="vu-meters">
+            <div class="vu-bar-container"><div id="masterVuL" class="vu-bar"></div></div>
+            <div class="vu-bar-container"><div id="masterVuR" class="vu-bar"></div></div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Plugin Loader -->
+    <section id="pluginLoader">
+      <h2>Add Plugin</h2>
+      <div class="loader-controls">
+        <input type="text" id="pluginNameInput" placeholder="Plugin name (e.g., IPlugEffect)">
+        <button id="addPluginBtn" disabled>Add to Chain</button>
+      </div>
+      <div id="availablePlugins">
+        <!-- Populated dynamically or hardcoded for demo -->
+        <button class="plugin-preset" data-plugin="IPlugInstrument">+ IPlugInstrument</button>
+        <button class="plugin-preset" data-plugin="IPlugEffect">+ IPlugEffect</button>
+        <button class="plugin-preset" data-plugin="IPlugDrumSynth">+ IPlugDrumSynth</button>
+      </div>
+    </section>
+
+    <!-- Chain Display -->
+    <section id="chainSection">
+      <h2>Signal Chain</h2>
+      <div id="chainFlow">
+        <!-- Input node -->
+        <div class="chain-node input-node">
+          <div class="node-header">Input</div>
+          <div class="node-body">
+            <select id="inputSource">
+              <option value="none">None</option>
+              <option value="mic">Microphone</option>
+              <option value="tone">Test Tone</option>
+              <option value="noise">Noise</option>
+              <option value="file">Audio File</option>
+            </select>
+            <div id="toneSettings" class="input-settings hidden">
+              <input type="range" id="toneFreq" min="20" max="2000" value="440">
+              <span id="toneFreqDisplay">440 Hz</span>
+            </div>
+            <div id="fileSettings" class="input-settings hidden">
+              <button id="loadFileBtn">Load File</button>
+              <span id="fileName">No file</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Plugin chain container -->
+        <div id="pluginChain">
+          <!-- Plugin nodes inserted here dynamically -->
+          <div class="chain-empty">No plugins loaded. Add a plugin to begin.</div>
+        </div>
+
+        <!-- Output node -->
+        <div class="chain-node output-node">
+          <div class="node-header">Output</div>
+          <div class="node-body">
+            <div class="vu-meters vertical">
+              <span>L</span>
+              <div class="vu-bar-container vertical"><div id="outputVuL" class="vu-bar"></div></div>
+              <div class="vu-bar-container vertical"><div id="outputVuR" class="vu-bar"></div></div>
+              <span>R</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Plugin UIs Container -->
+    <section id="pluginUIs">
+      <h2>Plugin Interfaces</h2>
+      <div id="uiContainer">
+        <!-- Plugin UI elements inserted here -->
+      </div>
+    </section>
+
+    <!-- MIDI Section -->
+    <section id="midiSection">
+      <h2>MIDI</h2>
+      <div class="midi-controls">
+        <div class="midi-port">
+          <label>Input</label>
+          <select id="midiInSelect">
+            <option value="">None</option>
+          </select>
+          <span id="midiInLed" class="midi-led"></span>
+        </div>
+        <div class="midi-port">
+          <label>Output</label>
+          <select id="midiOutSelect">
+            <option value="">None</option>
+          </select>
+          <span id="midiOutLed" class="midi-led"></span>
+        </div>
+        <div class="midi-routing">
+          <label>Route MIDI to:</label>
+          <select id="midiRouting">
+            <option value="all">All Plugins</option>
+            <!-- Plugin-specific options added dynamically -->
+          </select>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Hidden file input -->
+  <input type="file" id="fileInput" accept="audio/*" style="display: none">
+
+  <script>
+    // Global state
+    let chainManager = null;
+    let audioSource = null;
+    let oscillator = null;
+    let noiseNode = null;
+    let fileBuffer = null;
+    let fileSource = null;
+    let midiAccess = null;
+    let currentMidiIn = null;
+    let vuAnimationId = null;
+
+    // DOM Elements
+    const startBtn = document.getElementById('startBtn');
+    const addPluginBtn = document.getElementById('addPluginBtn');
+    const pluginNameInput = document.getElementById('pluginNameInput');
+    const pluginChain = document.getElementById('pluginChain');
+    const uiContainer = document.getElementById('uiContainer');
+    const masterGainSlider = document.getElementById('masterGain');
+    const inputSource = document.getElementById('inputSource');
+    const midiInSelect = document.getElementById('midiInSelect');
+    const midiOutSelect = document.getElementById('midiOutSelect');
+    const midiRouting = document.getElementById('midiRouting');
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', async () => {
+      // Initialize chain manager
+      chainManager = new PluginChainManager();
+
+      // Set up event listeners
+      chainManager.on('pluginLoaded', onPluginLoaded);
+      chainManager.on('pluginRemoved', onPluginRemoved);
+      chainManager.on('chainConnected', onChainConnected);
+
+      startBtn.disabled = false;
+      startBtn.addEventListener('click', toggleAudio);
+
+      addPluginBtn.addEventListener('click', () => addPlugin(pluginNameInput.value));
+      pluginNameInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') addPlugin(pluginNameInput.value);
+      });
+
+      // Plugin preset buttons
+      document.querySelectorAll('.plugin-preset').forEach(btn => {
+        btn.addEventListener('click', () => addPlugin(btn.dataset.plugin));
+      });
+
+      // Master gain
+      masterGainSlider.addEventListener('input', () => {
+        const gain = masterGainSlider.value / 100;
+        chainManager?.setMasterGain(gain);
+      });
+
+      // Input source selection
+      inputSource.addEventListener('change', handleInputSourceChange);
+
+      // Tone frequency
+      document.getElementById('toneFreq').addEventListener('input', (e) => {
+        const freq = parseInt(e.target.value);
+        document.getElementById('toneFreqDisplay').textContent = `${freq} Hz`;
+        if (oscillator) oscillator.frequency.value = freq;
+      });
+
+      // File loading
+      document.getElementById('loadFileBtn').addEventListener('click', () => {
+        document.getElementById('fileInput').click();
+      });
+      document.getElementById('fileInput').addEventListener('change', handleFileLoad);
+
+      // Initialize MIDI
+      initMidi();
+    });
+
+    async function toggleAudio() {
+      if (!chainManager.audioContext) {
+        try {
+          await chainManager.init();
+          addPluginBtn.disabled = false;
+          startBtn.textContent = 'Stop Audio';
+          chainManager.start();
+          startVuMetering();
+        } catch (err) {
+          console.error('Failed to initialize audio:', err);
+          alert('Failed to initialize audio: ' + err.message);
+        }
+      } else if (chainManager.isRunning) {
+        chainManager.stop();
+        stopInputSource();
+        stopVuMetering();
+        startBtn.textContent = 'Start Audio';
+      } else {
+        chainManager.start();
+        startVuMetering();
+        startBtn.textContent = 'Stop Audio';
+      }
+    }
+
+    async function addPlugin(pluginName) {
+      if (!pluginName || !chainManager.audioContext) return;
+
+      try {
+        // Create UI container for this plugin
+        const uiWrapper = document.createElement('div');
+        uiWrapper.className = 'plugin-ui-wrapper';
+        uiContainer.appendChild(uiWrapper);
+
+        // Load plugin
+        const instance = await chainManager.loadPlugin(pluginName, {
+          container: uiWrapper
+        });
+
+        // Reconnect the chain
+        chainManager.connectChain();
+
+        // Update input routing if needed
+        if (audioSource) {
+          chainManager.connectInput(audioSource);
+        }
+
+        // Clear input
+        pluginNameInput.value = '';
+
+      } catch (err) {
+        console.error('Failed to load plugin:', err);
+        alert('Failed to load plugin: ' + err.message);
+      }
+    }
+
+    function onPluginLoaded({ id, pluginName, instance }) {
+      // Remove empty message
+      const emptyMsg = pluginChain.querySelector('.chain-empty');
+      if (emptyMsg) emptyMsg.remove();
+
+      // Create chain node
+      const node = document.createElement('div');
+      node.className = 'chain-node plugin-node';
+      node.dataset.instanceId = id;
+      node.innerHTML = `
+        <div class="node-header">
+          <span class="plugin-name">${pluginName}</span>
+          <button class="bypass-btn" title="Bypass">B</button>
+          <button class="remove-btn" title="Remove">X</button>
+        </div>
+        <div class="node-body">
+          <span class="plugin-type">${instance.isInstrument ? 'Instrument' : 'Effect'}</span>
+          <span class="plugin-io">${instance.numInputs}in / ${instance.numOutputs}out</span>
+        </div>
+        <div class="node-connector left"></div>
+        <div class="node-connector right"></div>
+      `;
+
+      // Bypass button
+      node.querySelector('.bypass-btn').addEventListener('click', (e) => {
+        const btn = e.target;
+        const bypassed = btn.classList.toggle('active');
+        chainManager.setBypass(id, bypassed);
+      });
+
+      // Remove button
+      node.querySelector('.remove-btn').addEventListener('click', () => {
+        chainManager.removePlugin(id);
+      });
+
+      // Click to show UI
+      node.addEventListener('click', (e) => {
+        if (e.target.tagName === 'BUTTON') return;
+        // Scroll UI into view
+        const uiEl = document.querySelector(`[data-instance-id="${id}"]`);
+        if (uiEl) uiEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      });
+
+      pluginChain.appendChild(node);
+
+      // Update MIDI routing options
+      updateMidiRoutingOptions();
+    }
+
+    function onPluginRemoved({ id }) {
+      // Remove chain node
+      const node = pluginChain.querySelector(`[data-instance-id="${id}"]`);
+      if (node) node.remove();
+
+      // Remove UI wrapper
+      const uiWrapper = uiContainer.querySelector(`[data-instance-id="${id}"]`)?.parentElement;
+      if (uiWrapper) uiWrapper.remove();
+
+      // Show empty message if no plugins
+      if (chainManager.chain.length === 0) {
+        pluginChain.innerHTML = '<div class="chain-empty">No plugins loaded. Add a plugin to begin.</div>';
+      }
+
+      // Update MIDI routing options
+      updateMidiRoutingOptions();
+    }
+
+    function onChainConnected({ chain }) {
+      // Visual feedback could update connector lines here
+      console.log('Chain connected:', chain);
+    }
+
+    function handleInputSourceChange() {
+      stopInputSource();
+
+      const source = inputSource.value;
+      const ctx = chainManager.audioContext;
+      if (!ctx) return;
+
+      // Show/hide settings
+      document.getElementById('toneSettings').classList.toggle('hidden', source !== 'tone');
+      document.getElementById('fileSettings').classList.toggle('hidden', source !== 'file');
+
+      switch (source) {
+        case 'mic':
+          navigator.mediaDevices.getUserMedia({ audio: true })
+            .then(stream => {
+              audioSource = ctx.createMediaStreamSource(stream);
+              chainManager.connectInput(audioSource);
+            })
+            .catch(err => {
+              console.error('Mic access denied:', err);
+              inputSource.value = 'none';
+            });
+          break;
+
+        case 'tone':
+          oscillator = ctx.createOscillator();
+          oscillator.type = 'sine';
+          oscillator.frequency.value = parseInt(document.getElementById('toneFreq').value);
+          oscillator.start();
+          audioSource = oscillator;
+          chainManager.connectInput(audioSource);
+          break;
+
+        case 'noise':
+          const bufferSize = 2 * ctx.sampleRate;
+          const noiseBuffer = ctx.createBuffer(2, bufferSize, ctx.sampleRate);
+          for (let ch = 0; ch < 2; ch++) {
+            const data = noiseBuffer.getChannelData(ch);
+            for (let i = 0; i < bufferSize; i++) {
+              data[i] = Math.random() * 2 - 1;
+            }
+          }
+          noiseNode = ctx.createBufferSource();
+          noiseNode.buffer = noiseBuffer;
+          noiseNode.loop = true;
+          noiseNode.start();
+          audioSource = noiseNode;
+          chainManager.connectInput(audioSource);
+          break;
+
+        case 'file':
+          if (fileBuffer) {
+            startFilePlayback();
+          }
+          break;
+      }
+    }
+
+    function stopInputSource() {
+      if (oscillator) {
+        oscillator.stop();
+        oscillator.disconnect();
+        oscillator = null;
+      }
+      if (noiseNode) {
+        noiseNode.stop();
+        noiseNode.disconnect();
+        noiseNode = null;
+      }
+      if (fileSource) {
+        fileSource.stop();
+        fileSource.disconnect();
+        fileSource = null;
+      }
+      if (audioSource && audioSource.mediaStream) {
+        audioSource.mediaStream.getTracks().forEach(t => t.stop());
+      }
+      audioSource = null;
+    }
+
+    async function handleFileLoad(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const ctx = chainManager.audioContext;
+      const arrayBuffer = await file.arrayBuffer();
+      fileBuffer = await ctx.decodeAudioData(arrayBuffer);
+
+      document.getElementById('fileName').textContent =
+        file.name.length > 20 ? file.name.slice(0, 18) + '...' : file.name;
+
+      if (inputSource.value === 'file') {
+        startFilePlayback();
+      }
+    }
+
+    function startFilePlayback() {
+      if (!fileBuffer || !chainManager.audioContext) return;
+
+      if (fileSource) {
+        fileSource.stop();
+        fileSource.disconnect();
+      }
+
+      fileSource = chainManager.audioContext.createBufferSource();
+      fileSource.buffer = fileBuffer;
+      fileSource.loop = true;
+      fileSource.start();
+      audioSource = fileSource;
+      chainManager.connectInput(audioSource);
+    }
+
+    // VU Metering
+    function startVuMetering() {
+      function update() {
+        const levels = chainManager.getMasterLevels();
+        const minDb = -60;
+
+        const pctL = Math.max(0, Math.min(100, ((levels.left - minDb) / -minDb) * 100));
+        const pctR = Math.max(0, Math.min(100, ((levels.right - minDb) / -minDb) * 100));
+
+        document.getElementById('masterVuL').style.width = pctL + '%';
+        document.getElementById('masterVuR').style.width = pctR + '%';
+        document.getElementById('outputVuL').style.height = pctL + '%';
+        document.getElementById('outputVuR').style.height = pctR + '%';
+
+        vuAnimationId = requestAnimationFrame(update);
+      }
+      update();
+    }
+
+    function stopVuMetering() {
+      if (vuAnimationId) {
+        cancelAnimationFrame(vuAnimationId);
+        vuAnimationId = null;
+      }
+    }
+
+    // MIDI
+    async function initMidi() {
+      try {
+        midiAccess = await navigator.requestMIDIAccess({ sysex: false });
+        updateMidiDevices();
+        midiAccess.onstatechange = updateMidiDevices;
+      } catch (err) {
+        console.log('WebMIDI not available');
+        midiInSelect.disabled = true;
+        midiOutSelect.disabled = true;
+      }
+    }
+
+    function updateMidiDevices() {
+      if (!midiAccess) return;
+
+      // Inputs
+      midiInSelect.innerHTML = '<option value="">None</option>';
+      for (const input of midiAccess.inputs.values()) {
+        const opt = document.createElement('option');
+        opt.value = input.id;
+        opt.textContent = input.name;
+        midiInSelect.appendChild(opt);
+      }
+
+      // Outputs
+      midiOutSelect.innerHTML = '<option value="">None</option>';
+      for (const output of midiAccess.outputs.values()) {
+        const opt = document.createElement('option');
+        opt.value = output.id;
+        opt.textContent = output.name;
+        midiOutSelect.appendChild(opt);
+      }
+    }
+
+    function updateMidiRoutingOptions() {
+      const current = midiRouting.value;
+      midiRouting.innerHTML = '<option value="all">All Plugins</option>';
+
+      for (const [id, instance] of chainManager.plugins) {
+        const opt = document.createElement('option');
+        opt.value = id;
+        opt.textContent = instance.pluginName;
+        midiRouting.appendChild(opt);
+      }
+
+      if (midiRouting.querySelector(`option[value="${current}"]`)) {
+        midiRouting.value = current;
+      }
+    }
+
+    midiInSelect.addEventListener('change', () => {
+      if (currentMidiIn) {
+        currentMidiIn.onmidimessage = null;
+        currentMidiIn = null;
+      }
+
+      if (!midiInSelect.value || !midiAccess) return;
+
+      const input = midiAccess.inputs.get(midiInSelect.value);
+      if (input) {
+        input.onmidimessage = handleMidiMessage;
+        currentMidiIn = input;
+      }
+    });
+
+    function handleMidiMessage(e) {
+      document.getElementById('midiInLed').classList.add('active');
+      setTimeout(() => document.getElementById('midiInLed').classList.remove('active'), 100);
+
+      if (!chainManager || e.data.length < 1) return;
+
+      const status = e.data[0];
+      const data1 = e.data.length > 1 ? e.data[1] : 0;
+      const data2 = e.data.length > 2 ? e.data[2] : 0;
+
+      const routing = midiRouting.value;
+      if (routing === 'all') {
+        chainManager.sendMidi(status, data1, data2);
+      } else {
+        chainManager.sendMidiTo(routing, status, data1, data2);
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,554 @@
+/**
+ * iPlug2 Multi-Device Chain Styles
+ */
+
+:root {
+  --bg-primary: #1a1a1a;
+  --bg-secondary: #252525;
+  --bg-tertiary: #2d2d2d;
+  --text-primary: #e0e0e0;
+  --text-secondary: #888;
+  --accent: #6366f1;
+  --accent-hover: #818cf8;
+  --success: #22c55e;
+  --warning: #eab308;
+  --danger: #ef4444;
+  --border: #3a3a3a;
+  --node-instrument: #8b5cf6;
+  --node-effect: #3b82f6;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.5;
+  min-height: 100vh;
+}
+
+#app {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* Header */
+#header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  background: var(--bg-secondary);
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+#header h1 {
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+#transportControls {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+#masterSection {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+#masterSection label {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+#masterGain {
+  width: 100px;
+}
+
+/* Buttons */
+button {
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+
+button:hover:not(:disabled) {
+  background: var(--accent-hover);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+button.active {
+  background: var(--warning);
+}
+
+/* Sections */
+section {
+  background: var(--bg-secondary);
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+section h2 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Plugin Loader */
+#pluginLoader {
+  background: var(--bg-tertiary);
+}
+
+.loader-controls {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.loader-controls input {
+  flex: 1;
+  padding: 10px 14px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-primary);
+  font-size: 0.875rem;
+}
+
+.loader-controls input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+#availablePlugins {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.plugin-preset {
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  padding: 6px 12px;
+  font-size: 0.8125rem;
+}
+
+.plugin-preset:hover {
+  background: var(--bg-secondary);
+  border-color: var(--accent);
+}
+
+/* Chain Flow */
+#chainFlow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 20px 0;
+}
+
+.chain-node {
+  flex-shrink: 0;
+  width: 140px;
+  background: var(--bg-tertiary);
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+}
+
+.chain-node.input-node {
+  border-color: var(--success);
+}
+
+.chain-node.output-node {
+  border-color: var(--danger);
+}
+
+.chain-node.plugin-node {
+  cursor: pointer;
+  transition: border-color 0.2s, transform 0.2s;
+}
+
+.chain-node.plugin-node:hover {
+  transform: translateY(-2px);
+}
+
+.chain-node.plugin-node[data-instrument="true"] {
+  border-color: var(--node-instrument);
+}
+
+.chain-node.plugin-node[data-effect="true"] {
+  border-color: var(--node-effect);
+}
+
+.node-header {
+  background: var(--bg-primary);
+  padding: 8px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+}
+
+.plugin-name {
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+}
+
+.node-header button {
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  font-size: 0.625rem;
+  border-radius: 4px;
+  background: var(--bg-tertiary);
+}
+
+.node-header button:hover {
+  background: var(--accent);
+}
+
+.bypass-btn.active {
+  background: var(--warning) !important;
+  color: black;
+}
+
+.remove-btn:hover {
+  background: var(--danger) !important;
+}
+
+.node-body {
+  padding: 10px;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.node-body select {
+  width: 100%;
+  padding: 6px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text-primary);
+  font-size: 0.75rem;
+}
+
+.plugin-type {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.plugin-io {
+  display: block;
+  font-size: 0.6875rem;
+}
+
+.node-connector {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: var(--accent);
+  border-radius: 50%;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.node-connector.left {
+  left: -6px;
+}
+
+.node-connector.right {
+  right: -6px;
+}
+
+.input-node .node-connector.left,
+.output-node .node-connector.right {
+  display: none;
+}
+
+/* Chain connector lines */
+#pluginChain {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex: 1;
+  min-width: 200px;
+  position: relative;
+}
+
+#pluginChain::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--border);
+  z-index: 0;
+}
+
+#pluginChain .chain-node {
+  z-index: 1;
+}
+
+.chain-empty {
+  padding: 40px;
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  background: var(--bg-tertiary);
+  border: 2px dashed var(--border);
+  border-radius: 8px;
+  width: 100%;
+}
+
+.input-settings {
+  margin-top: 8px;
+}
+
+.input-settings.hidden {
+  display: none;
+}
+
+.input-settings input[type="range"] {
+  width: 100%;
+}
+
+.input-settings button {
+  width: 100%;
+  margin-bottom: 4px;
+}
+
+/* Plugin UIs */
+#uiContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.plugin-ui-wrapper {
+  background: var(--bg-tertiary);
+  border-radius: 8px;
+  padding: 10px;
+  border: 1px solid var(--border);
+}
+
+.plugin-ui-wrapper > * {
+  display: block;
+}
+
+/* VU Meters */
+.vu-meters {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.vu-meters.vertical {
+  flex-direction: row;
+  height: 80px;
+}
+
+.vu-bar-container {
+  width: 60px;
+  height: 8px;
+  background: var(--bg-primary);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.vu-bar-container.vertical {
+  width: 12px;
+  height: 100%;
+}
+
+.vu-bar {
+  height: 100%;
+  width: 0;
+  background: linear-gradient(90deg, var(--success) 0%, var(--success) 60%, var(--warning) 80%, var(--danger) 100%);
+  border-radius: 4px;
+  transition: width 0.05s;
+}
+
+.vu-bar-container.vertical .vu-bar {
+  width: 100%;
+  height: 0;
+  background: linear-gradient(0deg, var(--success) 0%, var(--success) 60%, var(--warning) 80%, var(--danger) 100%);
+  transition: height 0.05s;
+}
+
+/* MIDI Section */
+#midiSection {
+  background: var(--bg-tertiary);
+}
+
+.midi-controls {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.midi-port {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.midi-port label {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  min-width: 50px;
+}
+
+.midi-port select {
+  min-width: 150px;
+  padding: 6px 10px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text-primary);
+  font-size: 0.875rem;
+}
+
+.midi-routing {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.midi-routing label {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+.midi-routing select {
+  min-width: 120px;
+  padding: 6px 10px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text-primary);
+  font-size: 0.875rem;
+}
+
+.midi-led {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  transition: background 0.1s;
+}
+
+.midi-led.active {
+  background: var(--success);
+  box-shadow: 0 0 8px var(--success);
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+}
+
+/* Range input styling */
+input[type="range"] {
+  -webkit-appearance: none;
+  background: var(--bg-primary);
+  height: 6px;
+  border-radius: 3px;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--accent);
+  cursor: pointer;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+  background: var(--accent-hover);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  #header {
+    flex-direction: column;
+    gap: 16px;
+    text-align: center;
+  }
+
+  #chainFlow {
+    flex-direction: column;
+  }
+
+  .chain-node {
+    width: 100%;
+    max-width: 300px;
+  }
+
+  #pluginChain {
+    flex-direction: column;
+  }
+
+  #pluginChain::before {
+    display: none;
+  }
+
+  .node-connector {
+    display: none;
+  }
+
+  .midi-controls {
+    flex-direction: column;
+  }
+
+  .midi-routing {
+    margin-left: 0;
+  }
+}
