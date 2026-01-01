@@ -217,9 +217,18 @@ jobs:
             fi
 
             XCODEPROJ="$PROJECT_PATH/projects/${project}-macOS.xcodeproj"
+            XCCONFIG="$PROJECT_PATH/config/${project}-mac.xcconfig"
 
             if [ -d "$XCODEPROJ" ]; then
               echo "Building $project..."
+
+              # Check for xcconfig and prepare args
+              XCCONFIG_ARG=""
+              if [ -f "$XCCONFIG" ]; then
+                XCCONFIG_ARG="-xcconfig $XCCONFIG"
+              else
+                echo "  Note: xcconfig not found at $XCCONFIG, using default settings"
+              fi
 
               for format in "${FORMAT_ARRAY[@]}"; do
                 TARGET="${FORMAT_TO_TARGET[$format]}"
@@ -228,7 +237,7 @@ jobs:
                   xcodebuild -project "$XCODEPROJ" \
                     -target "$TARGET" \
                     -configuration Release \
-                    -xcconfig "$PROJECT_PATH/config/${project}-mac.xcconfig" \
+                    $XCCONFIG_ARG \
                     GCC_PREPROCESSOR_DEFINITIONS="\$GCC_PREPROCESSOR_DEFINITIONS IGRAPHICS_${GRAPHICS_UPPER}" \
                     2>&1 | tail -100 || echo "  $TARGET build completed with warnings/errors"
                 else
@@ -323,6 +332,13 @@ jobs:
             if (Test-Path $projectPath) {
               Write-Host "Building $project..."
 
+              # Switch graphics backend by modifying props file (like Azure Pipelines)
+              $propsFile = "$projectPath/config/$project-win.props"
+              if ($env:GRAPHICS -eq "skia" -and (Test-Path $propsFile)) {
+                Write-Host "  Switching to Skia graphics backend..."
+                (Get-Content $propsFile) -replace 'IGRAPHICS_NANOVG;IGRAPHICS_GL2', 'IGRAPHICS_SKIA;IGRAPHICS_GL2' | Set-Content $propsFile
+              }
+
               foreach ($format in $formats) {
                 $formatSuffix = $formatMap[$format]
                 if (-not $formatSuffix) {
@@ -411,14 +427,24 @@ jobs:
             fi
 
             XCODEPROJ="$PROJECT_PATH/projects/${project}-iOS.xcodeproj"
+            XCCONFIG="$PROJECT_PATH/config/${project}-ios.xcconfig"
 
             if [ -d "$XCODEPROJ" ]; then
               echo "Building $project for iOS..."
+
+              # Check for xcconfig and prepare args
+              XCCONFIG_ARG=""
+              if [ -f "$XCCONFIG" ]; then
+                XCCONFIG_ARG="-xcconfig $XCCONFIG"
+              else
+                echo "  Note: xcconfig not found at $XCCONFIG, using default settings"
+              fi
+
               xcodebuild -project "$XCODEPROJ" \
                 -scheme "iOS-APP with AUv3" \
                 -configuration Release \
                 -destination 'generic/platform=iOS' \
-                -xcconfig "$PROJECT_PATH/config/${project}-ios.xcconfig" \
+                $XCCONFIG_ARG \
                 CODE_SIGNING_ALLOWED=NO \
                 GCC_PREPROCESSOR_DEFINITIONS="\$GCC_PREPROCESSOR_DEFINITIONS IGRAPHICS_${GRAPHICS_UPPER}" \
                 2>&1 | tail -100 || echo "  iOS build completed with warnings/errors"
@@ -558,11 +584,20 @@ jobs:
           # Kill audio daemon to pick up new plugins
           killall -9 AudioComponentRegistrar 2>/dev/null || true
           sleep 2
-          # Run auval on each installed plugin
+          # Run auval on each installed plugin, extracting type/subtype/mfr from Info.plist
           for plugin in ~/Library/Audio/Plug-Ins/Components/*.component; do
             if [ -d "$plugin" ]; then
-              echo "Testing: $plugin"
-              auval -v aufx demo Acme || echo "Warning: auval had issues"
+              PLIST="$plugin/Contents/Info.plist"
+              if [ -f "$PLIST" ]; then
+                # Extract AU type, subtype, and manufacturer from Info.plist
+                TYPE=$(/usr/libexec/PlistBuddy -c "Print :AudioComponents:0:type" "$PLIST" 2>/dev/null || echo "aufx")
+                SUBTYPE=$(/usr/libexec/PlistBuddy -c "Print :AudioComponents:0:subtype" "$PLIST" 2>/dev/null || echo "test")
+                MFR=$(/usr/libexec/PlistBuddy -c "Print :AudioComponents:0:manufacturer" "$PLIST" 2>/dev/null || echo "Test")
+                echo "Testing: $plugin ($TYPE $SUBTYPE $MFR)"
+                auval -v "$TYPE" "$SUBTYPE" "$MFR" || echo "Warning: auval had issues with $plugin"
+              else
+                echo "Warning: No Info.plist found for $plugin"
+              fi
             fi
           done
 
