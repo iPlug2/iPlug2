@@ -71,8 +71,8 @@ IGraphicsJSON enables defining IGraphics UIs declaratively in JSON format with h
   "reduceFromBottom": 20,
   "reduceFromLeft": 10,
   "reduceFromRight": 10,
-  "vShift": 50,               // GetVShifted(50) - NUMBER ONLY
-  "hShift": -30,              // GetHShifted(-30) - NUMBER ONLY
+  "vShift": 50,               // GetVShifted(50) - supports expressions
+  "hShift": "33%",            // GetHShifted() - supports expressions
   "centredInside": [200, 100] // GetCentredInside(200, 100)
 }
 ```
@@ -174,23 +174,14 @@ void MyPlugin::OnIdle()
 
 ### Critical Issues
 
-1. **`hShift` and `vShift` Only Accept Numbers**
-   ```json
-   // CRASHES - string expression not supported:
-   "hShift": "33%"
-
-   // Works:
-   "hShift": 50
-   ```
-
-2. **Layout Operation Order is Fixed**
+1. **Layout Operation Order is Fixed**
    Operations are applied in this order regardless of JSON key order:
    `from` → `pad` → `fracV` → `fracH` → `reduceFrom*` → `vShift` → `hShift` → `centredInside` → `x/y/w/h`
 
-3. **Child Layout Timing**
+2. **Child Layout Timing**
    Children reference parent bounds, but parent bounds may not be finalized on the first layout pass. This can cause incorrect positioning.
 
-4. **Control Index Coupling**
+3. **Control Index Coupling**
    `mLayouts` indices must match `IGraphics` control indices. Adding controls outside of JSON breaks the mapping.
 
 ### Missing Features

@@ -386,12 +386,14 @@ IRECT IGraphicsJSON::EvaluateBounds(int ctrlIdx, const IRECT& parent)
 
   if (b.contains("vShift"))
   {
-    result = result.GetVShifted(b["vShift"].get<float>());
+    float shift = EvaluateExpr(b["vShift"], parent, 'y');
+    result = result.GetVShifted(shift);
   }
 
   if (b.contains("hShift"))
   {
-    result = result.GetHShifted(b["hShift"].get<float>());
+    float shift = EvaluateExpr(b["hShift"], parent, 'x');
+    result = result.GetHShifted(shift);
   }
 
   if (b.contains("centredInside"))
