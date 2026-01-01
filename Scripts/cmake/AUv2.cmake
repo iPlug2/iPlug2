@@ -62,11 +62,19 @@ function(iplug_configure_auv2 target project_name)
   target_link_libraries(${target} PUBLIC iPlug2::AUv2)
 
   if(APPLE)
+    # Check for generated plist first, fall back to resources folder
+    set(GENERATED_PLIST "${IPLUG_GENERATED_RESOURCES_DIR}/${project_name}-AU-Info.plist")
+    if(IPLUG_GENERATED_RESOURCES_DIR AND EXISTS "${GENERATED_PLIST}")
+      set(AU_PLIST "${GENERATED_PLIST}")
+    else()
+      set(AU_PLIST "${PLUG_RESOURCES_DIR}/${project_name}-AU-Info.plist")
+    endif()
+
     # AUv2 on macOS is a bundle with .component extension
     set_target_properties(${target} PROPERTIES
       BUNDLE TRUE
       BUNDLE_EXTENSION "component"
-      MACOSX_BUNDLE_INFO_PLIST ${PLUG_RESOURCES_DIR}/${project_name}-AU-Info.plist
+      MACOSX_BUNDLE_INFO_PLIST ${AU_PLIST}
       LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/out"
       MACOSX_BUNDLE_BUNDLE_NAME "${project_name}"
       OUTPUT_NAME "${project_name}"

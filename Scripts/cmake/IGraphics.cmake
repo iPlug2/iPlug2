@@ -95,6 +95,11 @@ if(NOT TARGET iPlug2_IGraphics_NanoVG_GL_obj)
       ${IGRAPHICS_DIR}/Drawing/IGraphicsNanoVG_src.m
     )
 
+    # Explicitly set language to OBJC for .m file (required for non-Xcode generators)
+    set_source_files_properties(${IGRAPHICS_DIR}/Drawing/IGraphicsNanoVG_src.m
+      PROPERTIES LANGUAGE OBJC
+    )
+
     target_include_directories(iPlug2_IGraphics_NanoVG_GL_obj PRIVATE
       ${IGRAPHICS_DEPS_DIR}/NanoVG/src
       ${IGRAPHICS_DEPS_DIR}/NanoSVG/src
@@ -216,6 +221,11 @@ if(NOT TARGET iPlug2_IGraphics_NanoVG_Metal_obj)
   if(APPLE OR IOS)
     add_library(iPlug2_IGraphics_NanoVG_Metal_obj OBJECT
       ${IGRAPHICS_DIR}/Drawing/IGraphicsNanoVG_src.m
+    )
+
+    # Explicitly set language to OBJC for .m file (required for non-Xcode generators)
+    set_source_files_properties(${IGRAPHICS_DIR}/Drawing/IGraphicsNanoVG_src.m
+      PROPERTIES LANGUAGE OBJC
     )
 
     target_include_directories(iPlug2_IGraphics_NanoVG_Metal_obj PRIVATE
