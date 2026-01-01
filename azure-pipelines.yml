@@ -1,23 +1,61 @@
+# Azure Pipelines CI - Builds Xcode and Visual Studio projects
+# Note: CMake builds are handled separately by GitHub Actions (cmake-ci.yml)
+
 parameters:
 - name: buildAllProjects
   displayName: 'Build all example projects (default: only IPlugEffect)'
   type: boolean
   default: false
 
+- name: selectedProjects
+  displayName: 'Specific projects to build (comma-separated, leave empty for default)'
+  type: string
+  default: ''
+
+- name: buildMac
+  displayName: 'Build macOS'
+  type: boolean
+  default: true
+
+- name: buildWin
+  displayName: 'Build Windows'
+  type: boolean
+  default: true
+
+- name: buildIOS
+  displayName: 'Build iOS'
+  type: boolean
+  default: true
+
+- name: buildWeb
+  displayName: 'Build Web (WAM)'
+  type: boolean
+  default: false
+
+- name: buildSkia
+  displayName: 'Build Skia graphics backend (in addition to NanoVG)'
+  type: boolean
+  default: false
+
+- name: testProjects
+  displayName: 'Run plugin validation tests'
+  type: boolean
+  default: false
+
 variables:
   build_deps: false # set true to build optional dependencies, if false, pre-built versions are downloaded
 
-  #GRAPHICS BACKENDS
-  build_skia: false # set true to build Skia graphics backend (in addition to NanoVG)
+  #GRAPHICS BACKENDS - use parameter if manually triggered, otherwise use default
+  build_skia: ${{ parameters.buildSkia }} # set true to build Skia graphics backend (in addition to NanoVG)
 
   #ARCHITECTURES
   build_arm64ec: true # build windows arm64ec binaries
 
-  #PLATFORMS
-  build_web: false # build web audio module versions of projects
-  build_mac: true # build mac binaries
-  build_win: true # build windows binaries
-  build_ios: true # build ios binaries
+  #PLATFORMS - use parameters if manually triggered
+  build_web: ${{ parameters.buildWeb }} # build web audio module versions of projects
+  build_mac: ${{ parameters.buildMac }} # build mac binaries
+  build_win: ${{ parameters.buildWin }} # build windows binaries
+  build_ios: ${{ parameters.buildIOS }} # build ios binaries
 
   #FORMATS
   build_app: true # build standalone app
@@ -27,8 +65,8 @@ variables:
   build_aax: false # build AAX format plugins ( must have AAX_SDK secure file in azure pipeline )
   build_vst2: false # build VST2 format plugins ( must have VST2_SDK secure file in azure pipeline )
 
-  #TESTS
-  test_projects: false # test plug-ins with pluginval, auval, vstvalidator
+  #TESTS - use parameter if manually triggered
+  test_projects: ${{ parameters.testProjects }} # test plug-ins with pluginval, auval, vstvalidator
 
   #MISC
   configuration: 'Release' # the configuration to build, e.g. 'Debug', 'Release', 'Tracer'
@@ -39,6 +77,9 @@ variables:
 
   publish_site: 'iPlug2/iPlug2.github.io'
   docs_site: 'iPlug2/docs'
+
+  # Selected projects for targeted builds (from parameter)
+  selected_projects: ${{ parameters.selectedProjects }}
 
 trigger: none
 
@@ -66,12 +107,14 @@ jobs:
 - template: Scripts/ci/build_projects.yml
   parameters:
     buildAllProjects: ${{parameters.buildAllProjects}}
+    selectedProjects: ${{parameters.selectedProjects}}
 
 # test_projects.yml
 # Tests each of the projects listed in projects.yml, for multiple platforms
 - template: Scripts/ci/test_projects.yml
   parameters:
     buildAllProjects: ${{parameters.buildAllProjects}}
+    selectedProjects: ${{parameters.selectedProjects}}
 
 # publish_site.yml
 # if publish_pages == true, publishes the WAMs hosted on https://iplug2.github.io/
