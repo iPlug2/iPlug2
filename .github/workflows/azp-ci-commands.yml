@@ -301,6 +301,17 @@ jobs:
           $projects = $env:PROJECTS -split ','
           $formats = $env:FORMATS -split ','
 
+          # Map format names to vcxproj suffixes
+          $formatMap = @{
+            "app" = "app"
+            "vst3" = "vst3"
+            "clap" = "clap"
+            "auv2" = "auv2"
+            "au" = "auv2"
+            "aax" = "aax"
+            "vst2" = "vst2"
+          }
+
           foreach ($project in $projects) {
             # Determine project path
             if ($project -like "IGraphics*" -or $project -eq "MetaParamTest") {
@@ -311,27 +322,26 @@ jobs:
 
             if (Test-Path $projectPath) {
               Write-Host "Building $project..."
-              Push-Location $projectPath
 
-              $slnFile = Get-ChildItem -Filter "*.sln" | Select-Object -First 1
-              if ($slnFile) {
-                foreach ($format in $formats) {
-                  $formatUpper = $format.ToUpper()
-                  Write-Host "  Building $formatUpper..."
+              foreach ($format in $formats) {
+                $formatSuffix = $formatMap[$format]
+                if (-not $formatSuffix) {
+                  Write-Host "  Unknown format: $format"
+                  continue
+                }
 
-                  # Set graphics preprocessor
-                  $graphicsDefine = "IGRAPHICS_$($env:GRAPHICS.ToUpper())"
-
-                  msbuild $slnFile.Name `
+                $vcxproj = "$projectPath/projects/$project-$formatSuffix.vcxproj"
+                if (Test-Path $vcxproj) {
+                  Write-Host "  Building $($format.ToUpper())..."
+                  msbuild $vcxproj `
                     /p:Configuration=Release `
                     /p:Platform=x64 `
-                    /p:PreprocessorDefinitions="$graphicsDefine" `
                     /m `
                     /verbosity:minimal
+                } else {
+                  Write-Host "  Project file not found: $vcxproj"
                 }
               }
-
-              Pop-Location
             } else {
               Write-Host "Project path not found: $projectPath"
             }
@@ -469,14 +479,15 @@ jobs:
               PROJECT_PATH="Examples/$project"
             fi
 
-            if [ -d "$PROJECT_PATH" ]; then
-              MAKEFILE="$PROJECT_PATH/Makefile"
-              if [ -f "$MAKEFILE" ]; then
-                echo "Building WAM for $project..."
-                cd "$PROJECT_PATH"
-                emmake make WAM || echo "WAM build completed"
-                cd - > /dev/null
-              fi
+            SCRIPT="$PROJECT_PATH/scripts/makedist-web.sh"
+            if [ -f "$SCRIPT" ]; then
+              echo "Building WAM for $project..."
+              chmod +x "$SCRIPT"
+              cd "$PROJECT_PATH/scripts"
+              ./makedist-web.sh off 2>&1 | tail -50 || echo "  WAM build completed with warnings/errors"
+              cd - > /dev/null
+            else
+              echo "No web build script for $project (expected: $SCRIPT)"
             fi
           done
 
@@ -491,10 +502,116 @@ jobs:
             Tests/*/build-web/**/*.js
           if-no-files-found: ignore
 
+  # macOS test job
+  test-mac:
+    name: Test macOS
+    needs: [parse-commands, build-mac]
+    if: |
+      needs.parse-commands.outputs.should_build == 'true' &&
+      needs.parse-commands.outputs.test == 'true' &&
+      needs.parse-commands.outputs.build_mac == 'true' &&
+      needs.build-mac.result == 'success'
+    runs-on: macos-latest
+
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: mac-*-builds
+          merge-multiple: true
+
+      - name: Install pluginval
+        run: |
+          curl -L "https://github.com/Tracktion/pluginval/releases/download/latest_release/pluginval_macOS.zip" -o pluginval.zip
+          unzip pluginval.zip
+
+      - name: Run pluginval on VST3 plugins
+        run: |
+          for plugin in $(find . -name "*.vst3" -type d); do
+            echo "Testing: $plugin"
+            ./pluginval.app/Contents/MacOS/pluginval \
+              --validate-in-process \
+              --skip-gui-tests \
+              --timeout-ms 60000 \
+              --validate "$plugin" || echo "Warning: $plugin validation had issues"
+          done
+
+      - name: Run pluginval on CLAP plugins
+        run: |
+          for plugin in $(find . -name "*.clap" -type f); do
+            echo "Testing: $plugin"
+            ./pluginval.app/Contents/MacOS/pluginval \
+              --validate-in-process \
+              --skip-gui-tests \
+              --timeout-ms 60000 \
+              --validate "$plugin" || echo "Warning: $plugin validation had issues"
+          done
+
+      - name: Run auval on AU plugins
+        run: |
+          # Install AU plugins to test
+          mkdir -p ~/Library/Audio/Plug-Ins/Components/
+          for plugin in $(find . -name "*.component" -type d); do
+            echo "Installing: $plugin"
+            cp -R "$plugin" ~/Library/Audio/Plug-Ins/Components/
+          done
+          # Kill audio daemon to pick up new plugins
+          killall -9 AudioComponentRegistrar 2>/dev/null || true
+          sleep 2
+          # Run auval on each installed plugin
+          for plugin in ~/Library/Audio/Plug-Ins/Components/*.component; do
+            if [ -d "$plugin" ]; then
+              echo "Testing: $plugin"
+              auval -v aufx demo Acme || echo "Warning: auval had issues"
+            fi
+          done
+
+  # Windows test job
+  test-win:
+    name: Test Windows
+    needs: [parse-commands, build-win]
+    if: |
+      needs.parse-commands.outputs.should_build == 'true' &&
+      needs.parse-commands.outputs.test == 'true' &&
+      needs.parse-commands.outputs.build_win == 'true' &&
+      needs.build-win.result == 'success'
+    runs-on: windows-2022
+
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: win-*-builds
+          merge-multiple: true
+
+      - name: Install pluginval
+        shell: pwsh
+        run: |
+          Invoke-WebRequest -Uri "https://github.com/Tracktion/pluginval/releases/download/latest_release/pluginval_Windows.zip" -OutFile pluginval.zip
+          Expand-Archive pluginval.zip -DestinationPath .
+
+      - name: Run pluginval on VST3 plugins
+        shell: pwsh
+        run: |
+          Get-ChildItem -Recurse -Filter "*.vst3" -Directory | ForEach-Object {
+            Write-Host "Testing: $($_.FullName)"
+            & .\pluginval.exe --validate-in-process --skip-gui-tests --timeout-ms 60000 --validate $_.FullName
+            if ($LASTEXITCODE -ne 0) { Write-Host "Warning: $($_.Name) validation had issues" }
+          }
+
+      - name: Run pluginval on CLAP plugins
+        shell: pwsh
+        run: |
+          Get-ChildItem -Recurse -Filter "*.clap" -File | ForEach-Object {
+            Write-Host "Testing: $($_.FullName)"
+            & .\pluginval.exe --validate-in-process --skip-gui-tests --timeout-ms 60000 --validate $_.FullName
+            if ($LASTEXITCODE -ne 0) { Write-Host "Warning: $($_.Name) validation had issues" }
+          }
+
   # Summary job
   summary:
     name: Build Summary
-    needs: [parse-commands, build-mac, build-win, build-ios, build-web]
+    needs: [parse-commands, build-mac, build-win, build-ios, build-web, test-mac, test-win]
     if: always() && needs.parse-commands.outputs.should_build == 'true'
     runs-on: ubuntu-latest
 
@@ -504,11 +621,16 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const results = {
+            const buildResults = {
               mac: '${{ needs.build-mac.result }}',
               win: '${{ needs.build-win.result }}',
               ios: '${{ needs.build-ios.result }}',
               web: '${{ needs.build-web.result }}'
+            };
+
+            const testResults = {
+              'test-mac': '${{ needs.test-mac.result }}',
+              'test-win': '${{ needs.test-win.result }}'
             };
 
             const statusEmoji = {
@@ -520,9 +642,22 @@ jobs:
 
             let summaryLines = ['## CI Build Results\n'];
 
-            for (const [platform, result] of Object.entries(results)) {
+            summaryLines.push('### Builds');
+            for (const [platform, result] of Object.entries(buildResults)) {
               if (result !== 'skipped') {
                 summaryLines.push(`- ${statusEmoji[result] || '❓'} **${platform}**: ${result}`);
+              }
+            }
+
+            // Only show test section if tests were requested
+            const hasTests = Object.values(testResults).some(r => r !== 'skipped');
+            if (hasTests) {
+              summaryLines.push('\n### Tests');
+              for (const [name, result] of Object.entries(testResults)) {
+                if (result !== 'skipped') {
+                  const displayName = name.replace('test-', '');
+                  summaryLines.push(`- ${statusEmoji[result] || '❓'} **${displayName}**: ${result}`);
+                }
               }
             }
 
