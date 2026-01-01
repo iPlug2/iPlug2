@@ -198,6 +198,17 @@ jobs:
           IFS=',' read -ra PROJECT_ARRAY <<< "$PROJECTS"
           IFS=',' read -ra FORMAT_ARRAY <<< "$FORMATS"
 
+          # Map format names to Xcode targets
+          declare -A FORMAT_TO_TARGET=(
+            ["app"]="APP"
+            ["vst3"]="VST3"
+            ["clap"]="CLAP"
+            ["auv2"]="AU"
+            ["au"]="AU"
+            ["aax"]="AAX"
+            ["vst2"]="VST2"
+          )
+
           for project in "${PROJECT_ARRAY[@]}"; do
             # Determine project path
             if [[ "$project" == IGraphics* ]] || [[ "$project" == MetaParamTest ]]; then
@@ -206,30 +217,27 @@ jobs:
               PROJECT_PATH="Examples/$project"
             fi
 
-            if [ -d "$PROJECT_PATH" ]; then
+            XCODEPROJ="$PROJECT_PATH/projects/${project}-macOS.xcodeproj"
+
+            if [ -d "$XCODEPROJ" ]; then
               echo "Building $project..."
-              cd "$PROJECT_PATH"
 
               for format in "${FORMAT_ARRAY[@]}"; do
-                FORMAT_UPPER=$(echo "$format" | tr '[:lower:]' '[:upper:]')
-                SCHEME="${project}-macOS"
-
-                # Check if xcodeproj exists
-                if [ -d "${project}.xcodeproj" ]; then
-                  echo "  Building $FORMAT_UPPER..."
-                  xcodebuild -project "${project}.xcodeproj" \
-                    -scheme "$SCHEME" \
+                TARGET="${FORMAT_TO_TARGET[$format]}"
+                if [ -n "$TARGET" ]; then
+                  echo "  Building $TARGET..."
+                  xcodebuild -project "$XCODEPROJ" \
+                    -target "$TARGET" \
                     -configuration Release \
-                    -destination 'platform=macOS' \
-                    build \
+                    -xcconfig "$PROJECT_PATH/config/${project}-mac.xcconfig" \
                     GCC_PREPROCESSOR_DEFINITIONS="\$GCC_PREPROCESSOR_DEFINITIONS IGRAPHICS_${GRAPHICS_UPPER}" \
-                    2>&1 | tail -50 || echo "Build completed with warnings/errors"
+                    2>&1 | tail -100 || echo "  $TARGET build completed with warnings/errors"
+                else
+                  echo "  Unknown format: $format"
                 fi
               done
-
-              cd - > /dev/null
             else
-              echo "Project path not found: $PROJECT_PATH"
+              echo "Project not found: $XCODEPROJ"
             fi
           done
 
