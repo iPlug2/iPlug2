@@ -9,6 +9,15 @@
 # FindiPlug2.cmake
 # This module finds the iPlug2 library and sets up the necessary variables and targets.
 
+# Store the path to this CMake scripts directory
+set(IPLUG2_CMAKE_DIR "${CMAKE_CURRENT_LIST_DIR}" CACHE INTERNAL "iPlug2 CMake scripts directory")
+
+# Enable Objective-C and Objective-C++ for macOS/iOS builds (required for non-Xcode generators)
+if(APPLE)
+  enable_language(OBJC)
+  enable_language(OBJCXX)
+endif()
+
 # Include iOS platform configuration FIRST if building for iOS or visionOS
 # This sets the IOS variable needed by other modules like IGraphics.cmake
 if(CMAKE_SYSTEM_NAME MATCHES "^(iOS|visionOS)$")
@@ -47,6 +56,9 @@ endif()
 
 # Include the plugin helper macro (iplug_add_plugin)
 include(${CMAKE_CURRENT_LIST_DIR}/IPlugPlugin.cmake)
+
+# Include resource generation module
+include(${CMAKE_CURRENT_LIST_DIR}/GenerateResources.cmake)
 
 # Set up the iPlug2 package
 set(IPLUG2_FOUND TRUE)

@@ -102,11 +102,19 @@ function(iplug_configure_clap target project_name)
       LIBRARY_OUTPUT_DIRECTORY_MINSIZEREL "${CLAP_OUTPUT_DIR}"
     )
   elseif(APPLE)
+    # Check for generated plist first, fall back to resources folder
+    set(GENERATED_PLIST "${IPLUG_GENERATED_RESOURCES_DIR}/${project_name}-CLAP-Info.plist")
+    if(IPLUG_GENERATED_RESOURCES_DIR AND EXISTS "${GENERATED_PLIST}")
+      set(CLAP_PLIST "${GENERATED_PLIST}")
+    else()
+      set(CLAP_PLIST "${PLUG_RESOURCES_DIR}/${project_name}-CLAP-Info.plist")
+    endif()
+
     # CLAP on macOS is a bundle with .clap extension
     set_target_properties(${target} PROPERTIES
       BUNDLE TRUE
       BUNDLE_EXTENSION "clap"
-      MACOSX_BUNDLE_INFO_PLIST ${PLUG_RESOURCES_DIR}/${project_name}-CLAP-Info.plist
+      MACOSX_BUNDLE_INFO_PLIST ${CLAP_PLIST}
       LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/out"
       MACOSX_BUNDLE_BUNDLE_NAME "${project_name}"
       OUTPUT_NAME "${project_name}"

@@ -167,11 +167,19 @@ function(iplug_configure_vst3 target project_name)
       COMMENT "Creating VST3 bundle structure for ${project_name}"
     )
   elseif(APPLE)
+    # Check for generated plist first, fall back to resources folder
+    set(GENERATED_PLIST "${IPLUG_GENERATED_RESOURCES_DIR}/${project_name}-VST3-Info.plist")
+    if(IPLUG_GENERATED_RESOURCES_DIR AND EXISTS "${GENERATED_PLIST}")
+      set(VST3_PLIST "${GENERATED_PLIST}")
+    else()
+      set(VST3_PLIST "${PLUG_RESOURCES_DIR}/${project_name}-VST3-Info.plist")
+    endif()
+
     # VST3 on macOS is a bundle with .vst3 extension
     set_target_properties(${target} PROPERTIES
       BUNDLE TRUE
       BUNDLE_EXTENSION "vst3"
-      MACOSX_BUNDLE_INFO_PLIST ${PLUG_RESOURCES_DIR}/${project_name}-VST3-Info.plist
+      MACOSX_BUNDLE_INFO_PLIST ${VST3_PLIST}
       LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/out"
       MACOSX_BUNDLE_BUNDLE_NAME "${project_name}"
       OUTPUT_NAME "${project_name}"

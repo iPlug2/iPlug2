@@ -105,6 +105,11 @@ endif()
 function(iplug_configure_app target project_name)
   target_link_libraries(${target} PUBLIC iPlug2::APP)
 
+  # Add generated resources directory to include path (for resource.h)
+  if(IPLUG_GENERATED_RESOURCES_DIR AND EXISTS "${IPLUG_GENERATED_RESOURCES_DIR}")
+    target_include_directories(${target} PRIVATE "${IPLUG_GENERATED_RESOURCES_DIR}")
+  endif()
+
   # On Apple platforms, set language properties on the actual target sources
   # (set_source_files_properties on INTERFACE library sources doesn't propagate)
   if(APPLE)
@@ -134,17 +139,32 @@ function(iplug_configure_app target project_name)
       WIN32_EXECUTABLE TRUE  # Use WinMain entry point
     )
   elseif(APPLE)
+    # Check for generated plist first, fall back to resources folder
+    set(GENERATED_PLIST "${IPLUG_GENERATED_RESOURCES_DIR}/${project_name}-macOS-Info.plist")
+    if(IPLUG_GENERATED_RESOURCES_DIR AND EXISTS "${GENERATED_PLIST}")
+      set(APP_PLIST "${GENERATED_PLIST}")
+    else()
+      set(APP_PLIST "${PLUG_RESOURCES_DIR}/${project_name}-macOS-Info.plist")
+    endif()
+
     set_target_properties(${target} PROPERTIES
       MACOSX_BUNDLE TRUE
-      MACOSX_BUNDLE_INFO_PLIST ${PLUG_RESOURCES_DIR}/${project_name}-macOS-Info.plist
+      MACOSX_BUNDLE_INFO_PLIST ${APP_PLIST}
       RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/out"
       OUTPUT_NAME "${project_name}"
       # Skip code signing during build - sign manually later if needed
       XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED "NO"
     )
 
+    # Check for generated XIB first, fall back to resources folder
+    set(GENERATED_XIB "${IPLUG_GENERATED_RESOURCES_DIR}/${project_name}-macOS-MainMenu.xib")
+    if(IPLUG_GENERATED_RESOURCES_DIR AND EXISTS "${GENERATED_XIB}")
+      set(MAIN_MENU_XIB "${GENERATED_XIB}")
+    else()
+      set(MAIN_MENU_XIB "${PLUG_RESOURCES_DIR}/${project_name}-macOS-MainMenu.xib")
+    endif()
+
     # Compile XIB to NIB and add to bundle Resources
-    set(MAIN_MENU_XIB ${PLUG_RESOURCES_DIR}/${project_name}-macOS-MainMenu.xib)
     if(EXISTS ${MAIN_MENU_XIB})
       set(MAIN_MENU_NIB ${CMAKE_CURRENT_BINARY_DIR}/${project_name}-macOS-MainMenu.nib)
       add_custom_command(
