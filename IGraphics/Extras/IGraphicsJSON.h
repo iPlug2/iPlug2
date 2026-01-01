@@ -95,6 +95,18 @@ public:
    * @param tagMap Map of {"controlId", tagValue} */
   void SetTagMapping(const std::map<std::string, int>& tagMap) { mTagMap = tagMap; }
 
+  /** Set mapping from bitmap names to pre-loaded bitmaps
+   * @param bitmapMap Map of {"bitmapName", IBitmap} */
+  void SetBitmapMapping(const std::map<std::string, IBitmap>& bitmapMap) { mBitmapMap = bitmapMap; }
+
+  /** Set mapping from SVG names to pre-loaded SVGs
+   * @param svgMap Map of {"svgName", ISVG} */
+  void SetSVGMapping(const std::map<std::string, ISVG>& svgMap) { mSVGMap = svgMap; }
+
+  /** Set mapping from action names to action functions
+   * @param actionMap Map of {"actionName", function} */
+  void SetActionMapping(const std::map<std::string, std::function<void(IControl*)>>& actionMap) { mActionMap = actionMap; }
+
   /** Get a control by its JSON id
    * @param id The control's id from JSON
    * @return The control, or nullptr if not found */
@@ -117,6 +129,12 @@ private:
   IVStyle GetStyle(const std::string& name);
   IColor ParseColor(const json& c);
   IText ParseText(const json& t);
+  void ApplyStyleOverrides(IVStyle& style, const json& overrides);
+
+  // Resource resolution
+  IBitmap GetBitmap(const std::string& name);
+  ISVG GetSVG(const std::string& name);
+  IActionFunction GetAction(const std::string& name);
 
   // Resolution
   int ResolveParam(const json& param);
@@ -130,6 +148,9 @@ private:
   std::map<std::string, int> mTagMap;
   std::map<std::string, int> mParamMap;
   std::map<std::string, int> mIdToControlIdx;
+  std::map<std::string, IBitmap> mBitmapMap;
+  std::map<std::string, ISVG> mSVGMap;
+  std::map<std::string, std::function<void(IControl*)>> mActionMap;
 
   // Layout state
   std::vector<LayoutDef> mLayouts;

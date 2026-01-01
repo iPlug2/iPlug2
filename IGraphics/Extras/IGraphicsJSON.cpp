@@ -176,6 +176,12 @@ IControl* IGraphicsJSON::CreateControl(const json& def, int parentIdx)
       style = ParseStyle(def["style"]);
   }
 
+  // Apply style overrides on top of base style
+  if (def.contains("styleOverrides"))
+  {
+    ApplyStyleOverrides(style, def["styleOverrides"]);
+  }
+
   // Get label
   std::string label = def.value("label", "");
 
@@ -196,7 +202,10 @@ IControl* IGraphicsJSON::CreateControl(const json& def, int parentIdx)
   }
   else if (type == "IVButtonControl")
   {
-    pControl = new IVButtonControl(bounds, SplashClickActionFunc, label.c_str(), style);
+    IActionFunction actionFunc = SplashClickActionFunc;
+    if (def.contains("action"))
+      actionFunc = GetAction(def["action"]);
+    pControl = new IVButtonControl(bounds, actionFunc, label.c_str(), style);
   }
   else if (type == "IVToggleControl")
   {
@@ -275,6 +284,126 @@ IControl* IGraphicsJSON::CreateControl(const json& def, int parentIdx)
       color = ParseColor(def["color"]);
     bool drawFrame = def.value("drawFrame", false);
     pControl = new IPanelControl(bounds, color, drawFrame);
+  }
+  //--- Bitmap Controls ---
+  else if (type == "IBKnobControl")
+  {
+    std::string bitmapName = def.value("bitmap", "");
+    IBitmap bitmap = GetBitmap(bitmapName);
+    if (bitmap.IsValid())
+    {
+      EDirection dir = EDirection::Vertical;
+      if (def.contains("direction") && def["direction"] == "horizontal")
+        dir = EDirection::Horizontal;
+      pControl = new IBKnobControl(bounds, bitmap, paramIdx, dir);
+    }
+  }
+  else if (type == "IBSliderControl")
+  {
+    std::string trackBmp = def.value("trackBitmap", "");
+    std::string handleBmp = def.value("handleBitmap", "");
+    EDirection dir = EDirection::Vertical;
+    if (def.contains("direction") && def["direction"] == "horizontal")
+      dir = EDirection::Horizontal;
+
+    IBitmap track = GetBitmap(trackBmp);
+    IBitmap handle = GetBitmap(handleBmp);
+
+    if (track.IsValid())
+    {
+      pControl = new IBSliderControl(bounds, track, handle, paramIdx, dir);
+    }
+  }
+  else if (type == "IBButtonControl")
+  {
+    std::string bitmapName = def.value("bitmap", "");
+    IBitmap bitmap = GetBitmap(bitmapName);
+    if (bitmap.IsValid())
+    {
+      IActionFunction actionFunc = SplashClickActionFunc;
+      if (def.contains("action"))
+        actionFunc = GetAction(def["action"]);
+      pControl = new IBButtonControl(bounds, bitmap, actionFunc);
+    }
+  }
+  else if (type == "IBSwitchControl")
+  {
+    std::string bitmapName = def.value("bitmap", "");
+    IBitmap bitmap = GetBitmap(bitmapName);
+    if (bitmap.IsValid())
+    {
+      pControl = new IBSwitchControl(bounds, bitmap, paramIdx);
+    }
+  }
+  //--- SVG Controls ---
+  else if (type == "ISVGKnobControl")
+  {
+    std::string svgName = def.value("svg", "");
+    ISVG svg = GetSVG(svgName);
+    if (svg.IsValid())
+    {
+      pControl = new ISVGKnobControl(bounds, svg, paramIdx);
+    }
+  }
+  else if (type == "ISVGSliderControl")
+  {
+    std::string trackSvg = def.value("trackSVG", "");
+    std::string handleSvg = def.value("handleSVG", "");
+    EDirection dir = EDirection::Vertical;
+    if (def.contains("direction") && def["direction"] == "horizontal")
+      dir = EDirection::Horizontal;
+
+    ISVG track = GetSVG(trackSvg);
+    ISVG handle = GetSVG(handleSvg);
+
+    if (track.IsValid() && handle.IsValid())
+    {
+      pControl = new ISVGSliderControl(bounds, track, handle, paramIdx, dir);
+    }
+  }
+  else if (type == "ISVGButtonControl")
+  {
+    std::string offSvg = def.value("offSVG", "");
+    std::string onSvg = def.value("onSVG", "");
+    ISVG off = GetSVG(offSvg);
+    ISVG on = GetSVG(onSvg);
+
+    if (off.IsValid() && on.IsValid())
+    {
+      IActionFunction actionFunc = SplashClickActionFunc;
+      if (def.contains("action"))
+        actionFunc = GetAction(def["action"]);
+      pControl = new ISVGButtonControl(bounds, actionFunc, off, on);
+    }
+  }
+  else if (type == "ISVGToggleControl")
+  {
+    std::string offSvg = def.value("offSVG", "");
+    std::string onSvg = def.value("onSVG", "");
+    ISVG off = GetSVG(offSvg);
+    ISVG on = GetSVG(onSvg);
+
+    if (off.IsValid() && on.IsValid())
+    {
+      pControl = new ISVGToggleControl(bounds, paramIdx, off, on);
+    }
+  }
+  else if (type == "ISVGSwitchControl")
+  {
+    std::vector<ISVG> svgList;
+    if (def.contains("svgs"))
+    {
+      for (const auto& svgName : def["svgs"])
+      {
+        svgList.push_back(GetSVG(svgName.get<std::string>()));
+      }
+    }
+    if (svgList.size() >= 2)
+    {
+      // ISVGSwitchControl requires an initializer_list, so we need to handle this differently
+      // For 2 states, use the first two SVGs
+      pControl = new ISVGSwitchControl(bounds, {svgList[0], svgList[1]}, paramIdx);
+    }
   }
   else
   {
@@ -550,6 +679,72 @@ IVStyle IGraphicsJSON::GetStyle(const std::string& name)
   if (it != mStyles.end())
     return it->second;
   return DEFAULT_STYLE;
+}
+
+void IGraphicsJSON::ApplyStyleOverrides(IVStyle& style, const json& j)
+{
+  if (j.contains("showLabel")) style.showLabel = j["showLabel"].get<bool>();
+  if (j.contains("showValue")) style.showValue = j["showValue"].get<bool>();
+  if (j.contains("drawFrame")) style.drawFrame = j["drawFrame"].get<bool>();
+  if (j.contains("drawShadows")) style.drawShadows = j["drawShadows"].get<bool>();
+  if (j.contains("emboss")) style.emboss = j["emboss"].get<bool>();
+  if (j.contains("roundness")) style.roundness = j["roundness"].get<float>();
+  if (j.contains("frameThickness")) style.frameThickness = j["frameThickness"].get<float>();
+  if (j.contains("shadowOffset")) style.shadowOffset = j["shadowOffset"].get<float>();
+  if (j.contains("widgetFrac")) style.widgetFrac = j["widgetFrac"].get<float>();
+  if (j.contains("angle")) style.angle = j["angle"].get<float>();
+
+  // Colors
+  if (j.contains("colorBG")) style.colorSpec.mColors[kBG] = ParseColor(j["colorBG"]);
+  if (j.contains("colorFG")) style.colorSpec.mColors[kFG] = ParseColor(j["colorFG"]);
+  if (j.contains("colorPR")) style.colorSpec.mColors[kPR] = ParseColor(j["colorPR"]);
+  if (j.contains("colorFR")) style.colorSpec.mColors[kFR] = ParseColor(j["colorFR"]);
+  if (j.contains("colorHL")) style.colorSpec.mColors[kHL] = ParseColor(j["colorHL"]);
+  if (j.contains("colorSH")) style.colorSpec.mColors[kSH] = ParseColor(j["colorSH"]);
+  if (j.contains("colorX1")) style.colorSpec.mColors[kX1] = ParseColor(j["colorX1"]);
+  if (j.contains("colorX2")) style.colorSpec.mColors[kX2] = ParseColor(j["colorX2"]);
+  if (j.contains("colorX3")) style.colorSpec.mColors[kX3] = ParseColor(j["colorX3"]);
+
+  // Label text styling
+  if (j.contains("labelText"))
+  {
+    style.labelText = ParseText(j["labelText"]);
+  }
+
+  // Value text styling
+  if (j.contains("valueText"))
+  {
+    style.valueText = ParseText(j["valueText"]);
+  }
+}
+
+IBitmap IGraphicsJSON::GetBitmap(const std::string& name)
+{
+  auto it = mBitmapMap.find(name);
+  if (it != mBitmapMap.end())
+    return it->second;
+  DBGMSG("IGraphicsJSON: Unknown bitmap: %s\n", name.c_str());
+  return IBitmap();
+}
+
+ISVG IGraphicsJSON::GetSVG(const std::string& name)
+{
+  auto it = mSVGMap.find(name);
+  if (it != mSVGMap.end())
+    return it->second;
+  DBGMSG("IGraphicsJSON: Unknown SVG: %s\n", name.c_str());
+  return ISVG(nullptr);
+}
+
+IActionFunction IGraphicsJSON::GetAction(const std::string& name)
+{
+  auto it = mActionMap.find(name);
+  if (it != mActionMap.end())
+  {
+    auto& userAction = it->second;
+    return [userAction](IControl* pControl) { userAction(pControl); };
+  }
+  return SplashClickActionFunc;
 }
 
 IColor IGraphicsJSON::ParseColor(const json& c)

@@ -39,11 +39,12 @@ IGraphicsJSON enables defining IGraphics UIs declaratively in JSON format with h
 
 ### Control Types
 
+**Vector Controls**:
 | JSON Type | IGraphics Control | Notes |
 |-----------|------------------|-------|
-| `IVKnobControl` | IVKnobControl | Vector knob |
+| `IVKnobControl` | IVKnobControl | Vector knob, supports `style`, `styleOverrides` |
 | `IVSliderControl` | IVSliderControl | Supports `direction` |
-| `IVButtonControl` | IVButtonControl | Uses SplashClickActionFunc |
+| `IVButtonControl` | IVButtonControl | Supports `action` |
 | `IVToggleControl` | IVToggleControl | Supports `offText`, `onText` |
 | `IVSwitchControl` | IVSwitchControl | Supports `numStates` |
 | `IVTabSwitchControl` | IVTabSwitchControl | Supports `labels` array |
@@ -52,6 +53,23 @@ IGraphicsJSON enables defining IGraphics UIs declaratively in JSON format with h
 | `IVLabelControl` | IVLabelControl | Styled label |
 | `ITextControl` | ITextControl | Basic text |
 | `IPanelControl` | IPanelControl | Basic colored panel |
+
+**Bitmap Controls** (require resource mapping):
+| JSON Type | IGraphics Control | Notes |
+|-----------|------------------|-------|
+| `IBKnobControl` | IBKnobControl | `bitmap`, `direction` |
+| `IBSliderControl` | IBSliderControl | `trackBitmap`, `handleBitmap`, `direction` |
+| `IBButtonControl` | IBButtonControl | `bitmap`, `action` |
+| `IBSwitchControl` | IBSwitchControl | `bitmap` |
+
+**SVG Controls** (require resource mapping):
+| JSON Type | IGraphics Control | Notes |
+|-----------|------------------|-------|
+| `ISVGKnobControl` | ISVGKnobControl | `svg` |
+| `ISVGSliderControl` | ISVGSliderControl | `trackSVG`, `handleSVG`, `direction` |
+| `ISVGButtonControl` | ISVGButtonControl | `offSVG`, `onSVG`, `action` |
+| `ISVGToggleControl` | ISVGToggleControl | `offSVG`, `onSVG` |
+| `ISVGSwitchControl` | ISVGSwitchControl | `svgs` array (2 SVGs) |
 
 ### Layout System
 
@@ -117,6 +135,19 @@ IGraphicsJSON enables defining IGraphics UIs declaratively in JSON format with h
 }
 ```
 
+**Style Overrides** (combine named style with inline tweaks):
+```json
+{
+  "type": "IVKnobControl",
+  "style": "myStyle",
+  "styleOverrides": {
+    "colorFG": "#00FF00",
+    "roundness": 0.8
+  }
+}
+```
+This applies `myStyle` first, then overrides specific properties.
+
 **Available Style Properties**:
 - `showLabel`, `showValue`, `drawFrame`, `drawShadows`, `emboss` (bool)
 - `roundness`, `frameThickness`, `shadowOffset`, `widgetFrac`, `angle` (float)
@@ -148,6 +179,65 @@ mJSONUI->SetTagMapping({
   "param": "kGain"
 }
 ```
+
+### Bitmap and SVG Resource Mapping
+
+Bitmaps and SVGs must be loaded in plugin code and mapped by name before JSON loading:
+
+```cpp
+// Load bitmaps and SVGs first
+IBitmap knobBitmap = pGraphics->LoadBitmap("knob.png", 60);  // 60 frames
+ISVG knobSVG = pGraphics->LoadSVG("knob.svg");
+
+// Map by name for JSON to reference
+mJSONUI->SetBitmapMapping({
+  {"knobBG", knobBitmap},
+  {"sliderHandle", pGraphics->LoadBitmap("handle.png")}
+});
+
+mJSONUI->SetSVGMapping({
+  {"knobSVG", knobSVG}
+});
+
+// Now Load() can reference these by name
+mJSONUI->Load(...);
+```
+
+```json
+{
+  "type": "IBKnobControl",
+  "bitmap": "knobBG",
+  "param": "kGain",
+  "bounds": { "centredInside": [80, 80] }
+}
+```
+
+### Action Function Mapping
+
+Custom action functions for buttons:
+
+```cpp
+mJSONUI->SetActionMapping({
+  {"savePreset", [this](IControl* pControl) {
+    // Custom save logic
+    mDelegate->SavePreset();
+  }},
+  {"randomize", [this](IControl* pControl) {
+    // Randomize parameters
+  }}
+});
+```
+
+```json
+{
+  "type": "IVButtonControl",
+  "action": "savePreset",
+  "label": "Save",
+  "bounds": [10, 10, 80, 30]
+}
+```
+
+If no action is specified, buttons use `SplashClickActionFunc` (visual splash feedback).
 
 ### Hot-Reload
 
@@ -188,12 +278,12 @@ void MyPlugin::OnIdle()
 
 | Feature | Status |
 |---------|--------|
-| Bitmap controls (IBitmapControl, etc.) | Not implemented |
-| SVG controls (ISVGKnob, etc.) | Not implemented |
+| Bitmap controls (IBitmapControl, etc.) | ✅ Implemented via resource mapping |
+| SVG controls (ISVGKnob, etc.) | ✅ Implemented via resource mapping |
 | Meter/visualizer controls | Not implemented |
-| Custom action handlers | Hardcoded to SplashClickActionFunc |
-| Image/bitmap loading | Not implemented |
-| SVG loading | Not implemented |
+| Custom action handlers | ✅ Implemented via action mapping |
+| Image/bitmap loading from JSON | Plugin pre-loads, maps by name |
+| SVG loading from JSON | Plugin pre-loads, maps by name |
 | Font loading from JSON | Must be loaded in plugin code |
 | Flexbox layout | Stub exists, not implemented |
 | Complex expressions | Only single operator supported |
@@ -369,9 +459,10 @@ Always define `IPLUG_SRCDIR` in debug builds for hot-reload.
 
 1. **Expression Parser**: Support multiple operators, parentheses, functions
 2. **Two-Pass Layout**: Position parents before children
-3. **Bitmap/SVG Support**: Load images from JSON
-4. **Action System**: Callbacks for buttons and controls
+3. ~~**Bitmap/SVG Support**~~: ✅ Implemented via resource mapping
+4. ~~**Action System**~~: ✅ Implemented via action mapping
 5. **Web Support**: Embed JSON or fetch from URL
 6. **Partial Reload**: Only recreate changed controls
 7. **Flexbox**: Proper flex container implementation
 8. **Validation**: JSON schema validation with helpful errors
+9. **JSON-based Resource Loading**: Load bitmaps/SVGs directly from JSON without plugin code

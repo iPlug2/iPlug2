@@ -48,7 +48,7 @@
       "id": "controlsGroup",
       "bounds": {
         "from": "parent",
-        "pad": -30,
+        "pad": 0,
         "fracV": [0.15, true],
         "reduceFromTop": 120
       },
@@ -61,7 +61,7 @@
           "param": "kGain",
           "bounds": {
             "from": "parent",
-            "pad": -10,
+            "pad": 0,
             "fracH": [0.33, true]
           },
           "label": "Gain",
@@ -73,7 +73,7 @@
           "param": "kMix",
           "bounds": {
             "from": "parent",
-            "pad": -10,
+            "pad": 0,
             "fracH": [0.33, false]
           },
           "label": "Mix",
@@ -87,7 +87,7 @@
       "bounds": {
         "from": "parent",
         "fracV": [0.08, false],
-        "pad": -10
+        "pad": 0
       },
       "label": "Edit ui.json and save to see changes!",
       "style": "label"
