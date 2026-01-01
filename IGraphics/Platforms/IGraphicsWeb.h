@@ -16,6 +16,7 @@
 #include <emscripten/html5.h>
 
 #include <utility>
+#include <string>
 
 #include "IPlugPlatform.h"
 
@@ -25,11 +26,6 @@ using namespace emscripten;
 
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
-
-static val GetCanvas()
-{
-  return val::global("document").call<val>("getElementById", std::string("canvas"));
-}
 
 static val GetPreloadedImages()
 {
@@ -46,8 +42,21 @@ class IGraphicsWeb final : public IGRAPHICS_DRAW_CLASS
   class FileFont;
   class MemoryFont;
 public:
-  IGraphicsWeb(IGEditorDelegate& dlg, int w, int h, int fps, float scale);
+  /** Constructor
+   * @param dlg The editor delegate
+   * @param w Width in logical pixels
+   * @param h Height in logical pixels
+   * @param fps Frames per second (0 = use default)
+   * @param scale Draw scale
+   * @param canvas Optional canvas element. If undefined, falls back to document.getElementById("canvas") */
+  IGraphicsWeb(IGEditorDelegate& dlg, int w, int h, int fps, float scale, val canvas = val::undefined());
   ~IGraphicsWeb();
+
+  /** Get the canvas element for this instance */
+  val GetCanvas() const { return mCanvas; }
+
+  /** Check if this instance is running inside Shadow DOM */
+  bool IsInShadowDOM() const { return mInShadowDOM; }
 
   void DrawResize() override;
 
@@ -85,12 +94,19 @@ protected:
   void CreatePlatformTextEntry(int paramIdx, const IText& text, const IRECT& bounds, int length, const char* str) override;
     
 private:
+  void RegisterCanvasEvents();
+  void UnregisterCanvasEvents();
+
   PlatformFontPtr LoadPlatformFont(const char* fontID, const char* fileNameOrResID) override;
   PlatformFontPtr LoadPlatformFont(const char* fontID, const char* fontName, ETextStyle style) override;
   PlatformFontPtr LoadPlatformFont(const char* fontID, void* pData, int dataSize) override;
   void CachePlatformFont(const char* fontID, const PlatformFontPtr& font) override {}
 
   WDL_String mClipboardText;
+  val mCanvas = val::undefined();         // Canvas element reference
+  val mRootNode = val::undefined();       // Document or ShadowRoot containing the canvas
+  bool mInShadowDOM = false;              // True if canvas is inside a Shadow DOM
+  std::string mCanvasSelector;            // Unique CSS selector for this instance's canvas
 };
 
 END_IGRAPHICS_NAMESPACE

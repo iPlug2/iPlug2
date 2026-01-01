@@ -24,13 +24,28 @@
   #if defined OS_WEB
 
   #include <emscripten.h>
+  #include <vector>
+  #include <algorithm>
 
-  iplug::igraphics::IGraphicsWeb* gGraphics = nullptr;
+  // Instance registry for multi-instance support (Shadow DOM / web components)
+  std::vector<iplug::igraphics::IGraphicsWeb*> gGraphicsInstances;
+
+  void RegisterGraphicsInstance(iplug::igraphics::IGraphicsWeb* pGraphics)
+  {
+    gGraphicsInstances.push_back(pGraphics);
+  }
+
+  void UnregisterGraphicsInstance(iplug::igraphics::IGraphicsWeb* pGraphics)
+  {
+    gGraphicsInstances.erase(
+      std::remove(gGraphicsInstances.begin(), gGraphicsInstances.end(), pGraphics),
+      gGraphicsInstances.end()
+    );
+  }
 
   void StartMainLoopTimer()
   {
-    iplug::igraphics::IGraphicsWeb* pGraphics = gGraphics;
-    emscripten_set_main_loop(pGraphics->OnMainLoopTimer, 0 /*pGraphics->FPS()*/, 1);
+    emscripten_set_main_loop(iplug::igraphics::IGraphicsWeb::OnMainLoopTimer, 0, 1);
   }
 
   #elif defined OS_WIN
@@ -67,10 +82,11 @@
     return pGraphics;
   }
   #elif defined OS_WEB
-  IGraphics* MakeGraphics(IGEditorDelegate& dlg, int w, int h, int fps = 0, float scale = 1.)
+  IGraphics* MakeGraphics(IGEditorDelegate& dlg, int w, int h, int fps = 0, float scale = 1., emscripten::val canvas = emscripten::val::undefined())
   {
-    gGraphics = new IGraphicsWeb(dlg, w, h, fps, scale);
-    return gGraphics;
+    IGraphicsWeb* pGraphics = new IGraphicsWeb(dlg, w, h, fps, scale, canvas);
+    RegisterGraphicsInstance(pGraphics);
+    return pGraphics;
   }
   #else
     #error "No OS defined!"
