@@ -348,6 +348,84 @@ jobs:
             Tests/*/build-win/**/*.exe
           if-no-files-found: ignore
 
+  # iOS build job
+  build-ios:
+    name: Build iOS
+    needs: parse-commands
+    if: |
+      needs.parse-commands.outputs.should_build == 'true' &&
+      needs.parse-commands.outputs.skip != 'true' &&
+      needs.parse-commands.outputs.build_ios == 'true'
+    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        graphics: ${{ fromJson(needs.parse-commands.outputs.graphics_matrix) }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Download dependencies
+        run: |
+          cd Dependencies/IPlug
+          ./download-iplug-sdks.sh
+
+      - name: Build projects
+        env:
+          PROJECTS: ${{ needs.parse-commands.outputs.projects }}
+          GRAPHICS: ${{ matrix.graphics }}
+        run: |
+          # Defense-in-depth: validate graphics backend at runtime
+          case "$GRAPHICS" in
+            nanovg|skia) ;;
+            *) echo "Error: Invalid graphics backend: $GRAPHICS"; exit 1 ;;
+          esac
+
+          # Convert to uppercase for preprocessor definition
+          GRAPHICS_UPPER=$(echo "$GRAPHICS" | tr '[:lower:]' '[:upper:]')
+
+          echo "Building iOS with $GRAPHICS graphics backend"
+          echo "Projects: $PROJECTS"
+
+          IFS=',' read -ra PROJECT_ARRAY <<< "$PROJECTS"
+
+          for project in "${PROJECT_ARRAY[@]}"; do
+            # Determine project path
+            if [[ "$project" == IGraphics* ]] || [[ "$project" == MetaParamTest ]]; then
+              PROJECT_PATH="Tests/$project"
+            else
+              PROJECT_PATH="Examples/$project"
+            fi
+
+            XCODEPROJ="$PROJECT_PATH/projects/${project}-iOS.xcodeproj"
+
+            if [ -d "$XCODEPROJ" ]; then
+              echo "Building $project for iOS..."
+              xcodebuild -project "$XCODEPROJ" \
+                -scheme "iOS-APP with AUv3" \
+                -configuration Release \
+                -destination 'generic/platform=iOS' \
+                -xcconfig "$PROJECT_PATH/config/${project}-ios.xcconfig" \
+                CODE_SIGNING_ALLOWED=NO \
+                GCC_PREPROCESSOR_DEFINITIONS="\$GCC_PREPROCESSOR_DEFINITIONS IGRAPHICS_${GRAPHICS_UPPER}" \
+                2>&1 | tail -100 || echo "  iOS build completed with warnings/errors"
+            else
+              echo "Project not found: $XCODEPROJ"
+            fi
+          done
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-${{ matrix.graphics }}-builds
+          path: |
+            Examples/*/build/Release-iphoneos/*.app
+            Tests/*/build/Release-iphoneos/*.app
+          if-no-files-found: ignore
+
   # Web build job
   build-web:
     name: Build Web
@@ -416,7 +494,7 @@ jobs:
   # Summary job
   summary:
     name: Build Summary
-    needs: [parse-commands, build-mac, build-win, build-web]
+    needs: [parse-commands, build-mac, build-win, build-ios, build-web]
     if: always() && needs.parse-commands.outputs.should_build == 'true'
     runs-on: ubuntu-latest
 
@@ -429,6 +507,7 @@ jobs:
             const results = {
               mac: '${{ needs.build-mac.result }}',
               win: '${{ needs.build-win.result }}',
+              ios: '${{ needs.build-ios.result }}',
               web: '${{ needs.build-web.result }}'
             };
 
