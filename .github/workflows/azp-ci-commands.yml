@@ -134,17 +134,16 @@ jobs:
           # Call the centralized parser
           echo "$INPUT_TEXT" | python3 Scripts/ci/parse_azp_ci_commands.py --github --event-type "$EVENT_TYPE"
 
-      - name: Post acknowledgment comment
+      - name: React to comment
         if: github.event_name == 'issue_comment' && steps.parse.outputs.should_build == 'true'
         uses: actions/github-script@v7
         with:
           script: |
-            const summary = '${{ steps.parse.outputs.summary }}';
-            await github.rest.issues.createComment({
+            await github.rest.reactions.createForIssueComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              issue_number: context.issue.number,
-              body: `🔨 **CI Build Triggered**\n\n${summary}\n\nBuilds will start shortly...`
+              comment_id: context.payload.comment.id,
+              content: '+1'
             });
 
       - name: Skip notification
