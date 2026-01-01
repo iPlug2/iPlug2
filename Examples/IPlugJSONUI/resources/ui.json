@@ -1,26 +1,8 @@
 {
   "styles": {
-    "main": {
-      "colorBG": "#FFFFFF",
-      "colorFG": "#FF0000",
-      "colorPR": "#FF8833",
-      "colorFR": "#666666",
-      "roundness": 0.3,
-      "drawFrame": true,
-      "drawShadows": false,
-      "shadowOffset": 3.0
-    },
-    "slider": {
-      "colorBG": "#FFFFFF",
-      "colorFG": "#44AAFF",
-      "colorPR": "#66CCFF",
-      "roundness": 0.1,
-      "drawFrame": false,
-      "drawShadows": false
-    },
-    "label": {
-      "showLabel": true,
-      "showValue": false
+    "knob": {
+      "colorFG": "#4488FF",
+      "roundness": 0.5
     }
   },
 
@@ -28,69 +10,29 @@
     {
       "type": "IPanelControl",
       "bounds": { "from": "parent" },
-      "color": "#FFFFFF"
+      "color": "#808080"
     },
     {
       "type": "ITextControl",
-      "id": "title",
       "bounds": {
         "from": "parent",
-        "pad": 20,
-        "fracV": [0.12, true]
+        "centredInside": [300, 50],
+        "vShift": -100
       },
-      "text": "JSON UI Demo",
-      "fontSize": 28,
+      "text": "Hello iPlug 2!",
+      "fontSize": 50,
       "align": "center",
-      "color": "#FFFFFF"
+      "color": "#000000"
     },
     {
-      "type": "IVGroupControl",
-      "id": "controlsGroup",
+      "type": "IVKnobControl",
+      "param": "kGain",
       "bounds": {
         "from": "parent",
-        "pad": 0,
-        "fracV": [0.15, true],
-        "reduceFromTop": 120
+        "centredInside": [100, 100]
       },
-      "label": "Controls",
-      "style": "main",
-      "children": [
-        {
-          "type": "IVKnobControl",
-          "id": "gainKnob",
-          "param": "kGain",
-          "bounds": {
-            "from": "parent",
-            "pad": 0,
-            "fracH": [0.33, true]
-          },
-          "label": "Gain",
-          "style": "main"
-        },
-        {
-          "type": "IVSliderControl",
-          "id": "mixSlider",
-          "param": "kMix",
-          "bounds": {
-            "from": "parent",
-            "pad": 0,
-            "fracH": [0.33, false]
-          },
-          "label": "Mix",
-          "style": "slider",
-          "direction": "vertical"
-        }
-      ]
-    },
-    {
-      "type": "IVLabelControl",
-      "bounds": {
-        "from": "parent",
-        "fracV": [0.08, false],
-        "pad": 0
-      },
-      "label": "Edit ui.json and save to see changes!",
-      "style": "label"
+      "label": "Gain",
+      "style": "knob"
     }
   ]
 }

@@ -48,8 +48,9 @@ IGraphicsJSON enables defining IGraphics UIs declaratively in JSON format with h
 | `IVToggleControl` | IVToggleControl | Supports `offText`, `onText` |
 | `IVSwitchControl` | IVSwitchControl | Supports `numStates` |
 | `IVTabSwitchControl` | IVTabSwitchControl | Supports `labels` array |
-| `IVGroupControl` | IVGroupControl | Visual grouping |
-| `IVPanelControl` | IVPanelControl | Styled panel |
+| `IVGroupControl` | IVGroupControl | Container, supports `children` |
+| `IVPanelControl` | IVPanelControl | Container, supports `children` |
+| `IVTabbedPagesControl` | IVTabbedPagesControl | Tabbed container, supports `pages` |
 | `IVLabelControl` | IVLabelControl | Styled label |
 | `ITextControl` | ITextControl | Basic text |
 | `IPanelControl` | IPanelControl | Basic colored panel |
@@ -238,6 +239,71 @@ mJSONUI->SetActionMapping({
 ```
 
 If no action is specified, buttons use `SplashClickActionFunc` (visual splash feedback).
+
+### Container Controls
+
+Controls that inherit from `IContainerBase` (IVGroupControl, IVPanelControl) can have `children`:
+
+```json
+{
+  "type": "IVGroupControl",
+  "label": "Oscillator",
+  "bounds": { "from": "parent", "fracH": [0.5, true] },
+  "style": "main",
+  "children": [
+    {
+      "type": "IVKnobControl",
+      "param": "kFreq",
+      "bounds": { "from": "parent", "pad": -10, "fracH": [0.5, true] }
+    },
+    {
+      "type": "IVKnobControl",
+      "param": "kAmp",
+      "bounds": { "from": "parent", "pad": -10, "fracH": [0.5, false] }
+    }
+  ]
+}
+```
+
+Children use `"from": "parent"` to reference the container's bounds. The parent-child relationship is properly established via `IContainerBase::AddChildControl()`.
+
+### IVTabbedPagesControl
+
+For tabbed interfaces with multiple pages:
+
+```json
+{
+  "type": "IVTabbedPagesControl",
+  "bounds": { "from": "parent", "pad": -20 },
+  "label": "Settings",
+  "tabBarHeight": 25,
+  "tabBarFrac": 0.5,
+  "tabsAlign": "near",
+  "style": "main",
+  "pages": {
+    "Main": {
+      "padding": 10,
+      "children": [
+        { "type": "IVKnobControl", "param": "kGain", "bounds": { "centredInside": [100, 100] } }
+      ]
+    },
+    "FX": {
+      "children": [
+        { "type": "IVSliderControl", "param": "kMix", "bounds": { "from": "parent", "pad": -20 } }
+      ]
+    }
+  }
+}
+```
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `tabBarHeight` | float | 20 | Height of the tab bar |
+| `tabBarFrac` | float | 0.5 | Fraction of width for tab bar |
+| `tabsAlign` | string | "near" | Tab alignment: "near", "center", "far" |
+| `pages` | object | - | Map of page names to page definitions |
+| `pages.*.padding` | float | 10 | Padding inside each page |
+| `pages.*.children` | array | - | Controls on this page |
 
 ### Hot-Reload
 

@@ -13,6 +13,7 @@
 #ifndef IGRAPHICS_NO_JSON
 
 #include "IControls.h"
+#include "IVTabbedPagesControl.h"
 #include <fstream>
 #include <sstream>
 #include <cmath>
@@ -127,8 +128,84 @@ void IGraphicsJSON::ParseControls(const json& controls, int parentIdx)
       // Parse children if present
       if (def.contains("children"))
       {
-        int thisIdx = mGraphics->NControls() - 1;
-        ParseControls(def["children"], thisIdx);
+        // Check if this control is a container (IContainerBase)
+        if (auto* pContainer = pControl->As<IContainerBase>())
+        {
+          // Use proper container child creation
+          CreateContainerChildren(pContainer, def["children"]);
+        }
+        else
+        {
+          // Fallback for non-container controls: use parent index for layout only
+          int thisIdx = mGraphics->NControls() - 1;
+          ParseControls(def["children"], thisIdx);
+        }
+      }
+    }
+  }
+}
+
+void IGraphicsJSON::CreateContainerChildren(IContainerBase* pContainer, const json& children)
+{
+  for (const auto& childDef : children)
+  {
+    IControl* pChild = CreateControl(childDef, -1);
+
+    if (pChild)
+    {
+      // Determine tag
+      int tag = kNoTag;
+      if (childDef.contains("id"))
+      {
+        std::string id = childDef["id"];
+        tag = ResolveTag(id);
+      }
+
+      // Determine group
+      std::string groupStr;
+      const char* group = "";
+      if (childDef.contains("group"))
+      {
+        groupStr = childDef["group"].get<std::string>();
+        group = groupStr.c_str();
+      }
+
+      // Add child to container using proper IContainerBase API
+      pContainer->AddChildControl(pChild, tag, group);
+
+      // Update ID map with actual control index
+      if (childDef.contains("id"))
+      {
+        std::string id = childDef["id"];
+        mIdToControlIdx[id] = mGraphics->NControls() - 1;
+      }
+
+      // Store layout for this child with container pointer
+      LayoutDef layout;
+      layout.containerPtr = pContainer;
+      if (childDef.contains("bounds"))
+      {
+        layout.spec = childDef["bounds"];
+        if (layout.spec.is_array())
+          layout.type = LayoutDef::Type::Absolute;
+        else
+          layout.type = LayoutDef::Type::Relative;
+      }
+      mLayouts.push_back(layout);
+
+      // Recurse for nested containers
+      if (childDef.contains("children"))
+      {
+        if (auto* pChildContainer = pChild->As<IContainerBase>())
+        {
+          CreateContainerChildren(pChildContainer, childDef["children"]);
+        }
+        else
+        {
+          // Non-container with children: use parent index
+          int thisIdx = mGraphics->NControls() - 1;
+          ParseControls(childDef["children"], thisIdx);
+        }
       }
     }
   }
@@ -246,6 +323,47 @@ IControl* IGraphicsJSON::CreateControl(const json& def, int parentIdx)
   else if (type == "IVPanelControl")
   {
     pControl = new IVPanelControl(bounds, label.c_str(), style);
+  }
+  else if (type == "IVTabbedPagesControl")
+  {
+    float tabBarHeight = def.value("tabBarHeight", 20.f);
+    float tabBarFrac = def.value("tabBarFrac", 0.5f);
+    EAlign tabsAlign = EAlign::Near;
+    if (def.contains("tabsAlign"))
+    {
+      std::string align = def["tabsAlign"];
+      if (align == "far") tabsAlign = EAlign::Far;
+      else if (align == "center") tabsAlign = EAlign::Center;
+    }
+
+    PageMap pages;
+    if (def.contains("pages"))
+    {
+      for (auto& [pageName, pageDef] : def["pages"].items())
+      {
+        double padding = pageDef.value("padding", IVTabPage::kDefaultPadding);
+        json childrenDef = pageDef.value("children", json::array());
+
+        // Store page name for lifetime
+        mPageNameStorage.push_back(pageName);
+        const char* storedName = mPageNameStorage.back().c_str();
+
+        // Create IVTabPage with attach function that creates children
+        auto* pPage = new IVTabPage(
+          [this, childrenDef](IVTabPage* pParent, const IRECT& bounds) {
+            CreateContainerChildren(pParent, childrenDef);
+          },
+          IVTabPage::DefaultResizeFunc,
+          style,
+          padding
+        );
+
+        pages[storedName] = pPage;
+      }
+    }
+
+    pControl = new IVTabbedPagesControl(bounds, pages, label.c_str(), style,
+                                         tabBarHeight, tabBarFrac, tabsAlign);
   }
   else if (type == "IVLabelControl")
   {
@@ -424,7 +542,12 @@ void IGraphicsJSON::OnResize(const IRECT& newBounds)
 
     // Get parent bounds
     IRECT parentBounds;
-    if (layout.parentIdx < 0)
+    if (layout.containerPtr)
+    {
+      // For container children, use the container's bounds
+      parentBounds = layout.containerPtr->GetRECT();
+    }
+    else if (layout.parentIdx < 0)
     {
       parentBounds = newBounds;
     }
@@ -898,6 +1021,7 @@ void IGraphicsJSON::CheckForChanges()
     // Clear existing state
     mLayouts.clear();
     mIdToControlIdx.clear();
+    mPageNameStorage.clear();
 
     // Remove all controls except background
     mGraphics->RemoveAllControls();

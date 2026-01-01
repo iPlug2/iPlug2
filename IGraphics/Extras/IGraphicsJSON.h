@@ -31,6 +31,9 @@
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
 
+// Forward declarations
+class IContainerBase;
+
 using json = nlohmann::json;
 
 /** Stored layout definition for a control, evaluated on each resize */
@@ -41,6 +44,7 @@ struct LayoutDef
   json spec;              // Original JSON bounds specification
   int parentIdx = -1;     // Parent control index, -1 = root graphics bounds
   int flexContainerIdx = -1; // If in a flex container, the container's index
+  IControl* containerPtr = nullptr; // Direct pointer for container children
 };
 
 /** JSON-based UI loader with runtime layout evaluation
@@ -120,6 +124,9 @@ private:
 
   IControl* CreateControl(const json& def, int parentIdx);
 
+  // Container child creation
+  void CreateContainerChildren(IContainerBase* pContainer, const json& children);
+
   // Layout evaluation
   IRECT EvaluateBounds(int ctrlIdx, const IRECT& parentBounds);
   float EvaluateExpr(const json& val, const IRECT& parent, char dimension);
@@ -155,6 +162,9 @@ private:
   // Layout state
   std::vector<LayoutDef> mLayouts;
   json mRootSpec;
+
+  // Storage for page names (IVTabbedPagesControl)
+  std::vector<std::string> mPageNameStorage;
 
   // Hot reload
   std::string mLoadedPath;
