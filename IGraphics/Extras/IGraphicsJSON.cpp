@@ -636,6 +636,27 @@ IRECT IGraphicsJSON::EvaluateBounds(int ctrlIdx, const IRECT& parent)
     result = result.ReduceFromBottom(b["reduceFromBottom"].get<float>());
   }
 
+  if (b.contains("centredInside"))
+  {
+    auto ci = b["centredInside"];
+    float w = ci[0].get<float>();
+    float h = ci[1].get<float>();
+    result = result.GetCentredInside(w, h);
+  }
+
+  if (b.contains("midVPadded"))
+  {
+    float padding = b["midVPadded"].get<float>();
+    result = result.GetMidVPadded(padding);
+  }
+
+  if (b.contains("midHPadded"))
+  {
+    float padding = b["midHPadded"].get<float>();
+    result = result.GetMidHPadded(padding);
+  }
+
+  // Apply shifts after shape-defining operations
   if (b.contains("vShift"))
   {
     float shift = EvaluateExpr(b["vShift"], parent, 'y');
@@ -646,14 +667,6 @@ IRECT IGraphicsJSON::EvaluateBounds(int ctrlIdx, const IRECT& parent)
   {
     float shift = EvaluateExpr(b["hShift"], parent, 'x');
     result = result.GetHShifted(shift);
-  }
-
-  if (b.contains("centredInside"))
-  {
-    auto ci = b["centredInside"];
-    float w = ci[0].get<float>();
-    float h = ci[1].get<float>();
-    result = parent.GetCentredInside(w, h);
   }
 
   // Expression-based: "x": "50%", "w": "parent.w - 20"

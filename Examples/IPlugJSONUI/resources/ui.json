@@ -16,8 +16,7 @@
       "type": "ITextControl",
       "bounds": {
         "from": "parent",
-        "centredInside": [300, 50],
-        "vShift": -100
+        "midVPadded": 50
       },
       "text": "Hello iPlug 2!",
       "fontSize": 50,
@@ -29,7 +28,8 @@
       "param": "kGain",
       "bounds": {
         "from": "parent",
-        "centredInside": [100, 100]
+        "centredInside": [100, 100],
+        "vShift": -100
       },
       "label": "Gain",
       "style": "knob"
