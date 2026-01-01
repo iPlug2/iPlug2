@@ -1,0 +1,43 @@
+#!/bin/bash
+#
+# Git hook to validate commit message format
+# Format: "Type: Description" where Type is one of the allowed types
+# and Description is at least 10 characters
+#
+# To enable: git config core.hooksPath .githooks
+#
+
+commit_msg_file="$1"
+commit_msg=$(cat "$commit_msg_file")
+
+# Skip merge commits
+if [[ "$commit_msg" =~ ^Merge ]]; then
+    exit 0
+fi
+
+# Allowed commit types
+allowed_types="Fix|Feature|Refactor|Docs|Build|Test|Chore|Style"
+
+# Pattern: Type: Description (min 10 chars in description)
+pattern="^($allowed_types): .{10,}"
+
+if ! [[ "$commit_msg" =~ $pattern ]]; then
+    echo ""
+    echo "ERROR: Invalid commit message format"
+    echo ""
+    echo "Your message:"
+    echo "  $commit_msg"
+    echo ""
+    echo "Required format: 'Type: Description'"
+    echo "  - Type must be one of: Fix, Feature, Refactor, Docs, Build, Test, Chore, Style"
+    echo "  - Description must be at least 10 characters"
+    echo ""
+    echo "Examples:"
+    echo "  Fix: Resolve buffer overflow in ProcessBlock"
+    echo "  Feature: Add MIDI learn support for parameters"
+    echo "  Docs: Update README with build instructions"
+    echo ""
+    exit 1
+fi
+
+exit 0

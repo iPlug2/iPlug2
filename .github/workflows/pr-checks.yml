@@ -1,0 +1,142 @@
+name: PR Checks
+
+on:
+  pull_request:
+    branches: [master, main]
+    types: [opened, synchronize, reopened, edited]
+
+jobs:
+  validate-commits:
+    name: Validate Commits
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate commit messages
+        run: |
+          echo "Checking commit message format..."
+
+          # Allowed commit types
+          allowed_types="Fix|Feature|Refactor|Docs|Build|Test|Chore|Style|Merge"
+
+          # Get all commits in this PR
+          base_ref="${{ github.event.pull_request.base.sha }}"
+          head_ref="${{ github.event.pull_request.head.sha }}"
+
+          failed=0
+
+          git log --format="%H %s" "$base_ref..$head_ref" | while read hash msg; do
+            # Skip merge commits
+            if [[ "$msg" =~ ^Merge ]]; then
+              echo "  [SKIP] Merge commit: ${msg:0:50}..."
+              continue
+            fi
+
+            # Check format
+            if [[ "$msg" =~ ^($allowed_types):\ .{10,} ]]; then
+              echo "  [OK] $msg"
+            else
+              echo "  [FAIL] $msg"
+              echo ""
+              echo "Invalid commit message format!"
+              echo "Required: 'Type: Description' (description min 10 chars)"
+              echo "Allowed types: Fix, Feature, Refactor, Docs, Build, Test, Chore, Style"
+              exit 1
+            fi
+          done
+
+      - name: Check PR title format
+        run: |
+          title="${{ github.event.pull_request.title }}"
+          allowed_types="Fix|Feature|Refactor|Docs|Build|Test|Chore|Style"
+
+          if [[ "$title" =~ ^($allowed_types):\ .{10,} ]]; then
+            echo "PR title format is valid: $title"
+          else
+            echo "ERROR: PR title must match format 'Type: Description'"
+            echo "Current title: $title"
+            echo ""
+            echo "Allowed types: Fix, Feature, Refactor, Docs, Build, Test, Chore, Style"
+            echo "Description must be at least 10 characters"
+            exit 1
+          fi
+
+  check-files:
+    name: Check Files
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Check for common issues
+        run: |
+          echo "Checking for common issues..."
+
+          # Check for files that shouldn't be committed
+          forbidden_patterns=(
+            "*.DS_Store"
+            "*.exe"
+            "*.dll"
+            "*.dylib"
+            "*.o"
+            "*.obj"
+            "Thumbs.db"
+          )
+
+          for pattern in "${forbidden_patterns[@]}"; do
+            matches=$(find . -name "$pattern" -type f 2>/dev/null | head -5)
+            if [[ -n "$matches" ]]; then
+              echo "WARNING: Found potentially unwanted files matching '$pattern':"
+              echo "$matches"
+            fi
+          done
+
+      - name: Check line endings
+        run: |
+          echo "Checking for Windows line endings in source files..."
+
+          # Find source files with CRLF line endings
+          crlf_files=$(find . \( -name "*.cpp" -o -name "*.h" -o -name "*.c" -o -name "*.hpp" \) \
+            -type f -exec grep -l $'\r' {} \; 2>/dev/null | head -10 || true)
+
+          if [[ -n "$crlf_files" ]]; then
+            echo "WARNING: Files with Windows line endings (CRLF):"
+            echo "$crlf_files"
+            echo ""
+            echo "Consider converting to Unix line endings (LF)"
+          else
+            echo "All source files use Unix line endings"
+          fi
+
+  author-check:
+    name: Check Author
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate commit authors
+        run: |
+          echo "Checking commit authors..."
+
+          base_ref="${{ github.event.pull_request.base.sha }}"
+          head_ref="${{ github.event.pull_request.head.sha }}"
+
+          # List all authors in this PR
+          echo "Authors in this PR:"
+          git log --format="  %an <%ae>" "$base_ref..$head_ref" | sort -u
+
+          # Check for placeholder emails
+          placeholder_authors=$(git log --format="%ae" "$base_ref..$head_ref" | \
+            grep -E "(example\.com|localhost|noreply@(?!github))" || true)
+
+          if [[ -n "$placeholder_authors" ]]; then
+            echo ""
+            echo "WARNING: Found commits with placeholder email addresses"
+            echo "Please use a valid email address for commits"
+          fi
