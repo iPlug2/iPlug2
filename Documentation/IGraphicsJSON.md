@@ -106,6 +106,219 @@ IGraphicsJSON enables defining IGraphics UIs declaratively in JSON format with h
 }
 ```
 
+---
+
+## Property Reference
+
+### Common Control Properties
+
+All controls support these properties:
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `type` | string | **Required.** Control type name (e.g., `"IVKnobControl"`) |
+| `bounds` | array/object | Position and size (see Bounds Properties) |
+| `id` | string | Control identifier for `GetControlById()` and tag mapping |
+| `group` | string | Control group name |
+| `param` | string/int | Parameter name (from mapping) or index |
+| `label` | string | Label text for vector controls |
+| `style` | string/object | Named style or inline style object |
+| `styleOverrides` | object | Properties to override from named style |
+
+### Control-Specific Properties
+
+**IVSliderControl**:
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `direction` | string | `"vertical"` | `"vertical"` or `"horizontal"` |
+
+**IVButtonControl**:
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `action` | string | splash | Action name from mapping |
+
+**IVToggleControl**:
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `offText` | string | `"OFF"` | Text when off |
+| `onText` | string | `"ON"` | Text when on |
+
+**IVSwitchControl**:
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `numStates` | int | 2 | Number of switch states |
+
+**IVTabSwitchControl**:
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `labels` | array | - | Array of label strings |
+| `direction` | string | `"horizontal"` | `"horizontal"` or `"vertical"` |
+| `labelOffset` | float | 10 | Label offset distance |
+
+**IVTabbedPagesControl**:
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `tabBarHeight` | float | 20 | Height of tab bar |
+| `tabBarFrac` | float | 0.5 | Tab bar width fraction |
+| `tabsAlign` | string | `"near"` | `"near"`, `"center"`, `"far"` |
+| `pages` | object | - | Map of page name to page definition |
+
+**IVTabbedPagesControl page definition**:
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `padding` | float | 10 | Page content padding |
+| `children` | array | - | Controls on this page |
+
+**ITextControl**:
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `text` | string | `""` | Display text |
+| `fontSize` | float | - | Font size |
+| `align` | string | `"center"` | `"near"`, `"center"`, `"far"` |
+| `color` | color | - | Text color |
+| `bgColor` | color | - | Background color |
+
+**IPanelControl**:
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `color` | color | - | Panel fill color |
+| `drawFrame` | bool | false | Draw border frame |
+
+**IVGroupControl / IVPanelControl**:
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `children` | array | - | Child controls (see Container Controls) |
+
+**IBKnobControl**:
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `bitmap` | string | - | Bitmap name from mapping |
+| `direction` | string | `"vertical"` | Drag direction |
+
+**IBSliderControl**:
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `trackBitmap` | string | - | Track bitmap name |
+| `handleBitmap` | string | - | Handle bitmap name |
+| `direction` | string | `"vertical"` | Slider direction |
+
+**IBButtonControl**:
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `bitmap` | string | - | Bitmap name from mapping |
+| `action` | string | splash | Action name from mapping |
+
+**IBSwitchControl**:
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `bitmap` | string | - | Bitmap name from mapping |
+
+**ISVGKnobControl**:
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `svg` | string | - | SVG name from mapping |
+
+**ISVGSliderControl**:
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `trackSVG` | string | - | Track SVG name |
+| `handleSVG` | string | - | Handle SVG name |
+| `direction` | string | `"vertical"` | Slider direction |
+
+**ISVGButtonControl**:
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `offSVG` | string | - | Off state SVG |
+| `onSVG` | string | - | On state SVG |
+| `action` | string | splash | Action name from mapping |
+
+**ISVGToggleControl**:
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `offSVG` | string | - | Off state SVG |
+| `onSVG` | string | - | On state SVG |
+
+**ISVGSwitchControl**:
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `svgs` | array | - | Array of 2 SVG names |
+
+### Bounds Properties
+
+Bounds can be specified as an array or object:
+
+**Array format**: `[x, y, width, height]` - absolute position relative to parent
+
+**Object format** - operations applied in this order:
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `from` | string | `"parent"` to start from parent bounds |
+| `pad` | float | `GetPadded()` - shrink/grow all edges |
+| `fracV` | array | `[fraction, fromTop]` - `FracRectVertical()` |
+| `fracH` | array | `[fraction, fromLeft]` - `FracRectHorizontal()` |
+| `reduceFromTop` | float | `ReduceFromTop()` |
+| `reduceFromBottom` | float | `ReduceFromBottom()` |
+| `reduceFromLeft` | float | `ReduceFromLeft()` |
+| `reduceFromRight` | float | `ReduceFromRight()` |
+| `centredInside` | array | `[width, height]` - `GetCentredInside()` |
+| `midVPadded` | float | `GetMidVPadded()` - center vertically with padding |
+| `midHPadded` | float | `GetMidHPadded()` - center horizontally with padding |
+| `vShift` | float/string | `GetVShifted()` - vertical offset (supports expressions) |
+| `hShift` | float/string | `GetHShifted()` - horizontal offset (supports expressions) |
+| `x` | float/string | X position (expression supported) |
+| `y` | float/string | Y position (expression supported) |
+| `w` | float/string | Width (expression supported) |
+| `h` | float/string | Height (expression supported) |
+
+**Expression values**: `"50%"`, `"parent.w"`, `"parent.h"`, `"parent.w - 20"`, `"parent.h * 0.5"`
+
+### Style Properties
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `showLabel` | bool | true | Show control label |
+| `showValue` | bool | true | Show control value |
+| `drawFrame` | bool | true | Draw border frame |
+| `drawShadows` | bool | true | Draw drop shadows |
+| `emboss` | bool | false | Embossed appearance |
+| `roundness` | float | 0 | Corner roundness (0-1) |
+| `frameThickness` | float | 1 | Frame line thickness |
+| `shadowOffset` | float | 3 | Shadow offset distance |
+| `widgetFrac` | float | 0.75 | Widget size as fraction of bounds |
+| `angle` | float | 0 | Rotation angle |
+| `colorBG` | color | - | Background color |
+| `colorFG` | color | - | Foreground/fill color |
+| `colorPR` | color | - | Pressed state color |
+| `colorFR` | color | - | Frame color |
+| `colorHL` | color | - | Highlight color |
+| `colorSH` | color | - | Shadow color |
+| `colorX1` | color | - | Extra color 1 |
+| `colorX2` | color | - | Extra color 2 |
+| `colorX3` | color | - | Extra color 3 |
+| `labelText` | object | - | Label text style (see Text Properties) |
+| `valueText` | object | - | Value text style (see Text Properties) |
+
+### Text Properties
+
+Used in `labelText` and `valueText` style objects:
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `size` | float | Font size in points |
+| `color` | color | Text color |
+| `align` | string | Horizontal: `"near"`, `"center"`, `"far"` |
+| `valign` | string | Vertical: `"top"`, `"middle"`, `"bottom"` |
+
+### Color Formats
+
+Colors can be specified as:
+- Hex string: `"#RRGGBB"` or `"#RRGGBBAA"`
+- RGB array: `[255, 128, 0]`
+- RGBA array: `[255, 128, 0, 200]`
+
+---
+
 ### Styling
 
 **Named Styles**:
@@ -332,7 +545,7 @@ void MyPlugin::OnIdle()
 
 1. **Layout Operation Order is Fixed**
    Operations are applied in this order regardless of JSON key order:
-   `from` → `pad` → `fracV` → `fracH` → `reduceFrom*` → `vShift` → `hShift` → `centredInside` → `x/y/w/h`
+   `from` → `pad` → `fracV` → `fracH` → `reduceFrom*` → `centredInside` → `midVPadded` → `midHPadded` → `vShift` → `hShift` → `x/y/w/h`
 
 2. **Child Layout Timing**
    Children reference parent bounds, but parent bounds may not be finalized on the first layout pass. This can cause incorrect positioning.

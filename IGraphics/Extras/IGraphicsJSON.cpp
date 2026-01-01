@@ -33,11 +33,14 @@ IGraphicsJSON::IGraphicsJSON(IGraphics* pGraphics, IGEditorDelegate* pDelegate)
 bool IGraphicsJSON::Load(const char* jsonPath)
 {
   mLoadedPath = jsonPath;
+  ClearError();
 
   std::ifstream file(jsonPath);
   if (!file.is_open())
   {
-    DBGMSG("IGraphicsJSON: Failed to open file: %s\n", jsonPath);
+    std::string msg = "Failed to open file: ";
+    msg += jsonPath;
+    ShowError(msg.c_str());
     return false;
   }
 
@@ -48,6 +51,8 @@ bool IGraphicsJSON::Load(const char* jsonPath)
 
 bool IGraphicsJSON::LoadFromString(const char* jsonStr)
 {
+  ClearError();
+
   try
   {
     mRootSpec = json::parse(jsonStr);
@@ -55,9 +60,29 @@ bool IGraphicsJSON::LoadFromString(const char* jsonStr)
   }
   catch (const json::parse_error& e)
   {
-    DBGMSG("IGraphicsJSON: Parse error: %s\n", e.what());
+    ShowError(e.what());
     return false;
   }
+}
+
+void IGraphicsJSON::ShowError(const char* message)
+{
+  mErrorMessage = message;
+  DBGMSG("IGraphicsJSON: %s\n", message);
+
+  // Display error in the UI
+  IRECT bounds = mGraphics->GetBounds();
+  IText text(14, COLOR_RED, "Roboto-Regular", EAlign::Near, EVAlign::Top);
+
+  std::string displayMsg = "JSON Error:\n";
+  displayMsg += message;
+
+  mGraphics->AttachControl(new ITextControl(bounds.GetPadded(-10), displayMsg.c_str(), text));
+}
+
+void IGraphicsJSON::ClearError()
+{
+  mErrorMessage.clear();
 }
 
 bool IGraphicsJSON::ParseJSON(const json& j)

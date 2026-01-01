@@ -116,7 +116,17 @@ public:
    * @return The control, or nullptr if not found */
   IControl* GetControlById(const char* id);
 
+  /** Check if there was an error loading/parsing JSON
+   * @return true if there was an error */
+  bool HasError() const { return !mErrorMessage.empty(); }
+
+  /** Get the error message from the last load attempt
+   * @return Error message, or empty string if no error */
+  const char* GetErrorMessage() const { return mErrorMessage.c_str(); }
+
 private:
+  void ShowError(const char* message);
+  void ClearError();
   bool ParseJSON(const json& j);
   bool ParseStyles(const json& j);
   bool ParseFonts(const json& j);
@@ -172,6 +182,9 @@ private:
 #ifndef NDEBUG
   time_t mLastModified = 0;
 #endif
+
+  // Error state
+  std::string mErrorMessage;
 };
 
 END_IGRAPHICS_NAMESPACE
