@@ -29,7 +29,7 @@ function(iplug_configure_auv3framework target project_name)
     FRAMEWORK_VERSION A
     MACOSX_FRAMEWORK_INFO_PLIST ${PLUG_RESOURCES_DIR}/${project_name}-macOS-AUv3Framework-Info.plist
     OUTPUT_NAME "${project_name}AU"
-    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/out"
+    LIBRARY_OUTPUT_DIRECTORY "${IPLUG2_OUTPUT_DIR}"
     # Skip code signing during build - sign manually later if needed
     XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED "NO"
   )

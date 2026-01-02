@@ -16,6 +16,12 @@ endif()
 # Option to disable deprecation warnings (useful for CI)
 option(IPLUG2_DISABLE_DEPRECATION_WARNINGS "Disable deprecation warnings" ON)
 
+# Output directory for built plugins (allows override for FetchContent usage)
+set(IPLUG2_OUTPUT_DIR "${CMAKE_BINARY_DIR}/out" CACHE PATH "Output directory for built plugins")
+
+# Generated files directory (PkgInfo, etc.) - scoped to iPlug2's binary dir
+set(IPLUG2_GENERATED_DIR "${CMAKE_CURRENT_BINARY_DIR}/iplug2_generated" CACHE INTERNAL "iPlug2 generated files directory")
+
 if(NOT TARGET iPlug2::IPlug)
   add_library(iPlug2::IPlug INTERFACE IMPORTED)
 
@@ -115,7 +121,8 @@ if(NOT TARGET iPlug2::IPlug)
   # Generate PkgInfo file for macOS bundles (used by VST2, CLAP, etc.)
   # This file is created once at configure time and copied to each bundle at build time
   if(APPLE)
-    set(IPLUG2_PKGINFO_FILE "${CMAKE_BINARY_DIR}/PkgInfo" CACHE INTERNAL "Path to PkgInfo file for macOS bundles")
+    file(MAKE_DIRECTORY "${IPLUG2_GENERATED_DIR}")
+    set(IPLUG2_PKGINFO_FILE "${IPLUG2_GENERATED_DIR}/PkgInfo" CACHE INTERNAL "Path to PkgInfo file for macOS bundles")
     file(WRITE "${IPLUG2_PKGINFO_FILE}" "BNDL????")
   endif()
 endif()
