@@ -62,6 +62,9 @@
     <ClCompile Include="..\..\..\IPlug\Extras\OSC\IPlugOSC.cpp">
       <Filter>IPlug\Extras\OSC</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\Extras\OSC\IPlugOSC_internal.cpp">
+      <Filter>IPlug\Extras\OSC</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\..\IPlug\Extras\OSC\IPlugOSC_msg.cpp">
       <Filter>IPlug\Extras\OSC</Filter>
     </ClCompile>
@@ -226,6 +229,9 @@
       <Filter>WDL\jnetlib</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\IPlug\Extras\OSC\IPlugOSC.h">
+      <Filter>IPlug\Extras\OSC</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\Extras\OSC\IPlugOSC_internal.h">
       <Filter>IPlug\Extras\OSC</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\IPlug\Extras\OSC\IPlugOSC_msg.h">
