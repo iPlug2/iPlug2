@@ -14,6 +14,7 @@
 
 #ifdef OS_WIN
 #include "asio.h"
+#include "win32_utf8.h"
 extern float GetScaleForHWND(HWND hWnd);
 #define GET_MENU() GetMenu(gHWND)
 #elif defined OS_MAC
@@ -305,6 +306,12 @@ WDL_DLGRET IPlugAPPHost::PreferencesDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wPar
   switch(uMsg)
   {
     case WM_INITDIALOG:
+#ifdef OS_WIN
+      WDL_UTF8_HookComboBox(GetDlgItem(hwndDlg, IDC_COMBO_AUDIO_IN_DEV));
+      WDL_UTF8_HookComboBox(GetDlgItem(hwndDlg, IDC_COMBO_AUDIO_OUT_DEV));
+      WDL_UTF8_HookComboBox(GetDlgItem(hwndDlg, IDC_COMBO_MIDI_IN_DEV));
+      WDL_UTF8_HookComboBox(GetDlgItem(hwndDlg, IDC_COMBO_MIDI_OUT_DEV));
+#endif
       _this->PopulatePreferencesDialog(hwndDlg);
       mTempState = mState;
       

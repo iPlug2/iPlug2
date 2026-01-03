@@ -284,7 +284,9 @@
     <ClCompile Include="..\..\..\WDL\fft.c" />
     <ClCompile Include="..\..\..\WDL\resample.cpp" />
     <ClCompile Include="..\IPlugConvoEngine.cpp" />
-  <ClCompile Include="..\..\..\IPlug\CLAP\IPlugCLAP.cpp" /></ItemGroup>
+  <ClCompile Include="..\..\..\IPlug\CLAP\IPlugCLAP.cpp" />
+    <ClCompile Include="..\..\..\WDL\win32_utf8.c" />
+  </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\resources\main.rc" />
   </ItemGroup>

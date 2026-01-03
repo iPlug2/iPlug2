@@ -24,9 +24,11 @@
 #include <cstdlib>
 #include <cstring>
 #include <cctype>
+#include <string>
 
 #include "heapbuf.h"
 #include "wdlstring.h"
+#include "wdlutf8.h"
 
 #include "IPlugConstants.h"
 #include "IPlugPlatform.h"
@@ -399,22 +401,75 @@ private:
 };
 #endif
 
-
-#if defined OS_WIN
-
-static FILE* fopenUTF8(const char* path, const char* mode)
+/** Convert UTF-8 string to UTF-16 std::u16string using WDL functions
+ * @param utf8 UTF-8 encoded C string
+ * @return UTF-16 encoded std::u16string */
+static std::u16string UTF8ToUTF16String(const char* utf8)
 {
-  return _wfopen(UTF8AsUTF16(path).Get(), UTF8AsUTF16(mode).Get());
+  std::u16string result;
+  if (!utf8) return result;
+  while (*utf8)
+  {
+    int codepoint;
+    int len = wdl_utf8_parsechar(utf8, &codepoint);
+    if (len <= 0) break;  // Invalid UTF-8 sequence
+    if (codepoint >= 0x10000 && codepoint <= 0x10FFFF)
+    {
+      result += static_cast<char16_t>(0xD800 + (((codepoint - 0x10000) >> 10) & 0x3FF));
+      result += static_cast<char16_t>(0xDC00 + ((codepoint - 0x10000) & 0x3FF));
+    }
+    else
+    {
+      result += static_cast<char16_t>(codepoint);
+    }
+    utf8 += len;
+  }
+  return result;
 }
 
-#else
-
-static FILE* fopenUTF8(const char* path, const char* mode)
+/** Convert UTF-16 std::u16string to UTF-8 std::string using WDL functions
+ * @param u16str UTF-16 encoded std::u16string
+ * @return UTF-8 encoded std::string */
+static std::string UTF16ToUTF8String(const std::u16string& u16str)
 {
-  return fopen(path, mode);
+  std::string result;
+  for (size_t i = 0; i < u16str.size(); i++)
+  {
+    unsigned int ch = u16str[i];
+    if (ch >= 0xD800 && ch <= 0xDBFF && i + 1 < u16str.size())
+    {
+      unsigned int low = u16str[i + 1];
+      if (low >= 0xDC00 && low <= 0xDFFF)
+      {
+        ch = 0x10000 + ((ch - 0xD800) << 10) + (low - 0xDC00);
+        i++;
+      }
+    }
+    char buf[5];
+    int len = WDL_MakeUTFChar(buf, ch, sizeof(buf));
+    result.append(buf, len);
+  }
+  return result;
 }
 
-#endif
+/** Convert single UTF-16 char16_t to UTF-8 std::string using WDL functions
+ * @param c UTF-16 encoded char16_t
+ * @return UTF-8 encoded std::string */
+static std::string UTF16ToUTF8String(char16_t c)
+{
+  char buf[5];
+  int len = WDL_MakeUTFChar(buf, c, sizeof(buf));
+  return std::string(buf, len);
+}
+
+/** Convert UTF-16 char16_t pointer range to UTF-8 std::string using WDL functions
+ * @param begin pointer to start of UTF-16 range
+ * @param end pointer to end of UTF-16 range
+ * @return UTF-8 encoded std::string */
+static std::string UTF16ToUTF8String(const char16_t* begin, const char16_t* end)
+{
+  return UTF16ToUTF8String(std::u16string(begin, end));
+}
 
 /*
  * DOM Virtual Key Code to iPlug2 Virtual Key Code converter

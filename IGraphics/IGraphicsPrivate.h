@@ -15,12 +15,12 @@
  * @{
  */
 
-#include <codecvt>
 #include <string>
 #include <memory>
 
 #include "mutex.h"
 #include "wdlstring.h"
+#include "wdlutf8.h"
 #include "wdlendian.h"
 #include "ptrlist.h"
 #include "heapbuf.h"
@@ -275,22 +275,32 @@ private:
         {
           case EStringID::Windows:
           {
-            WDL_TypedBuf<char> utf8;
             WDL_TypedBuf<char16_t> utf16;
-            utf8.Resize((length * 3) / 2);
             utf16.Resize(length / sizeof(char16_t));
-            
-            for (int j = 0; j < length; j++)
+
+            for (int j = 0; j < utf16.GetSize(); j++)
               utf16.Get()[j] = GetUInt16(mNameLocation + stringLocation + j * 2);
-            
-            std::codecvt_utf8_utf16<char16_t> conv;
-            const char16_t *a;
-            char *b;
-            mbstate_t mbs;
-            memset(&mbs, 0, sizeof(mbs));
-            conv.out(mbs, utf16.Get(), utf16.Get() + utf16.GetSize(), a, utf8.Get(), utf8.Get() + utf8.GetSize(), b);
-            
-            return WDL_String(utf8.Get(), (int) (b - utf8.Get()));
+
+            // Convert UTF-16 to UTF-8 using WDL
+            std::string utf8Result;
+            for (int i = 0; i < utf16.GetSize(); i++)
+            {
+              int ch = utf16.Get()[i];
+              // Handle surrogate pairs
+              if (ch >= 0xD800 && ch <= 0xDBFF && i + 1 < utf16.GetSize())
+              {
+                int low = utf16.Get()[i + 1];
+                if (low >= 0xDC00 && low <= 0xDFFF)
+                {
+                  ch = 0x10000 + ((ch - 0xD800) << 10) + (low - 0xDC00);
+                  i++;
+                }
+              }
+              char buf[5];
+              int len = WDL_MakeUTFChar(buf, ch, sizeof(buf));
+              utf8Result.append(buf, len);
+            }
+            return WDL_String(utf8Result.c_str());
           }
             
           case EStringID::Mac:
