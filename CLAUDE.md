@@ -62,3 +62,4 @@ Cross-platform C++ audio plugin framework with two main components:
 ## Resources
 
 - [API Docs](https://iplug2.github.io/docs) | [Wiki](https://github.com/iPlug2/iPlug2/wiki)
+- When building standalone app targets only debug builds have the debug menu with screenshot capabilities
