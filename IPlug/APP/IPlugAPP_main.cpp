@@ -27,10 +27,7 @@ using namespace iplug;
 #include <shellapi.h>
 
 // Include stb_image_write for PNG saving
-// Only define implementation if IGraphics is not being used (to avoid duplicate symbols)
-#ifdef NO_IGRAPHICS
-  #define STB_IMAGE_WRITE_IMPLEMENTATION
-#endif
+#define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "../../Dependencies/IGraphics/STB/stb_image_write.h"
 
 extern WDL_DLGRET MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
@@ -91,8 +88,10 @@ bool SaveWindowScreenshot(HWND hwnd, const char* path)
 
   // Use PrintWindow to capture the window content
   // PW_CLIENTONLY captures only the client area
-  // PW_RENDERFULLCONTENT (0x00000002) renders the window fully, including layered content
-  const UINT PW_RENDERFULLCONTENT = 0x00000002;
+  // PW_RENDERFULLCONTENT renders the window fully, including layered content
+#ifndef PW_RENDERFULLCONTENT
+  #define PW_RENDERFULLCONTENT 0x00000002
+#endif
   BOOL captured = PrintWindow(hwnd, hdcMem, PW_CLIENTONLY | PW_RENDERFULLCONTENT);
 
   if (!captured)
