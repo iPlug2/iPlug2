@@ -67,6 +67,16 @@ steps:
     condition: eq(variables.build_vst3, True)
     displayName: Build Xcode project VST3 Scheme
 
+  - bash: |
+      if [ -f "${{parameters.path}}/${{parameters.name}}/projects/${{parameters.name}}-macOS.xcodeproj/xcshareddata/xcschemes/macOS-CLAP.xcscheme" ]; then
+        echo "CLAP scheme exists"
+        echo "##vso[task.setvariable variable=hasClapScheme]true"
+      else
+        echo "No CLAP scheme found, skipping CLAP build"
+        echo "##vso[task.setvariable variable=hasClapScheme]false"
+      fi
+    displayName: Check for CLAP scheme
+
   - task: Xcode@5
     inputs:
       sdk: 'macosx'
@@ -74,7 +84,7 @@ steps:
       args: '-UseModernBuildSystem=NO -target CLAP -xcconfig ${{parameters.path}}/${{parameters.name}}/config/${{parameters.name}}-mac.xcconfig'
       configuration: 'Release'
       xcodeVersion: 'default'
-    condition: eq(variables.build_clap, True)
+    condition: and(eq(variables.build_clap, True), eq(variables.hasClapScheme, 'true'))
     displayName: Build Xcode project CLAP Scheme
 
   - task: Xcode@5

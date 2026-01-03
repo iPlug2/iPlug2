@@ -95,6 +95,7 @@ steps:
       graphics: ${{parameters.graphics}}
       artifactName: IPlugOSCEditor_${{parameters.graphics}}
       platformStr: ${{parameters.platformStr}}
+      skip_arm64ec: true  # WebView2 doesn't support ARM64EC
 
   - template: ${{parameters.platform}}
     parameters:
@@ -104,29 +105,35 @@ steps:
       artifactName: IPlugVisualizer_${{parameters.graphics}}
       platformStr: ${{parameters.platformStr}}
 
-  - template: ${{parameters.platform}}
-    parameters:
-      name: IPlugReaperPlugin
-      path: 'Examples'
-      graphics: ${{parameters.graphics}}
-      artifactName: IPlugReaperPlugin_${{parameters.graphics}}
-      platformStr: ${{parameters.platformStr}}
+  # IPlugReaperPlugin - skip for iOS (uses Reaper API)
+  - ${{ if ne(parameters.platform, 'build_project-ios.yml') }}:
+    - template: ${{parameters.platform}}
+      parameters:
+        name: IPlugReaperPlugin
+        path: 'Examples'
+        graphics: ${{parameters.graphics}}
+        artifactName: IPlugReaperPlugin_${{parameters.graphics}}
+        platformStr: ${{parameters.platformStr}}
 
-  - template: ${{parameters.platform}}
-    parameters:
-      name: IPlugCocoaUI
-      path: 'Examples'
-      graphics: ${{parameters.graphics}}
-      artifactName: IPlugCocoaUI_${{parameters.graphics}}
-      platformStr: ${{parameters.platformStr}}
+  # IPlugCocoaUI - macOS only (Cocoa UI example, skip iOS for now)
+  - ${{ if or(eq(parameters.platform, 'build_project-mac.yml'), eq(parameters.platform, 'build_project-ios.yml')) }}:
+    - template: ${{parameters.platform}}
+      parameters:
+        name: IPlugCocoaUI
+        path: 'Examples'
+        graphics: ${{parameters.graphics}}
+        artifactName: IPlugCocoaUI_${{parameters.graphics}}
+        platformStr: ${{parameters.platformStr}}
 
-  - template: ${{parameters.platform}}
-    parameters:
-      name: IPlugSwiftUI
-      path: 'Examples'
-      graphics: ${{parameters.graphics}}
-      artifactName: IPlugSwiftUI_${{parameters.graphics}}
-      platformStr: ${{parameters.platformStr}}
+  # IPlugSwiftUI - macOS/iOS only (SwiftUI example)
+  - ${{ if or(eq(parameters.platform, 'build_project-mac.yml'), eq(parameters.platform, 'build_project-ios.yml')) }}:
+    - template: ${{parameters.platform}}
+      parameters:
+        name: IPlugSwiftUI
+        path: 'Examples'
+        graphics: ${{parameters.graphics}}
+        artifactName: IPlugSwiftUI_${{parameters.graphics}}
+        platformStr: ${{parameters.platformStr}}
 
   - template: ${{parameters.platform}}
     parameters:
@@ -135,6 +142,7 @@ steps:
       graphics: ${{parameters.graphics}}
       artifactName: IPlugWebUI_${{parameters.graphics}}
       platformStr: ${{parameters.platformStr}}
+      skip_arm64ec: true  # WebView2 doesn't support ARM64EC
 
   - template: ${{parameters.platform}}
     parameters:
@@ -143,6 +151,7 @@ steps:
       graphics: ${{parameters.graphics}}
       artifactName: IPlugP5js_${{parameters.graphics}}
       platformStr: ${{parameters.platformStr}}
+      skip_arm64ec: true  # WebView2 doesn't support ARM64EC
 
   - template: ${{parameters.platform}}
     parameters:
@@ -151,6 +160,7 @@ steps:
       graphics: ${{parameters.graphics}}
       artifactName: IPlugSvelteUI_${{parameters.graphics}}
       platformStr: ${{parameters.platformStr}}
+      skip_arm64ec: true  # WebView2 doesn't support ARM64EC
 
   - template: ${{parameters.platform}}
     parameters:

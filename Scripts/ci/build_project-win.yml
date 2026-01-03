@@ -6,6 +6,7 @@ parameters:
   artifactName: ''
   srcRepo: 'none'
   srcBranch: 'master'
+  skip_arm64ec: false
 
 steps:
   - bash: |
@@ -33,6 +34,22 @@ steps:
         sed -i.bu 's/IGRAPHICS_NANOVG;IGRAPHICS_GL2/IGRAPHICS_SKIA;IGRAPHICS_GL2/' ${{parameters.name}}-win.props
       fi
     displayName: Set graphics string to ${{parameters.graphics}}
+
+  - task: NuGetToolInstaller@1
+    inputs:
+      versionSpec: '>=5.0'
+    displayName: Install NuGet
+
+  - powershell: |
+      $packagesConfig = "./${{parameters.path}}/${{parameters.name}}/projects/packages.config"
+      if (Test-Path $packagesConfig) {
+        Write-Host "Found packages.config, restoring NuGet packages..."
+        $outputDir = "./${{parameters.path}}/${{parameters.name}}/packages"
+        nuget restore $packagesConfig -PackagesDirectory $outputDir
+      } else {
+        Write-Host "No packages.config found"
+      }
+    displayName: Restore NuGet packages
 
   # ============================================================
   # x64 Builds
@@ -100,7 +117,7 @@ steps:
       msbuildArgs: /t:${{parameters.name}}-vst2
       configuration: '${{parameters.configuration}}'
     displayName: Compile ${{parameters.name}} VST2 ARM64EC
-    condition: and(eq(variables.build_vst2, True), eq(variables.build_arm64ec, True), ne('${{parameters.graphics}}', 'SKIA'))
+    condition: and(eq(variables.build_vst2, True), eq(variables.build_arm64ec, True), ne('${{parameters.graphics}}', 'SKIA'), ne('${{parameters.skip_arm64ec}}', true))
 
   - task: VSBuild@1
     inputs:
@@ -110,7 +127,7 @@ steps:
       msbuildArgs: /t:${{parameters.name}}-vst3
       configuration: '${{parameters.configuration}}'
     displayName: Compile ${{parameters.name}} VST3 ARM64EC
-    condition: and(eq(variables.build_vst3, True), eq(variables.build_arm64ec, True), ne('${{parameters.graphics}}', 'SKIA'))
+    condition: and(eq(variables.build_vst3, True), eq(variables.build_arm64ec, True), ne('${{parameters.graphics}}', 'SKIA'), ne('${{parameters.skip_arm64ec}}', true))
 
   - task: VSBuild@1
     inputs:
@@ -120,7 +137,7 @@ steps:
       msbuildArgs: /t:${{parameters.name}}-clap
       configuration: '${{parameters.configuration}}'
     displayName: Compile ${{parameters.name}} CLAP ARM64EC
-    condition: and(eq(variables.build_clap, True), eq(variables.build_arm64ec, True), ne('${{parameters.graphics}}', 'SKIA'))
+    condition: and(eq(variables.build_clap, True), eq(variables.build_arm64ec, True), ne('${{parameters.graphics}}', 'SKIA'), ne('${{parameters.skip_arm64ec}}', true))
 
   - task: VSBuild@1
     inputs:
@@ -130,7 +147,7 @@ steps:
       msbuildArgs: /t:${{parameters.name}}-aax
       configuration: '${{parameters.configuration}}'
     displayName: Compile ${{parameters.name}} AAX ARM64EC
-    condition: and(eq(variables.build_aax, True), eq(variables.build_arm64ec, True), ne('${{parameters.graphics}}', 'SKIA'))
+    condition: and(eq(variables.build_aax, True), eq(variables.build_arm64ec, True), ne('${{parameters.graphics}}', 'SKIA'), ne('${{parameters.skip_arm64ec}}', true))
 
   - task: VSBuild@1
     inputs:
@@ -140,7 +157,7 @@ steps:
       msbuildArgs: /t:${{parameters.name}}-app
       configuration: '${{parameters.configuration}}'
     displayName: Compile ${{parameters.name}} APP ARM64EC
-    condition: and(eq(variables.build_app, True), eq(variables.build_arm64ec, True), ne('${{parameters.graphics}}', 'SKIA'))
+    condition: and(eq(variables.build_app, True), eq(variables.build_arm64ec, True), ne('${{parameters.graphics}}', 'SKIA'), ne('${{parameters.skip_arm64ec}}', true))
 
   # ============================================================
   # Organize ARM64EC Artifacts FIRST (uses cp, so bundles remain for x64)
@@ -151,7 +168,7 @@ steps:
       cp ${{parameters.path}}/${{parameters.name}}/build-win/${{parameters.name}}_ARM64EC.exe $BUILD_ARTIFACTSTAGINGDIRECTORY/APP_ARM64EC/${{parameters.name}}/
       cp ${{parameters.path}}/${{parameters.name}}/build-win/pdbs/${{parameters.name}}-app_ARM64EC.pdb $BUILD_ARTIFACTSTAGINGDIRECTORY/APP_ARM64EC/${{parameters.name}}/
     displayName: Organize APP ARM64EC artifact
-    condition: and(eq(variables.build_app, True), eq(variables.build_arm64ec, True), ne('${{parameters.graphics}}', 'SKIA'))
+    condition: and(eq(variables.build_app, True), eq(variables.build_arm64ec, True), ne('${{parameters.graphics}}', 'SKIA'), ne('${{parameters.skip_arm64ec}}', true))
 
   - bash: |
       mkdir -p $BUILD_ARTIFACTSTAGINGDIRECTORY/VST3_ARM64EC/${{parameters.name}}
@@ -161,14 +178,14 @@ steps:
       fi
       cp ${{parameters.path}}/${{parameters.name}}/build-win/pdbs/${{parameters.name}}-vst3_ARM64EC.pdb $BUILD_ARTIFACTSTAGINGDIRECTORY/VST3_ARM64EC/${{parameters.name}}/
     displayName: Organize VST3 ARM64EC artifact
-    condition: and(eq(variables.build_vst3, True), eq(variables.build_arm64ec, True), ne('${{parameters.graphics}}', 'SKIA'))
+    condition: and(eq(variables.build_vst3, True), eq(variables.build_arm64ec, True), ne('${{parameters.graphics}}', 'SKIA'), ne('${{parameters.skip_arm64ec}}', true))
 
   - bash: |
       mkdir -p $BUILD_ARTIFACTSTAGINGDIRECTORY/VST2_ARM64EC/${{parameters.name}}
       cp ${{parameters.path}}/${{parameters.name}}/build-win/${{parameters.name}}_ARM64EC.dll $BUILD_ARTIFACTSTAGINGDIRECTORY/VST2_ARM64EC/${{parameters.name}}/
       cp ${{parameters.path}}/${{parameters.name}}/build-win/pdbs/${{parameters.name}}-vst2_ARM64EC.pdb $BUILD_ARTIFACTSTAGINGDIRECTORY/VST2_ARM64EC/${{parameters.name}}/
     displayName: Organize VST2 ARM64EC artifact
-    condition: and(eq(variables.build_vst2, True), eq(variables.build_arm64ec, True), ne('${{parameters.graphics}}', 'SKIA'))
+    condition: and(eq(variables.build_vst2, True), eq(variables.build_arm64ec, True), ne('${{parameters.graphics}}', 'SKIA'), ne('${{parameters.skip_arm64ec}}', true))
 
   - bash: |
       mkdir -p $BUILD_ARTIFACTSTAGINGDIRECTORY/AAX_ARM64EC/${{parameters.name}}
@@ -178,7 +195,7 @@ steps:
       fi
       cp ${{parameters.path}}/${{parameters.name}}/build-win/pdbs/${{parameters.name}}-aax_ARM64EC.pdb $BUILD_ARTIFACTSTAGINGDIRECTORY/AAX_ARM64EC/${{parameters.name}}/
     displayName: Organize AAX ARM64EC artifact
-    condition: and(eq(variables.build_aax, True), eq(variables.build_arm64ec, True), ne('${{parameters.graphics}}', 'SKIA'))
+    condition: and(eq(variables.build_aax, True), eq(variables.build_arm64ec, True), ne('${{parameters.graphics}}', 'SKIA'), ne('${{parameters.skip_arm64ec}}', true))
 
   - bash: |
       mkdir -p $BUILD_ARTIFACTSTAGINGDIRECTORY/CLAP_ARM64EC/${{parameters.name}}
@@ -189,7 +206,7 @@ steps:
         cp ${{parameters.path}}/${{parameters.name}}/build-win/pdbs/${{parameters.name}}-clap_ARM64EC.pdb $BUILD_ARTIFACTSTAGINGDIRECTORY/CLAP_ARM64EC/${{parameters.name}}/
       fi
     displayName: Organize CLAP ARM64EC artifact
-    condition: and(eq(variables.build_clap, True), eq(variables.build_arm64ec, True), ne('${{parameters.graphics}}', 'SKIA'))
+    condition: and(eq(variables.build_clap, True), eq(variables.build_arm64ec, True), ne('${{parameters.graphics}}', 'SKIA'), ne('${{parameters.skip_arm64ec}}', true))
 
   # ============================================================
   # Organize x64 Artifacts (uses mv, runs after ARM64EC copies)
@@ -282,32 +299,32 @@ steps:
       artifactName: 'WIN_VST2_ARM64EC_${{parameters.artifactName}}'
       targetPath: '$(Build.ArtifactStagingDirectory)/VST2_ARM64EC/${{parameters.name}}'
     displayName: Publish ${{parameters.name}} VST2 ARM64EC
-    condition: and(eq(variables.build_vst2, True), eq(variables.build_arm64ec, True), ne('${{parameters.graphics}}', 'SKIA'))
+    condition: and(eq(variables.build_vst2, True), eq(variables.build_arm64ec, True), ne('${{parameters.graphics}}', 'SKIA'), ne('${{parameters.skip_arm64ec}}', true))
 
   - task: PublishPipelineArtifact@1
     inputs:
       artifactName: 'WIN_VST3_ARM64EC_${{parameters.artifactName}}'
       targetPath: '$(Build.ArtifactStagingDirectory)/VST3_ARM64EC/${{parameters.name}}'
     displayName: Publish ${{parameters.name}} VST3 ARM64EC
-    condition: and(eq(variables.build_vst3, True), eq(variables.build_arm64ec, True), ne('${{parameters.graphics}}', 'SKIA'))
+    condition: and(eq(variables.build_vst3, True), eq(variables.build_arm64ec, True), ne('${{parameters.graphics}}', 'SKIA'), ne('${{parameters.skip_arm64ec}}', true))
 
   - task: PublishPipelineArtifact@1
     inputs:
       artifactName: 'WIN_AAX_ARM64EC_${{parameters.artifactName}}'
       targetPath: '$(Build.ArtifactStagingDirectory)/AAX_ARM64EC/${{parameters.name}}'
     displayName: Publish ${{parameters.name}} AAX ARM64EC
-    condition: and(eq(variables.build_aax, True), eq(variables.build_arm64ec, True), ne('${{parameters.graphics}}', 'SKIA'))
+    condition: and(eq(variables.build_aax, True), eq(variables.build_arm64ec, True), ne('${{parameters.graphics}}', 'SKIA'), ne('${{parameters.skip_arm64ec}}', true))
 
   - task: PublishPipelineArtifact@1
     inputs:
       artifactName: 'WIN_CLAP_ARM64EC_${{parameters.artifactName}}'
       targetPath: '$(Build.ArtifactStagingDirectory)/CLAP_ARM64EC/${{parameters.name}}'
     displayName: Publish ${{parameters.name}} CLAP ARM64EC
-    condition: and(eq(variables.build_clap, True), eq(variables.build_arm64ec, True), ne('${{parameters.graphics}}', 'SKIA'))
+    condition: and(eq(variables.build_clap, True), eq(variables.build_arm64ec, True), ne('${{parameters.graphics}}', 'SKIA'), ne('${{parameters.skip_arm64ec}}', true))
 
   - task: PublishPipelineArtifact@1
     inputs:
       artifactName: 'WIN_APP_ARM64EC_${{parameters.artifactName}}'
       targetPath: '$(Build.ArtifactStagingDirectory)/APP_ARM64EC/${{parameters.name}}'
     displayName: Publish ${{parameters.name}} APP ARM64EC
-    condition: and(eq(variables.build_app, True), eq(variables.build_arm64ec, True), ne('${{parameters.graphics}}', 'SKIA'))
+    condition: and(eq(variables.build_app, True), eq(variables.build_arm64ec, True), ne('${{parameters.graphics}}', 'SKIA'), ne('${{parameters.skip_arm64ec}}', true))
