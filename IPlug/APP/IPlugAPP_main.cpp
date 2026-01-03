@@ -368,8 +368,8 @@ int main(int argc, char *argv[])
 
   if (AppIsSandboxed())
     DBGMSG("App is sandboxed, file system access etc restricted!\n");
-  
-  return NSApplicationMain(argc,  (const char **) argv);
+
+  return NSApplicationMain(argc, (const char**) argv);
 }
 
 INT_PTR SWELLAppMain(int msg, INT_PTR parm1, INT_PTR parm2)
@@ -452,10 +452,10 @@ INT_PTR SWELLAppMain(int msg, INT_PTR parm1, INT_PTR parm2)
         DeleteMenu(sm, ID_SHOW_BOUNDS, MF_BYCOMMAND);
         DeleteMenu(sm, ID_SHOW_DRAWN, MF_BYCOMMAND);
         DeleteMenu(sm, ID_SHOW_FPS, MF_BYCOMMAND);
-        
+
         // remove any trailing separators
         int a = GetMenuItemCount(sm);
-        
+
         while (a > 0 && GetMenuItemID(sm, a-1) == 0)
           DeleteMenu(sm, --a, MF_BYPOSITION);
 
