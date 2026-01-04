@@ -32,6 +32,7 @@ Format names:
   AU       - AUv2 (macOS only)
   AUV3     - AUv3 with framework/appex/embedding (macOS + iOS) - OPT-IN
   WAM      - Web Audio Module (Emscripten only)
+  CLI      - Command-line interface for offline processing
 
 Format groups:
   ALL            - All formats (APP, VST2, VST3, CLAP, AAX, AU, AUV3, WAM)
@@ -288,6 +289,28 @@ function(_iplug_create_wam_targets plugin_name formats sources site_origin base_
 endfunction()
 
 # ============================================================================
+# Create CLI target (macOS/Windows only) - Headless command-line interface
+# ============================================================================
+function(_iplug_create_cli_targets plugin_name formats sources base_lib)
+  # Skip on iOS and Emscripten
+  if(IOS OR CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+    return()
+  endif()
+
+  if(NOT "CLI" IN_LIST formats)
+    return()
+  endif()
+
+  include(${IPLUG2_CMAKE_DIR}/CLI.cmake)
+
+  add_executable(${plugin_name}-cli ${sources})
+  iplug_add_target(${plugin_name}-cli PUBLIC
+    LINK iPlug2::CLI ${base_lib}
+  )
+  iplug_configure_cli(${plugin_name}-cli ${plugin_name})
+endfunction()
+
+# ============================================================================
 # Add web resources to a bundle target (preserves subdirectory structure under Resources/web/)
 # ============================================================================
 function(_iplug_add_web_resources target resources)
@@ -360,7 +383,7 @@ macro(iplug_add_plugin plugin_name)
   endif()
 
   # Validate FORMATS
-  set(_iplug_valid_formats APP VST2 VST3 CLAP AAX AU AUV3 WAM)
+  set(_iplug_valid_formats APP VST2 VST3 CLAP AAX AU AUV3 WAM CLI)
   set(_iplug_valid_format_groups ALL ALL_PLUGINS ALL_DESKTOP MINIMAL_PLUGINS DESKTOP WEB)
   if(PLUGIN_FORMATS)
     foreach(_fmt ${PLUGIN_FORMATS})
@@ -424,4 +447,5 @@ macro(iplug_add_plugin plugin_name)
   _iplug_create_auv3_targets(${plugin_name} "${_iplug_formats}" "${PLUGIN_SOURCES}" "${_iplug_ui_lib}" "${PLUGIN_RESOURCES}" "${PLUGIN_WEB_RESOURCES}" "_${plugin_name}-base")
   _iplug_create_ios_targets(${plugin_name} "${_iplug_formats}" "${PLUGIN_SOURCES}" "${_iplug_ui_lib}" "${PLUGIN_RESOURCES}" "${PLUGIN_WEB_RESOURCES}" "_${plugin_name}-base")
   _iplug_create_wam_targets(${plugin_name} "${_iplug_formats}" "${PLUGIN_SOURCES}" "${PLUGIN_WAM_SITE_ORIGIN}" "_${plugin_name}-base")
+  _iplug_create_cli_targets(${plugin_name} "${_iplug_formats}" "${PLUGIN_SOURCES}" "_${plugin_name}-base")
 endmacro()
