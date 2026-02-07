@@ -4979,7 +4979,7 @@ forceMouseMove:
                     xpos += row_height;
                     ar.left += row_height;
                   }
-                  else if (image_idx > 0)
+                  else if (has_image)
                   {
                     ar.left += row_height;
                   }
