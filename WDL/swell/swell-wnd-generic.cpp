@@ -4962,6 +4962,7 @@ forceMouseMove:
                 RECT ar = { xpos,ypos, cr.right, ypos + row_height };
                 if ((!col || has_subitem_image) && has_image)
                 {
+                  ar.left += row_height/4;
                   if (image_idx>0)
                   {
                     HICON icon = lvs->m_status_imagelist->Get(image_idx-1);
@@ -4974,15 +4975,8 @@ forceMouseMove:
                       DrawImageInRect(ps.hdc,icon,&ar);
                     }
                   }
-                  if (has_status_image)
-                  {
-                    xpos += row_height;
-                    ar.left += row_height;
-                  }
-                  else if (has_image)
-                  {
-                    ar.left += row_height;
-                  }
+                  ar.left += row_height;
+                  if (has_status_image) xpos += row_height;
                 }
 
                 if (lvs->m_is_listbox && (hwnd->m_style & LBS_OWNERDRAWFIXED))
