@@ -23,7 +23,7 @@ using namespace iplug;
 #define MAX_PATH_LEN 2048
 #endif
 
-#define STRBUFSZ 100
+#define STRBUFSZ 512
 
 std::unique_ptr<IPlugAPPHost> IPlugAPPHost::sInstance;
 UINT gSCROLLMSG;
@@ -200,6 +200,31 @@ void IPlugAPPHost::UpdateINI()
   WritePrivateProfileString("midi", "outchan", buf, ini);
 }
 
+#ifdef OS_WIN
+// Convert string from system codepage (e.g. Shift-JIS on Japanese Windows) to UTF-8.
+// RtAudio returns device names in the system codepage via DirectSoundEnumerateA / ASIO registry.
+// WDL's combo box hook (CB_GETLBTEXT) always converts to UTF-8, causing an encoding mismatch.
+// By converting at the source, all device name handling becomes consistently UTF-8.
+static std::string ConvertACP2UTF8(const std::string& str)
+{
+  if (str.empty()) return str;
+
+  // Step 1: system codepage -> UTF-16
+  int wlen = MultiByteToWideChar(CP_ACP, 0, str.c_str(), -1, NULL, 0);
+  if (wlen <= 0) return str;
+  std::wstring wstr(wlen, 0);
+  MultiByteToWideChar(CP_ACP, 0, str.c_str(), -1, &wstr[0], wlen);
+
+  // Step 2: UTF-16 -> UTF-8
+  int ulen = WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), -1, NULL, 0, NULL, NULL);
+  if (ulen <= 0) return str;
+  std::string utf8(ulen - 1, 0); // -1 to exclude null terminator
+  WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), -1, &utf8[0], ulen, NULL, NULL);
+
+  return utf8;
+}
+#endif
+
 std::string IPlugAPPHost::GetAudioDeviceName(uint32_t deviceID) const
 {
   auto str = mDAC->getDeviceInfo(deviceID).name;
@@ -207,13 +232,14 @@ std::string IPlugAPPHost::GetAudioDeviceName(uint32_t deviceID) const
 
   if (pos != std::string::npos)
   {
-    std::string subStr = str.substr(pos + 1);
-    return subStr;
+    str = str.substr(pos + 1);
   }
-  else
-  {
-    return str;
-  }
+
+#ifdef OS_WIN
+  str = ConvertACP2UTF8(str);
+#endif
+
+  return str;
 }
 
 std::optional<uint32_t> IPlugAPPHost::GetAudioDeviceID(const char* deviceNameToTest) const
