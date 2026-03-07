@@ -1159,6 +1159,9 @@ public:
   /** @return true if resizing is in process */
   bool GetResizingInProcess() const { return mResizingInProcess; }
 
+  /** Cancel any in-progress corner-resizer drag (e.g. when host takes over resize) */
+  void CancelDragResize() { mResizingInProcess = false; }
+
   /** Enable/disable multi touch, if platform supports it
     * @return \c true if platform supports it */
   bool EnableMultiTouch(bool enable)
@@ -1244,7 +1247,7 @@ private:
   
   /** Called to update the drawing surface after a resize */
   virtual void DrawResize() {}
-  
+
   /** Draw a region of the graphics (redrawing all contained items)
    * @param bounds The rectangular region to redraw
    * @param scale The current draw scale */
@@ -1265,13 +1268,23 @@ private:
   void DoCreatePopupMenu(IControl& control, IPopupMenu& menu, const IRECT& bounds, int valIdx, bool isContext);
   
   /** Called by ICornerResizer when drag resize commences */
-  void StartDragResize() { mResizingInProcess = true; }
-  
+  void StartDragResize() { mResizingInProcess = true; mDragStartWidth = Width(); mDragStartHeight = Height(); }
+
   /** Called when drag resize ends */
   void EndDragResize();
 
 #pragma mark - Control management
 public:
+  /** Called on the host UI thread immediately before host-initiated resize so that
+   *  platform implementations can serialise it with the render thread.
+   *  @param physW Physical width the host requested (pixels)
+   *  @param physH Physical height the host requested (pixels)
+   *  Paired with OnEndHostResize(). Default is a no-op. */
+  virtual void OnBeginHostResize(int physW, int physH) {}
+
+  /** Paired release for OnBeginHostResize(). */
+  virtual void OnEndHostResize() {}
+
   /** For all controls, including the "special controls" call a method
    * @param func A std::function to perform on each control */
   void ForAllControlsFunc(IControlFunction func);
@@ -1846,6 +1859,8 @@ private:
   int mMouseOverIdx = -1;
   float mMouseDownX = -1.f;
   float mMouseDownY = -1.f;
+  int mDragStartWidth = 0;
+  int mDragStartHeight = 0;
   float mMinScale;
   float mMaxScale;
   int mLastClickedParam = kNoParameter;

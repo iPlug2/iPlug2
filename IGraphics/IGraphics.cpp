@@ -94,8 +94,7 @@ void IGraphics::Resize(int w, int h, float scale, bool needsPlatformResize)
   scale = Clip(scale, mMinScale, mMaxScale);
   
   if (w == Width() && h == Height() && scale == GetDrawScale()) return;
-  
-  //DBGMSG("resize %i, resize %i, scale %f\n", w, h, scale);
+
   ReleaseMouseCapture();
 
   mDrawScale = scale;
@@ -332,11 +331,21 @@ void IGraphics::AttachCornerResizer(EUIResizerMode sizeMode, bool layoutOnResize
 
 void IGraphics::AttachCornerResizer(ICornerResizerControl* pControl, EUIResizerMode sizeMode, bool layoutOnResize)
 {
-#ifndef AUv3_API
+#if defined(AUv3_API)
+  DBGMSG("AttachCornerResizer() is disabled for AUv3");
+#elif defined(OS_LINUX)
+  // On Linux, the host (or window manager for standalone) provides
+  // its own resize handle. The corner resizer conflicts because both
+  // catch mouse events in the same region, causing feedback loops.
+  // Still set the resize mode so Scale/Size mode works correctly.
+  mGUISizeMode = sizeMode;
+  mLayoutOnResize = layoutOnResize;
+  delete pControl;
+#else
   assert(!mCornerResizer); // only want one corner resizer
 
   std::unique_ptr<ICornerResizerControl> control(pControl);
-    
+
   if (!mCornerResizer)
   {
     mCornerResizer.swap(control);
@@ -344,8 +353,6 @@ void IGraphics::AttachCornerResizer(ICornerResizerControl* pControl, EUIResizerM
     mLayoutOnResize = layoutOnResize;
     mCornerResizer->SetDelegate(*GetDelegate());
   }
-#else
-DBGMSG("AttachCornerResizer() is disabled for AUv3");
 #endif
 }
 
@@ -1519,7 +1526,10 @@ void IGraphics::OnDragResize(float x, float y)
     float scaleX = (x * GetDrawScale()) / mMouseDownX;
     float scaleY = (y * GetDrawScale()) / mMouseDownY;
 
-    Resize(Width(), Height(), std::min(scaleX, scaleY));
+    // Use drag-start dimensions as the base, not current Width()/Height().
+    // When the host drives resize (e.g. VST3 onSize), Width() changes between
+    // drag events while mMouseDownX stays fixed, causing runaway growth.
+    Resize(mDragStartWidth, mDragStartHeight, std::min(scaleX, scaleY));
   }
   else
   {
@@ -2171,7 +2181,7 @@ void IGraphics::ApplyLayerDropShadow(ILayerPtr& layer, const IShadow& shadow)
   kernel.Resize(iSize);
         
   for (int i = 0; i < iSize; i++)
-    kernel.Get()[i] = static_cast<uint8_t>(std::round(255.f * std::expf(-(i * i) * blurConst)));
+    kernel.Get()[i] = static_cast<uint8_t>(std::round(255.f * std::exp(-(i * i) * blurConst)));
   
   // Kernel normalisation
   int normFactor = kernel.Get()[0];
