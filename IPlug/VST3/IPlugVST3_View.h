@@ -42,20 +42,22 @@ public:
 #ifdef OS_WIN
       if (strcmp(type, Steinberg::kPlatformTypeHWND) == 0)
         return Steinberg::kResultTrue;
-      
 #elif defined OS_MAC
       if (strcmp(type, Steinberg::kPlatformTypeNSView) == 0)
         return Steinberg::kResultTrue;
+#elif defined OS_LINUX
+      if (strcmp(type, Steinberg::kPlatformTypeX11EmbedWindowID) == 0)
+        return Steinberg::kResultTrue;
 #endif
     }
-    
+
     return Steinberg::kResultFalse;
   }
     
   Steinberg::tresult PLUGIN_API onSize(Steinberg::ViewRect* pSize) override
   {
     TRACE
-    
+
     if (pSize && mOwner.GetHostResizeEnabled())
     {
       rect = *pSize;
@@ -65,15 +67,17 @@ public:
 
     return Steinberg::kResultFalse;
   }
-  
+
   Steinberg::tresult PLUGIN_API getSize(Steinberg::ViewRect* pSize) override
   {
     TRACE
-    
+
     if (mOwner.HasUI())
     {
-      *pSize = Steinberg::ViewRect(0, 0, mOwner.GetEditorWidth(), mOwner.GetEditorHeight());
-      
+      int ew = mOwner.GetEditorWidth();
+      int eh = mOwner.GetEditorHeight();
+      *pSize = Steinberg::ViewRect(0, 0, ew, eh);
+
       return Steinberg::kResultTrue;
     }
     else
@@ -81,28 +85,28 @@ public:
       return Steinberg::kResultFalse;
     }
   }
-  
+
   Steinberg::tresult PLUGIN_API canResize() override
   {
     if (mOwner.HasUI() && mOwner.GetHostResizeEnabled())
     {
       return Steinberg::kResultTrue;
     }
-    
+
     return Steinberg::kResultFalse;
   }
-  
+
   Steinberg::tresult PLUGIN_API checkSizeConstraint(Steinberg::ViewRect* pRect) override
   {
     int w = pRect->getWidth();
     int h = pRect->getHeight();
-    
+
     if(!mOwner.ConstrainEditorResize(w, h))
     {
       pRect->right = pRect->left + w;
       pRect->bottom = pRect->top + h;
     }
-    
+
     return Steinberg::kResultTrue;
   }
   
@@ -110,19 +114,25 @@ public:
   {
     if (mOwner.HasUI())
     {
-      void* pView = nullptr;
 #ifdef OS_WIN
       if (strcmp(type, Steinberg::kPlatformTypeHWND) == 0)
-        pView = mOwner.OpenWindow(pParent);
+        mOwner.OpenWindow(pParent);
+      else
+        return Steinberg::kResultFalse;
 #elif defined OS_MAC
       if (strcmp(type, Steinberg::kPlatformTypeNSView) == 0)
-        pView = mOwner.OpenWindow(pParent);
-      else // Carbon
+        mOwner.OpenWindow(pParent);
+      else
+        return Steinberg::kResultFalse;
+#elif defined OS_LINUX
+      if (strcmp(type, Steinberg::kPlatformTypeX11EmbedWindowID) == 0)
+        mOwner.OpenWindow(pParent);
+      else
         return Steinberg::kResultFalse;
 #endif
       return Steinberg::kResultTrue;
     }
-    
+
     return Steinberg::kResultFalse;
   }
     

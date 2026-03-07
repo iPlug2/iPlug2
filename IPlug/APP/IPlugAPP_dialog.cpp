@@ -23,6 +23,10 @@ extern bool SaveWindowScreenshot(HWND hwnd, const char* path);
 #elif defined OS_MAC
 #define GET_MENU() SWELL_GetCurrentMenu()
 extern "C" bool SaveWindowScreenshot(void* hwnd, const char* path);
+#elif defined OS_LINUX
+#include <unistd.h>
+#define GET_MENU() GetMenu(gHWND)
+static bool SaveWindowScreenshot(HWND, const char*) { return false; }
 #endif
 
 using namespace iplug;
@@ -33,6 +37,10 @@ using namespace igraphics;
 #endif
 
 #define IDT_SCREENSHOT_TIMER 1001
+#ifdef OS_LINUX
+#define WM_USER_OPENWINDOW (WM_USER + 1)
+static bool sPlugWindowOpen = false; // guards WM_SIZE before plugin window is ready
+#endif
 
 
 // check the input and output devices, find matching srs
@@ -289,8 +297,16 @@ void IPlugAPPHost::PopulatePreferencesDialog(HWND hwndDlg)
   PopulateAudioDialogs(hwndDlg);
   PopulateMidiDialogs(hwndDlg);
 }
-#else
-  #error NOT IMPLEMENTED
+#elif defined OS_LINUX
+void IPlugAPPHost::PopulatePreferencesDialog(HWND hwndDlg)
+{
+  SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_DRIVER,CB_ADDSTRING,0,(LPARAM)"ALSA");
+  SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_DRIVER,CB_ADDSTRING,0,(LPARAM)"JACK");
+  SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_DRIVER,CB_SETCURSEL, mState.mAudioDriverType, 0);
+
+  PopulateAudioDialogs(hwndDlg);
+  PopulateMidiDialogs(hwndDlg);
+}
 #endif
 
 WDL_DLGRET IPlugAPPHost::PreferencesDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -479,8 +495,14 @@ WDL_DLGRET IPlugAPPHost::PreferencesDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wPar
             {
               system("open \"/Applications/Utilities/Audio MIDI Setup.app\"");
             }
-            #else
-              #error NOT IMPLEMENTED
+            #elif defined OS_LINUX
+            {
+              pid_t pid = fork();
+              if (pid == 0) {
+                execlp("xdg-open", "xdg-open", "https://alsa-project.org", nullptr);
+                _exit(127);
+              }
+            }
             #endif
           }
           break;
@@ -529,18 +551,18 @@ static void ClientResize(HWND hWnd, int width, int height)
   POINT ptDiff;
   int screenwidth, screenheight;
   int x, y;
-  
+
   screenwidth  = GetSystemMetrics(SM_CXSCREEN);
   screenheight = GetSystemMetrics(SM_CYSCREEN);
   x = (screenwidth / 2) - (width / 2);
   y = (screenheight / 2) - (height / 2);
-  
+
   GetClientRect(hWnd, &rcClient);
   GetWindowRect(hWnd, &rcWindow);
 
   ptDiff.x = (rcWindow.right - rcWindow.left) - rcClient.right;
   ptDiff.y = (rcWindow.bottom - rcWindow.top) - rcClient.bottom;
-  
+
   SetWindowPos(hWnd, 0, x, y, width + ptDiff.x, height + ptDiff.y, 0);
 }
 
@@ -556,6 +578,16 @@ WDL_DLGRET IPlugAPPHost::MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
       gHWND = hwndDlg;
       IPlugAPP* pPlug = pAppHost->GetPlug();
 
+#ifdef OS_LINUX
+      // On Linux, show and resize the dialog first so the GTK/X11 window reaches
+      // its final size. Then defer OpenWindow via PostMessage so the SWELL main loop
+      // processes the resulting WM_SIZE/ConfigureNotify events before the plugin
+      // child window is created — otherwise Mutter constrains the child to the
+      // dialog's initial (template) size.
+      ShowWindow(hwndDlg, SW_SHOW);
+      ClientResize(hwndDlg, pPlug->GetEditorWidth(), pPlug->GetEditorHeight());
+      PostMessage(hwndDlg, WM_USER_OPENWINDOW, 0, 0);
+#else
       if (!pAppHost->OpenWindow(gHWND))
       {
         DBGMSG("couldn't attach gui\n");
@@ -564,6 +596,7 @@ WDL_DLGRET IPlugAPPHost::MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
       ClientResize(hwndDlg, pPlug->GetEditorWidth(), pPlug->GetEditorHeight());
 
       ShowWindow(hwndDlg, SW_SHOW);
+#endif
 
       // If in screenshot mode, start timer to take screenshot after UI initializes
       if (pAppHost->IsScreenshotMode())
@@ -573,6 +606,15 @@ WDL_DLGRET IPlugAPPHost::MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
 
       return 1;
     }
+#ifdef OS_LINUX
+    case WM_USER_OPENWINDOW:
+    {
+      if (!pAppHost->OpenWindow(gHWND))
+        DBGMSG("couldn't attach gui\n");
+      sPlugWindowOpen = true;
+      return 0;
+    }
+#endif
     case WM_TIMER:
     {
       if (wParam == IDT_SCREENSHOT_TIMER)
@@ -590,13 +632,17 @@ WDL_DLGRET IPlugAPPHost::MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
     case WM_DESTROY:
       pAppHost->CloseWindow();
       gHWND = NULL;
+#ifdef OS_LINUX
+      sPlugWindowOpen = false;
+#endif
       IPlugAPPHost::sInstance = nullptr;
       
       #ifdef OS_WIN
       PostQuitMessage(0);
-      #else
+      #elif defined OS_MAC
       SWELL_PostQuitMessage(hwndDlg);
       #endif
+      // Linux: main loop exits when gHWND->m_hashaddestroy is set by DestroyWindow
 
       return 0;
     case WM_CLOSE:
@@ -845,6 +891,13 @@ WDL_DLGRET IPlugAPPHost::MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
       case SIZE_RESTORED:
       case SIZE_MAXIMIZED:
       {
+#ifdef OS_LINUX
+        // Ignore WM_SIZE events that fire before the plugin window opens.
+        // ShowWindow + ClientResize generate spurious resize events (including
+        // the dialog template size) that would recreate the FBO multiple times.
+        if (!sPlugWindowOpen)
+          return 0;
+#endif
         if (pPlug->GetHostResizeEnabled())
         {
           RECT r;
