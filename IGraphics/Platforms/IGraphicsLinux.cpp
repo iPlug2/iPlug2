@@ -1460,9 +1460,25 @@ void IGraphicsLinux::ProcessX11Events()
         std::vector<IMouseInfo> list{ info };
 
         if (ev.type == ButtonPress)
-          OnMouseDown(list);
+        {
+          // X11 has no native double-click event; detect via timestamp.
+          static constexpr unsigned long kDblClickTimeoutMs = 400;
+          if (left && (be.time - mLastLeftClickTime) < kDblClickTimeoutMs)
+          {
+            OnMouseDblClick(x, y, mod);
+            mLastLeftClickTime = 0;  // reset so triple-click doesn't fire again
+          }
+          else
+          {
+            OnMouseDown(list);
+            if (left)
+              mLastLeftClickTime = be.time;
+          }
+        }
         else
+        {
           OnMouseUp(list);
+        }
         break;
       }
 
