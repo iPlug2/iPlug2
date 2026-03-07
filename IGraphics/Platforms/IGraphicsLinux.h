@@ -160,6 +160,7 @@ private:
   float mHiddenCursorY = 0.f;
   Cursor mBlankCursor = 0;  // cached invisible cursor for HideMouseCursor
   bool mNeedsRedraw = false;
+  unsigned long mLastLeftClickTime = 0;  // X11 server timestamp of last left-button press
 
   // Clipboard atoms (interned in OpenWindow)
   Atom mClipboardAtom = 0;
