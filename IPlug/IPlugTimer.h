@@ -31,6 +31,9 @@
 #include <CoreFoundation/CoreFoundation.h>
 #elif defined OS_WEB
 #include <emscripten/html5.h>
+#elif defined OS_LINUX
+#include <atomic>
+#include <pthread.h>
 #endif
 
 BEGIN_IPLUG_NAMESPACE
@@ -90,13 +93,26 @@ public:
   ~Timer_impl();
   void Stop() override;
   static void TimerProc(void *userData);
-  
+
 private:
   long ID = 0;
   ITimerFunction mTimerFunc;
 };
-#else
-  #error NOT IMPLEMENTED
+#elif defined OS_LINUX
+class Timer_impl : public Timer
+{
+public:
+  Timer_impl(ITimerFunction func, uint32_t intervalMs);
+  ~Timer_impl();
+  void Stop() override;
+
+private:
+  static void* ThreadProc(void* pParam);
+  ITimerFunction mTimerFunc;
+  uint32_t mIntervalMs;
+  std::atomic<bool> mRunning{false};
+  pthread_t mThread = 0;
+};
 #endif
 
 END_IPLUG_NAMESPACE

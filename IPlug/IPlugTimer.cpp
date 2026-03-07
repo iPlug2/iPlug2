@@ -143,4 +143,46 @@ void Timer_impl::TimerProc(void* userData)
   Timer_impl* itimer = (Timer_impl*) userData;
   itimer->mTimerFunc(*itimer);
 }
+#elif defined OS_LINUX
+#include <unistd.h>
+
+Timer* Timer::Create(ITimerFunction func, uint32_t intervalMs)
+{
+  return new Timer_impl(func, intervalMs);
+}
+
+Timer_impl::Timer_impl(ITimerFunction func, uint32_t intervalMs)
+: mTimerFunc(func)
+, mIntervalMs(intervalMs)
+, mRunning(true)
+{
+  pthread_create(&mThread, nullptr, ThreadProc, this);
+}
+
+Timer_impl::~Timer_impl()
+{
+  Stop();
+}
+
+void Timer_impl::Stop()
+{
+  if (mRunning)
+  {
+    mRunning = false;
+    pthread_join(mThread, nullptr);
+    mThread = 0;
+  }
+}
+
+void* Timer_impl::ThreadProc(void* pParam)
+{
+  Timer_impl* pTimer = reinterpret_cast<Timer_impl*>(pParam);
+  while (pTimer->mRunning)
+  {
+    usleep((unsigned long)(pTimer->mIntervalMs) * 1000UL);
+    if (pTimer->mRunning)
+      pTimer->mTimerFunc(*pTimer);
+  }
+  return nullptr;
+}
 #endif

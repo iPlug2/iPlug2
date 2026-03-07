@@ -89,11 +89,14 @@ bool IPlugAPIBase::CompareState(const uint8_t* pIncomingState, int startPos) con
 }
 
 bool IPlugAPIBase::EditorResizeFromUI(int viewWidth, int viewHeight, bool needsPlatformResize)
-{  
+{
   if (needsPlatformResize)
     return EditorResize(viewWidth, viewHeight);
-  else
-    return true;
+
+  // Always keep mEditorWidth/mEditorHeight in sync so that VST3
+  // getSize() reports the actual window size after host-driven resizes.
+  SetEditorSize(viewWidth, viewHeight);
+  return true;
 }
 
 #pragma mark -

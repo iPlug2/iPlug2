@@ -19,6 +19,10 @@
 
 #if defined OS_WEB
 #include <emscripten/val.h>
+#elif defined OS_LINUX
+#include <unistd.h>
+#include <climits>
+#include <dlfcn.h>
 #elif defined OS_WIN
 #include <windows.h>
 #include <Shlobj.h>
@@ -230,6 +234,148 @@ const void* LoadWinResource(const char* resid, const char* type, int& sizeInByte
     sizeInBytes = size;
     return pResourceData;
   }
+}
+
+#elif defined OS_LINUX
+#pragma mark - OS_LINUX
+
+#include <cstdlib>
+#include <sys/stat.h>
+
+void AppSupportPath(WDL_String& path, bool isSystem)
+{
+  if (isSystem)
+  {
+    path.Set("/etc");
+  }
+  else
+  {
+    const char* xdgConfig = getenv("XDG_CONFIG_HOME");
+    if (xdgConfig && xdgConfig[0])
+      path.Set(xdgConfig);
+    else
+    {
+      const char* home = getenv("HOME");
+      if (!home || !home[0]) return;
+      path.SetFormatted(PATH_MAX, "%s/.config", home);
+    }
+  }
+}
+
+void DesktopPath(WDL_String& path)
+{
+  const char* home = getenv("HOME");
+  if (!home || !home[0]) return;
+  path.SetFormatted(PATH_MAX, "%s/Desktop", home);
+}
+
+void VST3PresetsPath(WDL_String& path, const char* mfrName, const char* pluginName, bool isSystem)
+{
+  if (isSystem)
+    path.SetFormatted(PATH_MAX, "/usr/share/vst3/presets/%s/%s", mfrName, pluginName);
+  else
+  {
+    const char* home = getenv("HOME");
+    if (!home || !home[0]) return;
+    path.SetFormatted(PATH_MAX, "%s/.vst3/presets/%s/%s", home, mfrName, pluginName);
+  }
+}
+
+EResourceLocation LocateResource(const char* name, const char* type, WDL_String& result,
+                                  const char*, void*, const char* sharedResourcesSubPath)
+{
+  if (!name || !name[0])
+    return EResourceLocation::kNotFound;
+
+  // If it's already an absolute path that exists, use it directly
+  struct stat st;
+  if (name[0] == '/' && stat(name, &st) == 0)
+  {
+    result.Set(name);
+    return EResourceLocation::kAbsolutePath;
+  }
+
+  const char* fileNameOnly = strrchr(name, '/');
+  fileNameOnly = fileNameOnly ? fileNameOnly + 1 : name;
+
+  WDL_String candidate;
+
+  // Use dladdr to find the directory of this plugin's own shared library (or executable).
+  // This correctly handles VST3/CLAP plugins loaded into a host — /proc/self/exe would
+  // give the host's path, not the plugin's.
+  Dl_info dlInfo = {};
+  if (dladdr((void*)LocateResource, &dlInfo) && dlInfo.dli_fname)
+  {
+    WDL_String soDir;
+    soDir.Set(dlInfo.dli_fname);
+    soDir.remove_filepart(true); // keep trailing slash
+
+    // Try <so_dir>/resources/<type>/<filename>  (APP, flat CLAP layout)
+    candidate.SetFormatted(PATH_MAX, "%sresources/%s/%s", soDir.Get(), type, fileNameOnly);
+    if (stat(candidate.Get(), &st) == 0)
+    {
+      result.Set(candidate.Get());
+      return EResourceLocation::kAbsolutePath;
+    }
+
+    // Try <so_dir>/../Resources/<type>/<filename>  (VST3 bundle: Contents/arch-linux/ -> Contents/Resources/)
+    candidate.SetFormatted(PATH_MAX, "%s../Resources/%s/%s", soDir.Get(), type, fileNameOnly);
+    if (stat(candidate.Get(), &st) == 0)
+    {
+      result.Set(candidate.Get());
+      return EResourceLocation::kAbsolutePath;
+    }
+
+    // Try <so_dir>/../Resources/<filename>
+    candidate.SetFormatted(PATH_MAX, "%s../Resources/%s", soDir.Get(), fileNameOnly);
+    if (stat(candidate.Get(), &st) == 0)
+    {
+      result.Set(candidate.Get());
+      return EResourceLocation::kAbsolutePath;
+    }
+
+    // Try <so_dir>/resources/<filename>
+    candidate.SetFormatted(PATH_MAX, "%sresources/%s", soDir.Get(), fileNameOnly);
+    if (stat(candidate.Get(), &st) == 0)
+    {
+      result.Set(candidate.Get());
+      return EResourceLocation::kAbsolutePath;
+    }
+  }
+
+  // Fallback: look next to the host executable (covers cases where dladdr is unavailable)
+  char buf[PATH_MAX];
+  ssize_t len = readlink("/proc/self/exe", buf, sizeof(buf) - 1);
+  if (len > 0)
+  {
+    buf[len] = '\0';
+    WDL_String exePath;
+    exePath.Set(buf);
+    exePath.remove_filepart(true);
+
+    candidate.SetFormatted(PATH_MAX, "%sresources/%s/%s", exePath.Get(), type, fileNameOnly);
+    if (stat(candidate.Get(), &st) == 0)
+    {
+      result.Set(candidate.Get());
+      return EResourceLocation::kAbsolutePath;
+    }
+
+    candidate.SetFormatted(PATH_MAX, "%sresources/%s", exePath.Get(), fileNameOnly);
+    if (stat(candidate.Get(), &st) == 0)
+    {
+      result.Set(candidate.Get());
+      return EResourceLocation::kAbsolutePath;
+    }
+  }
+
+  // Try path as-is relative to cwd
+  if (stat(name, &st) == 0)
+  {
+    result.Set(name);
+    return EResourceLocation::kAbsolutePath;
+  }
+
+  return EResourceLocation::kNotFound;
 }
 
 #elif defined OS_WEB
