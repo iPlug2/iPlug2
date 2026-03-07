@@ -47,7 +47,13 @@
       #error Define either IGRAPHICS_GL2 or IGRAPHICS_GL3 when using IGRAPHICS_GL and IGRAPHICS_NANOVG with OS_WIN
     #endif
   #elif defined OS_LINUX
-    #error NOT IMPLEMENTED
+    #if defined IGRAPHICS_GL2
+      #define NANOVG_GL2_IMPLEMENTATION
+    #elif defined IGRAPHICS_GL3
+      #define NANOVG_GL3_IMPLEMENTATION
+    #else
+      #error "Define either IGRAPHICS_GL2 or IGRAPHICS_GL3 when using IGRAPHICS_NANOVG with OS_LINUX"
+    #endif
   #elif defined OS_WEB
     #if defined IGRAPHICS_GLES2
       #define NANOVG_GLES2_IMPLEMENTATION
@@ -488,14 +494,27 @@ void IGraphicsNanoVG::DrawResize()
   ScopedGLContext scopedGLCtx {this};
 
   if (mMainFrameBuffer != nullptr)
+  {
     nvgDeleteFramebuffer(mMainFrameBuffer);
-  
+    mMainFrameBuffer = nullptr;
+  }
+
   if (mVG)
   {
-    mMainFrameBuffer = nvgCreateFramebuffer(mVG, WindowWidth() * GetScreenScale(), WindowHeight() * GetScreenScale(), 0);
-  
+#if defined IGRAPHICS_GL
+    // Flush and sync all pending GL commands, and drain any accumulated GL
+    // errors, before creating the FBO. On llvmpipe/Xwayland, NanoVG shader
+    // setup and font loading leave stale GL error state that causes
+    // glCheckFramebufferStatus to fail unless cleared first.
+    glFinish();
+    while (glGetError() != GL_NO_ERROR) {}
+#endif
+    int w = (int)(WindowWidth() * GetScreenScale());
+    int h = (int)(WindowHeight() * GetScreenScale());
+    mMainFrameBuffer = nvgCreateFramebuffer(mVG, w, h, 0);
+
     if (mMainFrameBuffer == nullptr)
-      DBGMSG("Could not init FBO.\n");
+      DBGMSG("Could not init FBO (w=%d h=%d).\n", w, h);
   }
 }
 
@@ -520,9 +539,20 @@ void IGraphicsNanoVG::BeginFrame()
 void IGraphicsNanoVG::EndFrame()
 {
   nvgEndFrame(mVG); // end main frame buffer update
+
+  // When the FBO is unavailable (e.g. llvmpipe/Xwayland software renderer),
+  // BeginFrame rendered directly to the window framebuffer, so no compositing
+  // pass is needed.  Skip the second nvgBeginFrame/EndFrame entirely.
+  if (mMainFrameBuffer == nullptr)
+  {
+    mInDraw = false;
+    ClearFBOStack();
+    return;
+  }
+
   nvgBindFramebuffer(nullptr);
   nvgBeginFrame(mVG, WindowWidth(), WindowHeight(), GetScreenScale());
-  
+
   NVGpaint img = nvgImagePattern(mVG, 0, 0, WindowWidth(), WindowHeight(), 0, mMainFrameBuffer->image, 1.0f);
 
   nvgSave(mVG);
