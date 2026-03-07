@@ -113,7 +113,19 @@ if(NOT TARGET iPlug2::IPlug)
       "-framework Foundation"
     )
   elseif(UNIX AND NOT APPLE)
-    message("Error - Linux not yet supported")
+    # WDL assumes signed char; ARM Linux defaults to unsigned char
+    # Force-include stdlib.h before any translation unit: WDL's heapbuf.h uses
+    # malloc/free/realloc without including stdlib.h itself, and they aren't
+    # pulled in transitively on GCC (unlike Clang on macOS).
+    target_compile_options(iPlug2::IPlug INTERFACE
+      -fsigned-char
+      -include stdlib.h
+      # VST2/FXP preset magic uses multi-character character constants ('CcnK', 'FxCk', etc.)
+      # intentionally — these are 4CC codes, not programmer errors.
+      -Wno-multichar
+    )
+    target_compile_definitions(iPlug2::IPlug INTERFACE OS_LINUX)
+    target_link_libraries(iPlug2::IPlug INTERFACE pthread dl)
   endif()
 
   # Generate PkgInfo file for macOS bundles (used by VST2, CLAP, etc.)
@@ -274,6 +286,10 @@ if(NOT TARGET iPlug2::Extras::IWebViewControl)
   elseif(APPLE)
     target_sources(iPlug2::Extras::IWebViewControl INTERFACE
       $<TARGET_OBJECTS:iPlug2_Extras_IWebViewControl_obj>
+    )
+  elseif(UNIX AND NOT APPLE)
+    target_sources(iPlug2::Extras::IWebViewControl INTERFACE
+      ${IPLUG_DIR}/Extras/WebView/IPlugWebView_linux.cpp
     )
   endif()
 

@@ -163,6 +163,33 @@
       }
     },
     {
+      "name": "base-linux",
+      "hidden": true,
+      "inherits": "base",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      },
+      "cacheVariables": {
+        "IGRAPHICS_RENDERER": "GL3"
+      }
+    },
+    {
+      "name": "linux-ninja",
+      "displayName": "Linux Ninja",
+      "description": "Linux build with Ninja generator (NanoVG/GL3)",
+      "inherits": "base-linux",
+      "generator": "Ninja"
+    },
+    {
+      "name": "linux-make",
+      "displayName": "Linux Unix Makefiles",
+      "description": "Linux build with Unix Makefiles generator (NanoVG/GL3)",
+      "inherits": "base-linux",
+      "generator": "Unix Makefiles"
+    },
+    {
       "name": "wam",
       "displayName": "WAM (Emscripten)",
       "description": "Web Audio Module build with Emscripten/WebAssembly",
@@ -240,6 +267,15 @@
       "name": "windows-vs2022-arm64ec",
       "configurePreset": "windows-vs2022-arm64ec",
       "configuration": "Release"
+    },
+    {
+      "name": "linux-ninja",
+      "configurePreset": "linux-ninja",
+      "configuration": "Release"
+    },
+    {
+      "name": "linux-make",
+      "configurePreset": "linux-make"
     },
     {
       "name": "wam",

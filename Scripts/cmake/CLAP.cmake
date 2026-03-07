@@ -79,8 +79,7 @@ if(NOT TARGET iPlug2::CLAP)
     # CLAP SDK is header-only and works on WASM
     # Build as STATIC library with --no-entry linker option
   elseif(UNIX AND NOT APPLE)
-    # Linux support - to be added later
-    message(WARNING "CLAP Linux support not yet implemented")
+    target_link_libraries(iPlug2::CLAP INTERFACE pthread dl)
   endif()
 
   target_link_libraries(iPlug2::CLAP INTERFACE iPlug2::IPlug)
@@ -123,6 +122,16 @@ function(iplug_configure_clap target project_name)
         COMMENT "Creating PkgInfo for ${project_name}.clap"
       )
     endif()
+  elseif(UNIX AND NOT APPLE AND NOT CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+    set(CLAP_OUTPUT_DIR "${CMAKE_BINARY_DIR}/out")
+    set_target_properties(${target} PROPERTIES
+      OUTPUT_NAME "${project_name}"
+      SUFFIX ".clap"
+      PREFIX ""
+      LIBRARY_OUTPUT_DIRECTORY "${CLAP_OUTPUT_DIR}"
+      LIBRARY_OUTPUT_DIRECTORY_DEBUG "${CLAP_OUTPUT_DIR}"
+      LIBRARY_OUTPUT_DIRECTORY_RELEASE "${CLAP_OUTPUT_DIR}"
+    )
   elseif(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
     # WASM/Emscripten: Use --no-entry linker option
     target_link_options(${target} PRIVATE --no-entry)
