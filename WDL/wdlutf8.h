@@ -359,7 +359,7 @@ static void WDL_STATICFUNC_UNUSED WDL_utf8_cleanup_truncation(char *buf, size_t 
   }
 }
 
-static char *WDL_utf8_cleanup_bad_codepoints(const char *str, char *tmpbuf, int tmpbufsz, int flags)
+static char * WDL_STATICFUNC_UNUSED WDL_utf8_cleanup_bad_codepoints(const char *str, char *tmpbuf, int tmpbufsz, int flags)
 {
   // flags&1= force
   // drops invalid codepoints if either 'force' is specified or if the ratio of UTF-8 characters to invalid
@@ -406,7 +406,7 @@ static char *WDL_utf8_cleanup_bad_codepoints(const char *str, char *tmpbuf, int 
 }
 
 
-static WDL_WCHAR *WDL_utf8_to_utf16(const char *str, WDL_WCHAR *tmpbuf, int tmpbufsz_bytes, int flags)
+static WDL_WCHAR * WDL_STATICFUNC_UNUSED WDL_utf8_to_utf16(const char *str, WDL_WCHAR *tmpbuf, int tmpbufsz_bytes, int flags)
 {
   // flags&1= force utf-8 even if likely ansi
   // flagS&2= do not malloc()
