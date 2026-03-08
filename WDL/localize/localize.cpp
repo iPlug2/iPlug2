@@ -603,6 +603,7 @@ static BOOL CALLBACK xlateGetRects(HWND hwnd, LPARAM lParam)
 static int overlapSizeForControl(HWND h)
 {
 #ifdef __APPLE__
+  extern int g_swell_osx_style;
   if ((g_swell_osx_style&1) && h && SWELL_IsButton(h) && !(GetWindowLong(h,GWL_STYLE)&0xf)) return 7;
 #endif
   return 0;
