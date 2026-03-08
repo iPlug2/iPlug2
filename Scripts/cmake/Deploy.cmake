@@ -9,6 +9,9 @@
 # Plugin deployment configuration for iPlug2
 # Supports symlink and copy deployment to standard system directories
 
+# Capture script directory at include time (CMAKE_CURRENT_LIST_DIR changes inside functions)
+set(_IPLUG_DEPLOY_SCRIPT_DIR "${CMAKE_CURRENT_LIST_DIR}" CACHE INTERNAL "")
+
 #------------------------------------------------------------------------
 # Options
 #------------------------------------------------------------------------
@@ -174,7 +177,7 @@ function(_iplug_copy_plugin target source_path dest_dir plugin_name is_bundle)
     add_custom_command(TARGET ${target} POST_BUILD
       COMMAND ${CMAKE_COMMAND}
         -Dsrc=${_res_src} -Ddst=${_res_dst}
-        -P ${CMAKE_CURRENT_LIST_DIR}/CopyIfExists.cmake
+        -P ${_IPLUG_DEPLOY_SCRIPT_DIR}/CopyIfExists.cmake
       COMMENT "[iPlug2] Deploying resources -> ${_res_dst}"
     )
   endif()
