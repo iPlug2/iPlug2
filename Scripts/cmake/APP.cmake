@@ -131,10 +131,16 @@ if(NOT TARGET iPlug2::APP)
     find_package(PkgConfig REQUIRED)
     pkg_check_modules(GDK3 REQUIRED gdk-3.0)
     pkg_check_modules(FREETYPE REQUIRED freetype2)
+    pkg_check_modules(ALSA REQUIRED alsa)
+    pkg_check_modules(JACK REQUIRED jack)
+    pkg_check_modules(PULSEAUDIO REQUIRED libpulse libpulse-simple)
 
     target_include_directories(iPlug2::APP INTERFACE
       ${GDK3_INCLUDE_DIRS}
       ${FREETYPE_INCLUDE_DIRS}
+      ${ALSA_INCLUDE_DIRS}
+      ${JACK_INCLUDE_DIRS}
+      ${PULSEAUDIO_INCLUDE_DIRS}
     )
 
     target_compile_definitions(iPlug2::APP INTERFACE
@@ -154,10 +160,9 @@ if(NOT TARGET iPlug2::APP)
     target_link_libraries(iPlug2::APP INTERFACE
       ${GDK3_LIBRARIES}
       ${FREETYPE_LIBRARIES}
-      asound
-      jack
-      pulse
-      pulse-simple
+      ${ALSA_LINK_LIBRARIES}
+      ${JACK_LINK_LIBRARIES}
+      ${PULSEAUDIO_LINK_LIBRARIES}
       pthread
       dl
       fontconfig
