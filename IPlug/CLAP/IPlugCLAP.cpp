@@ -506,8 +506,12 @@ bool IPlugCLAP::paramsValueToText(clap_id paramIdx, double value, char* display,
   const IParam* pParam = GetParam(paramIdx);
   const bool isDoubleType = pParam->Type() == IParam::kTypeDouble;
 
+  // Snap stepped params so GetDisplayText finds an exact match
+  if (!isDoubleType)
+    value = std::round(pParam->Constrain(value));
+
   WDL_String str;
-  
+
   pParam->GetDisplay(value, isDoubleType, str);
   
   // Add Label
