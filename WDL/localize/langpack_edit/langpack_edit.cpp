@@ -180,7 +180,7 @@ struct editor_instance {
   void load_file(const char *filename, bool is_template);
   void save_file(const char *filename, bool verbose=false);
   bool import_for_view(FILE *fp, bool want_sec);
-  void export_for_view(FILE *fp, int col, bool want_sec)
+  void export_for_view(FILE *fp, int col, int col2, bool want_sec)
   {
     for (int i = 0; i < m_display_order.GetSize(); i ++)
     {
@@ -196,6 +196,8 @@ struct editor_instance {
         fprintf(fp,"%.*s%s%s|", idx,p,p[idx2]?";":"",p+idx2);
       }
       fprintf(fp,"%s\n", get_row_value(i, col));
+      if (col2 >= 0)
+        fprintf(fp,"%s\n\n", get_row_value(i, col2));
     }
   }
 
@@ -1134,16 +1136,20 @@ WDL_DLGRET mainProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
         break;
 
+        case IDC_PACK_EXPORT_CURVIEW_BOTH:
         case IDC_PACK_EXPORT_CURVIEW_TEMPLATE:
         case IDC_PACK_EXPORT_CURVIEW_LOCALIZED:
         case IDC_PACK_EXPORT_CURVIEW2_TEMPLATE:
         case IDC_PACK_EXPORT_CURVIEW2_LOCALIZED:
           {
             char newfn[2048], vbuf[2048];
-            const char *inikey = LOWORD(wParam)==IDC_PACK_EXPORT_CURVIEW_TEMPLATE ? "lastexpt" : "lastexpl";
+            const char *inikey = LOWORD(wParam)==IDC_PACK_EXPORT_CURVIEW_TEMPLATE ? "lastexpt" :
+                                 LOWORD(wParam)==IDC_PACK_EXPORT_CURVIEW_BOTH ? "lastexpb" :
+                                 "lastexpl";
             GetPrivateProfileString("LangPackEdit",inikey,"",vbuf,sizeof(vbuf),g_ini_file.Get());
             if (!WDL_ChooseFileForSave(hwndDlg,
                   LOWORD(wParam) == IDC_PACK_EXPORT_CURVIEW_TEMPLATE ?  __LOCALIZE("Export current view template lines as text","langpackedit") :
+                  LOWORD(wParam) == IDC_PACK_EXPORT_CURVIEW_BOTH ?  __LOCALIZE("Export current view template and localized lines as text","langpackedit") :
                      __LOCALIZE("Export current view localized lines as text","langpackedit"),
                   NULL,
                   vbuf,
@@ -1156,8 +1162,10 @@ WDL_DLGRET mainProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
             if (fp)
             {
               g_editor.export_for_view(fp,
+                  LOWORD(wParam) == IDC_PACK_EXPORT_CURVIEW_BOTH ||
                   LOWORD(wParam) == IDC_PACK_EXPORT_CURVIEW_TEMPLATE ||
                   LOWORD(wParam) == IDC_PACK_EXPORT_CURVIEW2_TEMPLATE ? COL_TEMPLATE : COL_LOCALIZED,
+                  LOWORD(wParam) == IDC_PACK_EXPORT_CURVIEW_BOTH ? COL_LOCALIZED : -1,
                   LOWORD(wParam) == IDC_PACK_EXPORT_CURVIEW2_TEMPLATE ||
                   LOWORD(wParam) == IDC_PACK_EXPORT_CURVIEW2_LOCALIZED
                   );
