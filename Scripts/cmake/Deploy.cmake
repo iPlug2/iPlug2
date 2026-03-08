@@ -167,11 +167,14 @@ function(_iplug_copy_plugin target source_path dest_dir plugin_name is_bundle)
       COMMENT "[iPlug2] Deploying ${plugin_name} (copy)"
     )
     # Also deploy the resources/ directory alongside flat plugins (CLAP/APP on Linux)
+    # Only copy if the resources directory exists (not all plugins have resources)
     get_filename_component(_source_dir "${source_path}" DIRECTORY)
     set(_res_src "${_source_dir}/resources")
     set(_res_dst "${dest_dir}/resources")
     add_custom_command(TARGET ${target} POST_BUILD
-      COMMAND ${CMAKE_COMMAND} -E copy_directory "${_res_src}" "${_res_dst}"
+      COMMAND ${CMAKE_COMMAND}
+        -Dsrc=${_res_src} -Ddst=${_res_dst}
+        -P ${CMAKE_CURRENT_LIST_DIR}/CopyIfExists.cmake
       COMMENT "[iPlug2] Deploying resources -> ${_res_dst}"
     )
   endif()
