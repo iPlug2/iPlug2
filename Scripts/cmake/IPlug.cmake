@@ -125,6 +125,7 @@ if(NOT TARGET iPlug2::IPlug)
       -Wno-multichar
     )
     target_compile_definitions(iPlug2::IPlug INTERFACE OS_LINUX)
+    target_link_options(iPlug2::IPlug INTERFACE -static-libstdc++ -static-libgcc)
     target_link_libraries(iPlug2::IPlug INTERFACE pthread dl)
   endif()
 

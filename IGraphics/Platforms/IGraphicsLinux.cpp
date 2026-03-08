@@ -15,7 +15,8 @@
 #include <cstdlib>
 #include <cstdio>
 #include <dlfcn.h>
-#include <fontconfig/fontconfig.h>
+// Fontconfig is loaded via dlopen so the plugin works without it installed.
+// Only the font-by-name lookup (LoadPlatformFont) needs it; embedded fonts work regardless.
 
 // X11 headers first — they define macros (None, Bool, True, False, Status, Complex...)
 // that conflict with C++ identifiers. IGraphicsLinux.h undefines them.
@@ -319,6 +320,76 @@ static void GtkDrainEvents(GTK3* g)
   if (g->events_pending && g->main_iteration_do)
     while (g->events_pending())
       g->main_iteration_do(0 /* non-blocking */);
+}
+
+// ---- Runtime fontconfig (optional — loaded via dlopen so plugins work without it) ----
+
+// Fontconfig opaque types — only used through function pointers below.
+struct _FcPattern;
+struct _FcConfig;
+
+// Fontconfig constants we need (match the enum values from fontconfig.h)
+static constexpr int kFC_WEIGHT_REGULAR = 80;
+static constexpr int kFC_WEIGHT_BOLD    = 200;
+static constexpr int kFC_SLANT_ROMAN    = 0;
+static constexpr int kFC_SLANT_ITALIC   = 100;
+static constexpr int kFC_MatchPattern   = 0;   // FcMatchKind
+static constexpr int kFC_ResultMatch    = 0;   // FcResult
+
+struct Fontconfig
+{
+  void* handle = nullptr;
+
+  using fn_PatternCreate     = _FcPattern* (*)();
+  using fn_PatternAddString  = int (*)(_FcPattern*, const char*, const unsigned char*);
+  using fn_PatternAddInteger = int (*)(_FcPattern*, const char*, int);
+  using fn_ConfigSubstitute  = int (*)(_FcConfig*, _FcPattern*, int);
+  using fn_DefaultSubstitute = void (*)(_FcPattern*);
+  using fn_FontMatch         = _FcPattern* (*)(_FcConfig*, _FcPattern*, int*);
+  using fn_PatternDestroy    = void (*)(_FcPattern*);
+  using fn_PatternGetString  = int (*)(_FcPattern*, const char*, int, unsigned char**);
+
+  fn_PatternCreate     PatternCreate     = nullptr;
+  fn_PatternAddString  PatternAddString  = nullptr;
+  fn_PatternAddInteger PatternAddInteger = nullptr;
+  fn_ConfigSubstitute  ConfigSubstitute  = nullptr;
+  fn_DefaultSubstitute DefaultSubstitute = nullptr;
+  fn_FontMatch         FontMatch         = nullptr;
+  fn_PatternDestroy    PatternDestroy    = nullptr;
+  fn_PatternGetString  PatternGetString  = nullptr;
+};
+
+#define LOAD_FC_SYM(fc, name) \
+  fc.name = (Fontconfig::fn_##name)dlsym(fc.handle, "Fc" #name)
+
+static Fontconfig* LoadFontconfig()
+{
+  static Fontconfig fc;
+
+  if (fc.handle || fc.PatternCreate)
+    return fc.handle ? &fc : nullptr;
+
+  fc.handle = dlopen("libfontconfig.so.1", RTLD_NOW);
+  if (!fc.handle)
+    return nullptr;
+
+  LOAD_FC_SYM(fc, PatternCreate);
+  LOAD_FC_SYM(fc, PatternAddString);
+  LOAD_FC_SYM(fc, PatternAddInteger);
+  LOAD_FC_SYM(fc, ConfigSubstitute);
+  LOAD_FC_SYM(fc, DefaultSubstitute);
+  LOAD_FC_SYM(fc, FontMatch);
+  LOAD_FC_SYM(fc, PatternDestroy);
+  LOAD_FC_SYM(fc, PatternGetString);
+
+  if (!fc.PatternCreate || !fc.FontMatch || !fc.PatternGetString)
+  {
+    dlclose(fc.handle);
+    fc.handle = nullptr;
+    return nullptr;
+  }
+
+  return &fc;
 }
 
 IGraphicsLinux::IGraphicsLinux(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
@@ -1189,32 +1260,36 @@ PlatformFontPtr IGraphicsLinux::LoadPlatformFont(const char* fontID, const char*
 PlatformFontPtr IGraphicsLinux::LoadPlatformFont(const char* fontID, const char* fontName,
                                                  ETextStyle style)
 {
-  FcPattern* pattern = FcPatternCreate();
+  Fontconfig* fc = LoadFontconfig();
+  if (!fc)
+    return nullptr;
+
+  _FcPattern* pattern = fc->PatternCreate();
   if (!pattern)
     return nullptr;
 
-  FcPatternAddString(pattern, FC_FAMILY, (const FcChar8*)fontName);
-  FcPatternAddInteger(pattern, FC_WEIGHT,
-                      style == ETextStyle::Bold ? FC_WEIGHT_BOLD : FC_WEIGHT_REGULAR);
-  FcPatternAddInteger(pattern, FC_SLANT,
-                      style == ETextStyle::Italic ? FC_SLANT_ITALIC : FC_SLANT_ROMAN);
+  fc->PatternAddString(pattern, "family", (const unsigned char*)fontName);
+  fc->PatternAddInteger(pattern, "weight",
+                        style == ETextStyle::Bold ? kFC_WEIGHT_BOLD : kFC_WEIGHT_REGULAR);
+  fc->PatternAddInteger(pattern, "slant",
+                        style == ETextStyle::Italic ? kFC_SLANT_ITALIC : kFC_SLANT_ROMAN);
 
-  FcConfigSubstitute(nullptr, pattern, FcMatchPattern);
-  FcDefaultSubstitute(pattern);
+  fc->ConfigSubstitute(nullptr, pattern, kFC_MatchPattern);
+  fc->DefaultSubstitute(pattern);
 
-  FcResult result = FcResultNoMatch;
-  FcPattern* matched = FcFontMatch(nullptr, pattern, &result);
-  FcPatternDestroy(pattern);
+  int result = 1; // FcResultNoMatch
+  _FcPattern* matched = fc->FontMatch(nullptr, pattern, &result);
+  fc->PatternDestroy(pattern);
 
   if (!matched)
     return nullptr;
 
   PlatformFontPtr ret;
-  FcChar8* path = nullptr;
-  if (FcPatternGetString(matched, FC_FILE, 0, &path) == FcResultMatch && path)
+  unsigned char* path = nullptr;
+  if (fc->PatternGetString(matched, "file", 0, &path) == kFC_ResultMatch && path)
     ret = PlatformFontPtr(new LinuxFileFont((const char*)path, true));
 
-  FcPatternDestroy(matched);
+  fc->PatternDestroy(matched);
   return ret;
 }
 

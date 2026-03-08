@@ -80,19 +80,12 @@ if(NOT TARGET iPlug2::IGraphics)
       "-framework QuartzCore"
     )
   elseif(UNIX AND NOT APPLE)
-    find_package(PkgConfig REQUIRED)
-    pkg_check_modules(FONTCONFIG REQUIRED fontconfig)
-    pkg_check_modules(FREETYPE REQUIRED freetype2)
     find_package(X11 REQUIRED)
     find_package(OpenGL REQUIRED)
     target_include_directories(iPlug2::IGraphics INTERFACE
-      ${FONTCONFIG_INCLUDE_DIRS}
-      ${FREETYPE_INCLUDE_DIRS}
       ${X11_INCLUDE_DIR}
     )
     target_link_libraries(iPlug2::IGraphics INTERFACE
-      ${FONTCONFIG_LIBRARIES}
-      ${FREETYPE_LIBRARIES}
       ${X11_LIBRARIES}
       OpenGL::GL
       dl
