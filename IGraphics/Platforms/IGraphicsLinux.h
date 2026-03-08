@@ -154,7 +154,6 @@ private:
   Window mParentWnd = 0;
   Atom mWMDeleteMessage = 0;
   std::atomic<bool> mTimerRunning{false};
-  pthread_mutex_t mDrawMutex;
 
   float mHiddenCursorX = 0.f;
   float mHiddenCursorY = 0.f;

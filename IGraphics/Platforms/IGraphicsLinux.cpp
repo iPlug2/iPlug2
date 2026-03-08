@@ -11,6 +11,7 @@
 #include <pthread.h>
 #include <unistd.h>
 #include <sys/time.h>
+#include <mutex>
 #include <cstring>
 #include <cstdlib>
 #include <cstdio>
@@ -397,20 +398,11 @@ IGraphicsLinux::IGraphicsLinux(IGEditorDelegate& dlg, int w, int h, int fps, flo
 {
   // Required before any Xlib calls from multiple threads
   XInitThreads();
-
-  // Recursive mutex so the timer thread can call DrawResize() from
-  // ProcessX11Events() without deadlocking with its own draw-section lock.
-  pthread_mutexattr_t attr;
-  pthread_mutexattr_init(&attr);
-  pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
-  pthread_mutex_init(&mDrawMutex, &attr);
-  pthread_mutexattr_destroy(&attr);
 }
 
 IGraphicsLinux::~IGraphicsLinux()
 {
   CloseWindow();
-  pthread_mutex_destroy(&mDrawMutex);
 }
 
 static int sIgnoreX11Error(Display*, XErrorEvent*) { return 0; }
@@ -646,13 +638,8 @@ void IGraphicsLinux::PlatformResize(bool parentHasResized)
 
 void IGraphicsLinux::DrawResize()
 {
-  // DrawResize() modifies NanoVG framebuffer/font state. Serialise it with the
-  // draw section of OnDisplayTimer() using a recursive mutex. The recursive
-  // attribute lets the timer thread call DrawResize() from ProcessX11Events()
-  // (before it acquires the mutex for Draw()) without deadlocking.
-  pthread_mutex_lock(&mDrawMutex);
+  std::lock_guard<std::recursive_mutex> lock(GetDelegate()->GfxMutex());
   IGRAPHICS_DRAW_CLASS::DrawResize();
-  pthread_mutex_unlock(&mDrawMutex);
 }
 
 void IGraphicsLinux::OnBeginHostResize(int physW, int physH)
@@ -660,7 +647,6 @@ void IGraphicsLinux::OnBeginHostResize(int physW, int physH)
   mInHostResize = true;
   mHostPhysW = static_cast<unsigned>(physW);
   mHostPhysH = static_cast<unsigned>(physH);
-  pthread_mutex_lock(&mDrawMutex);
 }
 
 void IGraphicsLinux::OnEndHostResize()
@@ -676,7 +662,6 @@ void IGraphicsLinux::OnEndHostResize()
     mLastPhysH = mHostPhysH;
   }
 
-  pthread_mutex_unlock(&mDrawMutex);
   mInHostResize = false;
   mHostDidResize = true;
 }
@@ -1708,12 +1693,12 @@ void IGraphicsLinux::OnDisplayTimer()
   if (!mDisplay || !mPlugWnd)
     return;
 
-  // Hold the draw mutex for the entire timer tick so that host-thread resize
-  // operations (OnBeginHostResize/OnEndHostResize) cannot concurrently modify
-  // IGraphics state (mWidth, mHeight, control layouts, NanoVG context) while
-  // we are either processing X11 events or drawing.  The mutex is recursive so
-  // ProcessX11Events() -> Resize() -> DrawResize() can re-enter safely.
-  pthread_mutex_lock(&mDrawMutex);
+  // Hold the GfxMutex for the entire timer tick so that host-thread calls
+  // (SendParameterValueFromDelegate, CloseWindow, resize, etc.) cannot
+  // concurrently modify IGraphics state while we process events or draw.
+  // The mutex is recursive so ProcessX11Events() -> DrawResize() can
+  // re-enter safely.
+  std::lock_guard<std::recursive_mutex> lock(GetDelegate()->GfxMutex());
 
   ProcessX11Events();
 
@@ -1735,8 +1720,6 @@ void IGraphicsLinux::OnDisplayTimer()
 #endif
     DeactivateGLContext();
   }
-
-  pthread_mutex_unlock(&mDrawMutex);
 }
 
 #ifndef NO_IGRAPHICS
