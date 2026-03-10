@@ -588,12 +588,17 @@ WDL_DLGRET IPlugAPPHost::MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
       ClientResize(hwndDlg, pPlug->GetEditorWidth(), pPlug->GetEditorHeight());
       PostMessage(hwndDlg, WM_USER_OPENWINDOW, 0, 0);
 #else
+      // Resize the dialog BEFORE creating the plugin view so the parent
+      // window is at its final size when the plugin's graphics layer
+      // initializes. The IGRAPHICS_VIEW is created at a fixed size
+      // matching the plugin dimensions — if the parent is still at its
+      // template size, the view's coordinate space won't match.
+      ClientResize(hwndDlg, pPlug->GetEditorWidth(), pPlug->GetEditorHeight());
+
       if (!pAppHost->OpenWindow(gHWND))
       {
         DBGMSG("couldn't attach gui\n");
       }
-
-      ClientResize(hwndDlg, pPlug->GetEditorWidth(), pPlug->GetEditorHeight());
 
       ShowWindow(hwndDlg, SW_SHOW);
 #endif
