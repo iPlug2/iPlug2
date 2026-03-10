@@ -529,6 +529,8 @@ INT_PTR SWELLAppMain(int msg, INT_PTR parm1, INT_PTR parm2)
 #include "swell-internal.h"
 #include <alsa/asoundlib.h>
 
+#define WM_USER_OPENWINDOW (WM_USER + 1)
+
 HWND gHWND;
 HINSTANCE gHINSTANCE;
 
@@ -564,7 +566,14 @@ int main(int argc, char** argv)
   CreateDialog(gHINSTANCE, MAKEINTRESOURCE(IDD_DIALOG_MAIN), NULL, IPlugAPPHost::MainDlgProc);
 
   if (gHWND && menu)
+  {
     SetMenu(gHWND, menu);
+#ifdef OS_LINUX
+    // Now that the menu bar is attached, post WM_USER_OPENWINDOW so the
+    // event loop can process the GDK resize before ClientResize + OpenWindow.
+    PostMessage(gHWND, WM_USER_OPENWINDOW, 0, 0);
+#endif
+  }
 
   while (gHWND && !gHWND->m_hashaddestroy)
   {

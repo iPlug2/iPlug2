@@ -121,6 +121,11 @@ private:
 // ---- Runtime GTK3 (optional — loaded via dlopen so the plugin works without GTK) ----
 
 struct GdkRGBA { double red, green, blue, alpha; };
+struct GdkRectangle { int x, y, width, height; };
+
+// GdkGravity values for gtk_menu_popup_at_rect anchoring
+static constexpr int kGDK_GRAVITY_NORTH_WEST = 1;
+static constexpr int kGDK_GRAVITY_SOUTH_WEST = 7;
 
 // Opaque GTK/GDK types — only used as void* through the function pointers below.
 struct _GtkWidget;
@@ -185,12 +190,23 @@ struct GTK3
   using fn_widget_set_sensitive     = void  (*)(void*, int);
   using fn_widget_show_all          = void  (*)(void*);
   using fn_menu_popup_at_pointer    = void  (*)(void*, void*);
+  // gtk_menu_popup_at_rect: positions menu relative to a GdkWindow rectangle.
+  // args: menu, rect_window, rect(GdkRectangle*), rect_anchor, menu_anchor, trigger_event
+  using fn_menu_popup_at_rect       = void  (*)(void*, void*, const void*,
+                                                int, int, void*);
   using fn_main                     = void  (*)();
   using fn_main_quit                = void  (*)();
   // g_signal_connect is a macro over g_signal_connect_data in GObject
   using fn_signal_connect_data      = unsigned long (*)(void*, const char*,
                                                         void*, void*,
                                                         void*, int);
+  // Window management (for dialog parenting)
+  using fn_window_set_modal         = void  (*)(void*, int);
+  using fn_window_present           = void  (*)(void*);
+  // GDK helpers for popup menu positioning
+  using fn_gdk_display_get_default  = void* (*)();
+  using fn_gdk_x11_window_foreign   = void* (*)(void*, unsigned long);
+  using fn_g_object_unref           = void  (*)(void*);
   // Entry dialog
   using fn_entry_new                = void* (*)();
   using fn_entry_set_text           = void  (*)(void*, const char*);
@@ -230,6 +246,7 @@ struct GTK3
   fn_widget_set_sensitive     widget_set_sensitive     = nullptr;
   fn_widget_show_all          widget_show_all          = nullptr;
   fn_menu_popup_at_pointer    menu_popup_at_pointer    = nullptr;
+  fn_menu_popup_at_rect       menu_popup_at_rect       = nullptr;
   fn_main                     main                     = nullptr;
   fn_main_quit                main_quit                = nullptr;
   fn_signal_connect_data      signal_connect_data      = nullptr;
@@ -237,6 +254,11 @@ struct GTK3
   fn_entry_set_text           entry_set_text           = nullptr;
   fn_entry_get_text           entry_get_text           = nullptr;
   fn_entry_set_max_length     entry_set_max_length     = nullptr;
+  fn_window_set_modal         window_set_modal         = nullptr;
+  fn_window_present           window_present           = nullptr;
+  fn_gdk_display_get_default  gdk_display_get_default  = nullptr;
+  fn_gdk_x11_window_foreign   gdk_x11_window_foreign   = nullptr;
+  fn_g_object_unref           g_object_unref           = nullptr;
   fn_dialog_new_with_buttons  dialog_new_with_buttons  = nullptr;
   fn_dialog_get_content_area  dialog_get_content_area  = nullptr;
   fn_dialog_response          dialog_response          = nullptr;
@@ -286,6 +308,7 @@ static GTK3* LoadGTK3()
   LOAD_GTK_SYM(gtk, widget_set_sensitive);
   LOAD_GTK_SYM(gtk, widget_show_all);
   LOAD_GTK_SYM(gtk, menu_popup_at_pointer);
+  LOAD_GTK_SYM(gtk, menu_popup_at_rect);
   LOAD_GTK_SYM(gtk, main);
   LOAD_GTK_SYM(gtk, main_quit);
   // g_signal_connect_data is in libgobject, but GTK re-exports it
@@ -294,6 +317,15 @@ static GTK3* LoadGTK3()
   LOAD_GTK_SYM(gtk, entry_set_text);
   LOAD_GTK_SYM(gtk, entry_get_text);
   LOAD_GTK_SYM(gtk, entry_set_max_length);
+  LOAD_GTK_SYM(gtk, window_set_modal);
+  LOAD_GTK_SYM(gtk, window_present);
+  // GDK/GLib symbols (not gtk_ prefixed — load directly)
+  gtk.gdk_display_get_default = (GTK3::fn_gdk_display_get_default)
+    dlsym(gtk.handle, "gdk_display_get_default");
+  gtk.gdk_x11_window_foreign = (GTK3::fn_gdk_x11_window_foreign)
+    dlsym(gtk.handle, "gdk_x11_window_foreign_new_for_display");
+  gtk.g_object_unref = (GTK3::fn_g_object_unref)
+    dlsym(gtk.handle, "g_object_unref");
   LOAD_GTK_SYM(gtk, dialog_new_with_buttons);
   LOAD_GTK_SYM(gtk, dialog_get_content_area);
   LOAD_GTK_SYM(gtk, dialog_response);
@@ -321,6 +353,17 @@ static void GtkDrainEvents(GTK3* g)
   if (g->events_pending && g->main_iteration_do)
     while (g->events_pending())
       g->main_iteration_do(0 /* non-blocking */);
+}
+
+// Present a GTK dialog as modal so the WM grants it focus and input grabs.
+// Without this, file-chooser dropdowns and color-picker sub-dialogs fail
+// on compositing WMs (Mutter, KWin) because GTK can't acquire a GDK grab.
+static void GtkPresentDialog(GTK3* g, void* dialog)
+{
+  if (g->window_set_modal)
+    g->window_set_modal(dialog, 1);
+  if (g->window_present)
+    g->window_present(dialog);
 }
 
 // ---- Runtime fontconfig (optional — loaded via dlopen so plugins work without it) ----
@@ -448,6 +491,18 @@ void* IGraphicsLinux::OpenWindow(void* pParent)
     // and mVG==nullptr so DrawResize skips.
   }
 
+  // In standalone mode the parent window is SWELL's GDK window which includes
+  // the non-client area (menu bar). IPlugAPP_host exports the menu bar height
+  // so we can offset the plugin window below it. Querying XGetWindowAttributes
+  // on a separate Display connection returns stale geometry, so we use the env
+  // var set by the host instead.
+  int clientOffY = 0;
+  {
+    const char* menuOff = getenv("IPLUG2_MENU_OFFSET");
+    if (menuOff)
+      clientOffY = std::clamp(atoi(menuOff), 0, 100);
+  }
+
 #ifdef IGRAPHICS_GL
   XVisualInfo* vi = CreateGLContext();
   if (!mGLContext)
@@ -473,7 +528,7 @@ void* IGraphicsLinux::OpenWindow(void* pParent)
 
   mPlugWnd = XCreateWindow(
     mDisplay, mParentWnd,
-    0, 0, physW, physH,
+    0, clientOffY, physW, physH,
     0, vi->depth, InputOutput, vi->visual,
     CWColormap | CWEventMask, &attrs
   );
@@ -493,7 +548,7 @@ void* IGraphicsLinux::OpenWindow(void* pParent)
 
   mPlugWnd = XCreateWindow(
     mDisplay, mParentWnd,
-    0, 0, physW, physH,
+    0, clientOffY, physW, physH,
     0, CopyFromParent, InputOutput, CopyFromParent,
     CWEventMask | CWBackPixel, &attrs
   );
@@ -787,6 +842,7 @@ EMsgBoxResult IGraphicsLinux::ShowMessageBox(const char* str, const char* title,
   void* dialog = g->message_dialog_new(nullptr, 0, gtkMsgType, gtkBtnType, "%s", str);
   if (title && g->window_set_title)
     g->window_set_title(dialog, title);
+  GtkPresentDialog(g, dialog);
 
   int resp = g->dialog_run(dialog);
   g->widget_destroy(dialog);
@@ -873,6 +929,7 @@ void IGraphicsLinux::PromptForFile(WDL_String& fileName, WDL_String& path,
   // For save dialogs, suggest filename
   if (isSave && fileName.GetLength() && g->file_chooser_set_current_name)
     g->file_chooser_set_current_name(dialog, fileName.Get());
+  GtkPresentDialog(g, dialog);
 
   WDL_String outFile, outPath;
   if (g->dialog_run(dialog) == kGTK_RESPONSE_OK)
@@ -915,6 +972,7 @@ void IGraphicsLinux::PromptForDirectory(WDL_String& dir,
 
   if (dir.GetLength() && g->file_chooser_set_current_folder)
     g->file_chooser_set_current_folder(dialog, dir.Get());
+  GtkPresentDialog(g, dialog);
 
   WDL_String outDir;
   if (g->dialog_run(dialog) == kGTK_RESPONSE_OK)
@@ -949,6 +1007,7 @@ bool IGraphicsLinux::PromptForColor(IColor& color, const char* str,
                      color.B / 255.0, color.A / 255.0 };
     g->color_chooser_set_rgba(dialog, &rgba);
   }
+  GtkPresentDialog(g, dialog);
 
   const bool accepted = (g->dialog_run(dialog) == kGTK_RESPONSE_OK);
 
@@ -1145,8 +1204,44 @@ IPopupMenu* IGraphicsLinux::CreatePlatformPopupMenu(IPopupMenu& menu, const IREC
                            (void*)deactivateCb, nullptr, nullptr, 0);
   }
 
-  // Pop up the menu at the current pointer position.
-  if (g->menu_popup_at_pointer)
+  // Position the popup menu anchored to the control's bounding rectangle.
+  // gtk_menu_popup_at_rect is the non-deprecated GTK3 API (since 3.22).
+  // It needs a GdkWindow — we create a "foreign" wrapper around mPlugWnd.
+  // Falls back to gtk_menu_popup_at_pointer(NULL) on older GTK or if the
+  // foreign window can't be created (e.g. Wayland without X11 backend).
+  bool popped = false;
+
+  if (g->menu_popup_at_rect && g->gdk_display_get_default
+      && g->gdk_x11_window_foreign && mPlugWnd)
+  {
+    void* gdkDisplay = g->gdk_display_get_default();
+    if (gdkDisplay)
+    {
+      void* gdkWindow = g->gdk_x11_window_foreign(
+        gdkDisplay, static_cast<unsigned long>(mPlugWnd));
+
+      if (gdkWindow)
+      {
+        float s = GetScreenScale();
+        GdkRectangle rect;
+        rect.x      = static_cast<int>(bounds.L * s);
+        rect.y      = static_cast<int>(bounds.B * s);
+        rect.width  = static_cast<int>(bounds.W() * s);
+        rect.height = 1;
+
+        g->menu_popup_at_rect(gtkMenu, gdkWindow, &rect,
+                              kGDK_GRAVITY_NORTH_WEST,
+                              kGDK_GRAVITY_NORTH_WEST,
+                              nullptr);
+        popped = true;
+
+        if (g->g_object_unref)
+          g->g_object_unref(gdkWindow);
+      }
+    }
+  }
+
+  if (!popped && g->menu_popup_at_pointer)
     g->menu_popup_at_pointer(gtkMenu, nullptr);
 
   // Run a nested GTK main loop — blocks until the menu closes.
@@ -1214,6 +1309,7 @@ void IGraphicsLinux::CreatePlatformTextEntry(int paramIdx, const IText& text,
 
   if (g->widget_show_all)
     g->widget_show_all(dialog);
+  GtkPresentDialog(g, dialog);
 
   int response = g->dialog_run(dialog);
 
