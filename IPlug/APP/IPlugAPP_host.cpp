@@ -96,9 +96,24 @@ bool IPlugAPPHost::OpenWindow(HWND pParent)
       int scale = gdk_window_get_scale_factor(gdkWnd);
       if (scale > 1)
       {
-        char buf[8];
+        char buf[16];
         snprintf(buf, sizeof(buf), "%d", scale);
         setenv("IPLUG2_SCREEN_SCALE", buf, 1 /* overwrite */);
+      }
+
+      // If the dialog has a menu bar, export its height so IGraphicsLinux
+      // can offset the plugin window below it. The GDK window includes the
+      // non-client area but XGetWindowAttributes may return stale geometry
+      // on a separate Display connection, so we pass the value explicitly.
+      if (GetMenu(pParent))
+      {
+        int menuH = GetSystemMetrics(SM_CYMENU);
+        if (menuH > 0)
+        {
+          char buf[16];
+          snprintf(buf, sizeof(buf), "%d", menuH);
+          setenv("IPLUG2_MENU_OFFSET", buf, 1 /* overwrite */);
+        }
       }
     }
   }

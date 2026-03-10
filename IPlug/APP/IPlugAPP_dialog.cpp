@@ -579,14 +579,11 @@ WDL_DLGRET IPlugAPPHost::MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
       IPlugAPP* pPlug = pAppHost->GetPlug();
 
 #ifdef OS_LINUX
-      // On Linux, show and resize the dialog first so the GTK/X11 window reaches
-      // its final size. Then defer OpenWindow via PostMessage so the SWELL main loop
-      // processes the resulting WM_SIZE/ConfigureNotify events before the plugin
-      // child window is created — otherwise Mutter constrains the child to the
-      // dialog's initial (template) size.
+      // On Linux, show the dialog but don't resize or open the window yet.
+      // main() calls SetMenu first, then posts WM_USER_OPENWINDOW which
+      // triggers ClientResize + OpenWindow so the SWELL layout includes
+      // the menu bar before the plugin window is created.
       ShowWindow(hwndDlg, SW_SHOW);
-      ClientResize(hwndDlg, pPlug->GetEditorWidth(), pPlug->GetEditorHeight());
-      PostMessage(hwndDlg, WM_USER_OPENWINDOW, 0, 0);
 #else
       // Resize the dialog BEFORE creating the plugin view so the parent
       // window is at its final size when the plugin's graphics layer
@@ -614,14 +611,28 @@ WDL_DLGRET IPlugAPPHost::MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
 #ifdef OS_LINUX
     case WM_USER_OPENWINDOW:
     {
-      if (!pAppHost->OpenWindow(gHWND))
-        DBGMSG("couldn't attach gui\n");
-      sPlugWindowOpen = true;
+      // Posted from main() after SetMenu. Use a short timer to let the
+      // GDK event loop process the SetMenu resize before we size and
+      // open the plugin window.
+      SetTimer(hwndDlg, 0xF00D, 50, nullptr);
       return 0;
     }
 #endif
     case WM_TIMER:
     {
+#ifdef OS_LINUX
+      if (wParam == 0xF00D)
+      {
+        KillTimer(hwndDlg, 0xF00D);
+        IPlugAPP* pPlug2 = pAppHost->GetPlug();
+        ClientResize(hwndDlg, pPlug2->GetEditorWidth(),
+                     pPlug2->GetEditorHeight());
+        if (!pAppHost->OpenWindow(gHWND))
+          DBGMSG("couldn't attach gui\n");
+        sPlugWindowOpen = true;
+        return 0;
+      }
+#endif
       if (wParam == IDT_SCREENSHOT_TIMER)
       {
         KillTimer(hwndDlg, IDT_SCREENSHOT_TIMER);
