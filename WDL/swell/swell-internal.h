@@ -680,6 +680,7 @@ struct HGDIOBJ__
  
   // if using CoreText to draw text
   void *ct_FontRef;
+  float ct_realInternalLeading, ct_realAscender, ct_realDescender; // we calculate these once, CTFontGet*() are not reliable
 };
 
 struct HDC__ {
