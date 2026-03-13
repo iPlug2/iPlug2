@@ -7468,7 +7468,7 @@ LRESULT DefWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         if (dc)
         {
           if (!menubar_font) 
-            menubar_font = CreateFont(g_swell_ctheme.menubar_font_size,0,0,0,FW_NORMAL,0,0,0,0,0,0,0,0,g_swell_deffont_face);
+            menubar_font = CreateFont(-wdl_abs(g_swell_ctheme.menubar_font_size),0,0,0,FW_NORMAL,0,0,0,0,0,0,0,0,g_swell_deffont_face);
 
           RECT r;
           GetWindowContentViewRect(hwnd,&r);

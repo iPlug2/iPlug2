@@ -930,7 +930,7 @@ HFONT SWELL_GetDefaultFont()
   static HFONT def;
   if (!def)
   {
-    def = CreateFont(g_swell_ctheme.default_font_size,0,0,0,FW_NORMAL,0,0,0,0,0,0,0,0,g_swell_deffont_face);
+    def = CreateFont(-wdl_abs(g_swell_ctheme.default_font_size),0,0,0,FW_NORMAL,0,0,0,0,0,0,0,0,g_swell_deffont_face);
   }
   return def;
 }
