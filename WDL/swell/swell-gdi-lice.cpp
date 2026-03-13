@@ -65,7 +65,7 @@ class fontConfigCacheEnt
       m_flags = flags;
       m_face = face;
       m_w=w;
-      m_h=h;
+      m_logh=h;
       m_fndesc = strdup(fndesc);
       FT_Reference_Face(m_face);
     }
@@ -78,7 +78,8 @@ class fontConfigCacheEnt
 
     char *m_name;
     char *m_fndesc;
-    int m_flags, m_w, m_h;
+    int m_flags, m_w;
+    int m_logh; // can be negative
     FT_Face m_face;
 };
 
@@ -416,7 +417,6 @@ HFONT CreateFont(int lfHeight, int lfWidth, int lfEscapement, int lfOrientation,
     }
   }
   if (lfWidth<0) lfWidth=-lfWidth;
-  if (lfHeight<0) lfHeight=-lfHeight;
 
   static WDL_PtrList<fontConfigCacheEnt> cache;
   const int cache_flag = wdl_max(lfWeight,0) | (lfItalic ? (1<<30) : 0);
@@ -424,9 +424,9 @@ HFONT CreateFont(int lfHeight, int lfWidth, int lfEscapement, int lfOrientation,
   for (int x=0;x<cache.GetSize();x++)
   {
     fontConfigCacheEnt *ent = cache.Get(x);
-    if (ent->m_flags==cache_flag && 
-        ent->m_w == lfWidth && 
-        ent->m_h == lfHeight && 
+    if (ent->m_flags==cache_flag &&
+        ent->m_w == lfWidth &&
+        ent->m_logh == lfHeight &&
         !strcmp(ent->m_name,lfFaceName?lfFaceName:""))
     {
       face = ent->m_face;
@@ -547,7 +547,14 @@ HFONT CreateFont(int lfHeight, int lfWidth, int lfEscapement, int lfOrientation,
       if (cache.GetSize()>SWELL_FREETYPE_CACHE_SIZE) cache.Delete(0,true);
       swell_last_font_filename = ce->m_fndesc;
 
-      FT_Set_Char_Size(face,lfWidth*64, lfHeight*64,0,0); // 72dpi
+      int hf64;
+      if (lfHeight > 0)
+        // scale point size so that the height fit in this many pixels
+        hf64 = (int) (lfHeight * (double)face->units_per_EM / (double)(face->height) * 64.0 + 0.5);
+      else
+        hf64 = -lfHeight * 64;
+
+      FT_Set_Char_Size(face,lfWidth*64, hf64,0,0);
     }
   }
   font->typedata = face;
