@@ -982,7 +982,7 @@ int DrawText(HDC ctx, const char *buf, int buflen, RECT *r, int align)
   {
     face=(FT_Face)font->typedata;
     lineh = face->size->metrics.height/64;
-    ascent = face->size->metrics.ascender/64;
+    ascent = (face->size->metrics.height + face->size->metrics.descender)/64 + 1 /* match windows */;
     descent = face->size->metrics.descender/64;
     charw = face->size->metrics.height / 112;
   }
