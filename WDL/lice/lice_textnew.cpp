@@ -822,11 +822,7 @@ int LICE_CachedFont::DrawTextImpl(LICE_IBitmap *bm, const char *str, int strcnt,
 
   if (dtFlags&DT_SINGLELINE) dtFlags &= ~DT_WORDBREAK;
 
-#ifndef _WIN32
-  const int lsadj = m_lsadj+3;
-#else
   const int lsadj = m_lsadj;
-#endif
 
   // if using line-spacing adjustments (m_lsadj), don't allow native rendering 
   // todo: split rendering up into invidual lines and DrawText calls
