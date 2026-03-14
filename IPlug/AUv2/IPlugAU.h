@@ -167,6 +167,7 @@ private:
   static OSStatus AUMethodRender(void* pSelf, AudioUnitRenderActionFlags* pIOActionFlags, const AudioTimeStamp* pInTimeStamp, UInt32 inOutputBusNumber, UInt32 inNumberFrames, AudioBufferList* pIOData);
   static OSStatus AUMethodReset(void* pSelf, AudioUnitScope scope, AudioUnitElement elem);
   static OSStatus AUMethodMIDIEvent(void* pSelf, UInt32 inStatus, UInt32 inData1, UInt32 inData2, UInt32 inOffsetSampleFrame);
+  static OSStatus AUMethodMIDIEventList(void* pSelf, UInt32 inOffsetSampleFrame, const MIDIEventList* inEventList);
   static OSStatus AUMethodSysEx(void* pSelf, const UInt8* pInData, UInt32 inLength);
   
 #pragma mark - Implementation Methods
@@ -273,6 +274,7 @@ public:
       case kAudioUnitResetSelect:                   return (Method)IPlugAU::AUMethodReset;
 
       case kMusicDeviceMIDIEventSelect:             return MIDIIn ? (Method)IPlugAU::AUMethodMIDIEvent : NULL;
+      case kMusicDeviceMIDIEventListSelect:         return MIDIIn ? (Method)IPlugAU::AUMethodMIDIEventList : NULL;
       case kMusicDeviceSysExSelect:                 return MIDIIn ? (Method)IPlugAU::AUMethodSysEx : NULL;
 
       default:
