@@ -1158,10 +1158,10 @@ int DrawText(HDC ctx, const char *buf, int buflen, RECT *r, int align)
             if (curfont_valid)
             {
               asc = ct->curfont->ct_realAscender - 1.0;
-              desc = ct->curfont->ct_realDescender;
+              desc = ct->curfont->ct_realDescender + 1.0;
               lead = 0.0;
             }
-            int h =(int) floor(asc+desc+lead+1.5);
+            int h =(int) floor(asc+desc+lead+0.5);
             line_h+=h;
             if (line_w < w) line_w=w;
           }
@@ -1179,7 +1179,7 @@ int DrawText(HDC ctx, const char *buf, int buflen, RECT *r, int align)
         if (curfont_valid)
         {
           asc = ct->curfont->ct_realAscender - 1.0;
-          desc = ct->curfont->ct_realDescender;
+          desc = ct->curfont->ct_realDescender + 1.0;
           lead = 0.0;
         }
         line_h =(int) floor(asc+desc+lead+.5);
