@@ -36,6 +36,7 @@
 #define IDC_PACK_EXPORT_CURVIEW2_LOCALIZED 1026
 #define IDC_PACK_IMPORT_CURVIEW2         1027
 #define IDC_PACK_EXPORT_CURVIEW_BOTH     1028
+#define IDC_PACK_IMPORT_CURVIEW_BOTH     1029
 #define ID_COL_STATE                    2000
 #define ID_COL_ID                       2001
 #define ID_COL_TEMPLATE                 2003

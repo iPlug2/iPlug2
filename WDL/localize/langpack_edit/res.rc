@@ -136,11 +136,12 @@ BEGIN
             MENUITEM "Export template lines for current view as text", IDC_PACK_EXPORT_CURVIEW_TEMPLATE
             MENUITEM "Export localized lines for current view as text", IDC_PACK_EXPORT_CURVIEW_LOCALIZED
             MENUITEM "Import localized lines to current view from text", IDC_PACK_IMPORT_CURVIEW
-            MENUITEM "Export template and localized lines for current view as text", IDC_PACK_EXPORT_CURVIEW_BOTH
             MENUITEM SEPARATOR
             MENUITEM "Export template lines for current view as text (section|text format)", IDC_PACK_EXPORT_CURVIEW2_TEMPLATE
             MENUITEM "Export localized lines for current view as text (section|text format)", IDC_PACK_EXPORT_CURVIEW2_LOCALIZED
+            MENUITEM "Export template and localized lines for current view (template + localized line pairs)", IDC_PACK_EXPORT_CURVIEW_BOTH
             MENUITEM "Import localized lines to current view from text (section|text format)", IDC_PACK_IMPORT_CURVIEW2
+            MENUITEM "Import template and localized lines to current view from text (template + localized line pairs)", IDC_PACK_IMPORT_CURVIEW_BOTH
         END
         MENUITEM SEPARATOR
         MENUITEM "&Quit\tCtrl+Q",               ID_QUIT
@@ -206,8 +207,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 0,0,0,24
- PRODUCTVERSION 0,0,0,24
+ FILEVERSION 0,0,0,25
+ PRODUCTVERSION 0,0,0,25
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -225,14 +226,14 @@ BEGIN
             VALUE "Comments", "\0"
             VALUE "CompanyName", "Cockos Inc\0"
             VALUE "FileDescription", "LangPackEdit\0"
-            VALUE "FileVersion", "0, 0, 0, 24\0"
+            VALUE "FileVersion", "0, 0, 0, 25\0"
             VALUE "InternalName", "LangPackEdit\0"
             VALUE "LegalCopyright", "Copyright � 2022 and onwards Cockos Inc\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "LangPackEdit.exe\0"
             VALUE "PrivateBuild", "\0"
             VALUE "ProductName", "LangPackEdit\0"
-            VALUE "ProductVersion", "0, 0, 0, 24\0"
+            VALUE "ProductVersion", "0, 0, 0, 25\0"
             VALUE "SpecialBuild", "\0"
         END
     END
