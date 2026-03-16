@@ -693,8 +693,10 @@ static NSString *SWELL_GetCachedFontName(const char *nm)
 #ifndef SWELL_NO_CORETEXT
 // CTFontGetLeading(), CTFontGetAscent(), CTFontGetDescent() et al are all full of lies.
 // returns internal leading
-static double GetCTFontRealMetrics(CTFontRef font, double pointSize, float *ascentOut, float *descentOut)
+// font can be NSFont* or CTFontRef
+double SWELL_GetCTFontRealMetrics(const void *ptrfont, double pointSize, float *ascentOut, float *descentOut)
 {
+  CTFontRef font = (CTFontRef)ptrfont;
   const unsigned int unitsPerEm = CTFontGetUnitsPerEm(font);
   if (WDL_NORMALLY(unitsPerEm > 0))
   {
@@ -775,7 +777,7 @@ HFONT CreateFont(int lfHeight, int lfWidth, int lfEscapement, int lfOrientation,
       if (temp)
       {
         float asc,desc;
-        GetCTFontRealMetrics(temp,fontwid,&asc,&desc);
+        SWELL_GetCTFontRealMetrics(temp,fontwid,&asc,&desc);
         fontwid *= fontwid / (asc+desc);
         CFRelease(temp);
       }
@@ -786,7 +788,7 @@ HFONT CreateFont(int lfHeight, int lfWidth, int lfEscapement, int lfOrientation,
 
     font->ct_FontRef = (void*)newf;
     if (newf)
-      font->ct_realInternalLeading = (float) GetCTFontRealMetrics(newf, fontwid, &font->ct_realAscender, &font->ct_realDescender);
+      font->ct_realInternalLeading = (float) SWELL_GetCTFontRealMetrics(newf, fontwid, &font->ct_realAscender, &font->ct_realDescender);
 
     return font;
   }
