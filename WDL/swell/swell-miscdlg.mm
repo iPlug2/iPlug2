@@ -719,6 +719,22 @@ bool SWELL_ChooseFont(HWND unused, LOGFONT *lf)
   NSString *lbl=(NSString *)SWELL_CStringToCFString(buf);
   NSFont *tmpfont = [NSFont fontWithName:lbl size:sz];
   if (!tmpfont) tmpfont = [NSFont systemFontOfSize:sz];
+
+  if (lf->lfHeight > 0 && tmpfont)
+  {
+    // convert to total size
+  #ifndef SWELL_NO_CORETEXT
+    double SWELL_GetCTFontRealMetrics(const void *ptrfont, double pointSize, float *ascentOut, float *descentOut);
+
+    float asc,desc;
+    SWELL_GetCTFontRealMetrics(tmpfont,sz,&asc,&desc);
+    const double sc = sz / (asc+desc);
+
+    tmpfont = [NSFont fontWithName:lbl size:sz*sc];
+    if (!tmpfont) tmpfont = [NSFont systemFontOfSize:sz*sc];
+  #endif
+  }
+
   [lbl release];
 
   [pan setPanelFont:tmpfont isMultiple:NO];
@@ -747,7 +763,7 @@ bool SWELL_ChooseFont(HWND unused, LOGFONT *lf)
   if (!hadOK) return false;
 
   NSFont *newfont = [pan panelConvertFont:tmpfont];
-  int newsz =  (int) ([newfont pointSize]+0.5);
+  int newsz = - (int) ([newfont pointSize]+0.5);
   LOGFONT oldf=*lf;
   if (newsz != sz)
   {
