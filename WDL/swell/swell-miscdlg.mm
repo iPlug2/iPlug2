@@ -635,7 +635,7 @@ static void okcancel_create(HWND hwnd, int f)
 {
   SWELL_MakeSetCurParms(1.7,1.7,0,0,hwnd,false,false);
   SWELL_MakeButton(1,"OK",IDOK,48,2,44,14,0);
-  SWELL_MakeButton(1,"Cancel",IDCANCEL,2,2,44,14,0);
+  SWELL_MakeButton(0,"Cancel",IDCANCEL,2,2,44,14,0);
   SWELL_MakeSetCurParms(1.7,1.7,0,0,NULL,false,false);
 }
 static HWND makeOKcancel(HWND par)
