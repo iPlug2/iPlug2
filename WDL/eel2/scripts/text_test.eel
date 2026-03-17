@@ -1,0 +1,102 @@
+sc = 24;
+
+function checkerboard(w,h) local(c)
+(
+  loop(gfx_y=0;h,
+    loop(gfx_x=0;w,
+      c=((gfx_y~gfx_x)&1)?.05:.1;
+      gfx_setpixel(c,c,c);
+      gfx_x+=1;
+    );
+    gfx_y+=1;
+  );
+);
+
+function run() (
+  gfx_setfont(1,fontname,fontsz,0);
+
+  th = gfx_texth;
+  img = 1;
+  img_w=(gfx_w/sc)|0;
+  img_h=(gfx_h/sc)|0;
+  gfx_setimgdim(img,img_w,img_h);
+  gfx_dest=img;
+  checkerboard(img_w,img_h);
+  gfx_x=gfx_y=1;
+  gfx_set(1);
+  gfx_getfont(#s, ascent, descent, lead);
+
+  str=sprintf(#,"Ĥj%s",#s);
+  gfx_measurestr(str,mw,mh);
+  gfx_drawstr(str,align,img_w,bottom);
+  
+  gfx_mode=4;
+  gfx_dest=-1;
+  gfx_blit(img,1,0,0,0,img_w,img_h,0,0,img_w*sc,img_h*sc);
+  gfx_set(0.5,0.3,0);
+  gfx_line(sc,sc,gfx_w,sc);
+  gfx_line(sc,sc,sc,gfx_h);
+  gfx_setfont(2,"Arial",sc*.5);
+  gfx_set(1);
+  loop(y=1;img_h,
+    gfx_x = 0;
+    gfx_y = y*sc;
+    gfx_drawstr(sprintf(#,"%d",y),1|4,sc,gfx_y+sc);
+    y+= 1;
+  );
+  loop(x=1;img_w,
+    gfx_x = x*sc;
+    gfx_y = 0;
+    gfx_drawstr(sprintf(#,"%d",x),1|4,gfx_x+sc,sc);
+    x+= 1;
+  );
+
+  gfx_set(0.3,0.4,0.5);
+  gfx_y = (1+lead) * sc;
+  gfx_line(sc,gfx_y,gfx_w,gfx_y);
+  gfx_y += 1; gfx_x = 0; gfx_drawstr("LEADING",2,gfx_w,gfx_h);
+
+  gfx_set(0.7,0.4,0.5);
+  gfx_y = (1+ascent) * sc;
+  gfx_line(sc,gfx_y,gfx_w,gfx_y);
+  gfx_y += 1; gfx_x = 0; gfx_drawstr("BASELINE",2,gfx_w,gfx_h);
+
+  gfx_set(0.3,0.4,0.5);
+  gfx_y = (1+ascent+descent) * sc;
+  gfx_line(sc,gfx_y,gfx_w,gfx_y);
+  gfx_y += 1; gfx_x = 0; gfx_drawstr("DESCENDER",2,gfx_w,gfx_h);
+
+  gfx_set(.5);
+  gfx_y = (1+mh) * sc;
+  gfx_line(sc,gfx_y,gfx_w,gfx_y);
+  gfx_y += 1; gfx_x = sc*2; gfx_drawstr("MEASURED HEIGHT",0,gfx_w,gfx_h);
+
+  gfx_set(.5);
+  gfx_y = (1+th) * sc;
+  gfx_line(sc,gfx_y,gfx_w,gfx_y);
+  gfx_y += 1; gfx_x = sc*2; gfx_drawstr("HEIGHT",1,gfx_w,gfx_h);
+
+  gfx_set(0.5,0.12,0);
+  gfx_y = (1+bottom) * sc;
+  gfx_line(sc,gfx_y,gfx_w,gfx_y);
+  
+  gfx_x = sc * 2;
+  gfx_y = gfx_h - sc;
+  gfx_set(1);
+  gfx_drawstr(sprintf(#,"sz=%d req=%s",fontsz,fontname));
+);
+
+argc < 3 ? (
+  printf("usage: %s fontname size [c|b]\n",argv[0]);
+) : (
+  fontname = argv[1];
+  match("%d",argv[2],fontsz);
+  align = argc > 3 ? !strcmp(argv[3],"c") ? 4 : !strcmp(argv[3],"b") ? 8 : 0;
+  bottom = align ? abs(fontsz)+12 : 9999;
+
+  gfx_init("font test",1200,800);
+  while ((c=gfx_getchar())>=0 && c != 27) (
+    run();
+    gfx_update();
+  );
+);
