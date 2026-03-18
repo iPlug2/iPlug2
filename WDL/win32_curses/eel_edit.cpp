@@ -58,6 +58,7 @@ int EEL_Editor::namedTokenHighlight(const char *tokStart, int len, int state)
 
   if (len == 17 && !strnicmp(tokStart,"__denormal_likely",17)) return SYNTAX_FUNC;
   if (len == 19 && !strnicmp(tokStart,"__denormal_unlikely",19)) return SYNTAX_FUNC;
+  if (len == 3 && !strnicmp(tokStart,"pow",3)) return SYNTAX_FUNC;
 
   char buf[512];
   lstrcpyn_safe(buf,tokStart,wdl_min(sizeof(buf),len+1));
@@ -1291,6 +1292,14 @@ int EEL_Editor::peek_get_token_info(const char *name, char *sstr, size_t sstr_sz
     peek_lock();
     NSEEL_VMCTX vm = peek_want_VM_funcs() ? peek_get_VM("") : NULL;
     functionType *f = (chkmask&KEYWORD_MASK_BUILTIN_FUNC) ? nseel_getFunctionByName((compileContext*)vm,name,NULL) : NULL;
+    functionType tmp;
+    if (!f && (chkmask&KEYWORD_MASK_BUILTIN_FUNC) && !stricmp(name,"pow"))
+    {
+      memset(&tmp,0,sizeof(tmp));
+      tmp.name = "pow";
+      tmp.nParams = 2;
+      f = &tmp;
+    }
     double v;
     if (f)
     {
