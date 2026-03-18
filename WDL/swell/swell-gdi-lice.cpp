@@ -887,7 +887,7 @@ void SWELL_LineTo(HDC ctx, int x, int y)
  
 }
 
-void PolyPolyline(HDC ctx, POINT *pts, DWORD *cnts, int nseg)
+void PolyPolyline(HDC ctx, const POINT *pts, const DWORD *cnts, int nseg)
 {
   HDC__ *c=(HDC__ *)ctx;
   if (!HDC_VALID(c)||!HGDIOBJ_VALID(c->curpen,TYPE_PEN)||c->curpen->wid<0||nseg<1) return;
@@ -898,16 +898,15 @@ void PolyPolyline(HDC ctx, POINT *pts, DWORD *cnts, int nseg)
     if (!cnt) continue;
     if (!--cnt) { pts++; continue; }
     
- //   CGContextMoveToPoint(c->ctx,(float)pts->x,(float)pts->y);
+    // todo
     pts++;
     
     while (cnt--)
     {
-//      CGContextAddLineToPoint(c->ctx,(float)pts->x,(float)pts->y);
+      // todo
       pts++;
     }
   }
-//  CGContextStrokePath(c->ctx);
 }
 void *SWELL_GetCtxGC(HDC ctx)
 {
