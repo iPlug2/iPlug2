@@ -884,7 +884,7 @@ SWELL_API_DEFINE(void, SWELL_PopClipRegion,(HDC ctx))
 
 
 
-SWELL_API_DEFINE(HFONT, CreateFontIndirect,(LOGFONT *))
+SWELL_API_DEFINE(HFONT, CreateFontIndirect,(const LOGFONT *))
 SWELL_API_DEFINE(HFONT, CreateFont,(int lfHeight, int lfWidth, int lfEscapement, int lfOrientation, int lfWeight, char lfItalic, 
   char lfUnderline, char lfStrikeOut, char lfCharSet, char lfOutPrecision, char lfClipPrecision, 
          char lfQuality, char lfPitchAndFamily, const char *lfFaceName))
@@ -945,7 +945,7 @@ SWELL_API_DEFINE(int, GetTextFace,(HDC ctx, int nCount, LPTSTR lpFaceName))
 SWELL_API_DEFINE(void *, GetNSImageFromHICON,(HICON))
 #endif
 SWELL_API_DEFINE(BOOL, GetObject, (HICON icon, int bmsz, void *_bm))
-SWELL_API_DEFINE(HICON, CreateIconIndirect, (ICONINFO* iconinfo))
+SWELL_API_DEFINE(HICON, CreateIconIndirect, (const ICONINFO* iconinfo))
 SWELL_API_DEFINE(HICON, LoadNamedImage,(const char *name, bool alphaFromMask))
 SWELL_API_DEFINE(void, DrawImageInRect,(HDC ctx, HICON img, const RECT *r))
 SWELL_API_DEFINE(void, BitBlt,(HDC hdcOut, int x, int y, int w, int h, HDC hdcIn, int xin, int yin, int mode))

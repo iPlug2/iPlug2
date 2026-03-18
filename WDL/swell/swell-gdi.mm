@@ -279,7 +279,7 @@ HBRUSH  CreateSolidBrushAlpha(int col, float alpha)
 }
 
 
-HFONT CreateFontIndirect(LOGFONT *lf)
+HFONT CreateFontIndirect(const LOGFONT *lf)
 {
   return CreateFont(lf->lfHeight, lf->lfWidth,lf->lfEscapement, lf->lfOrientation, lf->lfWeight, lf->lfItalic, 
                     lf->lfUnderline, lf->lfStrikeOut, lf->lfCharSet, lf->lfOutPrecision,lf->lfClipPrecision, 
@@ -1378,7 +1378,7 @@ void SetTextColor(HDC ctx, int col)
 }
 
 
-HICON CreateIconIndirect(ICONINFO* iconinfo)
+HICON CreateIconIndirect(const ICONINFO* iconinfo)
 {
   if (WDL_NOT_NORMALLY(!iconinfo || !iconinfo->fIcon)) return 0;  
   HGDIOBJ__* i=iconinfo->hbmColor;
