@@ -654,7 +654,7 @@ void WDL_VirtualComboBox::OnPaint(LICE_IBitmap *drawbm, int origin_x, int origin
     {
       RECT tr=r;
       tr.left+=3;
-      tr.right-=16;
+      tr.right-=(r.bottom-r.top)-2;
       m_font->SetTextColor(tcol);
       if (m_align == 0)
       {
