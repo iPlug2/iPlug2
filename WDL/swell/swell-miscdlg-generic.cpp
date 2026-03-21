@@ -1872,7 +1872,8 @@ static LRESULT WINAPI swellFontChooserProc(HWND hwnd, UINT uMsg, WPARAM wParam, 
         SendDlgItemMessage(hwnd,IDC_LIST,LB_GETTEXT,di->itemID,(WPARAM)buf);
         if (buf[0])
         {
-          HFONT font = CreateFont(-g_swell_ctheme.default_font_size, 0, 0, 0, cs->font.lfWeight, cs->font.lfItalic,
+          HFONT font = CreateFont(-wdl_abs(g_swell_ctheme.default_font_size), 0, 0, 0,
+              cs->font.lfWeight, cs->font.lfItalic,
               FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH, buf);
 
           HGDIOBJ oldFont = SelectObject(di->hDC,font);
