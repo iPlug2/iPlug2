@@ -43,7 +43,7 @@ if(NOT TARGET iPlug2::IGraphics)
       ${IGRAPHICS_DIR}/Platforms/IGraphicsCoreText.mm
     )
   elseif(UNIX AND NOT APPLE)
-    message("Error - Linux not yet supported")
+    list(APPEND IGRAPHICS_SRC ${IGRAPHICS_DIR}/Platforms/IGraphicsLinux.cpp)
   endif()
 
   target_sources(iPlug2::IGraphics INTERFACE ${IGRAPHICS_SRC})
@@ -80,7 +80,17 @@ if(NOT TARGET iPlug2::IGraphics)
       "-framework QuartzCore"
     )
   elseif(UNIX AND NOT APPLE)
-    message("Error - Linux not yet supported")
+    find_package(X11 REQUIRED)
+    find_package(OpenGL REQUIRED)
+    target_include_directories(iPlug2::IGraphics INTERFACE
+      ${X11_INCLUDE_DIR}
+    )
+    target_link_libraries(iPlug2::IGraphics INTERFACE
+      ${X11_LIBRARIES}
+      OpenGL::GL
+      dl
+      pthread
+    )
   endif()
 
   target_link_libraries(iPlug2::IGraphics INTERFACE iPlug2::IPlug)
@@ -142,6 +152,15 @@ if(NOT TARGET iPlug2::IGraphics::NanoVG)
       ${IGRAPHICS_DEPS_DIR}/glad_GL2/include
       ${IGRAPHICS_DEPS_DIR}/glad_GL2/src
     )
+  elseif(UNIX AND NOT APPLE)
+    target_include_directories(iPlug2::IGraphics::NanoVG INTERFACE
+      ${IGRAPHICS_DEPS_DIR}/glad_GL2/include
+      ${IGRAPHICS_DEPS_DIR}/glad_GL2/src
+    )
+    target_sources(iPlug2::IGraphics::NanoVG INTERFACE
+      ${IGRAPHICS_DEPS_DIR}/glad_GL2/src/glad.c
+    )
+    target_link_libraries(iPlug2::IGraphics::NanoVG INTERFACE OpenGL::GL)
   endif()
 
   target_compile_definitions(iPlug2::IGraphics::NanoVG INTERFACE
@@ -187,6 +206,15 @@ if(NOT TARGET iPlug2::IGraphics::NanoVG::GL3)
       ${IGRAPHICS_DEPS_DIR}/glad_GL3/include
       ${IGRAPHICS_DEPS_DIR}/glad_GL3/src
     )
+  elseif(UNIX AND NOT APPLE)
+    target_include_directories(iPlug2::IGraphics::NanoVG::GL3 INTERFACE
+      ${IGRAPHICS_DEPS_DIR}/glad_GL3/include
+      ${IGRAPHICS_DEPS_DIR}/glad_GL3/src
+    )
+    target_sources(iPlug2::IGraphics::NanoVG::GL3 INTERFACE
+      ${IGRAPHICS_DEPS_DIR}/glad_GL3/src/glad.c
+    )
+    target_link_libraries(iPlug2::IGraphics::NanoVG::GL3 INTERFACE OpenGL::GL)
   endif()
 
   target_compile_definitions(iPlug2::IGraphics::NanoVG::GL3 INTERFACE
@@ -431,6 +459,9 @@ if(NOT TARGET iPlug2_Extras_FlexBox_obj)
   if(MSVC)
     target_compile_options(iPlug2_Extras_FlexBox_obj PRIVATE /MT$<$<CONFIG:Debug>:d>)
   endif()
+  if(UNIX AND NOT APPLE)
+    target_compile_options(iPlug2_Extras_FlexBox_obj PRIVATE -fsigned-char)
+  endif()
 endif()
 
 if(NOT TARGET iPlug2::Extras::FlexBox)
@@ -468,6 +499,10 @@ if(NOT DEFINED IGRAPHICS_RENDERER)
     set(DEFAULT_RENDERER "GL2")
   elseif(APPLE OR IOS)
     set(DEFAULT_RENDERER "METAL")
+  elseif(UNIX AND NOT APPLE)
+    # GL3 is required on Linux: NANOVG_FBO_VALID is only defined for GL3+,
+    # so nvgluCreateFramebuffer always returns NULL when built with GL2.
+    set(DEFAULT_RENDERER "GL3")
   else()
     set(DEFAULT_RENDERER "GL2")
   endif()

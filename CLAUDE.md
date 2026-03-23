@@ -16,7 +16,7 @@ Cross-platform C++ audio plugin framework with two main components:
 
 **Plugin Formats:** CLAP, VST3, AUv2/AUv3, AAX, WAM (VST2 is supported but deprecated)
 **Extra Formats:** Standalone App, REAPER extensions (& REAPER plugins - plugins that call the REAPER API)
-**Platforms:** macOS, iOS, Windows, Web (WAM/WASM)
+**Platforms:** macOS, iOS, Windows, Linux (X11), Web (WAM/WASM)
 
 ## Repo Structure
 

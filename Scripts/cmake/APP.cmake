@@ -96,7 +96,80 @@ if(NOT TARGET iPlug2::APP)
       "-framework CoreAudio"
     )
   elseif(UNIX AND NOT APPLE)
-    message("Error - Linux not yet supported")
+    target_include_directories(iPlug2::APP INTERFACE ${SWELL_DIR})
+
+    set(_LICE_DIR "${SWELL_DIR}/../lice")
+    set(IPLUG2_SWELL_SRC
+      "${SWELL_DIR}/swell-appstub-generic.cpp"
+      "${SWELL_DIR}/swell-wnd-generic.cpp"
+      "${SWELL_DIR}/swell-dlg-generic.cpp"
+      "${SWELL_DIR}/swell-menu-generic.cpp"
+      "${SWELL_DIR}/swell-kb-generic.cpp"
+      "${SWELL_DIR}/swell-misc-generic.cpp"
+      "${SWELL_DIR}/swell-miscdlg-generic.cpp"
+      "${SWELL_DIR}/swell-gdi-generic.cpp"
+      "${SWELL_DIR}/swell-gdi-lice.cpp"
+      "${SWELL_DIR}/swell-generic-gdk.cpp"
+      "${SWELL_DIR}/swell-generic-headless.cpp"
+      "${SWELL_DIR}/swell-modstub-generic.cpp"
+      "${SWELL_DIR}/swell.cpp"
+      "${SWELL_DIR}/swell-ini.cpp"
+      # LICE sources required by swell-gdi-lice.cpp (matches WDL swell/Makefile LICE_OBJS)
+      "${_LICE_DIR}/lice.cpp"
+      "${_LICE_DIR}/lice_arc.cpp"
+      "${_LICE_DIR}/lice_colorspace.cpp"
+      "${_LICE_DIR}/lice_line.cpp"
+      "${_LICE_DIR}/lice_text.cpp"
+      "${_LICE_DIR}/lice_textnew.cpp"
+      "${_LICE_DIR}/lice_ico.cpp"
+      "${_LICE_DIR}/lice_bmp.cpp"
+      CACHE INTERNAL "SWELL source files for APP (Linux)"
+    )
+
+    target_sources(iPlug2::APP INTERFACE ${IPLUG2_SWELL_SRC})
+
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(GDK3 REQUIRED gdk-3.0)
+    pkg_check_modules(FREETYPE REQUIRED freetype2)
+    pkg_check_modules(ALSA REQUIRED alsa)
+    pkg_check_modules(JACK REQUIRED jack)
+    pkg_check_modules(PULSEAUDIO REQUIRED libpulse libpulse-simple)
+
+    target_include_directories(iPlug2::APP INTERFACE
+      ${GDK3_INCLUDE_DIRS}
+      ${FREETYPE_INCLUDE_DIRS}
+      ${ALSA_INCLUDE_DIRS}
+      ${JACK_INCLUDE_DIRS}
+      ${PULSEAUDIO_INCLUDE_DIRS}
+    )
+
+    target_compile_definitions(iPlug2::APP INTERFACE
+      __LINUX_ALSA__
+      __LINUX_PULSE__
+      __UNIX_JACK__
+      SWELL_TARGET_GDK=3
+      SWELL_LICE_GDI
+      SWELL_FREETYPE
+      SWELL_FONTCONFIG
+      SWELL_COMPILED
+    )
+
+    # WDL assumes signed char; ARM Linux defaults to unsigned char
+    target_compile_options(iPlug2::APP INTERFACE -fsigned-char)
+
+    target_link_libraries(iPlug2::APP INTERFACE
+      ${GDK3_LIBRARIES}
+      ${FREETYPE_LIBRARIES}
+      ${ALSA_LINK_LIBRARIES}
+      ${JACK_LINK_LIBRARIES}
+      ${PULSEAUDIO_LINK_LIBRARIES}
+      pthread
+      dl
+      fontconfig
+      X11
+      Xi
+      GL
+    )
   endif()
   
   target_link_libraries(iPlug2::APP INTERFACE iPlug2::IPlug)
@@ -119,6 +192,14 @@ function(iplug_configure_app target project_name)
       PROPERTIES
       LANGUAGE OBJCXX
       COMPILE_FLAGS "-Wno-deprecated-declarations -include ${IPLUG_DIR}/IPlugOBJCPrefix.pch"
+    )
+  endif()
+
+  if(UNIX AND NOT APPLE)
+    set_source_files_properties(${IPLUG2_SWELL_SRC}
+      TARGET_DIRECTORY ${target}
+      PROPERTIES
+      COMPILE_FLAGS "-Wno-deprecated-declarations -Wno-unused-parameter -fsigned-char"
     )
   endif()
 
@@ -178,5 +259,13 @@ function(iplug_configure_app target project_name)
         COMMENT "Creating PkgInfo for ${project_name}.app"
       )
     endif()
+  elseif(UNIX AND NOT APPLE)
+    set(APP_OUTPUT_DIR "${CMAKE_BINARY_DIR}/out")
+    set_target_properties(${target} PROPERTIES
+      OUTPUT_NAME "${project_name}"
+      RUNTIME_OUTPUT_DIRECTORY "${APP_OUTPUT_DIR}"
+      RUNTIME_OUTPUT_DIRECTORY_DEBUG "${APP_OUTPUT_DIR}"
+      RUNTIME_OUTPUT_DIRECTORY_RELEASE "${APP_OUTPUT_DIR}"
+    )
   endif()
 endfunction()

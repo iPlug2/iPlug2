@@ -84,6 +84,11 @@ if(NOT TARGET iPlug2::WebView)
     else()
       set(WEBVIEW2_LIB_DIR "${WEBVIEW2_DIR}/build/native/x86")
     endif()
+  elseif(UNIX AND NOT APPLE)
+    set(WEBVIEW_SRC
+      ${WEBVIEW_DIR}/IPlugWebViewEditorDelegate.cpp
+      ${WEBVIEW_DIR}/IPlugWebView_linux.cpp
+    )
   endif()
 
   target_sources(iPlug2::WebView INTERFACE ${WEBVIEW_SRC})
@@ -117,5 +122,7 @@ if(NOT TARGET iPlug2::WebView)
       iPlug2::IPlug
       "${WEBVIEW2_LIB_DIR}/WebView2LoaderStatic.lib"
     )
+  elseif(UNIX AND NOT APPLE)
+    target_link_libraries(iPlug2::WebView INTERFACE iPlug2::IPlug)
   endif()
 endif()

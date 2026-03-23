@@ -70,7 +70,7 @@ function(_iplug_expand_formats input_formats output_var)
 endfunction()
 
 # ============================================================================
-# Add resources to a bundle target (macOS/iOS)
+# Add resources to a bundle target (macOS/iOS); copy next to executable on Linux.
 # ============================================================================
 function(_iplug_add_resources target resources)
   if(NOT resources)
@@ -80,6 +80,46 @@ function(_iplug_add_resources target resources)
   set_source_files_properties(${resources} PROPERTIES
     MACOSX_PACKAGE_LOCATION Resources
   )
+  if(UNIX AND NOT APPLE)
+    # On Linux: copy resources so that IPlugPaths.cpp's LocateResource can find them.
+    #   APP (EXECUTABLE)       -> <bindir>/resources/<type>/<file>
+    #   CLAP (SHARED_LIBRARY, flat)   -> <libdir>/resources/<type>/<file>
+    #   VST3 (SHARED_LIBRARY, bundle) -> <libdir>/../Resources/<type>/<file>
+    #                                    (i.e. Contents/Resources/ in the bundle)
+    get_target_property(_target_type ${target} TYPE)
+    if("${_target_type}" STREQUAL "EXECUTABLE")
+      get_target_property(_outdir ${target} RUNTIME_OUTPUT_DIRECTORY)
+    elseif("${_target_type}" STREQUAL "SHARED_LIBRARY" OR "${_target_type}" STREQUAL "MODULE_LIBRARY")
+      get_target_property(_outdir ${target} LIBRARY_OUTPUT_DIRECTORY)
+    else()
+      set(_outdir "")
+    endif()
+    if(_outdir)
+      foreach(_res ${resources})
+        # Resolve to absolute path (resources may be specified relative to the
+        # project source dir, but add_custom_command runs in the build dir).
+        get_filename_component(_abs_res "${_res}" ABSOLUTE BASE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
+        get_filename_component(_filename "${_abs_res}" NAME)
+        get_filename_component(_ext "${_abs_res}" LAST_EXT)
+        string(TOLOWER "${_ext}" _ext_lower)
+        string(REPLACE "." "" _type "${_ext_lower}")
+        # VST3 bundles place the .so inside Contents/<arch>-linux/; resources go
+        # in the sibling Contents/Resources/ directory (one level up).
+        if("${_outdir}" MATCHES "-linux$")
+          set(_res_dest "${_outdir}/../Resources/${_type}/${_filename}")
+          set(_res_dir  "${_outdir}/../Resources/${_type}")
+        else()
+          set(_res_dest "${_outdir}/resources/${_type}/${_filename}")
+          set(_res_dir  "${_outdir}/resources/${_type}")
+        endif()
+        add_custom_command(TARGET ${target} POST_BUILD
+          COMMAND ${CMAKE_COMMAND} -E make_directory "${_res_dir}"
+          COMMAND ${CMAKE_COMMAND} -E copy_if_different "${_abs_res}" "${_res_dest}"
+          COMMENT "Copying resource ${_filename} -> ${_res_dest}"
+        )
+      endforeach()
+    endif()
+  endif()
 endfunction()
 
 # ============================================================================
@@ -110,6 +150,7 @@ function(_iplug_create_desktop_targets plugin_name formats sources ui_lib resour
     iplug_configure_target(${plugin_name}-app APP ${plugin_name})
     _iplug_add_resources(${plugin_name}-app "${resources}")
     _iplug_add_web_resources(${plugin_name}-app "${web_resources}")
+    iplug_deploy_target(${plugin_name}-app APP ${plugin_name})
   endif()
 
   # VST2 (conditional on SDK availability - deprecated)
@@ -121,6 +162,7 @@ function(_iplug_create_desktop_targets plugin_name formats sources ui_lib resour
     iplug_configure_target(${plugin_name}-vst2 VST2 ${plugin_name})
     _iplug_add_resources(${plugin_name}-vst2 "${resources}")
     _iplug_add_web_resources(${plugin_name}-vst2 "${web_resources}")
+    iplug_deploy_target(${plugin_name}-vst2 VST2 ${plugin_name})
   endif()
 
   # VST3 (always available)
@@ -132,6 +174,7 @@ function(_iplug_create_desktop_targets plugin_name formats sources ui_lib resour
     iplug_configure_target(${plugin_name}-vst3 VST3 ${plugin_name})
     _iplug_add_resources(${plugin_name}-vst3 "${resources}")
     _iplug_add_web_resources(${plugin_name}-vst3 "${web_resources}")
+    iplug_deploy_target(${plugin_name}-vst3 VST3 ${plugin_name})
   endif()
 
   # CLAP (conditional on SDK availability)
@@ -143,6 +186,7 @@ function(_iplug_create_desktop_targets plugin_name formats sources ui_lib resour
     iplug_configure_target(${plugin_name}-clap CLAP ${plugin_name})
     _iplug_add_resources(${plugin_name}-clap "${resources}")
     _iplug_add_web_resources(${plugin_name}-clap "${web_resources}")
+    iplug_deploy_target(${plugin_name}-clap CLAP ${plugin_name})
   endif()
 
   # AAX (conditional on SDK availability)
@@ -154,6 +198,7 @@ function(_iplug_create_desktop_targets plugin_name formats sources ui_lib resour
     iplug_configure_target(${plugin_name}-aax AAX ${plugin_name})
     _iplug_add_resources(${plugin_name}-aax "${resources}")
     _iplug_add_web_resources(${plugin_name}-aax "${web_resources}")
+    iplug_deploy_target(${plugin_name}-aax AAX ${plugin_name})
   endif()
 endfunction()
 
@@ -174,6 +219,7 @@ function(_iplug_create_au_targets plugin_name formats sources ui_lib resources w
     iplug_configure_target(${plugin_name}-au AUv2 ${plugin_name})
     _iplug_add_resources(${plugin_name}-au "${resources}")
     _iplug_add_web_resources(${plugin_name}-au "${web_resources}")
+    iplug_deploy_target(${plugin_name}-au AUv2 ${plugin_name})
   endif()
 endfunction()
 

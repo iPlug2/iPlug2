@@ -15,6 +15,11 @@
 #include "win32_utf8.h"
 #endif
 
+#ifdef OS_LINUX
+#include <alsa/asoundlib.h>
+#include <gdk/gdkx.h>  // GDK_WINDOW_XID
+#endif
+
 #include "IPlugLogger.h"
 
 using namespace iplug;
@@ -75,7 +80,47 @@ bool IPlugAPPHost::Init()
 
 bool IPlugAPPHost::OpenWindow(HWND pParent)
 {
+#ifdef OS_LINUX
+  // pParent is a SWELL HWND (heap pointer, not an X11 Window).
+  // Extract the underlying X11 window so IGraphicsLinux can embed into it.
+  void* x11Parent = nullptr;
+  if (pParent)
+  {
+    GdkWindow* gdkWnd = static_cast<GdkWindow*>(SWELL_GetOSWindow(pParent, "GdkWindow"));
+    if (gdkWnd)
+    {
+      x11Parent = (void*)(uintptr_t)GDK_WINDOW_XID(gdkWnd);
+
+      // Export the GDK scale factor so IGraphicsLinux can create its X11 window
+      // at the correct physical-pixel size for HiDPI (Xwayland 200% etc.).
+      int scale = gdk_window_get_scale_factor(gdkWnd);
+      if (scale > 1)
+      {
+        char buf[16];
+        snprintf(buf, sizeof(buf), "%d", scale);
+        setenv("IPLUG2_SCREEN_SCALE", buf, 1 /* overwrite */);
+      }
+
+      // If the dialog has a menu bar, export its height so IGraphicsLinux
+      // can offset the plugin window below it. The GDK window includes the
+      // non-client area but XGetWindowAttributes may return stale geometry
+      // on a separate Display connection, so we pass the value explicitly.
+      if (GetMenu(pParent))
+      {
+        int menuH = GetSystemMetrics(SM_CYMENU);
+        if (menuH > 0)
+        {
+          char buf[16];
+          snprintf(buf, sizeof(buf), "%d", menuH);
+          setenv("IPLUG2_MENU_OFFSET", buf, 1 /* overwrite */);
+        }
+      }
+    }
+  }
+  return mIPlug->OpenWindow(x11Parent) != nullptr;
+#else
   return mIPlug->OpenWindow(pParent) != nullptr;
+#endif
 }
 
 void IPlugAPPHost::CloseWindow()
@@ -91,8 +136,15 @@ bool IPlugAPPHost::InitState()
   mINIPath.SetFormatted(MAX_PATH_LEN, "%s\\%s\\", strPath, BUNDLE_NAME);
 #elif defined OS_MAC
   mINIPath.SetFormatted(MAX_PATH_LEN, "%s/Library/Application Support/%s/", getenv("HOME"), BUNDLE_NAME);
-#else
-  #error NOT IMPLEMENTED
+#elif defined OS_LINUX
+  const char* xdgConfig = getenv("XDG_CONFIG_HOME");
+  const char* home = getenv("HOME");
+  if (xdgConfig && xdgConfig[0])
+    mINIPath.SetFormatted(MAX_PATH_LEN, "%s/%s/", xdgConfig, BUNDLE_NAME);
+  else if (home && home[0])
+    mINIPath.SetFormatted(MAX_PATH_LEN, "%s/.config/%s/", home, BUNDLE_NAME);
+  else
+    return false;
 #endif
 
   struct stat st;
@@ -140,10 +192,8 @@ bool IPlugAPPHost::InitState()
     CreateDirectory(mINIPath.Get(), NULL);
     mINIPath.Append("settings.ini");
     UpdateINI(); // will write file if doesn't exist
-#elif defined OS_MAC
-    mode_t process_mask = umask(0);
-    int result_code = mkdir(mINIPath.Get(), S_IRWXU | S_IRWXG | S_IRWXO);
-    umask(process_mask);
+#elif defined(OS_MAC) || defined(OS_LINUX)
+    int result_code = mkdir(mINIPath.Get(), S_IRWXU);
 
     if (!result_code)
     {
@@ -154,8 +204,6 @@ bool IPlugAPPHost::InitState()
     {
       return false;
     }
-#else
-  #error NOT IMPLEMENTED
 #endif
   }
 
@@ -397,8 +445,11 @@ bool IPlugAPPHost::TryToChangeAudioDriverType()
     mDAC = std::make_unique<RtAudio>(RtAudio::MACOSX_CORE);
   //else
   //mDAC = std::make_unique<RtAudio>(RtAudio::UNIX_JACK);
-#else
-  #error NOT IMPLEMENTED
+#elif defined OS_LINUX
+  if (mState.mAudioDriverType == kDeviceAlsa)
+    mDAC = std::make_unique<RtAudio>(RtAudio::LINUX_ALSA);
+  else if (mState.mAudioDriverType == kDeviceJack)
+    mDAC = std::make_unique<RtAudio>(RtAudio::UNIX_JACK);
 #endif
 
   if (mDAC)
@@ -421,8 +472,8 @@ bool IPlugAPPHost::TryToChangeAudio()
   auto inputID = GetAudioDeviceID(mState.mAudioDriverType == kDeviceASIO ? mState.mAudioOutDev.Get() : mState.mAudioInDev.Get());
 #elif defined OS_MAC
   auto inputID = GetAudioDeviceID(mState.mAudioInDev.Get());
-#else
-  #error NOT IMPLEMENTED
+#elif defined OS_LINUX
+  auto inputID = GetAudioDeviceID(mState.mAudioInDev.Get());
 #endif
   auto outputID = GetAudioDeviceID(mState.mAudioOutDev.Get());
 
@@ -515,8 +566,12 @@ bool IPlugAPPHost::SelectMIDIDevice(ERoute direction, const char* pPortName)
         mMidiIn->openPort(port-2);
         return true;
       }
-  #else
-   #error NOT IMPLEMENTED
+  #elif defined OS_LINUX
+      else
+      {
+        mMidiIn->openPort(port-1);
+        return true;
+      }
   #endif
     }
   }
@@ -555,8 +610,12 @@ bool IPlugAPPHost::SelectMIDIDevice(ERoute direction, const char* pPortName)
         mMidiOut->openPort(port-2);
         return true;
       }
-#else
-  #error NOT IMPLEMENTED
+#elif defined OS_LINUX
+      else
+      {
+        mMidiOut->openPort(port-1);
+        return true;
+      }
 #endif
     }
   }

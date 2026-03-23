@@ -15,11 +15,21 @@
 #include "IPlugPluginBase.h"
 #include "plugin.hxx"
 #include "host-proxy.hxx"
+#ifndef NO_IGRAPHICS
+  #if defined OS_LINUX
+    #include "IGraphicsLinux.h"
+  #else
+    #include "IGraphics.h"
+  #endif
+#endif
 
 // TODO - respond to situations in which parameters can't be pushed (search try_push)
 // Keep in the queue or discard?? - up to us?
 
 using namespace iplug;
+#ifndef NO_IGRAPHICS
+using namespace igraphics;
+#endif
 
 void ClapNameCopy(char* destination, const char* source)
 {
@@ -411,11 +421,23 @@ bool IPlugCLAP::renderSetMode(clap_plugin_render_mode mode) noexcept
 bool IPlugCLAP::stateSave(const clap_ostream* pStream) noexcept
 {
   IByteChunk chunk;
-  
+
   if (!SerializeState(chunk))
     return false;
-  
-  return pStream->write(pStream, chunk.GetData(), chunk.Size()) == chunk.Size();
+
+  const uint8_t* pData = chunk.GetData();
+  int64_t remaining = chunk.Size();
+
+  while (remaining > 0)
+  {
+    int64_t written = pStream->write(pStream, pData, remaining);
+    if (written <= 0)
+      return false;
+    pData += written;
+    remaining -= written;
+  }
+
+  return true;
 }
 
 bool IPlugCLAP::stateLoad(const clap_istream* pStream) noexcept
@@ -484,8 +506,12 @@ bool IPlugCLAP::paramsValueToText(clap_id paramIdx, double value, char* display,
   const IParam* pParam = GetParam(paramIdx);
   const bool isDoubleType = pParam->Type() == IParam::kTypeDouble;
 
+  // Snap stepped params so GetDisplayText finds an exact match
+  if (!isDoubleType)
+    value = std::round(pParam->Constrain(value));
+
   WDL_String str;
-  
+
   pParam->GetDisplay(value, isDoubleType, str);
   
   // Add Label
@@ -853,8 +879,10 @@ bool IPlugCLAP::guiIsApiSupported(const char* api, bool isFloating) noexcept
   return !isFloating && !strcmp(api, CLAP_WINDOW_API_COCOA);
 #elif defined OS_WIN
   return !isFloating && !strcmp(api, CLAP_WINDOW_API_WIN32);
+#elif defined OS_LINUX
+  return !isFloating && !strcmp(api, CLAP_WINDOW_API_X11);
 #else
-#error Not Implemented!
+  return false;
 #endif
 }
 
@@ -864,8 +892,10 @@ bool IPlugCLAP::guiSetParent(const clap_window* pWindow) noexcept
   return GUIWindowAttach(pWindow->cocoa);
 #elif defined OS_WIN
   return GUIWindowAttach(pWindow->win32);
+#elif defined OS_LINUX
+  return GUIWindowAttach((void*)(uintptr_t)pWindow->x11);
 #else
-#error Not Implemented!
+  return false;
 #endif
 }
 
@@ -881,6 +911,9 @@ bool IPlugCLAP::guiCreate(const char* api, bool isFloating) noexcept
 
 void IPlugCLAP::guiDestroy() noexcept
 {
+#if defined OS_LINUX && !defined NO_IGRAPHICS
+  UnregisterLinuxHostCallbacks();
+#endif
   CloseWindow();
   mGUIOpen = false;
   mWindow = nullptr;
@@ -955,6 +988,12 @@ bool IPlugCLAP::GUIWindowAttach(void* pWindow) noexcept
     OpenWindow(pWindow);
     mWindow = pWindow;
     mGUIOpen = true;
+#if defined OS_LINUX && !defined NO_IGRAPHICS
+    // Switch to host-driven mode: stops the internal timer thread
+    // and lets the host drive rendering via onTimer / onPosixFd.
+    static_cast<IGraphicsLinux*>(GetUI())->SetHostDriven(true);
+    RegisterLinuxHostCallbacks();
+#endif
     return true;
   }
   else
@@ -963,18 +1002,64 @@ bool IPlugCLAP::GUIWindowAttach(void* pWindow) noexcept
   }
 }
 
+bool IPlugCLAP::guiGetResizeHints(
+  clap_gui_resize_hints_t* pHints) noexcept
+{
+#ifndef NO_IGRAPHICS
+  if (!HasUI() || !GetUI())
+    return false;
+
+  pHints->can_resize_horizontally = true;
+  pHints->can_resize_vertically = true;
+
+  if (GetUI()->GetResizerMode() == EUIResizerMode::Scale)
+  {
+    pHints->preserve_aspect_ratio = true;
+    pHints->aspect_ratio_width = GetEditorWidth();
+    pHints->aspect_ratio_height = GetEditorHeight();
+  }
+  else
+  {
+    pHints->preserve_aspect_ratio = false;
+    pHints->aspect_ratio_width = 0;
+    pHints->aspect_ratio_height = 0;
+  }
+
+  return true;
+#else
+  return false;
+#endif
+}
+
 bool IPlugCLAP::guiAdjustSize(uint32_t* pWidth, uint32_t* pHeight) noexcept
 {
   Trace(TRACELOC, "width:%i height:%i\n", *pWidth, *pHeight);
-  
+
   if (HasUI())
   {
     int w = *pWidth;
     int h = *pHeight;
     ConstrainEditorResize(w, h);
+
+#ifndef NO_IGRAPHICS
+    // In Scale mode, enforce the design aspect ratio so the host
+    // doesn't allow sizes that would clip the top/bottom or sides.
+    if (GetUI() &&
+        GetUI()->GetResizerMode() == EUIResizerMode::Scale)
+    {
+      const int logW = GetEditorWidth();
+      const int logH = GetEditorHeight();
+      const float scaleX = static_cast<float>(w) / logW;
+      const float scaleY = static_cast<float>(h) / logH;
+      const float scale = std::min(scaleX, scaleY);
+      w = static_cast<int>(logW * scale);
+      h = static_cast<int>(logH * scale);
+    }
+#endif
+
     *pWidth = w;
     *pHeight = h;
-    
+
     return true;
   }
   else
@@ -1087,3 +1172,46 @@ uint32_t IPlugCLAP::NChannels(ERoute direction, uint32_t bus) const
 {
   return NChannels(direction, bus, mConfigIdx);
 }
+
+#if defined OS_LINUX && !defined NO_IGRAPHICS
+void IPlugCLAP::onTimer(clap_id timerId) noexcept
+{
+  if (timerId == mLinuxTimerId)
+    if (auto* pGraphics = static_cast<IGraphicsLinux*>(GetUI()))
+      pGraphics->OnDisplayTimer();
+}
+
+void IPlugCLAP::onPosixFd(int fd, clap_posix_fd_flags_t flags) noexcept
+{
+  if (auto* pGraphics = static_cast<IGraphicsLinux*>(GetUI()))
+    pGraphics->ProcessX11Events();
+}
+
+void IPlugCLAP::RegisterLinuxHostCallbacks() noexcept
+{
+  if (!HasUI())
+    return;
+  auto* pGraphics = static_cast<IGraphicsLinux*>(GetUI());
+  const int fd = pGraphics->GetX11Fd();
+  if (fd >= 0)
+    _host.posixFdSupportRegister(fd, CLAP_POSIX_FD_READ);
+  const uint32_t periodMs = static_cast<uint32_t>(1000.0 / pGraphics->FPS());
+  _host.timerSupportRegister(periodMs, &mLinuxTimerId);
+}
+
+void IPlugCLAP::UnregisterLinuxHostCallbacks() noexcept
+{
+  if (mLinuxTimerId != CLAP_INVALID_ID)
+  {
+    _host.timerSupportUnregister(mLinuxTimerId);
+    mLinuxTimerId = CLAP_INVALID_ID;
+  }
+  if (HasUI())
+  {
+    auto* pGraphics = static_cast<IGraphicsLinux*>(GetUI());
+    const int fd = pGraphics->GetX11Fd();
+    if (fd >= 0)
+      _host.posixFdSupportUnregister(fd);
+  }
+}
+#endif
