@@ -3442,8 +3442,10 @@ static NSRect MakeCoords(int x, int y, int w, int h, bool wantauto, bool ignorev
   return ret;
 }
 
-static const double minwidfontadjust=1.81;
-#define TRANSFORMFONTSIZE (m_transform.size.width<1?8:m_transform.size.width<2?10:12)
+#define SWELL_DO_CONTROL_FONT(button) \
+  if (m_transform.size.width < 1.81) \
+    [button setFont:[NSFont systemFontOfSize:(m_transform.size.width<1?8:m_transform.size.width<2?10:12)]];
+
 /// these are for swell-dlggen.h
 HWND SWELL_MakeButton(int def, const char *label, int idx, int x, int y, int w, int h, int flags)
 {  
@@ -3458,10 +3460,7 @@ HWND SWELL_MakeButton(int def, const char *label, int idx, int x, int y, int w, 
     [cell release];
   }
   
-  if (m_transform.size.width < minwidfontadjust)
-  {
-    [button setFont:[NSFont systemFontOfSize:TRANSFORMFONTSIZE]];
-  }
+  SWELL_DO_CONTROL_FONT(button);
   
   [button setTag:idx];
 
@@ -3714,8 +3713,7 @@ HWND SWELL_MakeEditField(int idx, int x, int y, int w, int h, int flags)
     SWELL_TextView *obj=[[SWELL_TextView alloc] init];
     [obj setAutomaticQuoteSubstitutionEnabled:NO];
     [obj setEditable:(flags & ES_READONLY)?NO:YES];
-    if (m_transform.size.width < minwidfontadjust)
-      [obj setFont:[NSFont systemFontOfSize:TRANSFORMFONTSIZE]];
+    SWELL_DO_CONTROL_FONT(obj);
     [obj setTag:idx];
     [obj setDelegate:ACTIONTARGET];
     [obj setRichText:NO];
@@ -3772,8 +3770,7 @@ HWND SWELL_MakeEditField(int idx, int x, int y, int w, int h, int flags)
   else obj=[[SWELL_TextField alloc] init];
   [obj setEditable:(flags & ES_READONLY)?NO:YES];
   if (flags & ES_READONLY) [obj setSelectable:YES];
-  if (m_transform.size.width < minwidfontadjust)
-    [obj setFont:[NSFont systemFontOfSize:TRANSFORMFONTSIZE]];
+  SWELL_DO_CONTROL_FONT(obj);
   
   if ([obj isKindOfClass:[SWELL_TextField class]])
     [(SWELL_TextField *)obj initColors:SWELL_osx_is_dark_mode(0)];
@@ -3808,8 +3805,7 @@ HWND SWELL_MakeLabel( int align, const char *label, int idx, int x, int y, int w
   [obj setBordered:NO];
   [obj setBezeled:NO];
   [obj setDrawsBackground:NO];
-  if (m_transform.size.width < minwidfontadjust)
-    [obj setFont:[NSFont systemFontOfSize:TRANSFORMFONTSIZE]];
+  SWELL_DO_CONTROL_FONT(obj);
 
   if (flags & SS_NOTIFY)
   {
@@ -4123,8 +4119,7 @@ HWND SWELL_MakeControl(const char *cname, int idx, const char *classname, int st
     [obj setBordered:NO];
     [obj setBezeled:NO];
     [obj setDrawsBackground:NO];
-    if (m_transform.size.width < minwidfontadjust)
-      [obj setFont:[NSFont systemFontOfSize:TRANSFORMFONTSIZE]];
+    SWELL_DO_CONTROL_FONT(obj);
 
     if (cname && *cname)
     {
@@ -4229,8 +4224,7 @@ HWND SWELL_MakeControl(const char *cname, int idx, const char *classname, int st
       [button swellSetRadioFlags:4096];
     }
     
-    if (m_transform.size.width < minwidfontadjust)
-      [button setFont:[NSFont systemFontOfSize:TRANSFORMFONTSIZE]];
+    SWELL_DO_CONTROL_FONT(button);
     [button setFrame:fr];
     NSString *labelstr=(NSString *)SWELL_CStringToCFString_FilterPrefix(cname);
     [button setTitle:labelstr];
