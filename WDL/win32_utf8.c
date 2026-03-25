@@ -837,6 +837,30 @@ int DrawTextUTF8(HDC hdc, LPCTSTR str, int len, LPRECT lpRect, UINT format)
   return DrawTextA(hdc,str,len,lpRect,format);
 }
 
+#if !defined(WDL_WIN32_UTF8_NO_UI_IMPL) && !defined(WDL_WIN32_UTF8_MINI_UI_IMPL)
+
+#if defined(_MSC_VER) && _WIN32_WINNT < 0x500
+WINGDIAPI int  WINAPI AddFontResourceExA( __in LPCSTR name, __in DWORD fl, __reserved PVOID res);
+WINGDIAPI int  WINAPI AddFontResourceExW( __in LPCWSTR name, __in DWORD fl, __reserved PVOID res);
+#endif
+
+int AddFontResourceExUTF8(LPCSTR path, DWORD fl, PVOID res)
+{
+  if (WDL_HasUTF8_FILENAME(path) AND_IS_NOT_WIN9X)
+  {
+    MBTOWIDE(wbuf,path);
+    if (wbuf_ok) wdl_utf8_correctlongpath(wbuf);
+    if (wbuf_ok)
+    {
+      int rv = AddFontResourceExW(wbuf, fl, res);
+      MBTOWIDE_FREE(wbuf);
+      return rv;
+    }
+    MBTOWIDE_FREE(wbuf);
+  }
+  return AddFontResourceExA(path, fl, res);
+}
+#endif
 
 BOOL InsertMenuUTF8(HMENU hMenu, UINT uPosition, UINT uFlags, UINT_PTR uIDNewItem, LPCTSTR str)
 {

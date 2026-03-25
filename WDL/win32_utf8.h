@@ -71,6 +71,7 @@ WDL_WIN32_UTF8_IMPL FILE *fopenUTF8(const char *filename, const char *mode);
 WDL_WIN32_UTF8_IMPL size_t strftimeUTF8(char *buf, size_t maxsz, const char *fmt, const struct tm *timeptr);
 
 WDL_WIN32_UTF8_IMPL int GetKeyNameTextUTF8(LONG lParam, LPTSTR lpString, int nMaxCount);
+WDL_WIN32_UTF8_IMPL int AddFontResourceExUTF8(LPCSTR path, DWORD fl, PVOID res);
 
 
 WDL_WIN32_UTF8_IMPL WCHAR *WDL_UTF8ToWC(const char *buf, BOOL doublenull, int minsize, DWORD *sizeout);  // only converts UTF-8 if all 8-bit bytes are valid UTF-8 sequences
@@ -278,6 +279,11 @@ WDL_WIN32_UTF8_IMPL BOOL CreateProcessUTF8( LPCTSTR lpApplicationName, LPTSTR lp
 #undef CreateProcess
 #endif
 #define CreateProcess CreateProcessUTF8
+
+#ifdef AddFontResourceEx
+#undef AddFontResourceEx
+#endif
+#define AddFontResourceEx AddFontResourceExUTF8
 
 #ifdef fopen
 #undef fopen
