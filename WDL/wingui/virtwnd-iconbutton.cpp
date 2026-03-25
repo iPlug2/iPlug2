@@ -28,9 +28,7 @@
 #include "../lice/lice.h"
 
 #ifdef _WIN32
-#define WDL_WIN32_UTF8_IMPL static
-#define WDL_WIN32_UTF8_NO_UI_IMPL
-#include "../win32_utf8.c"
+#include "../win32_utf8.h"
 #endif
 
 WDL_VirtualIconButton::WDL_VirtualIconButton()
