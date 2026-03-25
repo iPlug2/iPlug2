@@ -171,13 +171,16 @@ class SWELL_DialogRegHelper {
             int parms[6] = { list->p1, list->p2, list->p3, list->p4, list->p5, list->p6 };
             const int coord_offs = 1; // all, I guess?
             const int xpos = parms[coord_offs], ypos = parms[coord_offs+1];
-            const int w = parms[coord_offs+2];
-            const int h = strcmp(list->str1,"__SWELL_COMBO") ? parms[coord_offs+3] : 0;
-
             WDL_ASSERT(xpos >= -1);
             WDL_ASSERT(ypos >= -1);
-            WDL_ASSERT(xpos + w <= dlg_w);
-            WDL_ASSERT(ypos + h <= dlg_h);
+
+            // far-bounds check; for old style pre-scaled coordinates this didn't work right (dlg_w/h were scaled)
+            // and there are instances where out of bounds controls do make sense.
+
+            // const int w = parms[coord_offs+2];
+            // const int h = strcmp(list->str1,"__SWELL_COMBO") ? parms[coord_offs+3] : 0;
+            // WDL_ASSERT(xpos + w <= dlg_w);
+            // WDL_ASSERT(ypos + h <= dlg_h);
 
             if (idx != 0 && idx != -1)
             {
