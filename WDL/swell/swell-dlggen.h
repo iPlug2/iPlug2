@@ -17,33 +17,9 @@
        misrepresented as being the original software.
     3. This notice may not be removed or altered from any source distribution.
   
-  DialogBox emulation is here. To declare the resource at a global level, use (in any source file that includes this file and resource.h):
+  This file provides functions to dynamically create controls in a view from a win32 resource script.
 
-  
-  #ifdef MAC
-
-
-  SWELL_DEFINE_DIALOG_RESOURCE_BEGIN(IDD_SOMEDIALOG,0,"Dialog Box Title",222,55,1.8) // width, height, scale (1.8 is usually good)
-
-  BEGIN
-  DEFPUSHBUTTON   "OK",IDOK,117,33,47,14
-  CONTROL         "Expand MIDI tracks to new REAPER tracks                    ",IDC_CHECK1,
-  "Button",BS_AUTOCHECKBOX | WS_TABSTOP,4,7,214,10
-  CONTROL         "Merge MIDI tempo map to project tempo map at                ",
-  IDC_CHECK2,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,4,19,
-  214,10
-  PUSHBUTTON      "Cancel",IDCANCEL,168,33,50,14
-  END
-
-  SWELL_DEFINE_DIALOG_RESOURCE_END(IDD_SOMEDIALOG)
-
-
-  #endif
-
-
-  This file also provides functions to dynamically create controls in a view from a win32 resource script.
-
-
+  Use swell_resgen.pl or swell_resgen.php on the .rc file, which will produce .rc_mac_dlg, include that.
 
 */
 
