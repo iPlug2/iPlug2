@@ -1316,7 +1316,12 @@ STANDARD_CONTROL_NEEDSDISPLAY_IMPL( m_lbMode ? "SysListView32_LB" : "SysListView
     HWND notWnd = GetParent((HWND)ctl);
     DRAWITEMSTRUCT dis={ODT_BUTTON,(UINT)[ctl tag],0,0,0,(HWND)ctl,hdc,{0,},0};
     NSRECT_TO_RECT(&dis.rcItem,cellFrame);
+
+    HFONT font = CreateFont(- (int)(SWELL_osx_dialog_scaling() * 6.2 + 0.5),0,0,0,400,0,0,0,0,0,0,0,0,"Helvetica");
+    HGDIOBJ oldfont = SelectObject(hdc,font);
     SendMessage(notWnd,WM_DRAWITEM,dis.CtlID,(LPARAM)&dis);
+    SelectObject(hdc,oldfont);
+    DeleteObject(font);
   
     SWELL_DeleteGfxContext(hdc);
   }
@@ -1345,7 +1350,13 @@ STANDARD_CONTROL_NEEDSDISPLAY_IMPL( m_lbMode ? "SysListView32_LB" : "SysListView
     HWND notWnd = GetParent((HWND)m_ownctl);
     DRAWITEMSTRUCT dis={ODT_LISTBOX,(UINT)[m_ownctl tag],(UINT)itemidx,0,0,(HWND)m_ownctl,hdc,{0,},(DWORD_PTR)itemData};
     NSRECT_TO_RECT(&dis.rcItem,cellFrame);
+
+    HFONT font = CreateFont(- (int)(SWELL_osx_dialog_scaling() * 6.2 + 0.5),0,0,0,400,0,0,0,0,0,0,0,0,"Helvetica");
+    HGDIOBJ oldfont = SelectObject(hdc,font);
     SendMessage(notWnd,WM_DRAWITEM,dis.CtlID,(LPARAM)&dis);
+
+    SelectObject(hdc,oldfont);
+    DeleteObject(font);
   
     SWELL_DeleteGfxContext(hdc);
   }
