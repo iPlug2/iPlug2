@@ -76,7 +76,13 @@ static void InvalidateSuperViews(NSView *view);
 static WDL_PtrList<char> s_prefix_removals;
 
 int g_swell_osx_readonlytext_wndbg = 0;
-int g_swell_osx_style = 0; // &1 = rounded buttons, &2=big sur styled lists
+int g_swell_osx_style = 0; // &1 = rounded buttons, &2=big sur styled lists, &0xf00 size (0=default smallish, 1=bigger, 2=extra big, 3=extra small)
+
+float SWELL_osx_dialog_scaling()
+{
+  return 1.7;
+}
+
 static void *SWELL_CStringToCFString_FilterPrefix(const char *str)
 {
   int c=0;
@@ -3406,6 +3412,8 @@ static int m_make_radiogroupcnt;
 
 void SWELL_MakeSetCurParms(float xscale, float yscale, float xtrans, float ytrans, HWND parent, bool doauto, bool dosizetofit)
 {
+  if (xscale == 0.0) xscale = SWELL_osx_dialog_scaling();
+  if (yscale == 0.0) yscale = SWELL_osx_dialog_scaling();
   if (parent) s_prefix_removals.Empty(true,free);
   m_make_radiogroupcnt=0;
   m_sizetofits=dosizetofit;

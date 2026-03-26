@@ -81,13 +81,6 @@ function swell_rc2cpp_dialog($fp) // returns array with ["data"] and optionally 
   $errstr="";
   $retstr = "";
 
-  $retstr .= '#ifndef SWELL_DLG_SCALE_AUTOGEN' . "\n";
-  $retstr .= '#ifdef __APPLE__' . "\n";
-  $retstr .= '  #define SWELL_DLG_SCALE_AUTOGEN 1.7' . "\n";
-  $retstr .= '#else' . "\n";
-  $retstr .= '  #define SWELL_DLG_SCALE_AUTOGEN 1.9' . "\n";
-  $retstr .= '#endif' . "\n";
-  $retstr .= '#endif' . "\n";
   $retstr .= '#ifndef SWELL_DLG_FLAGS_AUTOGEN' . "\n";
   $retstr .= '#define SWELL_DLG_FLAGS_AUTOGEN SWELL_DLG_WS_FLIPPED|SWELL_DLG_WS_NOAUTOSIZE' . "\n";
   $retstr .= "#endif\n";
@@ -117,18 +110,23 @@ function swell_rc2cpp_dialog($fp) // returns array with ["data"] and optionally 
       if ($y == "END")
       {
         if ($dlg_state==2) $dlg_styles.="|SWELL_DLG_WS_OPAQUE";
-        $retstr .= "#ifndef SET_$dlg_name" . "_SCALE\n";
-        $retstr .= "#define SET_$dlg_name" . "_SCALE SWELL_DLG_SCALE_AUTOGEN\n";
-        $retstr .= "#endif\n";
         $retstr .= "#ifndef SET_$dlg_name" . "_STYLE\n";
         $retstr .= "#define SET_$dlg_name" . "_STYLE $dlg_styles\n";
         $retstr .= "#endif\n";
+        $retstr .= "#ifdef SET_$dlg_name" . "_SCALE\n";
         $retstr .= "SWELL_DEFINE_DIALOG_RESOURCE_BEGIN($dlg_name,SET_$dlg_name" . "_STYLE,\"$dlg_title\",$dlg_size_w,$dlg_size_h,SET_$dlg_name" . "_SCALE)\n";
+        $retstr .= "#else\n";
+        $retstr .= "SWELL_DEFINE_DIALOG_RESOURCE_BEGIN2($dlg_name,SET_$dlg_name" . "_STYLE,\"$dlg_title\",$dlg_size_w,$dlg_size_h)\n";
+        $retstr .= "#endif\n";
         $dlg_contents=str_replace("NOT WS_VISIBLE","SWELL_NOT_WS_VISIBLE",$dlg_contents);
         $dlg_contents=str_replace("NOT\nWS_VISIBLE","SWELL_NOT_WS_VISIBLE",$dlg_contents);
         $dlg_contents=str_replace("NOT \nWS_VISIBLE","SWELL_NOT_WS_VISIBLE",$dlg_contents);
         $retstr .= $dlg_contents;
-        $retstr .= "SWELL_DEFINE_DIALOG_RESOURCE_END($dlg_name)\n\n\n";
+        $retstr .= "#ifdef SET_$dlg_name" . "_SCALE\n";
+        $retstr .= "SWELL_DEFINE_DIALOG_RESOURCE_END($dlg_name)\n";
+        $retstr .= "#else\n";
+        $retstr .= "SWELL_DEFINE_DIALOG_RESOURCE_END2($dlg_name)\n";
+        $retstr .= "#endif\n\n\n";
         $dlg_state=0;
       }
       else if (strlen($y)>1) $dlg_state=3;

@@ -112,6 +112,9 @@ struct SWELL_DlgResourceEntry
 #define SWELL_DLG_WS_NOAUTOSIZE 8
 #define SWELL_DLG_WS_OPAQUE 16
 #define SWELL_DLG_WS_DROPTARGET 32
+#ifdef SWELL_TARGET_OSX
+#define SWELL_DLG_WS_DEFAULT_SCALING 128
+#endif
      
 typedef struct SWELL_DialogResourceIndex
 {
@@ -197,10 +200,12 @@ class SWELL_DialogRegHelper {
 #endif
 
 
+// per-resource scaling (deprecated), these have a bit more overhead (an extra float) and can't do
+// dynamic scaling on macOS
 #define SWELL_DEFINE_DIALOG_RESOURCE_BEGIN(recid, flags, titlestr, wid, hei, scale) \
                                        static void SWELL__dlg_cf__##recid(HWND view, int wflags); \
                                        const float __swell_dlg_scale__##recid = (float) (scale); \
-                                       static SWELL_DialogRegHelper __swell_dlg_helper_##recid(&SWELL_curmodule_dialogresource_head, SWELL__dlg_cf__##recid, recid,flags,titlestr,wid,hei,scale,(scale)*(SWELL_DLG_SCALE_AUTOGEN_YADJ)); \
+                                       static SWELL_DialogRegHelper __swell_dlg_helper_##recid(&SWELL_curmodule_dialogresource_head, SWELL__dlg_cf__##recid, recid,(flags) & ~SWELL_DLG_WS_DEFAULT_SCALING,titlestr,wid,hei,scale,(scale)*(SWELL_DLG_SCALE_AUTOGEN_YADJ)); \
                                        static const SWELL_DlgResourceEntry __swell_dlg_list__##recid[]={
 
                                             
@@ -208,6 +213,30 @@ class SWELL_DialogRegHelper {
                               SWELL_VALIDATE_DIALOG_RESOURCE( __swell_dlg_validator__##recid, __swell_dlg_list__##recid, __swell_dlg_helper_##recid.m_rec.width, __swell_dlg_helper_##recid.m_rec.height) \
                               static void SWELL__dlg_cf__##recid(HWND view, int wflags) { \
                                 SWELL_MakeSetCurParms(__swell_dlg_scale__##recid,__swell_dlg_scale__##recid * (SWELL_DLG_SCALE_AUTOGEN_YADJ),0,0,view,false,!(wflags&SWELL_DLG_WS_NOAUTOSIZE));  \
+                                SWELL_GenerateDialogFromList(__swell_dlg_list__##recid+1,sizeof(__swell_dlg_list__##recid)/sizeof(__swell_dlg_list__##recid[0])-1); \
+                              }
+
+#ifdef SWELL_TARGET_OSX
+// macOS uses dynamic dialog scaling if not overriden
+#define SWELL_DEF_DLGSCALE2 1.0
+#define SWELL_DEF_DLGFLAG2 SWELL_DLG_WS_DEFAULT_SCALING
+#else
+// -generic uses a fixed dialog scaling if not overridden
+#define SWELL_DEF_DLGSCALE2 1.9
+#define SWELL_DEF_DLGFLAG2 0
+#endif
+
+// newer declaration, does not include scale (globally defined default is used)
+#define SWELL_DEFINE_DIALOG_RESOURCE_BEGIN2(recid, flags, titlestr, wid, hei) \
+                                       static void SWELL__dlg_cf__##recid(HWND view, int wflags); \
+                                       static SWELL_DialogRegHelper __swell_dlg_helper_##recid(&SWELL_curmodule_dialogresource_head, SWELL__dlg_cf__##recid, recid,(flags)|SWELL_DEF_DLGFLAG2,titlestr,wid,hei,SWELL_DEF_DLGSCALE2,SWELL_DEF_DLGSCALE2); \
+                                       static const SWELL_DlgResourceEntry __swell_dlg_list__##recid[]={
+
+#define SWELL_DEFINE_DIALOG_RESOURCE_END2(recid) }; \
+                              SWELL_VALIDATE_DIALOG_RESOURCE( __swell_dlg_validator__##recid, __swell_dlg_list__##recid, __swell_dlg_helper_##recid.m_rec.width, __swell_dlg_helper_##recid.m_rec.height) \
+                              static void SWELL__dlg_cf__##recid(HWND view, int wflags) { \
+                                SWELL_MakeSetCurParms(0.0 /* use default */,0.0 /* use default */, \
+                                    0,0,view,false,!(wflags&SWELL_DLG_WS_NOAUTOSIZE));  \
                                 SWELL_GenerateDialogFromList(__swell_dlg_list__##recid+1,sizeof(__swell_dlg_list__##recid)/sizeof(__swell_dlg_list__##recid[0])-1); \
                               }
 

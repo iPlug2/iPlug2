@@ -114,6 +114,8 @@ static HMENU g_swell_defaultmenu,g_swell_defaultmenumodal;
 
 bool SWELL_owned_windows_levelincrease=false;
 
+float SWELL_osx_dialog_scaling();
+
 #include "../wdlstring.h"
 #include "../wdlcstring.h"
 
@@ -1218,6 +1220,11 @@ static id<MTLDevice> mtl_def_device()
 - (id)initChild:(SWELL_DialogResourceIndex *)resstate Parent:(NSView *)parent dlgProc:(DLGPROC)dlgproc Param:(LPARAM)par
 {
   NSRect contentRect=NSMakeRect(0,0,resstate ? resstate->width : 300,resstate ? resstate->height : 200);
+  if (resstate && (resstate->windowTypeFlags & SWELL_DLG_WS_DEFAULT_SCALING))
+  {
+    contentRect.size.width = floor(SWELL_osx_dialog_scaling() * contentRect.size.width + 0.5);
+    contentRect.size.height = floor(SWELL_osx_dialog_scaling() * contentRect.size.height + 0.5);
+  }
   if (!(self = [super initWithFrame:contentRect])) return self;
 
   m_classname=NULL;
@@ -2591,6 +2598,11 @@ SWELLDIALOGCOMMONIMPLEMENTS_WND(0)
   
   int w = (resstate ? resstate->width : 10);
   int h = (resstate ? resstate->height : 10);
+  if (resstate && (resstate->windowTypeFlags & SWELL_DLG_WS_DEFAULT_SCALING))
+  {
+    w = (int)(SWELL_osx_dialog_scaling() * w + 0.5);
+    h = (int)(SWELL_osx_dialog_scaling() * h + 0.5);
+  }
   
   int wx, wy;
   GetInitialWndPos(parent, h, &wx, &wy);  
@@ -2706,6 +2718,12 @@ SWELLDIALOGCOMMONIMPLEMENTS_WND(1)
   INIT_COMMON_VARS
   
   NSRect contentRect=NSMakeRect(0,0,resstate->width,resstate->height);
+  if (resstate->windowTypeFlags & SWELL_DLG_WS_DEFAULT_SCALING)
+  {
+    contentRect.size.width = floor(SWELL_osx_dialog_scaling() * contentRect.size.width + 0.5);
+    contentRect.size.height = floor(SWELL_osx_dialog_scaling() * contentRect.size.height + 0.5);
+  }
+
   unsigned int sf=(NSTitledWindowMask|NSClosableWindowMask|((resstate->windowTypeFlags&SWELL_DLG_WS_RESIZABLE)? NSResizableWindowMask : 0));
   if (!(self = [super initWithContentRect:contentRect styleMask:sf backing:NSBackingStoreBuffered defer:NO])) return self;
 

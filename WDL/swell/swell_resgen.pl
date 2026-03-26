@@ -58,14 +58,7 @@ sub convertquotes {
 sub swell_rc2cpp_dialog
 {
   my $errstr = "";
-  my $retstr = '#ifndef SWELL_DLG_SCALE_AUTOGEN
-#ifdef __APPLE__
-  #define SWELL_DLG_SCALE_AUTOGEN 1.7
-#else
-  #define SWELL_DLG_SCALE_AUTOGEN 1.9
-#endif
-#endif
-#ifndef SWELL_DLG_FLAGS_AUTOGEN
+  my $retstr = '#ifndef SWELL_DLG_FLAGS_AUTOGEN
 #define SWELL_DLG_FLAGS_AUTOGEN SWELL_DLG_WS_FLIPPED|SWELL_DLG_WS_NOAUTOSIZE
 #endif
 
@@ -104,17 +97,22 @@ sub swell_rc2cpp_dialog
       if ($y eq "END")
       {
         if ($dlg_state==2) { $dlg_styles.="|SWELL_DLG_WS_OPAQUE" };
-        $retstr .= "#ifndef SET_${dlg_name}_SCALE\n" .
-                   "#define SET_${dlg_name}_SCALE SWELL_DLG_SCALE_AUTOGEN\n" .
-                   "#endif\n" .
-                   "#ifndef SET_${dlg_name}_STYLE\n" .
+        $retstr .= "#ifndef SET_${dlg_name}_STYLE\n" .
                    "#define SET_${dlg_name}_STYLE $dlg_styles\n" .
                    "#endif\n" .
-                   "SWELL_DEFINE_DIALOG_RESOURCE_BEGIN($dlg_name,SET_${dlg_name}_STYLE,\"$dlg_title\",$dlg_size_w,$dlg_size_h,SET_${dlg_name}_SCALE)\n";
+                   "#ifdef SET_${dlg_name}_SCALE\n" .
+                   "SWELL_DEFINE_DIALOG_RESOURCE_BEGIN($dlg_name,SET_${dlg_name}_STYLE,\"$dlg_title\",$dlg_size_w,$dlg_size_h,SET_${dlg_name}_SCALE)\n" .
+                   "#else\n" .
+                   "SWELL_DEFINE_DIALOG_RESOURCE_BEGIN2($dlg_name,SET_${dlg_name}_STYLE,\"$dlg_title\",$dlg_size_w,$dlg_size_h)\n" .
+                   "#endif\n";
 
         $dlg_contents =~ s/NOT\s+WS_VISIBLE/SWELL_NOT_WS_VISIBLE/gs;
         $retstr .= $dlg_contents;
-        $retstr .= "SWELL_DEFINE_DIALOG_RESOURCE_END($dlg_name)\n\n\n";
+        $retstr .= "#ifdef SET_${dlg_name}_SCALE\n";
+        $retstr .= "SWELL_DEFINE_DIALOG_RESOURCE_END($dlg_name)\n";
+        $retstr .= "#else\n";
+        $retstr .= "SWELL_DEFINE_DIALOG_RESOURCE_END2($dlg_name)\n";
+        $retstr .= "#endif\n\n\n";
         $dlg_state=0;
       }
       elsif (length($y)>1) { $dlg_state=3; }
