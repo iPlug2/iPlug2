@@ -80,8 +80,25 @@ int g_swell_osx_style = 0; // &1 = rounded buttons, &2=big sur styled lists, &0x
 
 float SWELL_osx_dialog_scaling()
 {
+  switch ((g_swell_osx_style>>8)&0xf)
+  {
+    case 1: return 1.93;
+    case 2: return 2.3;
+    case 3: return 1.4;
+  }
   return 1.7;
 }
+
+// mode=1 for dropdown edit, on the biggest size we use slightly smaller
+#define SWELL_DO_CONTROL_FONT(button, mode) do { \
+  const double sc = m_transform.size.width; \
+  float fsize; \
+  if (sc < 1.65) fsize=8.0f; \
+  else if (sc < 1.81) fsize=10.0f; \
+  else if (sc < 2.0) fsize=11.0f; \
+  else fsize = mode == 1 ? 13.0f : 14.0f; \
+  if (fsize != 11.0f) [button setFont:[NSFont systemFontOfSize:fsize]]; \
+} while(0)
 
 static void *SWELL_CStringToCFString_FilterPrefix(const char *str)
 {
@@ -3474,10 +3491,6 @@ static NSRect MakeCoords(int x, int y, int w, int h, bool wantauto, bool ignorev
   return ret;
 }
 
-#define SWELL_DO_CONTROL_FONT(button) \
-  if (m_transform.size.width < 1.81) \
-    [button setFont:[NSFont systemFontOfSize:(m_transform.size.width<1?8:m_transform.size.width<2?10:12)]];
-
 /// these are for swell-dlggen.h
 HWND SWELL_MakeButton(int def, const char *label, int idx, int x, int y, int w, int h, int flags)
 {  
@@ -3492,7 +3505,7 @@ HWND SWELL_MakeButton(int def, const char *label, int idx, int x, int y, int w, 
     [cell release];
   }
   
-  SWELL_DO_CONTROL_FONT(button);
+  SWELL_DO_CONTROL_FONT(button, 0);
   
   [button setTag:idx];
 
@@ -3745,7 +3758,7 @@ HWND SWELL_MakeEditField(int idx, int x, int y, int w, int h, int flags)
     SWELL_TextView *obj=[[SWELL_TextView alloc] init];
     [obj setAutomaticQuoteSubstitutionEnabled:NO];
     [obj setEditable:(flags & ES_READONLY)?NO:YES];
-    SWELL_DO_CONTROL_FONT(obj);
+    SWELL_DO_CONTROL_FONT(obj, 0);
     [obj setTag:idx];
     [obj setDelegate:ACTIONTARGET];
     [obj setRichText:NO];
@@ -3802,7 +3815,7 @@ HWND SWELL_MakeEditField(int idx, int x, int y, int w, int h, int flags)
   else obj=[[SWELL_TextField alloc] init];
   [obj setEditable:(flags & ES_READONLY)?NO:YES];
   if (flags & ES_READONLY) [obj setSelectable:YES];
-  SWELL_DO_CONTROL_FONT(obj);
+  SWELL_DO_CONTROL_FONT(obj, 0);
   
   if ([obj isKindOfClass:[SWELL_TextField class]])
     [(SWELL_TextField *)obj initColors:SWELL_osx_is_dark_mode(0)];
@@ -3837,7 +3850,7 @@ HWND SWELL_MakeLabel( int align, const char *label, int idx, int x, int y, int w
   [obj setBordered:NO];
   [obj setBezeled:NO];
   [obj setDrawsBackground:NO];
-  SWELL_DO_CONTROL_FONT(obj);
+  SWELL_DO_CONTROL_FONT(obj, 0);
 
   if (flags & SS_NOTIFY)
   {
@@ -4151,7 +4164,7 @@ HWND SWELL_MakeControl(const char *cname, int idx, const char *classname, int st
     [obj setBordered:NO];
     [obj setBezeled:NO];
     [obj setDrawsBackground:NO];
-    SWELL_DO_CONTROL_FONT(obj);
+    SWELL_DO_CONTROL_FONT(obj, 0);
 
     if (cname && *cname)
     {
@@ -4256,7 +4269,7 @@ HWND SWELL_MakeControl(const char *cname, int idx, const char *classname, int st
       [button swellSetRadioFlags:4096];
     }
     
-    SWELL_DO_CONTROL_FONT(button);
+    SWELL_DO_CONTROL_FONT(button, 0);
     [button setFrame:fr];
     NSString *labelstr=(NSString *)SWELL_CStringToCFString_FilterPrefix(cname);
     [button setTitle:labelstr];
@@ -4302,7 +4315,7 @@ HWND SWELL_MakeCombo(int idx, int x, int y, int w, int h, int flags)
   {
     SWELL_PopUpButton *obj=[[SWELL_PopUpButton alloc] init];
     [obj setTag:idx];
-    [obj setFont:[NSFont systemFontOfSize:10.0f]];
+    SWELL_DO_CONTROL_FONT(obj, 0);
     NSRect rc=MakeCoords(x,y,w,(g_swell_osx_style&1) ? 24 : 18,true,true);
     if (g_swell_osx_style&1)
     {
@@ -4332,7 +4345,7 @@ HWND SWELL_MakeCombo(int idx, int x, int y, int w, int h, int flags)
   {
     SWELL_ComboBox *obj=[[SWELL_ComboBox alloc] init];
     [obj setFocusRingType:NSFocusRingTypeNone];
-    [obj setFont:[NSFont systemFontOfSize:10.0f]];
+    SWELL_DO_CONTROL_FONT(obj, 1);
     [obj setEditable:(flags & 0x3) == CBS_DROPDOWNLIST?NO:YES];
     [obj setSwellStyle:flags];
     [obj setTag:idx];
