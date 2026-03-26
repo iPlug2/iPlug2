@@ -90,6 +90,7 @@ float SWELL_osx_dialog_scaling()
 }
 
 // mode=1 for dropdown edit, on the biggest size we use slightly smaller
+// mode=2 for groupboxes/tab controls, which get the default font unless in nondefault scaling
 #define SWELL_DO_CONTROL_FONT(button, mode) do { \
   const double sc = m_transform.size.width; \
   float fsize; \
@@ -97,6 +98,7 @@ float SWELL_osx_dialog_scaling()
   else if (sc < 1.81) fsize=10.0f; \
   else if (sc < 2.0) fsize=11.0f; \
   else fsize = mode == 1 ? 13.0f : 14.0f; \
+  if (mode == 2) fsize += 1.0f; \
   if (fsize != 11.0f) [button setFont:[NSFont systemFontOfSize:fsize]]; \
 } while(0)
 
@@ -4009,6 +4011,7 @@ HWND SWELL_MakeControl(const char *cname, int idx, const char *classname, int st
     [obj setAllowsTruncatedLabels:YES];
     [obj setNotificationWindow:ACTIONTARGET];
     [obj setHidden:NO];
+    SWELL_DO_CONTROL_FONT(obj, 2);
     [obj setFrame:MakeCoords(x,y,w,h,false)];
     if (style&SWELL_NOT_WS_VISIBLE) [obj setHidden:YES];
     [m_make_owner addSubview:obj];
@@ -4417,6 +4420,7 @@ HWND SWELL_MakeGroupBox(const char *name, int idx, int x, int y, int w, int h, i
   [obj setTitle:labelstr];
   [obj setTag:idx];
   [labelstr release];
+  SWELL_DO_CONTROL_FONT([obj titleCell], 2);
   if ((style & BS_XPOSITION_MASK) == BS_CENTER)
   {
     [[obj titleCell] setAlignment:NSCenterTextAlignment];
