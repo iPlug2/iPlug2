@@ -292,6 +292,7 @@ typedef struct WindowPropRec
   int m_fastClickMask;	
   NSColor *m_fgColor;
   NSMutableArray *m_selColors;
+  NSFont *m_nsFont; // font to use for cells (used by ListView_InsertColumn, etc), may be NULL for default
 
   // these are for the new yosemite mouse handling code
   int m_last_plainly_clicked_item, m_last_shift_clicked_item;
@@ -305,6 +306,7 @@ typedef struct WindowPropRec
 -(NSInteger)columnAtPoint:(NSPoint)pt;
 -(int)getColumnPos:(int)idx; // get current position of column that was originally at idx
 -(int)getColumnIdx:(int)pos; // get original index of column that is currently at position
+-(void)setFont:(NSFont *)font;
 -(void)setFrame:(NSRect)r;
 
 -(BOOL)accessibilityPerformShowMenu;

@@ -91,6 +91,7 @@ float SWELL_osx_dialog_scaling()
 
 // mode=1 for dropdown edit, on the biggest size we use slightly smaller
 // mode=2 for groupboxes/tab controls, which get the default font unless in nondefault scaling
+// mode=3 for table/outlineviews (these default to 13pt)
 #define SWELL_DO_CONTROL_FONT(button, mode) do { \
   const double sc = m_transform.size.width; \
   float fsize; \
@@ -98,8 +99,8 @@ float SWELL_osx_dialog_scaling()
   else if (sc < 1.81) fsize=10.0f; \
   else if (sc < 2.0) fsize=11.0f; \
   else fsize = mode == 1 ? 13.0f : 14.0f; \
-  if (mode == 2) fsize += 1.0f; \
-  if (fsize != 11.0f) [button setFont:[NSFont systemFontOfSize:fsize]]; \
+  if (mode >= 2) fsize += 1.0f; \
+  if (fsize != 11.0f) [button setFont:[NSFont systemFontOfSize:(fsize + (mode==3 ? 2.0f : 0.0f))]]; \
 } while(0)
 
 static void *SWELL_CStringToCFString_FilterPrefix(const char *str)
@@ -717,12 +718,20 @@ STANDARD_CONTROL_NEEDSDISPLAY_IMPL( m_lbMode ? "SysListView32_LB" : "SysListView
   }
 }
 
+-(void)setFont:(NSFont *)font
+{
+  [m_nsFont release];
+  [font retain];
+  m_nsFont = font;
+}
+
 -(id) init
 {
   if ((self = [super init]))
   {
     [self setRowHeight:18];
     [self setIntercellSpacing:NSMakeSize(3, 2)];
+    m_nsFont = NULL;
     m_subitem_images = false;
     m_selColors=0;
     m_fgColor = 0;
@@ -749,6 +758,7 @@ STANDARD_CONTROL_NEEDSDISPLAY_IMPL( m_lbMode ? "SysListView32_LB" : "SysListView
   delete m_cols;
   m_cols=0;
   m_items=0;
+  [m_nsFont release];
   [m_fgColor release];
   [m_selColors release];
   [super dealloc];
@@ -4026,6 +4036,7 @@ HWND SWELL_MakeControl(const char *cname, int idx, const char *classname, int st
     [obj setColumnAutoresizingStyle:NSTableViewNoColumnAutoresizing];
     [obj setFocusRingType:NSFocusRingTypeNone];
     [obj setDataSource:(id)obj];
+    SWELL_DO_CONTROL_FONT(obj, 3);
     obj->style=style;
 
     BOOL isLB=!stricmp(classname, "SysListView32_LB");
@@ -4084,6 +4095,7 @@ HWND SWELL_MakeControl(const char *cname, int idx, const char *classname, int st
         if (ar && [ar count] && (c=[ar objectAtIndex:0]))
         {
           SWELL_ODListViewCell *t=[[SWELL_ODListViewCell alloc] init];
+          SWELL_DO_CONTROL_FONT(t, 3);
           [c setDataCell:t];
           [t setOwnerControl:obj];
           [t release];
@@ -4129,6 +4141,7 @@ HWND SWELL_MakeControl(const char *cname, int idx, const char *classname, int st
     {
       NSTableColumn *col=[[NSTableColumn alloc] init];
       SWELL_ListViewCell *cell = [[SWELL_ListViewCell alloc] initTextCell:@""];
+      SWELL_DO_CONTROL_FONT(cell, 3);
       [col setDataCell:cell];
       [cell release];
 
@@ -4558,6 +4571,7 @@ void ListView_SetImageList(HWND h, HIMAGELIST imagelist, int which)
       if (![col isKindOfClass:[SWELL_StatusCell class]])
       {
         SWELL_StatusCell *cell=[[SWELL_StatusCell alloc] initNewCell:!x];
+        if (v->m_nsFont) [cell setFont:v->m_nsFont];
         NSTextFieldCell *oldcell = [col dataCell];
         if (oldcell) [cell setAlignment:[oldcell alignment]];
 
@@ -4584,6 +4598,22 @@ int ListView_GetColumnWidth(HWND h, int pos)
   return (int) floor(0.5+[col width]);
 }
 
+static void lv_set_col_text(SWELL_ListView *v, NSTableColumn *col, const char *text)
+{
+  NSString *lbl=(NSString *)SWELL_CStringToCFString(text);
+
+  if (!v->m_nsFont)
+    [[col headerCell] setStringValue:lbl];
+  else
+  {
+    NSDictionary *attrs = [NSDictionary dictionaryWithObject:v->m_nsFont forKey:NSFontAttributeName];
+    NSAttributedString *title = [[NSAttributedString alloc] initWithString:lbl attributes:attrs];
+    [[col headerCell] setAttributedStringValue:title];
+    [title release];
+  }
+  [lbl release];
+}
+
 void ListView_InsertColumn(HWND h, int pos, const LVCOLUMN *lvc)
 {
   if (WDL_NOT_NORMALLY(!h || !lvc || ![(id)h isKindOfClass:[SWELL_ListView class]])) return;
@@ -4602,9 +4632,7 @@ void ListView_InsertColumn(HWND h, int pos, const LVCOLUMN *lvc)
   
   if (!v->m_lbMode && !(v->style & LVS_NOCOLUMNHEADER))
   {
-    NSString *lbl=(NSString *)SWELL_CStringToCFString(lvc->pszText);  
-    [[col headerCell] setStringValue:lbl];
-    [lbl release];
+    lv_set_col_text(v, col, lvc->pszText);
   }
 
   SWELL_ListViewCell *cell;
@@ -4616,6 +4644,7 @@ void ListView_InsertColumn(HWND h, int pos, const LVCOLUMN *lvc)
   {  
     cell = [[SWELL_ListViewCell alloc] initTextCell:@""];
   }
+  if (v->m_nsFont) [cell setFont:v->m_nsFont];
   [cell setWraps:NO];
   if (lvc->fmt == LVCFMT_CENTER) [cell setAlignment:NSCenterTextAlignment];
   else if (lvc->fmt == LVCFMT_RIGHT) [cell setAlignment:NSRightTextAlignment];
@@ -4714,9 +4743,7 @@ void ListView_SetColumn(HWND h, int pos, const LVCOLUMN *lvc)
   {
     if (!v->m_lbMode && !(v->style&LVS_NOCOLUMNHEADER))
     {
-      NSString *lbl=(NSString *)SWELL_CStringToCFString(lvc->pszText);  
-      [[col headerCell] setStringValue:lbl];
-      [lbl release]; 
+      lv_set_col_text(v, col, lvc->pszText);
     }
   }
 }
