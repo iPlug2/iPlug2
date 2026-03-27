@@ -914,8 +914,8 @@ BOOL GetTextMetrics(HDC ctx, TEXTMETRIC *tm)
     double asc = curfont_valid ? ct->curfont->ct_realAscender : CTFontGetAscent(fr);
     double desc = curfont_valid ? ct->curfont->ct_realDescender : CTFontGetDescent(fr);
     tm->tmAscent = (int)floor(asc+0.5);
-    tm->tmDescent = (int)floor(desc+0.5);
     tm->tmHeight = (int)floor(asc+desc+0.5);
+    tm->tmDescent = tm->tmHeight - tm->tmAscent;
     tm->tmInternalLeading = curfont_valid ? (int) floor(ct->curfont->ct_realInternalLeading) : 0;
     tm->tmAveCharWidth = tm->tmHeight*2/3; // todo
 
