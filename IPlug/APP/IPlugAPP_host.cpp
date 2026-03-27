@@ -207,8 +207,9 @@ std::string IPlugAPPHost::GetAudioDeviceName(uint32_t deviceID) const
 
   if (pos != std::string::npos)
   {
-    std::string subStr = str.substr(pos + 1);
-    return subStr;
+    pos++;
+    while (pos < str.size() && str[pos] == ' ') pos++;
+    return str.substr(pos);
   }
   else
   {
