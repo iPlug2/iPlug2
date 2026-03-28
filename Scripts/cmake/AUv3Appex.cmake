@@ -19,9 +19,9 @@ function(iplug_configure_auv3appex target project_name)
   # OUTPUT_NAME matches CFBundleExecutable in Info.plist
   # For Ninja: Use separate output dir to avoid collision with APP target
   if(XCODE)
-    set(APPEX_OUTPUT_DIR "${CMAKE_BINARY_DIR}/out")
+    set(APPEX_OUTPUT_DIR "${IPLUG2_OUTPUT_DIR}")
   else()
-    set(APPEX_OUTPUT_DIR "${CMAKE_BINARY_DIR}/out/appex-build")
+    set(APPEX_OUTPUT_DIR "${IPLUG2_OUTPUT_DIR}/appex-build")
   endif()
 
   set_target_properties(${target} PROPERTIES
@@ -75,8 +75,8 @@ function(iplug_configure_auv3appex target project_name)
   if(XCODE)
     # For Xcode: XCODE_ATTRIBUTE_WRAPPER_EXTENSION creates .appex bundle directly
     # Bundle is created as ${project_name}.appex, we rename to ${project_name}AUv3.appex
-    set(APPEX_BUNDLE "${CMAKE_BINARY_DIR}/out/$<CONFIG>/${project_name}.appex")
-    set(APPEX_FINAL "${CMAKE_BINARY_DIR}/out/$<CONFIG>/${project_name}AUv3.appex")
+    set(APPEX_BUNDLE "${IPLUG2_OUTPUT_DIR}/$<CONFIG>/${project_name}.appex")
+    set(APPEX_FINAL "${IPLUG2_OUTPUT_DIR}/$<CONFIG>/${project_name}AUv3.appex")
     add_custom_command(TARGET ${target} POST_BUILD
       # Create PkgInfo
       COMMAND ${CMAKE_COMMAND} -DPKGINFO_PATH="${APPEX_BUNDLE}/Contents/PkgInfo"
@@ -100,10 +100,10 @@ function(iplug_configure_auv3appex target project_name)
         "${PLUG_RESOURCES_DIR}/${project_name}-macOS-AUv3-Info.plist"
         "$<TARGET_BUNDLE_DIR:${target}>/Contents/Info.plist"
       # Move and rename .app bundle to .appex in final location
-      COMMAND ${CMAKE_COMMAND} -E rm -rf "${CMAKE_BINARY_DIR}/out/${project_name}AUv3.appex"
+      COMMAND ${CMAKE_COMMAND} -E rm -rf "${IPLUG2_OUTPUT_DIR}/${project_name}AUv3.appex"
       COMMAND ${CMAKE_COMMAND} -E rename
         "$<TARGET_BUNDLE_DIR:${target}>"
-        "${CMAKE_BINARY_DIR}/out/${project_name}AUv3.appex"
+        "${IPLUG2_OUTPUT_DIR}/${project_name}AUv3.appex"
       COMMENT "Building ${project_name}AUv3.appex"
     )
   endif()

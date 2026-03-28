@@ -11,8 +11,9 @@
 include(${CMAKE_CURRENT_LIST_DIR}/IPlug.cmake)
 
 if(NOT TARGET iPlug2::AAX)
-  # Define SDK path
-  set(AAX_SDK_DIR ${IPLUG_DEPS_DIR}/AAX_SDK)
+  # Define SDK path (can be overridden via cache for FetchContent usage)
+  set(IPLUG2_AAX_SDK_PATH "${IPLUG_DEPS_DIR}/AAX_SDK" CACHE PATH "Path to AAX SDK")
+  set(AAX_SDK_DIR ${IPLUG2_AAX_SDK_PATH})
 
   # Check if AAX SDK exists (must have CMakeLists.txt, not just placeholder directory)
   if(NOT EXISTS ${AAX_SDK_DIR}/CMakeLists.txt)
@@ -132,7 +133,7 @@ function(iplug_configure_aax target project_name)
       set(AAX_ARCH "x64")
     endif()
 
-    set(AAX_OUTPUT_DIR "${CMAKE_BINARY_DIR}/out/${project_name}.aaxplugin/Contents/${AAX_ARCH}")
+    set(AAX_OUTPUT_DIR "${IPLUG2_OUTPUT_DIR}/${project_name}.aaxplugin/Contents/${AAX_ARCH}")
 
     set_target_properties(${target} PROPERTIES
       OUTPUT_NAME "${project_name}"
@@ -148,13 +149,13 @@ function(iplug_configure_aax target project_name)
     set(PAGES_XML ${PLUG_RESOURCES_DIR}/${project_name}-Pages.xml)
     if(EXISTS ${PAGES_XML})
       add_custom_command(TARGET ${target} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_BINARY_DIR}/out/${project_name}.aaxplugin/Contents/Resources"
-        COMMAND ${CMAKE_COMMAND} -E copy "${PAGES_XML}" "${CMAKE_BINARY_DIR}/out/${project_name}.aaxplugin/Contents/Resources/${project_name}-Pages.xml"
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${IPLUG2_OUTPUT_DIR}/${project_name}.aaxplugin/Contents/Resources"
+        COMMAND ${CMAKE_COMMAND} -E copy "${PAGES_XML}" "${IPLUG2_OUTPUT_DIR}/${project_name}.aaxplugin/Contents/Resources/${project_name}-Pages.xml"
         COMMENT "Creating AAX bundle structure and copying Pages.xml for ${project_name}"
       )
     else()
       add_custom_command(TARGET ${target} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_BINARY_DIR}/out/${project_name}.aaxplugin/Contents/Resources"
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${IPLUG2_OUTPUT_DIR}/${project_name}.aaxplugin/Contents/Resources"
         COMMENT "Creating AAX bundle structure for ${project_name}"
       )
     endif()
@@ -163,7 +164,7 @@ function(iplug_configure_aax target project_name)
     set(ICON_FILE ${PLUG_RESOURCES_DIR}/${project_name}.ico)
     if(EXISTS ${ICON_FILE})
       add_custom_command(TARGET ${target} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy "${ICON_FILE}" "${CMAKE_BINARY_DIR}/out/${project_name}.aaxplugin/Contents/PlugIn.ico"
+        COMMAND ${CMAKE_COMMAND} -E copy "${ICON_FILE}" "${IPLUG2_OUTPUT_DIR}/${project_name}.aaxplugin/Contents/PlugIn.ico"
         COMMENT "Copying AAX icon for ${project_name}"
       )
     endif()
@@ -174,7 +175,7 @@ function(iplug_configure_aax target project_name)
       BUNDLE TRUE
       BUNDLE_EXTENSION "aaxplugin"
       MACOSX_BUNDLE_INFO_PLIST ${PLUG_RESOURCES_DIR}/${project_name}-AAX-Info.plist
-      LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/out"
+      LIBRARY_OUTPUT_DIRECTORY "${IPLUG2_OUTPUT_DIR}"
       MACOSX_BUNDLE_BUNDLE_NAME "${project_name}"
       OUTPUT_NAME "${project_name}"
       XCODE_ATTRIBUTE_WRAPPER_EXTENSION "aaxplugin"
@@ -182,11 +183,11 @@ function(iplug_configure_aax target project_name)
     )
 
     # Create AAX-specific PkgInfo file (TDMwPTul instead of BNDL????)
-    # Generate PkgInfo at configure time for deterministic output (no platform-dependent newlines)
-    set(AAX_PKGINFO_PATH "${CMAKE_BINARY_DIR}/iplug2_pkginfo/AAX_PkgInfo")
+    file(MAKE_DIRECTORY "${IPLUG2_GENERATED_DIR}")
+    set(AAX_PKGINFO_PATH "${IPLUG2_GENERATED_DIR}/AAX_PkgInfo")
     file(WRITE "${AAX_PKGINFO_PATH}" "TDMwPTul")
     if(NOT XCODE)
-      set(PKGINFO_DEST "${CMAKE_BINARY_DIR}/out/${project_name}.aaxplugin/Contents/PkgInfo")
+      set(PKGINFO_DEST "${IPLUG2_OUTPUT_DIR}/${project_name}.aaxplugin/Contents/PkgInfo")
       add_custom_command(TARGET ${target} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy "${AAX_PKGINFO_PATH}" "${PKGINFO_DEST}"
         COMMENT "Creating AAX PkgInfo for ${project_name}.aaxplugin"
@@ -209,7 +210,7 @@ function(iplug_configure_aax target project_name)
         )
       else()
         add_custom_command(TARGET ${target} POST_BUILD
-          COMMAND ${CMAKE_COMMAND} -E copy "${PAGES_XML}" "${CMAKE_BINARY_DIR}/out/${project_name}.aaxplugin/Contents/Resources/${project_name}-Pages.xml"
+          COMMAND ${CMAKE_COMMAND} -E copy "${PAGES_XML}" "${IPLUG2_OUTPUT_DIR}/${project_name}.aaxplugin/Contents/Resources/${project_name}-Pages.xml"
           COMMENT "Copying AAX Pages.xml for ${project_name}"
         )
       endif()
