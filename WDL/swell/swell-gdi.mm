@@ -1159,8 +1159,8 @@ int DrawText(HDC ctx, const char *buf, int buflen, RECT *r, int align)
             int w = (int) floor(CTLineGetTypographicBounds(l,&asc,&desc,&lead)+0.5);
             if (curfont_valid)
             {
-              asc = ct->curfont->ct_realAscender - 1.0;
-              desc = ct->curfont->ct_realDescender + 1.0;
+              asc = floor(ct->curfont->ct_realAscender+0.5);
+              desc = floor(ct->curfont->ct_realDescender + ct->curfont->ct_realAscender+0.5) - asc;
               lead = 0.0;
             }
             int h =(int) floor(asc+desc+lead+0.5);
@@ -1180,8 +1180,8 @@ int DrawText(HDC ctx, const char *buf, int buflen, RECT *r, int align)
         line_w = (int) floor(CTLineGetTypographicBounds(line,&asc,&desc,&lead)+0.5);
         if (curfont_valid)
         {
-          asc = ct->curfont->ct_realAscender - 1.0;
-          desc = ct->curfont->ct_realDescender + 1.0;
+          asc = floor(ct->curfont->ct_realAscender+0.5);
+          desc = floor(ct->curfont->ct_realDescender + ct->curfont->ct_realAscender+0.5) - asc;
           lead = 0.0;
         }
         line_h =(int) floor(asc+desc+lead+.5);
