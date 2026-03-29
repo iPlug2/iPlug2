@@ -5002,7 +5002,7 @@ forceMouseMove:
 
                   if (ar.right > ar.left && str)
                   {
-                    const int adj = (ar.right-ar.left)/16;
+                    const int adj = (ar.right-ar.left)/4;
                     const int maxadj = SWELL_UI_SCALE(4);
                     int fmt = ncols > 0 ? cols[col].fmt & 3 : LVCFMT_LEFT;
                     if (fmt != LVCFMT_LEFT)
