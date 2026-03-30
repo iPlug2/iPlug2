@@ -913,7 +913,7 @@ BOOL GetTextMetrics(HDC ctx, TEXTMETRIC *tm)
   {
     double asc = curfont_valid ? ct->curfont->ct_realAscender : CTFontGetAscent(fr);
     double desc = curfont_valid ? ct->curfont->ct_realDescender : CTFontGetDescent(fr);
-    tm->tmAscent = (int)floor(asc+0.5);
+    tm->tmAscent = (int)floor(asc);
     tm->tmHeight = (int)floor(asc+desc+0.5);
     tm->tmDescent = tm->tmHeight - tm->tmAscent;
     tm->tmInternalLeading = curfont_valid ? (int) floor(ct->curfont->ct_realInternalLeading) : 0;
@@ -1159,8 +1159,8 @@ int DrawText(HDC ctx, const char *buf, int buflen, RECT *r, int align)
             int w = (int) floor(CTLineGetTypographicBounds(l,&asc,&desc,&lead)+0.5);
             if (curfont_valid)
             {
-              asc = floor(ct->curfont->ct_realAscender+0.5);
-              desc = floor(ct->curfont->ct_realDescender + ct->curfont->ct_realAscender+0.5) - asc;
+              asc = floor(ct->curfont->ct_realAscender);
+              desc = ct->curfont->ct_realDescender + ct->curfont->ct_realAscender - asc;
               lead = 0.0;
             }
             int h =(int) floor(asc+desc+lead+0.5);
@@ -1180,8 +1180,8 @@ int DrawText(HDC ctx, const char *buf, int buflen, RECT *r, int align)
         line_w = (int) floor(CTLineGetTypographicBounds(line,&asc,&desc,&lead)+0.5);
         if (curfont_valid)
         {
-          asc = floor(ct->curfont->ct_realAscender+0.5);
-          desc = floor(ct->curfont->ct_realDescender + ct->curfont->ct_realAscender+0.5) - asc;
+          asc = floor(ct->curfont->ct_realAscender);
+          desc = ct->curfont->ct_realDescender + ct->curfont->ct_realAscender - asc;
           lead = 0.0;
         }
         line_h =(int) floor(asc+desc+lead+.5);
