@@ -2341,4 +2341,27 @@ void ImportMetadataPictureBlobs(const char *fn, WDL_StringKeyedArray<char*> *met
   filelist->Add(strdup(fs.Get()));
 }
 
+// convert "12345" to "12,345" if original has mindigits or more
+void commaify(WDL_UINT64 val, char *buf, int buflen, int mindigits=5)
+{
+  char tmp[128];
+  snprintf(tmp, sizeof(tmp), "%.0f", (double)val);
+
+  int len = strlen(tmp);
+  if (len >= mindigits && ((len+1)*4/3 <= buflen))
+  {
+    const char *p = tmp;
+    while (len--)
+    {
+      *buf++ = *p++;
+      if (len && !(len%3)) *buf++ = ',';
+    }
+    *buf++ = 0;
+  }
+  else
+  {
+    lstrcpyn(buf, tmp, buflen);
+  }
+}
+
 #endif // _METADATA_H_
