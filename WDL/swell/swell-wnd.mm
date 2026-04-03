@@ -78,6 +78,14 @@ static WDL_PtrList<char> s_prefix_removals;
 int g_swell_osx_readonlytext_wndbg = 0;
 int g_swell_osx_style = 0; // &1 = rounded buttons, &2=big sur styled lists, &0xf00 size (0=default smallish, 1=bigger, 2=extra big, 3=extra small)
 
+static NSRect m_transform;
+static id m_make_owner;
+static float m_parent_h;
+static bool m_doautoright;
+static NSRect m_lastdoauto;
+static bool m_sizetofits;
+static int m_make_radiogroupcnt;
+
 float SWELL_osx_dialog_scaling()
 {
   switch ((g_swell_osx_style>>8)&0xf)
@@ -102,6 +110,15 @@ float SWELL_osx_dialog_scaling()
   if (mode >= 2) fsize += 1.0f; \
   if (fsize != 11.0f) [button setFont:[NSFont systemFontOfSize:(fsize + (mode==3 ? 2.0f : 0.0f))]]; \
 } while(0)
+
+#define SWELL_DO_LISTTREEVIEW_ROW_HEIGHT(s) do { \
+    const double sc = m_transform.size.width == 1.0 ? SWELL_osx_dialog_scaling() : m_transform.size.width; \
+    int rh = 18; \
+    if (sc < 1.65) rh -= 3; \
+    else if (sc > 1.95) rh += 2; \
+    else if (sc > 1.8) rh += 1; \
+    [s setRowHeight:rh]; \
+} while (0)
 
 static void *SWELL_CStringToCFString_FilterPrefix(const char *str)
 {
@@ -373,7 +390,7 @@ STANDARD_CONTROL_NEEDSDISPLAY_IMPL("SysTreeView32")
 {
   if ((self = [super init]))
   {
-    [self setRowHeight:18];
+    SWELL_DO_LISTTREEVIEW_ROW_HEIGHT(self);
     [self setIntercellSpacing:NSMakeSize(3, 2)];
     m_fakerightmouse=false;
     m_items=new WDL_PtrList<HTREEITEM__>;
@@ -729,7 +746,7 @@ STANDARD_CONTROL_NEEDSDISPLAY_IMPL( m_lbMode ? "SysListView32_LB" : "SysListView
 {
   if ((self = [super init]))
   {
-    [self setRowHeight:18];
+    SWELL_DO_LISTTREEVIEW_ROW_HEIGHT(self);
     [self setIntercellSpacing:NSMakeSize(3, 2)];
     m_nsFont = NULL;
     m_subitem_images = false;
@@ -3439,14 +3456,6 @@ void SWELL_CloseWindow(HWND hwnd)
 
 
 #include "swell-dlggen.h"
-
-static id m_make_owner;
-static NSRect m_transform;
-static float m_parent_h;
-static bool m_doautoright;
-static NSRect m_lastdoauto;
-static bool m_sizetofits;
-static int m_make_radiogroupcnt;
 
 #define ACTIONTARGET (m_make_owner)
 
