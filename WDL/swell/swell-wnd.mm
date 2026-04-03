@@ -1239,6 +1239,15 @@ STANDARD_CONTROL_NEEDSDISPLAY_IMPL( m_lbMode ? "SysListView32_LB" : "SysListView
   return r;
 }
 
+-(void)setFrame:(NSRect)r
+{
+  [super setFrame:r];
+  if ((m_lbMode || !(style & LVS_REPORT)) && m_cols && m_cols->GetSize()==1)
+  {
+    NSTableColumn *col = m_cols->Get(0);
+    if (col) [col setWidth:[[self superview] bounds].size.width];
+  }
+}
 @end
 
 @implementation SWELL_ImageButtonCell
@@ -4003,7 +4012,7 @@ HWND SWELL_MakeControl(const char *cname, int idx, const char *classname, int st
     [obj2 setFrame:tr];
     [obj2 setDocumentView:obj];
     [obj2 setHasVerticalScroller:YES];
-    if (!isLB) [obj2 setHasHorizontalScroller:YES];
+    if (!isLB && (style & LVS_REPORT)) [obj2 setHasHorizontalScroller:YES];
     [obj2 setAutohidesScrollers:YES];
     [obj2 setDrawsBackground:NO];
     [obj release];
