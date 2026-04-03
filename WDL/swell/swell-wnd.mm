@@ -93,7 +93,7 @@ float SWELL_osx_dialog_scaling()
 // mode=2 for groupboxes/tab controls, which get the default font unless in nondefault scaling
 // mode=3 for table/outlineviews (these default to 13pt)
 #define SWELL_DO_CONTROL_FONT(button, mode) do { \
-  const double sc = m_transform.size.width; \
+  const double sc = m_transform.size.width == 1.0 ? SWELL_osx_dialog_scaling() : m_transform.size.width; \
   float fsize; \
   if (sc < 1.65) fsize=8.0f; \
   else if (sc < 1.81) fsize=10.0f; \
