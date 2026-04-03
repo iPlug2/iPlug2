@@ -40,6 +40,7 @@
 #include "swell-internal.h"
 
 #define SWELL_LISTTREEVIEW_MAX_LEFT_PAD 4.0
+#define SWELL_TREEVIEW_EXPAND_RIGHTEDGE 14.0
 
 static bool SWELL_NeedModernListViewHacks()
 {
@@ -638,9 +639,23 @@ STANDARD_CONTROL_NEEDSDISPLAY_IMPL("SysTreeView32")
     r.origin.x = SWELL_LISTTREEVIEW_MAX_LEFT_PAD;
     r.size.width -= r.origin.x;
   }
+  if (r.size.width>0) r.size.width += SWELL_TREEVIEW_EXPAND_RIGHTEDGE;
   return r;
 }
 
+- (NSRect)rectOfRow:(NSInteger) row
+{
+  NSRect rect = [super rectOfRow:row];
+  if (rect.size.width>0) rect.size.width += SWELL_TREEVIEW_EXPAND_RIGHTEDGE;
+  return rect;
+}
+
+-(void)setFrame:(NSRect)r
+{
+  [super setFrame:r];
+  NSArray *list = [self tableColumns];
+  if ([list count]) [[list objectAtIndex:0] setWidth:[[self superview] bounds].size.width];
+}
 
 @end
 

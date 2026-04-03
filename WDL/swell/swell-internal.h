@@ -235,6 +235,9 @@ typedef struct WindowPropRec
 -(void)mouseUp:(NSEvent *)theEvent;
 - (void)rightMouseUp:(NSEvent *)theEvent;
 - (void)highlightSelectionInClipRect:(NSRect)theClipRect;
+- (void)setFrame:(NSRect)r;
+- (NSRect)rectOfColumn:(NSInteger)column;
+- (NSRect)rectOfRow:(NSInteger) row;
 
 // data source
 -(NSInteger) outlineView:(NSOutlineView *)outlineView numberOfChildrenOfItem:(id)item;
