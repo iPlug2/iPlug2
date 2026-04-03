@@ -86,22 +86,22 @@ static NSRect m_lastdoauto;
 static bool m_sizetofits;
 static int m_make_radiogroupcnt;
 
-float SWELL_osx_dialog_scaling()
+int SWELL_osx_dialog_scaling() // this returns 1.7 as 256 (256 * SWELL_DLGSCALE_FACTOR = 1.7)
 {
   switch ((g_swell_osx_style>>8)&0xf)
   {
-    case 1: return 1.93;
-    case 2: return 2.3;
-    case 3: return 1.4;
+    case 1: return 290; // 1.93
+    case 2: return 346; // 2.3
+    case 3: return 211; // 1.4
   }
-  return 1.7;
+  return 256; // 1.7
 }
 
 // mode=1 for dropdown edit, on the biggest size we use slightly smaller
 // mode=2 for groupboxes/tab controls, which get the default font unless in nondefault scaling
 // mode=3 for table/outlineviews (these default to 13pt)
 #define SWELL_DO_CONTROL_FONT(button, mode) do { \
-  const double sc = m_transform.size.width == 1.0 ? SWELL_osx_dialog_scaling() : m_transform.size.width; \
+  const double sc = m_transform.size.width == 1.0 ? SWELL_osx_dialog_scaling()*SWELL_DLGSCALE_FACTOR : m_transform.size.width; \
   float fsize; \
   if (sc < 1.65) fsize=8.0f; \
   else if (sc < 1.81) fsize=10.0f; \
@@ -112,7 +112,7 @@ float SWELL_osx_dialog_scaling()
 } while(0)
 
 #define SWELL_DO_LISTTREEVIEW_ROW_HEIGHT(s) do { \
-    const double sc = m_transform.size.width == 1.0 ? SWELL_osx_dialog_scaling() : m_transform.size.width; \
+    const double sc = m_transform.size.width == 1.0 ? SWELL_osx_dialog_scaling()*SWELL_DLGSCALE_FACTOR : m_transform.size.width; \
     int rh = 18; \
     if (sc < 1.65) rh -= 3; \
     else if (sc > 1.95) rh += 2; \
@@ -1346,7 +1346,7 @@ STANDARD_CONTROL_NEEDSDISPLAY_IMPL( m_lbMode ? "SysListView32_LB" : "SysListView
     DRAWITEMSTRUCT dis={ODT_BUTTON,(UINT)[ctl tag],0,0,0,(HWND)ctl,hdc,{0,},0};
     NSRECT_TO_RECT(&dis.rcItem,cellFrame);
 
-    HFONT font = CreateFont(- (int)(SWELL_osx_dialog_scaling() * 6.2 + 0.5),0,0,0,400,0,0,0,0,0,0,0,0,"Helvetica");
+    HFONT font = CreateFont(- ((SWELL_osx_dialog_scaling() * 11 + 128)/256),0,0,0,400,0,0,0,0,0,0,0,0,"Helvetica");
     HGDIOBJ oldfont = SelectObject(hdc,font);
     SendMessage(notWnd,WM_DRAWITEM,dis.CtlID,(LPARAM)&dis);
     SelectObject(hdc,oldfont);
@@ -1380,7 +1380,7 @@ STANDARD_CONTROL_NEEDSDISPLAY_IMPL( m_lbMode ? "SysListView32_LB" : "SysListView
     DRAWITEMSTRUCT dis={ODT_LISTBOX,(UINT)[m_ownctl tag],(UINT)itemidx,0,0,(HWND)m_ownctl,hdc,{0,},(DWORD_PTR)itemData};
     NSRECT_TO_RECT(&dis.rcItem,cellFrame);
 
-    HFONT font = CreateFont(- (int)(SWELL_osx_dialog_scaling() * 6.2 + 0.5),0,0,0,400,0,0,0,0,0,0,0,0,"Helvetica");
+    HFONT font = CreateFont(- ((SWELL_osx_dialog_scaling() * 11 + 128)/256),0,0,0,400,0,0,0,0,0,0,0,0,"Helvetica");
     HGDIOBJ oldfont = SelectObject(hdc,font);
     SendMessage(notWnd,WM_DRAWITEM,dis.CtlID,(LPARAM)&dis);
 
@@ -3461,8 +3461,8 @@ void SWELL_CloseWindow(HWND hwnd)
 
 void SWELL_MakeSetCurParms(float xscale, float yscale, float xtrans, float ytrans, HWND parent, bool doauto, bool dosizetofit)
 {
-  if (xscale == 0.0) xscale = SWELL_osx_dialog_scaling();
-  if (yscale == 0.0) yscale = SWELL_osx_dialog_scaling();
+  if (xscale == 0.0) xscale = SWELL_osx_dialog_scaling() * SWELL_DLGSCALE_FACTOR;
+  if (yscale == 0.0) yscale = SWELL_osx_dialog_scaling() * SWELL_DLGSCALE_FACTOR;
   if (parent) s_prefix_removals.Empty(true,free);
   m_make_radiogroupcnt=0;
   m_sizetofits=dosizetofit;

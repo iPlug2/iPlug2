@@ -68,6 +68,9 @@ struct HTREEITEM__;
 
 #ifdef SWELL_TARGET_OSX
 
+int SWELL_osx_dialog_scaling();
+#define SWELL_DLGSCALE_FACTOR (1.7/256.0)
+
 #if 0
   // at some point we should enable this and use it in most SWELL APIs that call Cocoa code...
   #define SWELL_BEGIN_TRY @try { 
