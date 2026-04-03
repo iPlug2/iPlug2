@@ -3334,18 +3334,30 @@ static LRESULT WINAPI labelWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
               if (text[0])
               {
                 RECT tmp={0,};
-                const int line_h = DrawText(ps.hdc," ",1,&tmp,DT_SINGLELINE|DT_NOPREFIX|DT_CALCRECT|f);
-                if (r.bottom > line_h*5/3)
+                const bool has_nl = !!strchr(text,'\n');
+                const int line_h = DrawText(ps.hdc,has_nl ? " " : text,-1,&tmp,DT_SINGLELINE|DT_NOPREFIX|DT_CALCRECT|f);
+                if (r.bottom > line_h*5/3 && (tmp.right > r.right-r.left || has_nl))
                 {
-                  int loffs=0;
-                  while (text[loffs] && r.top < r.bottom)
+                  // tall label that doesn't fit text as a single line:
+                  // first pass, measure height of wrapped text, second pass draw the text vertically centered
+                  for (int pass = 0; pass < 2; pass ++)
                   {
-                    int post=0, lb=swell_getLineLength(text+loffs, &post, r.right, ps.hdc);
-                    if (lb>0)
-                      DrawText(ps.hdc,text+loffs,lb,&r,DT_TOP|DT_SINGLELINE|DT_LEFT|f);
-                    r.top += line_h;
-                    loffs+=lb+post;
+                    int loffs = 0, ypos = r.top;
+                    while (text[loffs] && ypos < r.bottom)
+                    {
+                      int post=0, lb=swell_getLineLength(text+loffs, &post, r.right, ps.hdc);
+                      if (lb>0 && pass)
+                      {
+                        r.top = ypos;
+                        DrawText(ps.hdc,text+loffs,lb,&r,DT_TOP|DT_SINGLELINE|DT_LEFT|f);
+                      }
+                      ypos += line_h;
+                      loffs+=lb+post;
+                    }
+                    if (!pass && ypos < r.bottom)
+                      r.top += (r.bottom-ypos)/2; // vertical center
                   }
+
                   text = "";
                 }
               }
