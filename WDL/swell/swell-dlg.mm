@@ -1218,16 +1218,18 @@ static id<MTLDevice> mtl_def_device()
 - (id)initChild:(SWELL_DialogResourceIndex *)resstate Parent:(NSView *)parent dlgProc:(DLGPROC)dlgproc Param:(LPARAM)par
 {
   NSRect contentRect=NSMakeRect(0,0,resstate ? resstate->width : 300,resstate ? resstate->height : 200);
+  const int dlg_dpi = SWELL_osx_dialog_scaling(NULL);
   if (resstate && (resstate->windowTypeFlags & SWELL_DLG_WS_DEFAULT_SCALING))
   {
-    contentRect.size.width = floor(SWELL_osx_dialog_scaling() * SWELL_DLGSCALE_FACTOR * contentRect.size.width + 0.5);
-    contentRect.size.height = floor(SWELL_osx_dialog_scaling() * SWELL_DLGSCALE_FACTOR * contentRect.size.height + 0.5);
+    contentRect.size.width = floor(dlg_dpi * SWELL_DLGSCALE_FACTOR * contentRect.size.width + 0.5);
+    contentRect.size.height = floor(dlg_dpi  * SWELL_DLGSCALE_FACTOR * contentRect.size.height + 0.5);
   }
   if (!(self = [super initWithFrame:contentRect])) return self;
 
   m_classname=NULL;
   memset(m_access_cacheptrs,0,sizeof(m_access_cacheptrs));
   m_allow_nomiddleman=1;
+  m_dlg_dpi = dlg_dpi;
   m_isdirty=3;
   m_glctx=NULL;
   m_enabled=TRUE;
@@ -2598,8 +2600,8 @@ SWELLDIALOGCOMMONIMPLEMENTS_WND(0)
   int h = (resstate ? resstate->height : 10);
   if (resstate && (resstate->windowTypeFlags & SWELL_DLG_WS_DEFAULT_SCALING))
   {
-    w = (int)(SWELL_osx_dialog_scaling() * SWELL_DLGSCALE_FACTOR * w + 0.5);
-    h = (int)(SWELL_osx_dialog_scaling() * SWELL_DLGSCALE_FACTOR * h + 0.5);
+    w = (int)(SWELL_osx_dialog_scaling(NULL) * SWELL_DLGSCALE_FACTOR * w + 0.5);
+    h = (int)(SWELL_osx_dialog_scaling(NULL) * SWELL_DLGSCALE_FACTOR * h + 0.5);
   }
   
   int wx, wy;
@@ -2718,8 +2720,8 @@ SWELLDIALOGCOMMONIMPLEMENTS_WND(1)
   NSRect contentRect=NSMakeRect(0,0,resstate->width,resstate->height);
   if (resstate->windowTypeFlags & SWELL_DLG_WS_DEFAULT_SCALING)
   {
-    contentRect.size.width = floor(SWELL_osx_dialog_scaling() * SWELL_DLGSCALE_FACTOR * contentRect.size.width + 0.5);
-    contentRect.size.height = floor(SWELL_osx_dialog_scaling() * SWELL_DLGSCALE_FACTOR * contentRect.size.height + 0.5);
+    contentRect.size.width = floor(SWELL_osx_dialog_scaling(NULL) * SWELL_DLGSCALE_FACTOR * contentRect.size.width + 0.5);
+    contentRect.size.height = floor(SWELL_osx_dialog_scaling(NULL) * SWELL_DLGSCALE_FACTOR * contentRect.size.height + 0.5);
   }
 
   unsigned int sf=(NSTitledWindowMask|NSClosableWindowMask|((resstate->windowTypeFlags&SWELL_DLG_WS_RESIZABLE)? NSResizableWindowMask : 0));

@@ -68,7 +68,7 @@ struct HTREEITEM__;
 
 #ifdef SWELL_TARGET_OSX
 
-int SWELL_osx_dialog_scaling();
+int SWELL_osx_dialog_scaling(HWND hwnd);
 #define SWELL_DLGSCALE_FACTOR (1.7/256.0)
 
 #if 0
@@ -415,6 +415,8 @@ typedef struct WindowPropRec
   id m_lastTopLevelOwner; // save a copy of the owner, if any
   id m_access_cacheptrs[6];
   const char *m_classname;
+
+  int m_dlg_dpi; // latched dpi for this window, SWELL_osx_dialog_scaling() uses (0 unset, 256=1.7, etc)
 
 // only used if not SWELL_NO_METAL
   char m_use_metal; // 1=normal mode, 2=full pipeline (GetDC() etc support). -1 is for non-metal async layered mode. -2 for non-metal non-async layered
