@@ -4195,6 +4195,7 @@ static LRESULT listViewWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
   static POINT s_clickpt;
   switch (msg)
   {
+    case WM_MOUSEHWHEEL:
     case WM_MOUSEWHEEL:
       if ((GetAsyncKeyState(VK_CONTROL)&0x8000) || (GetAsyncKeyState(VK_MENU)&0x8000)) break; // pass modified mousewheel to parent
 
@@ -4202,7 +4203,7 @@ static LRESULT listViewWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
         const int amt = ((short)HIWORD(wParam))/40;
         if (amt && lvs)
         {
-          if (GetAsyncKeyState(VK_SHIFT)&0x8000)
+          if ((GetAsyncKeyState(VK_SHIFT) ^ (msg==WM_MOUSEHWHEEL?0x8000:0))&0x8000)
           {
             const int oldscroll = lvs->m_scroll_x;
             lvs->m_scroll_x -= amt*4;
