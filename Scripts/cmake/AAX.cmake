@@ -12,7 +12,9 @@ include(${CMAKE_CURRENT_LIST_DIR}/IPlug.cmake)
 
 if(NOT TARGET iPlug2::AAX)
   # Define SDK path
-  set(AAX_SDK_DIR ${IPLUG_DEPS_DIR}/AAX_SDK)
+  if(NOT DEFINED AAX_SDK_DIR)
+    set(AAX_SDK_DIR ${IPLUG_DEPS_DIR}/AAX_SDK)
+  endif()
 
   # Check if AAX SDK exists (must have CMakeLists.txt, not just placeholder directory)
   if(NOT EXISTS ${AAX_SDK_DIR}/CMakeLists.txt)
