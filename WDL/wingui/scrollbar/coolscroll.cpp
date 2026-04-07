@@ -700,22 +700,24 @@ void DrawAdHocVScrollbarEx(LICE_IBitmap* dest, const RECT* r, int pos, int page,
   bool can_scroll = max > 0 && (pos > 0 || pos+page < max);
   if (mode == 0 && !can_scroll) return;
 
-  int x=r->left;
-  int y=r->top;
-  int w=r->right-r->left;
+  const int x=r->left;
+  const int y=r->top;
+  const int w=r->right-r->left;
+  const int button_sz = w;
   int h=r->bottom-r->top;
 
-  bool want_zoom = mode == 1 && h >= w*2;
-  bool want_updown = can_scroll && h >= w*(want_zoom ? 4 : 2);
-  bool want_thumb = can_scroll && h >= w*(want_zoom ? 6 : 4);
+  const bool want_zoom = mode == 1 && h >= w*2;
+  const bool want_updown = can_scroll && h >= w*(want_zoom ? 4 : 2);
+  const bool want_thumb = can_scroll && h >= w*(want_zoom ? 6 : 4);
 
-  if (want_zoom) h -= 17*2;
+  if (want_zoom) h -= button_sz*2;
 
   if (want_thumb)
   {
-    int range=h-17*2;
-    int thumb=range*page/max;
-    int tpos=(range*pos)/max;
+    const int leading_y = want_updown ? button_sz : 0;
+    const int range = h-(want_updown ? button_sz*2 : 0);
+    const int thumb=range*page/max;
+    const int tpos=(range*pos)/max;
 
     if (theme->hasPink)
     {
@@ -735,23 +737,23 @@ void DrawAdHocVScrollbarEx(LICE_IBitmap* dest, const RECT* r, int pos, int page,
       if (th < 0) th=0;
 
       LICE_ScaledBlit(dest, src,
-                      x, y+17+tpos, w, theme->thumbVV[0],
+                      x, y+leading_y+tpos, w, theme->thumbVV[0],
                       0, 91, 17, theme->thumbVV[0],
                       1.0f, LICE_BLIT_FILTER_BILINEAR|LICE_BLIT_USE_ALPHA);
       LICE_ScaledBlit(dest, src,
-                      x, y+17+tpos+theme->thumbVV[0], w, th,
+                      x, y+leading_y+tpos+theme->thumbVV[0], w, th,
                       0, 91+theme->thumbVV[0], 17, theme->thumbVV[1],
                       1.0f, LICE_BLIT_FILTER_BILINEAR|LICE_BLIT_USE_ALPHA);
       LICE_ScaledBlit(dest, src,
-                      x, y+17+tpos+theme->thumbVV[0]+th, w, theme->thumbVV[2],
+                      x, y+leading_y+tpos+theme->thumbVV[0]+th, w, theme->thumbVV[2],
                       0, 91+theme->thumbVV[0]+theme->thumbVV[1], 17, theme->thumbVV[2],
                       1.0f, LICE_BLIT_FILTER_BILINEAR|LICE_BLIT_USE_ALPHA);
       LICE_ScaledBlit(dest, src,
-                      x, y+17+tpos+theme->thumbVV[0]+th+theme->thumbVV[2], w, th,
+                      x, y+leading_y+tpos+theme->thumbVV[0]+th+theme->thumbVV[2], w, th,
                       0, 91+theme->thumbVV[0]+theme->thumbVV[1]+theme->thumbVV[2], 17, theme->thumbVV[3],
                       1.0f, LICE_BLIT_FILTER_BILINEAR|LICE_BLIT_USE_ALPHA);
       LICE_ScaledBlit(dest, src,
-                      x, y+17+tpos+theme->thumbVV[0]+th+theme->thumbVV[2]+th, w, theme->thumbVV[4],
+                      x, y+leading_y+tpos+theme->thumbVV[0]+th+theme->thumbVV[2]+th, w, theme->thumbVV[4],
                       0, 91+theme->thumbVV[0]+theme->thumbVV[1]+theme->thumbVV[2]+theme->thumbVV[3], 17, theme->thumbVV[4],
                       1.0f, LICE_BLIT_FILTER_BILINEAR|LICE_BLIT_USE_ALPHA);
     }
@@ -763,7 +765,7 @@ void DrawAdHocVScrollbarEx(LICE_IBitmap* dest, const RECT* r, int pos, int page,
                       1.0f, LICE_BLIT_FILTER_BILINEAR);
 
       LICE_ScaledBlit(dest, src,
-                      x, y+17+tpos, w, thumb,
+                      x, y+leading_y+tpos, w, thumb,
                       0, 90, 17, 238-90, 1.0f,
                       LICE_BLIT_FILTER_BILINEAR|LICE_BLIT_USE_ALPHA);
     }
@@ -784,11 +786,11 @@ void DrawAdHocVScrollbarEx(LICE_IBitmap* dest, const RECT* r, int pos, int page,
   if (want_zoom)
   {
     LICE_ScaledBlit(dest, src,
-      x, y+h, w, w,
+      x, r->bottom-button_sz*2, w, w,
       116, 201, 17, 17,
       1.0f, LICE_BLIT_FILTER_BILINEAR);
     LICE_ScaledBlit(dest, src,
-      x, y+h+w, w, w,
+      x, r->bottom-button_sz, w, w,
       116, 221, 17, 17,
       1.0f, LICE_BLIT_FILTER_BILINEAR);
   }
