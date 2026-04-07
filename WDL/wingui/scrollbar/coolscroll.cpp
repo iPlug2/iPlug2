@@ -688,7 +688,7 @@ static COLORREF GetSBBackColor(const SCROLLWND *sw, HWND hwnd)
 }
 
 
-void DrawAdHocVScrollbarEx(LICE_IBitmap* dest, RECT* r, int pos, int page, int max, int wtheme, int mode)
+void DrawAdHocVScrollbarEx(LICE_IBitmap* dest, const RECT* r, int pos, int page, int max, int wtheme, int mode)
 {
   // mode 1: want zoom buttons
 
