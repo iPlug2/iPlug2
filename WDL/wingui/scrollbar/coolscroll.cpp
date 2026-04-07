@@ -3417,7 +3417,7 @@ void CoolSB_SetVScrollPad(HWND hwnd, UINT topamt, UINT botamt, void *(*getDeadAr
     sw->getDeadAreaBitmap=getDeadAreaBitmap;
     sw->vscrollbarShrinkBottom = botamt;
     sw->vscrollbarShrinkTop = topamt;
-#ifdef _WIN32
+#ifndef __APPLE__
     RedrawNonClient(hwnd,FALSE);
 #endif
   }
