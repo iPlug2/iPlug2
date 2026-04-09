@@ -1062,6 +1062,7 @@ bool EnumMetadataKeyFromMexKey(const char *mexkey, int idx, char *key, int keyle
   // INFO
   // ID3
   // QT
+  // PKEY
   // APE
   // VORBIS
   // CART
@@ -1077,6 +1078,7 @@ bool EnumMetadataKeyFromMexKey(const char *mexkey, int idx, char *key, int keyle
     "INFO:INAM",
     "ID3:TIT2",
     "QT:title",
+    "PKEY:Title",
     "APE:Title",
     "VORBIS:TITLE",
     "CART:Title",
@@ -1092,6 +1094,7 @@ bool EnumMetadataKeyFromMexKey(const char *mexkey, int idx, char *key, int keyle
     "INFO:IART",
     "ID3:TPE1",
     "QT:artist",
+    "PKEY:Music_AlbumArtist",
     "APE:Artist",
     "VORBIS:ARTIST",
     "CART:Artist",
@@ -1105,6 +1108,7 @@ bool EnumMetadataKeyFromMexKey(const char *mexkey, int idx, char *key, int keyle
     "INFO:IPRD",
     "ID3:TALB",
     "QT:album",
+    "PKEY:Music_AlbumTitle",
     "APE:Album",
     "VORBIS:ALBUM",
     "XMP:dm/album",
@@ -1129,6 +1133,7 @@ bool EnumMetadataKeyFromMexKey(const char *mexkey, int idx, char *key, int keyle
     "INFO:IGNR",
     "ID3:TCON",
     "QT:genre",
+    "PKEY:Music_Genre",
     "APE:Genre",
     "VORBIS:GENRE",
     "CART:Category",
@@ -1140,6 +1145,7 @@ bool EnumMetadataKeyFromMexKey(const char *mexkey, int idx, char *key, int keyle
     "INFO:ICMT",
     "ID3:COMM",
     "QT:comment",
+    "PKEY:Comment",
     "APE:Comment",
     "VORBIS:COMMENT",
     "CART:TagText",
@@ -1157,6 +1163,7 @@ bool EnumMetadataKeyFromMexKey(const char *mexkey, int idx, char *key, int keyle
     "INFO:IKEY",
     "ID3:TIT3",
     "QT:description",
+    "PKEY:FileDescription",
     "APE:Subtitle",
     "VORBIS:DESCRIPTION",
     "XMP:dc/description",
@@ -1166,6 +1173,7 @@ bool EnumMetadataKeyFromMexKey(const char *mexkey, int idx, char *key, int keyle
   {
     "ACID:BPM",
     "ID3:TBPM",
+    "PKEY:Music_BeatsPerMinute",
     "APE:BPM",
     "VORBIS:BPM",
     "XMP:dm/tempo",
@@ -1175,6 +1183,7 @@ bool EnumMetadataKeyFromMexKey(const char *mexkey, int idx, char *key, int keyle
   {
     "ACID:KEY",
     "ID3:TKEY",
+    "PKEY:Music_InitialKey",
     "APE:Key",
     "VORBIS:KEY",
     "XMP:dm/key",
