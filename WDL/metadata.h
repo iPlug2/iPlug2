@@ -1061,6 +1061,7 @@ bool EnumMetadataKeyFromMexKey(const char *mexkey, int idx, char *key, int keyle
   // BWF
   // INFO
   // ID3
+  // QT
   // APE
   // VORBIS
   // CART
@@ -1075,6 +1076,7 @@ bool EnumMetadataKeyFromMexKey(const char *mexkey, int idx, char *key, int keyle
   {
     "INFO:INAM",
     "ID3:TIT2",
+    "QT:title",
     "APE:Title",
     "VORBIS:TITLE",
     "CART:Title",
@@ -1089,6 +1091,7 @@ bool EnumMetadataKeyFromMexKey(const char *mexkey, int idx, char *key, int keyle
   {
     "INFO:IART",
     "ID3:TPE1",
+    "QT:artist",
     "APE:Artist",
     "VORBIS:ARTIST",
     "CART:Artist",
@@ -1101,6 +1104,7 @@ bool EnumMetadataKeyFromMexKey(const char *mexkey, int idx, char *key, int keyle
     "INFO:IALB",
     "INFO:IPRD",
     "ID3:TALB",
+    "QT:album",
     "APE:Album",
     "VORBIS:ALBUM",
     "XMP:dm/album",
@@ -1112,6 +1116,7 @@ bool EnumMetadataKeyFromMexKey(const char *mexkey, int idx, char *key, int keyle
     "INFO:ICRD",
     "ID3:TYER",
     "ID3:TDRC",
+    "QT:year",
     "APE:Year",
     "APE:Record Date",
     "VORBIS:DATE",
@@ -1123,6 +1128,7 @@ bool EnumMetadataKeyFromMexKey(const char *mexkey, int idx, char *key, int keyle
   {
     "INFO:IGNR",
     "ID3:TCON",
+    "QT:genre",
     "APE:Genre",
     "VORBIS:GENRE",
     "CART:Category",
@@ -1133,6 +1139,7 @@ bool EnumMetadataKeyFromMexKey(const char *mexkey, int idx, char *key, int keyle
   {
     "INFO:ICMT",
     "ID3:COMM",
+    "QT:comment",
     "APE:Comment",
     "VORBIS:COMMENT",
     "CART:TagText",
@@ -1149,6 +1156,7 @@ bool EnumMetadataKeyFromMexKey(const char *mexkey, int idx, char *key, int keyle
     "INFO:ISBJ",
     "INFO:IKEY",
     "ID3:TIT3",
+    "QT:description",
     "APE:Subtitle",
     "VORBIS:DESCRIPTION",
     "XMP:dc/description",
@@ -1176,6 +1184,7 @@ bool EnumMetadataKeyFromMexKey(const char *mexkey, int idx, char *key, int keyle
   {
     "INFO:TRCK",
     "ID3:TRCK",
+    "QT:track",
     "APE:Track",
     "VORBIS:TRACKNUMBER",
     "CART:CutID",
