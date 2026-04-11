@@ -779,38 +779,36 @@ enum
 
 #endif
 
-void SWELL_DisableAppNap(int disable)
+void SWELL_DisableAppNap(int disable) { SWELL_DisableAppNapEx(disable,0); }
+
+void SWELL_DisableAppNapEx(int disable, int flags)
 {
   if (!g_swell_terminating && floor(NSFoundationVersionNumber) > 945.00) // 10.9+
   {
-    static int cnt;
-    static id obj;
+    static int s_cnt, s_lflags;
+    static id s_obj;
 
-    cnt += disable;
+    s_cnt += disable;
 
+    bool force_del = false;
     @try
     {
-      if (cnt > 0)
+      if ((flags & 1) && flags != s_lflags) { s_lflags = flags; force_del = true; }
+      if (s_obj && (s_cnt <= 0 || force_del))
       {
-        if (!obj)
-        {
-          const NSActivityOptions  v = NSActivityLatencyCritical |  NSActivityIdleSystemSleepDisabled;
-
-          // beginActivityWithOptions returns an autoreleased object
-          obj = [[NSProcessInfo processInfo] beginActivityWithOptions:v reason:@"SWELL_DisableAppNap"];
-          if (obj) [obj retain];
-        }
+        // in case we crash somehow, don't want obj sticking around pointing to a stale object
+        id a = s_obj; s_obj = NULL;
+        [[NSProcessInfo processInfo] endActivity:a];
+        [a release]; // apparently releasing this is enough, without the endActivity call, but the docs are quite vague
       }
-      else
+      if (s_cnt > 0 && !s_obj)
       {
-        id a = obj;
-        if (a)
-        {
-          // in case we crash somehow, dont' want obj sticking around pointing to a stale object
-          obj = NULL;
-          [[NSProcessInfo processInfo] endActivity:a];
-          [a release]; // apparently releasing this is enough, without the endActivity call, but the docs are quite vague
-        }
+        NSActivityOptions v = NSActivityLatencyCritical |  NSActivityIdleSystemSleepDisabled;
+        if (s_lflags & 2) v |= NSActivityIdleDisplaySleepDisabled;
+
+        // beginActivityWithOptions returns an autoreleased object
+        s_obj = [[NSProcessInfo processInfo] beginActivityWithOptions:v reason:@"SWELL_DisableAppNap"];
+        if (s_obj) [s_obj retain];
       }
     }
     @catch (NSException *exception) {

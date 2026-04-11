@@ -1079,6 +1079,7 @@ SWELL_API_DEFINE(int,AddFontResourceEx,(LPCTSTR str, DWORD fl, void *pdv))
 
 #ifdef SWELL_TARGET_OSX
 SWELL_API_DEFINE(void,SWELL_DisableAppNap,(int disable))
+SWELL_API_DEFINE(void,SWELL_DisableAppNapEx,(int disable, int flag)) // flag=0 for legacy, &1=control ssaver, &2=disable ssaver too
 SWELL_API_DEFINE(int,SWELL_GetOSXVersion,())
 #endif
 
