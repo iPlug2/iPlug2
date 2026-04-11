@@ -1284,49 +1284,17 @@ bool HandleMexMetadataRequest(const char *mexkey, char *buf, int buflen,
   return false;
 }
 
-
-const char *prefpos_keys[] = // value is samples unless noted
-{
-  "BWF:TimeReference",
-  "ID3:TXXX:TIME_REFERENCE",
-  "IXML:BEXT:BWF_TIME_REFERENCE_HIGH",
-  "IXML:BEXT:BWF_TIME_REFERENCE_LOW",
-  "VORBIS:TIME_REFERENCE",
-  "XMP:dm/relativeTimestamp", // value is ms
-};
-
-bool GetMetadataPrefPos(WDL_StringKeyedArray<char*> *metadata, int srate, double *prefpos)
-{
-  if (!metadata) return false;
-  if (WDL_NOT_NORMALLY(srate <= 1)) return false;
-
-  for (int i=0; i < sizeof(prefpos_keys)/sizeof(prefpos_keys[0]); ++i)
-  {
-    const char *val=metadata->Get(prefpos_keys[i]);
-    if (val && val[0])
-    {
-      if (prefpos)
-      {
-        *prefpos = atof(val);
-        if (!strcmp(prefpos_keys[i], "XMP:dm/relativeTimestamp")) *prefpos *= 0.001;
-        else *prefpos /= (double)srate;
-      }
-      return true;
-    }
-  }
-
-  return false;
-}
-
 void WriteMetadataPrefPos(double prefpos, int srate,  // prefpos <= 0.0 to clear
   WDL_StringKeyedArray<char*> *metadata)
 {
   if (!metadata) return;
 
-  for (int i=0; i < sizeof(prefpos_keys)/sizeof(prefpos_keys[0]); ++i)
-  {
-    metadata->Delete(prefpos_keys[i]);
-  }
+  metadata->Delete("BWF:TimeReference");
+  metadata->Delete("ID3:TXXX:TIME_REFERENCE");
+  metadata->Delete("VORBIS:TIME_REFERENCE");
+  metadata->Delete("IXML:BEXT:BWF_TIME_REFERENCE_LOW");
+  metadata->Delete("IXML:BEXT:BWF_TIME_REFERENCE_HIGH");
+  metadata->Delete("XMP:dm/relativeTimestamp");
 
   if (prefpos > 0.0 && WDL_NORMALLY(srate > 1))
   {
@@ -1341,6 +1309,42 @@ void WriteMetadataPrefPos(double prefpos, int srate,  // prefpos <= 0.0 to clear
     snprintf(buf, sizeof(buf), "%09.0f", floor(prefpos*1000.0));
     metadata->Insert("XMP:dm/relativeTimestamp", strdup(buf));
   }
+}
+
+bool ReadMetadataPrefPos(WDL_StringKeyedArray<char*> *metadata, int srate, double *prefpos)
+{
+  if (WDL_NOT_NORMALLY(!metadata || !prefpos)) return false;
+  if (WDL_NOT_NORMALLY(srate <= 1)) return false;
+
+  const char *v=metadata->Get("BWF:TimeReference");
+  if (!v || !v[0]) v=metadata->Get("ID3:TXXX:TIME_REFERENCE");
+  if (!v || !v[0]) v=metadata->Get("VORBIS:TIME_REFERENCE");
+  if (v && v[0])
+  {
+    WDL_UINT64 i=ParseUInt64(v);
+    *prefpos=(double)i/(double)srate;
+    return true;
+  }
+
+  v=metadata->Get("IXML:BEXT:BWF_TIME_REFERENCE_LOW");
+  if (v && v[0])
+  {
+    WDL_UINT64 ipos=atoi(v);
+    v=metadata->Get("IXML:BEXT:BWF_TIME_REFERENCE_HIGH");
+    if (v && v[0]) ipos |= ((WDL_UINT64)atoi(v))<<32;
+    *prefpos=(double)ipos/(double)srate;
+    return true;
+  }
+
+  v=metadata->Get("XMP:dm/relativeTimestamp");
+  if (v && v[0])
+  {
+    WDL_UINT64 i=ParseUInt64(v);
+    *prefpos=(double)i*0.001;
+    return true;
+  }
+
+  return false;
 }
 
 bool IsImageMetadata(const char *key)
@@ -2022,39 +2026,6 @@ int PackID3Chunk(WDL_HeapBuf *hb, WDL_StringKeyedArray<char*> *metadata,
 
   return hb->GetSize()-olen;
 }
-
-double ReadMetadataPrefPos(WDL_StringKeyedArray<char*> *metadata, double srate)
-{
-  if (!metadata) return -1.0;
-
-  const char *v=metadata->Get("BWF:TimeReference");
-  if (!v || !v[0]) v=metadata->Get("ID3:TXXX:TIME_REFERENCE");
-  if (!v || !v[0]) v=metadata->Get("VORBIS:TIME_REFERENCE");
-  if (v && v[0] && srate > 0.0)
-  {
-    WDL_UINT64 i=ParseUInt64(v);
-    return (double)i/srate;
-  }
-
-  v=metadata->Get("IXML:BEXT:BWF_TIME_REFERENCE_LOW");
-  if (v && v[0] && srate > 0.0)
-  {
-    WDL_UINT64 ipos=atoi(v);
-    v=metadata->Get("IXML:BEXT:BWF_TIME_REFERENCE_HIGH");
-    if (v && v[0]) ipos |= ((WDL_UINT64)atoi(v))<<32;
-    return (double)ipos/srate;
-  }
-
-  v=metadata->Get("XMP:dm/relativeTimestamp");
-  if (v && v[0])
-  {
-    WDL_UINT64 i=ParseUInt64(v);
-    return (double)i/1000.0;
-  }
-
-  return -1.0;
-}
-
 
 // nch 0 means channel count agnostic
 // nch -1 means high order ambisonic, nch must? be an integer squared, layout tag must be or'd with the number of channels
