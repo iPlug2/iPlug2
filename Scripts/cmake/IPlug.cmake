@@ -310,3 +310,19 @@ if(NOT TARGET iPlug2::Extras::IWebViewControl AND NOT CMAKE_SYSTEM_NAME STREQUAL
 
   target_link_libraries(iPlug2::Extras::IWebViewControl INTERFACE iPlug2::IPlug)
 endif()
+
+# Set a Windows Explorer folder icon on a plug-in bundle (as Scripts/create_bundle.bat does)
+function(iplug_add_bundle_icon target bundle_dir icon_file)
+  set(_ini "${CMAKE_BINARY_DIR}/iplug2_pkginfo/desktop.ini")
+  file(WRITE "${_ini}" "[.ShellClassInfo]\nIconResource=PlugIn.ico,0\n")
+  file(TO_NATIVE_PATH "${bundle_dir}" _native_dir)
+  add_custom_command(TARGET ${target} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E remove -f "${bundle_dir}/PlugIn.ico" "${bundle_dir}/desktop.ini"
+    COMMAND ${CMAKE_COMMAND} -E copy "${icon_file}" "${bundle_dir}/PlugIn.ico"
+    COMMAND ${CMAKE_COMMAND} -E copy "${_ini}" "${bundle_dir}/desktop.ini"
+    COMMAND attrib +h +r +s "${_native_dir}\\PlugIn.ico"
+    COMMAND attrib +h +r +s "${_native_dir}\\desktop.ini"
+    COMMAND attrib +r "${_native_dir}"
+    COMMENT "Setting bundle icon for ${target}"
+  )
+endfunction()
