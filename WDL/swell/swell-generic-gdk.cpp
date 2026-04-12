@@ -3768,6 +3768,68 @@ void *SWELL_GetOSEvent(const char *type)
   return !strcmp(type,"GdkEvent") ? s_cur_evt : NULL;
 }
 
+void swell_gdk_prevent_screensaver(bool prev, const char *desc)
+{
+  static unsigned int s_ss_cookie;
+  static bool s_ss_fail;
+
+  if (!s_ss_fail && !!s_ss_cookie != prev)
+  {
+    GDBusConnection *connection = g_bus_get_sync(G_BUS_TYPE_SESSION,NULL, NULL);
+    if (connection)
+    {
+      GVariant *result = g_dbus_connection_call_sync(
+        connection,
+        "org.freedesktop.ScreenSaver",
+        "/org/freedesktop/ScreenSaver",
+        "org.freedesktop.ScreenSaver",
+        prev ? "Inhibit" : "UnInhibit",
+        prev ? g_variant_new("(ss)", desc?desc:"swell app", "running") : g_variant_new("(u)", s_ss_cookie),
+        prev ? G_VARIANT_TYPE("(u)") : NULL,
+        G_DBUS_CALL_FLAGS_NONE, -1, NULL, NULL);
+
+      if (prev)
+      {
+        if (result) g_variant_get(result, "(u)", &s_ss_cookie);
+        if (!result || !s_ss_cookie) s_ss_fail = true;
+      }
+      else s_ss_cookie = 0;
+
+      if (result) g_variant_unref(result);
+      g_object_unref(connection);
+    }
+  }
+
+  // need to also disable screen blanking
+  static GDBusProxy *s_portal_prox;
+  static bool s_portal_fail;
+  if (!s_portal_fail && !!s_portal_prox != prev)
+  {
+    if (s_portal_prox)
+    {
+      g_object_unref(s_portal_prox);
+      s_portal_prox = NULL;
+    }
+    else
+    {
+      s_portal_prox = g_dbus_proxy_new_for_bus_sync(G_BUS_TYPE_SESSION,
+          G_DBUS_PROXY_FLAGS_NONE, NULL,
+          "org.freedesktop.portal.Inhibit",
+          "/org/freedesktop/portal/Inhibit",
+          "org.freedesktop.portal.Inhibit", NULL, NULL);
+      if (s_portal_prox)
+      {
+        GVariant *res = g_dbus_proxy_call_sync(s_portal_prox,"Inhibit",
+            g_variant_new("(sua{sv})", "", 8, NULL), G_DBUS_CALL_FLAGS_NONE, -1, NULL, NULL);
+        if (res) g_variant_unref(res);
+      }
+      else
+        s_portal_fail = true;
+    }
+  }
+
+}
+
 
 #endif
 #endif
