@@ -34,12 +34,12 @@ function(iplug_configure_auv3framework target project_name)
     XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED "NO"
   )
 
-  # Create PkgInfo file for framework bundle (FMWK = framework)
-  set(PKGINFO_SCRIPT "${CMAKE_CURRENT_BINARY_DIR}/write_pkginfo_${target}.cmake")
-  file(WRITE ${PKGINFO_SCRIPT} "file(WRITE \"\${PKGINFO_PATH}\" \"FMWK????\")")
+  # Create PkgInfo file for framework bundle (FMWK = framework) via staged
+  # source + `cmake -E copy`. See APP.cmake for rationale.
+  set(AUV3_FMWK_PKGINFO_SRC "${CMAKE_CURRENT_BINARY_DIR}/PkgInfo_${target}")
+  file(WRITE "${AUV3_FMWK_PKGINFO_SRC}" "FMWK????")
   add_custom_command(TARGET ${target} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -DPKGINFO_PATH="$<TARGET_BUNDLE_DIR:${target}>/Versions/A/Resources/PkgInfo"
-      -P "${PKGINFO_SCRIPT}"
+    COMMAND ${CMAKE_COMMAND} -E copy "${AUV3_FMWK_PKGINFO_SRC}" "$<TARGET_BUNDLE_DIR:${target}>/Versions/A/Resources/PkgInfo"
     COMMENT "Creating PkgInfo for ${project_name}AU.framework"
   )
 

@@ -168,13 +168,17 @@ function(iplug_configure_app target project_name)
       )
     endif()
 
-    # Create PkgInfo for non-Xcode generators (Xcode creates it automatically)
+    # Create PkgInfo for non-Xcode generators (Xcode creates it automatically).
+    # Stage the 8-byte content in a pre-written source file, then use
+    # `cmake -E copy` — each arg gets its own argv slot so paths with spaces
+    # survive. Avoids the `-D"path with spaces"` quoting trap that hits
+    # Ninja because it passes the backslash-escaped form into sub-cmake.
     if(NOT XCODE)
-      set(PKGINFO_SCRIPT "${CMAKE_CURRENT_BINARY_DIR}/write_pkginfo_${target}.cmake")
-      file(WRITE ${PKGINFO_SCRIPT} "file(WRITE \"\${PKGINFO_PATH}\" \"APPL????\")")
+      set(APP_PKGINFO_SRC "${CMAKE_CURRENT_BINARY_DIR}/PkgInfo_${target}")
+      file(WRITE "${APP_PKGINFO_SRC}" "APPL????")
       add_custom_command(TARGET ${target} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -DPKGINFO_PATH="$<TARGET_BUNDLE_DIR:${target}>/Contents/PkgInfo"
-          -P "${PKGINFO_SCRIPT}"
+        COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_BUNDLE_DIR:${target}>/Contents"
+        COMMAND ${CMAKE_COMMAND} -E copy "${APP_PKGINFO_SRC}" "$<TARGET_BUNDLE_DIR:${target}>/Contents/PkgInfo"
         COMMENT "Creating PkgInfo for ${project_name}.app"
       )
     endif()

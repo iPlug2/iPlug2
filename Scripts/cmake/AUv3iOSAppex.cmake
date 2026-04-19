@@ -63,9 +63,10 @@ function(iplug_configure_auv3iosappex target project_name)
     )
   endif()
 
-  # Post-build: Create PkgInfo and rename bundle
-  set(PKGINFO_SCRIPT "${CMAKE_CURRENT_BINARY_DIR}/write_pkginfo_${target}.cmake")
-  file(WRITE ${PKGINFO_SCRIPT} "file(WRITE \"\${PKGINFO_PATH}\" \"XPC!????\")")
+  # Post-build: Create PkgInfo and rename bundle.
+  # PkgInfo via staged source + `cmake -E copy` (see APP.cmake for rationale).
+  set(AUV3_IOS_APPEX_PKGINFO_SRC "${CMAKE_CURRENT_BINARY_DIR}/PkgInfo_${target}")
+  file(WRITE "${AUV3_IOS_APPEX_PKGINFO_SRC}" "XPC!????")
 
   if(XCODE)
     # For Xcode: XCODE_ATTRIBUTE_WRAPPER_EXTENSION creates .appex bundle directly
@@ -74,8 +75,7 @@ function(iplug_configure_auv3iosappex target project_name)
     set(APPEX_FINAL "${CMAKE_BINARY_DIR}/out/$<CONFIG>/${project_name}AUv3.appex")
     add_custom_command(TARGET ${target} POST_BUILD
       # Create PkgInfo
-      COMMAND ${CMAKE_COMMAND} -DPKGINFO_PATH="${APPEX_BUNDLE}/PkgInfo"
-        -P "${PKGINFO_SCRIPT}"
+      COMMAND ${CMAKE_COMMAND} -E copy "${AUV3_IOS_APPEX_PKGINFO_SRC}" "${APPEX_BUNDLE}/PkgInfo"
       # Rename bundle to final name with AUv3 suffix
       COMMAND ${CMAKE_COMMAND} -E rm -rf "${APPEX_FINAL}"
       COMMAND ${CMAKE_COMMAND} -E rename
@@ -91,8 +91,7 @@ function(iplug_configure_auv3iosappex target project_name)
     # For Ninja/other generators: Convert .app to .appex and move to final location
     add_custom_command(TARGET ${target} POST_BUILD
       # Create PkgInfo
-      COMMAND ${CMAKE_COMMAND} -DPKGINFO_PATH="$<TARGET_BUNDLE_DIR:${target}>/PkgInfo"
-        -P "${PKGINFO_SCRIPT}"
+      COMMAND ${CMAKE_COMMAND} -E copy "${AUV3_IOS_APPEX_PKGINFO_SRC}" "$<TARGET_BUNDLE_DIR:${target}>/PkgInfo"
       # Copy Info.plist
       COMMAND ${CMAKE_COMMAND} -E copy
         "${PLUG_RESOURCES_DIR}/${project_name}-iOS-AUv3-Info.plist"

@@ -83,12 +83,12 @@ function(iplug_configure_iosapp target project_name)
     XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_APPICON_NAME "${IOS_APPICON_NAME}"
   )
 
-  # Create PkgInfo for app bundle
-  set(PKGINFO_SCRIPT "${CMAKE_CURRENT_BINARY_DIR}/write_pkginfo_${target}.cmake")
-  file(WRITE ${PKGINFO_SCRIPT} "file(WRITE \"\${PKGINFO_PATH}\" \"APPL????\")")
+  # Create PkgInfo for app bundle via staged source + `cmake -E copy`
+  # (handles paths with spaces; see APP.cmake for rationale).
+  set(IOS_APP_PKGINFO_SRC "${CMAKE_CURRENT_BINARY_DIR}/PkgInfo_${target}")
+  file(WRITE "${IOS_APP_PKGINFO_SRC}" "APPL????")
   add_custom_command(TARGET ${target} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -DPKGINFO_PATH="$<TARGET_BUNDLE_DIR:${target}>/PkgInfo"
-      -P "${PKGINFO_SCRIPT}"
+    COMMAND ${CMAKE_COMMAND} -E copy "${IOS_APP_PKGINFO_SRC}" "$<TARGET_BUNDLE_DIR:${target}>/PkgInfo"
     COMMENT "Creating PkgInfo for ${project_name}.app (iOS)"
   )
 
