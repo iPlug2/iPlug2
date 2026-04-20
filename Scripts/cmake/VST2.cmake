@@ -11,8 +11,9 @@
 include(${CMAKE_CURRENT_LIST_DIR}/IPlug.cmake)
 
 if(NOT TARGET iPlug2::VST2)
-  # Define SDK path
-  set(VST2_SDK_DIR ${IPLUG_DEPS_DIR}/VST2_SDK)
+  # Define SDK path (can be overridden via cache for FetchContent usage)
+  set(IPLUG2_VST2_SDK_PATH "${IPLUG_DEPS_DIR}/VST2_SDK" CACHE PATH "Path to VST2 SDK")
+  set(VST2_SDK_DIR ${IPLUG2_VST2_SDK_PATH})
 
   # Check if VST2 SDK exists (must have aeffectx.h header)
   if(NOT EXISTS ${VST2_SDK_DIR}/pluginterfaces/vst2.x/aeffectx.h)
@@ -76,15 +77,14 @@ function(iplug_configure_vst2 target project_name)
   target_link_libraries(${target} PUBLIC iPlug2::VST2)
 
   if(WIN32)
-    set(VST2_OUTPUT_DIR "${CMAKE_BINARY_DIR}/out")
     set_target_properties(${target} PROPERTIES
       OUTPUT_NAME "${project_name}"
       SUFFIX ".dll"
-      LIBRARY_OUTPUT_DIRECTORY "${VST2_OUTPUT_DIR}"
-      LIBRARY_OUTPUT_DIRECTORY_DEBUG "${VST2_OUTPUT_DIR}"
-      LIBRARY_OUTPUT_DIRECTORY_RELEASE "${VST2_OUTPUT_DIR}"
-      LIBRARY_OUTPUT_DIRECTORY_RELWITHDEBINFO "${VST2_OUTPUT_DIR}"
-      LIBRARY_OUTPUT_DIRECTORY_MINSIZEREL "${VST2_OUTPUT_DIR}"
+      LIBRARY_OUTPUT_DIRECTORY "${IPLUG2_OUTPUT_DIR}"
+      LIBRARY_OUTPUT_DIRECTORY_DEBUG "${IPLUG2_OUTPUT_DIR}"
+      LIBRARY_OUTPUT_DIRECTORY_RELEASE "${IPLUG2_OUTPUT_DIR}"
+      LIBRARY_OUTPUT_DIRECTORY_RELWITHDEBINFO "${IPLUG2_OUTPUT_DIR}"
+      LIBRARY_OUTPUT_DIRECTORY_MINSIZEREL "${IPLUG2_OUTPUT_DIR}"
     )
   elseif(APPLE)
     # VST2 on macOS is a bundle with .vst extension
@@ -92,7 +92,7 @@ function(iplug_configure_vst2 target project_name)
       BUNDLE TRUE
       BUNDLE_EXTENSION "vst"
       MACOSX_BUNDLE_INFO_PLIST ${PLUG_RESOURCES_DIR}/${project_name}-VST2-Info.plist
-      LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/out"
+      LIBRARY_OUTPUT_DIRECTORY "${IPLUG2_OUTPUT_DIR}"
       MACOSX_BUNDLE_BUNDLE_NAME "${project_name}"
       OUTPUT_NAME "${project_name}"
       XCODE_ATTRIBUTE_WRAPPER_EXTENSION "vst"
@@ -101,9 +101,9 @@ function(iplug_configure_vst2 target project_name)
 
     # For non-Xcode generators (e.g., Ninja), create PkgInfo file manually
     if(NOT XCODE)
-      set(PKGINFO_PATH "${CMAKE_BINARY_DIR}/out/${project_name}.vst/Contents/PkgInfo")
+      set(PKGINFO_PATH "${IPLUG2_OUTPUT_DIR}/${project_name}.vst/Contents/PkgInfo")
       add_custom_command(TARGET ${target} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_BINARY_DIR}/out/${project_name}.vst/Contents"
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${IPLUG2_OUTPUT_DIR}/${project_name}.vst/Contents"
         COMMAND ${CMAKE_COMMAND} -E copy "${IPLUG2_PKGINFO_FILE}" "${PKGINFO_PATH}"
         COMMENT "Creating PkgInfo for ${project_name}.vst"
       )
