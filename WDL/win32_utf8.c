@@ -1810,6 +1810,7 @@ static LRESULT WINAPI lv_newProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPar
 
 void WDL_UTF8_HookListView(HWND h)
 {
+  char buf[64];
   WDL_ASSERT(wdl_utf8_validate_classname(h,"SysListView32"));
   if (WDL_NOT_NORMALLY(!h) ||
     #ifdef WDL_SUPPORT_WIN9X
@@ -1819,6 +1820,13 @@ void WDL_UTF8_HookListView(HWND h)
   SetProp(h,WDL_UTF8_OLDPROCPROP,(HANDLE)SetWindowLongPtr(h,GWLP_WNDPROC,(INT_PTR)lv_newProc));
 
   SetProp(h,WDL_UTF8_OLDPROCPROP "B", (HANDLE)calloc(sizeof(struct lv_tmpbuf_state),1));
+  if (WDL_NORMALLY(GetClassName(h,buf,sizeof(buf))) &&
+      WDL_NORMALLY(!strcmp(buf,"SysListView32"))
+      // && (GetWindowLong(h,GWL_STYLE) & LVS_OWNERDATA) // probably best to always do this?
+      )
+  {
+    SendMessage(h, LVM_SETUNICODEFORMAT, 1, 0);
+  }
 }
 
 void WDL_UTF8_HookTreeView(HWND h)
