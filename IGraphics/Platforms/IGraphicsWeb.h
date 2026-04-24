@@ -59,6 +59,7 @@ public:
   bool IsInShadowDOM() const { return mInShadowDOM; }
 
   void DrawResize() override;
+  void PostResize() override;
 
   const char* GetPlatformAPIStr() override { return "WEB"; }
 
