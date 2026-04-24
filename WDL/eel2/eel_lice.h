@@ -1988,7 +1988,7 @@ int eel_lice_state::setup_frame(HWND hwnd, RECT r, int _mouse_x, int _mouse_y, i
     if (GetAsyncKeyState(VK_CONTROL)&0x8000) vflags|=4;
     if (GetAsyncKeyState(VK_SHIFT)&0x8000) vflags|=8;
     if (GetAsyncKeyState(VK_MENU)&0x8000) vflags|=16;
-    if (GetAsyncKeyState(VK_LWIN)&0x8000) vflags|=32;
+    if ((GetAsyncKeyState(VK_LWIN)&0x8000) || (GetAsyncKeyState(VK_RWIN)&0x8000)) vflags|=32;
   }
   m_has_cap &= 0xf0000;
 
@@ -2842,7 +2842,7 @@ LRESULT WINAPI eel_lice_wndproc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPar
           if (GetAsyncKeyState(VK_CONTROL)&0x8000) f|=4;
           if (GetAsyncKeyState(VK_SHIFT)&0x8000) f|=8;
           if (GetAsyncKeyState(VK_MENU)&0x8000) f|=16;
-          if (GetAsyncKeyState(VK_LWIN)&0x8000) f|=32;
+          if ((GetAsyncKeyState(VK_LWIN)&0x8000) || (GetAsyncKeyState(VK_RWIN)&0x8000)) f|=32;
 
           ctx->m_has_cap|=f;
           if (ctx->m_last_menu_cnt && (GetTickCount()-ctx->m_last_menu_time)>250) ctx->m_last_menu_cnt = 0;

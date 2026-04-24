@@ -663,108 +663,123 @@ static int m_click_pos,m_last_y,m_last_x, m_last_precmode;
 static POINT s_lastmousepos;
 #endif
 
+bool WDL_VirtualSlider::ProcessMouseClick(int xpos, int ypos, bool *_wantKnob, int *_pos, double *_moveOffset)
+{
+  bool clickedHandle = true;
+  bool wantKnob = false;
+  int pos = m_pos;
+  double moveOffset = 0.0;
+
+  bool isVert = GetIsVert();
+
+  int rsize = m_maxr-m_minr;
+  if (rsize < 1) rsize=1;
+
+  RECT mp = m_position;
+  const int rscale = m_last_rscale;
+  ScaleRect(&mp, rscale); // silliness is that thumb images don't resize
+
+  int viewh = mp.bottom-mp.top;
+  int vieww = mp.right-mp.left;
+  if (vieww < 1) vieww = 1;
+  if (viewh < 1) viewh = 1;
+
+  LICE_IBitmap *bm_image = m_skininfo ? m_skininfo->thumbimage[isVert] : 0;
+  int bm_w=16, bm_h=16;
+
+  if (bm_image)
+  {
+    bm_w = bm_image->getWidth();
+    bm_h = bm_image->getHeight();
+    AdjustThumbImageSize(m_last_advscale, vieww, viewh, m_skininfo, isVert, &bm_w, &bm_h, NULL, &wantKnob, m_knobbias);
+  }
+  else
+  {
+    bm_image = WDL_STYLE_GetSliderBitmap2(isVert);
+    if (bm_image)
+    {
+      bm_w = bm_image->getWidth();
+      bm_h = bm_image->getHeight();
+    }
+    AdjustThumbImageSize(m_last_advscale, vieww, viewh, NULL, isVert, &bm_w, &bm_h, NULL, &wantKnob, m_knobbias);
+  }
+
+  if (!wantKnob)
+  {
+    ScaleVals(m_last_advscale, &bm_w, &bm_h, NULL);
+
+    xpos = xpos * rscale / WDL_VWND_SCALEBASE;
+    ypos = ypos * rscale / WDL_VWND_SCALEBASE;
+
+    if (isVert)
+    {
+      moveOffset = ypos - (viewh - bm_h - ((double)((m_pos - m_minr) * (viewh - bm_h)) / (double)rsize));
+      if (moveOffset < 0.0 || moveOffset >= bm_h)
+      {
+        clickedHandle = false;
+        moveOffset = bm_h/2;
+        pos = (int)(m_minr + ((viewh - bm_h - (ypos - moveOffset)) * rsize) / (double)(viewh - bm_h));
+        pos = wdl_clamp(pos, m_minr, m_maxr);
+      }
+    }
+    else
+    {
+      moveOffset = xpos - (((double)((m_pos - m_minr) * (vieww - bm_w)) / (double)rsize));
+      if (moveOffset < 0.0 || moveOffset >= bm_w)
+      {
+        clickedHandle = false;
+        moveOffset = bm_w/2;
+        pos = (int)(m_minr + ((xpos - m_move_offset) * rsize) / (double)(vieww - bm_w));
+        pos = wdl_clamp(pos, m_minr, m_maxr);
+      }
+    }
+  }
+
+  if (_wantKnob) *_wantKnob = wantKnob;
+  if (_pos) *_pos = pos;
+  if (_moveOffset) *_moveOffset = moveOffset;
+
+  return clickedHandle;
+}
 
 int WDL_VirtualSlider::OnMouseDown(int xpos, int ypos)
 {
   if (m_grayed) return 0;
-  m_needflush=0;
 
+  bool wantKnob = false;
+  int pos = 0;
+  double move_offset = 0.0;
+  bool clickedHandle = ProcessMouseClick(xpos, ypos, &wantKnob, &pos, &move_offset);
+
+  if (!clickedHandle && !WDL_STYLE_AllowSliderClickOutsideHandle(this)) return 0;
+
+  m_needflush=0;
   if (m__iaccess) m__iaccess->OnFocused();
 
-  bool isVert = GetIsVert();
-  int rsize=m_maxr-m_minr;
-  if (rsize<1)rsize=1;
-
-  RECT mp = m_position;
-  const int rscale = m_last_rscale;
-  ScaleRect(&mp,rscale); // silliness is that thumb images don't resize
-
-  int viewh=mp.bottom-mp.top;
-  int vieww=mp.right-mp.left;
-  if (vieww<1) vieww=1;
-  if (viewh<1) viewh=1;
-
-  LICE_IBitmap *bm_image=m_skininfo ? m_skininfo->thumbimage[isVert] : 0;
-  int bm_w=16,bm_h=16;
-  bool wantKnob=false;
-  if (bm_image)
-  {
-    bm_w=bm_image->getWidth();
-    bm_h=bm_image->getHeight();
-    AdjustThumbImageSize(m_last_advscale,vieww,viewh,m_skininfo,isVert,&bm_w,&bm_h,NULL,&wantKnob,m_knobbias);
-  }
-  else
-  {
-    bm_image=WDL_STYLE_GetSliderBitmap2(isVert);
-    if (bm_image)
-    {
-      bm_w=bm_image->getWidth();
-      bm_h=bm_image->getHeight();
-    }
-    AdjustThumbImageSize(m_last_advscale,vieww,viewh,NULL,isVert,&bm_w,&bm_h,NULL,&wantKnob,m_knobbias);
-  }
-  if (!wantKnob) ScaleVals(m_last_advscale,&bm_w,&bm_h,NULL);
-
   m_is_knob = wantKnob;
+  m_move_offset = move_offset;
 
 #if !defined(_WIN32) && !defined(__APPLE__)
   GetCursorPos(&s_lastmousepos);
 #endif
-  m_last_y=ypos;    
+
+  m_click_pos=m_pos;
+  m_last_y=ypos;
   m_last_x=xpos;
   m_last_precmode=0;
 
-  xpos = xpos * rscale / WDL_VWND_SCALEBASE;
-  ypos = ypos * rscale / WDL_VWND_SCALEBASE;
+  m_pos = pos;
 
-  bool needsendcmd = m_sendmsgonclick;
-  if (m_is_knob)
+  bool needsendcmd = m_sendmsgonclick && clickedHandle;
+  if (!needsendcmd)
   {
-    m_move_offset=0;
-    m_click_pos=m_pos;
-  }
-  else if (isVert)
-  {
-    m_move_offset=ypos-( viewh - bm_h - ((double)((m_pos-m_minr) * (viewh-bm_h))/(double)rsize));
-    m_click_pos=m_pos;
-    if (!m_is_knob && (m_move_offset < 0 || m_move_offset >= bm_h))
+    bool isVert =  GetIsVert();
+    WDL_VWND_DCHK(chk);
+    SendCommand(m_scrollmsg ? m_scrollmsg : isVert ? WM_VSCROLL : WM_HSCROLL, SB_THUMBTRACK, GetID(), this);
+    if (chk.isOK())
     {
-      m_move_offset=bm_h/2;
-      int pos=(int)(m_minr+((viewh-bm_h - (ypos-m_move_offset))*rsize)/(double)(viewh-bm_h));
-      if (pos < m_minr)pos=m_minr;
-      else if (pos > m_maxr)pos=m_maxr;
-      m_pos=pos;
-
-      needsendcmd=false;
-      WDL_VWND_DCHK(chk);
-      SendCommand(m_scrollmsg?m_scrollmsg:WM_VSCROLL,SB_THUMBTRACK,GetID(),this);
-      if (chk.isOK())
-      {
-        RequestRedraw(NULL);
-        if (m__iaccess) m__iaccess->OnStateChange();
-      }
-    }
-  }
-  else
-  {
-    m_move_offset=xpos-( ((double)((m_pos-m_minr) * (vieww-bm_w))/(double)rsize));
-    m_click_pos=m_pos;
-    if (m_move_offset < 0 || m_move_offset >= bm_w)
-    {
-      m_move_offset=bm_w/2;
-      int pos=(int) (m_minr+((xpos-m_move_offset)*rsize)/(double)(vieww-bm_w));
-      if (pos < m_minr)pos=m_minr;
-      else if (pos > m_maxr)pos=m_maxr;
-      m_pos=pos;
-
-      needsendcmd=false;
-      WDL_VWND_DCHK(chk);
-      SendCommand(m_scrollmsg?m_scrollmsg:WM_HSCROLL,SB_THUMBTRACK,GetID(),this);
-      if (chk.isOK())
-      {
-        RequestRedraw(NULL);
-        if (m__iaccess) m__iaccess->OnStateChange();
-      }
+      RequestRedraw(NULL);
+      if (m__iaccess) m__iaccess->OnStateChange();
     }
   }
 
@@ -775,6 +790,7 @@ int WDL_VirtualSlider::OnMouseDown(int xpos, int ypos)
     SendCommand(m_scrollmsg?m_scrollmsg:WM_VSCROLL,SB_THUMBTRACK,GetID(),this);
     if (chk.isOK() && m__iaccess) m__iaccess->OnStateChange();
   }
+
   return 1;
 }
 
@@ -1029,6 +1045,10 @@ void WDL_VirtualSlider::OnMouseUp(int xpos, int ypos)
 bool WDL_VirtualSlider::OnMouseDblClick(int xpos, int ypos)
 {
   if (m_grayed) return false;
+
+  // maybe?
+  bool clickedHandle = ProcessMouseClick(xpos, ypos, NULL, NULL, NULL);
+  if (!clickedHandle && !WDL_STYLE_AllowSliderClickOutsideHandle(this)) return 0;
 
   if (m_dblclickmsg)
   {

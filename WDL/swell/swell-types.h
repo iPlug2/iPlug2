@@ -829,6 +829,7 @@ __attribute__ ((visibility ("default"))) BOOL WINAPI DllMain(HINSTANCE hInstDLL,
 #define LVN_ITEMCHANGED         (LVN_FIRST-1)
 #define LVN_ODFINDITEM          (LVN_FIRST-52)
 #define LVN_GETDISPINFO         (LVN_FIRST-50)
+#define LVN_GETDISPINFOW        (LVN_FIRST-77)
 
 #define LVS_EX_GRIDLINES 0x01
 #define LVS_EX_SUBITEMIMAGES 0x02
@@ -1265,6 +1266,7 @@ typedef struct tagNMLVCUSTOMDRAW
 #define VK_HELP           0x2F
 
 #define VK_LWIN           0x5B
+#define VK_RWIN           0x5C
 
 #define VK_NUMPAD0        0x60
 #define VK_NUMPAD1        0x61

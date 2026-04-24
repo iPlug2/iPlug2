@@ -600,11 +600,20 @@ static BOOL CALLBACK xlateGetRects(HWND hwnd, LPARAM lParam)
   return TRUE;
 }
 
+static int overlapSizeForControl(HWND h)
+{
+#ifdef __APPLE__
+  extern int g_swell_osx_style;
+  if ((g_swell_osx_style&1) && h && SWELL_IsButton(h) && !(GetWindowLong(h,GWL_STYLE)&0xf)) return 7;
+#endif
+  return 0;
+}
 static int rippleControlsRight(HWND hwnd, const RECT *srcR, windowReorgEnt *ent, int ent_cnt, int dSize, int clientw)
 {
   // limit first to client rectangle
   int space = clientw - 6 - srcR->right;
   if (dSize>space) dSize=space;
+  const int olap_outer = overlapSizeForControl(hwnd);
 
   while (ent_cnt>0 && dSize>0)
   {
@@ -612,9 +621,11 @@ static int rippleControlsRight(HWND hwnd, const RECT *srcR, windowReorgEnt *ent,
 #define LOCALIZE_ISECT_PAIRS(x1,x2,y1,y2)  \
       ((x1 >= y1 && x1 < y2) || (x2 >= y1 && x2 < y2) ||  \
        (y1 >= x1 && y1 < x2) || (y2 >= x1 && y2 < x2))
-    if (ent->r.left >= srcR->right-1 && LOCALIZE_ISECT_PAIRS(srcR->top,srcR->bottom,ent->r.top,ent->r.bottom))
+
+    if (LOCALIZE_ISECT_PAIRS(srcR->top,srcR->bottom,ent->r.top,ent->r.bottom) &&
+          ent->r.left >= srcR->right-1-olap_outer-overlapSizeForControl(ent->hwnd))
     {
-      space = ent->r.left - srcR->right;
+      space = wdl_max(ent->r.left - srcR->right,0);
 
       if (ent->mode == windowReorgEnt::WRET_GROUP)
       {

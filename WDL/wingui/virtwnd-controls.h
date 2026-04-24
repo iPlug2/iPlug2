@@ -40,6 +40,7 @@ extern bool WDL_STYLE_GetBackgroundGradient(double *gradstart, double *gradslope
 // for slider
 extern LICE_IBitmap *WDL_STYLE_GetSliderBitmap2(bool vert);
 extern int WDL_STYLE_AllowSliderMouseWheel(WDL_VWnd *, double *scale); // returns 1 to allow, -1 to eat
+extern bool WDL_STYLE_AllowSliderClickOutsideHandle(WDL_VWnd *vs); // false if slider handle must be clicked/dragged directly
 extern int WDL_STYLE_GetSliderDynamicCenterPos();
 
 
@@ -55,6 +56,7 @@ bool WDL_STYLE_WantGlobalButtonBackground(int *col) { return false; }
 bool WDL_STYLE_GetBackgroundGradient(double *gradstart, double *gradslope) { return false; }
 LICE_IBitmap *WDL_STYLE_GetSliderBitmap2(bool vert) { return NULL; }
 int WDL_STYLE_AllowSliderMouseWheel(WDL_VWnd *vw, double *scale) { if (GetAsyncKeyState(VK_CONTROL)&0x8000) *scale /= 16.0; return 1; }
+bool WDL_STYLE_AllowSliderClickOutsideHandle(WDL_VWnd *wv) { return true; }
 int WDL_STYLE_GetSliderDynamicCenterPos() { return 500; }
 
 */
@@ -305,6 +307,8 @@ class WDL_VirtualSlider : public WDL_VWnd
     bool m_sendmsgonclick;
     bool m_grayed;
     bool m_is_knob;
+
+    bool ProcessMouseClick(int xpos, int ypos,  bool *wantKnob, int *pos, double *moveOffset); // returns true if handle clicked
 
   public:
     int (*calculate_slider_position)(WDL_VirtualSlider *ctl, void *ctx); // if set, this will be called from paint (unless captured)

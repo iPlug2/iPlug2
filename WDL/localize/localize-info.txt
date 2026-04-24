@@ -32,9 +32,24 @@ If you would like to have a format specifier in the string, you can use:
 
   snprintf(buf,sizeof(buf),__LOCALIZE_VERFMT("This has %d items","section"),6);
 
+If you wish to localize a string from a buffer that is not a literal string, you
+should call __localizeFunc() direclty, and use LOCALIZE_FLAG_NOCACHE.  e.g.:
+
+  char src[256];
+  getSomeName(src,sizeof(src));
+  const char * src_localized  = __localizeFunc(src,LOCALIZE_FLAG_NOCACHE);
+
+In the above case, if src is allocated on the heap and is guaranteed never to
+be freed and the contents will never change, then LOCALIZE_FLAG_NOCACHE can be
+omitted.
+
 The value returned by __LOCALIZE/etc is effectively a const char *, and will
 persist, so it is safe to pass whereever and use again. If you are really
 performance sensitive, you might want to do:
+
+  __LOCALIZE_LCACHE("whatever","section",msg);
+
+which is the same as:
 
   static const char *msg;
   if (!msg) msg = __LOCALIZE_NOCACHE("whatever","section");

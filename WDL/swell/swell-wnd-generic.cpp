@@ -3334,18 +3334,30 @@ static LRESULT WINAPI labelWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
               if (text[0])
               {
                 RECT tmp={0,};
-                const int line_h = DrawText(ps.hdc," ",1,&tmp,DT_SINGLELINE|DT_NOPREFIX|DT_CALCRECT|f);
-                if (r.bottom > line_h*5/3)
+                const bool has_nl = !!strchr(text,'\n');
+                const int line_h = DrawText(ps.hdc,has_nl ? " " : text,-1,&tmp,DT_SINGLELINE|DT_NOPREFIX|DT_CALCRECT|f);
+                if (r.bottom > line_h*5/3 && (tmp.right > r.right-r.left || has_nl))
                 {
-                  int loffs=0;
-                  while (text[loffs] && r.top < r.bottom)
+                  // tall label that doesn't fit text as a single line:
+                  // first pass, measure height of wrapped text, second pass draw the text vertically centered
+                  for (int pass = 0; pass < 2; pass ++)
                   {
-                    int post=0, lb=swell_getLineLength(text+loffs, &post, r.right, ps.hdc);
-                    if (lb>0)
-                      DrawText(ps.hdc,text+loffs,lb,&r,DT_TOP|DT_SINGLELINE|DT_LEFT|f);
-                    r.top += line_h;
-                    loffs+=lb+post;
+                    int loffs = 0, ypos = r.top;
+                    while (text[loffs] && ypos < r.bottom)
+                    {
+                      int post=0, lb=swell_getLineLength(text+loffs, &post, r.right, ps.hdc);
+                      if (lb>0 && pass)
+                      {
+                        r.top = ypos;
+                        DrawText(ps.hdc,text+loffs,lb,&r,DT_TOP|DT_SINGLELINE|DT_LEFT|f);
+                      }
+                      ypos += line_h;
+                      loffs+=lb+post;
+                    }
+                    if (!pass && ypos < r.bottom)
+                      r.top += (r.bottom-ypos)/2; // vertical center
                   }
+
                   text = "";
                 }
               }
@@ -3412,7 +3424,7 @@ class __SWELL_ComboBoxInternalState
 
 static LRESULT WINAPI comboWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-  static const int buttonwid = 16; // used in edit combobox
+  static const int buttonwid = 16;
   static int s_capmode_state;
   __SWELL_ComboBoxInternalState *s = (__SWELL_ComboBoxInternalState*)hwnd->m_private_data;
   if (msg >= CB_ADDSTRING && msg <= CB_INITSTORAGE)
@@ -3748,11 +3760,10 @@ popupMenu:
           }
 
           r.left+=SWELL_UI_SCALE(3);
-          r.right-=SWELL_UI_SCALE(3);
 
           if ((hwnd->m_style & CBS_DROPDOWNLIST) != CBS_DROPDOWNLIST)
           {
-            r.right -= SWELL_UI_SCALE(buttonwid+2);
+            r.right -= SWELL_UI_SCALE(buttonwid+5);
             r.left -= s->editstate.scroll_x;
             editControlPaintLine(ps.hdc, hwnd->m_title.Get(), hwnd->m_title.GetLength(),
                 s->editstate.cursor_state!=0 ? cursor_pos : -1,
@@ -3760,6 +3771,7 @@ popupMenu:
           }
           else
           {
+            r.right -= SWELL_UI_SCALE(buttonwid-1);
             char buf[512];
             buf[0]=0;
             GetWindowText(hwnd,buf,sizeof(buf));
@@ -4183,6 +4195,7 @@ static LRESULT listViewWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
   static POINT s_clickpt;
   switch (msg)
   {
+    case WM_MOUSEHWHEEL:
     case WM_MOUSEWHEEL:
       if ((GetAsyncKeyState(VK_CONTROL)&0x8000) || (GetAsyncKeyState(VK_MENU)&0x8000)) break; // pass modified mousewheel to parent
 
@@ -4190,7 +4203,7 @@ static LRESULT listViewWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
         const int amt = ((short)HIWORD(wParam))/40;
         if (amt && lvs)
         {
-          if (GetAsyncKeyState(VK_SHIFT)&0x8000)
+          if ((GetAsyncKeyState(VK_SHIFT) ^ (msg==WM_MOUSEHWHEEL?0x8000:0))&0x8000)
           {
             const int oldscroll = lvs->m_scroll_x;
             lvs->m_scroll_x -= amt*4;
@@ -4962,6 +4975,7 @@ forceMouseMove:
                 RECT ar = { xpos,ypos, cr.right, ypos + row_height };
                 if ((!col || has_subitem_image) && has_image)
                 {
+                  ar.left += row_height/4;
                   if (image_idx>0)
                   {
                     HICON icon = lvs->m_status_imagelist->Get(image_idx-1);
@@ -4974,15 +4988,8 @@ forceMouseMove:
                       DrawImageInRect(ps.hdc,icon,&ar);
                     }
                   }
-                  if (has_status_image)
-                  {
-                    xpos += row_height;
-                    ar.left += row_height;
-                  }
-                  else if (image_idx > 0)
-                  {
-                    ar.left += row_height;
-                  }
+                  ar.left += row_height;
+                  if (has_status_image) xpos += row_height;
                 }
 
                 if (lvs->m_is_listbox && (hwnd->m_style & LBS_OWNERDRAWFIXED))
@@ -5008,7 +5015,7 @@ forceMouseMove:
 
                   if (ar.right > ar.left && str)
                   {
-                    const int adj = (ar.right-ar.left)/16;
+                    const int adj = (ar.right-ar.left)/4;
                     const int maxadj = SWELL_UI_SCALE(4);
                     int fmt = ncols > 0 ? cols[col].fmt & 3 : LVCFMT_LEFT;
                     if (fmt != LVCFMT_LEFT)
@@ -8385,8 +8392,33 @@ BOOL EnumChildWindows(HWND hwnd, BOOL (*cwEnumFunc)(HWND,LPARAM),LPARAM lParam)
   }
   return TRUE;
 }
+
 void SWELL_GetDesiredControlSize(HWND hwnd, RECT *r)
 {
+  if (WDL_NOT_NORMALLY(!hwnd)) return;
+  bool isbutton = !stricmp(hwnd->m_classname,"Button") &&
+    !(hwnd->m_style & BS_GROUPBOX);
+  bool isstatic = !isbutton && !stricmp(hwnd->m_classname,"Static");
+
+  if (isbutton || isstatic)
+  {
+    const int sf = hwnd->m_style & 0xf;
+    const bool ischk = isbutton && (sf == BS_AUTO3STATE ||
+                                    sf == BS_AUTOCHECKBOX ||
+                                    sf == BS_AUTORADIOBUTTON);
+    const int chksz = SWELL_UI_SCALE(12 + 6);
+
+    RECT r2 = {0,};
+    HDC hdc = GetDC(hwnd);
+    DrawText(hdc,hwnd->m_title.Get(),-1,&r2,DT_CALCRECT);
+    ReleaseDC(hwnd,hdc);
+    if (isbutton)
+     r->right = r2.right + SWELL_UI_SCALE(6) + (ischk ? chksz : 0);
+    else if (isstatic)
+     r->right = r2.right + SWELL_UI_SCALE(4);
+    r->bottom = r2.bottom;
+  }
+
 }
 
 BOOL SWELL_IsGroupBox(HWND hwnd)

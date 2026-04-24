@@ -49,6 +49,10 @@ void swell_oswindow_update_text(HWND hwnd)
 
 }
 
+void swell_oswindow_maximize(HWND, bool wantmax)
+{
+}
+
 void swell_oswindow_focus(HWND hwnd)
 {
   if (!hwnd)

@@ -2424,6 +2424,7 @@ struct bridgeState {
   Window native_w;
   Display *native_disp;
   GdkWindow *cur_parent;
+  Window cur_parent_xid;
   HWND hwnd_child;
 
   bool lastvis;
@@ -2472,6 +2473,7 @@ bridgeState::bridgeState(bool needrep, GdkWindow *_w, Window _nw, Display *_disp
   lastvis=false;
   need_reparent=needrep;
   cur_parent = _curpar;
+  cur_parent_xid = _curpar ? GDK_WINDOW_XID(_curpar) : 0;
   memset(&lastrect,0,sizeof(lastrect));
   filter_windows.Add(this);
 }
@@ -2619,6 +2621,7 @@ static LRESULT xbridgeProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
               bs->lastrect=tr;
 
               bs->cur_parent = h->m_oswindow;
+              bs->cur_parent_xid = h->m_oswindow ? GDK_WINDOW_XID(h->m_oswindow) : 0;
               bs->need_reparent=false;
               if (vis && bs->lastvis) gdk_window_show(bs->w);
             }
@@ -2985,7 +2988,7 @@ static bool want_key_embed_redirect(Display *disp, Window scan_id, Window *new_d
   {
     bridgeState *bs = filter_windows.Get(x);
     if (bs && bs->cur_parent &&
-        GDK_WINDOW_XID(bs->cur_parent) == scan_id &&
+        bs->cur_parent_xid == scan_id &&
         bs->native_disp == disp)
     {
       HWND foc = GetFocus();
@@ -3047,7 +3050,7 @@ static GdkFilterReturn filterCreateShowProc(GdkXEvent *xev, GdkEvent *event, gpo
         {
           bridgeState *bs = filter_windows.Get(x);
           if (bs && bs->cur_parent &&
-              GDK_WINDOW_XID(bs->cur_parent) == scan_id &&
+              bs->cur_parent_xid == scan_id &&
               bs->native_disp == disp)
           {
             POINT pt;
@@ -3105,7 +3108,7 @@ static GdkFilterReturn filterCreateShowProc(GdkXEvent *xev, GdkEvent *event, gpo
           {
             bridgeState *bs = filter_windows.Get(x);
             if (bs && bs->cur_parent &&
-                GDK_WINDOW_XID(bs->cur_parent) == scan_id &&
+                bs->cur_parent_xid == scan_id &&
                 bs->native_disp == disp)
             {
               POINT pt = { (int) foc->root_x, (int) foc->root_y };
@@ -3763,6 +3766,66 @@ void *SWELL_GetOSWindow(HWND hwnd, const char *type)
 void *SWELL_GetOSEvent(const char *type)
 {
   return !strcmp(type,"GdkEvent") ? s_cur_evt : NULL;
+}
+
+void swell_gdk_prevent_screensaver(bool prev, const char *desc)
+{
+  static GDBusProxy *s_ss_prox;
+  static char s_ss_mode;
+  enum { SS_MODE_FD=0, SS_MODE_XFCE, NUM_SS_MODES } ;
+
+  if (s_ss_mode < NUM_SS_MODES && !!s_ss_prox != prev)
+  {
+    static unsigned int s_ss_cookie;
+again:
+    const char *ident = s_ss_mode==SS_MODE_XFCE ? "org.xfce.ScreenSaver" : "org.freedesktop.ScreenSaver";
+    if (!s_ss_prox && prev)
+    {
+      s_ss_prox = g_dbus_proxy_new_for_bus_sync(G_BUS_TYPE_SESSION,
+          G_DBUS_PROXY_FLAGS_NONE, NULL,
+          ident,
+          s_ss_mode==SS_MODE_XFCE ? "/org/xfce/ScreenSaver" : "/org/freedesktop/ScreenSaver",
+          ident,
+          NULL, NULL);
+      if (!s_ss_prox && ++s_ss_mode < NUM_SS_MODES) goto again; // g_dbus_proxy_new_for_bus_sync() should always succeed, though, even if not supported interface
+    }
+
+    if (s_ss_prox)
+    {
+      GVariant *result = g_dbus_proxy_call_sync(s_ss_prox,
+                            prev ? "Inhibit" : "UnInhibit",
+                            prev ? g_variant_new("(ss)", desc?desc:"swell app", "running") : g_variant_new("(u)", s_ss_cookie),
+                            G_DBUS_CALL_FLAGS_NONE, -1, NULL, NULL);
+
+      if (prev)
+      {
+        if (!result)
+        {
+#ifdef _DEBUG
+          printf("swell-generic-gdk: dbus call of %s.Inhibit failed\n", ident);
+#endif
+          if (++s_ss_mode < NUM_SS_MODES)
+          {
+            g_object_unref(s_ss_prox);
+            s_ss_prox = NULL;
+            goto again;
+          }
+        }
+        else
+        {
+          g_variant_get(result, "(u)", &s_ss_cookie);
+        }
+      }
+      else
+      {
+        s_ss_cookie = 0;
+        g_object_unref(s_ss_prox);
+        s_ss_prox = NULL;
+      }
+
+      if (result) g_variant_unref(result);
+    }
+  }
 }
 
 

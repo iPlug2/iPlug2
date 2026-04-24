@@ -1,6 +1,61 @@
 #ifndef _WDL_HASSTRINGS_H_
 #define _WDL_HASSTRINGS_H_
 
+/*
+ does user defined string matching.
+
+ searching for:
+     one two three
+ matches all strings that contain the substrings "one" "two" and "three".
+
+ quotes can be used to search for strings that contain spaces:
+     "one two"
+ matches all strings that contain the substring "one two"
+
+ if quotes are used on a string that does not contain spaces, a word match is used.
+     "one"
+ matches all strings that contain the word "one". e.g. "bone" does not match, but "thirty-one" does.
+
+ if the quoted string has leading or trailing spaces, then they specify a word boundary:
+     " one"
+ will match "onerous" but not match "bone", and:
+     "one "
+ will match "bone" but not match "onerous"
+
+ you can specify NOT (must be upper-case) as a prefix to a string/word:
+     NOT one
+ matches all strings that do not contain the substring "one"
+
+ you can specify OR (must be upper-case) to change the default AND behavior to OR.
+     one OR two
+ matches all strings that contain the substring "one" or contain the substring "two"
+
+ you can specify parentheses (must be separated by spaces) to group logic:
+     one OR ( two three )
+ matches all strings that contain the substring "one", or contain both of the substrings "two" and "three"
+
+ unquoted substrings that begin with ^ will match the start of the string only:
+     ^one
+ will match "one time I saw" but not match "there is one thing"
+
+ unquoted substrings that end with $ will match the end of the string only:
+     one$
+ will match "there can be only one" but not match "there is one thing"
+
+
+
+
+ use this to preprocess a search filter:
+#include "WDL/lineparse.h"
+ LineParser lp;
+ bool filter_en = WDL_makeSearchFilter("filter string", &lp);
+
+ // then for each item:
+ if (!filter_en || WDL_hasStrings(string_in_question, &lp)) { matches }
+
+
+*/
+
 #ifndef WDL_HASSTRINGS_EXPORT
 #define WDL_HASSTRINGS_EXPORT
 #endif
@@ -92,10 +147,12 @@ WDL_HASSTRINGS_EXPORT int hasStrings_utf8cmp(const unsigned char * const a, cons
     // if ca is A, and cb is a, cb will be 'a'-'A'
     if (cb)
     {
-      if (cb != 'a'-'A')
+      if (ca < 0x80)
       {
-        if (ca < 0x80) return -ca;
-
+        if (cb != 'a'-'A' || ca < 'A' || ca > 'Z') return -ca;
+      }
+      else
+      {
         if (WDL_IS_UTF8_2BYTE_PREFIX(ca))
         {
           unsigned char b1 = ca, b2 = a[aidx+1];
@@ -137,7 +194,6 @@ WDL_HASSTRINGS_EXPORT int hasStrings_utf8cmp(const unsigned char * const a, cons
         }
         else return -ca;
       }
-      else if (ca < 'A' || ca > 'Z') return -ca;
     }
     ++aidx;
     ++b;
@@ -281,7 +337,10 @@ WDL_HASSTRINGS_EXPORT bool WDL_hasStringsEx2(const char **name_list, int name_li
                 while (*p && *p != ' ' && *p != '\t') p++;
                 if (!*p)
                 {
-                  wc_left=wc_right=2;
+                  // though if leading char is non-word, don't require previous character to be nonword
+                  if (!hasStrings_isNonWordChar(n)) wc_left=2;
+                  // and if trailing char is non-word, don't require next character to be nonword
+                  if (!hasStrings_isNonWordChar(hasStrings_rewutf8(p-1,n))) wc_right=2;
                 }
               }
             break;

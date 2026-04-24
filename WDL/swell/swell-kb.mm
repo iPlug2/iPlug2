@@ -115,7 +115,7 @@ static int charFromVcode(int keyCode) // used for getting the root char (^, `) f
   if(keyboardLayout)
   {
     UInt32 deadKeyState = 0;
-    UniCharCount maxStringLength = 255;
+    const UniCharCount maxStringLength = 255;
     UniCharCount actualStringLength = 0;
     UniChar unicodeString[maxStringLength];
 
