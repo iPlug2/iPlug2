@@ -99,6 +99,26 @@ void IPlugWasmUI::SendDSPIdleTick()
 // Global instance for Emscripten bindings
 extern std::unique_ptr<iplug::IPlugWasmUI> gPlug;
 
+// Parent-window dims that arrived before `gPlug` was constructed.
+// `iplug_fsready()` runs asynchronously after IDBFS syncs — so on the
+// first page load the JS bundle's initial ResizeObserver callback can
+// fire before `gPlug` exists. Without buffering, that resize is lost
+// and the canvas stays pinned at the plugin's default dimensions until
+// the parent element is resized again. Replayed by
+// `IPlugWasmUI_ApplyPendingParentWindowResize()`.
+static int gPendingParentWindowW = 0;
+static int gPendingParentWindowH = 0;
+
+extern "C" EMSCRIPTEN_KEEPALIVE void IPlugWasmUI_ApplyPendingParentWindowResize()
+{
+  if (gPlug && gPendingParentWindowW > 0 && gPendingParentWindowH > 0)
+  {
+    gPlug->OnParentWindowResize(gPendingParentWindowW, gPendingParentWindowH);
+    gPendingParentWindowW = 0;
+    gPendingParentWindowH = 0;
+  }
+}
+
 // Callback functions called by JavaScript controller when DSP sends messages
 static void _SendParameterValueFromDelegate(int paramIdx, double normalizedValue)
 {
@@ -143,7 +163,16 @@ static void _StartIdleTimer()
 static void _OnParentWindowResize(int width, int height)
 {
   if (gPlug)
+  {
     gPlug->OnParentWindowResize(width, height);
+  }
+  else
+  {
+    // gPlug not constructed yet — stash the dims so
+    // `iplug_fsready()` can replay them once the UI is open.
+    gPendingParentWindowW = width;
+    gPendingParentWindowH = height;
+  }
 }
 
 EMSCRIPTEN_BINDINGS(IPlugWasmUI) {

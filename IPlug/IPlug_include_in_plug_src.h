@@ -277,6 +277,10 @@
   std::unique_ptr<iplug::IPlugWasmUI> gPlug;
   extern void StartMainLoopTimer();
 
+  // Defined in IPlugWasmUI.cpp — replays any parent-window resize that
+  // arrived from JS before `gPlug` existed.
+  extern "C" void IPlugWasmUI_ApplyPendingParentWindowResize();
+
   extern "C"
   {
     EMSCRIPTEN_KEEPALIVE void iplug_syncfs()
@@ -298,6 +302,10 @@
       gPlug = std::unique_ptr<iplug::IPlugWasmUI>(iplug::MakePlug(iplug::InstanceInfo()));
       gPlug->SetHost("www", 0);
       gPlug->OpenWindow(nullptr);
+      // IDBFS sync ran async, so the JS bundle's initial
+      // OnParentWindowResize likely already fired and was buffered.
+      // Apply it now, before the first frame is drawn.
+      IPlugWasmUI_ApplyPendingParentWindowResize();
       iplug_syncfs();
     }
   }
