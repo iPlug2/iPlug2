@@ -1244,7 +1244,10 @@ private:
   
   /** Called to update the drawing surface after a resize */
   virtual void DrawResize() {}
-  
+
+  /** Called at the very end of Resize() */
+  virtual void PostResize() {}
+
   /** Draw a region of the graphics (redrawing all contained items)
    * @param bounds The rectangular region to redraw
    * @param scale The current draw scale */

@@ -116,6 +116,8 @@ void IGraphics::Resize(int w, int h, float scale, bool needsPlatformResize)
   
   if(mLayoutOnResize)
     GetDelegate()->LayoutUI(this);
+
+  PostResize();
 }
 
 void IGraphics::SetLayoutOnResize(bool layoutOnResize)
