@@ -1244,7 +1244,16 @@ private:
   
   /** Called to update the drawing surface after a resize */
   virtual void DrawResize() {}
-  
+
+  /** Called at the very end of Resize(), after OnResize/SetAllControlsDirty/
+   * DrawResize and any LayoutUI from the delegate have run. Platforms whose
+   * backbuffer is cleared by the resize itself (WebGL: canvas.width/height
+   * assignment clears the default framebuffer, and NanoVG rebuilds an empty
+   * FBO) can override this to repaint synchronously before the next
+   * compositor pass shows a blank frame. No-op by default — native platforms
+   * don't need it. */
+  virtual void PostResize() {}
+
   /** Draw a region of the graphics (redrawing all contained items)
    * @param bounds The rectangular region to redraw
    * @param scale The current draw scale */

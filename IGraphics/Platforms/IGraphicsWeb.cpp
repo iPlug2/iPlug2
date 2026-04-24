@@ -834,11 +834,37 @@ void IGraphicsWeb::DrawResize()
   mCanvas["style"].set("width", val(widthPx));
   mCanvas["style"].set("height", val(heightPx));
 
-  // Canvas element width/height attributes are integers (no px)
-  mCanvas.set("width", Width() * GetBackingPixelScale());
-  mCanvas.set("height", Height() * GetBackingPixelScale());
+  // Canvas element width/height attributes are integers (no px).
+  // Assigning these clears the WebGL drawing buffer even when the value
+  // is unchanged, so guard against redundant writes — otherwise every
+  // ResizeObserver tick during a drag causes a visible flash.
+  const int newBufW = Width() * GetBackingPixelScale();
+  const int newBufH = Height() * GetBackingPixelScale();
+  const int curBufW = mCanvas["width"].as<int>();
+  const int curBufH = mCanvas["height"].as<int>();
+  if (newBufW != curBufW || newBufH != curBufH)
+  {
+    mCanvas.set("width", newBufW);
+    mCanvas.set("height", newBufH);
+  }
 
   IGRAPHICS_DRAW_CLASS::DrawResize();
+}
+
+void IGraphicsWeb::PostResize()
+{
+  // Called at the end of IGraphics::Resize(), after OnResize +
+  // SetAllControlsDirty + DrawResize + (optional) LayoutUI have all
+  // run. At this point control layout is final, so it's safe to
+  // repaint synchronously. Without this, the canvas is stuck in a
+  // cleared state (canvas.width/height assignment wiped the default
+  // framebuffer; NanoVG's DrawResize rebuilt an empty FBO) until the
+  // next main-loop RAF tick, which the browser may composite past —
+  // producing a one-frame blank flash on every size change.
+  IRECTList rects;
+  rects.Add(GetBounds());
+  SetAllControlsClean();
+  Draw(rects);
 }
 
 PlatformFontPtr IGraphicsWeb::LoadPlatformFont(const char* fontID, const char* fileNameOrResID)

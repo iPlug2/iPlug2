@@ -116,6 +116,10 @@ void IGraphics::Resize(int w, int h, float scale, bool needsPlatformResize)
   
   if(mLayoutOnResize)
     GetDelegate()->LayoutUI(this);
+
+  // Platform hook for post-layout work (e.g. web: sync redraw to avoid a
+  // blank compositor frame while waiting for the next RAF tick).
+  PostResize();
 }
 
 void IGraphics::SetLayoutOnResize(bool layoutOnResize)
