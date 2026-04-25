@@ -242,9 +242,6 @@ public:
       LOGFONT lf = m_lf;
       lf.lfHeight = ht;
       lf.lfWidth = ht2;
-      #ifdef _WIN32
-      if (!(m_flags & LICE_FONT_FLAG_FORCE_NATIVE) && abs(lf.lfHeight) <= 14) lf.lfQuality = NONANTIALIASED_QUALITY;
-      #endif
       t->cache->SetFromHFont(CreateFontIndirect(&lf), LICE_FONT_FLAG_OWNS_HFONT | use_flag);
     }
 
