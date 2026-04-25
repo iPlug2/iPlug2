@@ -458,11 +458,18 @@ IGraphicsWeb::IGraphicsWeb(IGEditorDelegate& dlg, int w, int h, int fps, float s
   std::string rootNodeType = mRootNode["constructor"]["name"].as<std::string>();
   mInShadowDOM = (rootNodeType == "ShadowRoot");
 
-  // Generate unique canvas ID for this instance (used by emscripten callbacks)
-  char idBuf[64];
-  snprintf(idBuf, sizeof(idBuf), "iplug-canvas-%p", static_cast<void*>(this));
-  mCanvasSelector = std::string("#") + idBuf;
-  mCanvas.set("id", std::string(idBuf));
+  // Use the canvas's existing id if it has one (legacy templates rely on
+  // querying their <canvas id="canvas"> from JS); otherwise synthesize a
+  // per-instance id so multiple instances on a page don't collide.
+  std::string existingId = mCanvas["id"].as<std::string>();
+  if (existingId.empty())
+  {
+    char idBuf[64];
+    snprintf(idBuf, sizeof(idBuf), "iplug-canvas-%p", static_cast<void*>(this));
+    existingId = idBuf;
+    mCanvas.set("id", existingId);
+  }
+  mCanvasSelector = std::string("#") + existingId;
 
   DBGMSG("IGraphicsWeb: Shadow DOM = %s, selector = %s\n", mInShadowDOM ? "true" : "false", mCanvasSelector.c_str());
 
