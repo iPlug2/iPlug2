@@ -221,12 +221,12 @@ bool LICE_CachedFont::RenderGlyph(unsigned int idx) // return TRUE if ok
     if (idx >= COMBINING_THRESHOLD && (idx & (COMBINING_THRESHOLD-1)) < 128) // include any combining character
       tmpstr[1] = (WCHAR) DECODE_COMBINING(idx);
 
-    ::DrawTextW(s_tempbitmap->getDC(),tmpstr,1,&r,DT_CALCRECT|DT_SINGLELINE|DT_NOPREFIX);
+    ::DrawTextW(s_tempbitmap->getDC(),tmpstr,tmpstr[1] ? -1 : 1,&r,DT_CALCRECT|DT_SINGLELINE|DT_NOPREFIX);
     advance=r.right;
     r.right += right_extra_pad+left_extra_pad;
     LICE_FillRect(s_tempbitmap,0,0,r.right,r.bottom,0,1.0f,LICE_BLIT_MODE_COPY);
     r.left+=left_extra_pad;
-    ::DrawTextW(s_tempbitmap->getDC(),tmpstr,1,&r,DT_SINGLELINE|DT_LEFT|DT_TOP|DT_NOPREFIX|DT_NOCLIP);
+    ::DrawTextW(s_tempbitmap->getDC(),tmpstr,tmpstr[1] ? -1 : 1,&r,DT_SINGLELINE|DT_LEFT|DT_TOP|DT_NOPREFIX|DT_NOCLIP);
   }
   #if defined(WDL_SUPPORT_WIN9X)
   else
