@@ -145,10 +145,15 @@ function(_iplug_create_desktop_targets plugin_name formats sources ui_lib resour
 
   set(_rc_file "${CMAKE_CURRENT_SOURCE_DIR}/resources/main.rc")
   if(WIN32 AND EXISTS "${_rc_file}")
-      # Tell RC compiler where to find resources (fonts, images, etc.)
-      # The .rc file references files like "Roboto-Regular.ttf" without path
+    # Tell RC compiler where to find resources (fonts, images, etc.)
+    # The .rc file references files like "Roboto-Regular.ttf" without path
+    set(_rc_compile_flags "/I\"${CMAKE_CURRENT_SOURCE_DIR}/resources/fonts\" /I\"${CMAKE_CURRENT_SOURCE_DIR}/resources/img\" /I\"${CMAKE_CURRENT_SOURCE_DIR}/resources\"")
+    # Allow callers to inject extra include directories (e.g. for shared/common resource folders)
+    foreach(_extra_dir ${IPLUG_EXTRA_RC_INCLUDE_DIRS})
+      string(APPEND _rc_compile_flags " /I\"${_extra_dir}\"")
+    endforeach()
     set_source_files_properties("${_rc_file}" PROPERTIES
-      COMPILE_FLAGS "/I\"${CMAKE_CURRENT_SOURCE_DIR}/resources/fonts\" /I\"${CMAKE_CURRENT_SOURCE_DIR}/resources/img\" /I\"${CMAKE_CURRENT_SOURCE_DIR}/resources\""
+      COMPILE_FLAGS "${_rc_compile_flags}"
     )
   endif()
 
