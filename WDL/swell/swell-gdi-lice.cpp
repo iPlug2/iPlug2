@@ -934,6 +934,16 @@ HFONT SWELL_GetDefaultFont()
   return def;
 }
 
+#ifdef SWELL_FREETYPE
+static int swell_ft_mulfix64(int a, int b)
+{
+  const WDL_INT64 c = a * (WDL_INT64) b;
+  // .22 fixed point to integer
+  return (c + (1<<21) - 1) >> 22;
+}
+#endif
+
+
 BOOL GetTextMetrics(HDC ctx, TEXTMETRIC *tm)
 {
   HDC__ *ct=(HDC__ *)ctx;
@@ -952,8 +962,8 @@ BOOL GetTextMetrics(HDC ctx, TEXTMETRIC *tm)
   if (font && font->typedata)
   {
     FT_Face face=(FT_Face) font->typedata;
-    tm->tmAscent = FT_MulFix(face->ascender, face->size->metrics.y_scale)/64;
-    tm->tmDescent = FT_MulFix(-face->descender, face->size->metrics.y_scale)/64;
+    tm->tmAscent = swell_ft_mulfix64(face->ascender, face->size->metrics.y_scale);
+    tm->tmDescent = swell_ft_mulfix64(-face->descender, face->size->metrics.y_scale);
     tm->tmHeight = tm->tmAscent + tm->tmDescent;
     tm->tmInternalLeading = tm->tmHeight - face->size->metrics.y_ppem;
     tm->tmAveCharWidth = face->size->metrics.height / 112;
@@ -987,9 +997,9 @@ int DrawText(HDC ctx, const char *buf, int buflen, RECT *r, int align)
   if (font && font->typedata) 
   {
     face=(FT_Face)font->typedata;
-    lineh = FT_MulFix(face->height, face->size->metrics.y_scale)/64;
-    ascent = FT_MulFix(face->ascender, face->size->metrics.y_scale)/64;
-    descent = FT_MulFix(face->descender, face->size->metrics.y_scale)/64;
+    lineh = swell_ft_mulfix64(face->height, face->size->metrics.y_scale);
+    ascent = swell_ft_mulfix64(face->ascender, face->size->metrics.y_scale);
+    descent = swell_ft_mulfix64(face->descender, face->size->metrics.y_scale);
     charw = face->size->metrics.height / 112;
   }
 #endif
