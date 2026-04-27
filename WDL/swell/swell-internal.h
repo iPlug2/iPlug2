@@ -984,6 +984,9 @@ struct HDC__ {
 
   RECT dirty_rect; // in surface coordinates, used for GetWindowDC()/GetDC()/etc
   bool dirty_rect_valid;
+
+  LICE_IBitmap *surface_save; // swell-gdi-lice SWELL_PushClipRgn only supports one item
+  POINT surface_offs_save;
 #else
   void *ownedData; // for mem contexts, support a null rendering 
 #endif

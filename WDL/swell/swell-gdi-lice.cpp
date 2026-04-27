@@ -1443,21 +1443,39 @@ HGDIOBJ SWELL_CloneGDIObject(HGDIOBJ a)
 
 void SWELL_PushClipRegion(HDC ctx)
 {
-//  HDC__ *ct=(HDC__ *)ctx;
-//  if (ct && ct->ctx) CGContextSaveGState(ct->ctx);
+  HDC__ *ct=(HDC__ *)ctx;
+  if (ct && ct->surface && WDL_NORMALLY(!ct->surface_save))
+  {
+    ct->surface_save = ct->surface;
+    ct->surface_offs_save = ct->surface_offs;
+  }
 }
 
 void SWELL_SetClipRegion(HDC ctx, const RECT *r)
 {
-//  HDC__ *ct=(HDC__ *)ctx;
-//  if (ct && ct->ctx) CGContextClipToRect(ct->ctx,CGRectMake(r->left,r->top,r->right-r->left,r->bottom-r->top));
-
+  HDC__ *ct=(HDC__ *)ctx;
+  if (ct && ct->surface && WDL_NORMALLY(ct->surface == ct->surface_save))
+  {
+    int xo = r->left + ct->surface_offs.x, yo = r->top + ct->surface_offs.y;
+    int w = r->right - r->left, h = r->bottom - r->top;
+    if (xo < 0) { w += xo; xo = 0; }
+    if (yo < 0) { h += yo; yo = 0; }
+    ct->surface=new LICE_SubBitmap(ct->surface_save, xo, yo, w, h);
+    ct->surface_offs.x -= xo;
+    ct->surface_offs.y -= yo;
+  }
 }
 
 void SWELL_PopClipRegion(HDC ctx)
 {
-//  HDC__ *ct=(HDC__ *)ctx;
-//  if (ct && ct->ctx) CGContextRestoreGState(ct->ctx);
+  HDC__ *ct=(HDC__ *)ctx;
+  if (ct && WDL_NORMALLY(ct->surface_save))
+  {
+    if (ct->surface != ct->surface_save) delete ct->surface;
+    ct->surface = ct->surface_save;
+    ct->surface_offs = ct->surface_offs_save;
+    ct->surface_save = NULL;
+  }
 }
 
 void *SWELL_GetCtxFrameBuffer(HDC ctx)

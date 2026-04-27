@@ -876,7 +876,7 @@ SWELL_API_DEFINE(void *, SWELL_GetCtxFrameBuffer,(HDC ctx))
 
 /* 
 ** Some utility functions for pushing, setting, and popping the clip region. 
-** macOS-only
+** Note: on swell/lice, only one item is allowed on the clip region stack
 */
 SWELL_API_DEFINE(void, SWELL_PushClipRegion,(HDC ctx))
 SWELL_API_DEFINE(void, SWELL_SetClipRegion,(HDC ctx, const RECT *r))
