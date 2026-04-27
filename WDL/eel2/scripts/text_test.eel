@@ -26,7 +26,7 @@ function run() (
   gfx_set(1);
   gfx_getfont(#s, ascent, descent, lead);
 
-  str=sprintf(#,"Ĥj%s",#s);
+  str=sprintf(#,"Ĥjg%s",#s);
   gfx_measurestr(str,mw,mh);
   gfx_drawstr(str,align,img_w,bottom);
   
@@ -84,9 +84,25 @@ function run() (
   gfx_y = gfx_h - sc;
   gfx_set(1);
   gfx_drawstr(sprintf(#,"sz=%d req=%s",fontsz,fontname));
+  c=gfx_getchar();
+  c=='-'?fontsz-=fontsz>0?1:-1;
+  c=='='?fontsz+=fontsz>0?1:-1;
+  c == 27 ? -1 : c;
 );
 
-argc < 3 ? (
+function run2()
+(
+  run() >= 0 ? defer("run2();");
+);
+
+argc == 0 ? (
+  fontsz = -16;
+  fontname = "Arial";
+  align = 0;
+  bottom = 9999;
+  gfx_init("font test",1200,800);
+  run2();
+) : argc < 3 ? (
   printf("usage: %s fontname size [c|b]\n",argv[0]);
 ) : (
   fontname = argv[1];
@@ -95,8 +111,7 @@ argc < 3 ? (
   bottom = align ? abs(fontsz)+12 : 9999;
 
   gfx_init("font test",1200,800);
-  while ((c=gfx_getchar())>=0 && c != 27) (
-    run();
+  while ((c=run())>=0) (
     gfx_update();
   );
 );
