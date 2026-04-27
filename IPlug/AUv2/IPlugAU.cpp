@@ -327,6 +327,12 @@ OSStatus IPlugAU::IPlugAUEntry(ComponentParameters *params, void* pPlug)
     {
       return _this->DoMIDIEvent(_this, GET_COMP_PARAM(UInt32, 3, 4), GET_COMP_PARAM(UInt32, 2, 4), GET_COMP_PARAM(UInt32, 1, 4), GET_COMP_PARAM(UInt32, 0, 4));
     }
+    case kMusicDeviceMIDIEventListSelect:
+    {
+      UInt32 inOffsetSampleFrame = GET_COMP_PARAM(UInt32, 0, 2);
+      const MIDIEventList* inEventList = GET_COMP_PARAM(const MIDIEventList*, 1, 2);
+      return IPlugAU::AUMethodMIDIEventList(_this, inOffsetSampleFrame, inEventList);
+    }
     case kMusicDeviceSysExSelect:
     {
       return _this->DoSysEx(_this, GET_COMP_PARAM(UInt8*, 1, 2), GET_COMP_PARAM(UInt32, 0, 2));
@@ -380,6 +386,7 @@ OSStatus IPlugAU::IPlugAUEntry(ComponentParameters *params, void* pPlug)
         case kAudioUnitAddRenderNotifySelect:
         case kAudioUnitRemoveRenderNotifySelect:
         case kAudioUnitScheduleParametersSelect:
+        case kMusicDeviceMIDIEventListSelect:
           return 1;
         default:
           return 0;
@@ -2220,6 +2227,56 @@ OSStatus IPlugAU::AUMethodReset(void* pSelf, AudioUnitScope scope, AudioUnitElem
 OSStatus IPlugAU::AUMethodMIDIEvent(void* pSelf, UInt32 inStatus, UInt32 inData1, UInt32 inData2, UInt32 inOffsetSampleFrame)
 {
   return DoMIDIEvent(GetPlug(pSelf), inStatus, inData1, inData2, inOffsetSampleFrame);
+}
+
+//static
+OSStatus IPlugAU::AUMethodMIDIEventList(void* pSelf, UInt32 inOffsetSampleFrame, const MIDIEventList* inEventList)
+{
+  IPlugAU* pPlug = GetPlug(pSelf);
+
+  if (!inEventList)
+    return noErr;
+
+  auto UMPWordsForType = [](UInt32 mt) -> UInt32 {
+    switch (mt)
+    {
+      case 0x0: case 0x1: case 0x2: return 1;
+      case 0x3: case 0x4: return 2;
+      case 0x5: return 4;
+      default: return 1;
+    }
+  };
+
+  const MIDIEventPacket* packet = &inEventList->packet[0];
+
+  for (UInt32 i = 0; i < inEventList->numPackets; ++i)
+  {
+    UInt32 pos = 0;
+
+    while (pos < packet->wordCount)
+    {
+      const UInt32 word0 = packet->words[pos];
+      const UInt32 mt = (word0 >> 28) & 0x0F;
+      const UInt32 nWords = UMPWordsForType(mt);
+
+      if (pos + nWords > packet->wordCount)
+        break;
+
+      if (mt == 0x2) // MIDI 1.0 Channel Voice
+      {
+        UInt32 status = (word0 >> 16) & 0xFF;
+        UInt32 data1  = (word0 >>  8) & 0xFF;
+        UInt32 data2  =  word0        & 0xFF;
+        DoMIDIEvent(pPlug, status, data1, data2, inOffsetSampleFrame);
+      }
+
+      pos += nWords;
+    }
+
+    packet = MIDIEventPacketNext(packet);
+  }
+
+  return noErr;
 }
 
 //static
