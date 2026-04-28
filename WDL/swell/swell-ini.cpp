@@ -603,7 +603,7 @@ BOOL GetPrivateProfileStruct(const char *appname, const char *keyname, void *buf
       sum += cv;
       src+=2;
     }
-    ret = bufsz<0 && __readbyte(src,&cv) && cv==sum;
+    ret = bufsz<0 && WDL_NORMALLY(__readbyte(src,&cv) && cv==sum);
   }
   free(tmp);
   //printf("getprivateprofilestruct returning %d\n",ret);
