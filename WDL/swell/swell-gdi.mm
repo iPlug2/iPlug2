@@ -752,6 +752,8 @@ HFONT CreateFont(int lfHeight, int lfWidth, int lfEscapement, int lfOrientation,
   HGDIOBJ__ *font=GDP_OBJECT_NEW();
   font->type=TYPE_FONT;
   font->ct_realInternalLeading = font->ct_realAscender = font->ct_realDescender = 0.0;
+  if (lfHeight >= -1 && lfHeight <= 1) lfHeight = -11;
+
   float fontwid=lfHeight;
   
   if (!fontwid) fontwid=lfWidth;
