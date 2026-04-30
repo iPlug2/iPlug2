@@ -417,6 +417,7 @@ HFONT CreateFont(int lfHeight, int lfWidth, int lfEscapement, int lfOrientation,
     }
   }
   if (lfWidth<0) lfWidth=-lfWidth;
+  if (lfHeight >= -1 && lfHeight <= 1) lfHeight = -12; // reasonable default
 
   static WDL_PtrList<fontConfigCacheEnt> cache;
   const int cache_flag = wdl_max(lfWeight,0) | (lfItalic ? (1<<30) : 0);
