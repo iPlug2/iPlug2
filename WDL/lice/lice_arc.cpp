@@ -28,9 +28,9 @@ static bool CachedCircle(LICE_IBitmap* dest, float cx, float cy, float r, LICE_p
     if (aa)
     {
 #define __ALPHAS__(B) \
-        A(0.16), A(1.00), A(0.16), \
+        A(0.31), A(1.00), A(0.31), \
         A(1.00), B(0.06), A(1.00), \
-        A(0.16), A(1.00), A(0.16),
+        A(0.31), A(1.00), A(0.31),
 
       DEF_ALPHAS(3)
 #undef __ALPHAS__
