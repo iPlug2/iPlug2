@@ -92,10 +92,10 @@ function(iplug_bundle_web_resources project_name resource_dir output_dir)
     list(APPEND RESOURCE_OUTPUTS ${FONTS_DATA} ${FONTS_JS})
     add_custom_command(
       OUTPUT ${FONTS_DATA} ${FONTS_JS}
-      COMMAND ${Python3_EXECUTABLE} ${FILE_PACKAGER} ${FONTS_DATA}
-        --preload "${resource_dir}/fonts/"
+      COMMAND ${Python3_EXECUTABLE} ${FILE_PACKAGER} fonts.data
+        --preload "${resource_dir}/fonts/@/resources/fonts/"
         --exclude "*DS_Store"
-        --js-output=${FONTS_JS}
+        --js-output=fonts.js
       WORKING_DIRECTORY ${output_dir}
       COMMENT "Bundling fonts for ${project_name}"
       VERBATIM
@@ -108,11 +108,11 @@ function(iplug_bundle_web_resources project_name resource_dir output_dir)
     list(APPEND RESOURCE_OUTPUTS ${SVGS_DATA} ${SVGS_JS})
     add_custom_command(
       OUTPUT ${SVGS_DATA} ${SVGS_JS}
-      COMMAND ${Python3_EXECUTABLE} ${FILE_PACKAGER} ${SVGS_DATA}
-        --preload "${resource_dir}/img/"
+      COMMAND ${Python3_EXECUTABLE} ${FILE_PACKAGER} svgs.data
+        --preload "${resource_dir}/img/@/resources/img/"
         --exclude "*.png"
         --exclude "*DS_Store"
-        --js-output=${SVGS_JS}
+        --js-output=svgs.js
       WORKING_DIRECTORY ${output_dir}
       COMMENT "Bundling SVGs for ${project_name}"
       VERBATIM
@@ -127,15 +127,15 @@ function(iplug_bundle_web_resources project_name resource_dir output_dir)
     list(APPEND RESOURCE_OUTPUTS ${IMGS_DATA} ${IMGS_JS})
     add_custom_command(
       OUTPUT ${IMGS_DATA} ${IMGS_JS}
-      COMMAND ${Python3_EXECUTABLE} ${FILE_PACKAGER} ${IMGS_DATA}
+      COMMAND ${Python3_EXECUTABLE} ${FILE_PACKAGER} imgs.data
         --use-preload-plugins
-        --preload "${resource_dir}/img/"
+        --preload "${resource_dir}/img/@/resources/img/"
         --use-preload-cache
         --indexedDB-name="/${project_name}_pkg"
         --exclude "*DS_Store"
         --exclude "*@2x.png"
         --exclude "*.svg"
-        --js-output=${IMGS_JS}
+        --js-output=imgs.js
       WORKING_DIRECTORY ${output_dir}
       COMMENT "Bundling images for ${project_name}"
       VERBATIM
@@ -150,13 +150,13 @@ function(iplug_bundle_web_resources project_name resource_dir output_dir)
       OUTPUT ${IMGS2X_DATA} ${IMGS2X_JS}
       COMMAND ${CMAKE_COMMAND} -E make_directory "${output_dir}/2x"
       COMMAND ${CMAKE_COMMAND} -E copy ${PNG2X_FILES} "${output_dir}/2x/"
-      COMMAND ${Python3_EXECUTABLE} ${FILE_PACKAGER} ${IMGS2X_DATA}
+      COMMAND ${Python3_EXECUTABLE} ${FILE_PACKAGER} imgs@2x.data
         --use-preload-plugins
         --preload "${output_dir}/2x@/resources/img/"
         --use-preload-cache
         --indexedDB-name="/${project_name}_pkg"
         --exclude "*DS_Store"
-        --js-output=${IMGS2X_JS}
+        --js-output=imgs@2x.js
       COMMAND ${CMAKE_COMMAND} -E remove_directory "${output_dir}/2x"
       WORKING_DIRECTORY ${output_dir}
       COMMENT "Bundling @2x images for ${project_name}"
