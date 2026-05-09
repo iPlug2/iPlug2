@@ -1,0 +1,50 @@
+name: CLI Tests
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'CMakeLists.txt'
+      - 'iPlug2.cmake'
+      - 'Scripts/cmake/**'
+      - 'IPlug/**'
+      - 'WDL/**'
+      - 'Examples/IPlugCLITest/**'
+      - 'Tests/CMakeLists.txt'
+      - 'Tests/CLI/**'
+      - '.github/workflows/cli-tests.yml'
+  pull_request:
+    branches: [master]
+    paths:
+      - 'CMakeLists.txt'
+      - 'iPlug2.cmake'
+      - 'Scripts/cmake/**'
+      - 'IPlug/**'
+      - 'WDL/**'
+      - 'Examples/IPlugCLITest/**'
+      - 'Tests/CMakeLists.txt'
+      - 'Tests/CLI/**'
+      - '.github/workflows/cli-tests.yml'
+  workflow_dispatch:
+
+# Cancel in-progress runs for the same PR/branch.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  cli-tests:
+    name: CLI smoke tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Configure CLI test suite
+        run: cmake -S Tests/CLI -B build-cli-suite -DCMAKE_BUILD_TYPE=Debug
+
+      - name: Run CLI test suite
+        run: ctest --test-dir build-cli-suite --output-on-failure
