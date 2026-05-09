@@ -6,7 +6,7 @@
 #
 #  ==============================================================================
 
-# WasmUI.cmake - Wasm Web UI module configuration for iPlug2
+# WASMUI.cmake - Wasm Web UI module configuration for iPlug2
 # Creates the UI/IGraphics WASM module for the wasm split architecture
 #
 # The UI module runs on the main thread with:

@@ -6,7 +6,7 @@
 #
 #  ==============================================================================
 
-# WasmDist.cmake - Wasm Web distribution build orchestration
+# WASMDist.cmake - Wasm Web distribution build orchestration
 #
 # This module provides functions for building a complete Wasm Web distribution:
 # - Resource bundling (fonts, images, SVGs)
