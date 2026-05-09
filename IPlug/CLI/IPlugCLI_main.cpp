@@ -408,6 +408,7 @@ int main(int argc, char* argv[])
     {
       sampleRate = args.getDouble(44100.0);
       sampleRateSet = true;
+      outputSampleRate = static_cast<int>(sampleRate);
     }
     else if (args.match("--input"))
     {
