@@ -46,7 +46,11 @@ on:
         type: boolean
         default: false
       wam:
-        description: 'Include WAM/Emscripten build'
+        description: 'Include WAM (legacy) Emscripten build'
+        type: boolean
+        default: false
+      wasm:
+        description: 'Include WASM Emscripten build'
         type: boolean
         default: false
       universal:
@@ -80,6 +84,7 @@ jobs:
       ios: ${{ steps.parse.outputs.ios }}
       visionos: ${{ steps.parse.outputs.visionos }}
       wam: ${{ steps.parse.outputs.wam }}
+      wasm: ${{ steps.parse.outputs.wasm }}
       universal: ${{ steps.parse.outputs.universal }}
       arm64ec: ${{ steps.parse.outputs.arm64ec }}
       should_run: ${{ steps.parse.outputs.should_run }}
@@ -128,6 +133,7 @@ jobs:
               echo "ios=true" >> $GITHUB_OUTPUT
               echo "visionos=true" >> $GITHUB_OUTPUT
               echo "wam=true" >> $GITHUB_OUTPUT
+              echo "wasm=true" >> $GITHUB_OUTPUT
               echo "universal=true" >> $GITHUB_OUTPUT
               echo "arm64ec=true" >> $GITHUB_OUTPUT
             else
@@ -135,6 +141,7 @@ jobs:
               [[ "$COMMENT" == *"/ci ios"* ]] && echo "ios=true" >> $GITHUB_OUTPUT || echo "ios=false" >> $GITHUB_OUTPUT
               [[ "$COMMENT" == *"/ci visionos"* ]] && echo "visionos=true" >> $GITHUB_OUTPUT || echo "visionos=false" >> $GITHUB_OUTPUT
               [[ "$COMMENT" == *"/ci wam"* ]] && echo "wam=true" >> $GITHUB_OUTPUT || echo "wam=false" >> $GITHUB_OUTPUT
+              [[ "$COMMENT" == *"/ci wasm"* ]] && echo "wasm=true" >> $GITHUB_OUTPUT || echo "wasm=false" >> $GITHUB_OUTPUT
               [[ "$COMMENT" == *"/ci universal"* ]] && echo "universal=true" >> $GITHUB_OUTPUT || echo "universal=false" >> $GITHUB_OUTPUT
               [[ "$COMMENT" == *"/ci arm64ec"* ]] && echo "arm64ec=true" >> $GITHUB_OUTPUT || echo "arm64ec=false" >> $GITHUB_OUTPUT
             fi
@@ -148,6 +155,7 @@ jobs:
             echo "ios=${{ inputs.ios }}" >> $GITHUB_OUTPUT
             echo "visionos=${{ inputs.visionos }}" >> $GITHUB_OUTPUT
             echo "wam=${{ inputs.wam }}" >> $GITHUB_OUTPUT
+            echo "wasm=${{ inputs.wasm }}" >> $GITHUB_OUTPUT
             echo "universal=${{ inputs.universal }}" >> $GITHUB_OUTPUT
             echo "arm64ec=${{ inputs.arm64ec }}" >> $GITHUB_OUTPUT
             echo "should_run=true" >> $GITHUB_OUTPUT
@@ -158,6 +166,7 @@ jobs:
             echo "ios=false" >> $GITHUB_OUTPUT
             echo "visionos=false" >> $GITHUB_OUTPUT
             echo "wam=false" >> $GITHUB_OUTPUT
+            echo "wasm=true" >> $GITHUB_OUTPUT
             echo "universal=false" >> $GITHUB_OUTPUT
             echo "arm64ec=false" >> $GITHUB_OUTPUT
             echo "should_run=true" >> $GITHUB_OUTPUT
@@ -783,5 +792,71 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: wam-artifacts
+          path: build/wam/out/
+          if-no-files-found: warn
+
+  # ============================================================================
+  # WASM - Emscripten/WebAssembly (Optional - /ci wasm, default on for PRs)
+  # ============================================================================
+  wasm:
+    name: WASM (Emscripten)
+    needs: parse-commands
+    if: needs.parse-commands.outputs.wasm == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.parse-commands.outputs.pr_sha || github.sha }}
+          submodules: recursive
+
+      - name: Setup Emscripten
+        uses: mymindstorm/setup-emsdk@v14
+        with:
+          version: '3.1.51'
+
+      - name: Install Ninja
+        run: sudo apt-get install -y ninja-build
+
+      - name: Cache SDKs
+        id: cache-sdks
+        uses: actions/cache@v4
+        with:
+          path: |
+            Dependencies/IPlug/VST3_SDK
+            Dependencies/IPlug/CLAP_SDK
+            Dependencies/IPlug/CLAP_HELPERS
+            Dependencies/IPlug/WAM_SDK
+            Dependencies/IPlug/WAM_AWP
+          key: sdks-${{ runner.os }}-${{ hashFiles('Dependencies/IPlug/download-*.sh') }}
+
+      - name: Download Public SDKs
+        if: steps.cache-sdks.outputs.cache-hit != 'true'
+        run: |
+          cd Dependencies/IPlug
+          ./download-iplug-sdks.sh
+
+      - name: Configure CMake
+        run: cmake --preset wam -DIPLUG2_DISABLE_DEPRECATION_WARNINGS=ON
+
+      - name: Build
+        run: |
+          EXAMPLES="${{ needs.parse-commands.outputs.examples }}"
+          if [[ "$EXAMPLES" == "all" || -z "$EXAMPLES" ]]; then
+            cmake --build --preset wam
+          else
+            TARGETS=""
+            IFS=',' read -ra EXAMPLE_LIST <<< "$EXAMPLES"
+            for example in "${EXAMPLE_LIST[@]}"; do
+              example=$(echo "$example" | xargs)
+              TARGETS="$TARGETS --target ${example}-wasm-dist"
+            done
+            cmake --build --preset wam $TARGETS
+          fi
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: wasm-artifacts
           path: build/wam/out/
           if-no-files-found: warn
