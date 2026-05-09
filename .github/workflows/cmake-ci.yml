@@ -166,7 +166,7 @@ jobs:
             echo "ios=false" >> $GITHUB_OUTPUT
             echo "visionos=false" >> $GITHUB_OUTPUT
             echo "wam=false" >> $GITHUB_OUTPUT
-            echo "wasm=true" >> $GITHUB_OUTPUT
+            echo "wasm=false" >> $GITHUB_OUTPUT
             echo "universal=false" >> $GITHUB_OUTPUT
             echo "arm64ec=false" >> $GITHUB_OUTPUT
             echo "should_run=true" >> $GITHUB_OUTPUT
@@ -771,13 +771,13 @@ jobs:
           ./download-iplug-sdks.sh
 
       - name: Configure CMake
-        run: cmake --preset wam -DIPLUG2_DISABLE_DEPRECATION_WARNINGS=ON
+        run: cmake --preset web -DIPLUG2_DISABLE_DEPRECATION_WARNINGS=ON
 
       - name: Build
         run: |
           EXAMPLES="${{ needs.parse-commands.outputs.examples }}"
           if [[ "$EXAMPLES" == "all" || -z "$EXAMPLES" ]]; then
-            cmake --build --preset wam
+            cmake --build --preset web
           else
             TARGETS=""
             IFS=',' read -ra EXAMPLE_LIST <<< "$EXAMPLES"
@@ -785,18 +785,18 @@ jobs:
               example=$(echo "$example" | xargs)
               TARGETS="$TARGETS --target ${example}-wam --target ${example}-web"
             done
-            cmake --build --preset wam $TARGETS
+            cmake --build --preset web $TARGETS
           fi
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: wam-artifacts
-          path: build/wam/out/
+          path: build/web/out/
           if-no-files-found: warn
 
   # ============================================================================
-  # WASM - Emscripten/WebAssembly (Optional - /ci wasm, default on for PRs)
+  # WASM - Emscripten/WebAssembly (Optional - /ci wasm)
   # ============================================================================
   wasm:
     name: WASM (Emscripten)
@@ -837,13 +837,13 @@ jobs:
           ./download-iplug-sdks.sh
 
       - name: Configure CMake
-        run: cmake --preset wam -DIPLUG2_DISABLE_DEPRECATION_WARNINGS=ON
+        run: cmake --preset web -DIPLUG2_DISABLE_DEPRECATION_WARNINGS=ON
 
       - name: Build
         run: |
           EXAMPLES="${{ needs.parse-commands.outputs.examples }}"
           if [[ "$EXAMPLES" == "all" || -z "$EXAMPLES" ]]; then
-            cmake --build --preset wam
+            cmake --build --preset web
           else
             TARGETS=""
             IFS=',' read -ra EXAMPLE_LIST <<< "$EXAMPLES"
@@ -851,12 +851,12 @@ jobs:
               example=$(echo "$example" | xargs)
               TARGETS="$TARGETS --target ${example}-wasm-dist"
             done
-            cmake --build --preset wam $TARGETS
+            cmake --build --preset web $TARGETS
           fi
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: wasm-artifacts
-          path: build/wam/out/
+          path: build/web/out/
           if-no-files-found: warn

@@ -42,7 +42,7 @@ if(NOT EXISTS "${SHIM_FILE_REAL}")
 endif()
 
 execute_process(
-  COMMAND ${Python3_EXECUTABLE} -c "import sys; shim=open(sys.argv[1],'rb').read(); body=open(sys.argv[2],'rb').read(); open(sys.argv[2],'wb').write(shim+body)"
+  COMMAND ${Python3_EXECUTABLE} -c "import sys,os,tempfile; shim=open(sys.argv[1],'rb').read(); body=open(sys.argv[2],'rb').read(); fd,tmp=tempfile.mkstemp(dir=os.path.dirname(sys.argv[2])); os.write(fd,shim+body); os.close(fd); os.replace(tmp,sys.argv[2])"
   "${SHIM_FILE_REAL}" "${DSP_JS_FILE_REAL}"
   RESULT_VARIABLE _rc
 )

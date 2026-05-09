@@ -151,18 +151,18 @@ function(iplug_detect_web_resources resource_dir)
     set(found_fonts "true")
   endif()
 
-  file(GLOB _svgs "${resource_dir}/img/*.svg")
+  file(GLOB _svgs CONFIGURE_DEPENDS "${resource_dir}/img/*.svg")
   if(_svgs)
     set(found_svgs "true")
   endif()
 
-  file(GLOB _pngs "${resource_dir}/img/*.png")
+  file(GLOB _pngs CONFIGURE_DEPENDS "${resource_dir}/img/*.png")
   list(FILTER _pngs EXCLUDE REGEX "@2x")
   if(_pngs)
     set(found_imgs "true")
   endif()
 
-  file(GLOB _pngs2x "${resource_dir}/img/*@2x*.png")
+  file(GLOB _pngs2x CONFIGURE_DEPENDS "${resource_dir}/img/*@2x*.png")
   if(_pngs2x)
     set(found_imgs2x "true")
   endif()
@@ -212,6 +212,9 @@ function(iplug_stage_wasm_resources project_name output_dir)
 
   if(staged)
     add_custom_target(${project_name}_wasm_resources DEPENDS ${staged})
+    if(TARGET ${project_name}_wam_resources)
+      add_dependencies(${project_name}_wasm_resources ${project_name}_wam_resources)
+    endif()
   endif()
 endfunction()
 
@@ -274,19 +277,17 @@ function(iplug_configure_wasm_templates project_name output_dir)
   set(INDEX_TEMPLATE "${WASM_TEMPLATE_DIR}/index.html")
   set(INDEX_OUTPUT "${output_dir}/index.html")
 
-  # Default FOUND_* to "true" so the template loads all resource tags if the
-  # caller hasn't run detection. iplug_build_wasm_dist always sets them.
   if(NOT DEFINED WEB_FOUND_FONTS)
-    set(WEB_FOUND_FONTS "true")
+    set(WEB_FOUND_FONTS "false")
   endif()
   if(NOT DEFINED WEB_FOUND_SVGS)
-    set(WEB_FOUND_SVGS "true")
+    set(WEB_FOUND_SVGS "false")
   endif()
   if(NOT DEFINED WEB_FOUND_IMGS)
-    set(WEB_FOUND_IMGS "true")
+    set(WEB_FOUND_IMGS "false")
   endif()
   if(NOT DEFINED WEB_FOUND_IMGS2X)
-    set(WEB_FOUND_IMGS2X "true")
+    set(WEB_FOUND_IMGS2X "false")
   endif()
 
   add_custom_command(
@@ -378,16 +379,12 @@ function(iplug_build_wasm_dist project_name)
   endif()
 
   # 3. Bundle resources (reuse from WAMDist if available, skip if already created by WAM)
-  if(PLUG_HAS_RESOURCES)
+  if(EXISTS "${PLUG_RESOURCES_DIR}")
     if(COMMAND iplug_bundle_web_resources AND NOT TARGET ${project_name}_wam_resources)
       iplug_bundle_web_resources(${project_name} ${PLUG_RESOURCES_DIR} ${OUTPUT_DIR})
     endif()
 
-    # 3b. Detect which resources were bundled so we can stage them into scripts/
-    # and generate a correct index.html.
     iplug_detect_web_resources(${PLUG_RESOURCES_DIR})
-
-    # 3c. Stage resource .js/.data into scripts/ for Wasm
     iplug_stage_wasm_resources(${project_name} ${OUTPUT_DIR})
   endif()
 
