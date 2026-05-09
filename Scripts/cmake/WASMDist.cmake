@@ -6,7 +6,7 @@
 #
 #  ==============================================================================
 
-# WasmDist.cmake - Wasm Web distribution build orchestration
+# WASMDist.cmake - Wasm Web distribution build orchestration
 #
 # This module provides functions for building a complete Wasm Web distribution:
 # - Resource bundling (fonts, images, SVGs)
@@ -119,17 +119,103 @@ endfunction()
 # ============================================================================
 function(iplug_wrap_dsp_for_worklet dsp_target project_name output_dir)
   set(DSP_JS "${output_dir}/scripts/${project_name}-dsp.js")
-
-  # The wrapper script creates a shim for AudioWorklet environment
   set(WRAPPER_SCRIPT "${IPLUG2_CMAKE_SCRIPTS_DIR}/wrap_wasm_dsp.cmake")
+  set(SHIM_FILE "${WASM_TEMPLATE_DIR}/scripts/worklet-scope-shim.js")
 
+  # SINGLE_FILE=1 embeds the wasm binary as a raw byte string in the JS —
+  # CMake's file(READ)/file(WRITE) mangles it, so the wrapper script delegates
+  # the prepend to Python (see wrap_wasm_dsp.cmake).
   add_custom_command(TARGET ${dsp_target} POST_BUILD
     COMMAND ${CMAKE_COMMAND}
+      -DPython3_EXECUTABLE=${Python3_EXECUTABLE}
       -DDSP_JS_FILE=${DSP_JS}
+      -DSHIM_FILE=${SHIM_FILE}
       -P ${WRAPPER_SCRIPT}
     COMMENT "Wrapping ${project_name}-dsp.js for AudioWorklet scope"
     VERBATIM
   )
+endfunction()
+
+# ============================================================================
+# Detect which web resource categories exist under resources/
+# Mirrors the EXISTS/GLOB logic in iplug_bundle_web_resources.
+# Sets WEB_FOUND_FONTS / _SVGS / _IMGS / _IMGS2X in parent scope as "true"/"false".
+# ============================================================================
+function(iplug_detect_web_resources resource_dir)
+  set(found_fonts "false")
+  set(found_svgs "false")
+  set(found_imgs "false")
+  set(found_imgs2x "false")
+
+  if(EXISTS "${resource_dir}/fonts")
+    set(found_fonts "true")
+  endif()
+
+  file(GLOB _svgs CONFIGURE_DEPENDS "${resource_dir}/img/*.svg")
+  if(_svgs)
+    set(found_svgs "true")
+  endif()
+
+  file(GLOB _pngs CONFIGURE_DEPENDS "${resource_dir}/img/*.png")
+  list(FILTER _pngs EXCLUDE REGEX "@2x")
+  if(_pngs)
+    set(found_imgs "true")
+  endif()
+
+  file(GLOB _pngs2x CONFIGURE_DEPENDS "${resource_dir}/img/*@2x*.png")
+  if(_pngs2x)
+    set(found_imgs2x "true")
+  endif()
+
+  set(WEB_FOUND_FONTS ${found_fonts} PARENT_SCOPE)
+  set(WEB_FOUND_SVGS ${found_svgs} PARENT_SCOPE)
+  set(WEB_FOUND_IMGS ${found_imgs} PARENT_SCOPE)
+  set(WEB_FOUND_IMGS2X ${found_imgs2x} PARENT_SCOPE)
+endfunction()
+
+# ============================================================================
+# Stage bundled web resources into scripts/ for Wasm.
+# WAM's index.html loads resources from the output root; Wasm's loads them
+# from scripts/. Resource bundling (iplug_bundle_web_resources) writes to
+# the root, so for Wasm we copy the produced .js/.data pairs into scripts/.
+# ============================================================================
+function(iplug_stage_wasm_resources project_name output_dir)
+  set(scripts_dir "${output_dir}/scripts")
+  set(staged)
+
+  foreach(pair fonts:fonts svgs:svgs imgs:imgs imgs2x:imgs@2x)
+    string(REPLACE ":" ";" pair_list "${pair}")
+    list(GET pair_list 0 flag_suffix)
+    list(GET pair_list 1 base)
+
+    string(TOUPPER "${flag_suffix}" flag_upper)
+    set(found_var "WEB_FOUND_${flag_upper}")
+    if(NOT ${found_var} STREQUAL "true")
+      continue()
+    endif()
+
+    set(src_js   "${output_dir}/${base}.js")
+    set(src_data "${output_dir}/${base}.data")
+    set(dst_js   "${scripts_dir}/${base}.js")
+    set(dst_data "${scripts_dir}/${base}.data")
+
+    add_custom_command(
+      OUTPUT ${dst_js} ${dst_data}
+      COMMAND ${CMAKE_COMMAND} -E copy_if_different ${src_js}   ${dst_js}
+      COMMAND ${CMAKE_COMMAND} -E copy_if_different ${src_data} ${dst_data}
+      DEPENDS ${src_js} ${src_data}
+      COMMENT "Staging ${base}.{js,data} into scripts/ for Wasm"
+      VERBATIM
+    )
+    list(APPEND staged ${dst_js} ${dst_data})
+  endforeach()
+
+  if(staged)
+    add_custom_target(${project_name}_wasm_resources DEPENDS ${staged})
+    if(TARGET ${project_name}_wam_resources)
+      add_dependencies(${project_name}_wasm_resources ${project_name}_wam_resources)
+    endif()
+  endif()
 endfunction()
 
 # ============================================================================
@@ -191,6 +277,19 @@ function(iplug_configure_wasm_templates project_name output_dir)
   set(INDEX_TEMPLATE "${WASM_TEMPLATE_DIR}/index.html")
   set(INDEX_OUTPUT "${output_dir}/index.html")
 
+  if(NOT DEFINED WEB_FOUND_FONTS)
+    set(WEB_FOUND_FONTS "false")
+  endif()
+  if(NOT DEFINED WEB_FOUND_SVGS)
+    set(WEB_FOUND_SVGS "false")
+  endif()
+  if(NOT DEFINED WEB_FOUND_IMGS)
+    set(WEB_FOUND_IMGS "false")
+  endif()
+  if(NOT DEFINED WEB_FOUND_IMGS2X)
+    set(WEB_FOUND_IMGS2X "false")
+  endif()
+
   add_custom_command(
     OUTPUT ${INDEX_OUTPUT}
     COMMAND ${CMAKE_COMMAND}
@@ -198,6 +297,10 @@ function(iplug_configure_wasm_templates project_name output_dir)
       -DOUTPUT_FILE=${INDEX_OUTPUT}
       -DNAME_PLACEHOLDER=${project_name}
       -DNAME_PLACEHOLDER_LC=${project_name_lc}
+      -DFOUND_FONTS=${WEB_FOUND_FONTS}
+      -DFOUND_SVGS=${WEB_FOUND_SVGS}
+      -DFOUND_IMGS=${WEB_FOUND_IMGS}
+      -DFOUND_IMGS2X=${WEB_FOUND_IMGS2X}
       -P ${IPLUG2_CMAKE_SCRIPTS_DIR}/configure_wasm_template.cmake
     DEPENDS ${INDEX_TEMPLATE}
     COMMENT "Configuring index.html for ${project_name}"
@@ -276,14 +379,20 @@ function(iplug_build_wasm_dist project_name)
   endif()
 
   # 3. Bundle resources (reuse from WAMDist if available, skip if already created by WAM)
-  if(COMMAND iplug_bundle_web_resources AND NOT TARGET ${project_name}_wam_resources)
-    iplug_bundle_web_resources(${project_name} ${PLUG_RESOURCES_DIR} ${OUTPUT_DIR})
+  if(EXISTS "${PLUG_RESOURCES_DIR}")
+    if(COMMAND iplug_bundle_web_resources AND NOT TARGET ${project_name}_wam_resources)
+      iplug_bundle_web_resources(${project_name} ${PLUG_RESOURCES_DIR} ${OUTPUT_DIR})
+    endif()
+
+    iplug_detect_web_resources(${PLUG_RESOURCES_DIR})
+    iplug_stage_wasm_resources(${project_name} ${OUTPUT_DIR})
   endif()
 
   # 4. Post-process DSP JS with AudioWorklet scope wrapper
   iplug_wrap_dsp_for_worklet(${WASM_DIST_DSP_TARGET} ${project_name} ${OUTPUT_DIR})
 
-  # 5. Configure template files
+  # 5. Configure template files (index.html uses FOUND_* to comment out
+  # missing resource tags — see iplug_detect_web_resources above)
   iplug_configure_wasm_templates(${project_name} ${OUTPUT_DIR})
 
   # Create aggregate target
@@ -302,9 +411,12 @@ function(iplug_build_wasm_dist project_name)
     add_dependencies(${project_name}-wasm-dist ${project_name}_wasm_templates)
   endif()
 
-  # Add resource dependency if it exists
+  # Add resource dependencies if they exist
   if(TARGET ${project_name}_wam_resources)
     add_dependencies(${project_name}-wasm-dist ${project_name}_wam_resources)
+  endif()
+  if(TARGET ${project_name}_wasm_resources)
+    add_dependencies(${project_name}-wasm-dist ${project_name}_wasm_resources)
   endif()
 
   message(STATUS "Wasm distribution target: ${project_name}-wasm-dist")

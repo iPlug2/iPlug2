@@ -163,9 +163,9 @@
       }
     },
     {
-      "name": "wam",
-      "displayName": "WAM (Emscripten)",
-      "description": "Web Audio Module build with Emscripten/WebAssembly",
+      "name": "web",
+      "displayName": "Web (Emscripten)",
+      "description": "Web build with Emscripten/WebAssembly (WAM + WASM)",
       "inherits": "base",
       "generator": "Ninja",
       "toolchainFile": "$env{EMSDK}/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake",
@@ -242,8 +242,8 @@
       "configuration": "Release"
     },
     {
-      "name": "wam",
-      "configurePreset": "wam",
+      "name": "web",
+      "configurePreset": "web",
       "configuration": "Release"
     }
   ]

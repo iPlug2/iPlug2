@@ -78,7 +78,7 @@ if(NOT TARGET iPlug2::CLAP)
     # WASM/Emscripten support - for future use
     # CLAP SDK is header-only and works on WASM
     # Build as STATIC library with --no-entry linker option
-  elseif(UNIX AND NOT APPLE)
+  elseif(UNIX AND NOT APPLE AND NOT EMSCRIPTEN)
     # Linux support - to be added later
     message(WARNING "CLAP Linux support not yet implemented")
   endif()

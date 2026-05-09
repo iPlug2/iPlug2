@@ -6,7 +6,7 @@
 #
 #  ==============================================================================
 
-# WasmDSP.cmake - Wasm Web DSP module configuration for iPlug2
+# WASMDSP.cmake - Wasm Web DSP module configuration for iPlug2
 # Creates the DSP/AudioWorklet WASM module for the wasm split architecture
 #
 # The DSP module runs in an AudioWorklet with:

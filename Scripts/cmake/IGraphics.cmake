@@ -42,7 +42,7 @@ if(NOT TARGET iPlug2::IGraphics)
       ${IGRAPHICS_DIR}/Platforms/IGraphicsMac_view.mm
       ${IGRAPHICS_DIR}/Platforms/IGraphicsCoreText.mm
     )
-  elseif(UNIX AND NOT APPLE)
+  elseif(UNIX AND NOT APPLE AND NOT EMSCRIPTEN)
     message("Error - Linux not yet supported")
   endif()
 
@@ -79,7 +79,7 @@ if(NOT TARGET iPlug2::IGraphics)
       "-framework Accelerate"
       "-framework QuartzCore"
     )
-  elseif(UNIX AND NOT APPLE)
+  elseif(UNIX AND NOT APPLE AND NOT EMSCRIPTEN)
     message("Error - Linux not yet supported")
   endif()
 

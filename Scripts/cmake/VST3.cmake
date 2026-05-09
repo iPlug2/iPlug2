@@ -122,7 +122,7 @@ if(NOT TARGET iPlug2::VST3)
     target_link_libraries(iPlug2::VST3 INTERFACE
       "-framework Cocoa"
     )
-  elseif(UNIX AND NOT APPLE)
+  elseif(UNIX AND NOT APPLE AND NOT EMSCRIPTEN)
     # Linux support - to be added later
     message(WARNING "VST3 Linux support not yet implemented")
   endif()

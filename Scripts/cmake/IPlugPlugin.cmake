@@ -278,7 +278,7 @@ function(_iplug_create_wam_targets plugin_name formats sources site_origin base_
   iplug_add_target(${plugin_name}-web PUBLIC
     LINK iPlug2::Web ${base_lib}
   )
-  iplug_configure_target(${plugin_name}-web Web ${plugin_name})
+  iplug_configure_target(${plugin_name}-web WEB ${plugin_name})
 
   # Combined WAM distribution target
   iplug_build_wam_dist(${plugin_name}

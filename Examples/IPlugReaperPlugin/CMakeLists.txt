@@ -155,7 +155,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
   iplug_add_target(${PROJECT_NAME}-web PUBLIC
     LINK iPlug2::Web _${PROJECT_NAME}-base
   )
-  iplug_configure_target(${PROJECT_NAME}-web Web ${PROJECT_NAME})
+  iplug_configure_target(${PROJECT_NAME}-web WEB ${PROJECT_NAME})
 
   iplug_build_wam_dist(${PROJECT_NAME}
     WAM_TARGET ${PROJECT_NAME}-wam
