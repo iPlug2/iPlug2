@@ -8,6 +8,8 @@ set(IPLUG2_DIR ${CMAKE_CURRENT_SOURCE_DIR} CACHE PATH "iPlug2 root directory")
 include(${IPLUG2_DIR}/iPlug2.cmake)
 find_package(iPlug2 REQUIRED)
 
+include(CTest)
+
 # Add examples
 add_subdirectory(Examples)
 
