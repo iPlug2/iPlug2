@@ -41,7 +41,7 @@ endif()
 # Include WAM/Web/Wasm modules for Emscripten builds
 if(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
   include(${CMAKE_CURRENT_LIST_DIR}/WAM.cmake)
-  include(${CMAKE_CURRENT_LIST_DIR}/Web.cmake)
+  include(${CMAKE_CURRENT_LIST_DIR}/WEB.cmake)
   include(${CMAKE_CURRENT_LIST_DIR}/WAMDist.cmake)
   include(${CMAKE_CURRENT_LIST_DIR}/WASMDSP.cmake)
   include(${CMAKE_CURRENT_LIST_DIR}/WASMUI.cmake)
@@ -184,7 +184,7 @@ function(iplug_configure_target target target_type project_name)
     AUv3iOSAppex
     # Web/Emscripten targets
     WAM
-    Web
+    WEB
   )
 
   if(NOT ${target_type} IN_LIST SUPPORTED_TYPES)
