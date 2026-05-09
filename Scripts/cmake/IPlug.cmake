@@ -112,7 +112,7 @@ if(NOT TARGET iPlug2::IPlug)
       "-framework CoreServices"
       "-framework Foundation"
     )
-  elseif(UNIX AND NOT APPLE)
+  elseif(UNIX AND NOT APPLE AND NOT EMSCRIPTEN)
     message("Error - Linux not yet supported")
   endif()
 

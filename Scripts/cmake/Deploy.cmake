@@ -80,7 +80,7 @@ function(iplug_get_default_deploy_path format)
       message(WARNING "[iPlug2] Unknown plugin format: ${format}")
       return()
     endif()
-  elseif(UNIX AND NOT APPLE)
+  elseif(UNIX AND NOT APPLE AND NOT EMSCRIPTEN)
     # Linux
     if(format STREQUAL "VST2")
       set(default_path "$ENV{HOME}/.vst")

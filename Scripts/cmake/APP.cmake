@@ -95,7 +95,7 @@ if(NOT TARGET iPlug2::APP)
       "-framework CoreMIDI"
       "-framework CoreAudio"
     )
-  elseif(UNIX AND NOT APPLE)
+  elseif(UNIX AND NOT APPLE AND NOT EMSCRIPTEN)
     message("Error - Linux not yet supported")
   endif()
   
