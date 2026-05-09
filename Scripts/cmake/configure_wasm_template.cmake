@@ -83,5 +83,22 @@ if(DEFINED DOES_MIDI_OUT_PLACEHOLDER)
   string(REPLACE "DOES_MIDI_OUT_PLACEHOLDER" "${DOES_MIDI_OUT_PLACEHOLDER}" TEMPLATE_CONTENT "${TEMPLATE_CONTENT}")
 endif()
 
+# Comment out <script> tags for resource bundles that were not produced.
+# The template uses <!--FONTS--><script src="scripts/fonts.js"></script> markers;
+# when the corresponding FOUND_<TAG> is "false" we wrap the whole tag in an
+# HTML comment so the browser skips the missing file.
+foreach(_entry FONTS:fonts.js SVGS:svgs.js IMGS:imgs.js IMGS2X:imgs@2x.js)
+  string(REPLACE ":" ";" _parts "${_entry}")
+  list(GET _parts 0 _tag)
+  list(GET _parts 1 _js)
+  set(_flag_var "FOUND_${_tag}")
+  if(DEFINED ${_flag_var} AND "${${_flag_var}}" STREQUAL "false")
+    string(REPLACE
+      "<!--${_tag}--><script src=\"scripts/${_js}\"></script>"
+      "<!-- <script src=\"scripts/${_js}\"></script> -->"
+      TEMPLATE_CONTENT "${TEMPLATE_CONTENT}")
+  endif()
+endforeach()
+
 # Write the configured file
 file(WRITE "${OUTPUT_FILE}" "${TEMPLATE_CONTENT}")
