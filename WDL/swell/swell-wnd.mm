@@ -79,6 +79,7 @@ int g_swell_osx_readonlytext_wndbg = 0;
 int g_swell_osx_style = 0; // &1 = rounded buttons, &2=big sur styled lists, &0xf00 size (0=default smallish, 1=bigger, 2=extra big, 3=extra small)
 
 static NSRect m_transform;
+static bool m_make_nosmallfont;
 static id m_make_owner;
 static float m_parent_h;
 static bool m_doautoright;
@@ -109,7 +110,7 @@ int SWELL_osx_dialog_scaling(HWND forHwnd) // this returns 1.7 as 256 (256 * SWE
 #define SWELL_DO_CONTROL_FONT(button, mode) do { \
   const double sc = m_transform.size.width == 1.0 ? SWELL_osx_dialog_scaling((HWND)m_make_owner)*SWELL_DLGSCALE_FACTOR : m_transform.size.width; \
   float fsize; \
-  if (sc < 1.65) fsize=8.0f; \
+  if (sc < 1.65 && !m_make_nosmallfont) fsize=8.0f; \
   else if (sc < 1.81) fsize=10.0f; \
   else if (sc < 2.0) fsize=11.0f; \
   else fsize = mode == 1 ? 13.0f : 14.0f; \
@@ -120,7 +121,7 @@ int SWELL_osx_dialog_scaling(HWND forHwnd) // this returns 1.7 as 256 (256 * SWE
 #define SWELL_DO_LISTTREEVIEW_ROW_HEIGHT(s) do { \
     const double sc = m_transform.size.width == 1.0 ? SWELL_osx_dialog_scaling((HWND)m_make_owner)*SWELL_DLGSCALE_FACTOR : m_transform.size.width; \
     int rh = 18; \
-    if (sc < 1.65) rh -= 3; \
+    if (sc < 1.65 && !m_make_nosmallfont) rh -= 3; \
     else if (sc > 1.95) rh += 2; \
     else if (sc > 1.8) rh += 1; \
     [s setRowHeight:rh]; \
@@ -3467,6 +3468,7 @@ void SWELL_CloseWindow(HWND hwnd)
 
 void SWELL_MakeSetCurParms(float xscale, float yscale, float xtrans, float ytrans, HWND parent, bool doauto, bool dosizetofit)
 {
+  m_make_nosmallfont = xscale > 0.0 && xscale != 1.0;
   if (xscale == 0.0) xscale = SWELL_osx_dialog_scaling(parent) * SWELL_DLGSCALE_FACTOR;
   if (yscale == 0.0) yscale = SWELL_osx_dialog_scaling(parent) * SWELL_DLGSCALE_FACTOR;
   if (parent) s_prefix_removals.Empty(true,free);
