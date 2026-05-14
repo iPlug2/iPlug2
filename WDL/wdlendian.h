@@ -56,7 +56,7 @@ typedef union { double f; WDL_UINT64   int64; } WDL_EndianDouble;
 #elif __BIG_ENDIAN__ // PowerPC
 	#define WDL_BIG_ENDIAN
 
-#elif defined(EMSCRIPTEN)
+#elif defined(__EMSCRIPTEN__) || defined(EMSCRIPTEN)
   #define WDL_LITTLE_ENDIAN
 #else
 	#error Unknown endian
@@ -72,7 +72,7 @@ typedef union { double f; WDL_UINT64   int64; } WDL_EndianDouble;
 	#error Unsupported endian
 #endif
 
-#ifndef EMSCRIPTEN
+#if !defined(__EMSCRIPTEN__) && !defined(EMSCRIPTEN)
   #if __FLOAT_WORD_ORDER__ != __BYTE_ORDER__
     #error Unsupported float endian
   #endif
@@ -86,7 +86,7 @@ typedef union { double f; WDL_UINT64   int64; } WDL_EndianDouble;
 #elif defined(__x86_64) || defined(__x86_64__)
 #define WDL_LITTLE_ENDIAN
 
-#elif defined(EMSCRIPTEN)
+#elif defined(__EMSCRIPTEN__) || defined(EMSCRIPTEN)
 #define WDL_LITTLE_ENDIAN
 
 #else
