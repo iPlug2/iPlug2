@@ -31,7 +31,7 @@
   #endif
 #elif defined __linux || defined __linux__ || defined linux
   #define OS_LINUX
-#elif defined EMSCRIPTEN
+#elif defined(__EMSCRIPTEN__) || defined(EMSCRIPTEN)
   #define OS_WEB
 #else
   #error "No OS defined!"
