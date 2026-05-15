@@ -245,7 +245,7 @@ class WDL_DirScan
     void GetCurrentLastWriteTime(FILETIME *ft) const { *ft = m_fd.ftLastWriteTime; }
     void GetCurrentLastAccessTime(FILETIME *ft) const { *ft = m_fd.ftLastAccessTime; }
     void GetCurrentCreationTime(FILETIME *ft) const { *ft = m_fd.ftCreationTime; }
-    DWORD GetFileAttributes() const { return m_fd.dwFileAttributes; }
+    DWORD GetCurrentAttributes() const { return m_fd.dwFileAttributes; }
 #elif defined(_WDL_SWELL_H_)
 
   void GetCurrentCreationTime(FILETIME *ft)
