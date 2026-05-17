@@ -190,7 +190,7 @@ function(iplug_stage_wasm_resources project_name output_dir)
 
     string(TOUPPER "${flag_suffix}" flag_upper)
     set(found_var "WEB_FOUND_${flag_upper}")
-    if(NOT ${found_var} STREQUAL "true")
+    if(NOT "${${found_var}}" STREQUAL "true")
       continue()
     endif()
 
@@ -219,20 +219,46 @@ function(iplug_stage_wasm_resources project_name output_dir)
 endfunction()
 
 # ============================================================================
-# Configure wasm template files
+# Configure DSP-side wasm template files.
 # ============================================================================
-function(iplug_configure_wasm_templates project_name output_dir)
-  # Get lowercase project name
+function(iplug_configure_wasm_dsp_templates project_name output_dir)
+  string(TOLOWER ${project_name} project_name_lc)
+
+  set(SCRIPTS_DIR "${output_dir}/scripts")
+  file(MAKE_DIRECTORY ${SCRIPTS_DIR})
+
+  set(PROCESSOR_TEMPLATE "${WASM_TEMPLATE_DIR}/scripts/IPlugWasmProcessor.js.template")
+  set(PROCESSOR_OUTPUT "${SCRIPTS_DIR}/${project_name}-processor.js")
+
+  add_custom_command(
+    OUTPUT ${PROCESSOR_OUTPUT}
+    COMMAND ${CMAKE_COMMAND}
+      -DINPUT_FILE=${PROCESSOR_TEMPLATE}
+      -DOUTPUT_FILE=${PROCESSOR_OUTPUT}
+      -DNAME_PLACEHOLDER=${project_name}
+      -DNAME_PLACEHOLDER_LC=${project_name_lc}
+      -P ${IPLUG2_CMAKE_SCRIPTS_DIR}/configure_wasm_template.cmake
+    DEPENDS ${PROCESSOR_TEMPLATE}
+    COMMENT "Configuring ${project_name}-processor.js"
+    VERBATIM
+  )
+
+  add_custom_target(${project_name}_wasm_dsp_templates
+    DEPENDS ${PROCESSOR_OUTPUT}
+  )
+endfunction()
+
+# ============================================================================
+# Configure UI-side wasm template files.
+# ============================================================================
+function(iplug_configure_wasm_ui_templates project_name output_dir)
   string(TOLOWER ${project_name} project_name_lc)
 
   set(SCRIPTS_DIR "${output_dir}/scripts")
   set(STYLES_DIR "${output_dir}/styles")
-
-  # Create output directories
   file(MAKE_DIRECTORY ${SCRIPTS_DIR})
   file(MAKE_DIRECTORY ${STYLES_DIR})
 
-  # Configure bundle.js template
   set(BUNDLE_TEMPLATE "${WASM_TEMPLATE_DIR}/scripts/IPlugWasmBundle.js.template")
   set(BUNDLE_OUTPUT "${SCRIPTS_DIR}/${project_name}-bundle.js")
 
@@ -256,24 +282,6 @@ function(iplug_configure_wasm_templates project_name output_dir)
     VERBATIM
   )
 
-  # Configure processor.js template
-  set(PROCESSOR_TEMPLATE "${WASM_TEMPLATE_DIR}/scripts/IPlugWasmProcessor.js.template")
-  set(PROCESSOR_OUTPUT "${SCRIPTS_DIR}/${project_name}-processor.js")
-
-  add_custom_command(
-    OUTPUT ${PROCESSOR_OUTPUT}
-    COMMAND ${CMAKE_COMMAND}
-      -DINPUT_FILE=${PROCESSOR_TEMPLATE}
-      -DOUTPUT_FILE=${PROCESSOR_OUTPUT}
-      -DNAME_PLACEHOLDER=${project_name}
-      -DNAME_PLACEHOLDER_LC=${project_name_lc}
-      -P ${IPLUG2_CMAKE_SCRIPTS_DIR}/configure_wasm_template.cmake
-    DEPENDS ${PROCESSOR_TEMPLATE}
-    COMMENT "Configuring ${project_name}-processor.js"
-    VERBATIM
-  )
-
-  # Configure index.html template
   set(INDEX_TEMPLATE "${WASM_TEMPLATE_DIR}/index.html")
   set(INDEX_OUTPUT "${output_dir}/index.html")
 
@@ -307,7 +315,6 @@ function(iplug_configure_wasm_templates project_name output_dir)
     VERBATIM
   )
 
-  # Copy style.css
   set(STYLE_TEMPLATE "${WASM_TEMPLATE_DIR}/styles/style.css")
   set(STYLE_OUTPUT "${STYLES_DIR}/style.css")
 
@@ -323,62 +330,97 @@ function(iplug_configure_wasm_templates project_name output_dir)
     VERBATIM
   )
 
-  # Create custom target for templates
-  add_custom_target(${project_name}_wasm_templates
+  add_custom_target(${project_name}_wasm_ui_templates
     DEPENDS
       ${BUNDLE_OUTPUT}
-      ${PROCESSOR_OUTPUT}
       ${INDEX_OUTPUT}
       ${STYLE_OUTPUT}
   )
-
-  set(${project_name}_WASM_TEMPLATES_TARGET ${project_name}_wasm_templates PARENT_SCOPE)
 endfunction()
 
 # ============================================================================
-# Build complete Wasm distribution
+# Default output directory for wasm distribution artifacts.
 # ============================================================================
-function(iplug_build_wasm_dist project_name)
-  cmake_parse_arguments(PARSE_ARGV 1 WASM_DIST
+function(_iplug_wasm_default_output_dir project_name out_var)
+  set(${out_var} "${CMAKE_BINARY_DIR}/out/${project_name}" PARENT_SCOPE)
+endfunction()
+
+# ============================================================================
+# Build the DSP wasm distribution.
+# ============================================================================
+function(iplug_build_wasm_dsp_dist project_name)
+  cmake_parse_arguments(PARSE_ARGV 1 WASM_DSP_DIST
     ""
-    "DSP_TARGET;UI_TARGET;OUTPUT_DIR"
+    "DSP_TARGET;OUTPUT_DIR"
     ""
   )
 
-  # Default output directory
-  if(NOT WASM_DIST_OUTPUT_DIR)
-    set(WASM_DIST_OUTPUT_DIR "${CMAKE_BINARY_DIR}/out/${project_name}")
+  if(NOT WASM_DSP_DIST_DSP_TARGET)
+    message(FATAL_ERROR "iplug_build_wasm_dsp_dist(${project_name}): DSP_TARGET is required")
   endif()
 
-  set(OUTPUT_DIR ${WASM_DIST_OUTPUT_DIR})
+  if(NOT WASM_DSP_DIST_OUTPUT_DIR)
+    _iplug_wasm_default_output_dir(${project_name} WASM_DSP_DIST_OUTPUT_DIR)
+  endif()
+
+  set(OUTPUT_DIR ${WASM_DSP_DIST_OUTPUT_DIR})
   set(SCRIPTS_DIR "${OUTPUT_DIR}/scripts")
 
-  # Create output directories at configure time
   file(MAKE_DIRECTORY ${OUTPUT_DIR})
   file(MAKE_DIRECTORY ${SCRIPTS_DIR})
 
-  # Parse config.h for plugin configuration
-  iplug_parse_wasm_config(${PROJECT_DIR})
+  message(STATUS "${project_name} Wasm DSP output: ${SCRIPTS_DIR}/${project_name}-dsp.js")
 
-  message(STATUS "${project_name} Wasm: inputs=${WASM_MAX_INPUTS}, outputs=${WASM_MAX_OUTPUTS}, hasUI=${WASM_HAS_UI_STR}")
-
-  # 1. Set up DSP target output
-  set_target_properties(${WASM_DIST_DSP_TARGET} PROPERTIES
+  set_target_properties(${WASM_DSP_DIST_DSP_TARGET} PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${SCRIPTS_DIR}
     OUTPUT_NAME "${project_name}-dsp"
     SUFFIX ".js"
   )
 
-  # 2. Set up UI target output (if it exists)
-  if(TARGET ${WASM_DIST_UI_TARGET})
-    set_target_properties(${WASM_DIST_UI_TARGET} PROPERTIES
-      RUNTIME_OUTPUT_DIRECTORY ${SCRIPTS_DIR}
-      OUTPUT_NAME "${project_name}-ui"
-      SUFFIX ".js"
-    )
+  iplug_wrap_dsp_for_worklet(${WASM_DSP_DIST_DSP_TARGET} ${project_name} ${OUTPUT_DIR})
+  iplug_configure_wasm_dsp_templates(${project_name} ${OUTPUT_DIR})
+
+  add_custom_target(${project_name}-wasm-dsp-dist ALL
+    DEPENDS
+      ${WASM_DSP_DIST_DSP_TARGET}
+      ${project_name}_wasm_dsp_templates
+    COMMENT "Building Wasm DSP distribution for ${project_name}"
+  )
+endfunction()
+
+# ============================================================================
+# Build the UI wasm distribution.
+# ============================================================================
+function(iplug_build_wasm_ui_dist project_name)
+  cmake_parse_arguments(PARSE_ARGV 1 WASM_UI_DIST
+    ""
+    "UI_TARGET;OUTPUT_DIR"
+    ""
+  )
+
+  if(NOT WASM_UI_DIST_UI_TARGET)
+    message(FATAL_ERROR "iplug_build_wasm_ui_dist(${project_name}): UI_TARGET is required")
   endif()
 
-  # 3. Bundle resources (reuse from WAMDist if available, skip if already created by WAM)
+  if(NOT WASM_UI_DIST_OUTPUT_DIR)
+    _iplug_wasm_default_output_dir(${project_name} WASM_UI_DIST_OUTPUT_DIR)
+  endif()
+
+  set(OUTPUT_DIR ${WASM_UI_DIST_OUTPUT_DIR})
+  set(SCRIPTS_DIR "${OUTPUT_DIR}/scripts")
+
+  file(MAKE_DIRECTORY ${OUTPUT_DIR})
+  file(MAKE_DIRECTORY ${SCRIPTS_DIR})
+
+  iplug_parse_wasm_config(${PROJECT_DIR})
+  message(STATUS "${project_name} Wasm UI: inputs=${WASM_MAX_INPUTS}, outputs=${WASM_MAX_OUTPUTS}, hasUI=${WASM_HAS_UI_STR}")
+
+  set_target_properties(${WASM_UI_DIST_UI_TARGET} PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY ${SCRIPTS_DIR}
+    OUTPUT_NAME "${project_name}-ui"
+    SUFFIX ".js"
+  )
+
   if(EXISTS "${PLUG_RESOURCES_DIR}")
     if(COMMAND iplug_bundle_web_resources AND NOT TARGET ${project_name}_wam_resources)
       iplug_bundle_web_resources(${project_name} ${PLUG_RESOURCES_DIR} ${OUTPUT_DIR})
@@ -388,17 +430,45 @@ function(iplug_build_wasm_dist project_name)
     iplug_stage_wasm_resources(${project_name} ${OUTPUT_DIR})
   endif()
 
-  # 4. Post-process DSP JS with AudioWorklet scope wrapper
-  iplug_wrap_dsp_for_worklet(${WASM_DIST_DSP_TARGET} ${project_name} ${OUTPUT_DIR})
+  iplug_configure_wasm_ui_templates(${project_name} ${OUTPUT_DIR})
 
-  # 5. Configure template files (index.html uses FOUND_* to comment out
-  # missing resource tags — see iplug_detect_web_resources above)
-  iplug_configure_wasm_templates(${project_name} ${OUTPUT_DIR})
+  set(UI_DEPENDS
+    ${WASM_UI_DIST_UI_TARGET}
+    ${project_name}_wasm_ui_templates
+  )
+  if(TARGET ${project_name}_wam_resources)
+    list(APPEND UI_DEPENDS ${project_name}_wam_resources)
+  endif()
+  if(TARGET ${project_name}_wasm_resources)
+    list(APPEND UI_DEPENDS ${project_name}_wasm_resources)
+  endif()
 
-  # Create aggregate target
-  set(DIST_DEPENDS ${WASM_DIST_DSP_TARGET})
-  if(TARGET ${WASM_DIST_UI_TARGET})
-    list(APPEND DIST_DEPENDS ${WASM_DIST_UI_TARGET})
+  add_custom_target(${project_name}-wasm-ui-dist ALL
+    DEPENDS ${UI_DEPENDS}
+    COMMENT "Building Wasm UI distribution for ${project_name}"
+  )
+endfunction()
+
+# ============================================================================
+# Build the combined Wasm distribution.
+# ============================================================================
+function(iplug_build_wasm_dist project_name)
+  cmake_parse_arguments(PARSE_ARGV 1 WASM_DIST
+    ""
+    "DSP_TARGET;UI_TARGET;OUTPUT_DIR"
+    ""
+  )
+
+  set(DIST_DEPENDS)
+  if(WASM_DIST_DSP_TARGET AND TARGET ${project_name}-wasm-dsp-dist)
+    list(APPEND DIST_DEPENDS ${project_name}-wasm-dsp-dist)
+  endif()
+  if(WASM_DIST_UI_TARGET AND TARGET ${project_name}-wasm-ui-dist)
+    list(APPEND DIST_DEPENDS ${project_name}-wasm-ui-dist)
+  endif()
+
+  if(NOT DIST_DEPENDS)
+    message(FATAL_ERROR "iplug_build_wasm_dist(${project_name}): no per-module dist targets exist")
   endif()
 
   add_custom_target(${project_name}-wasm-dist ALL
@@ -406,19 +476,9 @@ function(iplug_build_wasm_dist project_name)
     COMMENT "Building complete Wasm distribution for ${project_name}"
   )
 
-  # Add template dependency
-  if(TARGET ${project_name}_wasm_templates)
-    add_dependencies(${project_name}-wasm-dist ${project_name}_wasm_templates)
+  if(NOT WASM_DIST_OUTPUT_DIR)
+    _iplug_wasm_default_output_dir(${project_name} WASM_DIST_OUTPUT_DIR)
   endif()
-
-  # Add resource dependencies if they exist
-  if(TARGET ${project_name}_wam_resources)
-    add_dependencies(${project_name}-wasm-dist ${project_name}_wam_resources)
-  endif()
-  if(TARGET ${project_name}_wasm_resources)
-    add_dependencies(${project_name}-wasm-dist ${project_name}_wasm_resources)
-  endif()
-
   message(STATUS "Wasm distribution target: ${project_name}-wasm-dist")
-  message(STATUS "Wasm output directory: ${OUTPUT_DIR}")
+  message(STATUS "Wasm output directory: ${WASM_DIST_OUTPUT_DIR}")
 endfunction()
