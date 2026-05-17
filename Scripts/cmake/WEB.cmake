@@ -70,6 +70,9 @@ if(NOT TARGET iPlug2::Web)
 
   # Web controller exported functions
   set(WEB_EXPORTS "'_malloc','_free','_main','_iplug_fsready','_iplug_syncfs','_iplug_popup_menu_selected'")
+  if(IPLUG2_WASM_LIVE_EDIT)
+    string(APPEND WEB_EXPORTS ",'_iplug_set_live_edit'")
+  endif()
 
   # Emscripten link flags for Web controller
   # - BINARYEN_ASYNC_COMPILATION=1: Async compilation (can run on main thread)
@@ -96,6 +99,10 @@ if(NOT TARGET iPlug2::Web)
     # Force-include GLES2 header so GL types are defined before NanoVG
     -include GLES2/gl2.h
   )
+
+  if(IPLUG2_WASM_LIVE_EDIT)
+    target_compile_definitions(iPlug2::Web INTERFACE IPLUG_LIVE_EDIT=1)
+  endif()
 
   target_link_libraries(iPlug2::Web INTERFACE iPlug2::IPlug)
 endif()

@@ -141,6 +141,21 @@ iplug-NAME_PLACEHOLDER_LC.resizable {
   color: white;
 }
 
+.live-edit-btn {
+  background: #333;
+  color: #aaa;
+}
+
+.live-edit-btn:hover {
+  background: #444;
+  color: white;
+}
+
+.live-edit-btn.active {
+  background: #3b82f6;
+  color: white;
+}
+
 /* Control sections (collapsible groups) */
 .control-section {
   display: flex;

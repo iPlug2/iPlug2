@@ -468,6 +468,30 @@ EM_JS(void, iplug_popup_menu_close_js, (void* pGraphics), {
   }
 });
 
+#if !defined(NDEBUG) || defined(IPLUG_LIVE_EDIT)
+EM_JS(void, iplug_emit_live_edit_js, (const char* eventJson), {
+  var msg;
+  try {
+    msg = JSON.parse(UTF8ToString(eventJson));
+  } catch (e) {
+    console.error('iPlug live edit: invalid event payload', e);
+    return;
+  }
+
+  try {
+    // Live edit is an opt-in developer channel. The wildcard origin lets
+    // file:// previews and IDE shells host the frame without build-time
+    // origin knowledge; do not enable IPLUG2_WASM_LIVE_EDIT for production.
+    window.postMessage(msg, '*');
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage(msg, '*');
+    }
+  } catch (e) {
+    console.warn('iPlug live edit: postMessage failed', e);
+  }
+});
+#endif
+
 
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
@@ -871,6 +895,12 @@ EMSCRIPTEN_BINDINGS(events) {
 IGraphicsWeb::IGraphicsWeb(IGEditorDelegate& dlg, int w, int h, int fps, float scale, val canvas)
 : IGRAPHICS_DRAW_CLASS(dlg, w, h, fps, scale)
 {
+#if !defined(NDEBUG) || defined(IPLUG_LIVE_EDIT)
+  SetLiveEditEventFunc([](const char* eventJson) {
+    iplug_emit_live_edit_js(eventJson);
+  });
+#endif
+
   val keys = val::global("Object").call<val>("keys", GetPreloadedImages());
 
   DBGMSG("Preloaded %i images\n", keys["length"].as<int>());
@@ -1608,6 +1638,19 @@ void iGraphicsWheelCallback(void* pGraphics, double x, double y, double deltaY, 
   IMouseMod mod(false, false, static_cast<bool>(shift), static_cast<bool>(ctrl), static_cast<bool>(alt));
   pG->OnMouseWheel(x / scale, y / scale, mod, deltaY);
 }
+
+#if !defined(NDEBUG) || defined(IPLUG_LIVE_EDIT)
+EMSCRIPTEN_KEEPALIVE
+int iplug_set_live_edit(void* pGraphics, int enabled)
+{
+  if (!pGraphics)
+    return 0;
+
+  IGraphicsWeb* pG = static_cast<IGraphicsWeb*>(pGraphics);
+  pG->EnableLiveEdit(enabled != 0);
+  return pG->LiveEditEnabled() == (enabled != 0);
+}
+#endif
 
 } // extern "C"
 
