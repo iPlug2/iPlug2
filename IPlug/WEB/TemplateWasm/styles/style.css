@@ -119,6 +119,16 @@ iplug-NAME_PLACEHOLDER_LC.resizable {
   background: #666;
 }
 
+.host-status {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #c7c7c7;
+  font-size: 12px;
+  flex-shrink: 1;
+}
+
 #fullscreenBtn {
   background: #333;
   color: #aaa;

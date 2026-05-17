@@ -249,15 +249,13 @@ function(iplug_configure_wasm_dsp_templates project_name output_dir)
 endfunction()
 
 # ============================================================================
-# Configure UI-side wasm template files.
+# Configure the shared Wasm controller bundle.
 # ============================================================================
-function(iplug_configure_wasm_ui_templates project_name output_dir)
+function(iplug_configure_wasm_controller_template project_name output_dir has_ui)
   string(TOLOWER ${project_name} project_name_lc)
 
   set(SCRIPTS_DIR "${output_dir}/scripts")
-  set(STYLES_DIR "${output_dir}/styles")
   file(MAKE_DIRECTORY ${SCRIPTS_DIR})
-  file(MAKE_DIRECTORY ${STYLES_DIR})
 
   set(BUNDLE_TEMPLATE "${WASM_TEMPLATE_DIR}/scripts/IPlugWasmBundle.js.template")
   set(BUNDLE_OUTPUT "${SCRIPTS_DIR}/${project_name}-bundle.js")
@@ -273,7 +271,7 @@ function(iplug_configure_wasm_ui_templates project_name output_dir)
       -DMAXNOUTPUTS_PLACEHOLDER=${WASM_MAX_OUTPUTS}
       -DIS_INSTRUMENT_PLACEHOLDER=${WASM_IS_INSTRUMENT}
       -DHOST_RESIZE_PLACEHOLDER=${WASM_HOST_RESIZE}
-      -DHAS_UI_PLACEHOLDER=${WASM_HAS_UI_STR}
+      -DHAS_UI_PLACEHOLDER=${has_ui}
       -DDOES_MIDI_IN_PLACEHOLDER=${WASM_DOES_MIDI_IN}
       -DDOES_MIDI_OUT_PLACEHOLDER=${WASM_DOES_MIDI_OUT}
       -P ${IPLUG2_CMAKE_SCRIPTS_DIR}/configure_wasm_template.cmake
@@ -281,6 +279,73 @@ function(iplug_configure_wasm_ui_templates project_name output_dir)
     COMMENT "Configuring ${project_name}-bundle.js"
     VERBATIM
   )
+
+  add_custom_target(${project_name}_wasm_controller_template
+    DEPENDS ${BUNDLE_OUTPUT}
+  )
+endfunction()
+
+# ============================================================================
+# Configure shared browser host UI assets.
+# ============================================================================
+function(iplug_configure_wasm_host_controls project_name output_dir)
+  set(SCRIPTS_DIR "${output_dir}/scripts")
+  file(MAKE_DIRECTORY ${SCRIPTS_DIR})
+
+  set(CONTROLS_SOURCE "${WASM_TEMPLATE_DIR}/scripts/IPlugWasmHostControls.js")
+  set(CONTROLS_OUTPUT "${SCRIPTS_DIR}/IPlugWasmHostControls.js")
+
+  add_custom_command(
+    OUTPUT ${CONTROLS_OUTPUT}
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CONTROLS_SOURCE} ${CONTROLS_OUTPUT}
+    DEPENDS ${CONTROLS_SOURCE}
+    COMMENT "Staging shared Wasm host controls"
+    VERBATIM
+  )
+
+  add_custom_target(${project_name}_wasm_host_controls
+    DEPENDS ${CONTROLS_OUTPUT}
+  )
+endfunction()
+
+function(iplug_configure_wasm_host_styles project_name output_dir)
+  string(TOLOWER ${project_name} project_name_lc)
+
+  set(STYLES_DIR "${output_dir}/styles")
+  file(MAKE_DIRECTORY ${STYLES_DIR})
+
+  set(STYLE_TEMPLATE "${WASM_TEMPLATE_DIR}/styles/style.css")
+  set(STYLE_OUTPUT "${STYLES_DIR}/style.css")
+
+  add_custom_command(
+    OUTPUT ${STYLE_OUTPUT}
+    COMMAND ${CMAKE_COMMAND}
+      -DINPUT_FILE=${STYLE_TEMPLATE}
+      -DOUTPUT_FILE=${STYLE_OUTPUT}
+      -DNAME_PLACEHOLDER_LC=${project_name_lc}
+      -P ${IPLUG2_CMAKE_SCRIPTS_DIR}/configure_wasm_template.cmake
+    DEPENDS ${STYLE_TEMPLATE}
+    COMMENT "Configuring style.css for ${project_name}"
+    VERBATIM
+  )
+
+  add_custom_target(${project_name}_wasm_host_styles
+    DEPENDS ${STYLE_OUTPUT}
+  )
+endfunction()
+
+# ============================================================================
+# Configure UI-side wasm template files.
+# ============================================================================
+function(iplug_configure_wasm_ui_templates project_name output_dir)
+  string(TOLOWER ${project_name} project_name_lc)
+
+  set(SCRIPTS_DIR "${output_dir}/scripts")
+  file(MAKE_DIRECTORY ${SCRIPTS_DIR})
+
+  iplug_configure_wasm_controller_template(${project_name} ${output_dir} ${WASM_HAS_UI_STR})
+  iplug_configure_wasm_host_controls(${project_name} ${output_dir})
+  iplug_configure_wasm_host_styles(${project_name} ${output_dir})
 
   set(INDEX_TEMPLATE "${WASM_TEMPLATE_DIR}/index.html")
   set(INDEX_OUTPUT "${output_dir}/index.html")
@@ -315,26 +380,13 @@ function(iplug_configure_wasm_ui_templates project_name output_dir)
     VERBATIM
   )
 
-  set(STYLE_TEMPLATE "${WASM_TEMPLATE_DIR}/styles/style.css")
-  set(STYLE_OUTPUT "${STYLES_DIR}/style.css")
-
-  add_custom_command(
-    OUTPUT ${STYLE_OUTPUT}
-    COMMAND ${CMAKE_COMMAND}
-      -DINPUT_FILE=${STYLE_TEMPLATE}
-      -DOUTPUT_FILE=${STYLE_OUTPUT}
-      -DNAME_PLACEHOLDER_LC=${project_name_lc}
-      -P ${IPLUG2_CMAKE_SCRIPTS_DIR}/configure_wasm_template.cmake
-    DEPENDS ${STYLE_TEMPLATE}
-    COMMENT "Configuring style.css for ${project_name}"
-    VERBATIM
-  )
-
   add_custom_target(${project_name}_wasm_ui_templates
-    DEPENDS
-      ${BUNDLE_OUTPUT}
-      ${INDEX_OUTPUT}
-      ${STYLE_OUTPUT}
+    DEPENDS ${INDEX_OUTPUT}
+  )
+  add_dependencies(${project_name}_wasm_ui_templates
+    ${project_name}_wasm_controller_template
+    ${project_name}_wasm_host_controls
+    ${project_name}_wasm_host_styles
   )
 endfunction()
 
