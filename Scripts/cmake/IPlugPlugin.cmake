@@ -42,6 +42,7 @@ Format groups:
   MINIMAL_PLUGINS - Core plugin formats (VST3, CLAP, AU)
   DESKTOP        - Desktop formats without AUv3/VST2 (APP, VST3, CLAP, AAX, AU)
   WEB            - Web formats only (WAM, WASM_DSP, WASM_UI)
+  WASM           - Both Wasm modules (WASM_DSP, WASM_UI)
 #]=============================================================================]
 
 # ============================================================================
@@ -62,6 +63,8 @@ function(_iplug_expand_formats input_formats output_var)
       list(APPEND result APP VST3 CLAP AAX AU)
     elseif(fmt STREQUAL "WEB")
       list(APPEND result WAM WASM_DSP WASM_UI)
+    elseif(fmt STREQUAL "WASM")
+      list(APPEND result WASM_DSP WASM_UI)
     else()
       list(APPEND result ${fmt})
     endif()
@@ -426,7 +429,7 @@ macro(iplug_add_plugin plugin_name)
 
   # Validate FORMATS
   set(_iplug_valid_formats APP VST2 VST3 CLAP AAX AU AUV3 WAM WASM_DSP WASM_UI)
-  set(_iplug_valid_format_groups ALL ALL_PLUGINS ALL_DESKTOP MINIMAL_PLUGINS DESKTOP WEB)
+  set(_iplug_valid_format_groups ALL ALL_PLUGINS ALL_DESKTOP MINIMAL_PLUGINS DESKTOP WEB WASM)
   if(PLUGIN_FORMATS)
     foreach(_fmt ${PLUGIN_FORMATS})
       if(NOT _fmt IN_LIST _iplug_valid_formats AND NOT _fmt IN_LIST _iplug_valid_format_groups)
