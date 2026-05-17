@@ -16,6 +16,9 @@
 
 include(${CMAKE_CURRENT_LIST_DIR}/IPlug.cmake)
 
+set(IPLUG2_WASM_UI_OPTIMIZATION "-O1" CACHE STRING "Optimization flag for CMake Wasm UI builds")
+set_property(CACHE IPLUG2_WASM_UI_OPTIMIZATION PROPERTY STRINGS -O0 -O1 -O2 -O3 -Os -Oz)
+
 if(NOT TARGET iPlug2::WasmUI)
   # Only create target when building with Emscripten
   if(NOT CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
@@ -74,12 +77,17 @@ if(NOT TARGET iPlug2::WasmUI)
 
   # UI module exported functions
   set(WASM_UI_EXPORTS "'_malloc','_free','_main','_iplug_fsready','_iplug_syncfs'")
+  set(WASM_UI_OPT)
+  if(IPLUG2_WASM_UI_OPTIMIZATION)
+    set(WASM_UI_OPT "$<$<NOT:$<CONFIG:Debug>>:${IPLUG2_WASM_UI_OPTIMIZATION}>")
+  endif()
 
   # Emscripten link flags for WasmUI
   # - BINARYEN_ASYNC_COMPILATION=1: Async compilation (can run on main thread)
   # - FORCE_FILESYSTEM=1: Enable IndexedDB filesystem
   # - USE_WEBGL2=0, FULL_ES3=1: WebGL/GLES configuration for NanoVG
   target_link_options(iPlug2::WasmUI INTERFACE
+    ${WASM_UI_OPT}
     "SHELL:-s ALLOW_MEMORY_GROWTH=1"
     "--bind"
     "SHELL:-s EXPORTED_FUNCTIONS=[${WASM_UI_EXPORTS}]"
@@ -96,6 +104,7 @@ if(NOT TARGET iPlug2::WasmUI)
   )
 
   target_compile_options(iPlug2::WasmUI INTERFACE
+    ${WASM_UI_OPT}
     -Wno-bitwise-op-parentheses
     -Wno-deprecated-declarations
     # Force-include GLES2 header so GL types are defined before NanoVG
