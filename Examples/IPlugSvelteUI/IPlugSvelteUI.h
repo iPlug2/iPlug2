@@ -33,12 +33,14 @@ class IPlugSvelteUI final : public Plugin
 public:
   IPlugSvelteUI(const InstanceInfo& info);
   
+#if IPLUG_DSP
   void ProcessBlock(sample** inputs, sample** outputs, int nFrames) override;
   void OnReset() override;
+#endif
   void OnIdle() override;
 
 private:
-  iplug::IPeakSender<2> mSender;
+  iplug::IPeakSender<2> mSender {-90., 20.f};
   FastSinOscillator<sample> mOscillator {0., 440.};
   LogParamSmooth<sample, 1> mGainSmoother;
 };

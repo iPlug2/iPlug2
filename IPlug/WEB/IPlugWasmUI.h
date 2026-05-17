@@ -46,6 +46,8 @@ public:
   // These are exposed via EMSCRIPTEN_BINDINGS
 
 private:
+  bool EditorResize(int width, int height) override;
+
   /** Sends a tick message to DSP via controller */
   void SendDSPIdleTick();
 

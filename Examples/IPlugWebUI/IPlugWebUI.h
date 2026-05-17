@@ -27,16 +27,20 @@ class IPlugWebUI final : public Plugin
 public:
   IPlugWebUI(const InstanceInfo& info);
   
+#if IPLUG_DSP
   void ProcessBlock(sample** inputs, sample** outputs, int nFrames) override;
   void ProcessMidiMsg(const IMidiMsg& msg) override;
   void OnReset() override;
+#endif
   bool OnMessage(int msgTag, int ctrlTag, int dataSize, const void* pData) override;
   void OnParamChange(int paramIdx) override;
+#ifdef WEBVIEW_EDITOR_DELEGATE
   bool CanNavigateToURL(const char* url);
   bool OnCanDownloadMIMEType(const char* mimeType) override;
   void OnFailedToDownloadFile(const char* path) override;
   void OnDownloadedFile(const char* path) override;
   void OnGetLocalDownloadPathForFile(const char* fileName, WDL_String& localPath) override;
+#endif
 
 private:
   float mLastPeak = 0.;

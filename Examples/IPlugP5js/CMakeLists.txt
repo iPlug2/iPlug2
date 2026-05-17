@@ -21,5 +21,5 @@ iplug_add_plugin(${PROJECT_NAME}
     resources/web/uniforms.frag
     resources/web/uniforms.vert
   UI WEBVIEW
-  EXCLUDE_FORMATS WAM WASM_DSP WASM_UI
+  EXCLUDE_FORMATS WAM
 )

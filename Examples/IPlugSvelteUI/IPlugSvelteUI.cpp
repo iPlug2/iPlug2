@@ -7,22 +7,23 @@ IPlugSvelteUI::IPlugSvelteUI(const InstanceInfo& info)
 {
   GetParam(kGain)->InitGain("Gain", -70., -70, 0.);
   
-//#ifdef DEBUG
+#ifdef WEBVIEW_EDITOR_DELEGATE
   SetCustomUrlScheme("iplug2");
   SetEnableDevTools(true);
-//#endif
   
   mEditorInitFunc = [&]() {
      LoadIndexHtml(__FILE__, GetBundleID());
 //    LoadURL("http://localhost:5173/");
     EnableScroll(false);
   };
+#endif
   
   MakePreset("One", -70.);
   MakePreset("Two", -30.);
   MakePreset("Three", 0.);
 }
 
+#if IPLUG_DSP
 void IPlugSvelteUI::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
 {
   const double gain = GetParam(kGain)->DBToAmp();
@@ -44,8 +45,13 @@ void IPlugSvelteUI::OnReset()
   mOscillator.SetSampleRate(sr);
   mGainSmoother.SetSmoothTime(20., sr);
 }
+#endif
 
 void IPlugSvelteUI::OnIdle()
 {
+#if IPLUG_DSP
   mSender.TransmitData(*this);
+#else
+  iplug::Plugin::OnIdle();
+#endif
 }

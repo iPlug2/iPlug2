@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NAME_PLACEHOLDER</title>
+  <link href="styles/style.css" rel="stylesheet">
+  <script src="scripts/NAME_PLACEHOLDER-bundle.js"></script>
+  <script src="scripts/IPlugWasmHostControls.js"></script>
+  <style>
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      background: #151515;
+      color: #f7f7f7;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    #iplugWasmHost {
+      --plug-width: PLUG_WIDTH_PLACEHOLDERpx;
+      --plug-height: PLUG_HEIGHT_PLACEHOLDERpx;
+      position: fixed;
+      top: 0;
+      left: 50%;
+      width: min(var(--plug-width), 100vw);
+      height: min(calc(var(--plug-height) + 40px), 100vh);
+      transform: translateX(-50%);
+      overflow: hidden;
+      background: transparent;
+    }
+
+    #webviewRoot {
+      position: absolute;
+      inset: 0 0 40px 0;
+      min-width: 0;
+      min-height: 0;
+      overflow: hidden;
+      background: transparent;
+    }
+
+    #webviewRoot > * {
+      max-width: 100%;
+    }
+
+    #webviewRoot canvas {
+      display: block;
+    }
+
+    #webviewRoot:empty {
+      width: 100%;
+      height: 100%;
+    }
+
+    #webviewRoot > main,
+    #webviewRoot > #app {
+      width: 100%;
+      height: 100%;
+    }
+
+    #loading {
+      position: absolute;
+      inset: 0 0 40px 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #202020;
+      color: #dddddd;
+      font-size: 13px;
+      letter-spacing: 0;
+      pointer-events: none;
+    }
+
+    #loading.hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div id="iplugWasmHost">
+    <div id="webviewRoot"></div>
+    <div id="loading">Loading NAME_PLACEHOLDER UI...</div>
+  </div>
+
+  <script>
+    (() => {
+      'use strict';
+
+      const PLUGIN_NAME = 'NAME_PLACEHOLDER';
+      const NUM_INPUTS = MAXNINPUTS_PLACEHOLDER;
+      const NUM_OUTPUTS = MAXNOUTPUTS_PLACEHOLDER;
+      const IS_INSTRUMENT = IS_INSTRUMENT_PLACEHOLDER;
+      const HOST_RESIZE = HOST_RESIZE_PLACEHOLDER;
+      const DOES_MIDI_IN = DOES_MIDI_IN_PLACEHOLDER;
+      const DOES_MIDI_OUT = DOES_MIDI_OUT_PLACEHOLDER;
+
+      const host = document.getElementById('iplugWasmHost');
+      const webviewRoot = document.getElementById('webviewRoot');
+      const loading = document.getElementById('loading');
+      const hostBaseHref = new URL('./', window.location.href).href;
+      const hiddenCanvas = document.createElement('canvas');
+      hiddenCanvas.dataset.iplugHostControl = 'true';
+      hiddenCanvas.style.display = 'none';
+      document.body.appendChild(hiddenCanvas);
+
+      let activeWebViewOwnerPtr = 0;
+      let webViewReady = false;
+      let webViewWindow = window;
+      let uiModule = null;
+      let uiModuleReadyPromise = null;
+      let controller = null;
+      let audioContext = null;
+      let bodyAdoptionObserver = null;
+      let currentWebViewFile = 'web/index.html';
+      let currentWebViewRoot = 'web/';
+      let resizeObserver = null;
+
+      const pendingEvaluations = [];
+      const pendingWebViewMessages = [];
+      const pendingControllerActions = [];
+
+      const hostControls = new IPlugWasmHostControls({
+        pluginName: PLUGIN_NAME,
+        showStatus: true,
+        initialStatus: 'Loading UI...',
+        fullscreenTarget: () => host,
+        getCapabilities: () => ({
+          numInputs: NUM_INPUTS,
+          numOutputs: NUM_OUTPUTS,
+          isInstrument: IS_INSTRUMENT,
+          receivesMidi: DOES_MIDI_IN,
+          sendsMidi: DOES_MIDI_OUT
+        }),
+        createController: ({ audioContext }) => ensureController(audioContext)
+      });
+
+      function setStatus(text) {
+        hostControls.setStatus(text);
+      }
+
+      function showLoading(text) {
+        loading.textContent = text || `Loading ${PLUGIN_NAME} UI...`;
+        loading.classList.remove('hidden');
+      }
+
+      function hideLoading() {
+        loading.classList.add('hidden');
+      }
+
+      function queueControllerAction(action) {
+        if (controller && controller.isReady) {
+          action(controller);
+        } else {
+          pendingControllerActions.push(action);
+        }
+      }
+
+      function flushControllerActions() {
+        if (!controller || !controller.isReady) return;
+        const actions = pendingControllerActions.splice(0);
+        for (const action of actions) {
+          action(controller);
+        }
+      }
+
+      window.iPlugController = {
+        setParam(paramIdx, value) {
+          queueControllerAction((ctrl) => ctrl.setParam(paramIdx, value));
+        },
+        sendMidi(status, data1, data2) {
+          queueControllerAction((ctrl) => ctrl.sendMidi(status, data1, data2));
+        },
+        sendSysex(data) {
+          queueControllerAction((ctrl) => ctrl.sendSysex(data));
+        },
+        sendArbitraryMsg(msgTag, ctrlTag, data) {
+          queueControllerAction((ctrl) => ctrl.sendArbitraryMsg(msgTag, ctrlTag, data));
+        },
+        sendIdleTick() {
+          queueControllerAction((ctrl) => ctrl.sendIdleTick());
+        }
+      };
+
+      function waitForHeap(mod) {
+        if (mod.HEAPU8) return Promise.resolve();
+
+        return new Promise((resolve) => {
+          const check = () => {
+            if (mod.HEAPU8) resolve();
+            else setTimeout(check, 10);
+          };
+          check();
+        });
+      }
+
+      async function ensureUIModule() {
+        if (uiModuleReadyPromise) return uiModuleReadyPromise;
+
+        uiModuleReadyPromise = new Promise((resolve, reject) => {
+          const mod = window.Module = window.Module || {};
+          mod.canvas = hiddenCanvas;
+          mod.webviewRoot = webviewRoot;
+
+          const previousStatus = mod.setStatus;
+          mod.setStatus = (text) => {
+            if (text) setStatus(text);
+            if (typeof previousStatus === 'function') previousStatus(text);
+          };
+
+          const previousRuntimeInit = mod.onRuntimeInitialized;
+          mod.onRuntimeInitialized = () => {
+            if (typeof previousRuntimeInit === 'function') previousRuntimeInit();
+            setTimeout(async () => {
+              await waitForHeap(mod);
+              uiModule = mod;
+              flushWebViewMessages();
+              resolve(mod);
+            }, 0);
+          };
+
+          const script = document.createElement('script');
+          script.src = `scripts/${PLUGIN_NAME}-ui.js`;
+          script.onerror = () => reject(new Error(`Failed to load scripts/${PLUGIN_NAME}-ui.js`));
+          document.head.appendChild(script);
+        });
+
+        return uiModuleReadyPromise;
+      }
+
+      function installResizeObserver(mod) {
+        if (resizeObserver || !HOST_RESIZE || typeof mod.OnParentWindowResize !== 'function') return;
+
+        const sendResize = () => {
+          const rect = webviewRoot.getBoundingClientRect();
+          if (rect.width > 0 && rect.height > 0) {
+            mod.OnParentWindowResize(Math.round(rect.width), Math.round(rect.height));
+          }
+        };
+
+        resizeObserver = new ResizeObserver(sendResize);
+        resizeObserver.observe(webviewRoot);
+        sendResize();
+      }
+
+      async function ensureController(hostAudioContext) {
+        if (controller) return controller;
+
+        const mod = await ensureUIModule();
+        audioContext = hostAudioContext || new AudioContext({ latencyHint: 'interactive' });
+        controller = new IPlugWasmController(PLUGIN_NAME, { baseUrl: hostBaseHref, uiModule: mod });
+
+        await controller.init({
+          audioContext,
+          numInputChannels: NUM_INPUTS,
+          numOutputChannels: NUM_OUTPUTS,
+          isInstrument: IS_INSTRUMENT
+        });
+
+        controller.connectUI(mod);
+        window.iPlugController = controller;
+        flushControllerActions();
+        return controller;
+      }
+
+      function postMessageToWebViewDelegate(message) {
+        if (!message || typeof message !== 'object') return;
+
+        if (!activeWebViewOwnerPtr || !uiModule || typeof uiModule.IPlugWebView_OnMessage !== 'function') {
+          pendingWebViewMessages.push(message);
+          return;
+        }
+
+        uiModule.IPlugWebView_OnMessage(activeWebViewOwnerPtr, JSON.stringify(message));
+      }
+
+      function flushWebViewMessages() {
+        if (!activeWebViewOwnerPtr || !uiModule || typeof uiModule.IPlugWebView_OnMessage !== 'function') return;
+
+        const messages = pendingWebViewMessages.splice(0);
+        for (const message of messages) {
+          postMessageToWebViewDelegate(message);
+        }
+      }
+
+      window.IPlugSendMsg = postMessageToWebViewDelegate;
+
+      function forwardKeyEvent(e, isUp) {
+        const active = document.activeElement;
+        if (active && active.type === 'text') return;
+
+        window.IPlugSendMsg({
+          msg: 'SKPFUI',
+          keyCode: e.keyCode,
+          utf8: e.key,
+          S: e.shiftKey,
+          C: e.ctrlKey,
+          A: e.altKey,
+          isUp
+        });
+      }
+
+      document.addEventListener('keydown', (e) => forwardKeyEvent(e, false));
+      document.addEventListener('keyup', (e) => forwardKeyEvent(e, true));
+
+      function resolveResourceURL(value, baseHref) {
+        if (!value || value.startsWith('#') || value.startsWith('data:') || value.startsWith('blob:')) {
+          return value;
+        }
+
+        return new URL(value, baseHref).href;
+      }
+
+      function cleanupWebViewResources() {
+        document.querySelectorAll('[data-iplug-webview-resource]').forEach((node) => node.remove());
+      }
+
+      function installWebViewBase(baseHref) {
+        document.head.querySelectorAll('base[data-iplug-webview-resource]').forEach((node) => node.remove());
+
+        const base = document.createElement('base');
+        base.dataset.iplugWebviewResource = PLUGIN_NAME;
+        base.href = baseHref;
+        document.head.prepend(base);
+      }
+
+      function rewriteElementURLs(root, baseHref) {
+        const elements = root.querySelectorAll('[src], [href], [poster]');
+        for (const el of elements) {
+          for (const attr of ['src', 'href', 'poster']) {
+            if (!el.hasAttribute(attr)) continue;
+            el.setAttribute(attr, resolveResourceURL(el.getAttribute(attr), baseHref));
+          }
+        }
+      }
+
+      function captureElementVisualStyle(element) {
+        const style = getComputedStyle(element);
+        return {
+          backgroundAttachment: style.backgroundAttachment,
+          backgroundClip: style.backgroundClip,
+          backgroundColor: style.backgroundColor,
+          backgroundImage: style.backgroundImage,
+          backgroundOrigin: style.backgroundOrigin,
+          backgroundPosition: style.backgroundPosition,
+          backgroundRepeat: style.backgroundRepeat,
+          backgroundSize: style.backgroundSize,
+          color: style.color,
+          colorScheme: style.colorScheme,
+          fontFamily: style.fontFamily,
+          fontSize: style.fontSize,
+          fontSynthesis: style.fontSynthesis,
+          fontWeight: style.fontWeight,
+          lineHeight: style.lineHeight
+        };
+      }
+
+      function captureDocumentVisualStyles() {
+        return {
+          root: captureElementVisualStyle(document.documentElement),
+          body: captureElementVisualStyle(document.body)
+        };
+      }
+
+      function hasVisibleBackground(style) {
+        return style.backgroundImage !== 'none' ||
+          (style.backgroundColor !== 'rgba(0, 0, 0, 0)' && style.backgroundColor !== 'transparent');
+      }
+
+      function backgroundChanged(before, after) {
+        return before.backgroundColor !== after.backgroundColor ||
+          before.backgroundImage !== after.backgroundImage ||
+          before.backgroundPosition !== after.backgroundPosition ||
+          before.backgroundRepeat !== after.backgroundRepeat ||
+          before.backgroundSize !== after.backgroundSize;
+      }
+
+      function textStyleChanged(before, after) {
+        return before.color !== after.color ||
+          before.fontFamily !== after.fontFamily ||
+          before.fontSize !== after.fontSize ||
+          before.fontWeight !== after.fontWeight ||
+          before.lineHeight !== after.lineHeight;
+      }
+
+      function applyBackgroundStyle(target, style) {
+        target.style.backgroundAttachment = style.backgroundAttachment;
+        target.style.backgroundClip = style.backgroundClip;
+        target.style.backgroundColor = style.backgroundColor;
+        target.style.backgroundImage = style.backgroundImage;
+        target.style.backgroundOrigin = style.backgroundOrigin;
+        target.style.backgroundPosition = style.backgroundPosition;
+        target.style.backgroundRepeat = style.backgroundRepeat;
+        target.style.backgroundSize = style.backgroundSize;
+      }
+
+      function applyTextStyle(target, style) {
+        target.style.color = style.color;
+        target.style.colorScheme = style.colorScheme;
+        target.style.fontFamily = style.fontFamily;
+        target.style.fontSize = style.fontSize;
+        target.style.fontSynthesis = style.fontSynthesis;
+        target.style.fontWeight = style.fontWeight;
+        target.style.lineHeight = style.lineHeight;
+      }
+
+      function selectorMatches(selectorText, targetSelector) {
+        return selectorText.split(',').some((selector) => selector.trim() === targetSelector);
+      }
+
+      function applyDeclarationVisualStyles(target, declaration) {
+        const props = [
+          'background',
+          'background-attachment',
+          'background-clip',
+          'background-color',
+          'background-image',
+          'background-origin',
+          'background-position',
+          'background-repeat',
+          'background-size',
+          'color',
+          'color-scheme',
+          'font',
+          'font-family',
+          'font-size',
+          'font-synthesis',
+          'font-weight',
+          'line-height'
+        ];
+
+        for (const prop of props) {
+          const value = declaration.getPropertyValue(prop);
+          if (value) {
+            target.style.setProperty(prop, value, declaration.getPropertyPriority(prop));
+          }
+        }
+      }
+
+      function applyRuleListVisualStyles(rules) {
+        for (const rule of rules) {
+          if (rule.type === CSSRule.MEDIA_RULE) {
+            if (window.matchMedia(rule.conditionText).matches) {
+              applyRuleListVisualStyles(rule.cssRules);
+            }
+            continue;
+          }
+
+          if (rule.type !== CSSRule.STYLE_RULE || !rule.selectorText) continue;
+
+          if (selectorMatches(rule.selectorText, ':root') || selectorMatches(rule.selectorText, 'html')) {
+            applyDeclarationVisualStyles(webviewRoot, rule.style);
+          }
+
+          if (selectorMatches(rule.selectorText, 'body')) {
+            applyDeclarationVisualStyles(webviewRoot, rule.style);
+          }
+        }
+      }
+
+      function applyWebViewDocumentRuleStyles() {
+        for (const sheet of Array.from(document.styleSheets)) {
+          if (sheet.ownerNode?.dataset?.iplugWebviewResource !== PLUGIN_NAME) continue;
+
+          try {
+            applyRuleListVisualStyles(sheet.cssRules);
+          } catch (err) {
+            console.warn(`NAME_PLACEHOLDER: could not inspect stylesheet ${sheet.href || ''}`, err);
+          }
+        }
+      }
+
+      function applyWebViewDocumentVisualStyles(beforeImport) {
+        const afterImport = captureDocumentVisualStyles();
+        const bodyBackgroundChanged = backgroundChanged(beforeImport.body, afterImport.body);
+        const rootBackgroundChanged = backgroundChanged(beforeImport.root, afterImport.root);
+        const bodyTextChanged = textStyleChanged(beforeImport.body, afterImport.body);
+        const rootTextChanged = textStyleChanged(beforeImport.root, afterImport.root);
+
+        if (bodyBackgroundChanged && hasVisibleBackground(afterImport.body)) {
+          applyBackgroundStyle(webviewRoot, afterImport.body);
+        } else if (rootBackgroundChanged && hasVisibleBackground(afterImport.root)) {
+          applyBackgroundStyle(webviewRoot, afterImport.root);
+        }
+
+        if (bodyTextChanged) {
+          applyTextStyle(webviewRoot, afterImport.body);
+        } else if (rootTextChanged) {
+          applyTextStyle(webviewRoot, afterImport.root);
+        }
+
+        applyWebViewDocumentRuleStyles();
+      }
+
+      function appendHeadResource(node, baseHref) {
+        if (node.nodeType !== Node.ELEMENT_NODE) return Promise.resolve();
+
+        const tag = node.tagName.toLowerCase();
+        if (tag === 'title' || tag === 'meta' || tag === 'base' || tag === 'script') return Promise.resolve();
+
+        const clone = node.cloneNode(true);
+        clone.dataset.iplugWebviewResource = PLUGIN_NAME;
+        let loadPromise = Promise.resolve();
+
+        if (clone.hasAttribute('href')) {
+          const rel = (clone.getAttribute('rel') || '').toLowerCase();
+          if (rel.includes('icon')) return Promise.resolve();
+          clone.setAttribute('href', resolveResourceURL(clone.getAttribute('href'), baseHref));
+
+          if (tag === 'link' && rel.includes('stylesheet')) {
+            loadPromise = new Promise((resolve) => {
+              clone.onload = () => resolve();
+              clone.onerror = () => {
+                console.warn(`NAME_PLACEHOLDER: failed to load stylesheet ${clone.href}`);
+                resolve();
+              };
+            });
+          }
+        }
+
+        if (clone.hasAttribute('src')) {
+          clone.setAttribute('src', resolveResourceURL(clone.getAttribute('src'), baseHref));
+        }
+
+        document.head.appendChild(clone);
+        return loadPromise;
+      }
+
+      function nextAnimationFrame() {
+        return new Promise((resolve) => requestAnimationFrame(() => resolve()));
+      }
+
+      function shouldAdoptBodyNode(node) {
+        if (node === host || node === hiddenCanvas) return false;
+        if (node.nodeType === Node.TEXT_NODE) return node.textContent.trim().length > 0;
+        if (node.nodeType !== Node.ELEMENT_NODE) return false;
+        if (node.dataset.iplugWebviewResource) return false;
+        if (node.dataset.iplugHostControl) return false;
+        return true;
+      }
+
+      function adoptWebViewBodyNodes() {
+        for (const node of Array.from(document.body.childNodes)) {
+          if (shouldAdoptBodyNode(node)) {
+            webviewRoot.appendChild(node);
+          } else if (node.nodeType === Node.TEXT_NODE && node.textContent.trim().length === 0) {
+            node.remove();
+          }
+        }
+      }
+
+      function installBodyAdoption() {
+        if (bodyAdoptionObserver) {
+          bodyAdoptionObserver.disconnect();
+        }
+
+        bodyAdoptionObserver = new MutationObserver(() => adoptWebViewBodyNodes());
+        bodyAdoptionObserver.observe(document.body, { childList: true });
+        adoptWebViewBodyNodes();
+      }
+
+      function isModuleScript(scriptNode) {
+        return (scriptNode.getAttribute('type') || '').toLowerCase() === 'module';
+      }
+
+      function copyScriptAttributes(from, to, omittedAttrs = []) {
+        const omitted = new Set(omittedAttrs);
+        for (const attr of from.attributes) {
+          if (!omitted.has(attr.name)) {
+            to.setAttribute(attr.name, attr.value);
+          }
+        }
+      }
+
+      async function executeClassicScript(scriptNode, baseHref) {
+        const src = scriptNode.getAttribute('src');
+        const script = document.createElement('script');
+        script.dataset.iplugWebviewResource = PLUGIN_NAME;
+        copyScriptAttributes(scriptNode, script, ['src', 'integrity', 'crossorigin']);
+
+        let code = scriptNode.textContent;
+        let sourceURL = '';
+        if (src) {
+          sourceURL = resolveResourceURL(src, baseHref);
+          const response = await fetch(sourceURL);
+          if (!response.ok) throw new Error(`Failed to load ${sourceURL}: HTTP ${response.status}`);
+          code = await response.text();
+        }
+
+        script.textContent = [
+          'var module = undefined;',
+          'var exports = undefined;',
+          'var define = undefined;',
+          code,
+          sourceURL ? `//# sourceURL=${sourceURL}` : ''
+        ].join('\n');
+        document.body.appendChild(script);
+      }
+
+      function executeScript(scriptNode, baseHref) {
+        if (!isModuleScript(scriptNode)) {
+          return executeClassicScript(scriptNode, baseHref);
+        }
+
+        return new Promise((resolve, reject) => {
+          const script = document.createElement('script');
+          script.dataset.iplugWebviewResource = PLUGIN_NAME;
+
+          for (const attr of scriptNode.attributes) {
+            if (attr.name === 'src') {
+              script.src = resolveResourceURL(attr.value, baseHref);
+            } else {
+              script.setAttribute(attr.name, attr.value);
+            }
+          }
+
+          script.onload = () => resolve();
+          script.onerror = () => reject(new Error(`Failed to load ${script.src || 'inline WebView script'}`));
+
+          if (!script.src) {
+            script.textContent = scriptNode.textContent;
+            document.body.appendChild(script);
+            resolve();
+            return;
+          }
+
+          document.body.appendChild(script);
+        });
+      }
+
+      async function executeScripts(scripts, baseHref) {
+        for (const script of scripts) {
+          await executeScript(script, baseHref);
+        }
+      }
+
+      function runBodyOnload(body) {
+        const onload = body.getAttribute('onload');
+        if (!onload) return;
+
+        try {
+          Function(onload).call(window);
+        } catch (err) {
+          console.warn('NAME_PLACEHOLDER: body onload failed', err);
+        }
+      }
+
+      function startP5GlobalModeIfNeeded() {
+        if (typeof window.p5 !== 'function' || typeof window.setup !== 'function') return;
+        if (window.p5.instance) return;
+        if (webviewRoot.querySelector('canvas')) return;
+
+        try {
+          new window.p5();
+        } catch (err) {
+          console.warn('NAME_PLACEHOLDER: p5 global-mode startup failed', err);
+        }
+      }
+
+      function evaluateWebViewJavaScript(script) {
+        if (!webViewReady || !webViewWindow) {
+          pendingEvaluations.push(script);
+          return;
+        }
+
+        try {
+          webViewWindow.eval(script);
+        } catch (err) {
+          console.error(`NAME_PLACEHOLDER: WebView script failed`, err, script);
+        }
+      }
+
+      function flushEvaluations() {
+        const scripts = pendingEvaluations.splice(0);
+        for (const script of scripts) {
+          evaluateWebViewJavaScript(script);
+        }
+      }
+
+      function notifyWebContentLoaded(ownerPtr) {
+        ensureUIModule().then((mod) => {
+          if (typeof mod.IPlugWebView_OnContentLoaded === 'function') {
+            mod.IPlugWebView_OnContentLoaded(ownerPtr);
+          }
+        }).catch((err) => {
+          console.error(`NAME_PLACEHOLDER: could not notify WebView content load`, err);
+        });
+      }
+
+      async function importWebViewDocument(webDoc, baseHref, ownerPtr) {
+        const scripts = Array.from(webDoc.querySelectorAll('script'));
+        const beforeImportStyles = captureDocumentVisualStyles();
+
+        for (const script of scripts) {
+          script.remove();
+        }
+
+        cleanupWebViewResources();
+        installWebViewBase(baseHref);
+
+        const headResourceLoads = [];
+        for (const node of Array.from(webDoc.head.children)) {
+          headResourceLoads.push(appendHeadResource(node, baseHref));
+        }
+        await Promise.all(headResourceLoads);
+        await nextAnimationFrame();
+        applyWebViewDocumentVisualStyles(beforeImportStyles);
+
+        rewriteElementURLs(webDoc.body, baseHref);
+        webviewRoot.replaceChildren(...Array.from(webDoc.body.childNodes));
+        installBodyAdoption();
+
+        webViewWindow = window;
+        await executeScripts(scripts, baseHref);
+        runBodyOnload(webDoc.body);
+        window.dispatchEvent(new Event('load'));
+        startP5GlobalModeIfNeeded();
+        adoptWebViewBodyNodes();
+
+        webViewReady = true;
+        hideLoading();
+        hostControls.setReady(true);
+        setStatus('Ready. Start audio to connect DSP.');
+        flushEvaluations();
+        flushWebViewMessages();
+        notifyWebContentLoaded(ownerPtr);
+      }
+
+      async function loadWebViewFile(ownerPtr, fileName, webRoot) {
+        activeWebViewOwnerPtr = ownerPtr;
+        webViewReady = false;
+        hostControls.setReady(false);
+        showLoading(`Loading ${PLUGIN_NAME} UI...`);
+
+        try {
+          currentWebViewFile = fileName || 'web/index.html';
+          currentWebViewRoot = webRoot || 'web/';
+          const baseHref = new URL(currentWebViewRoot.endsWith('/') ? currentWebViewRoot : `${currentWebViewRoot}/`, hostBaseHref).href;
+          const response = await fetch(new URL(currentWebViewFile, hostBaseHref).href);
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+          const html = await response.text();
+          const webDoc = new DOMParser().parseFromString(html, 'text/html');
+          await importWebViewDocument(webDoc, baseHref, ownerPtr);
+        } catch (err) {
+          console.error('Failed to load WebView UI:', err);
+          loading.textContent = 'Failed to load WebView UI';
+          setStatus('UI load failed');
+        }
+      }
+
+      async function loadWebViewHTML(ownerPtr, html, baseHref = hostBaseHref) {
+        activeWebViewOwnerPtr = ownerPtr;
+        webViewReady = false;
+        hostControls.setReady(false);
+        showLoading(`Loading ${PLUGIN_NAME} UI...`);
+
+        try {
+          const webDoc = new DOMParser().parseFromString(html, 'text/html');
+          await importWebViewDocument(webDoc, baseHref, ownerPtr);
+        } catch (err) {
+          console.error('Failed to load WebView HTML:', err);
+          loading.textContent = 'Failed to load WebView HTML';
+          setStatus('UI load failed');
+        }
+      }
+
+      async function loadWebViewURL(ownerPtr, url) {
+        activeWebViewOwnerPtr = ownerPtr;
+        webViewReady = false;
+        hostControls.setReady(false);
+        showLoading(`Loading ${PLUGIN_NAME} UI...`);
+
+        try {
+          const resolvedURL = new URL(url, hostBaseHref);
+          const response = await fetch(resolvedURL.href);
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+          const html = await response.text();
+          const webDoc = new DOMParser().parseFromString(html, 'text/html');
+          await importWebViewDocument(webDoc, new URL('./', resolvedURL.href).href, ownerPtr);
+        } catch (err) {
+          console.error('Failed to load WebView URL:', err);
+          loading.textContent = 'Failed to load WebView URL';
+          setStatus('UI load failed');
+        }
+      }
+
+      function applyWebViewBounds(x, y, width, height, scale) {
+        const scaledWidth = Math.max(1, Math.round(width * (scale || 1)));
+        const scaledHeight = Math.max(1, Math.round(height * (scale || 1)));
+        host.style.setProperty('--plug-width', `${scaledWidth}px`);
+        host.style.setProperty('--plug-height', `${scaledHeight}px`);
+        host.style.left = `calc(50% + ${Math.round(x)}px)`;
+        host.style.top = `${Math.round(y)}px`;
+      }
+
+      window.__iPlugWebViewOpen = (ownerPtr, x, y, width, height, scale) => {
+        activeWebViewOwnerPtr = ownerPtr;
+        applyWebViewBounds(x, y, width, height, scale);
+        ensureUIModule().catch((err) => {
+          console.error(`NAME_PLACEHOLDER: failed to load UI module`, err);
+          loading.textContent = 'Failed to load plugin';
+          setStatus('UI module load failed');
+        });
+      };
+
+      window.__iPlugWebViewClose = (ownerPtr) => {
+        if (ownerPtr === activeWebViewOwnerPtr) {
+          activeWebViewOwnerPtr = 0;
+          webViewReady = false;
+        }
+      };
+
+      window.__iPlugWebViewHide = (ownerPtr, hide) => {
+        if (ownerPtr === activeWebViewOwnerPtr) {
+          webviewRoot.style.display = hide ? 'none' : '';
+        }
+      };
+
+      window.__iPlugWebViewLoadFile = (ownerPtr, fileName, webRoot) => {
+        loadWebViewFile(ownerPtr, fileName, webRoot);
+      };
+
+      window.__iPlugWebViewLoadHTML = (ownerPtr, html) => {
+        loadWebViewHTML(ownerPtr, html);
+      };
+
+      window.__iPlugWebViewLoadURL = (ownerPtr, url) => {
+        loadWebViewURL(ownerPtr, url);
+      };
+
+      window.__iPlugWebViewReload = (ownerPtr) => {
+        loadWebViewFile(ownerPtr, currentWebViewFile, currentWebViewRoot);
+      };
+
+      window.__iPlugWebViewEvaluate = (ownerPtr, script) => {
+        if (ownerPtr === activeWebViewOwnerPtr) {
+          evaluateWebViewJavaScript(script);
+        }
+      };
+
+      window.__iPlugWebViewEnableScroll = (ownerPtr, enable) => {
+        if (ownerPtr === activeWebViewOwnerPtr) {
+          webviewRoot.style.overflow = enable ? 'auto' : 'hidden';
+        }
+      };
+
+      window.__iPlugWebViewEnableInteraction = (ownerPtr, enable) => {
+        if (ownerPtr === activeWebViewOwnerPtr) {
+          webviewRoot.style.pointerEvents = enable ? '' : 'none';
+        }
+      };
+
+      window.__iPlugWebViewSetBounds = (ownerPtr, x, y, width, height, scale) => {
+        if (ownerPtr === activeWebViewOwnerPtr) {
+          applyWebViewBounds(x, y, width, height, scale);
+        }
+      };
+
+      window.__iPlugWasmEditorResize = (width, height) => {
+        applyWebViewBounds(0, 0, width, height, 1);
+      };
+
+      ensureUIModule().catch((err) => {
+        console.error(`NAME_PLACEHOLDER: failed to load UI module`, err);
+        loading.textContent = 'Failed to load plugin';
+        setStatus('UI module load failed');
+      });
+    })();
+  </script>
+</body>
+</html>

@@ -292,7 +292,7 @@ endfunction()
 # ============================================================================
 # Create Wasm Web targets (Emscripten only).
 # ============================================================================
-function(_iplug_create_wasm_targets plugin_name formats sources base_lib)
+function(_iplug_create_wasm_targets plugin_name formats sources base_lib ui_type web_resources)
   if(NOT CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
     return()
   endif()
@@ -322,14 +322,26 @@ function(_iplug_create_wasm_targets plugin_name formats sources base_lib)
   endif()
 
   if(_want_wasm_ui)
-    add_executable(${plugin_name}-wasm-ui ${sources})
-    iplug_add_target(${plugin_name}-wasm-ui PUBLIC
-      LINK iPlug2::WasmUI ${base_lib}
-    )
-    iplug_configure_wasm_ui(${plugin_name}-wasm-ui ${plugin_name})
-    iplug_build_wasm_ui_dist(${plugin_name}
-      UI_TARGET ${plugin_name}-wasm-ui
-    )
+    if(ui_type STREQUAL "WEBVIEW")
+      add_executable(${plugin_name}-wasm-ui ${sources})
+      iplug_add_target(${plugin_name}-wasm-ui PUBLIC
+        LINK iPlug2::WasmUI iPlug2::WebView ${base_lib}
+      )
+      iplug_configure_wasm_ui(${plugin_name}-wasm-ui ${plugin_name})
+      iplug_build_wasm_webview_ui_dist(${plugin_name}
+        UI_TARGET ${plugin_name}-wasm-ui
+        WEB_RESOURCES ${web_resources}
+      )
+    else()
+      add_executable(${plugin_name}-wasm-ui ${sources})
+      iplug_add_target(${plugin_name}-wasm-ui PUBLIC
+        LINK iPlug2::WasmUI ${base_lib}
+      )
+      iplug_configure_wasm_ui(${plugin_name}-wasm-ui ${plugin_name})
+      iplug_build_wasm_ui_dist(${plugin_name}
+        UI_TARGET ${plugin_name}-wasm-ui
+      )
+    endif()
   endif()
 
   if(_want_wasm_dsp AND _want_wasm_ui)
@@ -477,5 +489,5 @@ macro(iplug_add_plugin plugin_name)
   _iplug_create_auv3_targets(${plugin_name} "${_iplug_formats}" "${PLUGIN_SOURCES}" "${_iplug_ui_lib}" "${PLUGIN_RESOURCES}" "${PLUGIN_WEB_RESOURCES}" "_${plugin_name}-base")
   _iplug_create_ios_targets(${plugin_name} "${_iplug_formats}" "${PLUGIN_SOURCES}" "${_iplug_ui_lib}" "${PLUGIN_RESOURCES}" "${PLUGIN_WEB_RESOURCES}" "_${plugin_name}-base")
   _iplug_create_wam_targets(${plugin_name} "${_iplug_formats}" "${PLUGIN_SOURCES}" "${PLUGIN_WAM_SITE_ORIGIN}" "_${plugin_name}-base")
-  _iplug_create_wasm_targets(${plugin_name} "${_iplug_formats}" "${PLUGIN_SOURCES}" "_${plugin_name}-base")
+  _iplug_create_wasm_targets(${plugin_name} "${_iplug_formats}" "${PLUGIN_SOURCES}" "_${plugin_name}-base" "${PLUGIN_UI}" "${PLUGIN_WEB_RESOURCES}")
 endmacro()
