@@ -334,6 +334,23 @@ function(iplug_configure_wasm_host_styles project_name output_dir)
   )
 endfunction()
 
+function(iplug_configure_wasm_dev_server project_name output_dir)
+  set(SERVER_SOURCE "${WASM_TEMPLATE_DIR}/serve.py")
+  set(SERVER_OUTPUT "${output_dir}/serve.py")
+
+  add_custom_command(
+    OUTPUT ${SERVER_OUTPUT}
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${SERVER_SOURCE} ${SERVER_OUTPUT}
+    DEPENDS ${SERVER_SOURCE}
+    COMMENT "Staging Wasm dev server"
+    VERBATIM
+  )
+
+  add_custom_target(${project_name}_wasm_dev_server
+    DEPENDS ${SERVER_OUTPUT}
+  )
+endfunction()
+
 # ============================================================================
 # Configure UI-side wasm template files.
 # ============================================================================
@@ -346,6 +363,7 @@ function(iplug_configure_wasm_ui_templates project_name output_dir)
   iplug_configure_wasm_controller_template(${project_name} ${output_dir} ${WASM_HAS_UI_STR})
   iplug_configure_wasm_host_controls(${project_name} ${output_dir})
   iplug_configure_wasm_host_styles(${project_name} ${output_dir})
+  iplug_configure_wasm_dev_server(${project_name} ${output_dir})
 
   set(INDEX_TEMPLATE "${WASM_TEMPLATE_DIR}/index.html")
   set(INDEX_OUTPUT "${output_dir}/index.html")
@@ -387,6 +405,7 @@ function(iplug_configure_wasm_ui_templates project_name output_dir)
     ${project_name}_wasm_controller_template
     ${project_name}_wasm_host_controls
     ${project_name}_wasm_host_styles
+    ${project_name}_wasm_dev_server
   )
 endfunction()
 
