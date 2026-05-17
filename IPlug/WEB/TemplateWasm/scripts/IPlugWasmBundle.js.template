@@ -30,6 +30,15 @@ window.Module = window.Module || {
   const HAS_UI = HAS_UI_PLACEHOLDER; // false for headless plugins
   const DOES_MIDI_IN = DOES_MIDI_IN_PLACEHOLDER;
   const DOES_MIDI_OUT = DOES_MIDI_OUT_PLACEHOLDER;
+  const getUrlParam = (name) => {
+    try {
+      return new URLSearchParams(window.location.search).get(name);
+    } catch (e) {
+      return null;
+    }
+  };
+  const CAPTURE_BRIDGE_ENABLED = getUrlParam('iplugWasmCapture') === '1';
+  const CAPTURE_BRIDGE_ORIGIN = getUrlParam('iplugWasmCaptureOrigin');
 
   // Embedded CSS for Shadow DOM
   const COMPONENT_CSS = `
@@ -722,5 +731,47 @@ window.Module = window.Module || {
   // Export to global scope
   window.IPlugWasmController = IPlugWasmController;
   window[PLUGIN_NAME + 'Element'] = IPlugWasmElement;
+
+  // Host capture is opt-in for trusted parent origins because it exposes
+  // rendered UI pixels across the iframe boundary.
+  if (CAPTURE_BRIDGE_ENABLED && CAPTURE_BRIDGE_ORIGIN && !window.__iplugWasmCaptureBridgeInstalled) {
+    window.__iplugWasmCaptureBridgeInstalled = true;
+    window.addEventListener('message', (event) => {
+      const msg = event.data;
+      if (!msg || msg.type !== 'iplug-wasm:capture') return;
+      if (event.origin !== CAPTURE_BRIDGE_ORIGIN) return;
+      const reply = (payload) => {
+        const target = event.source;
+        if (target && typeof target.postMessage === 'function') {
+          target.postMessage(
+            { type: 'iplug-wasm:capture-response', id: msg.id, ...payload },
+            event.origin,
+          );
+        }
+      };
+      try {
+        const host = document.querySelector(PLUGIN_TAG);
+        if (!host) {
+          reply({ error: 'plugin element not found' });
+          return;
+        }
+        const canvas = host.shadowRoot
+          ? host.shadowRoot.querySelector('canvas')
+          : host.querySelector('canvas');
+        if (!canvas) {
+          reply({ error: 'plugin canvas not found' });
+          return;
+        }
+        const dataUrl = canvas.toDataURL('image/png');
+        if (!dataUrl || dataUrl === 'data:,') {
+          reply({ error: 'empty framebuffer; canvas may not have rendered yet' });
+          return;
+        }
+        reply({ dataUrl });
+      } catch (e) {
+        reply({ error: String(e && e.message ? e.message : e) });
+      }
+    });
+  }
 
 })();

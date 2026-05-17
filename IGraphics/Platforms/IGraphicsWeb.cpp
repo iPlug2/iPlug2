@@ -16,11 +16,24 @@
 
 #include "IGraphicsWeb.h"
 
-// Helper to create WebGL context for Shadow DOM (CSS selectors don't work)
+EM_JS(int, iplug_wasm_capture_bridge_enabled, (), {
+  if (typeof window === "undefined") return 0;
+  try {
+    return new URLSearchParams(window.location.search).get("iplugWasmCapture") === "1";
+  } catch (e) {
+    return 0;
+  }
+});
+
+// Helper to create WebGL context for Shadow DOM (CSS selectors don't work).
 EM_JS(int, createWebGLContextForShadowDOM, (), {
   var canvas = Module.canvas;
   if (!canvas) return 0;
-  var attrs = { stencil: true, depth: true, antialias: true, alpha: true };
+  var preserveDrawingBuffer = false;
+  try {
+    preserveDrawingBuffer = new URLSearchParams(window.location.search).get("iplugWasmCapture") === "1";
+  } catch (e) {}
+  var attrs = { stencil: true, depth: true, antialias: true, alpha: true, preserveDrawingBuffer: preserveDrawingBuffer };
   var ctx = canvas.getContext("webgl", attrs) || canvas.getContext("experimental-webgl", attrs);
   if (!ctx) return 0;
   return GL.registerContext(ctx, attrs);
@@ -995,6 +1008,11 @@ void* IGraphicsWeb::OpenWindow(void* pHandle)
   emscripten_webgl_init_context_attributes(&attr);
   attr.stencil = true;
   attr.depth = true;
+  attr.antialias = true;
+  attr.alpha = true;
+  // Capture is URL opt-in because preserveDrawingBuffer can reduce WebGL
+  // presentation throughput in regular production plugin embeds.
+  attr.preserveDrawingBuffer = iplug_wasm_capture_bridge_enabled();
 //  attr.explicitSwapControl = 1;
 
   EMSCRIPTEN_WEBGL_CONTEXT_HANDLE ctx;
