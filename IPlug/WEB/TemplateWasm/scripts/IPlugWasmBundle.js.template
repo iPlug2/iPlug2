@@ -732,6 +732,21 @@ window.Module = window.Module || {
       return this._controller;
     }
 
+    setLiveEditEnabled(enabled) {
+      const pGraphics = this._canvas?._iplugGraphics;
+      const setLiveEdit = this._uiModule?._iplug_set_live_edit;
+
+      if (!pGraphics || typeof setLiveEdit !== 'function') {
+        return false;
+      }
+
+      return setLiveEdit(pGraphics, enabled ? 1 : 0) === 1;
+    }
+
+    isLiveEditAvailable() {
+      return !!this._canvas?._iplugGraphics && typeof this._uiModule?._iplug_set_live_edit === 'function';
+    }
+
     // Getters
     get controller() { return this._controller; }
     get module() { return this._uiModule; }

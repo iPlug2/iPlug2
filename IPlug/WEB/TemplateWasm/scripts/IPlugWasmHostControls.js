@@ -75,6 +75,7 @@
       <div class="vu-bar-container"><div id="vuOutR" class="vu-bar"></div></div>
     </div>
 
+    <button id="liveEditBtn" class="live-edit-btn hidden" title="Toggle live layout edit" aria-pressed="false">Edit</button>
     <button id="fullscreenBtn" title="Fullscreen">&#9974;</button>
     <div id="pluginParams" class="plugin-params hidden"></div>
   </div>
@@ -130,6 +131,7 @@
       this.midiInTimeout = null;
       this.midiOutTimeout = null;
       this.midiOutUnsubscribe = null;
+      this.liveEditActive = false;
 
       this.installMarkup();
       this.bindDom();
@@ -183,6 +185,7 @@
       this.midiOutSelect = document.getElementById('midiOutSelect');
       this.midiInLed = document.getElementById('midiInLed');
       this.midiOutLed = document.getElementById('midiOutLed');
+      this.liveEditBtn = document.getElementById('liveEditBtn');
     }
 
     bindEvents() {
@@ -204,6 +207,7 @@
         if (this.fileSource) this.fileSource.loop = this.loopCheck.checked;
       });
       this.fullscreenBtn.addEventListener('click', () => this.toggleFullscreen());
+      this.liveEditBtn.addEventListener('click', () => this.toggleLiveEdit());
       this.midiInSelect.addEventListener('change', () => this.connectMidiInput(this.midiInSelect.value));
       this.midiOutSelect.addEventListener('change', () => this.connectMidiOutput(this.midiOutSelect.value));
     }
@@ -216,6 +220,28 @@
       if (!this.status) return;
       this.status.textContent = text || '';
       this.status.classList.toggle('hidden', !this.options.showStatus && !text);
+    }
+
+    refreshLiveEditAvailability() {
+      const available = this.options.isLiveEditAvailable ? Boolean(this.options.isLiveEditAvailable()) : false;
+      this.liveEditBtn.classList.toggle('hidden', !available);
+
+      if (!available && this.liveEditActive) {
+        this.liveEditActive = false;
+        this.liveEditBtn.setAttribute('aria-pressed', 'false');
+        this.liveEditBtn.classList.remove('active');
+      }
+    }
+
+    toggleLiveEdit() {
+      if (!this.options.setLiveEditEnabled) return;
+
+      const next = !this.liveEditActive;
+      if (!this.options.setLiveEditEnabled(next)) return;
+
+      this.liveEditActive = next;
+      this.liveEditBtn.setAttribute('aria-pressed', String(next));
+      this.liveEditBtn.classList.toggle('active', next);
     }
 
     getCapabilities() {

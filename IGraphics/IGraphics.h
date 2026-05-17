@@ -1204,6 +1204,9 @@ public:
 
   /**@return \c true if live edit mode is enabled */
   bool LiveEditEnabled() const { return mLiveEdit != nullptr; }
+
+  /** Set a callback for JSON live edit events */
+  void SetLiveEditEventFunc(ILiveEditEventFunc func) { mLiveEditEventFunc = func; }
   
   /** Returns an IRECT that represents the entire UI bounds
    * This is useful for programatically arranging UI elements by slicing up the IRECT using the various IRECT methods
@@ -1808,6 +1811,14 @@ private:
     mMouseOver = nullptr;
     mMouseOverIdx = -1;
   }
+
+  bool HasLiveEditEventFunc() const { return static_cast<bool>(mLiveEditEventFunc); }
+
+  void EmitLiveEditEvent(const char* eventJson) const
+  {
+    if (mLiveEditEventFunc)
+      mLiveEditEventFunc(eventJson);
+  }
   
   WDL_PtrList<IControl> mControls;
   std::unordered_map<int, IControl*> mCtrlTags;
@@ -1865,6 +1876,7 @@ private:
   IKeyHandlerFunc mKeyHandlerFunc = nullptr;
   IDisplayTickFunc mDisplayTickFunc = nullptr;
   IUIAppearanceChangedFunc mAppearanceChangedFunc = nullptr;
+  ILiveEditEventFunc mLiveEditEventFunc = nullptr;
   
 protected:
   IGEditorDelegate* mDelegate;

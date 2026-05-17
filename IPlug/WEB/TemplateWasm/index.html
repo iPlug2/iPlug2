@@ -39,6 +39,8 @@
         receivesMidi: pluginElement.receivesMidi,
         sendsMidi: pluginElement.sendsMidi
       }),
+      isLiveEditAvailable: () => pluginElement.isLiveEditAvailable?.() ?? false,
+      setLiveEditEnabled: (enabled) => pluginElement.setLiveEditEnabled?.(enabled) ?? false,
       createController: async ({ audioContext, capabilities }) => {
         const controller = new IPlugWasmController('NAME_PLACEHOLDER');
         await controller.init({
@@ -61,6 +63,7 @@
 
     pluginElement.addEventListener('uiready', (e) => {
       hostControls.setReady(true);
+      hostControls.refreshLiveEditAvailability();
 
       if (!e.detail.module) {
         isHeadless = true;

@@ -77,6 +77,9 @@ if(NOT TARGET iPlug2::WasmUI)
 
   # UI module exported functions
   set(WASM_UI_EXPORTS "'_malloc','_free','_main','_iplug_fsready','_iplug_syncfs','_iplug_popup_menu_selected'")
+  if(IPLUG2_WASM_LIVE_EDIT)
+    string(APPEND WASM_UI_EXPORTS ",'_iplug_set_live_edit'")
+  endif()
   set(WASM_UI_OPT)
   if(IPLUG2_WASM_UI_OPTIMIZATION)
     set(WASM_UI_OPT "$<$<NOT:$<CONFIG:Debug>>:${IPLUG2_WASM_UI_OPTIMIZATION}>")
@@ -110,6 +113,15 @@ if(NOT TARGET iPlug2::WasmUI)
     # Force-include GLES2 header so GL types are defined before NanoVG
     -include GLES2/gl2.h
   )
+
+  if(IPLUG2_WASM_LIVE_EDIT)
+    target_compile_definitions(iPlug2::WasmUI INTERFACE IPLUG_LIVE_EDIT=1)
+    if(IPLUG2_WASM_UI_OPTIMIZATION STREQUAL "-O0")
+      target_compile_definitions(iPlug2::WasmUI INTERFACE IPLUG_LIVE_EDIT_CLASS_NAME=1)
+    else()
+      target_compile_definitions(iPlug2::WasmUI INTERFACE "$<$<CONFIG:Debug>:IPLUG_LIVE_EDIT_CLASS_NAME=1>")
+    endif()
+  endif()
 
   target_link_libraries(iPlug2::WasmUI INTERFACE iPlug2::IPlug)
 endif()
