@@ -76,7 +76,7 @@ if(NOT TARGET iPlug2::WasmUI)
   )
 
   # UI module exported functions
-  set(WASM_UI_EXPORTS "'_malloc','_free','_main','_iplug_fsready','_iplug_syncfs'")
+  set(WASM_UI_EXPORTS "'_malloc','_free','_main','_iplug_fsready','_iplug_syncfs','_iplug_popup_menu_selected'")
   set(WASM_UI_OPT)
   if(IPLUG2_WASM_UI_OPTIMIZATION)
     set(WASM_UI_OPT "$<$<NOT:$<CONFIG:Debug>>:${IPLUG2_WASM_UI_OPTIMIZATION}>")

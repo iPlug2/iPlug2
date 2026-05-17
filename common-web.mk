@@ -81,7 +81,7 @@ WAM_EXPORTS = "[\
   '_wam_onmessageN', '_wam_onmessageS', '_wam_onmessageA', '_wam_onpatch' \
   ]"
 
-WEB_EXPORTS = "['_malloc', '_free', '_main', '_iplug_fsready', '_iplug_syncfs']"
+WEB_EXPORTS = "['_malloc', '_free', '_main', '_iplug_fsready', '_iplug_syncfs', '_iplug_popup_menu_selected']"
 
 # LDFLAGS for both WAM and WEB targets
 LDFLAGS = -s ALLOW_MEMORY_GROWTH=1 --bind
@@ -102,4 +102,3 @@ WEB_LDFLAGS = -s EXPORTED_FUNCTIONS=$(WEB_EXPORTS) \
 -s ENVIRONMENT=web \
 -s DEFAULT_LIBRARY_FUNCS_TO_INCLUDE="['\$$Browser']" \
 -lidbfs.js
-

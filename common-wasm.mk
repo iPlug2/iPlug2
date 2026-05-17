@@ -98,7 +98,7 @@ WASM_UI_CFLAGS = -DWASM_UI_API \
 WASM_DSP_EXPORTS = "['_malloc', '_free']"
 
 # UI module exports
-WASM_UI_EXPORTS = "['_malloc', '_free', '_main', '_iplug_fsready', '_iplug_syncfs']"
+WASM_UI_EXPORTS = "['_malloc', '_free', '_main', '_iplug_fsready', '_iplug_syncfs', '_iplug_popup_menu_selected']"
 
 # Common linker flags
 LDFLAGS = -s ALLOW_MEMORY_GROWTH=1 --bind

@@ -26,6 +26,435 @@ EM_JS(int, createWebGLContextForShadowDOM, (), {
   return GL.registerContext(ctx, attrs);
 });
 
+EM_JS(void, iplug_popup_menu_show_js, (void* pGraphics, double viewportX, double viewportY, const char* menuJson), {
+  var rootItems;
+  var emitSelection = function(pG, path) {
+    if (!pG || !Module._iplug_popup_menu_selected) {
+      return;
+    }
+
+    if (Module.ccall) {
+      Module.ccall('iplug_popup_menu_selected', null, ['number', 'string'], [pG, path || ""]);
+    } else {
+      Module._iplug_popup_menu_selected(pG, 0);
+    }
+  };
+
+  try {
+    rootItems = JSON.parse(UTF8ToString(menuJson));
+  } catch (e) {
+    console.error('iPlug popup menu: invalid menu payload', e);
+    emitSelection(pGraphics, "");
+    return;
+  }
+
+  if (!HTMLElement.prototype.showPopover || !HTMLElement.prototype.hidePopover) {
+    emitSelection(pGraphics, "");
+    return;
+  }
+
+  var doc = document;
+  if (!doc.getElementById('__iplug_popup_menu_style')) {
+    var style = doc.createElement('style');
+    style.id = '__iplug_popup_menu_style';
+    style.textContent = [
+      '.iplug-popup-menu{box-sizing:border-box;position:fixed;inset:0;width:100vw;height:100vh;margin:0;padding:0;border:0;background:transparent;overflow:visible;pointer-events:none;color:var(--iplug-popup-menu-color,#ddd);font:var(--iplug-popup-menu-font,13px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif);}',
+      '.iplug-popup-menu::backdrop{background:transparent;}',
+      '.iplug-popup-menu__panel{box-sizing:border-box;position:absolute;padding:var(--iplug-popup-menu-padding,4px 0);min-width:var(--iplug-popup-menu-min-width,160px);max-height:var(--iplug-popup-menu-max-height,70vh);overflow-y:auto;border:var(--iplug-popup-menu-border,1px solid #555);border-radius:var(--iplug-popup-menu-border-radius,6px);background:var(--iplug-popup-menu-background,#1e1e1e);color:inherit;box-shadow:var(--iplug-popup-menu-shadow,0 6px 18px rgba(0,0,0,.4));pointer-events:auto;}',
+      '.iplug-popup-menu__item{display:flex;align-items:center;gap:.35em;width:100%;box-sizing:border-box;padding:var(--iplug-popup-menu-item-padding,5px 12px);border:0;background:transparent;color:inherit;text-align:left;font:inherit;white-space:nowrap;cursor:pointer;}',
+      '.iplug-popup-menu__item:disabled{cursor:default;opacity:var(--iplug-popup-menu-disabled-opacity,.45);}',
+      '.iplug-popup-menu__item:not(:disabled):hover,.iplug-popup-menu__item:not(:disabled):focus{background:var(--iplug-popup-menu-hover-background,#3b82f6);color:var(--iplug-popup-menu-hover-color,#fff);outline:0;}',
+      '.iplug-popup-menu__check{display:inline-block;width:1.25em;flex:0 0 1.25em;}',
+      '.iplug-popup-menu__submenu-indicator{margin-left:auto;padding-left:1.5em;}',
+      '.iplug-popup-menu__title{padding:var(--iplug-popup-menu-title-padding,6px 12px 2px);color:var(--iplug-popup-menu-title-color,#888);font-weight:600;font-size:var(--iplug-popup-menu-title-font-size,11px);text-transform:uppercase;}',
+      '.iplug-popup-menu__separator{height:1px;margin:var(--iplug-popup-menu-separator-margin,4px 8px);background:var(--iplug-popup-menu-separator-color,#444);}'
+    ].join('\n');
+    doc.head.appendChild(style);
+  }
+
+  var menu = doc.getElementById('__iplug_popup_menu');
+  if (!menu) {
+    menu = doc.createElement('div');
+    menu.id = '__iplug_popup_menu';
+    menu.className = 'iplug-popup-menu';
+    menu.setAttribute('popover', 'manual');
+    menu.setAttribute('role', 'menu');
+    menu.setAttribute('tabindex', '-1');
+    // Popovers are promoted to the top layer, so appending to body still
+    // renders above canvases hosted inside Shadow DOM.
+    doc.body.appendChild(menu);
+  } else {
+    if (menu._iplugCleanup) {
+      menu._iplugCleanup(menu._iplugPGraphics && menu._iplugPGraphics !== pGraphics);
+    }
+    if (menu.matches && menu.matches(':popover-open') && menu.hidePopover) {
+      menu.hidePopover();
+    }
+    while (menu.firstChild) {
+      menu.removeChild(menu.firstChild);
+    }
+  }
+
+  menu._iplugPickedPath = "";
+  menu._iplugPGraphics = pGraphics;
+
+  var clearPanelsFrom = function(depth) {
+    Array.prototype.slice.call(menu.querySelectorAll('.iplug-popup-menu__panel')).forEach(function(panel) {
+      if (Number(panel.dataset.depth) >= depth) {
+        if (panel.dataset.path) {
+          var trigger = menu.querySelector('.iplug-popup-menu__item[data-iplug-path="' + panel.dataset.path + '"]');
+          if (trigger) {
+            trigger.setAttribute('aria-expanded', 'false');
+          }
+        }
+        panel.remove();
+      }
+    });
+  };
+
+  var getMenuItems = function(panel) {
+    if (!panel) {
+      return [];
+    }
+    return Array.prototype.slice.call(panel.querySelectorAll('.iplug-popup-menu__item:not(:disabled)'));
+  };
+
+  var focusButton = function(button) {
+    if (!button) {
+      return;
+    }
+    try {
+      button.focus({ preventScroll: true });
+    } catch (e) {
+      button.focus();
+    }
+  };
+
+  var focusMenuItem = function(panel, idx) {
+    var items = getMenuItems(panel);
+    if (!items.length) {
+      return;
+    }
+    var wrappedIdx = (idx + items.length) % items.length;
+    focusButton(items[wrappedIdx]);
+  };
+
+  var focusFirstMenuItem = function(panel) {
+    focusMenuItem(panel, 0);
+  };
+
+  var getActivePanel = function() {
+    var active = doc.activeElement;
+    if (active && active.classList && active.classList.contains('iplug-popup-menu__item')) {
+      return active.closest('.iplug-popup-menu__panel');
+    }
+
+    var panels = Array.prototype.slice.call(menu.querySelectorAll('.iplug-popup-menu__panel'));
+    return panels.length ? panels[panels.length - 1] : null;
+  };
+
+  var getActiveButton = function() {
+    var active = doc.activeElement;
+    if (active && active.classList && active.classList.contains('iplug-popup-menu__item')) {
+      return active;
+    }
+    return null;
+  };
+
+  var positionPanel = function(panel, x, y, fallbackRightEdge) {
+    var margin = 4;
+    panel.style.left = '0px';
+    panel.style.top = '0px';
+    panel.style.visibility = 'hidden';
+
+    var rect = panel.getBoundingClientRect();
+    var left = x;
+    var top = y;
+
+    if (left + rect.width + margin > window.innerWidth && fallbackRightEdge !== null) {
+      left = fallbackRightEdge - rect.width;
+    }
+
+    left = Math.max(margin, Math.min(left, window.innerWidth - rect.width - margin));
+    top = Math.max(margin, Math.min(top, window.innerHeight - rect.height - margin));
+
+    panel.style.left = Math.round(left) + 'px';
+    panel.style.top = Math.round(top) + 'px';
+    panel.style.visibility = "";
+  };
+
+  var showPanel;
+  var appendMenuItem = function(panel, item, idx, path, depth) {
+    var childPath = path.concat([idx]);
+
+    if (item.separator) {
+      var separator = doc.createElement('div');
+      separator.className = 'iplug-popup-menu__separator';
+      separator.setAttribute('role', 'separator');
+      separator.addEventListener('pointerenter', function() {
+        clearPanelsFrom(depth + 1);
+      });
+      panel.appendChild(separator);
+      return;
+    }
+
+    if (item.title) {
+      var title = doc.createElement('div');
+      title.className = 'iplug-popup-menu__title';
+      title.setAttribute('role', 'presentation');
+      title.textContent = item.text || "";
+      title.addEventListener('pointerenter', function() {
+        clearPanelsFrom(depth + 1);
+      });
+      panel.appendChild(title);
+      return;
+    }
+
+    var button = doc.createElement('button');
+    var hasSubmenu = Array.isArray(item.submenu) && item.submenu.length > 0;
+    button.className = 'iplug-popup-menu__item';
+    button.type = 'button';
+    button.setAttribute('role', 'menuitem');
+    button.dataset.iplugPath = childPath.join(',');
+    button.disabled = !!item.disabled || (!hasSubmenu && !!item.submenu);
+    if (item.checked) {
+      button.setAttribute('role', 'menuitemcheckbox');
+      button.setAttribute('aria-checked', 'true');
+    }
+
+    var check = doc.createElement('span');
+    check.className = 'iplug-popup-menu__check';
+    check.textContent = item.checked ? String.fromCharCode(0x2713) : "";
+    button.appendChild(check);
+
+    var label = doc.createElement('span');
+    label.textContent = item.text || "";
+    button.appendChild(label);
+
+    if (hasSubmenu) {
+      button.setAttribute('aria-haspopup', 'menu');
+      button.setAttribute('aria-expanded', 'false');
+
+      var submenuIndicator = doc.createElement('span');
+      submenuIndicator.className = 'iplug-popup-menu__submenu-indicator';
+      submenuIndicator.textContent = String.fromCharCode(0x203a);
+      button.appendChild(submenuIndicator);
+
+      var openSubmenu = function(focusFirst) {
+        if (button.disabled) {
+          return;
+        }
+
+        var rect = button.getBoundingClientRect();
+        var childPanel = showPanel(item.submenu, childPath, depth + 1, rect.right - 1, rect.top, rect.left + 1);
+        button.setAttribute('aria-expanded', 'true');
+        if (focusFirst) {
+          focusFirstMenuItem(childPanel);
+        }
+      };
+      button._iplugOpenSubmenu = openSubmenu;
+
+      button.addEventListener('pointerenter', function() {
+        openSubmenu(false);
+      });
+      button.addEventListener('click', function(e) {
+        e.preventDefault();
+        openSubmenu(false);
+      });
+    } else {
+      button.addEventListener('pointerenter', function() {
+        clearPanelsFrom(depth + 1);
+      });
+      button.addEventListener('click', function() {
+        if (button.disabled) {
+          return;
+        }
+        menu._iplugPickedPath = childPath.join(',');
+        menu.hidePopover();
+      });
+    }
+
+    panel.appendChild(button);
+  };
+
+  showPanel = function(items, path, depth, x, y, fallbackRightEdge) {
+    clearPanelsFrom(depth);
+
+    var panel = doc.createElement('div');
+    panel.className = 'iplug-popup-menu__panel';
+    panel.dataset.depth = String(depth);
+    panel.dataset.path = path.join(',');
+    panel.setAttribute('role', 'menu');
+
+    items.forEach(function(item, idx) {
+      appendMenuItem(panel, item, idx, path, depth);
+    });
+
+    menu.appendChild(panel);
+    positionPanel(panel, x, y, fallbackRightEdge);
+    return panel;
+  };
+
+  var onDocPointerDown = function(e) {
+    if (menu.contains(e.target)) {
+      return;
+    }
+    menu.hidePopover();
+  };
+
+  var moveFocus = function(delta) {
+    var panel = getActivePanel();
+    var items = getMenuItems(panel);
+    if (!items.length) {
+      return;
+    }
+
+    var idx = items.indexOf(getActiveButton());
+    if (idx < 0) {
+      focusButton(items[delta > 0 ? 0 : items.length - 1]);
+    } else {
+      focusButton(items[(idx + delta + items.length) % items.length]);
+    }
+  };
+
+  var closeActiveSubmenu = function() {
+    var panel = getActivePanel();
+    if (!panel) {
+      return false;
+    }
+
+    var depth = Number(panel.dataset.depth);
+    if (depth <= 0) {
+      return false;
+    }
+
+    var path = panel.dataset.path || "";
+    clearPanelsFrom(depth);
+    focusButton(menu.querySelector('.iplug-popup-menu__item[data-iplug-path="' + path + '"]'));
+    return true;
+  };
+
+  var onKeyDown = function(e) {
+    var handled = true;
+    var activeButton = getActiveButton();
+
+    switch (e.key) {
+      case 'Escape':
+        menu.hidePopover();
+        break;
+      case 'ArrowDown':
+        moveFocus(1);
+        break;
+      case 'ArrowUp':
+        moveFocus(-1);
+        break;
+      case 'Home':
+        focusMenuItem(getActivePanel(), 0);
+        break;
+      case 'End':
+        var panel = getActivePanel();
+        focusMenuItem(panel, getMenuItems(panel).length - 1);
+        break;
+      case 'ArrowRight':
+        if (activeButton && activeButton._iplugOpenSubmenu) {
+          activeButton._iplugOpenSubmenu(true);
+        }
+        break;
+      case 'ArrowLeft':
+        closeActiveSubmenu();
+        break;
+      case 'Enter':
+      case ' ':
+      case 'Spacebar':
+        if (activeButton) {
+          if (activeButton._iplugOpenSubmenu) {
+            activeButton._iplugOpenSubmenu(true);
+          } else {
+            activeButton.click();
+          }
+        }
+        break;
+      default:
+        handled = false;
+        break;
+    }
+
+    if (handled) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  };
+
+  var finish = function(sendCallback) {
+    menu.removeEventListener('toggle', onToggle);
+    doc.removeEventListener('pointerdown', onDocPointerDown, true);
+    doc.removeEventListener('keydown', onKeyDown, true);
+    menu._iplugCleanup = null;
+
+    var picked = menu._iplugPickedPath;
+    var pG = menu._iplugPGraphics;
+    menu._iplugPickedPath = "";
+    menu._iplugPGraphics = null;
+
+    if (sendCallback) {
+      emitSelection(pG, picked);
+    }
+  };
+
+  var onToggle = function(e) {
+    if (e.newState === 'closed') {
+      finish(true);
+    }
+  };
+
+  menu._iplugCleanup = finish;
+  menu.addEventListener('toggle', onToggle);
+
+  setTimeout(function() {
+    if (menu._iplugCleanup !== finish || menu._iplugPGraphics !== pGraphics) {
+      return;
+    }
+
+    try {
+      menu.showPopover();
+    } catch (e) {
+      console.warn('iPlug popup menu: showPopover failed', e);
+      finish(true);
+      return;
+    }
+
+    showPanel(rootItems, [], 0, viewportX, viewportY, null);
+
+    try {
+      menu.focus({ preventScroll: true });
+    } catch (e) {
+      menu.focus();
+    }
+
+    setTimeout(function() {
+      if (menu._iplugCleanup === finish && menu._iplugPGraphics === pGraphics) {
+        doc.addEventListener('pointerdown', onDocPointerDown, true);
+        doc.addEventListener('keydown', onKeyDown, true);
+      }
+    }, 0);
+  }, 0);
+});
+
+EM_JS(void, iplug_popup_menu_close_js, (void* pGraphics), {
+  var menu = document.getElementById('__iplug_popup_menu');
+  if (!menu || menu._iplugPGraphics !== pGraphics) {
+    return;
+  }
+
+  menu._iplugPGraphics = null;
+  menu._iplugPickedPath = "";
+  if (menu.matches && menu.matches(':popover-open') && menu.hidePopover) {
+    menu.hidePopover();
+  } else if (menu._iplugCleanup) {
+    menu._iplugCleanup(false);
+  }
+});
+
 
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
@@ -554,6 +983,7 @@ void IGraphicsWeb::UnregisterCanvasEvents()
 
 IGraphicsWeb::~IGraphicsWeb()
 {
+  iplug_popup_menu_close_js(this);
   UnregisterCanvasEvents();
   UnregisterGraphicsInstance(this);
 }
@@ -758,7 +1188,7 @@ bool IGraphicsWeb::PromptForColor(IColor& color, const char* str, IColorPickerHa
 void IGraphicsWeb::CreatePlatformTextEntry(int paramIdx, const IText& text, const IRECT& bounds, int length, const char* str)
 {
   val input = val::global("document").call<val>("createElement", std::string("input"));
-  val rect = mCanvas.call<val>("getBoundingClientRect");
+  const val rect = mCanvas.call<val>("getBoundingClientRect");
 
   auto setDim = [&input](const char *dimName, double pixels)
   {
@@ -821,9 +1251,218 @@ void IGraphicsWeb::CreatePlatformTextEntry(int paramIdx, const IText& text, cons
   emscripten_set_keydown_callback("textEntry", this, 1, text_entry_keydown);
 }
 
+namespace
+{
+  void AppendJsonString(std::string& out, const char* str)
+  {
+    out.push_back('"');
+
+    if (!str)
+    {
+      out.push_back('"');
+      return;
+    }
+
+    for (const char* p = str; *p; ++p)
+    {
+      const unsigned char c = static_cast<unsigned char>(*p);
+
+      switch (c)
+      {
+        case '\\': out += "\\\\"; break;
+        case '"': out += "\\\""; break;
+        case '\b': out += "\\b"; break;
+        case '\f': out += "\\f"; break;
+        case '\n': out += "\\n"; break;
+        case '\r': out += "\\r"; break;
+        case '\t': out += "\\t"; break;
+        default:
+          if (c < 0x20)
+          {
+            char esc[8];
+            std::snprintf(esc, sizeof(esc), "\\u%04x", c);
+            out += esc;
+          }
+          else
+          {
+            out.push_back(static_cast<char>(c));
+          }
+          break;
+      }
+    }
+
+    out.push_back('"');
+  }
+
+  std::string GetPopupMenuItemText(IPopupMenu& menu, int itemIdx, IPopupMenu::Item& item)
+  {
+    const char* itemText = item.GetText();
+
+    if (!menu.GetPrefix() || item.GetIsSeparator())
+      return itemText ? itemText : "";
+
+    char prefix[16];
+    switch (menu.GetPrefix())
+    {
+      case 1: std::snprintf(prefix, sizeof(prefix), "%1d: ", itemIdx + 1); break;
+      case 2: std::snprintf(prefix, sizeof(prefix), "%02d: ", itemIdx + 1); break;
+      case 3: std::snprintf(prefix, sizeof(prefix), "%03d: ", itemIdx + 1); break;
+      default: prefix[0] = '\0'; break;
+    }
+
+    return std::string(prefix) + (itemText ? itemText : "");
+  }
+
+  void AppendPopupMenuJson(std::string& json, IPopupMenu& menu)
+  {
+    json.push_back('[');
+
+    for (int i = 0; i < menu.NItems(); ++i)
+    {
+      IPopupMenu::Item* pItem = menu.GetItem(i);
+      if (i > 0)
+        json.push_back(',');
+
+      json.push_back('{');
+      json += "\"text\":";
+      std::string itemText;
+
+      if (pItem)
+        itemText = GetPopupMenuItemText(menu, i, *pItem);
+
+      AppendJsonString(json, itemText.c_str());
+
+      if (pItem)
+      {
+        if (pItem->GetIsSeparator()) json += ",\"separator\":true";
+        if (pItem->GetIsTitle()) json += ",\"title\":true";
+        if (pItem->GetChecked()) json += ",\"checked\":true";
+        if (!pItem->GetEnabled()) json += ",\"disabled\":true";
+
+        if (IPopupMenu* pSubmenu = pItem->GetSubmenu())
+        {
+          json += ",\"submenu\":";
+          AppendPopupMenuJson(json, *pSubmenu);
+        }
+      }
+
+      json.push_back('}');
+    }
+
+    json.push_back(']');
+  }
+
+  bool ReadPopupMenuPathIndex(const char*& path, int& idx)
+  {
+    if (!path || *path < '0' || *path > '9')
+      return false;
+
+    idx = 0;
+    while (*path >= '0' && *path <= '9')
+    {
+      idx = (idx * 10) + (*path - '0');
+      ++path;
+    }
+
+    return true;
+  }
+
+  bool ResolvePopupMenuPath(IPopupMenu& rootMenu, const char* path, IPopupMenu*& pSelectedMenu, int& selectedIdx)
+  {
+    if (!path || !*path)
+      return false;
+
+    IPopupMenu* pMenu = &rootMenu;
+    const char* p = path;
+
+    while (*p)
+    {
+      int idx = -1;
+      if (!ReadPopupMenuPathIndex(p, idx))
+        return false;
+
+      IPopupMenu::Item* pItem = pMenu->GetItem(idx);
+      if (!pItem)
+        return false;
+
+      if (*p == ',')
+      {
+        ++p;
+        pMenu = pItem->GetSubmenu();
+        if (!pMenu || !*p)
+          return false;
+
+        continue;
+      }
+
+      if (*p != '\0')
+        return false;
+
+      pSelectedMenu = pMenu;
+      selectedIdx = idx;
+      return true;
+    }
+
+    return false;
+  }
+}
+
 IPopupMenu* IGraphicsWeb::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT bounds, bool& isAsync)
 {
+  isAsync = true;
+  mCurrentPopupMenu = &menu;
+  menu.SetChosenItemIdx(-1);
+
+  std::string json;
+  json.reserve(64 + (menu.NItems() * 48));
+  AppendPopupMenuJson(json, menu);
+
+  const val rect = mCanvas.call<val>("getBoundingClientRect");
+  const double scale = static_cast<double>(GetDrawScale());
+  const double viewportX = rect["left"].as<double>() + (bounds.L * scale);
+  const double viewportY = rect["top"].as<double>() + (bounds.B * scale);
+  iplug_popup_menu_show_js(this, viewportX, viewportY, json.c_str());
+
   return nullptr;
+}
+
+void IGraphicsWeb::OnPopupMenuSelectedAsync(const char* path)
+{
+  IPopupMenu* pRootMenu = mCurrentPopupMenu;
+  mCurrentPopupMenu = nullptr;
+
+  if (!pRootMenu)
+    return;
+
+  IPopupMenu* pMenu = nullptr;
+  int idx = -1;
+  if (!ResolvePopupMenuPath(*pRootMenu, path, pMenu, idx))
+  {
+    SetControlValueAfterPopupMenu(nullptr);
+    return;
+  }
+
+  IPopupMenu::Item* pItem = pMenu->GetItem(idx);
+  if (pItem && pItem->GetIsChoosable())
+  {
+    pMenu->SetChosenItemIdx(idx);
+
+    if (pMenu->GetFunction())
+      pMenu->ExecFunction();
+
+    SetControlValueAfterPopupMenu(pMenu);
+  }
+  else
+  {
+    SetControlValueAfterPopupMenu(nullptr);
+  }
+}
+
+extern "C" EMSCRIPTEN_KEEPALIVE
+void iplug_popup_menu_selected(void* pGraphics, const char* path)
+{
+  if (pGraphics)
+    static_cast<IGraphicsWeb*>(pGraphics)->OnPopupMenuSelectedAsync(path);
 }
 
 bool IGraphicsWeb::OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure)
