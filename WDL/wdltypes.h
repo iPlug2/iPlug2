@@ -366,6 +366,8 @@ template<class T> inline int wdl_cmpfunc_rev(const void *a, const void *b)
   return 0;
 }
 
+template<class T> static void wdl_freefunc(T a) { free((void*)a); }
+template<class T> static void wdl_deletefunc(T a) { delete a; }
 
 #endif
 
