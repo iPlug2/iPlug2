@@ -69,7 +69,7 @@ if(NOT TARGET iPlug2::Web)
   )
 
   # Web controller exported functions
-  set(WEB_EXPORTS "'_malloc','_free','_main','_iplug_fsready','_iplug_syncfs'")
+  set(WEB_EXPORTS "'_malloc','_free','_main','_iplug_fsready','_iplug_syncfs','_iplug_popup_menu_selected'")
 
   # Emscripten link flags for Web controller
   # - BINARYEN_ASYNC_COMPILATION=1: Async compilation (can run on main thread)

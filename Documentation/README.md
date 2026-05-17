@@ -7,6 +7,7 @@ This is the home of documentation for iPlug2, which is a work in progress. The [
 - [Project Structure](structure.md) - iPlug2 project layout and file organization
 - [Coding Style](codingstyle.md) - Code style guidelines
 - [Building with CMake](cmake.md) - CMake build system for all platforms
+- [Building WASM Plugins](wasm.md) - Split DSP/UI WebAssembly builds and web UI styling hooks
 - [ARM64EC Support](arm64ec.md) - Building plugins for Windows ARM devices
 
 If you're viewing this as a markdown file on GitHub, you can see the doxygen version [here](https://iplug2.github.io/docs/).

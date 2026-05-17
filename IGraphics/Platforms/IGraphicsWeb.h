@@ -89,6 +89,9 @@ public:
   static void OnMainLoopTimer();
   double mPrevX = 0.;
   double mPrevY = 0.;
+
+  // Called from the browser popover callback when the menu is selected or dismissed.
+  void OnPopupMenuSelectedAsync(const char* path);
   
 protected:
   IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT bounds, bool& isAsync) override;
@@ -108,8 +111,8 @@ private:
   val mRootNode = val::undefined();       // Document or ShadowRoot containing the canvas
   bool mInShadowDOM = false;              // True if canvas is inside a Shadow DOM
   std::string mCanvasSelector;            // Unique CSS selector for this instance's canvas
+  IPopupMenu* mCurrentPopupMenu = nullptr; // Current async platform popup menu
 };
 
 END_IGRAPHICS_NAMESPACE
 END_IPLUG_NAMESPACE
-
