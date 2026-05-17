@@ -16,6 +16,8 @@ class IPlugP5js final : public Plugin
 {
 public:
   IPlugP5js(const InstanceInfo& info);
-  
+
+#if IPLUG_DSP
   void ProcessBlock(sample** inputs, sample** outputs, int nFrames) override;
+#endif
 };

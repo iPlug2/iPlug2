@@ -246,6 +246,8 @@ window.Module = window.Module || {
             console.warn('IPlugWasmController: SharedArrayBuffer not available:', e.message);
             this.usingSAB = false;
           }
+        } else if (options.useSAB !== false) {
+          console.warn('IPlugWasmController: SharedArrayBuffer unavailable. Serve with COOP/COEP headers for low-latency metering.');
         }
 
         this.isReady = true;
@@ -368,12 +370,47 @@ window.Module = window.Module || {
     /**
      * Poll SharedArrayBuffer for visualization messages from DSP
      */
+    _routeSABMessage(msg) {
+      switch (msg.msgType) {
+        case 0: { // SCVFD - Send Control Value From Delegate
+          const value = msg.payload && msg.payload.length >= 4
+            ? new DataView(msg.payload.buffer, msg.payload.byteOffset, 4).getFloat32(0, true)
+            : 0;
+          this.emit('controlValue', { ctrlTag: msg.ctrlTag, value });
+          if (this.uiModule?.SCVFD) this.uiModule.SCVFD(msg.ctrlTag, value);
+          break;
+        }
+
+        case 1: // SCMFD - Send Control Message From Delegate
+          this.emit('controlMsg', { ctrlTag: msg.ctrlTag, msgTag: msg.msgTag, data: msg.payload });
+          if (this.uiModule?.SCMFD && this.uiModule?.HEAPU8 && msg.payload) {
+            const ptr = this.uiModule._malloc(msg.payload.length);
+            this.uiModule.HEAPU8.set(msg.payload, ptr);
+            this.uiModule.SCMFD(msg.ctrlTag, msg.msgTag, msg.payload.length, ptr);
+            this.uiModule._free(ptr);
+          }
+          break;
+
+        case 2: // SAMFD - Send Arbitrary Message From Delegate
+          this.emit('arbitraryMsg', { msgTag: msg.msgTag, data: msg.payload });
+          if (this.uiModule?.SAMFD && this.uiModule?.HEAPU8 && msg.payload) {
+            const ptr = this.uiModule._malloc(msg.payload.length);
+            this.uiModule.HEAPU8.set(msg.payload, ptr);
+            this.uiModule.SAMFD(msg.msgTag, msg.payload.length, ptr);
+            this.uiModule._free(ptr);
+          }
+          break;
+      }
+    }
+
     _pollSAB() {
       if (!this.sabBuffer || !this.sabDataView) return;
 
       try {
         const headerSize = 16;
         const msgHeaderSize = 12;
+        const coalescedMessages = new Map();
+        const pendingMessages = [];
 
         const writeIdx = Atomics.load(new Uint32Array(this.sabBuffer, 0, 1), 0);
         let readIdx = Atomics.load(this.sabReadIdx, 0);
@@ -402,38 +439,20 @@ window.Module = window.Module || {
           // Extract payload (if any)
           let payload = null;
           if (dataSize > 0) {
-            payload = new Uint8Array(this.sabBuffer, offset + msgHeaderSize, dataSize);
+            payload = new Uint8Array(new Uint8Array(this.sabBuffer, offset + msgHeaderSize, dataSize));
           }
 
-          // Route message based on type
-          switch (msgType) {
-            case 0: // SCVFD - Send Control Value From Delegate
-              const value = payload && payload.length >= 4
-                ? new DataView(payload.buffer, payload.byteOffset, 4).getFloat32(0, true)
-                : 0;
-              this.emit('controlValue', { ctrlTag, value });
-              if (this.uiModule?.SCVFD) this.uiModule.SCVFD(ctrlTag, value);
-              break;
+          const msg = { msgType, ctrlTag, msgTag, payload };
+          const shouldCoalesce = msgType === 0 || (msgType === 1 && msgTag === 0);
 
-            case 1: // SCMFD - Send Control Message From Delegate
-              this.emit('controlMsg', { ctrlTag, msgTag, data: payload });
-              if (this.uiModule?.SCMFD && this.uiModule?.HEAPU8 && payload) {
-                const ptr = this.uiModule._malloc(payload.length);
-                this.uiModule.HEAPU8.set(payload, ptr);
-                this.uiModule.SCMFD(ctrlTag, msgTag, payload.length, ptr);
-                this.uiModule._free(ptr);
-              }
-              break;
-
-            case 2: // SAMFD - Send Arbitrary Message From Delegate
-              this.emit('arbitraryMsg', { msgTag, data: payload });
-              if (this.uiModule?.SAMFD && this.uiModule?.HEAPU8 && payload) {
-                const ptr = this.uiModule._malloc(payload.length);
-                this.uiModule.HEAPU8.set(payload, ptr);
-                this.uiModule.SAMFD(msgTag, payload.length, ptr);
-                this.uiModule._free(ptr);
-              }
-              break;
+          if (shouldCoalesce) {
+            const key = `${msgType}:${ctrlTag}:${msgTag}`;
+            if (!coalescedMessages.has(key)) {
+              pendingMessages.push({ key });
+            }
+            coalescedMessages.set(key, msg);
+          } else {
+            pendingMessages.push({ msg });
           }
 
           // Advance read index
@@ -444,6 +463,10 @@ window.Module = window.Module || {
 
         // Update read index atomically
         Atomics.store(this.sabReadIdx, 0, readIdx);
+
+        for (const pending of pendingMessages) {
+          this._routeSABMessage(pending.key ? coalescedMessages.get(pending.key) : pending.msg);
+        }
       } catch (e) {
         console.error('_pollSAB error:', e);
       }

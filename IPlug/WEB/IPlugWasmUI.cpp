@@ -18,6 +18,12 @@
 using namespace iplug;
 using namespace emscripten;
 
+#if defined OS_WEB && defined NO_IGRAPHICS
+void StartMainLoopTimer()
+{
+}
+#endif
+
 IPlugWasmUI::IPlugWasmUI(const InstanceInfo& info, const Config& config)
 : IPlugAPIBase(config, kAPIWEB)
 {
@@ -85,6 +91,8 @@ void IPlugWasmUI::SendArbitraryMsgFromUI(int msgTag, int ctrlTag, int dataSize, 
       }
     }, msgTag, ctrlTag);
   }
+
+  IPlugAPIBase::SendArbitraryMsgFromUI(msgTag, ctrlTag, dataSize, pData);
 }
 
 void IPlugWasmUI::SendDSPIdleTick()
@@ -94,6 +102,19 @@ void IPlugWasmUI::SendDSPIdleTick()
       window.iPlugController.sendIdleTick();
     }
   });
+}
+
+bool IPlugWasmUI::EditorResize(int width, int height)
+{
+  SetEditorSize(width, height);
+
+  EM_ASM({
+    if (typeof window.__iPlugWasmEditorResize === 'function') {
+      window.__iPlugWasmEditorResize($0, $1);
+    }
+  }, width, height);
+
+  return true;
 }
 
 // Global instance for Emscripten bindings

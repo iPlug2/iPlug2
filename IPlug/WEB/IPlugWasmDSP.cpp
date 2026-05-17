@@ -522,6 +522,7 @@ static std::string _getPluginInfoJSON(int instanceId)
     if (i > 0) json += ",";
     json += "{";
     json += "\"idx\":" + std::to_string(i) + ",";
+    json += "\"id\":" + std::to_string(i) + ",";
     json += "\"name\":\"" + std::string(pParam->GetName()) + "\",";
     json += "\"label\":\"" + std::string(pParam->GetLabel()) + "\",";
     json += "\"min\":" + std::to_string(pParam->GetMin()) + ",";

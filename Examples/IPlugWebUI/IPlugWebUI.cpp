@@ -6,7 +6,8 @@ IPlugWebUI::IPlugWebUI(const InstanceInfo& info)
 : iplug::Plugin(info, MakeConfig(kNumParams, kNumPresets))
 {
   GetParam(kGain)->InitGain("Gain", -70., -70, 0.);
-  
+
+#ifdef WEBVIEW_EDITOR_DELEGATE
 #ifdef DEBUG
   SetEnableDevTools(true);
 #endif
@@ -16,12 +17,14 @@ IPlugWebUI::IPlugWebUI(const InstanceInfo& info)
     LoadIndexHtml(__FILE__, GetBundleID());
     EnableScroll(false);
   };
+#endif
   
   MakePreset("One", -70.);
   MakePreset("Two", -30.);
   MakePreset("Three", 0.);
 }
 
+#if IPLUG_DSP
 void IPlugWebUI::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
 {
   const double gain = GetParam(kGain)->DBToAmp();
@@ -41,16 +44,20 @@ void IPlugWebUI::OnReset()
   mOscillator.SetSampleRate(sr);
   mGainSmoother.SetSmoothTime(20., sr);
 }
+#endif
 
 bool IPlugWebUI::OnMessage(int msgTag, int ctrlTag, int dataSize, const void* pData)
 {
+#ifdef WEBVIEW_EDITOR_DELEGATE
   if (msgTag == kMsgTagButton1)
     Resize(512, 335);
   else if(msgTag == kMsgTagButton2)
     Resize(1024, 335);
   else if(msgTag == kMsgTagButton3)
     Resize(1024, 768);
-  else if (msgTag == kMsgTagBinaryTest)
+  else
+#endif
+  if (msgTag == kMsgTagBinaryTest)
   {
     auto uint8Data = reinterpret_cast<const uint8_t*>(pData);
     DBGMSG("Data Size %i bytes\n",  dataSize);
@@ -65,6 +72,7 @@ void IPlugWebUI::OnParamChange(int paramIdx)
   DBGMSG("gain %f\n", GetParam(paramIdx)->Value());
 }
 
+#if IPLUG_DSP
 void IPlugWebUI::ProcessMidiMsg(const IMidiMsg& msg)
 {
   TRACE;
@@ -72,7 +80,9 @@ void IPlugWebUI::ProcessMidiMsg(const IMidiMsg& msg)
   msg.PrintMsg();
   SendMidiMsg(msg);
 }
+#endif
 
+#ifdef WEBVIEW_EDITOR_DELEGATE
 bool IPlugWebUI::CanNavigateToURL(const char* url)
 {
   DBGMSG("Navigating to URL %s\n", url);
@@ -104,3 +114,4 @@ void IPlugWebUI::OnGetLocalDownloadPathForFile(const char* fileName, WDL_String&
   DesktopPath(localPath);
   localPath.AppendFormatted(MAX_WIN32_PATH_LEN, "/%s", fileName);
 }
+#endif

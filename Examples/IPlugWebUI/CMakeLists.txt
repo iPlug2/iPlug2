@@ -19,5 +19,5 @@ iplug_add_plugin(${PROJECT_NAME}
     resources/web/knob-control.js
     resources/web/button-control.js
   UI WEBVIEW
-  EXCLUDE_FORMATS WAM WASM_DSP WASM_UI
+  EXCLUDE_FORMATS WAM
 )
