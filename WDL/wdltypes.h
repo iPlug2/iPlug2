@@ -45,6 +45,7 @@ typedef intptr_t INT_PTR;
 typedef uintptr_t UINT_PTR;
 #endif
 #include <string.h>
+#include <stdlib.h>
 #include <ctype.h>
 
 #if defined(__ppc__) || !defined(__cplusplus)
