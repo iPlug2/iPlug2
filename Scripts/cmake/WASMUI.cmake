@@ -16,7 +16,7 @@
 
 include(${CMAKE_CURRENT_LIST_DIR}/IPlug.cmake)
 
-set(IPLUG2_WASM_UI_OPTIMIZATION "-O1" CACHE STRING "Optimization flag for CMake Wasm UI builds")
+set(IPLUG2_WASM_UI_OPTIMIZATION "-O3" CACHE STRING "Optimization flag for non-Debug CMake Wasm UI builds")
 set_property(CACHE IPLUG2_WASM_UI_OPTIMIZATION PROPERTY STRINGS -O0 -O1 -O2 -O3 -Os -Oz)
 
 if(NOT TARGET iPlug2::WasmUI)
@@ -82,6 +82,7 @@ if(NOT TARGET iPlug2::WasmUI)
   endif()
   set(WASM_UI_OPT)
   if(IPLUG2_WASM_UI_OPTIMIZATION)
+    message(STATUS "iPlug2::WasmUI optimization: ${IPLUG2_WASM_UI_OPTIMIZATION}")
     set(WASM_UI_OPT "$<$<NOT:$<CONFIG:Debug>>:${IPLUG2_WASM_UI_OPTIMIZATION}>")
   endif()
 
