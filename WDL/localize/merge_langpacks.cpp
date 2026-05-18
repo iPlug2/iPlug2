@@ -194,7 +194,7 @@ bool read_ini(const char *fn, WDL_StringKeyedArray< WDL_StringKeyedArray<char *>
       cursec = sections->Get(lbstart);
       if (!cursec)
       {
-        cursec = new WDL_StringKeyedArray<char *>(false,WDL_StringKeyedArray<char *>::freecharptr);
+        cursec = new WDL_StringKeyedArray<char *>(false,wdl_freefunc<char *>);
         sections->Insert(lbstart,cursec);
       }
     }

@@ -40,11 +40,9 @@
 #include <sys/file.h>
 #include <sys/types.h>
 
-static void deleteStringKeyedArray(WDL_StringKeyedArray<char *> *p) {   delete p; }
-
 struct iniFileContext
 {
-  iniFileContext() : m_sections(false,deleteStringKeyedArray) 
+  iniFileContext() : m_sections(false,wdl_deletefunc<WDL_StringKeyedArray<char *> *>)
   { 
     m_curfn=NULL;
     m_lastaccesscnt=0;
@@ -217,7 +215,7 @@ static iniFileContext *GetFileContext(const char *name)
             cursec = ctx->m_sections.Get(p+1);
             if (!cursec)
             {
-              cursec = new WDL_StringKeyedArray<char *>(false,WDL_StringKeyedArray<char *>::freecharptr);
+              cursec = new WDL_StringKeyedArray<char *>(false,wdl_freefunc<char *>);
               ctx->m_sections.Insert(p+1,cursec);
             }
             else cursec->DeleteAll();
@@ -333,7 +331,7 @@ BOOL WritePrivateProfileSection(const char *appname, const char *strings, const 
   {
     if (!*strings) return TRUE;
     
-    cursec = new WDL_StringKeyedArray<char *>(false,WDL_StringKeyedArray<char *>::freecharptr);   
+    cursec = new WDL_StringKeyedArray<char *>(false,wdl_freefunc<char *>);
     ctx->m_sections.Insert(appname,cursec);
   }
   else cursec->DeleteAll();
@@ -396,7 +394,7 @@ BOOL WritePrivateProfileString(const char *appname, const char *keyname, const c
       {
         if (!cursec) 
         {
-          cursec = new WDL_StringKeyedArray<char *>(false,WDL_StringKeyedArray<char *>::freecharptr);   
+          cursec = new WDL_StringKeyedArray<char *>(false,wdl_freefunc<char *>);
           ctx->m_sections.Insert(appname,cursec);
         }
         cursec->Insert(keyname,strdup(val));
