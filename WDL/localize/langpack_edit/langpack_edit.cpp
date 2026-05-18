@@ -383,10 +383,10 @@ void editor_instance::load_file(const char *filename, bool is_template)
     }
   }
 
-  WDL_StringKeyedArray<char *> extra(true, wdl_freefunc<char *>);
+  WDL_StringKeyedArray<char *> extra(true, wdl_freefunc);
   if (*filename)
   {
-    WDL_StringKeyedArray< WDL_KeyedArray<WDL_UINT64, char *> * > r(true,wdl_deletefunc<WDL_KeyedArray<WDL_UINT64, char *> *>);
+    WDL_StringKeyedArray< WDL_KeyedArray<WDL_UINT64, char *> * > r(true,wdl_deletefunc);
     WDL_LoadLanguagePackInternal(filename,&r,NULL, is_template, true, &extra);
 
     for (int si = 0; si < r.GetSize(); si ++)

@@ -84,8 +84,8 @@ class wdl_turtle_parser {
 public:
 
   wdl_turtle_parser() :
-     objects(true, wdl_deletefunc<wdl_turtle_pair *>),
-     m_prefixes(true, wdl_freefunc<char *>),
+     objects(true, wdl_deletefunc),
+     m_prefixes(true, wdl_freefunc),
      m_error_ptr(NULL), m_error_msg(NULL) { }
   ~wdl_turtle_parser() { }
 

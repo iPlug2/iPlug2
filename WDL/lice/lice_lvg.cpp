@@ -151,7 +151,7 @@ public:
 class lvgImageCtx 
 {
 public:
-  lvgImageCtx(lvgImageCtx *par) : m_images(true,wdl_deletefunc<lvgImageCtx *>)
+  lvgImageCtx(lvgImageCtx *par) : m_images(true,wdl_deletefunc)
   {
     m_in_render=false;
     m_par=par;
