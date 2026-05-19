@@ -71,17 +71,25 @@ For plugins without IGraphics (`PLUG_HAS_UI=0`), only the DSP module is built. T
 
 ## Building with CMake
 
+From the iPlug2 repository root:
+
 ```bash
-cd Examples/IPlugEffect
-mkdir build && cd build
-cmake .. -DTARGET_WASM=ON -G Ninja
-ninja
+cmake --preset web
+cmake --build --preset web --target IPlugEffect-wasm-dist
 ```
 
-Or with Xcode generator:
+For faster local UI iteration, use the fast UI preset. This keeps the build type
+at `Release` so the DSP module still uses the normal release optimization, but
+builds the Wasm UI module with `-O0`:
+
 ```bash
-cmake .. -DTARGET_WASM=ON -G Xcode
+cmake --preset web-fast-ui
+cmake --build --preset web-fast-ui --target IPlugEffect-wasm-ui
 ```
+
+By default the CMake Wasm UI uses `IPLUG2_WASM_UI_OPTIMIZATION=-O3` for release
+builds. Set `-DIPLUG2_WASM_UI_OPTIMIZATION=-O0` directly if you want the fastest
+compile/link path in a custom build directory.
 
 CMake targets:
 - `IPlugEffect-wasm-dsp` - DSP module

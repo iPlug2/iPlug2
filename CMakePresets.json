@@ -173,6 +173,15 @@
         "CMAKE_CROSSCOMPILING_EMULATOR": "$env{EMSDK_NODE}",
         "CMAKE_MODULE_PATH": "${sourceDir}/Scripts/cmake"
       }
+    },
+    {
+      "name": "web-fast-ui",
+      "displayName": "Web Fast UI (Emscripten)",
+      "description": "Web build with Wasm UI at -O0 for faster local UI iteration; DSP remains Release",
+      "inherits": "web",
+      "cacheVariables": {
+        "IPLUG2_WASM_UI_OPTIMIZATION": "-O0"
+      }
     }
   ],
   "buildPresets": [
@@ -244,6 +253,11 @@
     {
       "name": "web",
       "configurePreset": "web",
+      "configuration": "Release"
+    },
+    {
+      "name": "web-fast-ui",
+      "configurePreset": "web-fast-ui",
       "configuration": "Release"
     }
   ]
