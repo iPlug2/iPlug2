@@ -67,7 +67,7 @@ function(iplug_configure_auv2 target project_name)
       BUNDLE TRUE
       BUNDLE_EXTENSION "component"
       MACOSX_BUNDLE_INFO_PLIST ${PLUG_RESOURCES_DIR}/${project_name}-AU-Info.plist
-      LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/out"
+      LIBRARY_OUTPUT_DIRECTORY "${IPLUG2_OUTPUT_DIR}"
       MACOSX_BUNDLE_BUNDLE_NAME "${project_name}"
       OUTPUT_NAME "${project_name}"
       XCODE_ATTRIBUTE_WRAPPER_EXTENSION "component"
@@ -76,9 +76,9 @@ function(iplug_configure_auv2 target project_name)
 
     # For non-Xcode generators (e.g., Ninja), create PkgInfo file manually
     if(NOT XCODE)
-      set(PKGINFO_PATH "${CMAKE_BINARY_DIR}/out/${project_name}.component/Contents/PkgInfo")
+      set(PKGINFO_PATH "${IPLUG2_OUTPUT_DIR}/${project_name}.component/Contents/PkgInfo")
       add_custom_command(TARGET ${target} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_BINARY_DIR}/out/${project_name}.component/Contents"
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${IPLUG2_OUTPUT_DIR}/${project_name}.component/Contents"
         COMMAND ${CMAKE_COMMAND} -E copy "${IPLUG2_PKGINFO_FILE}" "${PKGINFO_PATH}"
         COMMENT "Creating PkgInfo for ${project_name}.component"
       )

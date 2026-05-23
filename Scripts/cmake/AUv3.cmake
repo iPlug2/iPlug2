@@ -98,13 +98,13 @@ function(iplug_embed_auv3_in_app app_target project_name)
       COMMAND ${CMAKE_COMMAND} -E make_directory
         "$<TARGET_BUNDLE_DIR:${app_target}>/Contents/Frameworks"
       COMMAND cp -R
-        "${CMAKE_BINARY_DIR}/out/$<CONFIG>/${project_name}AU.framework"
+        "${IPLUG2_OUTPUT_DIR}/$<CONFIG>/${project_name}AU.framework"
         "$<TARGET_BUNDLE_DIR:${app_target}>/Contents/Frameworks/"
       # Copy appex to App/Contents/PlugIns/
       COMMAND ${CMAKE_COMMAND} -E make_directory
         "$<TARGET_BUNDLE_DIR:${app_target}>/Contents/PlugIns"
       COMMAND ${CMAKE_COMMAND} -E copy_directory
-        "${CMAKE_BINARY_DIR}/out/$<CONFIG>/${project_name}AUv3.appex"
+        "${IPLUG2_OUTPUT_DIR}/$<CONFIG>/${project_name}AUv3.appex"
         "$<TARGET_BUNDLE_DIR:${app_target}>/Contents/PlugIns/${project_name}AUv3.appex"
       COMMENT "Embedding AUv3 (framework + appex) in ${project_name}.app"
     )
@@ -114,13 +114,13 @@ function(iplug_embed_auv3_in_app app_target project_name)
       COMMAND ${CMAKE_COMMAND} -E make_directory
         "$<TARGET_BUNDLE_DIR:${app_target}>/Contents/Frameworks"
       COMMAND cp -R
-        "${CMAKE_BINARY_DIR}/out/${project_name}AU.framework"
+        "${IPLUG2_OUTPUT_DIR}/${project_name}AU.framework"
         "$<TARGET_BUNDLE_DIR:${app_target}>/Contents/Frameworks/"
       # Copy appex to App/Contents/PlugIns/
       COMMAND ${CMAKE_COMMAND} -E make_directory
         "$<TARGET_BUNDLE_DIR:${app_target}>/Contents/PlugIns"
       COMMAND ${CMAKE_COMMAND} -E copy_directory
-        "${CMAKE_BINARY_DIR}/out/${project_name}AUv3.appex"
+        "${IPLUG2_OUTPUT_DIR}/${project_name}AUv3.appex"
         "$<TARGET_BUNDLE_DIR:${app_target}>/Contents/PlugIns/${project_name}AUv3.appex"
       COMMENT "Embedding AUv3 (framework + appex) in ${project_name}.app"
     )

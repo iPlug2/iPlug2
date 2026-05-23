@@ -20,8 +20,9 @@ if(NOT TARGET iPlug2::WAM)
 
   add_library(iPlug2::WAM INTERFACE IMPORTED)
 
-  # WAM SDK path
-  set(WAM_SDK_DIR ${IPLUG_DEPS_DIR}/WAM_SDK/wamsdk)
+  # WAM SDK path (can be overridden via cache for FetchContent usage)
+  set(IPLUG2_WAM_SDK_PATH "${IPLUG_DEPS_DIR}/WAM_SDK/wamsdk" CACHE PATH "Path to WAM SDK")
+  set(WAM_SDK_DIR ${IPLUG2_WAM_SDK_PATH})
   set(IPLUG_WEB_DIR ${IPLUG_DIR}/WEB)
 
   # Check WAM SDK exists

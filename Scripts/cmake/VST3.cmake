@@ -11,21 +11,40 @@
 include(${CMAKE_CURRENT_LIST_DIR}/IPlug.cmake)
 
 if(NOT TARGET iPlug2::VST3)
-  # Define SDK path
-  set(VST3_SDK_DIR ${IPLUG_DEPS_DIR}/VST3_SDK)
+  # Option to auto-fetch VST3 SDK if not found
+  option(IPLUG2_FETCH_VST3_SDK "Automatically fetch VST3 SDK if not found" OFF)
 
-  # Check if VST3 SDK exists
+  # Define SDK path (can be overridden via cache for FetchContent usage)
+  set(IPLUG2_VST3_SDK_PATH "${IPLUG_DEPS_DIR}/VST3_SDK" CACHE PATH "Path to VST3 SDK")
+  set(VST3_SDK_DIR ${IPLUG2_VST3_SDK_PATH})
+
+  # Check if VST3 SDK exists, optionally fetch it
   if(NOT EXISTS ${VST3_SDK_DIR})
-    message(STATUS "VST3 SDK not found at ${VST3_SDK_DIR}. VST3 targets will not be available.")
-    set(IPLUG2_VST3_SUPPORTED FALSE CACHE INTERNAL "VST3 SDK available")
-    # Create a dummy iPlug2::VST3 target so projects can link to it without errors
-    add_library(iPlug2::VST3 INTERFACE IMPORTED)
-    # Define stub function that excludes the target from default build
-    function(iplug_configure_vst3 target project_name)
-      message(STATUS "Skipping VST3 target '${target}' - VST3 SDK not available")
-      set_target_properties(${target} PROPERTIES EXCLUDE_FROM_ALL TRUE)
-    endfunction()
-    return()
+    if(IPLUG2_FETCH_VST3_SDK)
+      message(STATUS "VST3 SDK not found, fetching from GitHub...")
+      include(FetchContent)
+      FetchContent_Declare(vst3sdk
+        GIT_REPOSITORY https://github.com/steinbergmedia/vst3sdk.git
+        GIT_TAG v3.7.9_build_50
+        GIT_SHALLOW TRUE
+      )
+      FetchContent_MakeAvailable(vst3sdk)
+      set(VST3_SDK_DIR ${vst3sdk_SOURCE_DIR})
+      set(IPLUG2_VST3_SDK_PATH ${VST3_SDK_DIR} CACHE PATH "Path to VST3 SDK" FORCE)
+    else()
+      message(STATUS "VST3 SDK not found at ${VST3_SDK_DIR}. VST3 targets will not be available.")
+      message(STATUS "  Set IPLUG2_FETCH_VST3_SDK=ON to automatically download, or")
+      message(STATUS "  Set IPLUG2_VST3_SDK_PATH to point to an existing VST3 SDK.")
+      set(IPLUG2_VST3_SUPPORTED FALSE CACHE INTERNAL "VST3 SDK available")
+      # Create a dummy iPlug2::VST3 target so projects can link to it without errors
+      add_library(iPlug2::VST3 INTERFACE IMPORTED)
+      # Define stub function that excludes the target from default build
+      function(iplug_configure_vst3 target project_name)
+        message(STATUS "Skipping VST3 target '${target}' - VST3 SDK not available")
+        set_target_properties(${target} PROPERTIES EXCLUDE_FROM_ALL TRUE)
+      endfunction()
+      return()
+    endif()
   endif()
 
   set(IPLUG2_VST3_SUPPORTED TRUE CACHE INTERNAL "VST3 SDK available")
@@ -147,7 +166,7 @@ function(iplug_configure_vst3 target project_name)
       set(VST3_ARCH "x86-win")
     endif()
 
-    set(VST3_OUTPUT_DIR "${CMAKE_BINARY_DIR}/out/${project_name}.vst3/Contents/${VST3_ARCH}")
+    set(VST3_OUTPUT_DIR "${IPLUG2_OUTPUT_DIR}/${project_name}.vst3/Contents/${VST3_ARCH}")
 
     # Build directly into bundle structure
     # Set for all configs to avoid multi-config generator adding /Release/ etc
@@ -163,7 +182,7 @@ function(iplug_configure_vst3 target project_name)
 
     # Create Resources folder for bundle completeness
     add_custom_command(TARGET ${target} POST_BUILD
-      COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_BINARY_DIR}/out/${project_name}.vst3/Contents/Resources"
+      COMMAND ${CMAKE_COMMAND} -E make_directory "${IPLUG2_OUTPUT_DIR}/${project_name}.vst3/Contents/Resources"
       COMMENT "Creating VST3 bundle structure for ${project_name}"
     )
   elseif(APPLE)
@@ -172,7 +191,7 @@ function(iplug_configure_vst3 target project_name)
       BUNDLE TRUE
       BUNDLE_EXTENSION "vst3"
       MACOSX_BUNDLE_INFO_PLIST ${PLUG_RESOURCES_DIR}/${project_name}-VST3-Info.plist
-      LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/out"
+      LIBRARY_OUTPUT_DIRECTORY "${IPLUG2_OUTPUT_DIR}"
       MACOSX_BUNDLE_BUNDLE_NAME "${project_name}"
       OUTPUT_NAME "${project_name}"
       XCODE_ATTRIBUTE_WRAPPER_EXTENSION "vst3"
@@ -180,13 +199,10 @@ function(iplug_configure_vst3 target project_name)
     )
 
     # For non-Xcode generators (e.g., Ninja), create PkgInfo file manually
-    # Generate PkgInfo at configure time for deterministic output (no platform-dependent newlines)
     if(NOT XCODE)
-      set(VST3_PKGINFO_PATH "${CMAKE_BINARY_DIR}/iplug2_pkginfo/VST3_PkgInfo")
-      file(WRITE "${VST3_PKGINFO_PATH}" "BNDL????")
-      set(PKGINFO_DEST "${CMAKE_BINARY_DIR}/out/${project_name}.vst3/Contents/PkgInfo")
+      set(PKGINFO_DEST "${IPLUG2_OUTPUT_DIR}/${project_name}.vst3/Contents/PkgInfo")
       add_custom_command(TARGET ${target} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy "${VST3_PKGINFO_PATH}" "${PKGINFO_DEST}"
+        COMMAND ${CMAKE_COMMAND} -E copy "${IPLUG2_PKGINFO_FILE}" "${PKGINFO_DEST}"
         COMMENT "Creating PkgInfo for ${project_name}.vst3"
       )
     endif()
