@@ -309,15 +309,22 @@ class NAME_PLACEHOLDERProcessor extends AudioWorkletProcessor {
     const Module = this.Module;
     const bufsize = this.bufsize;
 
-    // Copy input samples to WASM memory
+    // Zero input/output buffers up front so any channel the upstream didn't
+    // supply this quantum (or any output the plugin doesn't fully write) is
+    // silent instead of replaying stale samples from a previous block.
+    if (!this.isInstrument) {
+      for (let ch = 0; ch < this.numInputChannels; ch++) {
+        Module.HEAPF32.fill(0, this.inputPtrs[ch] >> 2, (this.inputPtrs[ch] >> 2) + bufsize);
+      }
+    }
+    for (let ch = 0; ch < this.numOutputChannels; ch++) {
+      Module.HEAPF32.fill(0, this.outputPtrs[ch] >> 2, (this.outputPtrs[ch] >> 2) + bufsize);
+    }
+
+    // Copy whatever input channels the upstream did supply over the top.
     if (inputs.length > 0 && inputs[0].length > 0) {
       for (let ch = 0; ch < this.numInputChannels && ch < inputs[0].length; ch++) {
         Module.HEAPF32.set(inputs[0][ch], this.inputPtrs[ch] >> 2);
-      }
-    } else if (!this.isInstrument) {
-      // Zero input buffers if no input available (for effects)
-      for (let ch = 0; ch < this.numInputChannels; ch++) {
-        Module.HEAPF32.fill(0, this.inputPtrs[ch] >> 2, (this.inputPtrs[ch] >> 2) + bufsize);
       }
     }
 
