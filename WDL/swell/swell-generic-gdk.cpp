@@ -2722,7 +2722,14 @@ static void forward_x11_drag_message(int gdkmsg, GdkEventDND *gdkevent, Window n
       xev.data.l[1] = 0;
       xev.data.l[2] = ((int)gdkevent->x_root << 16) | ((int)gdkevent->y_root & 0xFFFF);
       xev.data.l[3] = gdkevent->time;
-      xev.data.l[4] = XInternAtom(dpy, "XdndActionCopy", False);
+      switch (gdk_drag_context_get_suggested_action(gdkevent->context))
+      {
+        case GDK_ACTION_MOVE: xev.data.l[4] = XInternAtom(dpy, "XdndActionMove", False); break;
+        case GDK_ACTION_LINK: xev.data.l[4] = XInternAtom(dpy, "XdndActionLink", False); break;
+        case GDK_ACTION_PRIVATE: xev.data.l[4] = XInternAtom(dpy, "XdndActionPrivate", False); break;
+        case GDK_ACTION_ASK: xev.data.l[4] = XInternAtom(dpy, "XdndActionAsk", False); break;
+        default: xev.data.l[4] = XInternAtom(dpy, "XdndActionCopy", False); break;
+      }
     break;
     case GDK_DROP_START:
       xev.message_type = XInternAtom(dpy, "XdndDrop", False);
