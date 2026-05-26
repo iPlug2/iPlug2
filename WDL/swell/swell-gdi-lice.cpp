@@ -65,7 +65,7 @@ class fontConfigCacheEnt
       m_flags = flags;
       m_face = face;
       m_w=w;
-      m_h=h;
+      m_logh=h;
       m_fndesc = strdup(fndesc);
       FT_Reference_Face(m_face);
     }
@@ -78,7 +78,8 @@ class fontConfigCacheEnt
 
     char *m_name;
     char *m_fndesc;
-    int m_flags, m_w, m_h;
+    int m_flags, m_w;
+    int m_logh; // can be negative
     FT_Face m_face;
 };
 
@@ -416,7 +417,7 @@ HFONT CreateFont(int lfHeight, int lfWidth, int lfEscapement, int lfOrientation,
     }
   }
   if (lfWidth<0) lfWidth=-lfWidth;
-  if (lfHeight<0) lfHeight=-lfHeight;
+  if (lfHeight >= -1 && lfHeight <= 1) lfHeight = -12; // reasonable default
 
   static WDL_PtrList<fontConfigCacheEnt> cache;
   const int cache_flag = wdl_max(lfWeight,0) | (lfItalic ? (1<<30) : 0);
@@ -424,9 +425,9 @@ HFONT CreateFont(int lfHeight, int lfWidth, int lfEscapement, int lfOrientation,
   for (int x=0;x<cache.GetSize();x++)
   {
     fontConfigCacheEnt *ent = cache.Get(x);
-    if (ent->m_flags==cache_flag && 
-        ent->m_w == lfWidth && 
-        ent->m_h == lfHeight && 
+    if (ent->m_flags==cache_flag &&
+        ent->m_w == lfWidth &&
+        ent->m_logh == lfHeight &&
         !strcmp(ent->m_name,lfFaceName?lfFaceName:""))
     {
       face = ent->m_face;
@@ -547,7 +548,14 @@ HFONT CreateFont(int lfHeight, int lfWidth, int lfEscapement, int lfOrientation,
       if (cache.GetSize()>SWELL_FREETYPE_CACHE_SIZE) cache.Delete(0,true);
       swell_last_font_filename = ce->m_fndesc;
 
-      FT_Set_Char_Size(face,lfWidth*64, lfHeight*64,0,0); // 72dpi
+      int hf64;
+      if (lfHeight > 0)
+        // scale point size so that the height fit in this many pixels
+        hf64 = (int) (lfHeight * (double)face->units_per_EM / (double)(face->height) * 64.0 + 0.5);
+      else
+        hf64 = -lfHeight * 64;
+
+      FT_Set_Char_Size(face,lfWidth*64, hf64,0,0);
     }
   }
   font->typedata = face;
@@ -557,7 +565,7 @@ HFONT CreateFont(int lfHeight, int lfWidth, int lfEscapement, int lfOrientation,
 }
 
 
-HFONT CreateFontIndirect(LOGFONT *lf)
+HFONT CreateFontIndirect(const LOGFONT *lf)
 {
   return CreateFont(lf->lfHeight, lf->lfWidth,lf->lfEscapement, lf->lfOrientation, lf->lfWeight, lf->lfItalic, 
                     lf->lfUnderline, lf->lfStrikeOut, lf->lfCharSet, lf->lfOutPrecision,lf->lfClipPrecision, 
@@ -880,7 +888,7 @@ void SWELL_LineTo(HDC ctx, int x, int y)
  
 }
 
-void PolyPolyline(HDC ctx, POINT *pts, DWORD *cnts, int nseg)
+void PolyPolyline(HDC ctx, const POINT *pts, const DWORD *cnts, int nseg)
 {
   HDC__ *c=(HDC__ *)ctx;
   if (!HDC_VALID(c)||!HGDIOBJ_VALID(c->curpen,TYPE_PEN)||c->curpen->wid<0||nseg<1) return;
@@ -891,16 +899,15 @@ void PolyPolyline(HDC ctx, POINT *pts, DWORD *cnts, int nseg)
     if (!cnt) continue;
     if (!--cnt) { pts++; continue; }
     
- //   CGContextMoveToPoint(c->ctx,(float)pts->x,(float)pts->y);
+    // todo
     pts++;
     
     while (cnt--)
     {
-//      CGContextAddLineToPoint(c->ctx,(float)pts->x,(float)pts->y);
+      // todo
       pts++;
     }
   }
-//  CGContextStrokePath(c->ctx);
 }
 void *SWELL_GetCtxGC(HDC ctx)
 {
@@ -923,10 +930,20 @@ HFONT SWELL_GetDefaultFont()
   static HFONT def;
   if (!def)
   {
-    def = CreateFont(g_swell_ctheme.default_font_size,0,0,0,FW_NORMAL,0,0,0,0,0,0,0,0,g_swell_deffont_face);
+    def = CreateFont(-wdl_abs(g_swell_ctheme.default_font_size),0,0,0,FW_NORMAL,0,0,0,0,0,0,0,0,g_swell_deffont_face);
   }
   return def;
 }
+
+#ifdef SWELL_FREETYPE
+static int swell_ft_mulfix64(int a, int b)
+{
+  const WDL_INT64 c = a * (WDL_INT64) b;
+  // .22 fixed point to integer
+  return (c + (1<<21) - 1) >> 22;
+}
+#endif
+
 
 BOOL GetTextMetrics(HDC ctx, TEXTMETRIC *tm)
 {
@@ -946,12 +963,12 @@ BOOL GetTextMetrics(HDC ctx, TEXTMETRIC *tm)
   if (font && font->typedata)
   {
     FT_Face face=(FT_Face) font->typedata;
-    tm->tmAscent = face->size->metrics.ascender/64;
-    tm->tmDescent = -face->size->metrics.descender/64;
-    tm->tmHeight = (face->size->metrics.ascender - face->size->metrics.descender)/64;
+    tm->tmAscent = swell_ft_mulfix64(face->ascender, face->size->metrics.y_scale);
+    tm->tmDescent = swell_ft_mulfix64(-face->descender, face->size->metrics.y_scale);
+    tm->tmHeight = tm->tmAscent + tm->tmDescent;
+    tm->tmInternalLeading = tm->tmHeight - face->size->metrics.y_ppem;
     tm->tmAveCharWidth = face->size->metrics.height / 112;
 
-    tm->tmInternalLeading = (face->size->metrics.ascender + face->size->metrics.descender - face->size->metrics.height)/64;
     if (tm->tmInternalLeading<0) tm->tmInternalLeading=0;
   }
 #endif
@@ -981,9 +998,9 @@ int DrawText(HDC ctx, const char *buf, int buflen, RECT *r, int align)
   if (font && font->typedata) 
   {
     face=(FT_Face)font->typedata;
-    lineh = face->size->metrics.height/64;
-    ascent = face->size->metrics.ascender/64;
-    descent = face->size->metrics.descender/64;
+    lineh = swell_ft_mulfix64(face->height, face->size->metrics.y_scale);
+    ascent = swell_ft_mulfix64(face->ascender, face->size->metrics.y_scale);
+    descent = swell_ft_mulfix64(face->descender, face->size->metrics.y_scale);
     charw = face->size->metrics.height / 112;
   }
 #endif
@@ -1427,21 +1444,39 @@ HGDIOBJ SWELL_CloneGDIObject(HGDIOBJ a)
 
 void SWELL_PushClipRegion(HDC ctx)
 {
-//  HDC__ *ct=(HDC__ *)ctx;
-//  if (ct && ct->ctx) CGContextSaveGState(ct->ctx);
+  HDC__ *ct=(HDC__ *)ctx;
+  if (ct && ct->surface && WDL_NORMALLY(!ct->surface_save))
+  {
+    ct->surface_save = ct->surface;
+    ct->surface_offs_save = ct->surface_offs;
+  }
 }
 
 void SWELL_SetClipRegion(HDC ctx, const RECT *r)
 {
-//  HDC__ *ct=(HDC__ *)ctx;
-//  if (ct && ct->ctx) CGContextClipToRect(ct->ctx,CGRectMake(r->left,r->top,r->right-r->left,r->bottom-r->top));
-
+  HDC__ *ct=(HDC__ *)ctx;
+  if (ct && ct->surface && WDL_NORMALLY(ct->surface == ct->surface_save))
+  {
+    int xo = r->left + ct->surface_offs.x, yo = r->top + ct->surface_offs.y;
+    int w = r->right - r->left, h = r->bottom - r->top;
+    if (xo < 0) { w += xo; xo = 0; }
+    if (yo < 0) { h += yo; yo = 0; }
+    ct->surface=new LICE_SubBitmap(ct->surface_save, xo, yo, w, h);
+    ct->surface_offs.x -= xo;
+    ct->surface_offs.y -= yo;
+  }
 }
 
 void SWELL_PopClipRegion(HDC ctx)
 {
-//  HDC__ *ct=(HDC__ *)ctx;
-//  if (ct && ct->ctx) CGContextRestoreGState(ct->ctx);
+  HDC__ *ct=(HDC__ *)ctx;
+  if (ct && WDL_NORMALLY(ct->surface_save))
+  {
+    if (ct->surface != ct->surface_save) delete ct->surface;
+    ct->surface = ct->surface_save;
+    ct->surface_offs = ct->surface_offs_save;
+    ct->surface_save = NULL;
+  }
 }
 
 void *SWELL_GetCtxFrameBuffer(HDC ctx)
@@ -1745,7 +1780,7 @@ HBITMAP CreateBitmap(int width, int height, int numplanes, int bitsperpixel, uns
   return icon;
 }
 
-HICON CreateIconIndirect(ICONINFO* iconinfo)
+HICON CreateIconIndirect(const ICONINFO* iconinfo)
 {
   if (WDL_NOT_NORMALLY(!iconinfo || !iconinfo->fIcon)) return 0;  
   HGDIOBJ__* i=iconinfo->hbmColor;

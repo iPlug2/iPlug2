@@ -689,6 +689,22 @@ BOOL CopyFileUTF8(LPCTSTR existfn, LPCTSTR newfn, BOOL fie)
   return CopyFileA(existfn,newfn,fie);
 }
 
+DWORD GetFileAttributesUTF8(LPCTSTR path)
+{
+  if (WDL_HasUTF8_FILENAME(path) AND_IS_NOT_WIN9X)
+  {
+    MBTOWIDE(wbuf,path);
+    if (wbuf_ok) wdl_utf8_correctlongpath(wbuf);
+    if (wbuf_ok)
+    {
+      DWORD rv=GetFileAttributesW(wbuf);
+      MBTOWIDE_FREE(wbuf);
+      return rv;
+    }
+    MBTOWIDE_FREE(wbuf);
+  }
+  return GetFileAttributesA(path);
+}
 
 DWORD GetModuleFileNameUTF8(HMODULE hModule, LPTSTR lpBuffer, DWORD nBufferLength)
 {

@@ -45,6 +45,7 @@ typedef intptr_t INT_PTR;
 typedef uintptr_t UINT_PTR;
 #endif
 #include <string.h>
+#include <stdlib.h>
 #include <ctype.h>
 
 #if defined(__ppc__) || !defined(__cplusplus)
@@ -351,6 +352,24 @@ template<class T> static void wdl_mem_store_be(void *bout, T v) { wdl_memcpy_be(
 template<class T> static T wdl_mem_load(const void *bin) { T v; memcpy(&v, bin, sizeof(v)); return v; }
 template<class T> static T wdl_mem_load_le(const void *bin) { T v; wdl_memcpy_le(&v, bin, 1, sizeof(v)); return v; }
 template<class T> static T wdl_mem_load_be(const void *bin) { T v; wdl_memcpy_be(&v, bin, 1, sizeof(v)); return v; }
+
+template<class T> inline int wdl_cmpfunc(const void *a, const void *b)
+{
+  if (*(const T *)a < *(const T *)b) return -1;
+  if (*(const T *)a > *(const T *)b) return 1;
+  return 0;
+}
+
+template<class T> inline int wdl_cmpfunc_rev(const void *a, const void *b)
+{
+  if (*(const T *)a > *(const T *)b) return -1;
+  if (*(const T *)a < *(const T *)b) return 1;
+  return 0;
+}
+
+template<class T> static void wdl_freefunc(T a) { free((void*)a); }
+template<class T> static void wdl_deletefunc(T a) { delete a; }
+
 #endif
 
 // avoid UB when these functions are passed signed char, etc

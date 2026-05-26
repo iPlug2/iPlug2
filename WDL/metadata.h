@@ -1314,13 +1314,13 @@ void WriteMetadataPrefPos(double prefpos, int srate,  // prefpos <= 0.0 to clear
 bool ReadMetadataPrefPos(WDL_StringKeyedArray<char*> *metadata, int srate, double *prefpos)
 {
   if (WDL_NOT_NORMALLY(!metadata || !prefpos)) return false;
-  if (WDL_NOT_NORMALLY(srate <= 1)) return false;
 
   const char *v=metadata->Get("BWF:TimeReference");
   if (!v || !v[0]) v=metadata->Get("ID3:TXXX:TIME_REFERENCE");
   if (!v || !v[0]) v=metadata->Get("VORBIS:TIME_REFERENCE");
   if (v && v[0])
   {
+    if (WDL_NOT_NORMALLY(srate <= 1)) return false;
     WDL_UINT64 i=ParseUInt64(v);
     *prefpos=(double)i/(double)srate;
     return true;
@@ -1329,6 +1329,7 @@ bool ReadMetadataPrefPos(WDL_StringKeyedArray<char*> *metadata, int srate, doubl
   v=metadata->Get("IXML:BEXT:BWF_TIME_REFERENCE_LOW");
   if (v && v[0])
   {
+    if (WDL_NOT_NORMALLY(srate <= 1)) return false;
     WDL_UINT64 ipos=atoi(v);
     v=metadata->Get("IXML:BEXT:BWF_TIME_REFERENCE_HIGH");
     if (v && v[0]) ipos |= ((WDL_UINT64)atoi(v))<<32;

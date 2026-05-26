@@ -1837,6 +1837,24 @@ static LRESULT WINAPI swellFontChooserProc(HWND hwnd, UINT uMsg, WPARAM wParam, 
           }
         }
         SetDlgItemText(hwnd,IDC_FACE,cs->font.lfFaceName);
+        if (cs->font.lfHeight > 0)
+        {
+          HFONT font = CreateFontIndirect(&cs->font);
+          if (font)
+          {
+            HDC hdc = GetDC(hwnd);
+            if (hdc)
+            {
+              HGDIOBJ oldfont = SelectObject(hdc,font);
+              TEXTMETRIC tm = { 0, };
+              GetTextMetrics(hdc,&tm);
+              if (tm.tmHeight > 0) cs->font.lfHeight = -tm.tmHeight;
+              SelectObject(hdc,oldfont);
+              ReleaseDC(hwnd,hdc);
+            }
+            DeleteObject(font);
+          }
+        }
         SetDlgItemInt(hwnd,IDC_SIZE,cs->font.lfHeight < 0 ? -cs->font.lfHeight : cs->font.lfHeight,TRUE);
         SendDlgItemMessage(hwnd,IDC_WEIGHT,CB_SETCURSEL,wt<=FW_LIGHT ? 2 : wt < FW_BOLD ? 0 : 1,0);
         if (italics)
@@ -1854,7 +1872,8 @@ static LRESULT WINAPI swellFontChooserProc(HWND hwnd, UINT uMsg, WPARAM wParam, 
         SendDlgItemMessage(hwnd,IDC_LIST,LB_GETTEXT,di->itemID,(WPARAM)buf);
         if (buf[0])
         {
-          HFONT font = CreateFont(g_swell_ctheme.default_font_size, 0, 0, 0, cs->font.lfWeight, cs->font.lfItalic, 
+          HFONT font = CreateFont(-wdl_abs(g_swell_ctheme.default_font_size), 0, 0, 0,
+              cs->font.lfWeight, cs->font.lfItalic,
               FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH, buf);
 
           HGDIOBJ oldFont = SelectObject(di->hDC,font);
@@ -2007,11 +2026,8 @@ static LRESULT WINAPI swellFontChooserProc(HWND hwnd, UINT uMsg, WPARAM wParam, 
             {
               BOOL t;
               int a = GetDlgItemInt(hwnd,IDC_SIZE,&t,FALSE);
-              if (t)
-              {
-                if (cs->font.lfHeight < 0) cs->font.lfHeight = -a;
-                else cs->font.lfHeight = a;
-              }
+              if (t && a > 0)
+                cs->font.lfHeight = -a;
             }
             else if (LOWORD(wParam) == IDC_ITALIC) cs->font.lfItalic = IsDlgButtonChecked(hwnd,IDC_ITALIC) ? 1:0;
             else if (LOWORD(wParam) == IDC_WEIGHT && HIWORD(wParam) == CBN_SELCHANGE)

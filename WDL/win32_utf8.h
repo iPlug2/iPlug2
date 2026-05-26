@@ -35,6 +35,7 @@ WDL_WIN32_UTF8_IMPL DWORD GetTempPathUTF8(DWORD nBufferLength, LPTSTR lpBuffer);
 WDL_WIN32_UTF8_IMPL BOOL SetCurrentDirectoryUTF8(LPCTSTR path);
 WDL_WIN32_UTF8_IMPL BOOL RemoveDirectoryUTF8(LPCTSTR path);
 WDL_WIN32_UTF8_IMPL HINSTANCE LoadLibraryUTF8(LPCTSTR path);
+WDL_WIN32_UTF8_IMPL DWORD GetFileAttributesUTF8(LPCTSTR path);
 
 WDL_WIN32_UTF8_IMPL HANDLE CreateFileUTF8(LPCTSTR lpFileName,DWORD dwDesiredAccess,DWORD dwShareMode,LPSECURITY_ATTRIBUTES lpSecurityAttributes,DWORD dwCreationDisposition,DWORD dwFlagsAndAttributes,HANDLE hTemplateFile);
 
@@ -170,6 +171,11 @@ WDL_WIN32_UTF8_IMPL BOOL CreateProcessUTF8( LPCTSTR lpApplicationName, LPTSTR lp
 #undef DeleteFile
 #endif
 #define DeleteFile DeleteFileUTF8
+
+#ifdef GetFileAttributes
+#undef GetFileAttributes
+#endif
+#define GetFileAttributes GetFileAttributesUTF8
 
 #ifdef MoveFile
 #undef MoveFile

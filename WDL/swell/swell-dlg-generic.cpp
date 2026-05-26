@@ -291,6 +291,7 @@ HWND SWELL_CreateDialog(SWELL_DialogResourceIndex *reshead, const char *resid, H
   SWELL_DialogResourceIndex *p=resById(reshead,resid);
   if (!p&&resid) return 0;
   
+  // SWELL_DLG_WS_DEFAULT_SCALING is not used on -generic, because it is not needed (DPI-scaling instead)
   RECT r={0,0,SWELL_UI_SCALE(p ? p->width : 300), SWELL_UI_SCALE(p ? p->height : 200) };
   HWND owner=NULL;
 

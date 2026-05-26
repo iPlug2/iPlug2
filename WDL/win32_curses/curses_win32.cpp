@@ -759,11 +759,7 @@ void reInitializeContext(win32CursesCtx *ctx)
 
   if (!ctx->mOurFont) ctx->mOurFont = CreateFont(
       ctx->fontsize_ptr ? *ctx->fontsize_ptr :
-#ifdef _WIN32
-                                                 16,
-#else
-                                                14,
-#endif
+                        16,
                         0, // width
                         0, // escapement
                         0, // orientation
