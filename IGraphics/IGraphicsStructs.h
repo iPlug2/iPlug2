@@ -686,7 +686,7 @@ struct IText
     , mAlign(align)
     , mVAlign(valign)
   {
-    strcpy(mFont, (fontID ? fontID : DEFAULT_FONT));
+    snprintf(mFont, FONT_LEN, "%s", (fontID ? fontID : DEFAULT_FONT));
   }
 
   /** Create a new IText with size, vertical align, color
@@ -720,7 +720,7 @@ struct IText
   : IText()
   {
     mSize = size;
-    strcpy(mFont, (fontID ? fontID : DEFAULT_FONT));
+    snprintf(mFont, FONT_LEN, "%s", (fontID ? fontID : DEFAULT_FONT));
   }
   
   IText WithFGColor(const IColor& fgColor) const { IText newText = *this; newText.mFGColor = fgColor; return newText; }
@@ -729,7 +729,7 @@ struct IText
   IText WithVAlign(EVAlign valign) const { IText newText = *this; newText.mVAlign = valign; return newText; }
   IText WithSize(float size) const { IText newText = *this; newText.mSize = size; return newText; }
   IText WithAngle(float v) const { IText newText = *this; newText.mAngle = v; return newText; }
-  IText WithFont(const char* fontID) const { IText newText = *this; strcpy(newText.mFont, (fontID ? fontID : DEFAULT_FONT));; return newText; }
+  IText WithFont(const char* fontID) const { IText newText = *this; snprintf(newText.mFont, FONT_LEN, "%s", (fontID ? fontID : DEFAULT_FONT)); return newText; }
   
   char mFont[FONT_LEN];
   float mSize;
