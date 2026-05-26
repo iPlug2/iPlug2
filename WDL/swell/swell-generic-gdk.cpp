@@ -2938,13 +2938,13 @@ static bool OnDragEventDelegate(GdkEvent *evt)
           }
         }
         s_last_hwnd = hwnd;
-        gdk_drag_status(e->context,GDK_ACTION_COPY,e->time);
         if (xw)
         {
           forward_x11_drag_message(GDK_DRAG_MOTION,e,xw);
         }
         else
         {
+          gdk_drag_status(e->context,GDK_ACTION_COPY,e->time);
           if (SWELL_DDrop_onDragOver)
           {
             POINT pt = { (int)e->x_root, (int)e->y_root };
