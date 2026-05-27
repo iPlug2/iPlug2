@@ -133,8 +133,11 @@ static int gdk_options;
 static HWND s_ddrop_hwnd;
 static POINT s_ddrop_pt;
 
-static HWND s_ddrop_forward_last_hwnd;
-static Window s_ddrop_forward_last_target;
+static HWND s_ddrop_forward_last_hwnd; // last top level window, which is one side of the proxy (interfacing with s_ddrop_forward_last_source)
+static Window s_ddrop_forward_last_target; // plug-in window we're sending XdndEnter etc to
+static Window s_ddrop_forward_last_proxy; // bridged container window, we receive notifications back from s_ddrop_forward_last_target
+static Window s_ddrop_forward_last_source; // external source of drag/drop
+static DWORD s_ddrop_forward_last_source_time; // last time source was known to be valid, treat as invalid after some small interval (10s?)
 
 static SWELL_CursorResourceIndex *SWELL_curmodule_cursorresource_head;
 
@@ -2681,23 +2684,30 @@ static LRESULT xbridgeProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 }
 
 
-static void forward_x11_drag_message(int gdkmsg, GdkEventDND *gdkevent, Window new_target)
+static void forward_x11_drag_message(int gdkmsg, GdkEventDND *gdkevent, Window new_target, Window proxy)
 {
-  Display *dpy = gdk_x11_display_get_xdisplay(gdk_window_get_display(gdkevent->window));
+  GdkDisplay *display = gdk_window_get_display(gdkevent->window);
+  Display *dpy = gdk_x11_display_get_xdisplay(display);
   if (WDL_NOT_NORMALLY(!dpy)) return;
+
+  if (WDL_NOT_NORMALLY(!proxy)) return;
 
   XClientMessageEvent xev;
   memset(&xev, 0, sizeof(xev));
   xev.type = ClientMessage;
   xev.window = new_target;
   xev.format = 32;
-  GdkWindow *sw = gdk_drag_context_get_source_window(gdkevent->context);
-  Window source_window = GDK_WINDOW_XID(sw);
-  xev.data.l[0] = source_window;
+  xev.data.l[0] = proxy;
 
   switch (gdkmsg)
   {
     case GDK_DRAG_ENTER:
+      {
+        // make sure our proxy window is tagged XdndAware, in case the plug-in checks
+        Atom ver = 5;
+        XChangeProperty(dpy, proxy, XInternAtom(dpy,"XdndAware",false), XA_ATOM, 32, PropModeReplace, (unsigned char*)&ver, 1);
+      }
+
       xev.message_type = XInternAtom(dpy, "XdndEnter", False);
       xev.data.l[1] = (3 << 24); // protocol version 3
       {
@@ -2713,13 +2723,29 @@ static void forward_x11_drag_message(int gdkmsg, GdkEventDND *gdkevent, Window n
             if (n && (!strstr(n,"uri-list")) == pass)
             {
               if (cnt<3)
-                xev.data.l[2+cnt] = gdk_x11_atom_to_xatom( (GdkAtom) l->data);
+                xev.data.l[2+cnt] = gdk_x11_atom_to_xatom_for_display(display, (GdkAtom) l->data);
               cnt++;
             }
             l = l->next;
           }
         }
-        if (cnt > 3) xev.data.l[1] |= 1; // more types available that we couldn't fit
+        if (cnt > 3)
+        {
+          Atom *p = (Atom *)malloc(cnt * sizeof(Atom));
+          if (WDL_NORMALLY(p))
+          {
+            xev.data.l[1] |= 1;
+            GList *l = lb;
+            int i = 0;
+            while (i < cnt && l)
+            {
+              p[i++] = gdk_x11_atom_to_xatom_for_display(display,(GdkAtom)l->data);
+              l = l->next;
+            }
+            XChangeProperty(dpy, proxy, XInternAtom(dpy,"XdndTypeList",False), XA_ATOM, 32, PropModeReplace, (unsigned char*)p, i);
+            free(p);
+          }
+        }
       }
     break;
     case GDK_DRAG_LEAVE:
@@ -2814,7 +2840,7 @@ static bool validate_bridged_xw_from_tlhwnd(HWND hwnd, Window xw)
   return false;
 }
 
-static Window hit_test_bridged_xw(HWND hwnd, int xpos, int ypos)
+static Window hit_test_bridged_xw(HWND hwnd, int xpos, int ypos, Window *proxyOut)
 {
   if (WDL_NOT_NORMALLY(!hwnd || !hwnd->m_oswindow)) return false;
   POINT pt = { xpos, ypos };
@@ -2845,6 +2871,7 @@ static Window hit_test_bridged_xw(HWND hwnd, int xpos, int ypos)
         if (XGetWindowAttributes(dpy, list[i], &xwa) && lx >= xwa.x && ly >= xwa.y && lx < xwa.x+xwa.width && ly < xwa.y+xwa.height)
         {
           new_target = list[i];
+          *proxyOut = bs->native_w;
         }
       }
       XFree(list);
@@ -2877,20 +2904,23 @@ static bool OnDragEventDelegate(GdkEvent *evt)
         if (s_ddrop_forward_last_target)
         {
           if (validate_bridged_xw_from_tlhwnd(s_ddrop_forward_last_hwnd,s_ddrop_forward_last_target))
-            forward_x11_drag_message(GDK_DRAG_LEAVE,e,s_ddrop_forward_last_target);
+            forward_x11_drag_message(GDK_DRAG_LEAVE, e, s_ddrop_forward_last_target, s_ddrop_forward_last_proxy);
         }
         else if (SWELL_DDrop_onDragLeave) SWELL_DDrop_onDragLeave();
         s_ddrop_forward_last_target = 0;
+        s_ddrop_forward_last_proxy = s_ddrop_forward_last_source = 0;
         s_ddrop_forward_last_hwnd = NULL;
       }
     break;
     case GDK_DROP_FINISHED:
+      // todo this handler probably needs revisiting
       if (s_ddrop_forward_last_target && validate_top_hwnd(s_ddrop_forward_last_hwnd))
       {
         if (validate_bridged_xw_from_tlhwnd(s_ddrop_forward_last_hwnd,s_ddrop_forward_last_target))
-          forward_x11_drag_message(GDK_DRAG_LEAVE,e,s_ddrop_forward_last_target);
+          forward_x11_drag_message(GDK_DRAG_LEAVE, e, s_ddrop_forward_last_target, s_ddrop_forward_last_proxy);
       }
       s_ddrop_forward_last_target = 0;
+      s_ddrop_forward_last_proxy = s_ddrop_forward_last_source = 0;
       s_ddrop_forward_last_hwnd = NULL;
       if (SWELL_DDrop_onDragLeave) SWELL_DDrop_onDragLeave();
     break;
@@ -2900,13 +2930,12 @@ static bool OnDragEventDelegate(GdkEvent *evt)
         if (s_ddrop_forward_last_target)
         {
           if (validate_bridged_xw_from_tlhwnd(s_ddrop_forward_last_hwnd,s_ddrop_forward_last_target))
-            forward_x11_drag_message(GDK_DRAG_LEAVE,e,s_ddrop_forward_last_target);
+            forward_x11_drag_message(GDK_DRAG_LEAVE, e, s_ddrop_forward_last_target, s_ddrop_forward_last_proxy);
         }
         else if (SWELL_DDrop_onDragLeave) SWELL_DDrop_onDragLeave();
-        s_ddrop_forward_last_target = 0;
-        s_ddrop_forward_last_hwnd = NULL;
       }
       s_ddrop_forward_last_hwnd = hwnd;
+      s_ddrop_forward_last_proxy = s_ddrop_forward_last_source = 0;
       s_ddrop_forward_last_target = 0;
       // position info is not yet available, assume top level window will get it
       if (WDL_NORMALLY(hwnd) && WDL_NORMALLY(e->context))
@@ -2917,7 +2946,8 @@ static bool OnDragEventDelegate(GdkEvent *evt)
     return true;
     case GDK_DRAG_MOTION:
       {
-        Window xw = hit_test_bridged_xw(hwnd, e->x_root, e->y_root);
+        Window newproxy = 0;
+        Window xw = hit_test_bridged_xw(hwnd, e->x_root, e->y_root, &newproxy);
         if (xw)
         {
           if (!s_ddrop_forward_last_target)
@@ -2928,25 +2958,32 @@ static bool OnDragEventDelegate(GdkEvent *evt)
           if (xw != s_ddrop_forward_last_target)
           {
             if (s_ddrop_forward_last_target && validate_top_hwnd(s_ddrop_forward_last_hwnd) && validate_bridged_xw_from_tlhwnd(s_ddrop_forward_last_hwnd,s_ddrop_forward_last_target))
-              forward_x11_drag_message(GDK_DRAG_LEAVE,e,s_ddrop_forward_last_target);
-            forward_x11_drag_message(GDK_DRAG_ENTER,e,xw);
+              forward_x11_drag_message(GDK_DRAG_LEAVE, e, s_ddrop_forward_last_target, s_ddrop_forward_last_proxy);
+
+            forward_x11_drag_message(GDK_DRAG_ENTER, e, xw, newproxy);
           }
           s_ddrop_forward_last_target = xw;
+          s_ddrop_forward_last_proxy = newproxy;
+
+          s_ddrop_forward_last_source = GDK_WINDOW_XID(gdk_drag_context_get_source_window(e->context));
+          s_ddrop_forward_last_source_time = GetTickCount();
         }
         else
         {
           if (s_ddrop_forward_last_target)
           {
             if (validate_top_hwnd(s_ddrop_forward_last_hwnd) && validate_bridged_xw_from_tlhwnd(s_ddrop_forward_last_hwnd,s_ddrop_forward_last_target))
-              forward_x11_drag_message(GDK_DRAG_LEAVE,e,s_ddrop_forward_last_target);
+              forward_x11_drag_message(GDK_DRAG_LEAVE, e, s_ddrop_forward_last_target, s_ddrop_forward_last_proxy);
             s_ddrop_forward_last_target = 0;
+            s_ddrop_forward_last_proxy = 0;
+            s_ddrop_forward_last_source = 0;
             notify_drag_enter((int)e->x_root, (int)e->y_root);
           }
         }
         s_ddrop_forward_last_hwnd = hwnd;
         if (xw)
         {
-          forward_x11_drag_message(GDK_DRAG_MOTION,e,xw);
+          forward_x11_drag_message(GDK_DRAG_MOTION, e, xw, newproxy);
         }
         else
         {
@@ -2965,9 +3002,9 @@ static bool OnDragEventDelegate(GdkEvent *evt)
         {
           if (WDL_NORMALLY(validate_bridged_xw_from_tlhwnd(hwnd,s_ddrop_forward_last_target)))
           {
-            forward_x11_drag_message(GDK_DROP_START,e,s_ddrop_forward_last_target);
-            s_ddrop_forward_last_hwnd = NULL;
-            s_ddrop_forward_last_target = 0;
+            s_ddrop_forward_last_source_time = GetTickCount();
+            forward_x11_drag_message(GDK_DROP_START, e, s_ddrop_forward_last_target, s_ddrop_forward_last_proxy);
+            // do not clear forwarding state until a XdndFinished was sent, or timed out on motion
           }
         }
         else
@@ -3151,6 +3188,41 @@ static GdkFilterReturn filterCreateShowProc(GdkXEvent *xev, GdkEvent *event, gpo
             return GDK_FILTER_REMOVE;
           }
         }
+      }
+    break;
+    case ClientMessage:
+      if (s_ddrop_forward_last_proxy &&
+          xevent->xany.window == s_ddrop_forward_last_proxy &&
+          s_ddrop_forward_last_hwnd &&
+          s_ddrop_forward_last_source &&
+          (GetTickCount()-s_ddrop_forward_last_source_time) < 10000)
+      {
+        Display *disp = xevent->xany.display;
+        const bool fin = xevent->xclient.message_type == XInternAtom(disp, "XdndFinished", False);
+        bool eat = false;
+        if ((fin || xevent->xclient.message_type == XInternAtom(disp, "XdndStatus", False)) &&
+            validate_top_hwnd(s_ddrop_forward_last_hwnd) && s_ddrop_forward_last_hwnd->m_oswindow)
+        {
+          // these messages need to get passed back to the drag source with our top-level window as the target
+          XClientMessageEvent xclient;
+          memcpy(&xclient,xevent,sizeof(xclient));
+          xclient.serial = 0;
+          xclient.send_event = True;
+          xclient.window = s_ddrop_forward_last_source;
+          xclient.data.l[0] = GDK_WINDOW_XID(s_ddrop_forward_last_hwnd->m_oswindow);
+
+          XSendEvent(disp, s_ddrop_forward_last_source, False, NoEventMask, (XEvent*)&xclient);
+          XFlush(disp);
+          eat = true;
+        }
+        if (fin)
+        {
+          // drag complete, clear proxy state
+          s_ddrop_forward_last_target = 0;
+          s_ddrop_forward_last_proxy = s_ddrop_forward_last_source = 0;
+          s_ddrop_forward_last_hwnd = NULL;
+        }
+        if (eat) return GDK_FILTER_REMOVE;
       }
     break;
   }
