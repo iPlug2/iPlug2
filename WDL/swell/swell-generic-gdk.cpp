@@ -133,6 +133,9 @@ static int gdk_options;
 static HWND s_ddrop_hwnd;
 static POINT s_ddrop_pt;
 
+static HWND s_ddrop_forward_last_hwnd;
+static Window s_ddrop_forward_last_target;
+
 static SWELL_CursorResourceIndex *SWELL_curmodule_cursorresource_head;
 
 static int s_cursor_vis_cnt;
@@ -2779,7 +2782,7 @@ static void notify_drag_enter(int xpos, int ypos)
 static bool validate_top_hwnd(HWND hwnd)
 {
   if (!hwnd) return false;
-  HWND h = SWELL_topwindows; // ensure s_last_hwnd is a valid top level window
+  HWND h = SWELL_topwindows;
   while (h && h != hwnd) h = h->m_next;
   return h != NULL;
 }
@@ -2863,50 +2866,48 @@ static bool OnDragEventDelegate(GdkEvent *evt)
   // GDK_DROP_FINISHED
   // GDK_DROP_START
 
-  static HWND s_last_hwnd;
-  static Window s_last_child_xw;
   HWND hwnd = swell_oswindow_to_hwnd(((GdkEventAny*)evt)->window);
   GdkEventDND *e = (GdkEventDND *)evt;
 
   switch (evt->type)
   {
     case GDK_DRAG_LEAVE:
-      if (s_last_hwnd && s_last_hwnd == hwnd)
+      if (s_ddrop_forward_last_hwnd && s_ddrop_forward_last_hwnd == hwnd)
       {
-        if (s_last_child_xw)
+        if (s_ddrop_forward_last_target)
         {
-          if (validate_bridged_xw_from_tlhwnd(s_last_hwnd,s_last_child_xw))
-            forward_x11_drag_message(GDK_DRAG_LEAVE,e,s_last_child_xw);
+          if (validate_bridged_xw_from_tlhwnd(s_ddrop_forward_last_hwnd,s_ddrop_forward_last_target))
+            forward_x11_drag_message(GDK_DRAG_LEAVE,e,s_ddrop_forward_last_target);
         }
         else if (SWELL_DDrop_onDragLeave) SWELL_DDrop_onDragLeave();
-        s_last_child_xw = 0;
-        s_last_hwnd = NULL;
+        s_ddrop_forward_last_target = 0;
+        s_ddrop_forward_last_hwnd = NULL;
       }
     break;
     case GDK_DROP_FINISHED:
-      if (s_last_child_xw && validate_top_hwnd(s_last_hwnd))
+      if (s_ddrop_forward_last_target && validate_top_hwnd(s_ddrop_forward_last_hwnd))
       {
-        if (validate_bridged_xw_from_tlhwnd(s_last_hwnd,s_last_child_xw))
-          forward_x11_drag_message(GDK_DRAG_LEAVE,e,s_last_child_xw);
+        if (validate_bridged_xw_from_tlhwnd(s_ddrop_forward_last_hwnd,s_ddrop_forward_last_target))
+          forward_x11_drag_message(GDK_DRAG_LEAVE,e,s_ddrop_forward_last_target);
       }
-      s_last_child_xw = 0;
-      s_last_hwnd = NULL;
+      s_ddrop_forward_last_target = 0;
+      s_ddrop_forward_last_hwnd = NULL;
       if (SWELL_DDrop_onDragLeave) SWELL_DDrop_onDragLeave();
     break;
     case GDK_DRAG_ENTER:
-      if (s_last_hwnd != hwnd && validate_top_hwnd(s_last_hwnd))
+      if (s_ddrop_forward_last_hwnd != hwnd && validate_top_hwnd(s_ddrop_forward_last_hwnd))
       {
-        if (s_last_child_xw)
+        if (s_ddrop_forward_last_target)
         {
-          if (validate_bridged_xw_from_tlhwnd(s_last_hwnd,s_last_child_xw))
-            forward_x11_drag_message(GDK_DRAG_LEAVE,e,s_last_child_xw);
+          if (validate_bridged_xw_from_tlhwnd(s_ddrop_forward_last_hwnd,s_ddrop_forward_last_target))
+            forward_x11_drag_message(GDK_DRAG_LEAVE,e,s_ddrop_forward_last_target);
         }
         else if (SWELL_DDrop_onDragLeave) SWELL_DDrop_onDragLeave();
-        s_last_child_xw = 0;
-        s_last_hwnd = NULL;
+        s_ddrop_forward_last_target = 0;
+        s_ddrop_forward_last_hwnd = NULL;
       }
-      s_last_hwnd = hwnd;
-      s_last_child_xw = 0;
+      s_ddrop_forward_last_hwnd = hwnd;
+      s_ddrop_forward_last_target = 0;
       // position info is not yet available, assume top level window will get it
       if (WDL_NORMALLY(hwnd) && WDL_NORMALLY(e->context))
       {
@@ -2919,30 +2920,30 @@ static bool OnDragEventDelegate(GdkEvent *evt)
         Window xw = hit_test_bridged_xw(hwnd, e->x_root, e->y_root);
         if (xw)
         {
-          if (!s_last_child_xw)
+          if (!s_ddrop_forward_last_target)
           {
             if (SWELL_DDrop_onDragLeave) SWELL_DDrop_onDragLeave();
           }
 
-          if (xw != s_last_child_xw)
+          if (xw != s_ddrop_forward_last_target)
           {
-            if (s_last_child_xw && validate_top_hwnd(s_last_hwnd) && validate_bridged_xw_from_tlhwnd(s_last_hwnd,s_last_child_xw))
-              forward_x11_drag_message(GDK_DRAG_LEAVE,e,s_last_child_xw);
+            if (s_ddrop_forward_last_target && validate_top_hwnd(s_ddrop_forward_last_hwnd) && validate_bridged_xw_from_tlhwnd(s_ddrop_forward_last_hwnd,s_ddrop_forward_last_target))
+              forward_x11_drag_message(GDK_DRAG_LEAVE,e,s_ddrop_forward_last_target);
             forward_x11_drag_message(GDK_DRAG_ENTER,e,xw);
           }
-          s_last_child_xw = xw;
+          s_ddrop_forward_last_target = xw;
         }
         else
         {
-          if (s_last_child_xw)
+          if (s_ddrop_forward_last_target)
           {
-            if (validate_top_hwnd(s_last_hwnd) && validate_bridged_xw_from_tlhwnd(s_last_hwnd,s_last_child_xw))
-              forward_x11_drag_message(GDK_DRAG_LEAVE,e,s_last_child_xw);
-            s_last_child_xw = 0;
+            if (validate_top_hwnd(s_ddrop_forward_last_hwnd) && validate_bridged_xw_from_tlhwnd(s_ddrop_forward_last_hwnd,s_ddrop_forward_last_target))
+              forward_x11_drag_message(GDK_DRAG_LEAVE,e,s_ddrop_forward_last_target);
+            s_ddrop_forward_last_target = 0;
             notify_drag_enter((int)e->x_root, (int)e->y_root);
           }
         }
-        s_last_hwnd = hwnd;
+        s_ddrop_forward_last_hwnd = hwnd;
         if (xw)
         {
           forward_x11_drag_message(GDK_DRAG_MOTION,e,xw);
@@ -2960,13 +2961,13 @@ static bool OnDragEventDelegate(GdkEvent *evt)
     break;
     case GDK_DROP_START:
       {
-        if (hwnd && hwnd == s_last_hwnd && s_last_child_xw)
+        if (hwnd && hwnd == s_ddrop_forward_last_hwnd && s_ddrop_forward_last_target)
         {
-          if (WDL_NORMALLY(validate_bridged_xw_from_tlhwnd(hwnd,s_last_child_xw)))
+          if (WDL_NORMALLY(validate_bridged_xw_from_tlhwnd(hwnd,s_ddrop_forward_last_target)))
           {
-            forward_x11_drag_message(GDK_DROP_START,e,s_last_child_xw);
-            s_last_hwnd = NULL;
-            s_last_child_xw = 0;
+            forward_x11_drag_message(GDK_DROP_START,e,s_ddrop_forward_last_target);
+            s_ddrop_forward_last_hwnd = NULL;
+            s_ddrop_forward_last_target = 0;
           }
         }
         else
