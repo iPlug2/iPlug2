@@ -2461,6 +2461,8 @@ bridgeState::~bridgeState()
     glXDestroyContext(native_disp,gl_ctx);
     gl_ctx = NULL;
   }
+  if (native_w && s_ddrop_forward_last_proxy == native_w)
+    s_ddrop_forward_last_proxy = 0;
   filter_windows.DeletePtr(this); 
   if (w) 
   {
