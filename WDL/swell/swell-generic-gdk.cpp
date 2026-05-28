@@ -2872,8 +2872,23 @@ static Window hit_test_bridged_xw(HWND hwnd, int xpos, int ypos, Window *proxyOu
         memset(&xwa,0,sizeof(xwa));
         if (XGetWindowAttributes(dpy, list[i], &xwa) && lx >= xwa.x && ly >= xwa.y && lx < xwa.x+xwa.width && ly < xwa.y+xwa.height)
         {
-          new_target = list[i];
-          *proxyOut = bs->native_w;
+          // make sure this window can do XdndAware
+          Atom type;
+          gint format;
+          gulong nitems=0, bytes_after;
+          guchar *data = NULL;
+
+          if (XGetWindowProperty(dpy, list[i], XInternAtom(dpy,"XdndAware",False), 0, 1, false, XA_ATOM, &type, &format, &nitems, &bytes_after, &data) == Success && nitems > 0)
+          {
+            if (type == XA_ATOM)
+            {
+              // this would be where to check for XdndProxy and resolve it.
+              new_target = list[i];
+              *proxyOut = bs->native_w;
+            }
+            if (data) XFree(data);
+          }
+
         }
       }
       XFree(list);
