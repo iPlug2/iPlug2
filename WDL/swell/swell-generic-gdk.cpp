@@ -63,16 +63,21 @@ static guint32 _gdk_x11_window_get_desktop(GdkWindow *window)
   Atom type;
   gint format;
   gulong nitems=0, bytes_after; 
-  guchar *data;
+  guchar *data = NULL;
 
   if (!window || !gdk_x11_screen_supports_net_wm_hint(gdk_window_get_screen(window), 
                                            gdk_atom_intern_static_string("_NET_WM_DESKTOP"))) 
     return 0;
 
-  XGetWindowProperty(GDK_WINDOW_XDISPLAY(window), GDK_WINDOW_XID(window), 
+  if (XGetWindowProperty(GDK_WINDOW_XDISPLAY(window), GDK_WINDOW_XID(window),
       gdk_x11_get_xatom_by_name_for_display(gdk_window_get_display(window), "_NET_WM_DESKTOP"),
-                        0, G_MAXLONG, false, XA_CARDINAL, &type, &format, &nitems, &bytes_after, &data);
-  if (type != XA_CARDINAL || nitems<1) return 0;
+                        0, G_MAXLONG, false, XA_CARDINAL, &type, &format, &nitems, &bytes_after, &data) != Success) return 0;
+
+  if (type != XA_CARDINAL || nitems<1)
+  {
+    if (data) XFree(data);
+    return 0;
+  }
   nitems = *(gulong *)data;
   XFree(data);
   return (guint32) nitems;
