@@ -138,6 +138,7 @@ static Window s_ddrop_forward_last_target; // plug-in window we're sending XdndE
 static Window s_ddrop_forward_last_proxy; // bridged container window, we receive notifications back from s_ddrop_forward_last_target
 static Window s_ddrop_forward_last_source; // external source of drag/drop
 static DWORD s_ddrop_forward_last_source_time; // last time source was known to be valid, treat as invalid after some small interval (10s?)
+static bool s_ddrop_forward_last_has_dropped;
 
 static SWELL_CursorResourceIndex *SWELL_curmodule_cursorresource_head;
 
@@ -1909,6 +1910,9 @@ static void swell_gdkEventHandler(GdkEvent *evt, gpointer data)
   s_cur_evt = oldEvt;
 }
 
+static void run_drag_finish_abort();
+static bool validate_top_hwnd(HWND hwnd);
+
 void SWELL_RunEvents()
 {
   if (SWELL_gdk_active>0) 
@@ -1934,6 +1938,24 @@ void SWELL_RunEvents()
       }
     }
 #endif
+
+    DWORD dt;
+    if (s_ddrop_forward_last_has_dropped &&
+        s_ddrop_forward_last_source &&
+        (dt = GetTickCount() - s_ddrop_forward_last_source_time) > 3000 && // after 3s, timeout
+        dt < 10000 &&
+        validate_top_hwnd(s_ddrop_forward_last_hwnd) &&
+        s_ddrop_forward_last_hwnd->m_oswindow)
+    {
+#ifdef _DEBUG
+      printf("swell-generic-gdk: sending XdndFinished after timeout from stale drag\n");
+#endif
+      run_drag_finish_abort();
+      s_ddrop_forward_last_hwnd = NULL;
+      s_ddrop_forward_last_proxy = s_ddrop_forward_last_source = 0;
+      s_ddrop_forward_last_target = 0;
+      s_ddrop_forward_last_has_dropped = false;
+    }
   }
 }
 
@@ -2897,6 +2919,23 @@ static Window hit_test_bridged_xw(HWND hwnd, int xpos, int ypos, Window *proxyOu
   return new_target;
 }
 
+
+static void run_drag_finish_abort()
+{
+  Display *disp = gdk_x11_display_get_xdisplay(gdk_window_get_display(s_ddrop_forward_last_hwnd->m_oswindow));
+  XClientMessageEvent xclient;
+  memset(&xclient,0,sizeof(xclient));
+  xclient.type = ClientMessage;
+  xclient.window = s_ddrop_forward_last_source;
+  xclient.send_event = True;
+  xclient.message_type = XInternAtom(disp, "XdndFinished", False);
+  xclient.format = 32;
+  xclient.data.l[0] = GDK_WINDOW_XID(s_ddrop_forward_last_hwnd->m_oswindow);
+
+  XSendEvent(disp, s_ddrop_forward_last_source, False, NoEventMask, (XEvent*)&xclient);
+  XFlush(disp);
+}
+
 static bool OnDragEventDelegate(GdkEvent *evt)
 {
 
@@ -2942,6 +2981,18 @@ static bool OnDragEventDelegate(GdkEvent *evt)
       if (SWELL_DDrop_onDragLeave) SWELL_DDrop_onDragLeave();
     break;
     case GDK_DRAG_ENTER:
+      if (s_ddrop_forward_last_has_dropped &&
+          s_ddrop_forward_last_source &&
+          validate_top_hwnd(s_ddrop_forward_last_hwnd) &&
+          s_ddrop_forward_last_hwnd->m_oswindow)
+      {
+#ifdef _DEBUG
+        printf("swell-generic-gdk: sending XdndFinished in response to GDK_DRAG_ENTER after previous stale drag\n");
+#endif
+        run_drag_finish_abort();
+      }
+      s_ddrop_forward_last_has_dropped = false;
+
       if (s_ddrop_forward_last_hwnd != hwnd && validate_top_hwnd(s_ddrop_forward_last_hwnd))
       {
         if (s_ddrop_forward_last_target)
@@ -2963,6 +3014,8 @@ static bool OnDragEventDelegate(GdkEvent *evt)
     return true;
     case GDK_DRAG_MOTION:
       {
+        s_ddrop_forward_last_has_dropped = false;
+
         Window newproxy = 0;
         Window xw = hit_test_bridged_xw(hwnd, e->x_root, e->y_root, &newproxy);
         if (xw)
@@ -3020,6 +3073,7 @@ static bool OnDragEventDelegate(GdkEvent *evt)
           if (WDL_NORMALLY(validate_bridged_xw_from_tlhwnd(hwnd,s_ddrop_forward_last_target)))
           {
             s_ddrop_forward_last_source_time = GetTickCount();
+            s_ddrop_forward_last_has_dropped = true;
             forward_x11_drag_message(GDK_DROP_START, e, s_ddrop_forward_last_target, s_ddrop_forward_last_proxy);
             // do not clear forwarding state until a XdndFinished was sent, or timed out on motion
           }
