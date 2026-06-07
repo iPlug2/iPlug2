@@ -27,6 +27,8 @@ IGRAPHICS_EXTRAS_PATH = $(IGRAPHICS_PATH)/Extras
 IPLUG_EXTRAS_PATH = $(IPLUG_PATH)/Extras
 IPLUG_SYNTH_PATH = $(IPLUG_EXTRAS_PATH)/Synth
 IPLUG_WEB_PATH = $(IPLUG_PATH)/WEB
+WEBVIEW_PATH = $(IPLUG_EXTRAS_PATH)/WebView
+NLOHMANN_PATH = $(DEPS_PATH)/Extras/nlohmann
 NANOVG_PATH = $(DEPS_PATH)/IGraphics/NanoVG/src
 NANOSVG_PATH = $(DEPS_PATH)/IGraphics/NanoSVG/src
 YOGA_PATH = $(DEPS_PATH)/IGraphics/yoga
@@ -45,6 +47,10 @@ IGRAPHICS_SRC = $(IGRAPHICS_PATH)/IGraphics.cpp \
 	$(CONTROLS_PATH)/*.cpp \
 	$(PLATFORMS_PATH)/IGraphicsWeb.cpp
 
+# WebView source files (WebView UI module only)
+WEBVIEW_SRC = $(WEBVIEW_PATH)/IPlugWebViewEditorDelegate.cpp \
+	$(WEBVIEW_PATH)/IPlugWebView_web.cpp
+
 # Include paths (no WAM SDK needed)
 INCLUDE_PATHS = -I$(PROJECT_ROOT) \
 -I$(WDL_PATH) \
@@ -52,6 +58,8 @@ INCLUDE_PATHS = -I$(PROJECT_ROOT) \
 -I$(IPLUG_PATH) \
 -I$(IPLUG_EXTRAS_PATH) \
 -I$(IPLUG_WEB_PATH) \
+-I$(WEBVIEW_PATH) \
+-I$(NLOHMANN_PATH) \
 -I$(IGRAPHICS_PATH) \
 -I$(DRAWING_PATH) \
 -I$(CONTROLS_PATH) \
@@ -93,6 +101,10 @@ WASM_DSP_CFLAGS = -DWASM_DSP_API \
 # UI module CFLAGS - IGraphics and editor
 WASM_UI_CFLAGS = -DWASM_UI_API \
 -DIPLUG_EDITOR=1
+
+# WebView UI module CFLAGS
+WEBVIEW_CFLAGS = -DWEBVIEW_EDITOR_DELEGATE \
+-DNO_IGRAPHICS
 
 # DSP module exports (minimal - JS calls via emscripten bindings)
 WASM_DSP_EXPORTS = "['_malloc', '_free']"
