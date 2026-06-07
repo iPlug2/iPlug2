@@ -4,16 +4,26 @@
     <meta charset="utf-8">
     <!-- <meta name="viewport" width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0> -->
     <style type="text/css">
+      html,
       body {
+        width: 100%;
+        height: 100%;
         padding: 0;
         margin: 0;
         overflow: hidden;
       }
+
+      #sketch {
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+      }
+
+      #sketch canvas {
+        display: block;
+      }
     </style>
-     <script src="p5.min.js" type="text/javascript"></script>
-     <script src="sketch.js"></script>
-    <script src="script.js"></script>
-    <title>Shader</title>
+    <title>IPlugP5js</title>
     <script>
       function OnParamChange(param, value) {
 
@@ -29,9 +39,12 @@
       
       function onLoad() {
       }
-  </script>
+    </script>
+    <script src="script.js"></script>
+    <script src="p5.min.js" type="text/javascript"></script>
+    <script src="sketch.js"></script>
   </head>
   <body onload="onLoad()">
-<!--  <p>Hello, edit the file "IPlugP5js.app/Contents/Resources/web/index.html" to change this</p>-->
+    <main id="sketch"></main>
   </body>
 </html>

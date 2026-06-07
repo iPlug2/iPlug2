@@ -1,5 +1,11 @@
 // FROM DELEGATE
 
+function IPlugPostMessage(message) {
+  if (typeof IPlugSendMsg === 'function') {
+    IPlugSendMsg(message);
+  }
+}
+
 function SPVFD(paramIdx, val) {
 //  console.log("paramIdx: " + paramIdx + " value:" + val);
   OnParamChange(paramIdx, val);
@@ -39,7 +45,7 @@ function SAMFUI(msgTag, ctrlTag = -1, data = 0) {
     "data": data
   };
   
-  IPlugSendMsg(message);
+  IPlugPostMessage(message);
 }
 
 function SMMFUI(statusByte, dataByte1, dataByte2) {
@@ -50,7 +56,7 @@ function SMMFUI(statusByte, dataByte1, dataByte2) {
     "dataByte2": dataByte2
   };
   
-  IPlugSendMsg(message);
+  IPlugPostMessage(message);
 }
 
 // data should be a base64 encoded string
@@ -60,7 +66,7 @@ function SSMFUI(data = 0) {
     "data": data
   };
   
-  IPlugSendMsg(message);
+  IPlugPostMessage(message);
 }
 
 function EPCFUI(paramIdx) {
@@ -69,7 +75,7 @@ function EPCFUI(paramIdx) {
     "paramIdx": paramIdx,
   };
   
-  IPlugSendMsg(message);
+  IPlugPostMessage(message);
 }
 
 function BPCFUI(paramIdx) {
@@ -78,7 +84,7 @@ function BPCFUI(paramIdx) {
     "paramIdx": paramIdx,
   };
   
-  IPlugSendMsg(message);
+  IPlugPostMessage(message);
 }
 
 function SPVFUI(paramIdx, value) {
@@ -88,5 +94,5 @@ function SPVFUI(paramIdx, value) {
     "value": value
   };
 
-  IPlugSendMsg(message);
+  IPlugPostMessage(message);
 }
