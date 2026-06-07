@@ -3,6 +3,9 @@
 :root {
   color-scheme: light dark;
 
+  /* Height of the fixed host controls bar; referenced by the layout rules below. */
+  --iplug-controls-height: 40px;
+
   /* Surfaces */
   --iplug-host-bg: #1a1a1a;
   --iplug-host-bar-bg: #252525;
@@ -134,7 +137,7 @@ html, body {
 iplug-NAME_PLACEHOLDER_LC {
   display: block;
   width: 100%;
-  height: calc(100% - 40px);
+  height: calc(100% - var(--iplug-controls-height));
 }
 
 /* Resizable host mode */
@@ -151,7 +154,7 @@ iplug-NAME_PLACEHOLDER_LC.resizable {
   bottom: 0;
   left: 0;
   right: 0;
-  height: 40px;
+  height: var(--iplug-controls-height);
   display: flex;
   align-items: center;
   gap: 8px;
@@ -734,7 +737,7 @@ iplug-NAME_PLACEHOLDER_LC.resizable {
   top: 0;
   left: 0;
   right: 0;
-  bottom: 40px;
+  bottom: var(--iplug-controls-height);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -845,11 +848,25 @@ iplug-NAME_PLACEHOLDER_LC.resizable {
 }
 
 :fullscreen #controls {
-  display: none;
+  display: flex;
+  z-index: 10000;
 }
 
 :fullscreen iplug-NAME_PLACEHOLDER_LC {
-  height: 100%;
+  height: calc(100% - var(--iplug-controls-height));
+}
+
+:-webkit-full-screen {
+  background: var(--iplug-host-bg);
+}
+
+:-webkit-full-screen #controls {
+  display: flex;
+  z-index: 10000;
+}
+
+:-webkit-full-screen iplug-NAME_PLACEHOLDER_LC {
+  height: calc(100% - var(--iplug-controls-height));
 }
 
 /* Responsive - progressive disclosure */

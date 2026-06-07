@@ -247,10 +247,11 @@
 
       const template = document.createElement('template');
       template.innerHTML = CONTROL_MARKUP.trim();
-      document.body.appendChild(template.content);
+      (this.options.container || document.body).appendChild(template.content);
     }
 
     bindDom() {
+      this.controls = document.getElementById('controls');
       this.startBtn = document.getElementById('startBtn');
       this.status = document.getElementById('status');
       this.sourceSelect = document.getElementById('sourceSelect');
@@ -1258,7 +1259,10 @@
         ? this.options.fullscreenTarget()
         : (this.options.fullscreenTarget || document.documentElement);
 
-      target?.requestFullscreen?.();
+      // Fullscreen only renders the requested element's subtree, so keep the
+      // controls visible when a template asks to fullscreen only the plugin UI.
+      const fullscreenTarget = !this.controls || target?.contains?.(this.controls) ? target : document.documentElement;
+      fullscreenTarget?.requestFullscreen?.();
     }
   }
 
