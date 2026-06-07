@@ -83,6 +83,58 @@ END_IPLUG_NAMESPACE
 
 using namespace iplug;
 
+#if defined OS_MAC && defined _DEBUG
+static NSString* IPlugEscapeHTML(NSString* string)
+{
+  NSString* escaped = string ?: @"";
+  escaped = [escaped stringByReplacingOccurrencesOfString:@"&" withString:@"&amp;"];
+  escaped = [escaped stringByReplacingOccurrencesOfString:@"<" withString:@"&lt;"];
+  escaped = [escaped stringByReplacingOccurrencesOfString:@">" withString:@"&gt;"];
+  escaped = [escaped stringByReplacingOccurrencesOfString:@"\"" withString:@"&quot;"];
+  return [escaped stringByReplacingOccurrencesOfString:@"'" withString:@"&#39;"];
+}
+
+static NSString* IPlugSandboxDebugWarningHTML(NSString* absolutePath, NSString* homeDir)
+{
+  // Note: %% is an escaped literal % for stringWithFormat: (CSS percentages below);
+  // the two %@ at the end are the path arguments.
+  return [NSString stringWithFormat:
+          @"<!doctype html>"
+          "<html>"
+          "<head>"
+          "<meta charset='utf-8'>"
+          "<style>"
+          "html,body{height:100%%;margin:0;}"
+          "body{box-sizing:border-box;display:flex;align-items:center;justify-content:center;padding:24px;background:#111318;color:#f4f6fb;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;}"
+          ".dialog{max-width:680px;border:1px solid #3a4150;border-radius:8px;background:#1c2028;box-shadow:0 18px 48px rgba(0,0,0,.36);padding:24px;}"
+          "h1{margin:0 0 12px;font-size:20px;font-weight:650;}"
+          "p{margin:10px 0;color:#d8dde7;line-height:1.45;}"
+          "code{display:block;white-space:pre-wrap;word-break:break-word;margin:8px 0 14px;padding:10px;border:1px solid #343b49;border-radius:6px;background:#101218;color:#edf1f8;font:12px ui-monospace,SFMono-Regular,Menlo,monospace;}"
+          "</style>"
+          "<script>"
+          "// stubs for iPlug2 WKWebView message handlers the C++ side may call after load\n"
+          "function SPVFD(){}"
+          "function SCVFD(){}"
+          "function SCMFD(){}"
+          "function SAMFD(){}"
+          "function SMMFD(){}"
+          "function SSMFD(){}"
+          "</script>"
+          "</head>"
+          "<body>"
+          "<section class='dialog' role='alertdialog' aria-labelledby='title'>"
+          "<h1 id='title'>Debug WebView resource blocked by sandbox</h1>"
+          "<p>This debug build is running inside the macOS app sandbox, so it cannot load the WebView UI from the source tree.</p>"
+          "<p>Requested file:</p><code>%@</code>"
+          "<p>Sandbox container:</p><code>%@</code>"
+          "<p>Build a Release configuration, disable the app sandbox for this debug target, or arrange for the web resources to be copied into the app or plugin bundle before loading them.</p>"
+          "</section>"
+          "</body>"
+          "</html>",
+          IPlugEscapeHTML(absolutePath), IPlugEscapeHTML(homeDir)];
+}
+#endif
+
 #pragma mark - Impl
 
 IWebViewImpl::IWebViewImpl(IWebView* owner)
@@ -227,8 +279,10 @@ void IWebViewImpl::LoadURL(const char* url)
 void IWebViewImpl::LoadFile(const char* fileName, const char* _Nullable bundleID)
 {
   WDL_String fullPath;
-  
-  if (bundleID != nullptr && strlen(bundleID) != 0)
+
+  const bool loadFromBundle = (bundleID != nullptr && strlen(bundleID) != 0);
+
+  if (loadFromBundle)
   {
     WDL_String fileNameWeb("web/");
     fileNameWeb.Append(fileName);
@@ -263,12 +317,21 @@ void IWebViewImpl::LoadFile(const char* fileName, const char* _Nullable bundleID
   {
 #if defined OS_MAC && defined _DEBUG
     NSString* homeDir = NSHomeDirectory();
-    
-    if ([homeDir containsString:@"Library/Containers/"])
+
+    // Only source-tree loads (no bundleID) can resolve outside the sandbox container.
+    // Bundled resources live inside the app/plugin bundle and are always readable, so
+    // skip the guard for them - otherwise a valid bundled UI gets the warning page.
+    if (!loadFromBundle && [homeDir containsString:@"Library/Containers/"])
     {
+      NSString* sandboxRoot = [homeDir stringByStandardizingPath];
       NSString* absolutePath = [[pageUrl path] stringByStandardizingPath];
-      if (![absolutePath hasPrefix:homeDir]) {
+      const BOOL isInsideSandbox = [absolutePath isEqualToString:sandboxRoot] || [absolutePath hasPrefix:[sandboxRoot stringByAppendingString:@"/"]];
+
+      if (!isInsideSandbox)
+      {
         NSLog(@"Warning: Attempting to load URL outside container directory in sandboxed app: %@", absolutePath);
+        [mWKWebView loadHTMLString:IPlugSandboxDebugWarningHTML(absolutePath, sandboxRoot) baseURL:nil];
+        return;
       }
     }
 #endif
