@@ -12,6 +12,9 @@
 if(NOT DEFINED IPLUG2_CXX_STANDARD)
   set(IPLUG2_CXX_STANDARD 17 CACHE STRING "C++ standard for iPlug2")
 endif()
+if(IPLUG2_CXX_STANDARD LESS 17)
+  message(FATAL_ERROR "iPlug2 requires C++17 or later (IPLUG2_CXX_STANDARD=${IPLUG2_CXX_STANDARD})")
+endif()
 
 # Option to disable deprecation warnings (useful for CI)
 option(IPLUG2_DISABLE_DEPRECATION_WARNINGS "Disable deprecation warnings" ON)
