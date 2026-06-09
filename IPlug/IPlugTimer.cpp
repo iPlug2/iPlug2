@@ -154,9 +154,9 @@ Timer* Timer::Create(ITimerFunction func, uint32_t intervalMs)
 Timer_impl::Timer_impl(ITimerFunction func, uint32_t intervalMs)
 : mTimerFunc(func)
 , mIntervalMs(intervalMs)
-, mRunning(true)
 {
-  pthread_create(&mThread, nullptr, ThreadProc, this);
+  if (pthread_create(&mThread, nullptr, ThreadProc, this) == 0)
+    mRunning = true;
 }
 
 Timer_impl::~Timer_impl()
@@ -166,9 +166,11 @@ Timer_impl::~Timer_impl()
 
 void Timer_impl::Stop()
 {
-  if (mRunning)
+  // compare_exchange makes the check-then-act atomic so concurrent Stop()
+  // calls (e.g. destructor racing an explicit Stop) cannot double-join.
+  bool expected = true;
+  if (mRunning.compare_exchange_strong(expected, false))
   {
-    mRunning = false;
     pthread_join(mThread, nullptr);
     mThread = 0;
   }
