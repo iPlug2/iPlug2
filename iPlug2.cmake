@@ -33,9 +33,14 @@ if(IPLUG2_TRACER)
   add_compile_definitions(TRACER_BUILD)
 endif()
 
-set(IPLUG2_CXX_STANDARD 17)
+if(NOT DEFINED IPLUG2_CXX_STANDARD)
+  set(IPLUG2_CXX_STANDARD 17 CACHE STRING "C++ standard for iPlug2")
+endif()
+if(IPLUG2_CXX_STANDARD LESS 17)
+  message(FATAL_ERROR "iPlug2 requires C++17 or later (IPLUG2_CXX_STANDARD=${IPLUG2_CXX_STANDARD})")
+endif()
 
-# Set C++ standard globally to ensure PCH and all files compile with C++17
+# Set C++ standard globally to ensure PCH and all files compile with the selected C++ standard
 set(CMAKE_CXX_STANDARD ${IPLUG2_CXX_STANDARD})
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
