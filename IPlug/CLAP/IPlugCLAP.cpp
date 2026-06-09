@@ -521,9 +521,11 @@ bool IPlugCLAP::paramsValueToText(clap_id paramIdx, double value, char* display,
     str.Append(pParam->GetLabel());
   }
   
-  if (size < str.GetLength())
+  // CLAP passes the buffer size including the null terminator, while
+  // GetLength() excludes it, so the buffer must hold GetLength() + 1 bytes.
+  if (size <= (uint32_t) str.GetLength())
     return false;
-    
+
   strcpy(display, str.Get());
   return true;
 }
