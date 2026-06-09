@@ -135,7 +135,10 @@ bool IPlugAPPHost::InitState()
   SHGetSpecialFolderPathUTF8(NULL, strPath, MAX_PATH_LEN, CSIDL_LOCAL_APPDATA, FALSE);
   mINIPath.SetFormatted(MAX_PATH_LEN, "%s\\%s\\", strPath, BUNDLE_NAME);
 #elif defined OS_MAC
-  mINIPath.SetFormatted(MAX_PATH_LEN, "%s/Library/Application Support/%s/", getenv("HOME"), BUNDLE_NAME);
+  const char* home = getenv("HOME");
+  if (!home || !home[0])
+    return false;
+  mINIPath.SetFormatted(MAX_PATH_LEN, "%s/Library/Application Support/%s/", home, BUNDLE_NAME);
 #elif defined OS_LINUX
   const char* xdgConfig = getenv("XDG_CONFIG_HOME");
   const char* home = getenv("HOME");
