@@ -276,7 +276,9 @@ static GTK3* LoadGTK3()
     return gtk.handle ? &gtk : nullptr;
   sTried = true;
 
-  gtk.handle = dlopen("libgtk-3.so.0", RTLD_NOW | RTLD_GLOBAL);
+  // RTLD_LOCAL keeps GTK's symbols out of the host's global namespace; all
+  // GTK calls go through the explicit function-pointer table below.
+  gtk.handle = dlopen("libgtk-3.so.0", RTLD_NOW | RTLD_LOCAL);
   if (!gtk.handle)
     return nullptr;
 
@@ -1072,7 +1074,9 @@ bool IGraphicsLinux::GetTextFromClipboard(WDL_String& str)
                          0, 65536, 1 /* delete after read */,
                          AnyPropertyType, &type, &fmt,
                          &nitems, &remaining, &data);
-      if (data && nitems > 0)
+      // Require remaining == 0 so we never report success on a truncated
+      // read, and bound nitems before the int cast to avoid UB.
+      if (data && nitems > 0 && remaining == 0 && nitems <= 0x7FFFFFFFUL)
       {
         str.Set((const char*)data, (int)nitems);
         XFree(data);
@@ -1770,8 +1774,8 @@ void IGraphicsLinux::StartTimer()
 {
   if (mHostDriven)
     return;  // host provides timer/fd callbacks; no internal thread needed
-  mTimerRunning = true;
-  pthread_create(&mTimerThread, nullptr, TimerThreadProc, this);
+  if (pthread_create(&mTimerThread, nullptr, TimerThreadProc, this) == 0)
+    mTimerRunning = true;
 }
 
 void IGraphicsLinux::StopTimer()
