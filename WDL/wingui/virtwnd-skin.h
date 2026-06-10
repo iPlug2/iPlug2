@@ -10,7 +10,10 @@ typedef struct // if set these override the default virtualwnd styles for this o
   LICE_IBitmap *bgimage;
   int bgimage_lt[2],bgimage_rb[2]; // size of 
   int bgimage_lt_out[2],bgimage_rb_out[2]; // size of outside area (like shadows)
-  int bgimage_noalphaflags; // 4x4 flags of "no alpha", so 65535 is image has no alpha whatsoever
+  int bgimage_noalphaflags; // 4x4 flags of "no alpha" (fully opaque), so 65535 is image has no alpha whatsoever.
+                            // high 16 bits are 4x4 of full transparency, which means that if e.g.
+                            // (1<<16) is set, 1 should not be set (unless this region has no pixels, in which case...)
+                            // (a region can't be fully-opaque and fully-transparent at once)
 } WDL_VirtualWnd_BGCfg;
 
 
