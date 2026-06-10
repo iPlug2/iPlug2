@@ -1380,7 +1380,7 @@ void WDL_VirtualWnd_PreprocessBGConfig(WDL_VirtualWnd_BGCfg *a)
         if (isFull) flags=0;
         else flags &= ~(1<<(ystate*4 + xstate));
       }
-      if (v > 0) // some themes have some junk around 16 here, they could speed things up by making it 0, or we could increase this to 16
+      if (v > 16) // some themes have some junk around 16 here, favor speed over accuracy
       {
         if (isFull) flags2=0;
         else flags2 &= ~(1<<(ystate*4 + xstate));
