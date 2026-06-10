@@ -15,6 +15,7 @@
 #include <winuser.h>
 
 #include "IGraphics_select.h"
+#include "IGraphicsWinFonts.h"
 
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
@@ -23,9 +24,9 @@ BEGIN_IGRAPHICS_NAMESPACE
 * @ingroup PlatformClasses */
 class IGraphicsWin final : public IGRAPHICS_DRAW_CLASS
 {
-  class Font;
-  class InstalledFont;
-  struct HFontHolder;
+  using InstalledFont = InstalledWinFont;
+  using Font = WinFont;
+  
 public:
   IGraphicsWin(IGEditorDelegate& dlg, int w, int h, int fps, float scale);
   ~IGraphicsWin();
@@ -37,10 +38,6 @@ public:
   float GetPlatformWindowScale() const override { return GetScreenScale(); }
 
   void PlatformResize(bool parentHasResized) override;
-
-#ifdef IGRAPHICS_GL
-  void DrawResize() override; // overriden here to deal with GL graphics context capture
-#endif
 
   void CheckTabletInput(UINT msg);
   void DestroyEditWindow();
@@ -119,14 +116,14 @@ private:
   void CachePlatformFont(const char* fontID, const PlatformFontPtr& font) override;
 
   inline IMouseInfo GetMouseInfo(LPARAM lParam, WPARAM wParam);
-  inline IMouseInfo GetMouseInfoDeltas(float& dX, float& dY, LPARAM lParam, WPARAM wParam);
   bool MouseCursorIsLocked();
 
+  void ActivateGLContext() override;
+  void DeactivateGLContext() override;
+  
 #ifdef IGRAPHICS_GL
   void CreateGLContext(); // OpenGL context management - TODO: RAII instead ?
   void DestroyGLContext();
-  void ActivateGLContext() override;
-  void DeactivateGLContext() override;
   HGLRC mHGLRC = nullptr;
   HGLRC mStartHGLRC = nullptr;
   HDC mStartHDC = nullptr;

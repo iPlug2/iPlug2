@@ -43,9 +43,9 @@ public:
   SHM_MsgReplyConnection(int bufsize, int maxqueuesize, bool dir, const char *uniquestr=NULL, int timeout_sec=0, int extra_flags=0);
   ~SHM_MsgReplyConnection();
 
-  // be sure to set these, and have OnRecv() Reply() to any nonzero msgID !
+  // be sure to set these, and have OnRecv2() Reply() to any nonzero msgID !
   void *userData;
-  WaitingMessage *(*OnRecv)(SHM_MsgReplyConnection *con, WaitingMessage *msg);
+  WaitingMessage *(*OnRecv2)(SHM_MsgReplyConnection *con, WaitingMessage *msg); // now called while locked!
   bool (*IdleProc)(SHM_MsgReplyConnection *con); // return TRUE to abort (this will set the m_has_had_error to true / kill the connection)
   // can return NULL To temporarily buffer msg, can return a chain of msgs too to return them to the spare list
 
@@ -66,6 +66,9 @@ public:
   const char *GetUniqueString() { return m_uniq; }
 
   void ReturnSpares(WaitingMessage *msglist);
+
+  void Lock() { m_shmmutex.Enter(); }
+  void Unlock() { m_shmmutex.Leave(); }
 
 private:
   bool RunInternal(int checkForReplyID=0, WaitingMessage **replyPtr=0); // nonzero on error

@@ -1,6 +1,6 @@
 
 #include <TargetConditionals.h>
-#if TARGET_OS_IOS == 1
+#if TARGET_OS_IOS == 1 || TARGET_OS_VISION == 1
 #import <UIKit/UIKit.h>
 #else
 #import <Cocoa/Cocoa.h>

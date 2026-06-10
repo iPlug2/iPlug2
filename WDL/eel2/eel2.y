@@ -58,7 +58,7 @@ assignable_value:
         {
           if (!($$ = nseel_resolve_named_symbol(context, $1, -1, NULL))) /* convert from purely named to namespace-relative, etc */
           {
-            yyerror(&yyloc, context, ""); 
+            yyerror(&yyloc, context, ""); if (nseelnerrs) { }
             YYERROR;
           }
         }

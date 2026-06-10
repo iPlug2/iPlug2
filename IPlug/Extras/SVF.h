@@ -106,15 +106,17 @@ public:
     {
       for (auto s = 0; s < nFrames; s++)
       {
-        const double v0 = (double) inputs[c][s];
+        const double v0 = static_cast<double>(inputs[c][s]);
 
         mV3[c] = v0 - mIc2eq[c];
         mV1[c] = m_a1 * mIc1eq[c] + m_a2*mV3[c];
         mV2[c] = mIc2eq[c] + m_a2 * mIc1eq[c] + m_a3 * mV3[c];
-        mIc1eq[c] = 2. * mV1[c] - mIc1eq[c];
-        mIc2eq[c] = 2. * mV2[c] - mIc2eq[c];
+        mIc1eq[c] = 2.0 * mV1[c] - mIc1eq[c];
+        mIc2eq[c] = 2.0 * mV2[c] - mIc2eq[c];
 
-        outputs[c][s] = (T) m_m0 * v0 + m_m1 * mV1[c] + m_m2 * mV2[c];
+        outputs[c][s] = static_cast<T>(m_m0) * static_cast<T>(v0) + 
+                       static_cast<T>(m_m1) * static_cast<T>(mV1[c]) + 
+                       static_cast<T>(m_m2) * static_cast<T>(mV2[c]);
       }
     }
   }

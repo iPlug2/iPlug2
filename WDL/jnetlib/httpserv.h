@@ -98,6 +98,8 @@ class JNL_HTTPServ JNL_HTTPServ_PARENTDEF
 
     bool canKeepAlive() { return m_keepalive; }
 
+    int get_state() const { return m_state; }
+
   protected:
     void seterrstr(const char *str) { m_errstr.Set(str); } 
 

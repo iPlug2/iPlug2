@@ -34,7 +34,7 @@ int MetadataToArray(WDL_StringKeyedArray<char*> *metadata, WDL_TypedBuf<const ch
   for (int i=0; i < metadata->GetSize(); ++i)
   {
     const char *k, *v=metadata->Enumerate(i, &k);
-    if (k && v)
+    if (k && v && v[0])
     {
       metadata_arr->Add(k);
       metadata_arr->Add(v);
@@ -472,6 +472,23 @@ bool HasScheme(const char *scheme, WDL_StringKeyedArray<char*> *metadata)
   return false;
 }
 
+bool DeleteScheme(const char *scheme, WDL_StringKeyedArray<char*> *metadata)
+{
+  if (!scheme || !scheme[0] || !metadata) return false;
+
+  bool ismatch=false, did_del=false;
+  int idx=metadata->LowerBound(scheme, &ismatch);
+  for (int i=idx; i < metadata->GetSize(); ++i)
+  {
+    const char *key=NULL;
+    metadata->Enumerate(idx, &key);
+    if (!key || strnicmp(key, scheme, strlen(scheme))) break;
+    metadata->DeleteByIndex(i--);
+    did_del=true;
+  }
+  return did_del;
+}
+
 
 WDL_INT64 _ATOI64(const char *str)
 {
@@ -559,6 +576,7 @@ int PackIXMLChunk(WDL_HeapBuf *hb, WDL_StringKeyedArray<char*> *metadata, int pa
     if (!strcmp(key, "BWF_TIME_REFERENCE"))
     {
       WDL_UINT64 pos=_ATOI64(val);
+      if (!pos) continue;
       int hi=pos>>32, lo=(pos&0xFFFFFFFF);
       ixml.AppendFormatted(4096, "<%s_HIGH>%d</%s_HIGH>", key, hi, key);
       ixml.AppendFormatted(4096, "<%s_LOW>%d</%s_LOW>", key, lo, key);
@@ -574,16 +592,11 @@ int PackIXMLChunk(WDL_HeapBuf *hb, WDL_StringKeyedArray<char*> *metadata, int pa
       val=v;
     }
 
-    if (!strncmp(val, "#junk#", 6))
-    {
-      junklen += 11+2*strlen(key)+strlen(val);
-      continue;
-    }
-
     ixml.Append("<");
     XMLCompliantAppend(&ixml, key, false);
     ixml.Append(">");
     XMLCompliantAppend(&ixml, val, true);
+    if (!strcmp(key,"BWF_ORIGINATION_TIME") && strlen(val) == 5) ixml.Append(":00");
     ixml.Append("</");
     XMLCompliantAppend(&ixml, key, false);
     ixml.Append(">");
@@ -1048,6 +1061,8 @@ bool EnumMetadataKeyFromMexKey(const char *mexkey, int idx, char *key, int keyle
   // BWF
   // INFO
   // ID3
+  // QT
+  // PKEY
   // APE
   // VORBIS
   // CART
@@ -1062,6 +1077,8 @@ bool EnumMetadataKeyFromMexKey(const char *mexkey, int idx, char *key, int keyle
   {
     "INFO:INAM",
     "ID3:TIT2",
+    "QT:title",
+    "PKEY:Title",
     "APE:Title",
     "VORBIS:TITLE",
     "CART:Title",
@@ -1076,6 +1093,8 @@ bool EnumMetadataKeyFromMexKey(const char *mexkey, int idx, char *key, int keyle
   {
     "INFO:IART",
     "ID3:TPE1",
+    "QT:artist",
+    "PKEY:Music_AlbumArtist",
     "APE:Artist",
     "VORBIS:ARTIST",
     "CART:Artist",
@@ -1088,6 +1107,8 @@ bool EnumMetadataKeyFromMexKey(const char *mexkey, int idx, char *key, int keyle
     "INFO:IALB",
     "INFO:IPRD",
     "ID3:TALB",
+    "QT:album",
+    "PKEY:Music_AlbumTitle",
     "APE:Album",
     "VORBIS:ALBUM",
     "XMP:dm/album",
@@ -1099,6 +1120,7 @@ bool EnumMetadataKeyFromMexKey(const char *mexkey, int idx, char *key, int keyle
     "INFO:ICRD",
     "ID3:TYER",
     "ID3:TDRC",
+    "QT:year",
     "APE:Year",
     "APE:Record Date",
     "VORBIS:DATE",
@@ -1110,6 +1132,8 @@ bool EnumMetadataKeyFromMexKey(const char *mexkey, int idx, char *key, int keyle
   {
     "INFO:IGNR",
     "ID3:TCON",
+    "QT:genre",
+    "PKEY:Music_Genre",
     "APE:Genre",
     "VORBIS:GENRE",
     "CART:Category",
@@ -1120,6 +1144,8 @@ bool EnumMetadataKeyFromMexKey(const char *mexkey, int idx, char *key, int keyle
   {
     "INFO:ICMT",
     "ID3:COMM",
+    "QT:comment",
+    "PKEY:Comment",
     "APE:Comment",
     "VORBIS:COMMENT",
     "CART:TagText",
@@ -1136,6 +1162,8 @@ bool EnumMetadataKeyFromMexKey(const char *mexkey, int idx, char *key, int keyle
     "INFO:ISBJ",
     "INFO:IKEY",
     "ID3:TIT3",
+    "QT:description",
+    "PKEY:FileDescription",
     "APE:Subtitle",
     "VORBIS:DESCRIPTION",
     "XMP:dc/description",
@@ -1145,6 +1173,7 @@ bool EnumMetadataKeyFromMexKey(const char *mexkey, int idx, char *key, int keyle
   {
     "ACID:BPM",
     "ID3:TBPM",
+    "PKEY:Music_BeatsPerMinute",
     "APE:BPM",
     "VORBIS:BPM",
     "XMP:dm/tempo",
@@ -1154,6 +1183,7 @@ bool EnumMetadataKeyFromMexKey(const char *mexkey, int idx, char *key, int keyle
   {
     "ACID:KEY",
     "ID3:TKEY",
+    "PKEY:Music_InitialKey",
     "APE:Key",
     "VORBIS:KEY",
     "XMP:dm/key",
@@ -1163,6 +1193,7 @@ bool EnumMetadataKeyFromMexKey(const char *mexkey, int idx, char *key, int keyle
   {
     "INFO:TRCK",
     "ID3:TRCK",
+    "QT:track",
     "APE:Track",
     "VORBIS:TRACKNUMBER",
     "CART:CutID",
@@ -1253,7 +1284,6 @@ bool HandleMexMetadataRequest(const char *mexkey, char *buf, int buflen,
   return false;
 }
 
-
 void WriteMetadataPrefPos(double prefpos, int srate,  // prefpos <= 0.0 to clear
   WDL_StringKeyedArray<char*> *metadata)
 {
@@ -1261,25 +1291,61 @@ void WriteMetadataPrefPos(double prefpos, int srate,  // prefpos <= 0.0 to clear
 
   metadata->Delete("BWF:TimeReference");
   metadata->Delete("ID3:TXXX:TIME_REFERENCE");
-  metadata->Delete("IXML:BEXT:BWF_TIME_REFERENCE_HIGH");
-  metadata->Delete("IXML:BEXT:BWF_TIME_REFERENCE_LOW");
-  metadata->Delete("XMP:dm/relativeTimestamp");
   metadata->Delete("VORBIS:TIME_REFERENCE");
+  metadata->Delete("IXML:BEXT:BWF_TIME_REFERENCE_LOW");
+  metadata->Delete("IXML:BEXT:BWF_TIME_REFERENCE_HIGH");
+  metadata->Delete("XMP:dm/relativeTimestamp");
 
-  if (prefpos > 0.0 && srate > 1)
+  if (prefpos > 0.0 && WDL_NORMALLY(srate > 1))
   {
     char buf[128];
-    if (srate > 0.0)
-    {
-      snprintf(buf, sizeof(buf), "%.0f", floor(prefpos*(double)srate));
-      metadata->Insert("BWF:TimeReference", strdup(buf));
-      // BWF:TimeReference causes IXML:BEXT element to be written as well
-      metadata->Insert("ID3:TXXX:TIME_REFERENCE", strdup(buf));
-      metadata->Insert("VORBIS:TIME_REFERENCE", strdup(buf));
-    }
-    snprintf(buf, sizeof(buf), "%.0f", floor(prefpos*1000.0));
+
+    snprintf(buf, sizeof(buf), "%.0f", floor(prefpos*(double)srate));
+    metadata->Insert("BWF:TimeReference", strdup(buf));
+    // BWF:TimeReference causes IXML:BEXT element to be written as well
+    metadata->Insert("ID3:TXXX:TIME_REFERENCE", strdup(buf));
+    metadata->Insert("VORBIS:TIME_REFERENCE", strdup(buf));
+
+    snprintf(buf, sizeof(buf), "%09.0f", floor(prefpos*1000.0));
     metadata->Insert("XMP:dm/relativeTimestamp", strdup(buf));
   }
+}
+
+bool ReadMetadataPrefPos(WDL_StringKeyedArray<char*> *metadata, int srate, double *prefpos)
+{
+  if (WDL_NOT_NORMALLY(!metadata || !prefpos)) return false;
+
+  const char *v=metadata->Get("BWF:TimeReference");
+  if (!v || !v[0]) v=metadata->Get("ID3:TXXX:TIME_REFERENCE");
+  if (!v || !v[0]) v=metadata->Get("VORBIS:TIME_REFERENCE");
+  if (v && v[0])
+  {
+    if (WDL_NOT_NORMALLY(srate <= 1)) return false;
+    WDL_UINT64 i=ParseUInt64(v);
+    *prefpos=(double)i/(double)srate;
+    return true;
+  }
+
+  v=metadata->Get("IXML:BEXT:BWF_TIME_REFERENCE_LOW");
+  if (v && v[0])
+  {
+    if (WDL_NOT_NORMALLY(srate <= 1)) return false;
+    WDL_UINT64 ipos=atoi(v);
+    v=metadata->Get("IXML:BEXT:BWF_TIME_REFERENCE_HIGH");
+    if (v && v[0]) ipos |= ((WDL_UINT64)atoi(v))<<32;
+    *prefpos=(double)ipos/(double)srate;
+    return true;
+  }
+
+  v=metadata->Get("XMP:dm/relativeTimestamp");
+  if (v && v[0])
+  {
+    WDL_UINT64 i=ParseUInt64(v);
+    *prefpos=(double)i*0.001;
+    return true;
+  }
+
+  return false;
 }
 
 bool IsImageMetadata(const char *key)
@@ -1962,39 +2028,6 @@ int PackID3Chunk(WDL_HeapBuf *hb, WDL_StringKeyedArray<char*> *metadata,
   return hb->GetSize()-olen;
 }
 
-double ReadMetadataPrefPos(WDL_StringKeyedArray<char*> *metadata, double srate)
-{
-  if (!metadata) return -1.0;
-
-  const char *v=metadata->Get("BWF:TimeReference");
-  if (!v || !v[0]) v=metadata->Get("ID3:TXXX:TIME_REFERENCE");
-  if (!v || !v[0]) v=metadata->Get("VORBIS:TIME_REFERENCE");
-  if (v && v[0] && srate > 0.0)
-  {
-    WDL_UINT64 i=ParseUInt64(v);
-    return (double)i/srate;
-  }
-
-  v=metadata->Get("IXML:BEXT:BWF_TIME_REFERENCE_LOW");
-  if (v && v[0] && srate > 0.0)
-  {
-    WDL_UINT64 ipos=atoi(v);
-    v=metadata->Get("IXML:BEXT:BWF_TIME_REFERENCE_HIGH");
-    if (v && v[0]) ipos |= ((WDL_UINT64)atoi(v))<<32;
-    return (double)ipos/srate;
-  }
-
-  v=metadata->Get("XMP:dm/relativeTimestamp");
-  if (v && v[0])
-  {
-    WDL_UINT64 i=ParseUInt64(v);
-    return (double)i/1000.0;
-  }
-
-  return -1.0;
-}
-
-
 // nch 0 means channel count agnostic
 // nch -1 means high order ambisonic, nch must? be an integer squared, layout tag must be or'd with the number of channels
 struct ChanLayout { const char *fmts; int nch; const char *desc; int chan_layout, chan_mask; };
@@ -2218,61 +2251,107 @@ bool PackFlacPicBase64(WDL_StringKeyedArray<char*> *metadata,
   return false;
 }
 
-bool ExportMetadataImageToTmpFile(const char *srcfn, const char *infostr,
-  WDL_FastString *imgdesc, WDL_FastString *imgtype, WDL_FastString *imgfn)
+bool ExportMetadataImageToTmpFile(const char *srcfn, const char *infostr, WDL_FastString *imgfn)
 {
   if (!srcfn || !srcfn[0] || !infostr || !infostr[0] || !imgfn) return false;
 
-  WDL_HeapBuf tmp;
-  int tmplen=strlen(infostr);
-  if (!tmp.ResizeOK(tmplen+1)) return false;
-  memcpy(tmp.Get(), infostr, tmplen+1);
+  const char *offs = strstr(infostr,"offset:");
+  const char *len = strstr(infostr,"length:");
+  if (!offs || !len) return false;
 
-  const char *ext=NULL, *mime=NULL, *desc=NULL, *type=NULL, *offs=NULL, *len=NULL;
-  char *p=(char*)tmp.Get();
-  for (int i=0; i < tmplen; ++i)
+  const WDL_INT64 ioffs = (WDL_INT64)atof(offs+7);
+  const int ilen = atoi(len+7);
+  if (ioffs<1 || ilen < 1) return false;
+
+  int mimelen = 0;
+  const char *mime = strstr(infostr,"mime:");
+  if (mime)
   {
-    if (!strncmp(p+i, "ext:", 4)) { if (i) p[i-1]=0; i += 4; ext=p+i; }
-    else if (!strncmp(p+i, "mime:", 5)) { if (i) p[i-1]=0; i += 5; mime=p+i; }
-    else if (!strncmp(p+i, "desc:", 5)) { if (i) p[i-1]=0; i += 5; desc=p+i; }
-    else if (!strncmp(p+i, "type:", 5)) { if (i) p[i-1]=0; i += 5; type=p+i; }
-    else if (!strncmp(p+i, "offset:", 7)) { if (i) p[i-1]=0; i += 7; offs=p+i; }
-    else if (!strncmp(p+i, "length:", 7)) { if (i) p[i-1]=0; i += 7; len=p+i; }
+    mime += 5;
+    while (mime[mimelen] != ' ' && mime[mimelen]) mimelen++;
   }
 
-  WDL_INT64 ioffs = offs ? (WDL_INT64)atof(offs) : 0;
-  int ilen = len ? atoi(len) : 0;
-
-  bool ok=false;
-  if ((ext || mime) && ioffs > 0 && ilen > 0)
+  int extlen = 0;
+  const char *ext = strstr(infostr,"ext:");
+  if (ext)
   {
-    WDL_FileRead fr(srcfn);
-    if (fr.IsOpen() && fr.GetSize() >= ioffs+ilen)
+    ext += 4;
+    while (ext[extlen] != ' ' && ext[extlen]) extlen++;
+  }
+
+  if (!extlen && !mimelen) return false;
+
+  WDL_FileRead fr(srcfn);
+  if (fr.IsOpen() && fr.GetSize() >= ioffs+ilen)
+  {
+    fr.SetPosition(ioffs);
+
+    char tmppath[2048];
+    tmppath[0]=0;
+    GetTempPath(sizeof(tmppath), tmppath);
+    imgfn->Set(tmppath);
+    imgfn->Append(WDL_get_filepart(srcfn));
+    imgfn->Append(".");
+    if (extlen) imgfn->Append(ext,extlen);
+    else if (mimelen>6 && !strncmp(mime, "image/", 6)) imgfn->Append(mime+6,mimelen-6);
+
+    WDL_FileWrite fw(imgfn->Get());
+    if (fw.IsOpen() && CopyFileData(&fr, &fw, ilen))
     {
-      fr.SetPosition(ioffs);
-
-      char tmppath[2048];
-      tmppath[0]=0;
-      GetTempPath(sizeof(tmppath), tmppath);
-      imgfn->Set(tmppath);
-      imgfn->Append(WDL_get_filepart(srcfn));
-      imgfn->Append(".");
-      if (ext) imgfn->Append(ext);
-      else if (mime && !strncmp(mime, "image/", 6)) imgfn->Append(mime+6);
-
-      WDL_FileWrite fw(imgfn->Get());
-      if (fw.IsOpen() && CopyFileData(&fr, &fw, ilen))
-      {
-        if (desc && imgdesc) imgdesc->Set(desc);
-        if (type && imgtype) imgtype->Set(type);
-        ok=true;
-      }
+      return true;
     }
   }
 
-  return ok;
+  return false;
 }
 
+struct MetadataFilesToDelete
+{
+  WDL_PtrList<char> list;
+  ~MetadataFilesToDelete() {
+    for (int x = 0; x < list.GetSize(); x ++)
+    {
+      DeleteFile(list.Get(x));
+      free(list.Get(x));
+    }
+  }
+};
 
+void ImportMetadataPictureBlobs(const char *fn, WDL_StringKeyedArray<char*> *metadata, WDL_PtrList<char> *filelist)
+{
+  WDL_FastString fs;
+  int v = 0;
+  const char *apic = metadata->Get("ID3:APIC");
+  if (!apic) { v++; apic = metadata->Get("FLACPIC:APIC"); }
+  if (!apic) return;
+  if (!ExportMetadataImageToTmpFile(fn,apic,&fs)) return;
+  metadata->Delete("ID3:APIC");
+  metadata->Delete("FLACPIC:APIC");
+  metadata->Insert(v ? "FLACPIC:APIC_FILE" : "ID3:APIC_FILE", strdup(fs.Get()));
+  filelist->Add(strdup(fs.Get()));
+}
+
+// convert "12345" to "12,345" if original has mindigits or more
+void commaify(WDL_UINT64 val, char *buf, int buflen, int mindigits=5)
+{
+  char tmp[128];
+  snprintf(tmp, sizeof(tmp), "%.0f", (double)val);
+
+  int len = strlen(tmp);
+  if (len >= mindigits && ((len+1)*4/3 <= buflen))
+  {
+    const char *p = tmp;
+    while (len--)
+    {
+      *buf++ = *p++;
+      if (len && !(len%3)) *buf++ = ',';
+    }
+    *buf++ = 0;
+  }
+  else
+  {
+    lstrcpyn(buf, tmp, buflen);
+  }
+}
 
 #endif // _METADATA_H_

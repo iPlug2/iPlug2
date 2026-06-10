@@ -57,6 +57,15 @@ public:
     kFlagMeta             = 0x10,
   };
   
+  /** IDs for the shapes */
+  enum EShapeIDs
+  {
+    kShapeLinear = 0,
+    kShapePowCurve = 1,
+    kShapeExponential = 2,
+    kShapeUnknown,
+  };
+  
   /** DisplayFunc allows custom parameter display functions, defined by a lambda matching this signature */
   using DisplayFunc = std::function<void(double, WDL_String&)>;
 
@@ -480,6 +489,12 @@ public:
 
   /** @return \c true If the parameter is flagged as a "meta" parameter, e.g. one that could modify other parameters */
   bool GetMeta() const { return mFlags & kFlagMeta; }
+  
+  /** @return Shape ID */
+  EShapeIDs GetShapeID() const;
+  
+  /** @return Value for PowCurve, else zero */
+  double GetShapeValue() const;
  
   /** Get a JSON description of the parameter. 
    * @param json WDL_String to fill with the JSON

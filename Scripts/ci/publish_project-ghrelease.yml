@@ -9,11 +9,11 @@
       rm -r $BUILD_BINARIESDIRECTORY
     displayName: Clean temporary directory
 
-  - task: DownloadPipelineArtifact@0
+  - task: DownloadPipelineArtifact@2
     continueOnError: true
     inputs:
-      artifactName: '${{parameters.platformStr}}_${{parameters.pluginType}}_${{parameters.name}}_${{parameters.graphics}}'
-      targetPath: '$(Build.BinariesDirectory)'
+      artifact: '${{parameters.platformStr}}_${{parameters.pluginType}}_${{parameters.name}}_${{parameters.graphics}}'
+      path: '$(Build.BinariesDirectory)'
     displayName: Download ${{parameters.platformStr}}_${{parameters.pluginType}}_${{parameters.name}}_${{parameters.graphics}}
 
   - task: ExtractFiles@1

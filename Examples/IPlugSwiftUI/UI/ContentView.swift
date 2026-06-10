@@ -1,29 +1,35 @@
 import SwiftUI
+import Accelerate
 
 struct ContentView: View {
   @EnvironmentObject var state: IPlugSwiftUIState
   var body: some View {
-    VStack {
-      Text("iPlug2 + SwiftUI")
-        .font(.largeTitle)
-      HStack {
-        ParamSliderView(param: state.params[kParamGain])
-        ParamSliderView(param: state.params[kParamFreq])
-        VUSwiftUIView(onRender: {
-          let db = 20.0 * log10(state.lastVolume + 0.0001);
-          return ((db+80.0)/80.0); // dirty linear to log
-        })
-        .frame(width: 20, height: .none, alignment: .leading)
-        Button(action: {
-          state.sendMsg()
-        },
-        label: {
-          Text("Send a message")
-        })
+    ZStack {
+      MeshGradient(width: 2, height: 2, points: [
+          [0, 0], [1, 0], [0, 1], [1, 1]
+      ], colors: [.red, .orange, .blue, .yellow])
+      VStack {
+        Text("iPlug2 + SwiftUI + Metal")
+          .font(.title)
+          .padding()
+        HStack(alignment: .center) {
+//          ParamSliderView(param: state.params[kParamGain])
+//            .frame(width: 50, height: 200, alignment: .center)
+          OscilloscopeView()
+              .environmentObject(state)
+        }
+//        Spacer()
+//        Button(action: {
+//          state.sendMsg()
+//        },
+//        label: {
+//          Text("Send a message to C++")
+//            .foregroundStyle(.black)
+//        })
       }
+      .padding()
     }
-    .padding(10.0)
-    .background(Color.gray)
+    .edgesIgnoringSafeArea(.all)
   }
 }
 
@@ -31,7 +37,7 @@ struct SwiftUIView_Previews: PreviewProvider {
   static var previews: some View {
     Group {
       ContentView().environmentObject(IPlugSwiftUIState(numParams: kNumParams))
-//        .frame(width: 300, height: 400, alignment: .center)
+        .frame(width: 300, height: 400, alignment: .center)
     }
   }
 }

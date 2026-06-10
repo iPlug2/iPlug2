@@ -48,11 +48,13 @@ uint64_t GetAPIBusTypeForChannelIOConfig(int configIdx, ERoute dir, int busIdx, 
     case 12: return AAX_eStemFormat_7_1_4;
     default: return AAX_eStemFormat_None;
   }
+#else
+  return 0;
 #endif
 }
 
 IPlugSurroundEffect::IPlugSurroundEffect(const InstanceInfo& info)
-: Plugin(info, MakeConfig(kNumParams, kNumPresets))
+: iplug::Plugin(info, MakeConfig(kNumParams, kNumPresets))
 {
   GetParam(kGain)->InitDouble("Gain", 0., 0., 100.0, 0.01, "%");
 

@@ -13,11 +13,11 @@
 
 #if defined __APPLE__
   #include <TargetConditionals.h>
-  #if TARGET_OS_IPHONE
-    #define OS_IOS
+  #if TARGET_OS_IOS == 1 || TARGET_OS_VISION == 1
     #import <UIKit/UIKit.h>
     #define PLATFORM_VIEW UIView
   #else
+    #import <Cocoa/Cocoa.h>
     #define PLATFORM_VIEW NSView
   #endif
 #endif
@@ -34,4 +34,7 @@
 - (PLATFORM_VIEW*) openWindow: (PLATFORM_VIEW*) pParent;
 - (void) closeWindow;
 - (bool) sendMidiData:(int64_t) sampleTime : (NSInteger) length : (const uint8_t*) midiBytes;
+- (id<AUMessageChannel>)messageChannelFor:(NSString *)channelName;
+- (bool) getHostResizeEnabled;
+
 @end

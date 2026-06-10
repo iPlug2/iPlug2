@@ -20,7 +20,7 @@ enum EControlTags
 };
 
 IGraphicsTest::IGraphicsTest(const InstanceInfo& info)
-: Plugin(info, MakeConfig(kNumParams, 1))
+: iplug::Plugin(info, MakeConfig(kNumParams, 1))
 {
   GetParam(kParamDummy)->InitPercentage("Dummy", 100.f);
   

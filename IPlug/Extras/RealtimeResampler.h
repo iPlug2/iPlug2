@@ -96,8 +96,10 @@ public:
   
     if (mResamplingMode == ESRCMode::kLancsoz)
     {
-      mInResampler = std::make_unique<LanczosResampler>(mOuterSampleRate, mInnerSampleRate);
-      mOutResampler = std::make_unique<LanczosResampler>(mInnerSampleRate, mOuterSampleRate);
+      const T outerRate = static_cast<T>(mOuterSampleRate);
+      const T innerRate = static_cast<T>(mInnerSampleRate);
+      mInResampler = std::make_unique<LanczosResampler>(outerRate, innerRate);
+      mOutResampler = std::make_unique<LanczosResampler>(innerRate, outerRate);
       
       // Warm up the resamplers with enough silence that the first real buffer can yield the required number of output samples.
       const auto outSamplesRequired = mOutResampler->GetNumSamplesRequiredFor(1);
@@ -186,14 +188,14 @@ private:
 
       if (readPosInt < inputLength)
       {
-        const auto y = readPos - readPostionTrunc;
+        const T y = static_cast<T>(readPos - readPostionTrunc); // Cast to T to avoid precision warning
 
         for (auto chan=0; chan<nChans; chan++)
         {
-          const auto x0 = inputs[chan][readPosInt];
-          const auto x1 = ((readPosInt + 1) < inputLength) ? inputs[chan][readPosInt + 1] 
-                                                           : inputs[chan][readPosInt - 1];
-          outputs[chan][writePos] = (1.0 - y) * x0 + y * x1;
+          const T x0 = inputs[chan][readPosInt];
+          const T x1 = ((readPosInt + 1) < inputLength) ? inputs[chan][readPosInt + 1] 
+                                                       : inputs[chan][readPosInt - 1];
+          outputs[chan][writePos] = (T(1) - y) * x0 + y * x1;
         }
       }
     }

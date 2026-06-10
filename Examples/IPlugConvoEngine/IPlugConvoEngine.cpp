@@ -2,7 +2,7 @@
 #include "IPlug_include_in_plug_src.h"
 
 IPlugConvoEngine::IPlugConvoEngine(const InstanceInfo& info)
-: Plugin(info, MakeConfig(kNumParams, kNumPresets))
+: iplug::Plugin(info, MakeConfig(kNumParams, kNumPresets))
 {
   GetParam(kParamDry)->InitDouble("Dry", 0., 0., 1., 0.001);
   GetParam(kParamWet)->InitDouble("Wet", 1., 0., 1., 0.001);

@@ -59,9 +59,24 @@ void usage( void ) {
   std::cout << "    where N = number of channels,\n";
   std::cout << "    fs = the sample rate, \n";
   std::cout << "    file = the raw file to play,\n";
-  std::cout << "    device = optional device to use (default = 0),\n";
+  std::cout << "    device = optional device index to use (default = 0),\n";
   std::cout << "    and channelOffset = an optional channel offset on the device (default = 0).\n\n";
   exit( 0 );
+}
+
+unsigned int getDeviceIndex( std::vector<std::string> deviceNames )
+{
+  unsigned int i;
+  std::string keyHit;
+  std::cout << '\n';
+  for ( i=0; i<deviceNames.size(); i++ )
+    std::cout << "  Device #" << i << ": " << deviceNames[i] << '\n';
+  do {
+    std::cout << "\nChoose a device #: ";
+    std::cin >> i;
+  } while ( i >= deviceNames.size() );
+  std::getline( std::cin, keyHit );  // used to clear out stdin
+  return i;
 }
 
 struct OutputData {
@@ -98,7 +113,8 @@ int main( int argc, char *argv[] )
   if ( argc < 4 || argc > 6 ) usage();
 
   RtAudio dac;
-  if ( dac.getDeviceCount() < 1 ) {
+  std::vector<unsigned int> deviceIds = dac.getDeviceIds();
+  if ( deviceIds.size() < 1 ) {
     std::cout << "\nNo audio devices found!\n";
     exit( 0 );
   }
@@ -127,16 +143,20 @@ int main( int argc, char *argv[] )
 
   if ( device == 0 )
     oParams.deviceId = dac.getDefaultOutputDevice();
+  else {
+    if ( device >= deviceIds.size() )
+      device = getDeviceIndex( dac.getDeviceNames() );
+    oParams.deviceId = deviceIds[device];
+  }
 
   data.channels = channels;
-  try {
-    dac.openStream( &oParams, NULL, FORMAT, fs, &bufferFrames, &output, (void *)&data );
-    dac.startStream();
-  }
-  catch ( RtAudioError& e ) {
-    std::cout << '\n' << e.getMessage() << '\n' << std::endl;
+
+  if ( dac.openStream( &oParams, NULL, FORMAT, fs, &bufferFrames, &output, (void *)&data ) )
     goto cleanup;
-  }
+
+  if ( dac.isStreamOpen() == false ) goto cleanup;
+
+  if ( dac.startStream() ) goto cleanup;
 
   std::cout << "\nPlaying raw file " << file << " (buffer frames = " << bufferFrames << ")." << std::endl;
   while ( 1 ) {

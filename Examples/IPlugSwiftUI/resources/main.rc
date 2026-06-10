@@ -169,6 +169,7 @@ BEGIN
     "D",            ID_SHOW_DRAWN,          VIRTKEY, CONTROL, NOINVERT
     "F",            ID_SHOW_FPS,            VIRTKEY, CONTROL, NOINVERT
     "E",            ID_LIVE_EDIT,           VIRTKEY, CONTROL, NOINVERT
+    "S",            ID_SCREENSHOT,          VIRTKEY, CONTROL, SHIFT, NOINVERT
 END
 
 /////////////////////////////////////////////////////////////////////////////

@@ -59,6 +59,15 @@ void IGEditorDelegate::CloseWindow()
   }
 }
 
+void IGEditorDelegate::OnParentWindowResize(int width, int height)
+{
+  if (auto* pGraphics = GetUI()) 
+  {
+    const auto scale = pGraphics->GetPlatformWindowScale();
+    pGraphics->Resize(static_cast<int>(width / scale), static_cast<int>(height / scale), 1.0f, false);
+  }
+}
+
 void IGEditorDelegate::SetScreenScale(float scale)
 {
   if (GetUI())

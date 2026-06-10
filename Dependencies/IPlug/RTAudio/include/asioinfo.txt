@@ -1,0 +1,3 @@
+The Steinberg ASIO SDK and licensing agreement can be found at:
+
+- https://www.steinberg.net/developers/

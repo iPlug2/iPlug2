@@ -4,7 +4,7 @@
 #include "Test/TestSizeControl.h"
 
 IPlugResponsiveUI::IPlugResponsiveUI(const InstanceInfo& info)
-: Plugin(info, MakeConfig(kNumParams, kNumPresets))
+: iplug::Plugin(info, MakeConfig(kNumParams, kNumPresets))
 {
   GetParam(kGain)->InitGain("Gain", -70., -70., 0.);
 
@@ -59,11 +59,6 @@ IPlugResponsiveUI::IPlugResponsiveUI(const InstanceInfo& info)
 }
 
 #if IPLUG_EDITOR
-void IPlugResponsiveUI::OnParentWindowResize(int width, int height)
-{
-  if (GetUI())
-    GetUI()->Resize(width, height, 1.f, false);
-}
 
 bool IPlugResponsiveUI::OnHostRequestingSupportedViewConfiguration(int width, int height)
 {

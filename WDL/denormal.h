@@ -41,9 +41,9 @@ static WDL_DENORMAL_INLINE unsigned int WDL_DENORMAL_DOUBLE_HW(const double *a) 
   #define wdl_denorm_mm_getcsr() _mm_getcsr() 
   #define wdl_denorm_mm_setcsr(x) _mm_setcsr(x) 
   #if defined(__SSE3__)
-    #define wdl_denorm_mm_csr_mask ((1<<15)|(1<<11) | (1<<8) | (1<<6)) // FTZ, underflow, denormal mask, DAZ  
+    #define wdl_denorm_mm_csr_mask (32768|4096|2048|1024|512|256|128|64) // FTZ, all exceptions, DAZ
   #else
-    #define wdl_denorm_mm_csr_mask ((1<<15)|(1<<11)) // FTZ and underflow only (target SSE2)
+    #define wdl_denorm_mm_csr_mask (32768|4096|2048|1024|512|256|128) // FTZ and all exceptions (target SSE2)
   #endif
 #elif defined(__arm__) || defined(__aarch64__)
   #define WDL_DENORMAL_FTZMODE

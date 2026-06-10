@@ -2,6 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style type="text/css">
     * {
       -webkit-touch-callout: none;
@@ -10,6 +11,14 @@
   
     p, h1 {
       pointer-events: none;
+    }
+    
+    body {
+      overflow: hidden;
+      padding: 0 20px;
+      -webkit-overflow-scrolling: touch;
+      background-color: #ffffff;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     }
   
     .left {
@@ -43,10 +52,152 @@
     button {
       display: block;
     }
+
+    .dropzone {
+        border: 4px dashed #d1d5db;
+        border-radius: 0.5rem;
+        text-align: center;
+        background-color: #f3f4f6;
+        transition: all 0.2s ease;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .dropzone.dragover {
+        border-color: #3b82f6;
+        background-color: #eff6ff;
+    }
+
+    .dropzone.has-file {
+        background-color: #f0fdf4;
+    }
+
+    .icon {
+        width: 3rem;
+        height: 3rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .filename {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: #374151;
+        margin: 0.5rem 0;
+    }
+
+    .filesize {
+        font-size: 0.875rem;
+        color: #6b7280;
+        margin-bottom: 1rem;
+    }
+
+    .file-content {
+        cursor: move;
+        user-select: none;
+    }
+
+    .drag-instructions {
+        font-size: 0.875rem;
+        color: #4b5563;
+        margin-top: 1rem;
+    }
+
+    /* Drag image styles */
+    .drag-image {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        max-width: 300px;
+        position: fixed;
+        left: -9999px;
+        top: -9999px;
+    }
+
+    .drag-image .file-icon {
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #4f46e5;
+        border-radius: 6px;
+        padding: 6px;
+    }
+
+    .drag-image .file-icon svg {
+        width: 20px;
+        height: 20px;
+        color: white;
+    }
+
+    .drag-image .file-info {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 2px;
+    }
+
+    .drag-image .file-name {
+        font-weight: 500;
+        color: #1f2937;
+        font-size: 14px;
+    }
+
+    .drag-image .file-type {
+        color: #6b7280;
+        font-size: 12px;
+    }
+
+    .controls-container {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-start;
+    }
+
+    .links-group {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-start;
+    }
+
+    .link-button {
+      text-decoration: none;
+    }
+
+    .file-input-group {
+      margin-top: 10px;
+    }
+
+    input[type="file"] {
+      padding: 10px;
+      border: 2px solid #d1d5db;
+      border-radius: 6px;
+      /* width: 100%; */
+    }
+
+    button-control,
+    knob-control {
+      font-family: inherit;
+    }
   </style>
   
   <script src="script.js"></script>
-  <script src="webaudio-controls.js"></script>
+  <script type="module" src="knob-control.js"></script>
+  <script type="module" src="button-control.js"></script>
   <script>
     function SendTestBinaryData() {
       let uint8 = new Uint8Array([0, 0, 0, 0]);
@@ -63,40 +214,171 @@
     }
     
     function OnParamChange(param, value) {
-      if(param == 0) {
-        document.getElementById("gain_knob").value = value * 100.;
+      // Find the knob control with matching param-id
+      const knob = document.querySelector(`knob-control[param-id="${param}"]`);
+      if (knob) {
+        // Pass the normalized value directly to the knob
+        knob.updateValueFromHost(value);
       }
     }
   
     function OnControlChange(ctrlTag, value) {
-      if(ctrlTag == 0) {
-        document.getElementById("meter").value = value;
-      }
     }
-  
-    function onLoad() {
-      document.getElementById("gain_knob").addEventListener('input', function(e) {
-                                                          SPVFUI(0, e.target.value/100.)
-                                                          });
+
+    // This fires when the C++ side sends a message to the UI.
+    function OnMessage(msgTag, dataSize, data) {
+      if (msgTag == -1 && dataSize > 0) {
+
+      let json = JSON.parse(window.atob(data));
+
+      switch (json["id"])
+      {
+        case "params":
+          window["parameters"] = json["params"];
+
+          const allElements = document.querySelectorAll('*');
+
+          allElements.forEach(element => {
+            if (element.tagName == "KNOB-CONTROL") {
+              const paramInfo = json["params"][element.paramId];
+              element.setAttribute("min", paramInfo["min"]);
+              element.setAttribute("max", paramInfo["max"]);
+              element.setAttribute("label", paramInfo["name"]);
+              element.setAttribute("default-value", paramInfo["default"]);
+            }
+          });
+          
+          break;
+        }
+      }
     }
   </script>
 </head>
-<body onload="onLoad()">
-<!--<h1>IPlugWebView</h1>-->
-<div>
-  <div class="left">
-    <p>Gain</p>
-    <!-- <input id="slider" type="range" onmousedown="BPCFUI(0)" oninput="SPVFUI(0, this.value/100.)" onmouseup="EPCFUI(0)"> -->
-    <webaudio-knob id="gain_knob" min="0" max="100"></webaudio-knob>
-    <button onclick="SendTestBinaryData()">Binary Test</button>
-    <button onclick="SendTestMIDIData()">MIDI Test</button>
-    <progress id="meter">
+<body>
+<h1>IPlugWebView - testing UI</h1>
+<div class="controls-container">
+  <div class="button-group">
+    <button-control onclick="SendTestBinaryData()">Binary Test</button-control>
+    <button-control onclick="SendTestMIDIData()">MIDI Test</button-control>
   </div>
-  <div class="right">
-    <button onclick="SAMFUI(0)">Small GUI</button>
-    <button onclick="SAMFUI(1)">Medium GUI</button>
-    <button onclick="SAMFUI(2)">Large GUI</button>
+  
+  <div class="button-group">
+    <button-control onclick="SAMFUI(0)">Small GUI</button-control>
+    <button-control onclick="SAMFUI(1)">Medium GUI</button-control>
+    <button-control onclick="SAMFUI(2)">Large GUI</button-control>
+  </div>
+  
+  <div class="links-group">
+    <a href="https://iplug2.github.io" target="_blank" class="link-button">
+      <button-control>Open iPlug2 Website</button-control>
+    </a>
+    <button-control onclick="window.location.href='https://github.com/iPlug2/iPlug2/raw/refs/heads/master/Examples/IPlugWebUI/README.md'">
+      Download A File
+    </button-control>
+  </div>
+  
+  <div class="file-input-group">
+    <input type="file" id="textfile" name="textfile" accept="text/*" />
+  </div>
+  
+  <div id="dropzone" class="dropzone">
+      <div id="initial-content">
+        <p class="instructions">Drag and drop a WAV file here</p>
+    </div>
+    <div id="file-content" class="file-content" style="display: none;" draggable="true">
+        <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"></path>
+        </svg>
+        <p class="drag-instructions">Drag this anywhere to save the file</p>
+    </div>
+  </div>
+  <div class="knob-container">
+    <knob-control label="Gain" param-id=0></knob-control>
   </div>
 </div>
+
+<script>
+    let currentFile = null;
+    const dropzone = document.getElementById('dropzone');
+    const initialContent = document.getElementById('initial-content');
+    const fileContent = document.getElementById('file-content');
+    const filename = document.getElementById('filename');
+    const filesize = document.getElementById('filesize');
+
+    // Prevent default drag behaviors
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        dropzone.addEventListener(eventName, preventDefaults, false);
+        document.body.addEventListener(eventName, preventDefaults, false);
+    });
+
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+
+    // Highlight dropzone when dragging over it
+    ['dragenter', 'dragover'].forEach(eventName => {
+        dropzone.addEventListener(eventName, highlight, false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+        dropzone.addEventListener(eventName, unhighlight, false);
+    });
+
+    function highlight(e) {
+        dropzone.classList.add('dragover');
+    }
+
+    function unhighlight(e) {
+        dropzone.classList.remove('dragover');
+    }
+
+    // Handle dropped files
+    dropzone.addEventListener('drop', handleDrop, false);
+
+    function handleDrop(e) {
+        const dt = e.dataTransfer;
+        const file = dt.files[0];
+
+        if (file && file.type === 'audio/x-wav') {
+            handleFile(file);
+        } else {
+            alert('Please drop a WAV file');
+        }
+    }
+
+    function handleFile(file) {
+        currentFile = file;
+        dropzone.classList.add('has-file');
+        initialContent.style.display = 'none';
+        fileContent.style.display = 'block';
+        filename.textContent = file.name;
+        filesize.textContent = `${(file.size / (1024 * 1024)).toFixed(2)} MB`;
+    }
+
+    // Handle drag start for file download
+    fileContent.addEventListener('dragstart', handleDragStart, false);
+
+    function handleDragStart(e) {
+        if (!currentFile) return;
+
+        // Set the drag data
+        e.dataTransfer.setData('application/x-moz-file', currentFile); // For Firefox
+        e.dataTransfer.setData('application/octet-stream', currentFile); // For other browsers
+        
+        // Create a new File object to ensure proper file transfer
+        const fileTransfer = new File([currentFile], currentFile.name, {
+            type: currentFile.type,
+            lastModified: currentFile.lastModified
+        });
+        
+        // Add the file to the data transfer
+        e.dataTransfer.items.add(fileTransfer);
+        
+        // Set the drag image (existing code)
+        e.dataTransfer.setDragImage(icon, 40, 35);
+        e.dataTransfer.effectAllowed = 'copyMove';
+    }
+</script>
 </body>
 </html>

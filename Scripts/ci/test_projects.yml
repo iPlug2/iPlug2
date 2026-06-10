@@ -1,3 +1,6 @@
+parameters:
+  buildAllProjects: false
+
 jobs:
 - job: TEST_MAC_PROJECTS
   condition: and(eq(variables.test_projects, true), eq(variables.build_mac, true))
@@ -36,6 +39,7 @@ jobs:
     parameters:
       platform: test_project-mac.yml
       graphics: $(graphics)
+      buildAllProjects: ${{parameters.buildAllProjects}}
 
 - job: TEST_WIN_PROJECTS
   condition: and(eq(variables.test_projects, true), eq(variables.build_win, true))
@@ -85,3 +89,4 @@ jobs:
     parameters:
       platform: test_project-win.yml
       graphics: $(graphics)
+      buildAllProjects: ${{parameters.buildAllProjects}}

@@ -63,7 +63,6 @@ NANOVG_LDFLAGS = -s USE_WEBGL2=0 -s FULL_ES3=1
 
 # CFLAGS for both WAM and WEB targets
 CFLAGS = $(INCLUDE_PATHS) \
--std=c++17  \
 -Wno-bitwise-op-parentheses \
 -DWDL_NO_DEFINE_MINMAX \
 -DNDEBUG=1
@@ -82,7 +81,7 @@ WAM_EXPORTS = "[\
   '_wam_onmessageN', '_wam_onmessageS', '_wam_onmessageA', '_wam_onpatch' \
   ]"
 
-WEB_EXPORTS = "['_malloc', '_free', '_main', '_iplug_fsready', '_iplug_syncfs']"
+WEB_EXPORTS = "['_malloc', '_free', '_main', '_iplug_fsready', '_iplug_syncfs', '_iplug_popup_menu_selected']"
 
 # LDFLAGS for both WAM and WEB targets
 LDFLAGS = -s ALLOW_MEMORY_GROWTH=1 --bind
@@ -90,9 +89,10 @@ LDFLAGS = -s ALLOW_MEMORY_GROWTH=1 --bind
 # We can't compile the WASM module synchronously on main thread (.wasm over 4k in size requires async compile on chrome) https://developers.google.com/web/updates/2018/04/loading-wasm
 # and you can't compile asynchronously in AudioWorklet scope
 # The following settings mean the WASM is delivered as BASE64 and included in the MyPluginName-wam.js file.
-WAM_LDFLAGS = -s EXPORTED_RUNTIME_METHODS="['ccall', 'cwrap', 'setValue', 'UTF8ToString']" \
+WAM_LDFLAGS = -s EXPORTED_RUNTIME_METHODS="['ccall', 'cwrap', 'setValue', 'UTF8ToString', 'HEAPF32']" \
 -s BINARYEN_ASYNC_COMPILATION=0 \
--s SINGLE_FILE=1
+-s SINGLE_FILE=1 \
+--pre-js=$(IPLUG2_ROOT)/IPlug/WEB/Template/scripts/atob-polyfill.js
 #-s ENVIRONMENT=worker
 
 WEB_LDFLAGS = -s EXPORTED_FUNCTIONS=$(WEB_EXPORTS) \
@@ -100,5 +100,5 @@ WEB_LDFLAGS = -s EXPORTED_FUNCTIONS=$(WEB_EXPORTS) \
 -s BINARYEN_ASYNC_COMPILATION=1 \
 -s FORCE_FILESYSTEM=1 \
 -s ENVIRONMENT=web \
+-s DEFAULT_LIBRARY_FUNCS_TO_INCLUDE="['\$$Browser']" \
 -lidbfs.js
-

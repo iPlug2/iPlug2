@@ -61,6 +61,7 @@ IPlugInstrument::IPlugInstrument(const InstanceInfo& info)
     
     pGraphics->AttachControl(new IVGroupControl("LFO", "LFO", 10.f, 20.f, 10.f, 10.f));
     
+#ifndef AUv3_API
     pGraphics->AttachControl(new IVButtonControl(keyboardBounds.GetFromTRHC(200, 30).GetTranslated(0, -30), SplashClickActionFunc,
       "Show/Hide Keyboard", DEFAULT_STYLE.WithColor(kFG, COLOR_WHITE).WithLabelText({15.f, EVAlign::Middle})))->SetAnimationEndActionFunction(
       [pGraphics](IControl* pCaller) {
@@ -68,6 +69,8 @@ IPlugInstrument::IPlugInstrument(const InstanceInfo& info)
         pGraphics->GetControlWithTag(kCtrlTagKeyboard)->Hide(hide = !hide);
         pGraphics->Resize(PLUG_WIDTH, hide ? PLUG_HEIGHT / 2 : PLUG_HEIGHT, pGraphics->GetDrawScale());
     });
+#endif
+    
 //#ifdef OS_IOS
 //    if(!IsOOPAuv3AppExtension())
 //    {
@@ -139,6 +142,7 @@ void IPlugInstrument::OnParamChange(int paramIdx)
 
 void IPlugInstrument::OnParamChangeUI(int paramIdx, EParamSource source)
 {
+  #if IPLUG_EDITOR
   if (auto pGraphics = GetUI())
   {
     if (paramIdx == kParamLFORateMode)
@@ -148,6 +152,7 @@ void IPlugInstrument::OnParamChangeUI(int paramIdx, EParamSource source)
       pGraphics->HideControl(kParamLFORateTempo, !sync);
     }
   }
+  #endif
 }
 
 bool IPlugInstrument::OnMessage(int msgTag, int ctrlTag, int dataSize, const void* pData)

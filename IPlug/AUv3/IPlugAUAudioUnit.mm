@@ -435,18 +435,16 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
     return (AUValue) pPlug->GetParamStringToValue(param.address, [string UTF8String]);
   };
   
-  if (mPlug->HasUI())
-  {
-    mUIUpdateParamObserverToken = [mParameterTree tokenByAddingParameterObserver:^(AUParameterAddress address, AUValue value) {
-                              dispatch_async(dispatch_get_main_queue(), ^{
-                                pPlug->SendParameterValueFromObserver(address, value);
-                              });
-                            }];
+  // even without a UI we need to observe parameter changes to trigger OnParamChangeUI calls
+  mUIUpdateParamObserverToken = [mParameterTree tokenByAddingParameterObserver:^(AUParameterAddress address, AUValue value) {
+                            dispatch_async(dispatch_get_main_queue(), ^{
+                              pPlug->SendParameterValueFromObserver(address, value);
+                            });
+                          }];
     
 //  [self addObserver:self forKeyPath:@"allParameterValues"
 //                  options:NSKeyValueObservingOptionNew
 //                  context:mUIUpdateParamObserverToken];
-  }
     
   self.currentPreset = mPresets.firstObject;
   
@@ -797,6 +795,11 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
   });
 }
 
+- (id<AUMessageChannel>)messageChannelFor:(NSString *)channelName
+{
+  return (__bridge id<AUMessageChannel>) self->mPlug->GetNamedMessageChannel([channelName UTF8String]);
+}
+
 #pragma mark - IPlugAUAudioUnit
 
 - (void) beginInformHostOfParamChange: (uint64_t) address;
@@ -869,6 +872,11 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
 - (BOOL) supportsMPE
 {
   return mPlug->DoesMPE() ? YES : NO;
+}
+
+- (bool) getHostResizeEnabled
+{
+  return mPlug->GetHostResizeEnabled();
 }
 
 @end

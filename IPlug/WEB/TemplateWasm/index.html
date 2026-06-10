@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NAME_PLACEHOLDER</title>
+  <link href="styles/style.css" rel="stylesheet">
+
+  <!-- Bundle must load first (initializes Module and web component) -->
+  <script src="scripts/NAME_PLACEHOLDER-bundle.js"></script>
+  <script src="scripts/IPlugWasmHostControls.js"></script>
+
+  <!-- Resource data files (fonts, SVGs, images) -->
+  <!--FONTS--><script src="scripts/fonts.js"></script>
+  <!--SVGS--><script src="scripts/svgs.js"></script>
+  <!--IMGS--><script src="scripts/imgs.js"></script>
+  <!--IMGS2X--><script src="scripts/imgs@2x.js"></script>
+</head>
+<body>
+  <!-- Plugin Web Component (hidden for headless plugins) -->
+  <iplug-NAME_PLACEHOLDER_LC></iplug-NAME_PLACEHOLDER_LC>
+
+  <!-- Plugin Parameters Panel (for headless plugins - shown in main body) -->
+  <div id="paramPanel" class="param-panel hidden">
+    <h1 id="pluginTitle">NAME_PLACEHOLDER</h1>
+    <div id="mainParams" class="main-params"></div>
+  </div>
+
+  <script>
+    const pluginElement = document.querySelector('iplug-NAME_PLACEHOLDER_LC');
+
+    const hostControls = new IPlugWasmHostControls({
+      pluginName: 'NAME_PLACEHOLDER',
+      fullscreenTarget: () => pluginElement,
+      getCapabilities: () => ({
+        numInputs: pluginElement.numInputs,
+        numOutputs: pluginElement.numOutputs,
+        isInstrument: pluginElement.isInstrument,
+        receivesMidi: pluginElement.receivesMidi,
+        sendsMidi: pluginElement.sendsMidi
+      }),
+      isLiveEditAvailable: () => pluginElement.isLiveEditAvailable?.() ?? false,
+      setLiveEditEnabled: (enabled) => pluginElement.setLiveEditEnabled?.(enabled) ?? false,
+      createController: async ({ audioContext, capabilities }) => {
+        const controller = new IPlugWasmController('NAME_PLACEHOLDER');
+        await controller.init({
+          audioContext,
+          numInputChannels: capabilities.numInputs,
+          numOutputChannels: capabilities.numOutputs,
+          isInstrument: capabilities.isInstrument
+        });
+        pluginElement.connectController(controller);
+        return controller;
+      }
+    });
+
+    // Plugin parameters (for headless plugins - shown in main body)
+    const paramPanel = document.getElementById('paramPanel');
+    const mainParams = document.getElementById('mainParams');
+    const pluginTitle = document.getElementById('pluginTitle');
+    const paramSliders = new Map();
+    let isHeadless = false;
+
+    pluginElement.addEventListener('uiready', (e) => {
+      hostControls.setReady(true);
+      hostControls.refreshLiveEditAvailability();
+
+      if (!e.detail.module) {
+        isHeadless = true;
+        pluginElement.style.display = 'none';
+        paramPanel.classList.remove('hidden');
+      }
+    });
+
+    function generateParamControls(params, pluginName) {
+      if (!params || params.length === 0) return;
+
+      if (pluginName) {
+        pluginTitle.textContent = pluginName;
+      }
+
+      mainParams.innerHTML = '';
+
+      for (const param of params) {
+        const paramIdx = Number.isInteger(param.idx) ? param.idx : param.id;
+        const row = document.createElement('div');
+        row.className = 'main-param-row';
+
+        const labelContainer = document.createElement('div');
+        labelContainer.className = 'main-param-label';
+
+        const label = document.createElement('span');
+        label.className = 'main-param-name';
+        label.textContent = param.name;
+
+        const value = document.createElement('span');
+        value.className = 'main-param-value';
+        value.textContent = formatParamValue(param.value, param);
+
+        labelContainer.appendChild(label);
+        labelContainer.appendChild(value);
+
+        const slider = document.createElement('input');
+        slider.type = 'range';
+        slider.className = 'main-param-slider';
+        slider.min = param.min;
+        slider.max = param.max;
+        slider.step = param.step > 0 ? param.step : (param.max - param.min) / 1000;
+        slider.value = param.value;
+        slider.dataset.paramIdx = paramIdx;
+
+        slider.addEventListener('input', () => {
+          const val = parseFloat(slider.value);
+          value.textContent = formatParamValue(val, param);
+
+          if (pluginElement.controller) {
+            const normalized = (val - param.min) / (param.max - param.min);
+            pluginElement.controller.setParam(paramIdx, normalized);
+          }
+        });
+
+        paramSliders.set(paramIdx, { slider, value, param });
+
+        row.appendChild(labelContainer);
+        row.appendChild(slider);
+        mainParams.appendChild(row);
+      }
+    }
+
+    function formatParamValue(val, param) {
+      const decimals = param.step >= 1 ? 0 : param.step >= 0.1 ? 1 : param.step >= 0.01 ? 2 : 3;
+      return val.toFixed(decimals) + (param.label ? ' ' + param.label : '');
+    }
+
+    function updateParamDisplay(paramIdx, normalizedValue) {
+      const entry = paramSliders.get(paramIdx);
+      if (entry) {
+        const { slider, value, param } = entry;
+        const realValue = param.min + normalizedValue * (param.max - param.min);
+        slider.value = realValue;
+        value.textContent = formatParamValue(realValue, param);
+      }
+    }
+
+    pluginElement.addEventListener('audioready', (e) => {
+      const controller = e.detail.controller;
+      if (!controller) return;
+
+      controller.on('pluginInfo', (info) => {
+        if (isHeadless && info.params && info.params.length > 0) {
+          generateParamControls(info.params, info.name);
+        }
+      });
+
+      controller.on('paramChange', ({ paramIdx, value }) => {
+        updateParamDisplay(paramIdx, value);
+      });
+
+      if (isHeadless && controller.pluginInfo?.params) {
+        generateParamControls(controller.pluginInfo.params, controller.pluginInfo.name);
+      }
+    });
+  </script>
+</body>
+</html>

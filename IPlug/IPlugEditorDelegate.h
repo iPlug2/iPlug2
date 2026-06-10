@@ -43,7 +43,8 @@ BEGIN_IPLUG_NAMESPACE
  *  NOTES:
  *  A parameter VALUE is a floating point number linked to an integer parameter index. TODO: Normalised ?
  *  A parameter OBJECT (IParam) is an instance of the IParam class as defined in IPlugParameter.h
- *  A parameter OBJECT is also referred to as a "param", in method names such as IEditorDelegate::GetParam(int paramIdx) and IControl::GetParam(). */
+ *  A parameter OBJECT is also referred to as a "param", in method names such as IEditorDelegate::GetParam(int paramIdx) and IControl::GetParam().
+ * @ingroup EditorDelegates */
 class IEditorDelegate
 {
 public:
@@ -266,10 +267,9 @@ public:
    * @param msg The MIDI message to send. */
   virtual void SendMidiMsgFromUI(const IMidiMsg& msg) {};
 
-  /** SendMidiMsgFromUI (Abbreviation: SSMFUI)
+  /** SendSysexMsgFromUI (Abbreviation: SSMFUI)
    * If a plug-in can send Sysex data as a result of actions in the user interface, this method can be used.
    * Unlike SendMidiMsgFromUI, Sysex messages will not be received in IPlugProcessor::ProcessSysex()
-   * Since it is extremely unlikely that you would want to use Sysex to communicate between editor and processor \todo is this correct?
    * @param msg The Sysex message to send. */
   virtual void SendSysexMsgFromUI(const ISysEx& msg) {};
   
@@ -290,11 +290,11 @@ public:
 #pragma mark - Editor resizing
   void SetEditorSize(int width, int height) { mEditorWidth = width; mEditorHeight = height; }
   
-  /** \todo
-   * @param widthLo \todo
-   * @param widthHi \todo
-   * @param heightLo \todo
-   * @param heightHi \todo */
+  /** Sets the minimum and maximum size constraints for the editor window
+   * @param widthLo Minimum width
+   * @param widthHi Maximum width
+   * @param heightLo Minimum height
+   * @param heightHi Maximum height */
   void SetSizeConstraints(int widthLo, int widthHi, int heightLo, int heightHi)
   {
     mMinWidth = std::min(widthLo, widthHi);

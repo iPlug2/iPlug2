@@ -619,8 +619,7 @@ void WDL_CursesEditor::loadLines(FILE *fh)
     {
       char line[4096];
       line[0]=0;
-      fgets(line,sizeof(line),fh);
-      if (!line[0]) break;
+      if (!fgets(line,sizeof(line),fh) || !line[0]) break;
 
       if (!fs) fs = new WDL_FastString(line);
       else fs->Append(line);

@@ -242,6 +242,8 @@ template<class PTRTYPE> class WDL_PtrList
       return sz - cnt;
     }
 
+    void SwapContentsWith(WDL_PtrList<PTRTYPE> *b) { m_buf.SwapContentsWith(&b->m_buf); }
+
     const PTRTYPE **begin() const { return GetList(); }
     const PTRTYPE **end() const { return GetList() + GetSize(); }
     PTRTYPE **begin() { return GetList(); }

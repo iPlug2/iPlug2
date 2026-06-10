@@ -54,100 +54,10 @@ typedef HGLRC(WINAPI* PFNWGLCREATECONTEXTATTRIBSARBPROC) (HDC hDC, HGLRC hShareC
 #define WGL_CONTEXT_CORE_PROFILE_BIT_ARB  0x00000001
 #endif
 
-#pragma mark - Private Classes and Structs
-
-// Fonts
-
-class IGraphicsWin::InstalledFont
-{
-public:
-  InstalledFont(void* data, int resSize)
-  : mFontHandle(nullptr)
-  {
-    if (data)
-    {
-      DWORD numFonts = 0;
-      mFontHandle = AddFontMemResourceEx(data, resSize, NULL, &numFonts);
-    }
-  }
-  
-  ~InstalledFont()
-  {
-    if (IsValid())
-      RemoveFontMemResourceEx(mFontHandle);
-  }
-  
-  InstalledFont(const InstalledFont&) = delete;
-  InstalledFont& operator=(const InstalledFont&) = delete;
-    
-  bool IsValid() const { return mFontHandle; }
-  
-private:
-  HANDLE mFontHandle;
-};
-
-struct IGraphicsWin::HFontHolder
-{
-  HFontHolder(HFONT hfont) : mHFont(nullptr)
-  {
-    LOGFONTW lFont = { 0 };
-    GetObjectW(hfont, sizeof(LOGFONTW), &lFont);
-    mHFont = CreateFontIndirectW(&lFont);
-  }
-  
-  HFONT mHFont;
-};
-
-class IGraphicsWin::Font : public PlatformFont
-{
-public:
-  Font(HFONT font, const char* styleName, bool system)
-  : PlatformFont(system), mFont(font), mStyleName(styleName) {}
-  ~Font()
-  {
-    DeleteObject(mFont);
-  }
-  
-  FontDescriptor GetDescriptor() override { return mFont; }
-  IFontDataPtr GetFontData() override;
-  
-private:
-  HFONT mFont;
-  WDL_String mStyleName;
-};
-
-IFontDataPtr IGraphicsWin::Font::GetFontData()
-{
-  HDC hdc = CreateCompatibleDC(NULL);
-  IFontDataPtr fontData(new IFontData());
-  
-  if (hdc != NULL)
-  {
-    SelectObject(hdc, mFont);
-    const size_t size = ::GetFontData(hdc, 0, 0, NULL, 0);
-
-    if (size != GDI_ERROR)
-    {
-      fontData = std::make_unique<IFontData>(size);
-
-      if (fontData->GetSize() == size)
-      {
-        size_t result = ::GetFontData(hdc, 0x66637474, 0, fontData->Get(), size);
-        if (result == GDI_ERROR)
-          result = ::GetFontData(hdc, 0, 0, fontData->Get(), size);
-        if (result == size)
-          fontData->SetFaceIdx(GetFaceIdx(fontData->Get(), fontData->GetSize(), mStyleName.Get()));
-      }
-    }
-    
-    DeleteDC(hdc);
-  }
-
-  return fontData;
-}
+#pragma mark - Static storage
 
 StaticStorage<IGraphicsWin::InstalledFont> IGraphicsWin::sPlatformFontCache;
-StaticStorage<IGraphicsWin::HFontHolder> IGraphicsWin::sHFontCache;
+StaticStorage<HFontHolder> IGraphicsWin::sHFontCache;
 
 #pragma mark - Mouse and tablet helpers
 
@@ -654,16 +564,11 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
         BeginPaint(hWnd, &ps);
 #endif
 
-#ifdef IGRAPHICS_GL
-        pGraphics->ActivateGLContext();
-#endif
-
-        pGraphics->Draw(rects);
-
-        #ifdef IGRAPHICS_GL
-        SwapBuffers((HDC) pGraphics->GetPlatformContext());
-        pGraphics->DeactivateGLContext();
-        #endif
+        {
+          ScopedGLContext scopedGLCtx {pGraphics};
+          pGraphics->Draw(rects);
+          SwapBuffers((HDC) pGraphics->GetPlatformContext());
+        }
 
 #if defined IGRAPHICS_GL || IGRAPHICS_D2D
         EndPaint(hWnd, &ps);
@@ -937,15 +842,6 @@ void IGraphicsWin::PlatformResize(bool parentHasResized)
   }
 }
 
-#ifdef IGRAPHICS_GL
-void IGraphicsWin::DrawResize()
-{
-  ActivateGLContext();
-  IGRAPHICS_DRAW_CLASS::DrawResize();
-  DeactivateGLContext();
-}
-#endif
-
 void IGraphicsWin::HideMouseCursor(bool hide, bool lock)
 {
   if (mCursorHidden == hide)
@@ -1104,21 +1000,25 @@ void IGraphicsWin::DestroyGLContext()
   wglMakeCurrent(NULL, NULL);
   wglDeleteContext(mHGLRC);
 }
+#endif
 
 void IGraphicsWin::ActivateGLContext()
 {
+#ifdef IGRAPHICS_GL
   mStartHDC = wglGetCurrentDC();
   mStartHGLRC = wglGetCurrentContext();
   HDC dc = GetDC(mPlugWnd);
   wglMakeCurrent(dc, mHGLRC);
+#endif
 }
 
 void IGraphicsWin::DeactivateGLContext()
 {
+#ifdef IGRAPHICS_GL
   ReleaseDC(mPlugWnd, (HDC) GetPlatformContext());
   wglMakeCurrent(mStartHDC, mStartHGLRC); // return current ctxt to start
-}
 #endif
+}
 
 EMsgBoxResult IGraphicsWin::ShowMessageBox(const char* str, const char* title, EMsgBoxType type, IMsgBoxCompletionHandlerFunc completionHandler)
 {
@@ -1287,14 +1187,12 @@ void IGraphicsWin::CloseWindow()
     else
       KillTimer(mPlugWnd, IPLUG_TIMER_ID);
 
+    {
+      ScopedGLContext scopedGLCtx {this};
+      OnViewDestroyed();
+    }
+    
 #ifdef IGRAPHICS_GL
-    ActivateGLContext();
-#endif
-
-    OnViewDestroyed();
-
-#ifdef IGRAPHICS_GL
-    DeactivateGLContext();
     DestroyGLContext();
 #endif
 
@@ -1816,11 +1714,14 @@ void IGraphicsWin::ShowTooltip()
 {
   if (mTooltipIdx > -1)
   {
-    const char* tooltip = GetControl(mTooltipIdx)->GetTooltip();
-    if (tooltip)
+    if (auto* pTooltipControl = GetControl(mTooltipIdx))
     {
-      SetTooltip(tooltip);
-      mShowingTooltip = true;
+      const char* tooltipStr = pTooltipControl->GetTooltip();
+      if (tooltipStr)
+      {
+        SetTooltip(tooltipStr);
+        mShowingTooltip = true;
+      }
     }
   }
 }

@@ -56,6 +56,7 @@ public:
   bool SendMidiMsg(const IMidiMsg& msg) override;
 //  bool SendMidiMsgs(WDL_TypedBuf<IMidiMsg>& msgs) override;
   bool SendSysEx(const ISysEx& msg) override;
+  bool EditorResize(int viewWidth, int viewHeight) override;
 
   //IPlugAUv3
   void ProcessWithEvents(AudioTimeStamp const* timestamp, uint32_t frameCount, AURenderEvent const* events, ITimeInfo& timeInfo);
@@ -79,6 +80,15 @@ public:
   void SetAUAudioUnit(void* pAUAudioUnit);
 
   void SetOffline(bool renderingOffline) { IPlugProcessor::SetRenderingOffline(renderingOffline); }
+
+#pragma mark - Specialist Use
+public:
+  virtual void* GetNamedMessageChannel(const char* name) { return nullptr; }
+  /** Get the AudioTimeStamp from the last render callback.
+   * @return The most recent render timestamp
+   * @note For specialist use when hosting AUs within AUs.
+   *       Thread safety: returns snapshot, may be stale if called off audio thread. */
+  const AudioTimeStamp& GetLastAudioTimeStamp() const { return mLastTimeStamp; }
 
 private:
   // void HandleOneEvent(AURenderEvent const* event, int64_t startTime);

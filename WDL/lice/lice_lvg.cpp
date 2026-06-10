@@ -151,7 +151,7 @@ public:
 class lvgImageCtx 
 {
 public:
-  lvgImageCtx(lvgImageCtx *par) : m_images(true,deleteThis)
+  lvgImageCtx(lvgImageCtx *par) : m_images(true,wdl_deletefunc)
   {
     m_in_render=false;
     m_par=par;
@@ -177,7 +177,6 @@ public:
   void render(lvgRenderState *rstate, int wantw, int wanth);
 
 private:
-  static void deleteThis(lvgImageCtx *t) { delete t; }
 
   double parsecoord(const char *p, double scale, bool round)
   {

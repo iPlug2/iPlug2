@@ -114,7 +114,7 @@ public:
   virtual const char *sh_tokenize(const char **ptr, const char *endptr, int *lenOut, int *state);
 
   virtual bool peek_want_VM_funcs() { return false; } // implement if syntax highlighting should (and can safely) call peek_get_VM()
-  virtual void *peek_get_VM() { return NULL; } // returns NSEEL_VMCTX (if supported)
+  virtual void *peek_get_VM(const char *forCode) { return NULL; } // returns NSEEL_VMCTX (if supported)
   virtual int peek_get_named_string_value(const char *name, char *sstr, size_t sstr_sz) { return -1; } // returns >=0 (index) if found
   virtual bool peek_get_numbered_string_value(double idx, char *sstr, size_t sstr_sz) { return false; }
 

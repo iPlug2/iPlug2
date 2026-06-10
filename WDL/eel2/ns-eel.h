@@ -217,17 +217,17 @@ extern int NSEEL_RAM_memused_errors;
 
 //#define EEL_DUMP_OPS // used for testing frontend parser/logic changes
 
-// note: if you wish to change NSEEL_RAM_*, and your target is x86-64, you will
-// need to edit asm-nseel-x64-sse.asm to match
+// note: if you wish to change NSEEL_RAM_*, and your target is x86-64 or win64 aarch64/arm64ec, you will
+// need to edit asm-nseel-x64-sse.asm / asm-nseel-aarch64-msvc.asm / asm-nseel-arm64ec-msvc.asm and reassemble
 
-// 512 * 65536 = 32 million entries maximum (256MB RAM)
+// 2048 * 65536 = 128 million entries maximum (1GB RAM)
 // default is limited to 128 * 65536 = 8 million entries (64MB RAM)
 
 // default to 8 million entries, use NSEEL_VM_setramsize() to change at runtime
 #define NSEEL_RAM_BLOCKS_DEFAULTMAX 128
 
-// 512 entry block table maximum (2k/4k per VM)
-#define NSEEL_RAM_BLOCKS_LOG2 9
+// 2048 entry block table maximum, total max mem size is 1GB
+#define NSEEL_RAM_BLOCKS_LOG2 11
 
  // 65536 items per block (512KB)
 #define NSEEL_RAM_ITEMSPERBLOCK_LOG2 16

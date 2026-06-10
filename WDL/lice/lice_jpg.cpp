@@ -55,6 +55,15 @@ static void LICEJPEG_skip_input_data(j_decompress_ptr cinfo, long num_bytes)
 static void LICEJPEG_term_source(j_decompress_ptr cinfo) {}
 #endif
 
+static LICE_pixel cmykToRGB(JSAMPROW ptr)
+{
+  // does not look quite right, but better than not supporting
+  const int c = ptr[0], m = ptr[1], y = ptr[2], k = ptr[3];
+  int r = (c * k + 255)>>8;
+  int g = (m * k + 255)>>8;
+  int b = (y * k + 255)>>8;
+  return LICE_RGBA(r,g,b,255);
+}
 
 LICE_IBitmap *LICE_LoadJPGFromResource(HINSTANCE hInst, const char *resid, LICE_IBitmap *bmp)
 {
@@ -146,6 +155,9 @@ LICE_IBitmap *LICE_LoadJPGFromResource(HINSTANCE hInst, const char *resid, LICE_
         bmpptr[x]=LICE_RGBA(buffer[0][x*3],buffer[0][x*3+1],buffer[0][x*3+2],255);
       }
     }
+    else if (cinfo.output_components==4 && cinfo.out_color_space == JCS_CMYK)
+      for (int x = 0; x < (int)cinfo.output_width; x++)
+        bmpptr[x]=cmykToRGB(buffer[0] + x*4);
     else if (cinfo.output_components==1)
     {
       int x;
@@ -258,6 +270,9 @@ LICE_IBitmap *LICE_LoadJPG(const char *filename, LICE_IBitmap *bmp)
         bmpptr[x]=LICE_RGBA(buffer[0][x*3],buffer[0][x*3+1],buffer[0][x*3+2],255);
       }
     }
+    else if (cinfo.output_components==4 && cinfo.out_color_space == JCS_CMYK)
+      for (int x = 0; x < (int)cinfo.output_width; x++)
+        bmpptr[x]=cmykToRGB(buffer[0] + x*4);
     else if (cinfo.output_components==1)
     {
       int x;
@@ -351,6 +366,9 @@ LICE_IBitmap *LICE_LoadJPGFromMemory(const void *data_in, int buflen, LICE_IBitm
         bmpptr[x]=LICE_RGBA(buffer[0][x*3],buffer[0][x*3+1],buffer[0][x*3+2],255);
       }
     }
+    else if (cinfo.output_components==4 && cinfo.out_color_space == JCS_CMYK)
+      for (int x = 0; x < (int)cinfo.output_width; x++)
+        bmpptr[x]=cmykToRGB(buffer[0] + x*4);
     else if (cinfo.output_components==1)
     {
       int x;

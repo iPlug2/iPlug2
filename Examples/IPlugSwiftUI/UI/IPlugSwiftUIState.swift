@@ -1,55 +1,32 @@
 import SwiftUI
 
-class Param : ObservableObject {
-  let id: Int
-  var name: String
-  var defaultValue: Double
-  var step: Double
-  var minValue: Double
-  var maxValue: Double
-  var label: String
-  var group: String
-
-  @Published var value: Double
-  
-  init(id: Int,
-       name: String = "",
-       defaultValue: Double = 0.0,
-       minValue: Double = 0.0,
-       maxValue: Double = 1.0,
-       step: Double = 0.1,
-       label: String = "",
-       group: String = ""
-  ) {
-    self.id = id
-    self.name = name
-    self.defaultValue = defaultValue
-    self.value = defaultValue
-    self.minValue = minValue
-    self.maxValue = maxValue
-    self.step = step
-    self.label = label
-    self.group = group
-  }
-}
-
-class IPlugSwiftUIState: ObservableObject {
+class IPlugSwiftUIState: NSObject, ObservableObject {
   var params: [Param] = []
-  var lastVolume = Float(0.0)
+  @Published var bundleID = String("")
+  @Published @objc dynamic var waveform: [Float] = Array(repeating: 0.0, count: kScopeBufferSize)
 
-  let beginEdit: (Int) -> Void
-  let doEdit: (Int, Double) -> Void
-  let endEdit: (Int) -> Void
-  let sendMsg: () -> Void
+  let beginEdit: @MainActor (Int) -> Void
+  let doEdit: @MainActor (Int, Double) -> Void
+  let endEdit: @MainActor (Int) -> Void
+  let sendMsg: @MainActor () -> Void
 
-  public init(beginEdit: @escaping (Int) -> Void = {_ in },
-              doEdit: @escaping (Int, Double) -> Void  = {_,_ in },
-              endEdit: @escaping (Int) -> Void  = {_ in },
-                sendMsg: @escaping () -> Void  = {}) {
-    self.beginEdit = beginEdit;
-    self.doEdit = doEdit;
-    self.endEdit = endEdit;
+  public override init() {
+    self.beginEdit = {_ in }
+    self.doEdit = {_,_ in }
+    self.endEdit = {_ in }
+    self.sendMsg = {}
+    super.init()
+  }
+
+  public init(beginEdit: @MainActor @escaping (Int) -> Void = {_ in },
+              doEdit: @MainActor @escaping (Int, Double) -> Void  = {_,_ in },
+              endEdit: @MainActor @escaping (Int) -> Void  = {_ in },
+              sendMsg: @MainActor @escaping () -> Void  = {}) {
+    self.beginEdit = beginEdit
+    self.doEdit = doEdit
+    self.endEdit = endEdit
     self.sendMsg = sendMsg
+    super.init()
   }
   
   convenience init(numParams: Int) {
@@ -58,4 +35,5 @@ class IPlugSwiftUIState: ObservableObject {
       params.append(Param(id: paramIdx))
     }
   }
+
 }

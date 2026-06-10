@@ -91,6 +91,11 @@ VoiceInputEvent MidiSynth::MidiMessageToEventBasic(const IMidiMsg& msg)
           event.mAction = kTimbreAction;
           break;
         }
+        case IMidiMsg::kSustainOnOff:
+        {
+          event.mAction = kSustainAction;
+          break;
+        }
         case IMidiMsg::kAllNotesOff:
         {
           event.mAddress.mFlags = kVoicesAll;

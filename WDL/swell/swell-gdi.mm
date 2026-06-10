@@ -279,7 +279,7 @@ HBRUSH  CreateSolidBrushAlpha(int col, float alpha)
 }
 
 
-HFONT CreateFontIndirect(LOGFONT *lf)
+HFONT CreateFontIndirect(const LOGFONT *lf)
 {
   return CreateFont(lf->lfHeight, lf->lfWidth,lf->lfEscapement, lf->lfOrientation, lf->lfWeight, lf->lfItalic, 
                     lf->lfUnderline, lf->lfStrikeOut, lf->lfCharSet, lf->lfOutPrecision,lf->lfClipPrecision, 
@@ -582,7 +582,7 @@ void SWELL_LineTo(HDC ctx, int x, int y)
   CGContextStrokePath(c->ctx);
 }
 
-void PolyPolyline(HDC ctx, POINT *pts, DWORD *cnts, int nseg)
+void PolyPolyline(HDC ctx, const POINT *pts, const DWORD *cnts, int nseg)
 {
   HDC__ *c=(HDC__ *)ctx;
   if (!HDC_VALID(c)||!HGDIOBJ_VALID(c->curpen,TYPE_PEN)||c->curpen->wid<0||nseg<1) return;
@@ -690,12 +690,70 @@ static NSString *SWELL_GetCachedFontName(const char *nm)
   return ret ? ret : @"";
 }
 
+#ifndef SWELL_NO_CORETEXT
+// CTFontGetLeading(), CTFontGetAscent(), CTFontGetDescent() et al are all full of lies.
+// returns internal leading
+// font can be NSFont* or CTFontRef
+double SWELL_GetCTFontRealMetrics(const void *ptrfont, double pointSize, float *ascentOut, float *descentOut)
+{
+  CTFontRef font = (CTFontRef)ptrfont;
+  const unsigned int unitsPerEm = CTFontGetUnitsPerEm(font);
+  if (WDL_NORMALLY(unitsPerEm > 0))
+  {
+    const double scale = pointSize / unitsPerEm;
+
+    CFDataRef os2 = CTFontCopyTable(font, kCTFontTableOS2, kCTFontTableOptionNoOptions);
+    if (os2)
+    {
+      double leading = 0.0;
+      if (CFDataGetLength(os2) >= 78)
+      {
+        const unsigned char *b = CFDataGetBytePtr(os2);
+        const uint16_t winAscent  = (uint16_t)((b[74] << 8) | b[75]);
+        const uint16_t winDescent = (uint16_t)((b[76] << 8) | b[77]);
+        if (ascentOut) *ascentOut = winAscent * scale;
+        if (descentOut) *descentOut = winDescent * scale;
+        leading = (double)winAscent + (double)winDescent - (double)unitsPerEm;
+      }
+      CFRelease(os2);
+      if (leading > 0.0) return leading * scale;
+    }
+
+    CFDataRef hhea = CTFontCopyTable(font, kCTFontTableHhea, kCTFontTableOptionNoOptions);
+    if (hhea)
+    {
+      // have not tested this path
+      double leading = 0.0;
+      if (CFDataGetLength(hhea) >= 8)
+      {
+        const unsigned char *b = CFDataGetBytePtr(hhea);
+        const int16_t asc  = (int16_t)((b[4] << 8) | b[5]);
+        const int16_t desc = (int16_t)((b[6] << 8) | b[7]); // negative coordinate
+        if (ascentOut) *ascentOut = asc * scale;
+        if (descentOut) *descentOut = -desc * scale;
+        leading = (double)asc - (double)desc;
+      }
+      CFRelease(hhea);
+      if (leading > 0.0) return leading * scale;
+    }
+  }
+
+  if (ascentOut) *ascentOut = CTFontGetAscent(font);
+  if (descentOut) *descentOut = CTFontGetDescent(font);
+
+  return 0.0;
+}
+#endif
+
 HFONT CreateFont(int lfHeight, int lfWidth, int lfEscapement, int lfOrientation, int lfWeight, char lfItalic, 
                  char lfUnderline, char lfStrikeOut, char lfCharSet, char lfOutPrecision, char lfClipPrecision, 
                  char lfQuality, char lfPitchAndFamily, const char *lfFaceName)
 {
   HGDIOBJ__ *font=GDP_OBJECT_NEW();
   font->type=TYPE_FONT;
+  font->ct_realInternalLeading = font->ct_realAscender = font->ct_realDescender = 0.0;
+  if (lfHeight >= -1 && lfHeight <= 1) lfHeight = -11;
+
   float fontwid=lfHeight;
   
   if (!fontwid) fontwid=lfWidth;
@@ -713,10 +771,27 @@ HFONT CreateFont(int lfHeight, int lfWidth, int lfEscapement, int lfOrientation,
     if (lfWeight >= FW_BOLD) strcat(buf," Bold");
     if (lfItalic) strcat(buf," Italic");
 
-    font->ct_FontRef = (void*)CTFontCreateWithName((CFStringRef)SWELL_GetCachedFontName(buf),fontwid,NULL);
-    if (!font->ct_FontRef) font->ct_FontRef = (void*)[[NSFont labelFontOfSize:fontwid] retain]; 
+    CFStringRef fname = (CFStringRef)SWELL_GetCachedFontName(buf);
+    if (lfHeight > 0)
+    {
+      // we need to reduce the point size to make the combined (and legitimate) ascender+descender fit
+      CTFontRef temp = CTFontCreateWithName(fname,fontwid,NULL);
+      if (temp)
+      {
+        float asc,desc;
+        SWELL_GetCTFontRealMetrics(temp,fontwid,&asc,&desc);
+        fontwid *= fontwid / (asc+desc);
+        CFRelease(temp);
+      }
+    }
 
-    // might want to make this conditional (i.e. only return font if created successfully), but I think we'd rather fallback to a system font than use ATSUI
+    CTFontRef newf = CTFontCreateWithName(fname,fontwid,NULL);
+    if (!newf) newf = (CTFontRef)[[NSFont labelFontOfSize:fontwid] retain];
+
+    font->ct_FontRef = (void*)newf;
+    if (newf)
+      font->ct_realInternalLeading = (float) SWELL_GetCTFontRealMetrics(newf, fontwid, &font->ct_realAscender, &font->ct_realDescender);
+
     return font;
   }
 #endif
@@ -838,14 +913,14 @@ BOOL GetTextMetrics(HDC ctx, TEXTMETRIC *tm)
 
   if (fr)
   {
-    tm->tmInternalLeading = CTFontGetLeading(fr);
-    tm->tmAscent = CTFontGetAscent(fr);
-    tm->tmDescent = CTFontGetDescent(fr);
-    tm->tmHeight = (tm->tmInternalLeading + tm->tmAscent + tm->tmDescent);
+    double asc = curfont_valid ? ct->curfont->ct_realAscender : CTFontGetAscent(fr);
+    double desc = curfont_valid ? ct->curfont->ct_realDescender : CTFontGetDescent(fr);
+    tm->tmAscent = (int)floor(asc);
+    tm->tmHeight = (int)floor(asc+desc+0.5);
+    tm->tmDescent = tm->tmHeight - tm->tmAscent;
+    tm->tmInternalLeading = curfont_valid ? (int) floor(ct->curfont->ct_realInternalLeading) : 0;
     tm->tmAveCharWidth = tm->tmHeight*2/3; // todo
 
-    if (tm->tmHeight)  tm->tmHeight++;
-    
     return 1;
   }
 #endif
@@ -953,6 +1028,7 @@ static int DrawTextATSUI(HDC ctx, CFStringRef strin, RECT *r, int align, bool *e
     
   if (fabs(font->font_rotation)<45.0)
   {
+    // this does not handle multiline text correctly, meh ATSUI is so old live with it
     if (align & DT_RIGHT) l = r->right-w;
     else if (align & DT_CENTER) l = (r->right+r->left)/2 - w/2;      
   }
@@ -989,6 +1065,9 @@ static int DrawTextATSUI(HDC ctx, CFStringRef strin, RECT *r, int align, bool *e
 int DrawText(HDC ctx, const char *buf, int buflen, RECT *r, int align)
 {
   WDL_ASSERT((align & DT_SINGLELINE) || !(align & (DT_VCENTER | DT_BOTTOM)));
+  // if DT_CALCRECT and DT_WORDBREAK, rect must be provided
+  WDL_ASSERT((align&(DT_CALCRECT|DT_WORDBREAK)) != (DT_CALCRECT|DT_WORDBREAK) ||
+    (r && r->right > r->left && r->bottom > r->top));
 
   HDC__ *ct=(HDC__ *)ctx;
   if (!HDC_VALID(ct)) return 0;
@@ -1033,7 +1112,7 @@ int DrawText(HDC ctx, const char *buf, int buflen, RECT *r, int align)
   
 #ifndef SWELL_NO_CORETEXT
   CTFontRef fr = curfont_valid ? (CTFontRef)ct->curfont->ct_FontRef : NULL;
-  if (!fr)  fr=GetCoreTextDefaultFont();
+  if (!fr) fr=GetCoreTextDefaultFont();
   if (fr)
   {
     // Initialize string, font, and context
@@ -1080,7 +1159,13 @@ int DrawText(HDC ctx, const char *buf, int buflen, RECT *r, int align)
           {
             CGFloat desc=0,lead=0;
             int w = (int) floor(CTLineGetTypographicBounds(l,&asc,&desc,&lead)+0.5);
-            int h =(int) floor(asc+desc+lead+1.5);
+            if (curfont_valid)
+            {
+              asc = floor(ct->curfont->ct_realAscender);
+              desc = ct->curfont->ct_realDescender + ct->curfont->ct_realAscender - asc;
+              lead = 0.0;
+            }
+            int h =(int) floor(asc+desc+lead+0.5);
             line_h+=h;
             if (line_w < w) line_w=w;
           }
@@ -1095,10 +1180,15 @@ int DrawText(HDC ctx, const char *buf, int buflen, RECT *r, int align)
       {
         CGFloat desc=0,lead=0;
         line_w = (int) floor(CTLineGetTypographicBounds(line,&asc,&desc,&lead)+0.5);
-        line_h =(int) floor(asc+desc+lead+1.5);
+        if (curfont_valid)
+        {
+          asc = floor(ct->curfont->ct_realAscender);
+          desc = ct->curfont->ct_realDescender + ct->curfont->ct_realAscender - asc;
+          lead = 0.0;
+        }
+        line_h =(int) floor(asc+desc+lead+.5);
       }
     }
-    if (line_h) line_h++;
 
     CFRelease(attrString);
     
@@ -1112,8 +1202,11 @@ int DrawText(HDC ctx, const char *buf, int buflen, RECT *r, int align)
     }
 
     float xo=r->left,yo=r->top;
-    if (align & DT_RIGHT) xo += (r->right-r->left) - line_w;
-    else if (align & DT_CENTER) xo += (r->right-r->left)/2 - line_w/2;
+    if (align & DT_SINGLELINE)
+    {
+      if (align & DT_RIGHT) xo += (r->right-r->left) - line_w;
+      else if (align & DT_CENTER) xo += (r->right-r->left)/2 - line_w/2;
+    }
 
     if (align & DT_BOTTOM) yo += (r->bottom-r->top) - line_h;
     else if (align & DT_VCENTER) yo += (r->bottom-r->top)/2 - line_h/2;
@@ -1158,12 +1251,19 @@ int DrawText(HDC ctx, const char *buf, int buflen, RECT *r, int align)
           asc=0.0;
           float lw=CTLineGetTypographicBounds(l,&asc,&desc,&lead);
 
+          float xou = xo;
+          if (!(align&DT_SINGLELINE))
+          {
+            if (align & DT_RIGHT) xou += (r->right-r->left) - lw;
+            else if (align & DT_CENTER) xou += (r->right-r->left)/2 - lw/2;
+          }
+
           if (bgc)
           {
             CGContextSetFillColorWithColor(ct->ctx, bgc);
-            CGContextFillRect(ct->ctx, CGRectMake(xo,yo,lw,asc+desc+lead));
+            CGContextFillRect(ct->ctx, CGRectMake(xou,yo,lw,asc+desc+lead));
           }
-          CGContextSetTextPosition(ct->ctx, xo, yo + asc);
+          CGContextSetTextPosition(ct->ctx, xou, yo + asc);
           CTLineDraw(l,ct->ctx);
           
           yo += floor(asc+desc+lead+0.5);          
@@ -1280,7 +1380,7 @@ void SetTextColor(HDC ctx, int col)
 }
 
 
-HICON CreateIconIndirect(ICONINFO* iconinfo)
+HICON CreateIconIndirect(const ICONINFO* iconinfo)
 {
   if (WDL_NOT_NORMALLY(!iconinfo || !iconinfo->fIcon)) return 0;  
   HGDIOBJ__* i=iconinfo->hbmColor;

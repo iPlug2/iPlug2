@@ -31,7 +31,7 @@
  */
 
 #ifndef NO_IGRAPHICS
-#if defined(IGRAPHICS_NANOVG) + defined(IGRAPHICS_CANVAS) + defined(IGRAPHICS_SKIA) != 1
+#if defined(IGRAPHICS_NANOVG) + defined(IGRAPHICS_SKIA) != 1
 #error Either NO_IGRAPHICS or one and only one choice of graphics library must be defined!
 #endif
 #endif
@@ -360,7 +360,7 @@ public:
    * @param str The text string to draw
    * @param bounds The rectangular region in the graphics where you would like to draw the text
    * @param pBlend Optional blend method */
-  virtual void DrawMultiLineText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend = 0) { DrawText(text, "Unsupported", bounds, pBlend); }
+  virtual void DrawMultiLineText(const IText& text, const char* str, const IRECT& bounds, const IBlend* pBlend = 0) { DrawText(text, "Unsupported", bounds, pBlend); }
 
   /** Get the color at an X, Y location in the graphics context
    * @param x The X coordinate of the pixel
@@ -559,7 +559,7 @@ public:
   /** Applies a drop shadow directly onto a layer
   * @param layer - the layer to add the shadow to 
   * @param shadow - the shadow to add */
-  void ApplyLayerDropShadow(ILayerPtr& layer, const IShadow& shadow);
+  virtual void ApplyLayerDropShadow(ILayerPtr& layer, const IShadow& shadow);
 
   /** Get the contents of a layer as Raw RGBA bitmap data
    * NOTE: you should only call this within IControl::Draw()
@@ -832,12 +832,12 @@ public:
     return oldCursorType;
   }
 
-  /** Call to force end text entry (will cancel any half input text \todo check) */
+  /** Call to force end text entry (will cancel any partial text input) */
   virtual void ForceEndUserEdit() = 0;
     
   /** Open a new platform view for this graphics context
-   * @param pParentWnd void pointer to parent platform window or view handle (if applicable) \todo check
-   * @return void pointer to newly created IGraphics platform view */
+   * @param pParentWnd Pointer to parent platform window or view handle (HWND on Windows, NSView* on macOS)
+   * @return Pointer to the newly created IGraphics platform view */
   virtual void* OpenWindow(void* pParentWnd) = 0;
 
   /** Close the platform view for this graphics context */
@@ -871,7 +871,7 @@ public:
    * @return /c true on success */
   virtual bool InitiateExternalFileDragDrop(const char* path, const IRECT& iconBounds) { return false; };
 
-  /** Call this if you modify control tool tips at runtime. \todo explain */
+  /** Call this if you modify control tool tips at runtime to refresh the platform tooltip state */
   virtual void UpdateTooltips() = 0;
 
   /** Pop up a modal platform message box dialog.
@@ -902,11 +902,11 @@ public:
    * @return /c true if prompt completed successfully */
   virtual bool PromptForColor(IColor& color, const char* str = "", IColorPickerHandlerFunc func = nullptr) = 0;
 
-  /** Open a URL in the platform’s default browser
+  /** Open a URL in the platform's default browser
    * @param url CString specifying the URL to open
-   * @param msgWindowTitle \todo ?
-   * @param confirmMsg \todo ?
-   * @param errMsgOnFailure \todo ?
+   * @param msgWindowTitle Title for any confirmation dialog (platform-specific)
+   * @param confirmMsg Confirmation message to display before opening (platform-specific)
+   * @param errMsgOnFailure Error message to display on failure (platform-specific)
    * @return /c true on success */
   virtual bool OpenURL(const char* url, const char* msgWindowTitle = 0, const char* confirmMsg = 0, const char* errMsgOnFailure = 0) = 0;
 
@@ -970,6 +970,17 @@ public:
   /** Get the app group ID on macOS and iOS, returns emtpy string on other OSs */
   virtual const char* GetAppGroupID() const { return ""; }
 
+  // An RAII helper to manage the IGraphics GL context
+  class ScopedGLContext
+  {
+  public:
+    ScopedGLContext(IGraphics* pGraphics)
+    : mIGraphics(*pGraphics) { mIGraphics.ActivateGLContext(); }
+    ~ScopedGLContext() { mIGraphics.DeactivateGLContext(); }
+  private:
+    IGraphics& mIGraphics;
+  };
+  
 protected:
   /* Activate the context for the view (GL only) */
   virtual void ActivateGLContext() {};
@@ -979,7 +990,7 @@ protected:
 
   /** Creates a platform native text entry field.
   * @param paramIdx The index of the parameter associated with the text entry field.
-  * @param text The text to be displayed in the text entry field.
+  * @param text The IText style for the text entry field text.
   * @param bounds The rectangle that defines the size and position of the text entry field.
   * @param length The maximum allowed length of the text in the text entry field.
   * @param str The initial string to be displayed in the text entry field. */
@@ -991,7 +1002,7 @@ protected:
    * @param isAsync This gets set true on platforms where popupmenu creation is asyncronous
    * @return A ptr to the chosen IPopupMenu or nullptr in the case of async or dismissed menu */
   virtual IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT bounds, bool& isAsync) = 0;
-
+  
 #pragma mark - Base implementation
 public:
   IGraphics(IGEditorDelegate& dlg, int w, int h, int fps = DEFAULT_FPS, float scale = 1.);
@@ -1066,15 +1077,16 @@ public:
    * @param hi The maxiumum scalar that the IGraphics context can be scaled up to */
   void SetScaleConstraints(float lo, float hi);
   
-  /** \todo detailed description of how this works
+  /** Resizes the graphics context to new dimensions and scale
    * @param w New width in pixels
    * @param h New height in pixels
    * @param scale New scale ratio
-   * @param needsPlatformResize This should be true for a "manual" resize from the plug-in UI and false
-   * if being called from IEditorDelegate::OnParentWindowResize(), in order to avoid feedback */
+   * @param needsPlatformResize Set true for manual resize from plug-in UI, false when called from
+   * IEditorDelegate::OnParentWindowResize() to avoid feedback loops */
   void Resize(int w, int h, float scale, bool needsPlatformResize = true);
   
-  /** Enables strict drawing mode. \todo explain strict drawing
+  /** Enables strict drawing mode. When enabled, only dirty controls are redrawn.
+   * When disabled, all controls are redrawn on each frame.
    * @param strict Set /c true to enable strict drawing mode */
   void SetStrictDrawing(bool strict);
 
@@ -1192,6 +1204,9 @@ public:
 
   /**@return \c true if live edit mode is enabled */
   bool LiveEditEnabled() const { return mLiveEdit != nullptr; }
+
+  /** Set a callback for JSON live edit events */
+  void SetLiveEditEventFunc(ILiveEditEventFunc func) { mLiveEditEventFunc = func; }
   
   /** Returns an IRECT that represents the entire UI bounds
    * This is useful for programatically arranging UI elements by slicing up the IRECT using the various IRECT methods
@@ -1226,21 +1241,25 @@ public:
 
 private:
   
-  /** \todo */
+  /** Called to perform platform-specific resize operations
+   * @param parentHasResized True if the parent window has already been resized */
   virtual void PlatformResize(bool parentHasResized) {}
   
-  /** \todo */
+  /** Called to update the drawing surface after a resize */
   virtual void DrawResize() {}
-  
+
+  /** Called at the very end of Resize() */
+  virtual void PostResize() {}
+
   /** Draw a region of the graphics (redrawing all contained items)
-   * @param bounds \todo
-   * @param scale \todo */
+   * @param bounds The rectangular region to redraw
+   * @param scale The current draw scale */
   void Draw(const IRECT& bounds, float scale);
   
-  /** \todo
-   * @param pControl \todo
-   * @param bounds \todo
-   * @param scale \todo */
+  /** Draws a single control within the specified bounds
+   * @param pControl Pointer to the control to draw
+   * @param bounds The clipping bounds for the draw operation
+   * @param scale The current draw scale */
   void DrawControl(IControl* pControl, const IRECT& bounds, float scale);
   
   /** Shows a pop up/contextual menu in relation to a rectangular region of the graphics context
@@ -1338,6 +1357,9 @@ public:
   
   /* Called by controls to display text in the bubble control */
   void ShowBubbleControl(IControl* pCaller, float x, float y, const char* str, EDirection dir = EDirection::Horizontal, IRECT minimumContentBounds = IRECT());
+  
+  /* Sets the region of the IGraphics context that should be used for the FPS display */
+  void SetFPSDisplayBounds(const IRECT& bounds) { mPerfDisplayBounds = bounds; }
 
   /** Shows a control to display the frame rate of drawing
    * @param enable \c true to show */
@@ -1529,8 +1551,9 @@ public:
   /** @param x The X coordinate at which the mouse event occurred
    * @param y The Y coordinate at which the mouse event occurred
    * @param mod IMouseMod struct contain information about the modifiers held
-   * @param delta Delta value \todo explain */
-  void OnMouseWheel(float x, float y, const IMouseMod& mod, float delta);
+   * @param delta Scroll amount (positive = up/forward, negative = down/backward)
+   * @return /c true on handled */
+  bool OnMouseWheel(float x, float y, const IMouseMod& mod, float delta);
 
   /** @param x The X coordinate of the mouse cursor at the time of the key press
    * @param y The Y coordinate of the mouse cursor at the time of the key press
@@ -1586,8 +1609,8 @@ public:
   /** Used to tell the graphics context to stop tracking mouse interaction with a control */
   void ReleaseMouseCapture();
 
-  /** @return \c true if the context can handle mouse overs */
-  bool CanEnableMouseOver() const { return mEnableMouseOver; }
+  /** @return \c true if the context has mouse overs enabled */
+  bool MouseOverEnabled() const { return mEnableMouseOver; }
 
   /** @return An integer representing the control index in IGraphics::mControls which the mouse is over, or -1 if it is not */
   inline int GetMouseOver() const { return mMouseOverIdx; }
@@ -1670,7 +1693,7 @@ public:
    * @param name CString name to associate with the SVG
    * @param pData Pointer to the SVG file data
    * @param dataSize Size (in bytes) of the data at \c pData
-   * @param units \todo
+   * @param units The length units used in the SVG (e.g. "px", "pt", "mm")
    * @param dpi The dots per inch of the SVG file
    * @return An ISVG representing the image */
   virtual ISVG LoadSVG(const char* name, const void* pData, int dataSize, const char* units = "px", float dpi = 72.f);
@@ -1715,7 +1738,7 @@ protected:
    * @param width The desired width
    * @param height The desired height
    * @param scale The scale in relation to 1:1 pixels
-   * @param drawScale \todo
+   * @param drawScale The current draw scale for the graphics context
    * @param cacheable Used to make sure the underlying bitmap can be shared between plug-in instances
    * @return APIBitmap* The new API Bitmap */
   virtual APIBitmap* CreateAPIBitmap(int width, int height, float scale, double drawScale, bool cacheable = false) = 0;
@@ -1725,9 +1748,6 @@ protected:
    * @param font Valid PlatformFontPtr, loaded via LoadPlatformFont
    * @return bool \c true if the font was loaded successfully */
   virtual bool LoadAPIFont(const char* fontID, const PlatformFontPtr& font) = 0;
-
-  /** Specialized in IGraphicsCanvas drawing backend */
-  virtual bool AssetsLoaded() { return true; }
     
   /** @return int The index of the alpha component in a drawing backend's pixel (RGBA or ARGB) */
   virtual int AlphaChannel() const = 0;
@@ -1735,51 +1755,51 @@ protected:
   /** @return bool \c true if the drawing backend flips images (e.g. OpenGL) */
   virtual bool FlippedBitmap() const = 0;
 
-  /** Search for a bitmap image resource matching the target scale 
-   * @param fileName \todo
-   * @param type \todo 
-   * @param result \todo
-   * @param targetScale \todo
-   * @param sourceScale \todo
-   * @return EResourceLocation \todo */
+  /** Search for a bitmap image resource matching the target scale
+   * @param fileName The base filename to search for
+   * @param type The file extension (e.g. "png", "jpg")
+   * @param result Output string to receive the found resource path
+   * @param targetScale The desired scale factor to find
+   * @param sourceScale Output parameter set to the actual scale of the found resource
+   * @return EResourceLocation::kNotFound if not found, kAbsolutePath for file system paths, or kWinBinary/kPreloadedTexture for embedded resources */
   EResourceLocation SearchImageResource(const char* fileName, const char* type, WDL_String& result, int targetScale, int& sourceScale);
 
   /** Search the static storage cache for a bitmap image resource matching the target scale
-   * @param fileName \todo
-   * @param targetScale \todo
-   * @param sourceScale \todo
-   * @return  pointer to the bitmap in the cache,  or null pointer if not found */
+   * @param fileName The filename key to search for
+   * @param targetScale The desired scale factor
+   * @param sourceScale Output parameter set to the actual scale of the found bitmap
+   * @return Pointer to the bitmap in the cache, or nullptr if not found */
   APIBitmap* SearchBitmapInCache(const char* fileName, int targetScale, int& sourceScale);
 
-  /** \todo
-   * @param text \todo
-   * @param str \todo
-   * @param bounds \todo
-   * @return The width of the text */
+  /** Internal method to measure text dimensions
+   * @param text The text style to use for measurement
+   * @param str The string to measure
+   * @param bounds Output rectangle updated with the measured text bounds
+   * @return The width of the measured text */
   virtual float DoMeasureText(const IText& text, const char* str, IRECT& bounds) const = 0;
     
-  /** \todo
-   * @param text \todo
-   * @param str \todo
-   * @param bounds \todo
-   * @param pBlend \todo */
+  /** Internal method to draw text
+   * @param text The text style to use for drawing
+   * @param str The string to draw
+   * @param bounds The bounding rectangle for the text
+   * @param pBlend Optional blend mode */
   virtual void DoDrawText(const IText& text, const char* str, const IRECT& bounds, const IBlend* pBlend = nullptr) = 0;
 
-  /** \todo
-   * @param text \todo
-   * @param bounds \todo
-   * @param rect \todo */
+  /** Measures text bounds accounting for rotation
+   * @param text The text style containing rotation angle
+   * @param bounds The original bounding rectangle
+   * @param rect Output rectangle updated with rotated text bounds */
   void DoMeasureTextRotation(const IText& text, const IRECT& bounds, IRECT& rect) const;
   
-  /** \todo
-   * @param text \todo
-   * @param bounds \todo
-   * @param rect \todo
-   * @param tx \todo
-   * @param ty \todo */
+  /** Calculates rotation parameters for text drawing
+   * @param text The text style containing rotation angle
+   * @param bounds The bounding rectangle for the text
+   * @param rect The text measurement rectangle
+   * @param tx Output x translation for rotation center
+   * @param ty Output y translation for rotation center */
   void CalculateTextRotation(const IText& text, const IRECT& bounds, IRECT& rect, double& tx, double& ty) const;
   
-  /** @return float \todo */
+  /** @return The combined scale factor for backing pixels (screen scale * draw scale) */
   virtual float GetBackingPixelScale() const { return GetScreenScale() * GetDrawScale(); };
 
   IMatrix GetTransformMatrix() const { return mTransform; }
@@ -1790,6 +1810,14 @@ private:
   {
     mMouseOver = nullptr;
     mMouseOverIdx = -1;
+  }
+
+  bool HasLiveEditEventFunc() const { return static_cast<bool>(mLiveEditEventFunc); }
+
+  void EmitLiveEditEvent(const char* eventJson) const
+  {
+    if (mLiveEditEventFunc)
+      mLiveEditEventFunc(eventJson);
   }
   
   WDL_PtrList<IControl> mControls;
@@ -1804,6 +1832,8 @@ private:
   std::unique_ptr<IControl> mLiveEdit;
   
   IPopupMenu mPromptPopupMenu;
+  
+  IRECT mPerfDisplayBounds;
   
   WDL_String mSharedResourcesSubPath;
   
@@ -1846,6 +1876,7 @@ private:
   IKeyHandlerFunc mKeyHandlerFunc = nullptr;
   IDisplayTickFunc mDisplayTickFunc = nullptr;
   IUIAppearanceChangedFunc mAppearanceChangedFunc = nullptr;
+  ILiveEditEventFunc mLiveEditEventFunc = nullptr;
   
 protected:
   IGEditorDelegate* mDelegate;

@@ -56,13 +56,14 @@ public:
   {
     TRACE
     
-    if (pSize)
+    if (pSize && mOwner.GetHostResizeEnabled())
     {
       rect = *pSize;
       mOwner.OnParentWindowResize(rect.getWidth(), rect.getHeight());
+      return Steinberg::kResultTrue;
     }
-    
-    return Steinberg::kResultTrue;
+
+    return Steinberg::kResultFalse;
   }
   
   Steinberg::tresult PLUGIN_API getSize(Steinberg::ViewRect* pSize) override
@@ -135,7 +136,9 @@ public:
 
   Steinberg::tresult PLUGIN_API setContentScaleFactor(ScaleFactor factor) override
   {
+#ifdef OS_WIN
     mOwner.SetScreenScale(factor);
+#endif
 
     return Steinberg::kResultOk;
   }

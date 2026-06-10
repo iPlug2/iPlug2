@@ -32,39 +32,53 @@ IPlugReaperExtension::IPlugReaperExtension(reaper_plugin_info_t* pRec)
   
   mLayoutFunc = [&](IGraphics* pGraphics) {
     const IRECT bounds = pGraphics->GetBounds();
-    
+
+    auto GetBounds = [](int ctrlIdx, const IRECT& b) {
+      // Controls use a fixed-width column; background fills everything
+      IRECT col = b.GetFromTLHC(PLUG_WIDTH, PLUG_WIDTH);
+      switch (ctrlIdx) {
+        case 0: return b; // background
+        case 1: return col.GetGridCell(0, 3, 1).GetPadded(-20.).SubRectVertical(2, 0).GetMidVPadded(20.f);
+        case 2: return col.GetGridCell(0, 2, 2).GetPadded(-20.).SubRectVertical(2, 1).GetMidVPadded(20.f);
+        case 3: return col.GetGridCell(1, 3, 1);
+        case 4: return col.GetGridCell(2, 3, 1).GetPadded(-20.f);
+        default: return b;
+      }
+    };
+
+    // Reposition controls on resize
     if (pGraphics->NControls()) {
-      pGraphics->GetBackgroundControl()->SetTargetAndDrawRECTs(bounds);
+      for (int i = 0; i < pGraphics->NControls(); i++)
+        pGraphics->GetControl(i)->SetTargetAndDrawRECTs(GetBounds(i, bounds));
       return;
     }
-    
-      pGraphics->LoadFont("Roboto-Regular", (void*) ROBOTO_REGULAR, ROBOTO_REGULAR_length);
+
+    pGraphics->SetLayoutOnResize(true);
+    pGraphics->LoadFont("Roboto-Regular", (void*) ROBOTO_REGULAR, ROBOTO_REGULAR_length);
     pGraphics->AttachPanelBackground(COLOR_GRAY);
-//    pGraphics->AttachCornerResizer(kUIResizerSize, true);
-    pGraphics->AttachControl(new IVButtonControl(bounds.GetGridCell(0, 3, 1).GetPadded(-20.).SubRectVertical(2, 0).GetMidVPadded(20),
+    pGraphics->AttachControl(new IVButtonControl(GetBounds(1, bounds),
                                                  [&](IControl* pCaller) {
                                                    SplashClickActionFunc(pCaller);
                                                    action2();
                                                  }, "Action 2 - Add Track"));
 
-//    pGraphics->AttachControl(new IVButtonControl(bounds.GetGridCell(0, 2, 2).GetPadded(-20.).SubRectVertical(2, 1).GetMidVPadded(20),
-//                                                 [&](IControl* pCaller) {
-//                                                   SplashClickActionFunc(pCaller);
-//                                                   ToggleDocking();
-//                                                 }, "Dock"));
-    
+    pGraphics->AttachControl(new IVButtonControl(GetBounds(2, bounds),
+                                                 [&](IControl* pCaller) {
+                                                   SplashClickActionFunc(pCaller);
+                                                   ToggleDocking();
+                                                 }, "Dock"));
+
     WDL_String str;
     mPrevTrackCount = CountTracks(0);
     str.SetFormatted(64, "NumTracks: %i", mPrevTrackCount);
-    
-    pGraphics->AttachControl(new ITextControl(bounds.GetGridCell(1, 3, 1), str.Get(), IText(24, EAlign::Center)), kCtrlTagText);
-    
-    pGraphics->AttachControl(new IVSliderControl(bounds.GetGridCell(2, 3, 1).GetPadded(-20), [](IControl* pCaller) {
+
+    pGraphics->AttachControl(new ITextControl(GetBounds(3, bounds), str.Get(), IText(24, EAlign::Center)), kCtrlTagText);
+
+    pGraphics->AttachControl(new IVSliderControl(GetBounds(4, bounds), [](IControl* pCaller) {
                                                    WDL_String valStr;
                                                    valStr.SetFormatted(32, "slider %f\n", pCaller->GetValue());
                                                    ShowConsoleMsg(valStr.Get());
                                                  }, "Value:", DEFAULT_STYLE, true, EDirection::Horizontal));
-    
   };
 }
 

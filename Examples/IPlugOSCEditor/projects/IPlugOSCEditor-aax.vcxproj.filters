@@ -2,6 +2,7 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="..\IPlugOSCEditor.cpp" />
+    <ClCompile Include="..\..\..\WDL\win32_utf8.c" />
     <ClCompile Include="..\..\..\IPlug\AAX\IPlugAAX.cpp">
       <Filter>IPlug\AAX</Filter>
     </ClCompile>
@@ -74,10 +75,16 @@
     <ClCompile Include="..\..\..\IPlug\Extras\OSC\IPlugOSC.cpp">
       <Filter>IPlug\Extras\OSC</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\Extras\OSC\IPlugOSC_internal.cpp">
+      <Filter>IPlug\Extras\OSC</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\..\IPlug\Extras\OSC\IPlugOSC_msg.cpp">
       <Filter>IPlug\Extras\OSC</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\IPlug\Extras\WebView\IPlugWebView.cpp">
+      <Filter>IPlug\Extras\WebView</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\Extras\WebView\IPlugWebView_win.cpp">
       <Filter>IPlug\Extras\WebView</Filter>
     </ClCompile>
   </ItemGroup>
@@ -255,6 +262,9 @@
     <ClInclude Include="..\..\..\IPlug\Extras\OSC\IPlugOSC.h">
       <Filter>IPlug\Extras\OSC</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\Extras\OSC\IPlugOSC_internal.h">
+      <Filter>IPlug\Extras\OSC</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\..\IPlug\Extras\OSC\IPlugOSC_msg.h">
       <Filter>IPlug\Extras\OSC</Filter>
     </ClInclude>
@@ -322,5 +332,8 @@
       <Filter>config</Filter>
     </None>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="$(MSBuildThisFileDirectory)..\..\natvis\wil.natvis" />
   </ItemGroup>
 </Project>

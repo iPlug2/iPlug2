@@ -104,6 +104,7 @@ private:
   void deactivate() noexcept override;
   bool startProcessing() noexcept override { return true; }
   void stopProcessing() noexcept override {}
+  void reset() noexcept override { OnReset(); }
   clap_process_status process(const clap_process* pProcess) noexcept override;
   
   // clap_plugin_latency
@@ -173,7 +174,10 @@ private:
   
   // Helper to attach GUI Windows
   bool GUIWindowAttach(void* parent) noexcept;
-  
+
+  // Parameter flushing from GUI
+  void FlushParamsIfNeeded();
+
   // Parameter Helpers
   void ProcessInputEvents(const clap_input_events* pInputEvents) noexcept;
   void ProcessOutputParams(const clap_output_events* pOutputParamChanges) noexcept;

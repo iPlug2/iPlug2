@@ -1284,7 +1284,7 @@ const WDL_SincFilterSample *WDL_Resampler::BuildLowPass(bool *isIdeal) // only c
 
 double WDL_Resampler::GetCurrentLatency() 
 { 
-  double v=((double)m_samples_in_rsinbuf-m_filtlatency)/m_sratein;
+  double v=((double)m_samples_in_rsinbuf-m_filtlatency - m_fracpos)/m_sratein;
   
   if (v<0.0)v=0.0;
   return v;

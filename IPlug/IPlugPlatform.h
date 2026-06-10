@@ -17,6 +17,9 @@
 
 #ifdef _WIN32
   #define OS_WIN
+  // Include WDL's UTF-8 wrappers early so #define fopen fopenUTF8 is active
+  // before any third-party headers (like nanosvg.h) use fopen
+  #include "win32_utf8.h"
 #elif defined __APPLE__
   #include <TargetConditionals.h>
   #if TARGET_OS_IPHONE
@@ -28,7 +31,7 @@
   #endif
 #elif defined __linux || defined __linux__ || defined linux
   #define OS_LINUX
-#elif defined EMSCRIPTEN
+#elif defined __EMSCRIPTEN__
   #define OS_WEB
 #else
   #error "No OS defined!"

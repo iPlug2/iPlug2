@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 47;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXAggregateTarget section */
@@ -30,7 +30,6 @@
 		4F0AB11C259C050300653315 /* web in Resources */ = {isa = PBXBuildFile; fileRef = 4FC46E57231440B4000045E7 /* web */; };
 		4F0AB11D259C050B00653315 /* web in Resources */ = {isa = PBXBuildFile; fileRef = 4FC46E57231440B4000045E7 /* web */; };
 		4F0AB11E259C051400653315 /* web in Resources */ = {isa = PBXBuildFile; fileRef = 4FC46E57231440B4000045E7 /* web */; };
-		4F0AB11F259C051C00653315 /* web in Resources */ = {isa = PBXBuildFile; fileRef = 4FC46E57231440B4000045E7 /* web */; };
 		4F0AB120259C052200653315 /* web in Resources */ = {isa = PBXBuildFile; fileRef = 4FC46E57231440B4000045E7 /* web */; };
 		4F0D965C23099F6900BFDED0 /* IPlugProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8F61A8202807B9003F2573 /* IPlugProcessor.cpp */; };
 		4F10D3D9203A6719003EF82A /* RtMidi.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F10D3D7203A6719003EF82A /* RtMidi.cpp */; settings = {COMPILER_FLAGS = "-Wno-shorten-64-to-32"; }; };
@@ -80,7 +79,13 @@
 		4F3EE1E7231438D000004786 /* AUv3Framework.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F78BE0222E73D0800AD537E /* AUv3Framework.framework */; };
 		4F3EE1E9231438D000004786 /* AUv3Framework.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 4F78BE0222E73D0800AD537E /* AUv3Framework.framework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		4F3EE1EB231438D000004786 /* IPlugWebUI.appex in Embed AUv3 App Extension */ = {isa = PBXBuildFile; fileRef = 4F3907602013EBA300DDA490 /* IPlugWebUI.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		4F472103209B294400A0A0A8 /* IPlugVST3_Controller.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FFBB8F220863B0900DDD0E7 /* IPlugVST3_Controller.cpp */; };
+		4F3F6E472CCBDFF700C41C6D /* IPlugWebView_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F3F6E462CCBDFF700C41C6D /* IPlugWebView_mac.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		4F3F6E492CCBDFF700C41C6D /* IPlugWebView_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F3F6E462CCBDFF700C41C6D /* IPlugWebView_mac.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		4F3F6E4B2CCBDFF700C41C6D /* IPlugWebView_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F3F6E462CCBDFF700C41C6D /* IPlugWebView_mac.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		4F3F6E4F2CCBDFF700C41C6D /* IPlugWebView_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F3F6E462CCBDFF700C41C6D /* IPlugWebView_mac.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		4F3F6E512CCBDFF700C41C6D /* IPlugWebView_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F3F6E462CCBDFF700C41C6D /* IPlugWebView_mac.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		4F3F6E532CCBDFF700C41C6D /* IPlugWebView_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F3F6E462CCBDFF700C41C6D /* IPlugWebView_mac.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		4F3F6E552CCBDFF700C41C6D /* IPlugWebView_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F3F6E462CCBDFF700C41C6D /* IPlugWebView_mac.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		4F5C5F6921BED05B00E024A7 /* swellappmain.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D4613B635C8001D0217 /* swellappmain.mm */; };
 		4F5C5F6B21BED08700E024A7 /* swell-appstub.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F5C5F6A21BED08700E024A7 /* swell-appstub.mm */; };
 		4F5F344120C0226200487201 /* IPlugPaths.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F5F344020C0226200487201 /* IPlugPaths.mm */; };
@@ -88,11 +93,9 @@
 		4F5F344320C0226200487201 /* IPlugPaths.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F5F344020C0226200487201 /* IPlugPaths.mm */; };
 		4F5F344420C0226200487201 /* IPlugPaths.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F5F344020C0226200487201 /* IPlugPaths.mm */; };
 		4F5F344520C0226200487201 /* IPlugPaths.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F5F344020C0226200487201 /* IPlugPaths.mm */; };
-		4F5F344720C0226200487201 /* IPlugPaths.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F5F344020C0226200487201 /* IPlugPaths.mm */; };
 		4F690C9B203A345100A4A13E /* IPlugAPP_main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F690C9A203A345100A4A13E /* IPlugAPP_main.cpp */; };
 		4F690CA3203A45C700A4A13E /* IPlugAPP_host.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F690CA2203A45C700A4A13E /* IPlugAPP_host.cpp */; };
 		4F722020225C1EB100FF0E7C /* commoniids.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F72201E225C1EB100FF0E7C /* commoniids.cpp */; };
-		4F722021225C1EB100FF0E7C /* commoniids.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F72201E225C1EB100FF0E7C /* commoniids.cpp */; };
 		4F78BE1222E73DD900AD537E /* AUv3Framework.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F78BE1022E73DD900AD537E /* AUv3Framework.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4F78BE1422E7406D00AD537E /* IPlugWebUI.h in Sources */ = {isa = PBXBuildFile; fileRef = 4F3862EE2014BBEC0009F402 /* IPlugWebUI.h */; };
 		4F78BE1522E7406D00AD537E /* IPlugWebUI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F3862ED2014BBEC0009F402 /* IPlugWebUI.cpp */; };
@@ -113,7 +116,6 @@
 		4F78D95C13B63BA50032E0F3 /* IPlugParameter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D90413B63BA50032E0F3 /* IPlugParameter.cpp */; };
 		4F78D9BB13B63BA50032E0F3 /* IPlugAPIBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8ED13B63BA40032E0F3 /* IPlugAPIBase.cpp */; };
 		4F78D9C813B63BA50032E0F3 /* IPlugParameter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D90413B63BA50032E0F3 /* IPlugParameter.cpp */; };
-		4F7DB9CC247890B700ACF64B /* IPlugWebView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F7DB9CB247890B700ACF64B /* IPlugWebView.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		4F815919205D50EB00393585 /* memorystream.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8157E0205D50EA00393585 /* memorystream.cpp */; };
 		4F81591A205D50EB00393585 /* pluginview.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8157E2205D50EA00393585 /* pluginview.cpp */; };
 		4F81591E205D50EB00393585 /* macmain.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8157E8205D50EA00393585 /* macmain.cpp */; };
@@ -151,14 +153,12 @@
 		4F993F7323055C96000313AF /* IPlugProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8F61A8202807B9003F2573 /* IPlugProcessor.cpp */; };
 		4F993F7423055C96000313AF /* IPlugProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8F61A8202807B9003F2573 /* IPlugProcessor.cpp */; };
 		4F993F7523055C97000313AF /* IPlugProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8F61A8202807B9003F2573 /* IPlugProcessor.cpp */; };
-		4F993F7623055C98000313AF /* IPlugProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8F61A8202807B9003F2573 /* IPlugProcessor.cpp */; };
 		4FA0FB17247D4D2B00E25C73 /* IPlugWebViewEditorDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FA0FB15247D4D2B00E25C73 /* IPlugWebViewEditorDelegate.h */; };
 		4FA0FB18247D4D2B00E25C73 /* IPlugWebViewEditorDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FA0FB16247D4D2B00E25C73 /* IPlugWebViewEditorDelegate.mm */; };
 		4FA0FB19247D4D2B00E25C73 /* IPlugWebViewEditorDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FA0FB16247D4D2B00E25C73 /* IPlugWebViewEditorDelegate.mm */; };
 		4FA0FB1A247D4D2B00E25C73 /* IPlugWebViewEditorDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FA0FB16247D4D2B00E25C73 /* IPlugWebViewEditorDelegate.mm */; };
 		4FA0FB1B247D4D2B00E25C73 /* IPlugWebViewEditorDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FA0FB16247D4D2B00E25C73 /* IPlugWebViewEditorDelegate.mm */; };
 		4FA0FB1C247D4D2B00E25C73 /* IPlugWebViewEditorDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FA0FB16247D4D2B00E25C73 /* IPlugWebViewEditorDelegate.mm */; };
-		4FA0FB1D247D4D2B00E25C73 /* IPlugWebViewEditorDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FA0FB16247D4D2B00E25C73 /* IPlugWebViewEditorDelegate.mm */; };
 		4FA0FB1F247D4D2B00E25C73 /* IPlugWebViewEditorDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FA0FB16247D4D2B00E25C73 /* IPlugWebViewEditorDelegate.mm */; };
 		4FA0FB20247D4D2C00E25C73 /* IPlugWebViewEditorDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FA0FB16247D4D2B00E25C73 /* IPlugWebViewEditorDelegate.mm */; };
 		4FA0FB21247D4DBA00E25C73 /* web in Resources */ = {isa = PBXBuildFile; fileRef = 4FC46E57231440B4000045E7 /* web */; };
@@ -167,26 +167,6 @@
 		4FB600231567CB0A0020189A /* IPlugParameter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D90413B63BA50032E0F3 /* IPlugParameter.cpp */; };
 		4FB600261567CB0A0020189A /* AAX_Exports.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4CC38A1549B91100A9EA21 /* AAX_Exports.cpp */; };
 		4FB600281567CB0A0020189A /* IPlugAAX_Describe.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F4CC4401549C15500A9EA21 /* IPlugAAX_Describe.cpp */; };
-		4FB64D06247956AA006B3013 /* IPlugWebView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F7DB9CB247890B700ACF64B /* IPlugWebView.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		4FB64D07247956AA006B3013 /* IPlugWebView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F7DB9CB247890B700ACF64B /* IPlugWebView.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		4FB64D08247956AA006B3013 /* IPlugWebView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F7DB9CB247890B700ACF64B /* IPlugWebView.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		4FB64D09247956AB006B3013 /* IPlugWebView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F7DB9CB247890B700ACF64B /* IPlugWebView.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		4FB64D0A247956AC006B3013 /* IPlugWebView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F7DB9CB247890B700ACF64B /* IPlugWebView.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		4FB64D0B247956AF006B3013 /* IPlugWebView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F7DB9CB247890B700ACF64B /* IPlugWebView.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		4FB64D0C247956B3006B3013 /* IPlugWebView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F7DB9CB247890B700ACF64B /* IPlugWebView.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		4FC3EFCB2086C27800BD11FA /* IPlugWebUI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F3862ED2014BBEC0009F402 /* IPlugWebUI.cpp */; };
-		4FC3EFCE2086C35D00BD11FA /* IPlugPluginBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F35DEAB207E5C5A00867D8F /* IPlugPluginBase.cpp */; };
-		4FC3EFD42086C49D00BD11FA /* IPlugWebUIVST3Controller.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FC3EFC42086C0A600BD11FA /* IPlugWebUIVST3Controller.a */; };
-		4FC3EFF02086CE5700BD11FA /* eventlist.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FC3EFDD2086CE5600BD11FA /* eventlist.h */; };
-		4FC3EFF22086CE5700BD11FA /* hostclasses.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FC3EFDF2086CE5600BD11FA /* hostclasses.h */; };
-		4FC3EFF42086CE5700BD11FA /* module.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FC3EFE12086CE5600BD11FA /* module.h */; };
-		4FC3EFF82086CE5700BD11FA /* optional.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FC3EFE52086CE5600BD11FA /* optional.h */; };
-		4FC3EFF92086CE5700BD11FA /* parameterchanges.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FC3EFE62086CE5600BD11FA /* parameterchanges.cpp */; };
-		4FC3EFFA2086CE5700BD11FA /* parameterchanges.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FC3EFE72086CE5600BD11FA /* parameterchanges.h */; };
-		4FC3EFFC2086CE5700BD11FA /* plugprovider.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FC3EFE92086CE5600BD11FA /* plugprovider.h */; };
-		4FC3EFFE2086CE5700BD11FA /* processdata.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FC3EFEB2086CE5600BD11FA /* processdata.h */; };
-		4FC3F0002086CE5700BD11FA /* stringconvert.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FC3EFED2086CE5600BD11FA /* stringconvert.h */; };
-		4FC3F0012086CE5700BD11FA /* uid.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FC3EFEE2086CE5600BD11FA /* uid.h */; };
 		4FD16D0513B634AA001D0217 /* swell-dlg.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D0413B634AA001D0217 /* swell-dlg.mm */; settings = {COMPILER_FLAGS = "-Wno-unreachable-code -Wno-shorten-64-to-32 -Wno-deprecated-implementations"; }; };
 		4FD16D1613B634D2001D0217 /* swell-ini.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D1513B634D2001D0217 /* swell-ini.cpp */; };
 		4FD16D3A13B63582001D0217 /* swell-kb.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D3913B63582001D0217 /* swell-kb.mm */; };
@@ -204,45 +184,8 @@
 		4FDAC0ED207D76C600299363 /* IPlugTimer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FDAC0E6207D76C600299363 /* IPlugTimer.cpp */; };
 		4FDAC0EE207D76C600299363 /* IPlugTimer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FDAC0E6207D76C600299363 /* IPlugTimer.cpp */; };
 		4FF0A83221BE708700B2C9D1 /* swell-gdi.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D0B13B634BF001D0217 /* swell-gdi.mm */; settings = {COMPILER_FLAGS = "-Wno-unreachable-code"; }; };
-		4FF3205820B2BFAB00269268 /* IPlugPaths.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FF3204F20B2BFAB00269268 /* IPlugPaths.h */; };
-		4FFBB90520863B0E00DDD0E7 /* baseiids.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8158BF205D50EB00393585 /* baseiids.cpp */; };
-		4FFBB90620863B0E00DDD0E7 /* IPlugTimer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FDAC0E6207D76C600299363 /* IPlugTimer.cpp */; };
-		4FFBB90720863B0E00DDD0E7 /* IPlugWebUI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F3862ED2014BBEC0009F402 /* IPlugWebUI.cpp */; };
-		4FFBB90820863B0E00DDD0E7 /* pluginfactory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8157E9205D50EA00393585 /* pluginfactory.cpp */; };
-		4FFBB90920863B0E00DDD0E7 /* vstinitiids.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F81588D205D50EB00393585 /* vstinitiids.cpp */; };
-		4FFBB90A20863B0E00DDD0E7 /* fdebug.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8158C5205D50EB00393585 /* fdebug.cpp */; };
-		4FFBB90C20863B0E00DDD0E7 /* IPlugAPIBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8ED13B63BA40032E0F3 /* IPlugAPIBase.cpp */; };
-		4FFBB90D20863B0E00DDD0E7 /* fdynlib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8158C7205D50EB00393585 /* fdynlib.cpp */; };
-		4FFBB90E20863B0E00DDD0E7 /* memorystream.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8157E0205D50EA00393585 /* memorystream.cpp */; };
-		4FFBB90F20863B0E00DDD0E7 /* IPlugParameter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D90413B63BA50032E0F3 /* IPlugParameter.cpp */; };
-		4FFBB91020863B0E00DDD0E7 /* pluginview.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8157E2205D50EA00393585 /* pluginview.cpp */; };
-		4FFBB91120863B0E00DDD0E7 /* fstring.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8158CE205D50EB00393585 /* fstring.cpp */; };
-		4FFBB91320863B0E00DDD0E7 /* vstpresetfile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F815892205D50EB00393585 /* vstpresetfile.cpp */; };
-		4FFBB91520863B0E00DDD0E7 /* timer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8158D1205D50EB00393585 /* timer.cpp */; };
-		4FFBB91720863B0E00DDD0E7 /* funknown.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8158E7205D50EB00393585 /* funknown.cpp */; };
-		4FFBB91820863B0E00DDD0E7 /* vstbus.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F815881205D50EA00393585 /* vstbus.cpp */; };
-		4FFBB91920863B0E00DDD0E7 /* IPlugPluginBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F35DEAB207E5C5A00867D8F /* IPlugPluginBase.cpp */; };
-		4FFBB91A20863B0E00DDD0E7 /* macmain.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8157E8205D50EA00393585 /* macmain.cpp */; };
-		4FFBB91B20863B0E00DDD0E7 /* flock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8158DB205D50EB00393585 /* flock.cpp */; };
-		4FFBB91D20863B0E00DDD0E7 /* ustring.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8158F7205D50EB00393585 /* ustring.cpp */; };
-		4FFBB91E20863B0E00DDD0E7 /* fobject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8158C9205D50EB00393585 /* fobject.cpp */; };
-		4FFBB91F20863B0E00DDD0E7 /* vstparameters.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F815890205D50EB00393585 /* vstparameters.cpp */; };
-		4FFBB92120863B0E00DDD0E7 /* vstcomponentbase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F815887205D50EB00393585 /* vstcomponentbase.cpp */; };
-		4FFBB92220863B0E00DDD0E7 /* IPlugVST3_Processor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FFBB8F520863B0900DDD0E7 /* IPlugVST3_Processor.cpp */; };
-		4FFBB92320863B0E00DDD0E7 /* conststringtable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8158DE205D50EB00393585 /* conststringtable.cpp */; };
-		4FFBB92420863B0E00DDD0E7 /* vstaudioeffect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F81587E205D50EA00393585 /* vstaudioeffect.cpp */; };
-		4FFBB92520863B0E00DDD0E7 /* vstsinglecomponenteffect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F815896205D50EB00393585 /* vstsinglecomponenteffect.cpp */; };
-		4FFBB92620863B0E00DDD0E7 /* updatehandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8158D3205D50EB00393585 /* updatehandler.cpp */; };
-		4FFBB92820863B0E00DDD0E7 /* vstcomponent.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F815885205D50EA00393585 /* vstcomponent.cpp */; };
-		4FFBB92C20863B0E00DDD0E7 /* fstreamer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8158CC205D50EB00393585 /* fstreamer.cpp */; };
-		4FFBB92D20863B0E00DDD0E7 /* vstrepresentation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F815894205D50EB00393585 /* vstrepresentation.cpp */; };
-		4FFBB92E20863B0E00DDD0E7 /* fcondition.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8158DA205D50EB00393585 /* fcondition.cpp */; };
-		4FFBB93020863B0E00DDD0E7 /* fbuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8158C1205D50EB00393585 /* fbuffer.cpp */; };
-		4FFBB93420863B0E00DDD0E7 /* coreiids.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8158E0205D50EB00393585 /* coreiids.cpp */; };
-		4FFBB93520863B0E00DDD0E7 /* vstnoteexpressiontypes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F81588E205D50EB00393585 /* vstnoteexpressiontypes.cpp */; };
 		B885CBC52304AE7300D73128 /* IPlugProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8F61A8202807B9003F2573 /* IPlugProcessor.cpp */; };
 		B8E22A0C220268C4007CBF4C /* IPlugVST3_ProcessorBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B8E22A0A220268C4007CBF4C /* IPlugVST3_ProcessorBase.cpp */; };
-		B8E22A0D220268C4007CBF4C /* IPlugVST3_ProcessorBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B8E22A0A220268C4007CBF4C /* IPlugVST3_ProcessorBase.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -307,14 +250,6 @@
 			containerPortal = 089C1669FE841209C02AAC07 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 4F9828AA140A9EB700F3FCC1;
-			remoteInfo = "VST3_32&64_intel";
-		};
-		4FC3EFD22086C46800BD11FA /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 089C1669FE841209C02AAC07 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 4FC3EFC32086C0A600BD11FA;
-			remoteInfo = VST3C;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -389,6 +324,7 @@
 		4F3D2B4520212D4E00842FF4 /* wdl_base64.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = wdl_base64.h; path = ../../../WDL/wdl_base64.h; sourceTree = "<group>"; };
 		4F3E693A1409747300C4D749 /* IPlugWebUI-VST3-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "IPlugWebUI-VST3-Info.plist"; path = "../resources/IPlugWebUI-VST3-Info.plist"; sourceTree = "<group>"; };
 		4F3EE1F0231438D000004786 /* IPlugWebUI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = IPlugWebUI.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		4F3F6E462CCBDFF700C41C6D /* IPlugWebView_mac.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = IPlugWebView_mac.mm; sourceTree = "<group>"; };
 		4F3FB118202273A500622761 /* IPlugWebUI-macOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "IPlugWebUI-macOS.entitlements"; sourceTree = "<group>"; };
 		4F4237201FC852FE0067D58C /* IPlugConstants.h */ = {isa = PBXFileReference; indentWidth = 2; lastKnownFileType = sourcecode.c.h; name = IPlugConstants.h; path = ../../../IPlug/IPlugConstants.h; sourceTree = "<group>"; tabWidth = 2; };
 		4F4237231FC863060067D58C /* IPlugUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.h; name = IPlugUtilities.h; path = ../../../IPlug/IPlugUtilities.h; sourceTree = "<group>"; tabWidth = 2; };
@@ -446,7 +382,6 @@
 		4F78D90513B63BA50032E0F3 /* IPlugMidi.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.h; name = IPlugMidi.h; path = ../../../IPlug/IPlugMidi.h; sourceTree = SOURCE_ROOT; tabWidth = 2; };
 		4F78DB5F13B6462B0032E0F3 /* IPlugWebUI.component */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IPlugWebUI.component; sourceTree = BUILT_PRODUCTS_DIR; };
 		4F7DB9C824788FF700ACF64B /* IPlugWebView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IPlugWebView.h; sourceTree = "<group>"; };
-		4F7DB9CB247890B700ACF64B /* IPlugWebView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = IPlugWebView.mm; sourceTree = "<group>"; };
 		4F7E6F2920DEC3DE00A5F641 /* favicon.ico */ = {isa = PBXFileReference; lastKnownFileType = image.ico; path = favicon.ico; sourceTree = "<group>"; };
 		4F7E6F2B20DEC3DE00A5F641 /* index.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = index.html; sourceTree = "<group>"; };
 		4F7E6F2D20DEC3DE00A5F641 /* IPlugWAM-awp.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = "IPlugWAM-awp.js"; sourceTree = "<group>"; };
@@ -579,7 +514,6 @@
 		4FB600331567CB0A0020189A /* IPlugWebUI.aaxplugin */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IPlugWebUI.aaxplugin; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FBAA593207918230054E717 /* IPlugDelegate_select.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.h; name = IPlugDelegate_select.h; path = ../../../IPlug/IPlugDelegate_select.h; sourceTree = "<group>"; tabWidth = 2; };
 		4FBBD7F320B6AB9800A37DE2 /* config */ = {isa = PBXFileReference; lastKnownFileType = folder; name = config; path = ../config; sourceTree = "<group>"; };
-		4FC3EFC42086C0A600BD11FA /* IPlugWebUIVST3Controller.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = IPlugWebUIVST3Controller.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FC3EFDC2086CE5600BD11FA /* eventlist.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = eventlist.cpp; sourceTree = "<group>"; };
 		4FC3EFDD2086CE5600BD11FA /* eventlist.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = eventlist.h; sourceTree = "<group>"; };
 		4FC3EFDE2086CE5600BD11FA /* hostclasses.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = hostclasses.cpp; sourceTree = "<group>"; };
@@ -647,7 +581,6 @@
 		4FFBB8F320863B0900DDD0E7 /* IPlugVST3_Controller.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.h; name = IPlugVST3_Controller.h; path = ../../../IPlug/VST3/IPlugVST3_Controller.h; sourceTree = "<group>"; tabWidth = 2; };
 		4FFBB8F420863B0900DDD0E7 /* IPlugVST3_Processor.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.h; name = IPlugVST3_Processor.h; path = ../../../IPlug/VST3/IPlugVST3_Processor.h; sourceTree = "<group>"; tabWidth = 2; };
 		4FFBB8F520863B0900DDD0E7 /* IPlugVST3_Processor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugVST3_Processor.cpp; path = ../../../IPlug/VST3/IPlugVST3_Processor.cpp; sourceTree = "<group>"; tabWidth = 2; };
-		4FFBB93B20863B0E00DDD0E7 /* IPlugWebUI.vst3 */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IPlugWebUI.vst3; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FFBB94120863E9300DDD0E7 /* IPlugVST3_Parameter.h */ = {isa = PBXFileReference; indentWidth = 2; lastKnownFileType = sourcecode.c.h; name = IPlugVST3_Parameter.h; path = ../../../IPlug/VST3/IPlugVST3_Parameter.h; sourceTree = "<group>"; tabWidth = 2; };
 		4FFF72B8214BB71400839091 /* main.rc */ = {isa = PBXFileReference; lastKnownFileType = text; name = main.rc; path = ../resources/main.rc; sourceTree = "<group>"; };
 		52FBBED30D0CF143001C8B8A /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.h; name = config.h; path = ../config.h; sourceTree = "<group>"; tabWidth = 2; usesTabs = 0; };
@@ -706,21 +639,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		4FC3EFC12086C0A600BD11FA /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		4FFBB93620863B0E00DDD0E7 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				4FC3EFD42086C49D00BD11FA /* IPlugWebUIVST3Controller.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -787,8 +705,6 @@
 				4F78DB5F13B6462B0032E0F3 /* IPlugWebUI.component */,
 				4FB600331567CB0A0020189A /* IPlugWebUI.aaxplugin */,
 				4F3907602013EBA300DDA490 /* IPlugWebUI.appex */,
-				4FFBB93B20863B0E00DDD0E7 /* IPlugWebUI.vst3 */,
-				4FC3EFC42086C0A600BD11FA /* IPlugWebUIVST3Controller.a */,
 				4F78BE0222E73D0800AD537E /* AUv3Framework.framework */,
 				4F3EE1F0231438D000004786 /* IPlugWebUI.app */,
 			);
@@ -1048,7 +964,7 @@
 				4FA0FB15247D4D2B00E25C73 /* IPlugWebViewEditorDelegate.h */,
 				4FA0FB16247D4D2B00E25C73 /* IPlugWebViewEditorDelegate.mm */,
 				4F7DB9C824788FF700ACF64B /* IPlugWebView.h */,
-				4F7DB9CB247890B700ACF64B /* IPlugWebView.mm */,
+				4F3F6E462CCBDFF700C41C6D /* IPlugWebView_mac.mm */,
 			);
 			path = WebView;
 			sourceTree = "<group>";
@@ -1406,23 +1322,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		4FC3EFC22086C0A600BD11FA /* Headers */ = {
-			isa = PBXHeadersBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				4FC3EFF02086CE5700BD11FA /* eventlist.h in Headers */,
-				4FC3EFF42086CE5700BD11FA /* module.h in Headers */,
-				4FC3EFF82086CE5700BD11FA /* optional.h in Headers */,
-				4FC3F0012086CE5700BD11FA /* uid.h in Headers */,
-				4FC3EFF22086CE5700BD11FA /* hostclasses.h in Headers */,
-				4FF3205820B2BFAB00269268 /* IPlugPaths.h in Headers */,
-				4FC3EFFE2086CE5700BD11FA /* processdata.h in Headers */,
-				4FC3F0002086CE5700BD11FA /* stringconvert.h in Headers */,
-				4FC3EFFA2086CE5700BD11FA /* parameterchanges.h in Headers */,
-				4FC3EFFC2086CE5700BD11FA /* plugprovider.h in Headers */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
@@ -1510,6 +1409,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 4F78BE0E22E73D0800AD537E /* Build configuration list for PBXNativeTarget "AUv3Framework" */;
 			buildPhases = (
+				0280A3159FDEADB2A2E47BE6 /* Run Script prepare_resources-mac.py */,
 				4F78BDFD22E73D0800AD537E /* Headers */,
 				4F78BDFE22E73D0800AD537E /* Sources */,
 				4F78BDFF22E73D0800AD537E /* Frameworks */,
@@ -1563,23 +1463,6 @@
 			productReference = 4FB600331567CB0A0020189A /* IPlugWebUI.aaxplugin */;
 			productType = "com.apple.product-type.bundle";
 		};
-		4FC3EFC32086C0A600BD11FA /* VST3C */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 4FC3EFC52086C0A700BD11FA /* Build configuration list for PBXNativeTarget "VST3C" */;
-			buildPhases = (
-				4FC3EFC02086C0A600BD11FA /* Sources */,
-				4FC3EFC12086C0A600BD11FA /* Frameworks */,
-				4FC3EFC22086C0A600BD11FA /* Headers */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = VST3C;
-			productName = "IPlugWebUI-VST3Controller";
-			productReference = 4FC3EFC42086C0A600BD11FA /* IPlugWebUIVST3Controller.a */;
-			productType = "com.apple.product-type.library.static";
-		};
 		4FD16A0813B63081001D0217 /* APP */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 4FD16A0F13B63082001D0217 /* Build configuration list for PBXNativeTarget "APP" */;
@@ -1596,26 +1479,6 @@
 			productName = "OSXAPP_32&64_intel";
 			productReference = 4FD16A0913B63081001D0217 /* IPlugWebUI.app */;
 			productType = "com.apple.product-type.application";
-		};
-		4FFBB8F820863B0E00DDD0E7 /* VST3P */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 4FFBB93720863B0E00DDD0E7 /* Build configuration list for PBXNativeTarget "VST3P" */;
-			buildPhases = (
-				4FFBB8F920863B0E00DDD0E7 /* Run Script - prepare_resources-mac.py */,
-				4FFBB8FA20863B0E00DDD0E7 /* Resources */,
-				4FFBB90420863B0E00DDD0E7 /* Sources */,
-				4FFBB93620863B0E00DDD0E7 /* Frameworks */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				4FC3EFD32086C46800BD11FA /* PBXTargetDependency */,
-			);
-			name = VST3P;
-			productInstallPath = "$(HOME)/Library/Bundles";
-			productName = IPlugExample;
-			productReference = 4FFBB93B20863B0E00DDD0E7 /* IPlugWebUI.vst3 */;
-			productType = "com.apple.product-type.bundle";
 		};
 /* End PBXNativeTarget section */
 
@@ -1663,10 +1526,6 @@
 					4FB600121567CB0A0020189A = {
 						DevelopmentTeam = 686EDA2T8T;
 					};
-					4FC3EFC32086C0A600BD11FA = {
-						CreatedOnToolsVersion = 9.2;
-						DevelopmentTeam = 686EDA2T8T;
-					};
 					4FD16A0813B63081001D0217 = {
 						DevelopmentTeam = 686EDA2T8T;
 						ProvisioningStyle = Automatic;
@@ -1678,9 +1537,6 @@
 								enabled = 1;
 							};
 						};
-					};
-					4FFBB8F820863B0E00DDD0E7 = {
-						DevelopmentTeam = 686EDA2T8T;
 					};
 				};
 			};
@@ -1711,9 +1567,7 @@
 				4F9828AA140A9EB700F3FCC1 /* VST3 */,
 				4F3AE17812C0E5E2001FD7A4 /* AU */,
 				4FB600121567CB0A0020189A /* AAX */,
-				4FFBB8F820863B0E00DDD0E7 /* VST3P */,
 				4F39075F2013EBA300DDA490 /* AUv3 */,
-				4FC3EFC32086C0A600BD11FA /* VST3C */,
 				4F78BE0122E73D0800AD537E /* AUv3Framework */,
 				4F3EE1BA231438D000004786 /* AUv3App */,
 			);
@@ -1798,14 +1652,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		4FFBB8FA20863B0E00DDD0E7 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				4F0AB11F259C051C00653315 /* web in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXRezBuildPhase section */
@@ -1820,6 +1666,24 @@
 /* End PBXRezBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		0280A3159FDEADB2A2E47BE6 /* Run Script prepare_resources-mac.py */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Run Script prepare_resources-mac.py";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "python3 ../scripts/prepare_resources-mac.py\n";
+		};
 		4F02E1D723144CDA00731A7D /* Run Script - Force register AUv3 */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -1965,22 +1829,6 @@
 			shellScript = "python3 ../scripts/prepare_resources-mac.py";
 			showEnvVarsInLog = 0;
 		};
-		4FFBB8F920863B0E00DDD0E7 /* Run Script - prepare_resources-mac.py */ = {
-			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Run Script - prepare_resources-mac.py";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "python3 ../scripts/prepare_resources-mac.py";
-			showEnvVarsInLog = 0;
-		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -1993,8 +1841,8 @@
 				4F1A527B205D910000CF2908 /* IPlugVST2.cpp in Sources */,
 				4F8D9707209EF5AC006E2A11 /* IPlugWebUI.cpp in Sources */,
 				4F78D9BB13B63BA50032E0F3 /* IPlugAPIBase.cpp in Sources */,
-				4FB64D06247956AA006B3013 /* IPlugWebView.mm in Sources */,
 				4FA0FB19247D4D2B00E25C73 /* IPlugWebViewEditorDelegate.mm in Sources */,
+				4F3F6E552CCBDFF700C41C6D /* IPlugWebView_mac.mm in Sources */,
 				4F993F7223055C96000313AF /* IPlugProcessor.cpp in Sources */,
 				4F35DEAE207E5C5A00867D8F /* IPlugPluginBase.cpp in Sources */,
 				4F78D9C813B63BA50032E0F3 /* IPlugParameter.cpp in Sources */,
@@ -2017,7 +1865,7 @@
 				4FD52131202A5B9B00A4D22A /* IPlugAU_view_factory.mm in Sources */,
 				4F993F7423055C96000313AF /* IPlugProcessor.cpp in Sources */,
 				4FA0FB1B247D4D2B00E25C73 /* IPlugWebViewEditorDelegate.mm in Sources */,
-				4FB64D08247956AA006B3013 /* IPlugWebView.mm in Sources */,
+				4F3F6E472CCBDFF700C41C6D /* IPlugWebView_mac.mm in Sources */,
 				4FDAC0ED207D76C600299363 /* IPlugTimer.cpp in Sources */,
 				4F78D94513B63BA50032E0F3 /* IPlugAPIBase.cpp in Sources */,
 				4FD52136202A5BD000A4D22A /* dfx-au-utilities.c in Sources */,
@@ -2033,10 +1881,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				4F3EE1C2231438D000004786 /* IPlugProcessor.cpp in Sources */,
-				4FB64D0C247956B3006B3013 /* IPlugWebView.mm in Sources */,
 				4F3EE1C3231438D000004786 /* RtMidi.cpp in Sources */,
 				4F3EE1C7231438D000004786 /* swell-dlg.mm in Sources */,
 				4F3EE1C8231438D000004786 /* swell-ini.cpp in Sources */,
+				4F3F6E492CCBDFF700C41C6D /* IPlugWebView_mac.mm in Sources */,
 				4F3EE1C9231438D000004786 /* swellappmain.mm in Sources */,
 				4FA0FB20247D4D2C00E25C73 /* IPlugWebViewEditorDelegate.mm in Sources */,
 				4F3EE1CA231438D000004786 /* swell-kb.mm in Sources */,
@@ -2065,8 +1913,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4F3F6E4F2CCBDFF700C41C6D /* IPlugWebView_mac.mm in Sources */,
 				4F78BE1422E7406D00AD537E /* IPlugWebUI.h in Sources */,
-				4FB64D0B247956AF006B3013 /* IPlugWebView.mm in Sources */,
 				4F0D965C23099F6900BFDED0 /* IPlugProcessor.cpp in Sources */,
 				4F78BE1522E7406D00AD537E /* IPlugWebUI.cpp in Sources */,
 				4F78BE2222E7406D00AD537E /* IPlugAUAudioUnit.mm in Sources */,
@@ -2105,10 +1953,10 @@
 				4F35DEAF207E5C5A00867D8F /* IPlugPluginBase.cpp in Sources */,
 				4F81591E205D50EB00393585 /* macmain.cpp in Sources */,
 				4F993F7323055C96000313AF /* IPlugProcessor.cpp in Sources */,
+				4F3F6E532CCBDFF700C41C6D /* IPlugWebView_mac.mm in Sources */,
 				4F815986205D50EB00393585 /* flock.cpp in Sources */,
 				4F5F344320C0226200487201 /* IPlugPaths.mm in Sources */,
 				4F81598A205D50EB00393585 /* ustring.cpp in Sources */,
-				4FB64D07247956AA006B3013 /* IPlugWebView.mm in Sources */,
 				4F815980205D50EB00393585 /* fobject.cpp in Sources */,
 				4F815994205D51F000393585 /* vstparameters.cpp in Sources */,
 				4F815991205D51F000393585 /* vstcomponentbase.cpp in Sources */,
@@ -2133,7 +1981,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4FB64D0A247956AC006B3013 /* IPlugWebView.mm in Sources */,
+				4F3F6E4B2CCBDFF700C41C6D /* IPlugWebView_mac.mm in Sources */,
 				4F993F7523055C97000313AF /* IPlugProcessor.cpp in Sources */,
 				4FDAC0EE207D76C600299363 /* IPlugTimer.cpp in Sources */,
 				4FB6001A1567CB0A0020189A /* IPlugAPIBase.cpp in Sources */,
@@ -2149,18 +1997,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		4FC3EFC02086C0A600BD11FA /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				4FC3EFF92086CE5700BD11FA /* parameterchanges.cpp in Sources */,
-				4FC3EFCE2086C35D00BD11FA /* IPlugPluginBase.cpp in Sources */,
-				4F722021225C1EB100FF0E7C /* commoniids.cpp in Sources */,
-				4F472103209B294400A0A0A8 /* IPlugVST3_Controller.cpp in Sources */,
-				4FC3EFCB2086C27800BD11FA /* IPlugWebUI.cpp in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		4FD16A0613B63081001D0217 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -2169,6 +2005,7 @@
 				4F10D3D9203A6719003EF82A /* RtMidi.cpp in Sources */,
 				4FD16D0513B634AA001D0217 /* swell-dlg.mm in Sources */,
 				4FD16D1613B634D2001D0217 /* swell-ini.cpp in Sources */,
+				4F3F6E512CCBDFF700C41C6D /* IPlugWebView_mac.mm in Sources */,
 				4F5C5F6921BED05B00E024A7 /* swellappmain.mm in Sources */,
 				4FD16D3A13B63582001D0217 /* swell-kb.mm in Sources */,
 				4FA0FB18247D4D2B00E25C73 /* IPlugWebViewEditorDelegate.mm in Sources */,
@@ -2183,7 +2020,6 @@
 				4F1A5282205D913300CF2908 /* IPlugAPP.cpp in Sources */,
 				4F2EA978203A50EA008E4850 /* IPlugAPP_dialog.cpp in Sources */,
 				4FAFFE5821495A4800A6E72D /* RtAudio.cpp in Sources */,
-				4F7DB9CC247890B700ACF64B /* IPlugWebView.mm in Sources */,
 				4F690C9B203A345100A4A13E /* IPlugAPP_main.cpp in Sources */,
 				4F3862EF2014BBEC0009F402 /* IPlugWebUI.cpp in Sources */,
 				4F78D90B13B63BA50032E0F3 /* IPlugAPIBase.cpp in Sources */,
@@ -2191,53 +2027,6 @@
 				4FF0A83221BE708700B2C9D1 /* swell-gdi.mm in Sources */,
 				4F78D91813B63BA50032E0F3 /* IPlugParameter.cpp in Sources */,
 				4FDAC0EA207D76C600299363 /* IPlugTimer.cpp in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		4FFBB90420863B0E00DDD0E7 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				4FFBB90520863B0E00DDD0E7 /* baseiids.cpp in Sources */,
-				4FFBB90620863B0E00DDD0E7 /* IPlugTimer.cpp in Sources */,
-				4FFBB90720863B0E00DDD0E7 /* IPlugWebUI.cpp in Sources */,
-				4FFBB90820863B0E00DDD0E7 /* pluginfactory.cpp in Sources */,
-				4FFBB90920863B0E00DDD0E7 /* vstinitiids.cpp in Sources */,
-				4FFBB90A20863B0E00DDD0E7 /* fdebug.cpp in Sources */,
-				4FFBB90C20863B0E00DDD0E7 /* IPlugAPIBase.cpp in Sources */,
-				B8E22A0D220268C4007CBF4C /* IPlugVST3_ProcessorBase.cpp in Sources */,
-				4FFBB90D20863B0E00DDD0E7 /* fdynlib.cpp in Sources */,
-				4FA0FB1D247D4D2B00E25C73 /* IPlugWebViewEditorDelegate.mm in Sources */,
-				4FFBB90E20863B0E00DDD0E7 /* memorystream.cpp in Sources */,
-				4FFBB90F20863B0E00DDD0E7 /* IPlugParameter.cpp in Sources */,
-				4FFBB91020863B0E00DDD0E7 /* pluginview.cpp in Sources */,
-				4FFBB91120863B0E00DDD0E7 /* fstring.cpp in Sources */,
-				4FFBB91320863B0E00DDD0E7 /* vstpresetfile.cpp in Sources */,
-				4FFBB91520863B0E00DDD0E7 /* timer.cpp in Sources */,
-				4FFBB91720863B0E00DDD0E7 /* funknown.cpp in Sources */,
-				4FB64D09247956AB006B3013 /* IPlugWebView.mm in Sources */,
-				4FFBB91820863B0E00DDD0E7 /* vstbus.cpp in Sources */,
-				4FFBB91920863B0E00DDD0E7 /* IPlugPluginBase.cpp in Sources */,
-				4FFBB91A20863B0E00DDD0E7 /* macmain.cpp in Sources */,
-				4FFBB91B20863B0E00DDD0E7 /* flock.cpp in Sources */,
-				4FFBB91D20863B0E00DDD0E7 /* ustring.cpp in Sources */,
-				4FFBB91E20863B0E00DDD0E7 /* fobject.cpp in Sources */,
-				4FFBB91F20863B0E00DDD0E7 /* vstparameters.cpp in Sources */,
-				4FFBB92120863B0E00DDD0E7 /* vstcomponentbase.cpp in Sources */,
-				4FFBB92220863B0E00DDD0E7 /* IPlugVST3_Processor.cpp in Sources */,
-				4F993F7623055C98000313AF /* IPlugProcessor.cpp in Sources */,
-				4FFBB92320863B0E00DDD0E7 /* conststringtable.cpp in Sources */,
-				4FFBB92420863B0E00DDD0E7 /* vstaudioeffect.cpp in Sources */,
-				4FFBB92520863B0E00DDD0E7 /* vstsinglecomponenteffect.cpp in Sources */,
-				4FFBB92620863B0E00DDD0E7 /* updatehandler.cpp in Sources */,
-				4FFBB92820863B0E00DDD0E7 /* vstcomponent.cpp in Sources */,
-				4FFBB92C20863B0E00DDD0E7 /* fstreamer.cpp in Sources */,
-				4FFBB92D20863B0E00DDD0E7 /* vstrepresentation.cpp in Sources */,
-				4FFBB92E20863B0E00DDD0E7 /* fcondition.cpp in Sources */,
-				4FFBB93020863B0E00DDD0E7 /* fbuffer.cpp in Sources */,
-				4FFBB93420863B0E00DDD0E7 /* coreiids.cpp in Sources */,
-				4F5F344720C0226200487201 /* IPlugPaths.mm in Sources */,
-				4FFBB93520863B0E00DDD0E7 /* vstnoteexpressiontypes.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2284,11 +2073,6 @@
 			target = 4F9828AA140A9EB700F3FCC1 /* VST3 */;
 			targetProxy = 4F9828F7140A9F0200F3FCC1 /* PBXContainerItemProxy */;
 		};
-		4FC3EFD32086C46800BD11FA /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 4FC3EFC32086C0A600BD11FA /* VST3C */;
-			targetProxy = 4FC3EFD22086C46800BD11FA /* PBXContainerItemProxy */;
-		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
@@ -2314,7 +2098,6 @@
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)";
 				COPY_PHASE_STRIP = NO;
 				DEPLOYMENT_LOCATION = YES;
 				DEVELOPMENT_TEAM = "$(DEVELOPMENT_TEAM)";
@@ -2392,7 +2175,6 @@
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)";
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEPLOYMENT_LOCATION = YES;
 				DEVELOPMENT_TEAM = "$(DEVELOPMENT_TEAM)";
@@ -2527,8 +2309,11 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				IBC_FLATTEN_NIBS = NO;
 				INFOPLIST_FILE = "../resources/IPlugWebUI-macOS-AUv3-Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @executable_path/../../../../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.app.IPlugWebUI.AUv3;
@@ -2563,8 +2348,11 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				IBC_FLATTEN_NIBS = NO;
 				INFOPLIST_FILE = "../resources/IPlugWebUI-macOS-AUv3-Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @executable_path/../../../../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.app.IPlugWebUI.AUv3;
@@ -2599,8 +2387,11 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				IBC_FLATTEN_NIBS = NO;
 				INFOPLIST_FILE = "../resources/IPlugWebUI-macOS-AUv3-Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @executable_path/../../../../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.app.IPlugWebUI.AUv3;
@@ -2708,7 +2499,10 @@
 				);
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = "$(SRCROOT)/../resources/IPlugWebUI-macOS-Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
 				OTHER_LDFLAGS = (
 					"$(APP_FRAMEWORKS)",
 					"$(inherited)",
@@ -2733,7 +2527,10 @@
 				);
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = "$(SRCROOT)/../resources/IPlugWebUI-macOS-Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
 				OTHER_LDFLAGS = (
 					"$(APP_FRAMEWORKS)",
 					"$(inherited)",
@@ -2758,7 +2555,10 @@
 				);
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = "$(SRCROOT)/../resources/IPlugWebUI-macOS-Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
 				OTHER_LDFLAGS = (
 					"$(APP_FRAMEWORKS)",
 					"$(inherited)",
@@ -2803,8 +2603,10 @@
 				GENERATE_PKGINFO_FILE = NO;
 				INFOPLIST_FILE = "$(SRCROOT)/../resources/IPlugWebUI-macOS-AUv3Framework-Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @loader_path/Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@loader_path/Frameworks",
+				);
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				OTHER_LDFLAGS = (
@@ -2857,8 +2659,10 @@
 				GENERATE_PKGINFO_FILE = NO;
 				INFOPLIST_FILE = "$(SRCROOT)/../resources/IPlugWebUI-macOS-AUv3Framework-Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @loader_path/Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@loader_path/Frameworks",
+				);
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				OTHER_LDFLAGS = (
@@ -2911,8 +2715,10 @@
 				GENERATE_PKGINFO_FILE = NO;
 				INFOPLIST_FILE = "$(SRCROOT)/../resources/IPlugWebUI-macOS-AUv3Framework-Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @loader_path/Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@loader_path/Frameworks",
+				);
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				OTHER_LDFLAGS = (
@@ -3226,106 +3032,6 @@
 			};
 			name = Tracer;
 		};
-		4FC3EFC62086C0A700BD11FA /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_WARN_COMMA = YES;
-				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
-				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_IDENTITY = "";
-				DEBUG_INFORMATION_FORMAT = dwarf;
-				EXECUTABLE_EXTENSION = a;
-				EXECUTABLE_PREFIX = "";
-				GCC_C_LANGUAGE_STANDARD = gnu11;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"$(EXTRA_PLUGIN_DEFS)",
-					"$(EXTRA_VST3C_DEFS)",
-					"$(VST3C_DEFS)",
-					"$(inherited)",
-				);
-				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				HEADER_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(VST3_SDK)",
-				);
-				MTL_ENABLE_DEBUG_INFO = YES;
-				PRODUCT_NAME = IPlugWebUIVST3Controller;
-				SDKROOT = macosx;
-			};
-			name = Debug;
-		};
-		4FC3EFC72086C0A700BD11FA /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_WARN_COMMA = YES;
-				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
-				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_IDENTITY = "";
-				COPY_PHASE_STRIP = NO;
-				ENABLE_NS_ASSERTIONS = NO;
-				EXECUTABLE_EXTENSION = a;
-				EXECUTABLE_PREFIX = "";
-				GCC_C_LANGUAGE_STANDARD = gnu11;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"$(EXTRA_PLUGIN_DEFS)",
-					"$(EXTRA_VST3C_DEFS)",
-					"$(VST3C_DEFS)",
-					"$(inherited)",
-				);
-				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				HEADER_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(VST3_SDK)",
-				);
-				MTL_ENABLE_DEBUG_INFO = NO;
-				PRODUCT_NAME = IPlugWebUIVST3Controller;
-				SDKROOT = macosx;
-			};
-			name = Release;
-		};
-		4FC3EFC82086C0A700BD11FA /* Tracer */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_WARN_COMMA = YES;
-				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
-				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_IDENTITY = "";
-				COPY_PHASE_STRIP = NO;
-				ENABLE_NS_ASSERTIONS = NO;
-				EXECUTABLE_EXTENSION = a;
-				EXECUTABLE_PREFIX = "";
-				GCC_C_LANGUAGE_STANDARD = gnu11;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"$(VST3C_DEFS)",
-					"$(inherited)",
-				);
-				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				HEADER_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(VST3_SDK)",
-				);
-				MTL_ENABLE_DEBUG_INFO = NO;
-				PRODUCT_NAME = IPlugWebUIVST3Controller;
-				SDKROOT = macosx;
-			};
-			name = Tracer;
-		};
 		4FD16A0C13B63082001D0217 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -3339,7 +3045,10 @@
 				);
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = "../resources/IPlugWebUI-macOS-Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
 				OTHER_LDFLAGS = (
 					"$(APP_FRAMEWORKS)",
 					"$(inherited)",
@@ -3364,7 +3073,10 @@
 				);
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = "../resources/IPlugWebUI-macOS-Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
 				OTHER_LDFLAGS = (
 					"$(APP_FRAMEWORKS)",
 					"$(inherited)",
@@ -3389,7 +3101,10 @@
 				);
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = "../resources/IPlugWebUI-macOS-Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
 				OTHER_LDFLAGS = (
 					"$(APP_FRAMEWORKS)",
 					"$(inherited)",
@@ -3398,72 +3113,6 @@
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = NO;
 				WRAPPER_EXTENSION = app;
-			};
-			name = Tracer;
-		};
-		4FFBB93820863B0E00DDD0E7 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_IDENTITY = "";
-				DSTROOT = "$(VST3_PATH)";
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"$(EXTRA_PLUGIN_DEFS)",
-					"$(EXTRA_VST3P_DEFS)",
-					"$(VST3P_DEFS)",
-					"$(inherited)",
-				);
-				HEADER_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(VST3_SDK)",
-				);
-				INFOPLIST_FILE = "../resources/IPlugWebUI-VST3-Info.plist";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.AcmeInc.vst3.${BINARY_NAME}";
-				SKIP_INSTALL = NO;
-				WRAPPER_EXTENSION = vst3;
-			};
-			name = Debug;
-		};
-		4FFBB93920863B0E00DDD0E7 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_IDENTITY = "";
-				DSTROOT = "$(VST3_PATH)";
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"$(EXTRA_PLUGIN_DEFS)",
-					"$(EXTRA_VST3P_DEFS)",
-					"$(VST3P_DEFS)",
-					"$(inherited)",
-				);
-				HEADER_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(VST3_SDK)",
-				);
-				INFOPLIST_FILE = "../resources/IPlugWebUI-VST3-Info.plist";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.AcmeInc.vst3.${BINARY_NAME}";
-				SKIP_INSTALL = NO;
-				WRAPPER_EXTENSION = vst3;
-			};
-			name = Release;
-		};
-		4FFBB93A20863B0E00DDD0E7 /* Tracer */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_IDENTITY = "";
-				DSTROOT = "$(VST3_PATH)";
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"$(EXTRA_PLUGIN_DEFS)",
-					"$(EXTRA_VST3P_DEFS)",
-					"$(VST3P_DEFS)",
-					"$(inherited)",
-				);
-				HEADER_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(VST3_SDK)",
-				);
-				INFOPLIST_FILE = "../resources/IPlugWebUI-VST3-Info.plist";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.AcmeInc.vst3.${BINARY_NAME}";
-				SKIP_INSTALL = NO;
-				WRAPPER_EXTENSION = vst3;
 			};
 			name = Tracer;
 		};
@@ -3489,7 +3138,6 @@
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)";
 				DEPLOYMENT_LOCATION = YES;
 				DEVELOPMENT_TEAM = "$(DEVELOPMENT_TEAM)";
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -3634,32 +3282,12 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		4FC3EFC52086C0A700BD11FA /* Build configuration list for PBXNativeTarget "VST3C" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				4FC3EFC62086C0A700BD11FA /* Debug */,
-				4FC3EFC72086C0A700BD11FA /* Release */,
-				4FC3EFC82086C0A700BD11FA /* Tracer */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 		4FD16A0F13B63082001D0217 /* Build configuration list for PBXNativeTarget "APP" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				4FD16A0C13B63082001D0217 /* Debug */,
 				4FD16A0D13B63082001D0217 /* Release */,
 				4FD16A0E13B63082001D0217 /* Tracer */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		4FFBB93720863B0E00DDD0E7 /* Build configuration list for PBXNativeTarget "VST3P" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				4FFBB93820863B0E00DDD0E7 /* Debug */,
-				4FFBB93920863B0E00DDD0E7 /* Release */,
-				4FFBB93A20863B0E00DDD0E7 /* Tracer */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

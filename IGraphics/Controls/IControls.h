@@ -24,6 +24,7 @@
 #include "IRTTextControl.h"
 #include "IVKeyboardControl.h"
 #include "IVMeterControl.h"
+#include "IVSpectrumAnalyzerControl.h"
 #include "IVScopeControl.h"
 #include "IVMultiSliderControl.h"
 #include "IVDisplayControl.h"
@@ -105,8 +106,24 @@ protected:
 class IVSlideSwitchControl : public IVSwitchControl
 {
 public:
+  /** Construct a new IVSlideSwitchControl, with a parameter
+   * @param bounds The control's bounds
+   * @param paramIdx The parameter index to link this control to
+   * @param label The label for the vector control, leave empty for no label
+   * @param style The styling of this vector control \see IVStyle
+   * @param valueInButton if the value inside or outside the button
+   * @param direction The direction of the buttons */
   IVSlideSwitchControl(const IRECT& bounds, int paramIdx = kNoParameter, const char* label = "", const IVStyle& style = DEFAULT_STYLE, bool valueInButton = false, EDirection direction = EDirection::Horizontal);
   
+  /** Construct a new IVSlideSwitchControl, with an action function
+   * @param bounds The control's bounds
+   * @param aF An action function to execute when a button is clicked \see IActionFunction
+   * @param label The label for the vector control, leave empty for no label
+   * @param style The styling of this vector control \see IVStyle
+   * @param valueInButton if the value inside or outside the button
+   * @param direction The direction of the buttons
+   * @param numStates How many states the switch has
+   * @param initialState The initial state of the switch */
   IVSlideSwitchControl(const IRECT& bounds, IActionFunction aF = EmptyClickActionFunc, const char* label = "", const IVStyle& style = DEFAULT_STYLE, bool valueInButton = false, EDirection direction = EDirection::Horizontal, int numStates = 2, int initialState = 0);
   
   void Draw(IGraphics& g) override;
@@ -260,6 +277,7 @@ public:
 
   void Draw(IGraphics& g) override;
   virtual void DrawWidget(IGraphics& g) override;
+  virtual void DrawHandle(IGraphics& g, const IRECT& bounds);
   virtual void DrawIndicatorTrack(IGraphics& g, float angle, float cx, float cy, float radius);
   virtual void DrawPointer(IGraphics& g, float angle, float cx, float cy, float radius);
 
@@ -659,10 +677,10 @@ public:
   /** Constructs an ISVGSliderControl
    * @param bounds The control's bounds
    * @param handleSvg An ISVG for the handle part that moves
-   * @param handleSvg An ISVG for the track background
+   * @param trackSVG An ISVG for the track background
    * @param paramIdx The parameter index to link this control to
    * @param dir The direction of the slider movement
-   * @param gearing \todo */
+   * @param gearing Mouse sensitivity multiplier (higher values = finer control, slower value changes) */
   ISVGSliderControl(const IRECT& bounds, const ISVG& handleSvg, const ISVG& trackSVG, int paramIdx = kNoParameter, EDirection dir = EDirection::Vertical, double gearing = DEFAULT_GEARING);
 
   void Draw(IGraphics& g) override;

@@ -16,6 +16,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 #include "../assocarray.h"
 #include "../ptrlist.h"
 #include "../chunkalloc.h"
@@ -203,7 +204,6 @@ const char *__localizeFunc(const char *str, const char *subctx, int flags)
 
   char *newptr = NULL;
 
-  int trycnt;
   size_t len = strlen(str)+1;
 
   if (flags & LOCALIZE_FLAG_DOUBLENULL)
@@ -228,7 +228,8 @@ const char *__localizeFunc(const char *str, const char *subctx, int flags)
   else
     hash = WDL_FNV64(WDL_FNV64_IV,(const unsigned char *)str,(int)len);
 
-  for (trycnt=0;trycnt<2 && !newptr;trycnt++)
+  const int ntry = (flags & LOCALIZE_FLAG_NOCOMMON) ? 1 : 2;
+  for (int trycnt=0; trycnt<ntry && !newptr;trycnt++)
   {
     WDL_KeyedArray<WDL_UINT64, char *> *section = trycnt == 1 ? g_translations_commonsec : g_translations.Get(subctx);
 
@@ -382,23 +383,33 @@ struct windowReorgEnt
     WRET_MISC, // dont analyze for size changes, but move around
 
   };
+  enum subMode {
+    SUBMODE_NONE=0,
+    SUBMODE_STATIC,
+    SUBMODE_BUTTON,
+    SUBMODE_CHECKBOX,
+  };
   windowReorgEnt(HWND _hwnd, RECT _r, int wc)
   {
     hwnd=_hwnd;
     orig_r=r=_r;
     mode=WRET_MISC;
+    submode=SUBMODE_NONE;
     move_amt=0;
     wantsizeincrease=0;
     scaled_width_change = wc;
+    wnd_id = GetWindowLong(hwnd,GWL_ID);
   }
   ~windowReorgEnt() { }
 
   HWND hwnd;
   RECT r,orig_r;
   windowReorgEntType mode;
+  subMode submode;
   int move_amt;
   int wantsizeincrease;
   int scaled_width_change;
+  int wnd_id;
 
   static int Sort(const void *_a, const void *_b)
   {
@@ -541,16 +552,33 @@ static BOOL CALLBACK xlateGetRects(HWND hwnd, LPARAM lParam)
   if (!strcmp(buf,"Button"))
   {
     LONG style=GetWindowLong(hwnd,GWL_STYLE);
-    if (LOWORD(style)==BS_GROUPBOX) t.mode = windowReorgEnt::WRET_GROUP;
-    else t.mode = windowReorgEnt::WRET_SIZEADJ;
+    if ((style&BS_TYPEMASK)==BS_GROUPBOX) t.mode = windowReorgEnt::WRET_GROUP;
+    else
+    {
+      t.mode = windowReorgEnt::WRET_SIZEADJ;
+      if (((style&BS_TYPEMASK) >= BS_CHECKBOX && 
+             (style&BS_TYPEMASK) <= BS_AUTO3STATE) ||
+          (style&BS_TYPEMASK) == BS_AUTORADIOBUTTON)
+      {
+        t.submode = windowReorgEnt::SUBMODE_CHECKBOX;
+      }
+      else
+        t.submode = windowReorgEnt::SUBMODE_BUTTON;
+    }
   }
   else if (!strcmp(buf,"Static"))
   {
-    t.mode = windowReorgEnt::WRET_SIZEADJ;
+    if (!(GetWindowLong(hwnd,GWL_STYLE)&(SS_RIGHT|SS_CENTER)))
+      t.mode = windowReorgEnt::WRET_SIZEADJ;
+    t.submode = windowReorgEnt::SUBMODE_STATIC;
   }
 #else
   if (SWELL_IsGroupBox(hwnd)) t.mode = windowReorgEnt::WRET_GROUP;
-  else if (SWELL_IsButton(hwnd)||SWELL_IsStaticText(hwnd)) t.mode = windowReorgEnt::WRET_SIZEADJ;
+  else if (SWELL_IsButton(hwnd)) t.mode = windowReorgEnt::WRET_SIZEADJ;
+  else if (SWELL_IsStaticText(hwnd))
+  {
+    if (!(GetWindowLong(hwnd,GWL_STYLE)&(SS_RIGHT|SS_CENTER))) t.mode = windowReorgEnt::WRET_SIZEADJ;
+  }
 #endif
 
   if (t.mode == windowReorgEnt::WRET_GROUP)
@@ -572,11 +600,20 @@ static BOOL CALLBACK xlateGetRects(HWND hwnd, LPARAM lParam)
   return TRUE;
 }
 
+static int overlapSizeForControl(HWND h)
+{
+#ifdef __APPLE__
+  extern int g_swell_osx_style;
+  if ((g_swell_osx_style&1) && h && SWELL_IsButton(h) && !(GetWindowLong(h,GWL_STYLE)&0xf)) return 7;
+#endif
+  return 0;
+}
 static int rippleControlsRight(HWND hwnd, const RECT *srcR, windowReorgEnt *ent, int ent_cnt, int dSize, int clientw)
 {
   // limit first to client rectangle
   int space = clientw - 6 - srcR->right;
   if (dSize>space) dSize=space;
+  const int olap_outer = overlapSizeForControl(hwnd);
 
   while (ent_cnt>0 && dSize>0)
   {
@@ -584,9 +621,11 @@ static int rippleControlsRight(HWND hwnd, const RECT *srcR, windowReorgEnt *ent,
 #define LOCALIZE_ISECT_PAIRS(x1,x2,y1,y2)  \
       ((x1 >= y1 && x1 < y2) || (x2 >= y1 && x2 < y2) ||  \
        (y1 >= x1 && y1 < x2) || (y2 >= x1 && y2 < x2))
-    if (ent->r.left >= srcR->right-1 && LOCALIZE_ISECT_PAIRS(srcR->top,srcR->bottom,ent->r.top,ent->r.bottom))
+
+    if (LOCALIZE_ISECT_PAIRS(srcR->top,srcR->bottom,ent->r.top,ent->r.bottom) &&
+          ent->r.left >= srcR->right-1-olap_outer-overlapSizeForControl(ent->hwnd))
     {
-      space = ent->r.left - srcR->right;
+      space = wdl_max(ent->r.left - srcR->right,0);
 
       if (ent->mode == windowReorgEnt::WRET_GROUP)
       {
@@ -610,6 +649,13 @@ static int rippleControlsRight(HWND hwnd, const RECT *srcR, windowReorgEnt *ent,
   return dSize;
 }
 
+struct ctl_scale_info
+{
+  float xsc;
+  float xadj;
+  float ysc;
+};
+
 static void localize_dialog(HWND hwnd, WDL_KeyedArray<WDL_UINT64, char *> *sec)
 {
 #ifdef _DEBUG
@@ -622,7 +668,9 @@ static void localize_dialog(HWND hwnd, WDL_KeyedArray<WDL_UINT64, char *> *sec)
             sc_str = g_translations_commonsec->Get(LANGPACK_SCALE_CONSTANT);
           }
 */
+  bool auto_expand = false;
   float scx = 1.0, scy = 1.0;
+  WDL_IntKeyedArray<ctl_scale_info> ctl_scales;
   if (sc_str)
   {
     while (*sc_str && (*sc_str == ' ' || *sc_str == '\t')) sc_str++;
@@ -636,17 +684,49 @@ static void localize_dialog(HWND hwnd, WDL_KeyedArray<WDL_UINT64, char *> *sec)
     {
       scx=v;
       while (*sc_str && *sc_str != ' ' && *sc_str != '\t') sc_str++;
-      if (*sc_str)
-      {
+      while (*sc_str && (*sc_str == ' ' || *sc_str == '\t')) sc_str++;
 #ifdef WDL_HOOK_LOCALIZE_ATOF
-        v = (float)WDL_HOOK_LOCALIZE_ATOF(sc_str);
+      v = (float)WDL_HOOK_LOCALIZE_ATOF(sc_str);
 #else
-        v = (float)atof(sc_str);
+      v = (float)atof(sc_str);
 #endif
-        if (v > 0.1 && v < 8.0)
-          scy = v;
+      if (v > 0.1 && v < 8.0)
+      {
+        scy = v;
+        while (*sc_str && *sc_str != ' ' && *sc_str != '\t') sc_str++;
       }
     }
+    while (*sc_str)
+    {
+      while (*sc_str && (*sc_str == ' ' || *sc_str == '\t')) sc_str++;
+      if (*sc_str == '@')
+      {
+        int id = atoi(sc_str+1);
+        while (*sc_str && *sc_str != ' ' && *sc_str != '\t' && *sc_str != '=') sc_str++;
+        if (*sc_str == '=')
+        {
+#ifdef WDL_HOOK_LOCALIZE_ATOF
+          v = (float)WDL_HOOK_LOCALIZE_ATOF(sc_str+1);
+#else
+          v = (float)atof(sc_str+1);
+#endif
+          if (id > 0)
+          {
+            ctl_scale_info inf = { v };
+            while (*sc_str && *sc_str != ' ' && *sc_str != '\t')
+            {
+              if (!strnicmp(sc_str,",dx=",4)) inf.xadj = (float)atof(sc_str+4);
+              else if (!strnicmp(sc_str,",ysc=",5)) inf.ysc = (float)atof(sc_str+5);
+              sc_str++;
+            }
+            ctl_scales.AddUnsorted(id,inf);
+          }
+        }
+      }
+      else if (!strnicmp(sc_str,"auto_expand",11)) auto_expand = true;
+      while (*sc_str && *sc_str != ' ' && *sc_str != '\t') sc_str++;
+    }
+    ctl_scales.Resort();
   }
 
   windowReorgState s(hwnd,scx,scy);
@@ -662,43 +742,95 @@ static void localize_dialog(HWND hwnd, WDL_KeyedArray<WDL_UINT64, char *> *sec)
   if (font) oldFont=SelectObject(hdc,font);
 #endif
 
-  int x;
   const bool do_columns = true;
-  for(x=0;x<s.cws.GetSize();x++)
+  for (int x=0;x<s.cws.GetSize();x++)
   {
     windowReorgEnt *rec=s.cws.Get()+x;
     if (rec->hwnd)
     {
       const char *newText=xlateWindow(rec->hwnd,sec,buf,sizeof(buf), rec->mode != windowReorgEnt::WRET_MISC);
-      if (newText && rec->mode == windowReorgEnt::WRET_SIZEADJ)
+      const ctl_scale_info *this_sc_ptr = ctl_scales.GetPtr(rec->wnd_id);
+      int dSize = 0;
+      if (this_sc_ptr && this_sc_ptr->ysc > 1.0)
       {
-        RECT r1={0},r2={0};
-#ifdef _WIN32
-        DrawText(hdc,buf,-1,&r1,DT_CALCRECT);
-        DrawText(hdc,newText,-1,&r2,DT_CALCRECT);
-        r1.right += rec->scaled_width_change;
-#else
-        GetClientRect(rec->hwnd,&r1);
-        SWELL_GetDesiredControlSize(rec->hwnd,&r2);
-#endif
-        int dSize=r2.right-r1.right;
-        if (dSize>0)
+        const int addh = (int)floor(this_sc_ptr->ysc * (rec->r.bottom-rec->r.top) + 0.5) - (rec->r.bottom - rec->r.top);
+        if (addh > 0)
         {
-          rec->wantsizeincrease = ++dSize;
+          rec->r.top -= addh/2;
+          rec->r.bottom += (addh+1)/2;
+        }
+      }
 
-          if (do_columns)
+      int xadj = 0;
+      if (this_sc_ptr && this_sc_ptr->xadj != 0.0)
+      {
+        xadj = (int) floor(this_sc_ptr->xadj * (rec->orig_r.right-rec->orig_r.left) + 0.5);
+        rec->r.right += xadj;
+        rec->r.left += xadj;
+      }
+      if (this_sc_ptr && this_sc_ptr->xsc != 1.0 && this_sc_ptr->xsc > 0.1 && this_sc_ptr->xsc < 8.0)
+      {
+        RECT r1;
+        GetClientRect(rec->hwnd,&r1);
+        dSize = (int) floor(r1.right * this_sc_ptr->xsc + 0.5) - r1.right;
+        if (dSize > 0 && xadj < 0)
+        {
+          const int amt = wdl_min(-xadj,dSize);
+          rec->r.right += amt;
+          dSize -= amt;
+        }
+        if (dSize!=0)
+          rec->mode = windowReorgEnt::WRET_SIZEADJ;
+      }
+      else
+      {
+        if (newText && rec->mode == windowReorgEnt::WRET_SIZEADJ)
+        {
+          RECT r1,r2={0};
+          GetClientRect(rec->hwnd,&r1);
+#ifdef _WIN32
+          DrawTextUTF8(hdc,newText,-1,&r2,DT_CALCRECT);
+          if (rec->submode == windowReorgEnt::SUBMODE_BUTTON)
+            r2.right += 4;
+          else if (rec->submode == windowReorgEnt::SUBMODE_CHECKBOX)
           {
-            const int v = (rec->r.right<<16) | (rec->r.left&0xffff);
-            int *diff = s.columns.GetPtr(v);
-            if (!diff) s.columns.Insert(v,dSize);
-            else if (dSize > *diff) *diff = dSize;
+            r2.right += 4 + (r1.bottom-r1.top); // use height as a rough approximation of width of checkbox element
           }
+          else
+            r2.right += 2;
+#else
+          SWELL_GetDesiredControlSize(rec->hwnd,&r2);
+#endif
+          if (r2.right > r1.right)
+          {
+            if (this_sc_ptr && this_sc_ptr->xadj < 0.0)
+            {
+              // if specified no xsc, but a negative dx, then we should grow to the left
+              rec->r.left -= r2.right-r1.right;
+            }
+            else
+              dSize=r2.right-r1.right;
+          }
+        }
+      }
+
+      if (dSize!=0)
+      {
+        if (dSize>0) dSize++;
+        rec->wantsizeincrease = dSize;
+
+        if (do_columns && dSize>0)
+        {
+          const int v = (rec->r.right<<16) | (rec->r.left&0xffff);
+          int *diff = s.columns.GetPtr(v);
+          if (!diff) s.columns.Insert(v,dSize);
+          else if (dSize > *diff) *diff = dSize;
         }
       }
     }
   }
 
-  if (do_columns) for(x=0;x<s.cws.GetSize();x++)
+  if (do_columns) for (int x=0;x<s.cws.GetSize();x++)
   {
     windowReorgEnt *rec=s.cws.Get()+x;
     if (rec->hwnd && rec->mode == windowReorgEnt::WRET_SIZEADJ)
@@ -714,19 +846,25 @@ static void localize_dialog(HWND hwnd, WDL_KeyedArray<WDL_UINT64, char *> *sec)
   do
   {
     qsort(s.cws.Get(),s.cws.GetSize(),sizeof(*s.cws.Get()),windowReorgEnt::Sort);
-    for(x=0;x<s.cws.GetSize();x++)
+    int maxwant = 0;
+    for (int x=0;x<s.cws.GetSize();x++)
     {
       windowReorgEnt *trec=s.cws.Get()+x;
-      if (trec->wantsizeincrease>0)
+      if (trec->wantsizeincrease<0)
       {
-        int amt = rippleControlsRight(trec->hwnd,&trec->r,trec+1,s.cws.GetSize() - (x+1),trec->wantsizeincrease,s.par_cr.right);
+        trec->r.right += trec->wantsizeincrease;
+        trec->wantsizeincrease = 0;
+      }
+      else if (trec->wantsizeincrease>0)
+      {
+        int amt = rippleControlsRight(trec->hwnd,&trec->r,trec+1,s.cws.GetSize() - (x+1),trec->wantsizeincrease,
+            (auto_expand?2000:0)+s.par_cr.right);
         if (amt>0)
         {
           trec->wantsizeincrease -= amt;
           trec->r.right += amt;
         }
-        int y;
-        for(y=x+1;y<s.cws.GetSize();y++)
+        for (int y=x+1;y<s.cws.GetSize();y++)
         {
           windowReorgEnt *rec=s.cws.Get()+y;
           int a = min(amt,rec->move_amt);
@@ -739,13 +877,13 @@ static void localize_dialog(HWND hwnd, WDL_KeyedArray<WDL_UINT64, char *> *sec)
         }
         if (!swSizeInc && trec->wantsizeincrease>0) swSizeInc=1;
       }
+      maxwant = wdl_max(maxwant,trec->r.right - s.par_cr.right);
     }
-
-    if (swSizeInc++)
+    if (!auto_expand && swSizeInc++)
     {
-      // flip everything
+      // langpack did not specify auto_expand, everything didn't fit, flip and try again (and flip back)
       int w=s.par_cr.right;
-      for(x=0;x<s.cws.GetSize();x++)
+      for (int x=0;x<s.cws.GetSize();x++)
       {
         windowReorgEnt *rec=s.cws.Get()+x;
         int a = w-1-rec->r.left;
@@ -754,16 +892,27 @@ static void localize_dialog(HWND hwnd, WDL_KeyedArray<WDL_UINT64, char *> *sec)
         rec->r.right = a;
       }
     }
+    if (maxwant > 0 && auto_expand)
+    {
+      // langpack specified auto_expand: expand window up
+      RECT wr;
+      if (GetWindowLong(hwnd,GWL_STYLE)&WS_CHILD) wr=s.par_cr;
+      else GetWindowRect(hwnd,&wr);
+      s.par_cr.right += maxwant;
+      SetWindowPos(hwnd,NULL,0,0, maxwant + (wr.right-wr.left),
+                              (wr.bottom-wr.top),
+                              SWP_NOMOVE|SWP_NOACTIVATE|SWP_NOZORDER);
+    }
   } while (swSizeInc == 2);
 
-
-  for(x=0;x<s.cws.GetSize();x++)
+  for (int x=0;x<s.cws.GetSize();x++)
   {
     windowReorgEnt *rec=s.cws.Get()+x;
     if (rec->hwnd)
     {
-      bool wantMove = rec->r.left != rec->orig_r.left;
-      bool wantSize = (rec->r.right-rec->r.left) != (rec->orig_r.right-rec->orig_r.left);
+      bool wantMove = rec->r.left != rec->orig_r.left || rec->r.top != rec->orig_r.top;
+      bool wantSize = (rec->r.right-rec->r.left) != (rec->orig_r.right-rec->orig_r.left) ||
+                      (rec->r.bottom-rec->r.top) != (rec->orig_r.bottom-rec->orig_r.top) ;
       if (wantMove||wantSize)
       {
         SetWindowPos(rec->hwnd,NULL,rec->r.left,rec->r.top,rec->r.right-rec->r.left,rec->r.bottom-rec->r.top,
@@ -895,7 +1044,17 @@ HWND __localizeDialog(HINSTANCE hInstance, const char *lpTemplate, HWND hwndPare
   switch (mode)
   {
     case 0: return CreateDialogParam(hInstance,lpTemplate,hwndParent,dlgProc,lParam);
-    case 1: return (HWND) (INT_PTR)DialogBoxParam(hInstance,lpTemplate,hwndParent,dlgProc,lParam);
+    case 1:
+    {
+#ifdef WDL_LOCALIZE_HOOK_DIALOGBOX_BEGIN
+      WDL_LOCALIZE_HOOK_DIALOGBOX_BEGIN
+#endif
+      HWND ret = (HWND) (INT_PTR)DialogBoxParam(hInstance,lpTemplate,hwndParent,dlgProc,lParam);
+#ifdef WDL_LOCALIZE_HOOK_DIALOGBOX_END
+      WDL_LOCALIZE_HOOK_DIALOGBOX_END
+#endif
+      return ret;
+    }
   }
   return 0;
 }
@@ -1024,6 +1183,11 @@ void WDL_fgets_as_utf8(char *linebuf, int linebuf_size, FILE *fp, int *format_fl
 WDL_KeyedArray<WDL_UINT64, char *> *WDL_GetLangpackSection(const char *sec)
 {
   return g_translations.Get(sec);
+}
+
+WDL_KeyedArray<WDL_UINT64, char *> *WDL_EnumLangpackSections(int idx, const char **secname)
+{
+  return g_translations.Enumerate(idx,secname);
 }
 
 WDL_KeyedArray<WDL_UINT64, char *> *WDL_LoadLanguagePackInternal(const char *fn,

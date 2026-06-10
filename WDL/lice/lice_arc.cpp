@@ -22,8 +22,34 @@ template <class T> inline void _SWAP(T& a, T& b) { T tmp = a; a = b; b = tmp; }
 
 static bool CachedCircle(LICE_IBitmap* dest, float cx, float cy, float r, LICE_pixel color, float alpha, int mode, bool aa, bool fill)
 {
-  // fast draw for some small circles 
-  if (r == 1.5f)
+  // fast draw for some small circles
+  if (r == 1.0f)
+  {
+    if (aa)
+    {
+#define __ALPHAS__(B) \
+        A(0.31), A(1.00), A(0.31), \
+        A(1.00), B(0.06), A(1.00), \
+        A(0.31), A(1.00), A(0.31),
+
+      DEF_ALPHAS(3)
+#undef __ALPHAS__
+      LICE_DrawGlyph(dest, cx-r, cy-r, color, alphas, 3, 3, alpha, mode);
+    }
+    else
+    {
+#define __ALPHAS__(B) \
+        A(0.00), A(1.00), A(0.00), \
+        A(1.00), B(0.00), A(1.00), \
+        A(0.00), A(1.00), A(0.00),
+
+      DEF_ALPHAS(3)
+#undef __ALPHAS__
+      LICE_DrawGlyph(dest, cx-r, cy-r, color, alphas, 3, 3, alpha, mode);
+    }
+    return true;
+  }
+  else if (r == 1.5f)
   {
     if (aa) 
     {

@@ -1,0 +1,918 @@
+/* NAME_PLACEHOLDER - iPlug2 Wasm Web Plugin Styles */
+
+:root {
+  color-scheme: light dark;
+
+  /* Surfaces */
+  --iplug-host-bg: #1a1a1a;
+  --iplug-host-bar-bg: #252525;
+  --iplug-host-elevated-bg: #2a2a2a;
+  --iplug-host-control-bg: #333;
+  --iplug-host-control-bg-hover: #444;
+  --iplug-host-control-bg-strong: #383838;
+
+  /* Borders */
+  --iplug-host-border: #444;
+  --iplug-host-border-subtle: #333;
+  --iplug-host-separator: #3a3a3a;
+
+  /* Foreground (high → low contrast) */
+  --iplug-host-fg-strong: #fff;
+  --iplug-host-fg: #ddd;
+  --iplug-host-fg-secondary: #aaa;
+  --iplug-host-fg-muted: #888;
+  --iplug-host-fg-faint: #666;
+  --iplug-host-fg-very-faint: #555;
+  --iplug-host-fg-h1: #e0e0e0;
+  --iplug-host-fg-param: #bbb;
+
+  /* Accents */
+  --iplug-host-accent: #3b82f6;
+  --iplug-host-accent-fg: #fff;
+  --iplug-host-slider-thumb: #1d4ed8;
+  --iplug-host-start-btn-bg: #888;
+  --iplug-host-start-btn-bg-hover: #777;
+  --iplug-host-start-btn-bg-active: #666;
+  --iplug-host-power-on-bg: var(--iplug-host-vu-low);
+  --iplug-host-power-on-bg-hover: #16a34a;
+  --iplug-host-power-on-bg-active: #15803d;
+  --iplug-host-power-on-glow: rgba(34, 197, 94, 0.55);
+
+  /* Shadows */
+  --iplug-host-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+  --iplug-host-shadow-thumb: 0 2px 6px rgba(0, 0, 0, 0.3);
+  --iplug-host-shadow-thumb-hover: 0 3px 10px rgba(0, 0, 0, 0.4);
+
+  /* Status (kept vibrant in both modes) */
+  --iplug-host-vu-low: #22c55e;
+  --iplug-host-vu-mid: #eab308;
+  --iplug-host-vu-high: #ef4444;
+
+  /* Param panel hero background */
+  --iplug-host-param-panel-bg: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --iplug-host-bg: #f5f5f5;
+    --iplug-host-bar-bg: #ffffff;
+    --iplug-host-elevated-bg: #ffffff;
+    --iplug-host-control-bg: #ececec;
+    --iplug-host-control-bg-hover: #dcdcdc;
+    --iplug-host-control-bg-strong: #e8e8e8;
+
+    --iplug-host-border: #cccccc;
+    --iplug-host-border-subtle: #e0e0e0;
+    --iplug-host-separator: #d8d8d8;
+
+    --iplug-host-fg-strong: #000;
+    --iplug-host-fg: #222;
+    --iplug-host-fg-secondary: #555;
+    --iplug-host-fg-muted: #777;
+    --iplug-host-fg-faint: #999;
+    --iplug-host-fg-very-faint: #aaa;
+    --iplug-host-fg-h1: #222;
+    --iplug-host-fg-param: #444;
+
+    --iplug-host-accent: #2563eb;
+    --iplug-host-slider-thumb: #0030ce;
+    --iplug-host-slider-accent: rgb(67, 111, 255);
+    --iplug-host-start-btn-bg: #6b7280;
+    --iplug-host-start-btn-bg-hover: #555f6e;
+    --iplug-host-start-btn-bg-active: #404858;
+
+    --iplug-host-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    --iplug-host-shadow-thumb: 0 2px 6px rgba(0, 0, 0, 0.18);
+    --iplug-host-shadow-thumb-hover: 0 3px 10px rgba(0, 0, 0, 0.22);
+
+    --iplug-host-param-panel-bg: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
+  }
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--iplug-host-bg);
+  color: var(--iplug-host-fg);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+}
+
+/*
+  IGraphics platform popup menu styling. Uncomment and adjust these variables
+  to customize the HTML Popover menu used by web builds.
+
+:root {
+  --iplug-popup-menu-background: #1e1e1e;
+  --iplug-popup-menu-color: #ddd;
+  --iplug-popup-menu-border: 1px solid #555;
+  --iplug-popup-menu-border-radius: 6px;
+  --iplug-popup-menu-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
+  --iplug-popup-menu-font: 13px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --iplug-popup-menu-padding: 4px 0;
+  --iplug-popup-menu-max-height: 70vh;
+  --iplug-popup-menu-hover-background: #3b82f6;
+  --iplug-popup-menu-hover-color: #fff;
+  --iplug-popup-menu-item-padding: 5px 12px;
+  --iplug-popup-menu-disabled-opacity: 0.45;
+  --iplug-popup-menu-min-width: 160px;
+  --iplug-popup-menu-title-padding: 6px 12px 2px;
+  --iplug-popup-menu-title-color: #888;
+  --iplug-popup-menu-title-font-size: 11px;
+  --iplug-popup-menu-separator-margin: 4px 8px;
+  --iplug-popup-menu-separator-color: #444;
+}
+*/
+
+/* Plugin web component container */
+iplug-NAME_PLACEHOLDER_LC {
+  display: block;
+  width: 100%;
+  height: calc(100% - 40px);
+}
+
+/* Resizable host mode */
+iplug-NAME_PLACEHOLDER_LC.resizable {
+  resize: both;
+  overflow: hidden;
+  min-width: 200px;
+  min-height: 150px;
+}
+
+/* Controls bar - more compact */
+#controls {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--iplug-host-bar-bg);
+  border-top: 1px solid var(--iplug-host-border-subtle);
+  padding: 0 10px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: var(--iplug-host-border) var(--iplug-host-bar-bg);
+}
+
+#controls::-webkit-scrollbar {
+  height: 4px;
+}
+
+#controls::-webkit-scrollbar-track {
+  background: var(--iplug-host-bar-bg);
+}
+
+#controls::-webkit-scrollbar-thumb {
+  background: var(--iplug-host-border);
+  border-radius: 2px;
+}
+
+#controls button {
+  padding: 5px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+#controls button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+#startBtn.power-btn {
+  width: 26px;
+  height: 26px;
+  min-width: 0;
+  padding: 0;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--iplug-host-start-btn-bg);
+  color: var(--iplug-host-accent-fg);
+  font-size: 15px;
+  line-height: 1;
+}
+
+#startBtn.power-btn:hover:not(:disabled) {
+  background: var(--iplug-host-start-btn-bg-hover);
+}
+
+#startBtn.power-btn:active:not(:disabled) {
+  background: var(--iplug-host-start-btn-bg-active);
+}
+
+#startBtn.power-btn.on {
+  background: var(--iplug-host-power-on-bg);
+  color: var(--iplug-host-accent-fg);
+  box-shadow: 0 0 6px var(--iplug-host-power-on-glow);
+}
+
+#startBtn.power-btn.on:hover:not(:disabled) {
+  background: var(--iplug-host-power-on-bg-hover);
+}
+
+#startBtn.power-btn.on:active:not(:disabled) {
+  background: var(--iplug-host-power-on-bg-active);
+}
+
+.host-status {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--iplug-host-fg-secondary);
+  font-size: 12px;
+  flex-shrink: 1;
+}
+
+#fullscreenBtn {
+  background: var(--iplug-host-control-bg);
+  color: var(--iplug-host-fg-secondary);
+  padding: 5px 8px;
+  font-size: 14px;
+}
+
+#fullscreenBtn:hover {
+  background: var(--iplug-host-control-bg-hover);
+  color: var(--iplug-host-fg-strong);
+}
+
+.live-edit-btn {
+  background: var(--iplug-host-control-bg);
+  color: var(--iplug-host-fg-secondary);
+}
+
+.live-edit-btn:hover {
+  background: var(--iplug-host-control-bg-hover);
+  color: var(--iplug-host-fg-strong);
+}
+
+.live-edit-btn.active {
+  background: var(--iplug-host-accent);
+  color: var(--iplug-host-accent-fg);
+}
+
+/* Control sections (collapsible groups) */
+.control-section {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* Control groups */
+.control-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.control-group label {
+  font-size: 11px;
+  color: var(--iplug-host-fg-faint);
+  white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.control-group select {
+  padding: 4px 6px;
+  font-size: 11px;
+  border: 1px solid var(--iplug-host-border);
+  border-radius: 3px;
+  background: var(--iplug-host-control-bg);
+  color: var(--iplug-host-fg);
+  cursor: pointer;
+  max-width: 120px;
+}
+
+.control-group select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Separator */
+.separator {
+  width: 1px;
+  height: 20px;
+  background: var(--iplug-host-separator);
+  flex-shrink: 0;
+}
+
+/* Spacer (pushes items to the right) */
+.spacer {
+  flex-grow: 1;
+  min-width: 8px;
+}
+
+/* Hidden class */
+.hidden {
+  display: none !important;
+}
+
+/* Settings (gear) trigger buttons for tone / file popovers */
+#controls .settings-btn {
+  background: var(--iplug-host-control-bg-strong);
+  color: var(--iplug-host-fg-secondary);
+  padding: 4px 10px;
+  font-size: 18px;
+  line-height: 1;
+}
+
+#controls .settings-btn:hover {
+  background: var(--iplug-host-control-bg-hover);
+  color: var(--iplug-host-fg-strong);
+}
+
+/* Shared popover base */
+.iplug-host-popover {
+  position: fixed;
+  inset: auto;
+  margin: 0;
+  border: 1px solid var(--iplug-host-border);
+  background: var(--iplug-host-elevated-bg);
+  color: var(--iplug-host-fg);
+  padding: 10px 12px;
+  border-radius: 6px;
+  box-shadow: var(--iplug-host-shadow);
+  font-size: 12px;
+}
+
+.iplug-host-popover::backdrop {
+  background: transparent;
+}
+
+/* Tone settings popover */
+.tone-popover {
+  min-width: 260px;
+}
+
+.tone-popover-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+}
+
+.tone-popover-row label {
+  font-size: 11px;
+  color: var(--iplug-host-fg-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  min-width: 60px;
+}
+
+.tone-popover .freq-slider {
+  flex: 1;
+  accent-color: var(--iplug-host-accent);
+}
+
+.tone-popover select {
+  flex: 1;
+  padding: 4px 6px;
+  font-size: 12px;
+  border: 1px solid var(--iplug-host-border);
+  border-radius: 3px;
+  background: var(--iplug-host-control-bg);
+  color: var(--iplug-host-fg);
+  cursor: pointer;
+}
+
+.freq-value {
+  font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+  color: var(--iplug-host-fg-secondary);
+  min-width: 56px;
+  text-align: right;
+  font-size: 11px;
+}
+
+.freq-input {
+  width: 64px;
+  padding: 3px 4px;
+  background: var(--iplug-host-bg);
+  border: 1px solid var(--iplug-host-border);
+  border-radius: 3px;
+  color: var(--iplug-host-fg);
+  font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+  font-size: 11px;
+  text-align: right;
+  -moz-appearance: textfield;
+}
+
+.freq-input::-webkit-outer-spin-button,
+.freq-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.freq-input:focus {
+  outline: none;
+  border-color: var(--iplug-host-accent);
+}
+
+.freq-unit {
+  font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+  color: var(--iplug-host-fg-muted);
+  font-size: 11px;
+}
+
+.tone-popover-check {
+  gap: 6px;
+}
+
+.tone-popover-check label {
+  min-width: 0;
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 12px;
+  color: var(--iplug-host-fg-secondary);
+  cursor: pointer;
+}
+
+.tone-popover-check input[type="checkbox"] {
+  accent-color: var(--iplug-host-accent);
+  cursor: pointer;
+}
+
+/* Play/pause button on the bar */
+#playPauseBtn {
+  background: var(--iplug-host-control-bg-strong);
+  color: var(--iplug-host-fg-secondary);
+  padding: 4px 10px;
+  font-size: 12px;
+}
+
+#playPauseBtn:hover:not(:disabled) {
+  background: var(--iplug-host-control-bg-hover);
+  color: var(--iplug-host-fg-strong);
+}
+
+/* Noise settings popover */
+.noise-popover {
+  min-width: 220px;
+}
+
+.noise-popover-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+}
+
+.noise-popover-row label {
+  font-size: 11px;
+  color: var(--iplug-host-fg-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  min-width: 60px;
+}
+
+.noise-popover select {
+  flex: 1;
+  padding: 4px 6px;
+  font-size: 12px;
+  border: 1px solid var(--iplug-host-border);
+  border-radius: 3px;
+  background: var(--iplug-host-control-bg);
+  color: var(--iplug-host-fg);
+  cursor: pointer;
+}
+
+/* Audio Input settings popover */
+.audio-in-popover {
+  min-width: 300px;
+}
+
+.audio-in-popover-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+}
+
+.audio-in-popover-row label {
+  font-size: 11px;
+  color: var(--iplug-host-fg-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  min-width: 70px;
+}
+
+.audio-in-popover select {
+  flex: 1;
+  padding: 4px 6px;
+  font-size: 12px;
+  border: 1px solid var(--iplug-host-border);
+  border-radius: 3px;
+  background: var(--iplug-host-control-bg);
+  color: var(--iplug-host-fg);
+  cursor: pointer;
+  max-width: none;
+}
+
+.audio-in-popover .checkbox-row {
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.audio-in-popover .checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--iplug-host-fg-secondary);
+  text-transform: none;
+  letter-spacing: 0;
+  min-width: 0;
+  cursor: pointer;
+}
+
+.audio-in-popover .checkbox-label input[type="checkbox"] {
+  width: 12px;
+  height: 12px;
+  accent-color: var(--iplug-host-fg-muted);
+}
+
+/* File settings popover */
+.file-popover {
+  min-width: 320px;
+}
+
+.file-popover-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+}
+
+.file-popover #loadFileBtn {
+  background: var(--iplug-host-control-bg-strong);
+  color: var(--iplug-host-fg);
+  border: none;
+  border-radius: 3px;
+  padding: 5px 10px;
+  font-size: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.file-popover #loadFileBtn:hover {
+  background: var(--iplug-host-control-bg-hover);
+}
+
+.file-popover .file-name {
+  font-size: 11px;
+  color: var(--iplug-host-fg-secondary);
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.scrub-bar {
+  flex: 1;
+  accent-color: var(--iplug-host-accent);
+}
+
+.time-row {
+  font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+  font-size: 11px;
+  color: var(--iplug-host-fg-secondary);
+}
+
+.time-display {
+  min-width: 36px;
+}
+
+.time-separator {
+  color: var(--iplug-host-fg-faint);
+}
+
+.loop-label {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--iplug-host-fg-secondary);
+  cursor: pointer;
+}
+
+.loop-label input[type="checkbox"] {
+  width: 12px;
+  height: 12px;
+  accent-color: var(--iplug-host-fg-muted);
+}
+
+/* Gain slider */
+#gainSlider {
+  width: 50px;
+  accent-color: var(--iplug-host-accent);
+}
+
+/* MIDI Controls */
+#midiSection select {
+  max-width: 130px;
+}
+
+/* MIDI DIN port glyph that fronts the MIDI section */
+.midi-port-icon {
+  display: inline-flex;
+  align-items: center;
+  color: var(--iplug-host-fg-muted);
+  flex-shrink: 0;
+}
+
+.midi-port-icon svg {
+  display: block;
+}
+
+.midi-activity {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--iplug-host-control-bg);
+  border: 1px solid var(--iplug-host-border);
+  transition: background 0.05s ease;
+  flex-shrink: 0;
+}
+
+.midi-activity.active {
+  background: var(--iplug-host-vu-low);
+  border-color: var(--iplug-host-vu-low);
+  box-shadow: 0 0 6px var(--iplug-host-vu-low);
+}
+
+/* VU Meters - vertical */
+.vu-meters {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  flex-shrink: 0;
+  height: 32px;
+}
+
+.vu-label {
+  font-size: 9px;
+  color: var(--iplug-host-fg-very-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+  align-self: center;
+}
+
+.vu-meter {
+  display: flex;
+  align-items: flex-end;
+}
+
+.vu-bar-container {
+  width: 8px;
+  height: 28px;
+  background: var(--iplug-host-bg);
+  border-radius: 2px;
+  overflow: hidden;
+  border: 1px solid var(--iplug-host-border-subtle);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.vu-bar {
+  width: 100%;
+  height: 0%;
+  background: linear-gradient(0deg, var(--iplug-host-vu-low) 0%, var(--iplug-host-vu-low) 100%);
+  transition: height 0.05s ease-out;
+  border-radius: 1px;
+}
+
+.vu-bar.warm {
+  background: linear-gradient(0deg, var(--iplug-host-vu-low) 0%, var(--iplug-host-vu-mid) 100%);
+}
+
+.vu-bar.hot {
+  background: linear-gradient(0deg, var(--iplug-host-vu-low) 0%, var(--iplug-host-vu-mid) 60%, var(--iplug-host-vu-high) 100%);
+}
+
+.vu-db {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  font-size: 8px;
+  font-family: monospace;
+  color: var(--iplug-host-fg-very-faint);
+  min-width: 24px;
+  text-align: right;
+}
+
+.vu-db span {
+  line-height: 1;
+}
+
+/* Main Parameter Panel (for headless plugins - fills main body) */
+.param-panel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  background: var(--iplug-host-param-panel-bg);
+}
+
+.param-panel.hidden {
+  display: none;
+}
+
+.param-panel h1 {
+  font-size: 28px;
+  font-weight: 300;
+  color: var(--iplug-host-fg-h1);
+  margin-bottom: 32px;
+  letter-spacing: 2px;
+}
+
+.main-params {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+  max-width: 450px;
+}
+
+.main-param-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.main-param-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.main-param-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--iplug-host-fg-param);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.main-param-value {
+  font-size: 14px;
+  font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+  color: var(--iplug-host-fg-muted);
+  font-weight: 500;
+}
+
+.main-param-slider {
+  width: 100%;
+  height: 6px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: var(--iplug-host-control-bg);
+  border-radius: 3px;
+  cursor: pointer;
+  outline: none;
+}
+
+.main-param-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  background: var(--iplug-host-slider-thumb);
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: var(--iplug-host-shadow-thumb);
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.main-param-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.1);
+  box-shadow: var(--iplug-host-shadow-thumb-hover);
+}
+
+.main-param-slider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  background: var(--iplug-host-slider-thumb);
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+  box-shadow: var(--iplug-host-shadow-thumb);
+}
+
+.main-param-slider::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 3px;
+}
+
+.main-param-slider::-moz-range-track {
+  height: 6px;
+  background: var(--iplug-host-control-bg);
+  border-radius: 3px;
+}
+
+/* Fullscreen mode */
+:fullscreen {
+  background: var(--iplug-host-bg);
+}
+
+:fullscreen #controls {
+  display: none;
+}
+
+:fullscreen iplug-NAME_PLACEHOLDER_LC {
+  height: 100%;
+}
+
+/* Responsive - progressive disclosure */
+@media (max-width: 1000px) {
+  .vu-db {
+    display: none;
+  }
+}
+
+@media (max-width: 850px) {
+  .vu-label {
+    display: none;
+  }
+}
+
+@media (max-width: 700px) {
+  .vu-bar-container {
+    height: 22px;
+    width: 6px;
+  }
+  .vu-meters {
+    height: 26px;
+  }
+}
+
+@media (max-width: 550px) {
+  #controls {
+    gap: 6px;
+    padding: 0 6px;
+  }
+  #controls button {
+    padding: 4px 8px;
+    font-size: 11px;
+  }
+  .separator {
+    display: none;
+  }
+  #midiSection {
+    display: none;
+  }
+  .control-group label {
+    display: none;
+  }
+}
+
+@media (max-width: 400px) {
+  #fullscreenBtn {
+    display: none;
+  }
+  .freq-slider {
+    width: 40px;
+  }
+  #gainSlider {
+    width: 40px;
+  }
+  .vu-bar-container {
+    height: 18px;
+    width: 5px;
+  }
+  .vu-meters {
+    height: 22px;
+  }
+  .vu-db {
+    display: none;
+  }
+}

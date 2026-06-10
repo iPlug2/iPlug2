@@ -51,7 +51,7 @@ typedef struct {
   WDL_FFT_REAL im;
 } WDL_FFT_COMPLEX;
 
-extern void WDL_fft_init();
+extern void WDL_fft_init(void);
 
 extern void WDL_fft_complexmul(WDL_FFT_COMPLEX *dest, WDL_FFT_COMPLEX *src, int len);
 extern void WDL_fft_complexmul2(WDL_FFT_COMPLEX *dest, WDL_FFT_COMPLEX *src, WDL_FFT_COMPLEX *src2, int len);

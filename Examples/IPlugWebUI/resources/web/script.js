@@ -1,7 +1,7 @@
 // FROM DELEGATE
 
 function SPVFD(paramIdx, val) {
-//  console.log("paramIdx: " + paramIdx + " value:" + val);
+  console.log("paramIdx: " + paramIdx + " value:" + val);
   OnParamChange(paramIdx, val);
 }
 
@@ -16,8 +16,7 @@ function SCMFD(ctrlTag, msgTag, msg) {
 }
 
 function SAMFD(msgTag, dataSize, msg) {
-  //  var decodedData = window.atob(msg);
-  console.log("SAMFD msgTag:" + msgTag + " msg:" + msg);
+  OnMessage(msgTag, dataSize, msg);
 }
 
 function SMMFD(statusByte, dataByte1, dataByte2) {
@@ -63,27 +62,42 @@ function SSMFUI(data = 0) {
 }
 
 function EPCFUI(paramIdx) {
+  if (paramIdx < 0) {
+    console.log("EPCFUI paramIdx must be >= 0")
+    return;
+  }
+  
   var message = {
     "msg": "EPCFUI",
-    "paramIdx": paramIdx,
+    "paramIdx": parseInt(paramIdx),
   };
   
   IPlugSendMsg(message);
 }
 
 function BPCFUI(paramIdx) {
+  if (paramIdx < 0) {
+    console.log("BPCFUI paramIdx must be >= 0")
+    return;
+  }
+  
   var message = {
     "msg": "BPCFUI",
-    "paramIdx": paramIdx,
+    "paramIdx": parseInt(paramIdx),
   };
   
   IPlugSendMsg(message);
 }
 
 function SPVFUI(paramIdx, value) {
+  if (paramIdx < 0) {
+    console.log("SPVFUI paramIdx must be >= 0")
+    return;
+  }
+  
   var message = {
     "msg": "SPVFUI",
-    "paramIdx": paramIdx,
+    "paramIdx": parseInt(paramIdx),
     "value": value
   };
 

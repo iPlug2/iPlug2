@@ -20,7 +20,7 @@
  */
 
 #include "IControl.h"
-#include "SkRuntimeEffect.h"
+#include "include/effects/SkRuntimeEffect.h"
 
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
@@ -145,7 +145,7 @@ public:
     mRTEffect = effect;
     
     auto inputs = SkData::MakeWithoutCopy(mUniforms.data(), mRTEffect->uniformSize());
-    auto shader = mRTEffect->makeShader(std::move(inputs), nullptr, 0, nullptr, false);
+    auto shader = mRTEffect->makeShader(std::move(inputs), nullptr, 0, nullptr);
     mPaint.setShader(std::move(shader));
 
     return true;

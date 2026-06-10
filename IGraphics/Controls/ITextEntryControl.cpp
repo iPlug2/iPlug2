@@ -16,19 +16,7 @@
 
 #include "ITextEntryControl.h"
 #include "IPlugPlatform.h"
-#include "wdlutf8.h"
-#include <string>
-#include <codecvt>
-#include <locale>
-
-#ifdef _MSC_VER
-#if (_MSC_VER >= 1900 /* VS 2015*/) && (_MSC_VER < 1920 /* pre VS 2019 */)
-std::locale::id std::codecvt<char16_t, char, _Mbstatet>::id;
-#endif
-#endif
-
-//TODO: use either wdlutf8, iplug2 UTF8/UTF16 or cpp11 wstring_convert
-using StringConvert = std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t>;
+#include "IPlugUtilities.h"
 
 using namespace iplug;
 using namespace igraphics;
@@ -124,7 +112,7 @@ void ITextEntryControl::Draw(IGraphics& g)
     g.FillRect(mText.mTextEntryFGColor, selectionRect, &blend);
   }
 
-  g.DrawText(mText, StringConvert{}.to_bytes(mEditString).c_str(), mRECT);
+  g.DrawText(mText, UTF16ToUTF8String(mEditString).c_str(), mRECT);
   
   if (mDrawCursor && !hasSelection)
   {
@@ -346,7 +334,7 @@ void ITextEntryControl::CopySelection()
   {
     const int start = std::min(mEditState.select_start, mEditState.select_end);
     const int end = std::max(mEditState.select_start, mEditState.select_end);
-    GetUI()->SetTextInClipboard(StringConvert{}.to_bytes(mEditString.data() + start, mEditString.data() + end).c_str());
+    GetUI()->SetTextInClipboard(UTF16ToUTF8String(mEditString.data() + start, mEditString.data() + end).c_str());
   }
 }
 
@@ -356,7 +344,7 @@ void ITextEntryControl::Paste()
   if (GetUI()->GetTextFromClipboard(fromClipboard))
   {
     CallSTB([&] {
-      auto uText = StringConvert{}.from_bytes (fromClipboard.Get(), fromClipboard.Get() + fromClipboard.GetLength());
+      auto uText = UTF8ToUTF16String(fromClipboard.Get());
       stb_textedit_paste (this, &mEditState, uText.data(), (int) uText.size());
     });
   }
@@ -382,7 +370,7 @@ void ITextEntryControl::SelectAll()
 int ITextEntryControl::DeleteChars(ITextEntryControl* _this, size_t pos, size_t num)
 {
   _this->mEditString.erase(pos, num);
-  _this->SetStr(StringConvert{}.to_bytes(_this->mEditString).c_str());
+  _this->SetStr(UTF16ToUTF8String(_this->mEditString).c_str());
   _this->OnTextChange();
   return true; // TODO: Error checking
 }
@@ -391,7 +379,7 @@ int ITextEntryControl::DeleteChars(ITextEntryControl* _this, size_t pos, size_t 
 int ITextEntryControl::InsertChars(ITextEntryControl* _this, size_t pos, const char16_t* text, size_t num)
 {
   _this->mEditString.insert(pos, text, num);
-  _this->SetStr(StringConvert{}.to_bytes(_this->mEditString).c_str());
+  _this->SetStr(UTF16ToUTF8String(_this->mEditString).c_str());
   _this->OnTextChange();
   return true;
 }
@@ -516,14 +504,14 @@ float ITextEntryControl::MeasureCharWidth(char16_t c, char16_t nc)
 
   if (nc)
   {
-    std::string str (StringConvert{}.to_bytes (nc));
+    std::string str (UTF16ToUTF8String(nc));
     float ncWidth = GetUI()->MeasureText(mText, str.c_str(), bounds);
-    str += StringConvert{}.to_bytes (c);
+    str += UTF16ToUTF8String(c);
     float tcWidth = GetUI()->MeasureText(mText, str.c_str(), bounds);
     return tcWidth - ncWidth;
   }
-  
-  std::string str (StringConvert{}.to_bytes (c));
+
+  std::string str (UTF16ToUTF8String(c));
   return GetUI()->MeasureText(mText, str.c_str(), bounds);
 }
 
@@ -551,7 +539,7 @@ void ITextEntryControl::DismissEdit()
 void ITextEntryControl::CommitEdit()
 {
   mEditing = false;
-  GetUI()->SetControlValueAfterTextEdit(StringConvert{}.to_bytes(mEditString).c_str());
+  GetUI()->SetControlValueAfterTextEdit(UTF16ToUTF8String(mEditString).c_str());
   SetTargetAndDrawRECTs(IRECT());
   GetUI()->SetAllControlsDirty();
 }
@@ -559,5 +547,5 @@ void ITextEntryControl::CommitEdit()
 void ITextEntryControl::SetStr(const char* str)
 {
   mCharWidths.Resize(0, false);
-  mEditString = StringConvert{}.from_bytes(std::string(str));
+  mEditString = UTF8ToUTF16String(str);
 }

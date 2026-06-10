@@ -356,7 +356,7 @@ extern IASIO* theAsioDriver;
 IASIOThiscallResolver IASIOThiscallResolver::instance;
 
 // Constructor called to initialize static Singleton instance above. Note that
-// it is important not to clear that_ incase it has already been set by the call
+// it is important not to clear that_ in case it has already been set by the call
 // to placement new in ASIOInit().
 IASIOThiscallResolver::IASIOThiscallResolver()
 {

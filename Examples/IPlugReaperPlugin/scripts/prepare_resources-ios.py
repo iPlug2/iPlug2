@@ -18,25 +18,27 @@ sys.path.insert(0, os.path.join(os.getcwd(), IPLUG2_ROOT + '/Scripts'))
 
 from parse_config import parse_config, parse_xcconfig
 
+def copy_resources_to_destination(projectpath, dst, label=""):
+  """Copy image and font resources from project to destination folder."""
+  display_dst = label if label else dst
+
+  if os.path.exists(projectpath + "/resources/img/"):
+    for img in os.listdir(projectpath + "/resources/img/"):
+      print("copying " + img + " to " + display_dst)
+      shutil.copy(projectpath + "/resources/img/" + img, dst)
+
+  if os.path.exists(projectpath + "/resources/fonts/"):
+    for font in os.listdir(projectpath + "/resources/fonts/"):
+      print("copying " + font + " to " + display_dst)
+      shutil.copy(projectpath + "/resources/fonts/" + font, dst)
+
 def main():
   if(len(sys.argv) == 2):
      if(sys.argv[1] == "app"):
        print("Copying resources ...")
-     
        dst = os.environ["TARGET_BUILD_DIR"] + "/" + os.environ["UNLOCALIZED_RESOURCES_FOLDER_PATH"]
-          
-       if os.path.exists(projectpath + "/resources/img/"):
-         imgs = os.listdir(projectpath + "/resources/img/")
-         for img in imgs:
-           print("copying " + img + " to " + dst)
-           shutil.copy(projectpath + "/resources/img/" + img, dst)
-     
-       if os.path.exists(projectpath + "/resources/fonts/"):
-         fonts = os.listdir(projectpath + "/resources/fonts/")
-         for font in fonts:
-           print("copying " + font + " to " + dst)
-           shutil.copy(projectpath + "/resources/fonts/" + font, dst)
-           
+       copy_resources_to_destination(projectpath, dst)
+
   config = parse_config(projectpath)
   xcconfig = parse_xcconfig(os.path.join(os.getcwd(), IPLUG2_ROOT +  '/common-ios.xcconfig'))
 

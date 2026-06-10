@@ -28,6 +28,7 @@ const char *nseel_builtin_function_reference=
     "atan\tvalue\tReturns the arc tangent of the value specified (return value is in radians). If the parameter is not between -1.0 and 1.0 inclusive, the return value is undefined.\0"
     "atan2\tnumerator,denominator\tReturns the arc tangent of the numerator divided by the denominator, allowing the denominator to be 0, and using their signs to produce a more meaningful result.\0"
     "exp\texponent\tReturns the number e ($e, approximately 2.718) raised to the parameter-th power. This function is significantly faster than pow() or the ^ operator.\0"
+    "pow\tbase,exponent\tRaises base to the exponent power. The preferred syntax for this is the ^ operator, however pow() is provided for its similarity to C.\0"
     "abs\tvalue\tReturns the absolute value of the parameter.\0"
     "sqr\tvalue\tReturns the square of the parameter (similar to value*value, but only evaluating value once).\0"
     "min\t&value,&value\tReturns (by reference) the minimum value of the two parameters. Since min() returns by reference, expressions such as min(x,y) = 5 are possible.\0"

@@ -28,9 +28,7 @@
 #include "../lice/lice.h"
 
 #ifdef _WIN32
-#define WDL_WIN32_UTF8_IMPL static
-#define WDL_WIN32_UTF8_NO_UI_IMPL
-#include "../win32_utf8.c"
+#include "../win32_utf8.h"
 #endif
 
 WDL_VirtualIconButton::WDL_VirtualIconButton()
@@ -560,6 +558,11 @@ static void GenSubMenu(HMENU menu, int *x, WDL_PtrList<char> *items, int curitem
 
     if (!strcmp(mi.dwTypeData,"<SEP>")) mi.fType=MFT_SEPARATOR;
     else if (!strcmp(mi.dwTypeData,"</SUB>")) break; // done!
+    if (!strncmp(mi.dwTypeData,"<GRAY>",6))
+    {
+      mi.dwTypeData += 6;
+      mi.fState |= MF_GRAYED;
+    }
     else if (!strncmp(mi.dwTypeData,"<SUB>",5))
     {
       mi.hSubMenu= CreatePopupMenu();
@@ -649,7 +652,7 @@ void WDL_VirtualComboBox::OnPaint(LICE_IBitmap *drawbm, int origin_x, int origin
     {
       RECT tr=r;
       tr.left+=3;
-      tr.right-=16;
+      tr.right-=(r.bottom-r.top)-2;
       m_font->SetTextColor(tcol);
       if (m_align == 0)
       {

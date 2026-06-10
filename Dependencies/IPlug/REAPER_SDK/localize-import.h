@@ -19,11 +19,11 @@
 void (*vac_createGroupsFromTab)(const unsigned short *);
 
 #define IMPORT_LOCALIZE_VST(hostcb) \
-    *(VstIntPtr *)&vac_createGroupsFromTab = hostcb(NULL,0xdeadbeef,0xdeadf00d,0,(void*)"vac_createGroupsFromTab",0.0); \
-    *(VstIntPtr *)&importedLocalizeFunc = hostcb(NULL,0xdeadbeef,0xdeadf00d,0,(void*)"__localizeFunc",0.0); \
-    *(VstIntPtr *)&importedLocalizeMenu = hostcb(NULL,0xdeadbeef,0xdeadf00d,0,(void*)"__localizeMenu",0.0); \
-    *(VstIntPtr *)&importedLocalizeInitializeDialog = hostcb(NULL,0xdeadbeef,0xdeadf00d,0,(void*)"__localizeInitializeDialog",0.0); \
-    *(VstIntPtr *)&importedLocalizePrepareDialog = hostcb(NULL,0xdeadbeef,0xdeadf00d,0,(void*)"__localizePrepareDialog",0.0);
+    import_vst_reaper_api((void **)&vac_createGroupsFromTab, "vac_createGroupsFromTab", hostcb); \
+    import_vst_reaper_api((void **)&importedLocalizeFunc, "__localizeFunc", hostcb); \
+    import_vst_reaper_api((void **)&importedLocalizeMenu, "__localizeMenu", hostcb); \
+    import_vst_reaper_api((void **)&importedLocalizeInitializeDialog, "__localizeInitializeDialog", hostcb); \
+    import_vst_reaper_api((void **)&importedLocalizePrepareDialog, "__localizePrepareDialog", hostcb);
 
 #define IMPORT_LOCALIZE_RPLUG(rec) \
   *(void **)&vac_createGroupsFromTab = rec->GetFunc("vac_createGroupsFromTab"); \

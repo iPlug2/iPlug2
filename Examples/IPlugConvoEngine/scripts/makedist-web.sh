@@ -114,7 +114,9 @@ if [ "$WEBSOCKET_MODE" -eq "0" ]; then
   cd $PROJECT_ROOT/build-web/scripts
 
   # prefix the -wam.js script with scope
-  echo "AudioWorkletGlobalScope.WAM = AudioWorkletGlobalScope.WAM || {}; AudioWorkletGlobalScope.WAM.$PROJECT_NAME = { ENVIRONMENT: 'WEB' };" > $PROJECT_NAME-wam.tmp.js;
+  echo "AudioWorkletGlobalScope.WAM = AudioWorkletGlobalScope.WAM || {}; \
+        AudioWorkletGlobalScope.WAM.$PROJECT_NAME = { ENVIRONMENT: 'WEB' }; \
+        const ModuleFactory = AudioWorkletGlobalScope.WAM.$PROJECT_NAME;" > $PROJECT_NAME-wam.tmp.js;
   cat $PROJECT_NAME-wam.js >> $PROJECT_NAME-wam.tmp.js
   mv $PROJECT_NAME-wam.tmp.js $PROJECT_NAME-wam.js
   

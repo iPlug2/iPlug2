@@ -97,7 +97,7 @@
 			"thread": "cpp",
 			"unordered_map": "cpp",
 			"variant": "cpp",
-			"*.mm": "cpp",
+			"*.mm": "objective-cpp",
 			"bit": "cpp",
 			"codecvt": "cpp",
 			"complex": "cpp",

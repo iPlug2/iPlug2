@@ -115,7 +115,7 @@ static int charFromVcode(int keyCode) // used for getting the root char (^, `) f
   if(keyboardLayout)
   {
     UInt32 deadKeyState = 0;
-    UniCharCount maxStringLength = 255;
+    const UniCharCount maxStringLength = 255;
     UniCharCount actualStringLength = 0;
     UniChar unicodeString[maxStringLength];
 
@@ -185,9 +185,14 @@ int SWELL_MacKeyToWindowsKeyEx(void *nsevent, int *flags, int mode)
       }
       else 
       {
-        if (code >= 'a' && code <= 'z') code+='A'-'a';
         if (code == 25 && (flag&FSHIFT)) code=VK_TAB;
-        if (isalnum_safe(code)||code==' ' || code == '\r' || code == '\n' || code ==27 || code == VK_TAB) flag|=FVIRTKEY;
+        if (code >= 'a' && code <= 'z') code+='A'-'a';
+        if ((code >= '0' && code <= '9') ||
+            (code >= 'A' && code <= 'Z') ||
+            code==' ' || code == '\r' || code == '\n' || code ==27 || code == VK_TAB)
+        {
+          flag|=FVIRTKEY;
+        }
       }
     }
   }

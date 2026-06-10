@@ -19,10 +19,13 @@
   //objective-c has a flat namespace, we need to customise the class name for all of our objective-c classes
   //so that binaries using different versions don't conflict
   #ifndef OBJC_PREFIX
+    #warning OBJC_PREFIX not defined, setting it to "vIPLUG2". To avoid conflict, define it specifically for each product.
     #define OBJC_PREFIX vIPLUG2
   #endif
 
-  #if defined(VST2_API)
+  #if defined(CLAP_API)
+    #define API _clap
+  #elif defined(VST2_API)
     #define API _vst
   #elif defined(AU_API)
     #define API _au
@@ -34,6 +37,8 @@
     #define API _vst3
   #elif defined(APP_API)
     #define API _app
+  #elif defined(REAPER_EXT_API)
+    #define API _reaperext
   #endif
 
   #define CONCAT3(a,b,c) a##b##c
@@ -57,7 +62,10 @@
   #define MNVGbuffers CONCAT(MNVGbuffers_)
   #define MNVGcontext CONCAT(MNVGcontext_)
   #define IPLUG_WKWEBVIEW CONCAT(IPlugWkWebView_)
-  #define IPLUG_WKSCRIPTHANDLER CONCAT(IPlugScriptHandler_)
+  #define IPLUG_WKSCRIPTMESSAGEHANDLER CONCAT(IPlugScriptMessageHandler_)
+  #define IPLUG_WKWEBVIEW_DELEGATE CONCAT(IPlugWkWebViewDelegate_)
+  #define IPLUG_WKWEBVIEW_UI_DELEGATE CONCAT(IPlugWkWebViewUIDelegate_)
+  #define IPLUG_WKWEBVIEW_EDITOR_HELPER CONCAT(IPlugWkWebViewEditorDelegateHelper_)
   // these only exist in AUv3 plug-ins, so don't need the API on the end
   #define IPLUG_AUAUDIOUNIT CONCATAU(IPlugAUAudioUnit_)
   #define IPLUG_AUVIEWCONTROLLER CONCATAU(IPlugAUViewController_)

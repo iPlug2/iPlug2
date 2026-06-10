@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -eo pipefail
 
 if [ "$1" == "" ]; then
   if [ "$(uname)" == "Darwin" ]; then
@@ -21,8 +22,8 @@ elif [ "$1" == "win" ]; then
   FOLDER=win
 fi
 
-curl https://github.com/iPlug2/iPlug2/releases/download/setup/$ZIP_FILE.zip -L -J -O
 
+curl https://github.com/iPlug2/iPlug2/releases/download/v1.0.0-beta/$ZIP_FILE.zip -L -J -O
 if [ ! -d Build ]; then 
   mkdir Build
 fi

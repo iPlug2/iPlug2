@@ -31,6 +31,7 @@
 #define ID_SHOW_DRAWN                   40026
 #define ID_SHOW_FPS                     40027
 #define ID_SHOW_BOUNDS                  40028
+#define ID_SCREENSHOT                   40029
 
 // Next default values for new objects
 //

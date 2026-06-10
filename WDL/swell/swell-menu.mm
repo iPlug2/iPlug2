@@ -74,6 +74,12 @@ bool SetMenuItemText(HMENU hMenu, int idx, int flag, const char *text)
     [item setKeyEquivalentModifierMask:eqmask];
     [item setKeyEquivalent:eq];
   }
+  else if (!((flag&MF_SWELL_DO_NOT_CALC_MODIFIERS)))
+  {
+    NSString *s = [item keyEquivalent];
+    if (s && ![s isEqualToString:@""])
+      [item setKeyEquivalent:@""];
+  }
 
   [label release];
   return true;
@@ -575,6 +581,12 @@ BOOL SetMenuItemInfo(HMENU hMenu, int pos, BOOL byPos, MENUITEMINFO *mi)
       {
         [item setKeyEquivalentModifierMask:eqmask];
         [item setKeyEquivalent:eq];
+      }
+      else if (!(mi->fMask & MIIM_SWELL_DO_NOT_CALC_MODIFIERS))
+      {
+        NSString *s = [item keyEquivalent];
+        if (s && ![s isEqualToString:@""])
+          [item setKeyEquivalent:@""];
       }
       
       [label release];      

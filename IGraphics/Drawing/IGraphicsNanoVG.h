@@ -20,6 +20,13 @@
 // Thanks to Olli Wang/MOUI for much of this macro magic  https://github.com/ollix/moui
 
 #if defined IGRAPHICS_GL
+
+#if defined OS_MAC || defined OS_IOS
+#if defined IGRAPHICS_GLES2 || defined IGRAPHICS_GLES3
+  #include <libGLESv2/angle_gl.h>
+#endif
+#endif
+
   #define NANOVG_FBO_VALID 1
   #include "nanovg_gl_utils.h"
 #elif defined IGRAPHICS_METAL
@@ -102,7 +109,7 @@ public:
 
   void DrawFastDropShadow(const IRECT& innerBounds, const IRECT& outerBounds, float xyDrop = 5.f, float roundness = 0.f, float blur = 10.f, IBlend* pBlend = nullptr) override;
   
-  void DrawMultiLineText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend) override;
+  void DrawMultiLineText(const IText& text, const char* str, const IRECT& bounds, const IBlend* pBlend) override;
   
   void PathClear() override;
   void PathClose() override;

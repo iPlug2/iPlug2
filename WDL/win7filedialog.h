@@ -2167,7 +2167,7 @@ _COM_SMARTPTR_TYPEDEF(IShellItemArray, __uuidof(IShellItemArray));
 class Win7FileDialog
 {
 public:
-  Win7FileDialog(const char *name, int issave=0);
+  Win7FileDialog(const char *name, int type); // type 0=load file, 1=save file, 2=choose dir
   ~Win7FileDialog();
 
   int inited() { return m_fod != NULL; }

@@ -48,10 +48,10 @@
   
   #if !defined(WDL_NO_POSIX_FILEREAD)
   #define WDL_POSIX_NATIVE_READ 
-   #include <sys/fcntl.h>
+   #include <fcntl.h>
+   #include <errno.h>
    #include <sys/file.h>
    #include <sys/stat.h>
-   #include <sys/errno.h>
    #include <sys/mman.h>
    #ifdef __APPLE__
       #include <sys/param.h>

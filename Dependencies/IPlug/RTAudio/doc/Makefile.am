@@ -15,9 +15,9 @@ DOC_DIR=$(HTML_DIR)
 
 all-local: doxygen-build.stamp
 
-doxygen-build.stamp: doxygen/$(DOX) $(top_srcdir)/RtAudio.h
+doxygen-build.stamp: $(DOX) $(top_srcdir)/RtAudio.h
 	@echo '*** Running doxygen ***'
-	cd doxygen; $(DOXYGEN) $(DOX)
+	$(DOXYGEN) $(DOX)
 	touch doxygen-build.stamp
 
 clean-local:

@@ -280,6 +280,7 @@ public:
     int last_fontflag;
 
     int use_fonth;
+    int actual_metrics[3]; // ascent, descent, internal leading
   }; 
   WDL_TypedBuf<gfxFontStruct> m_gfx_fonts;
   enum {
@@ -751,6 +752,9 @@ static EEL_F NSEEL_CGEN_CALL _gfx_getfont(void *opaque, INT_PTR np, EEL_F **parm
       EEL_STRING_GET_FOR_WRITE(parms[0][0],&fs);
       if (fs) fs->Set(f->actual_fontname);
 #endif
+      if (np > 1) parms[1][0] = f->actual_metrics[0];
+      if (np > 2) parms[2][0] = f->actual_metrics[1];
+      if (np > 3) parms[3][0] = f->actual_metrics[2];
     }
     return idx;
   }
@@ -1226,7 +1230,11 @@ EEL_F eel_lice_state::gfx_setfont(void *opaque, int np, EEL_F **parms)
       
       bool doCreate=false;
       int fontflag=0;
-      if (!s->font) s->actual_fontname[0]=0;
+      if (!s->font)
+      {
+        s->actual_fontname[0]=0;
+        memset(s->actual_metrics,0,sizeof(s->actual_metrics));
+      }
 
       {
         EEL_STRING_MUTEXLOCK_SCOPE
@@ -1271,6 +1279,7 @@ EEL_F eel_lice_state::gfx_setfont(void *opaque, int np, EEL_F **parms)
       if (doCreate)
       {
         s->actual_fontname[0]=0;
+        memset(s->actual_metrics,0,sizeof(s->actual_metrics));
         if (!s->font) s->font=LICE_CreateFont();
         if (s->font)
         {
@@ -1319,6 +1328,10 @@ EEL_F eel_lice_state::gfx_setfont(void *opaque, int np, EEL_F **parms)
                 else
 #endif
                   GetTextFace(hdc, sizeof(s->actual_fontname), s->actual_fontname);
+
+                s->actual_metrics[0] = tm.tmAscent;
+                s->actual_metrics[1] = tm.tmDescent;
+                s->actual_metrics[2] = tm.tmInternalLeading;
                 SelectObject(hdc,oldFont);
               }
             }
@@ -1988,7 +2001,7 @@ int eel_lice_state::setup_frame(HWND hwnd, RECT r, int _mouse_x, int _mouse_y, i
     if (GetAsyncKeyState(VK_CONTROL)&0x8000) vflags|=4;
     if (GetAsyncKeyState(VK_SHIFT)&0x8000) vflags|=8;
     if (GetAsyncKeyState(VK_MENU)&0x8000) vflags|=16;
-    if (GetAsyncKeyState(VK_LWIN)&0x8000) vflags|=32;
+    if ((GetAsyncKeyState(VK_LWIN)&0x8000) || (GetAsyncKeyState(VK_RWIN)&0x8000)) vflags|=32;
   }
   m_has_cap &= 0xf0000;
 
@@ -2773,6 +2786,8 @@ LRESULT WINAPI eel_lice_wndproc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPar
         if (a & mask)
         {
           int a_no_alt = (a&mask);
+          if (a_no_alt >= ('u'<<24) && a_no_alt < ('v'<<24))
+            a_no_alt &= 0xffffff;
           const int lowera = a_no_alt >= 1 && a_no_alt < 27 ? (a_no_alt+'a'-1) : a_no_alt >= 'A' && a_no_alt <= 'Z' ? a_no_alt+'a'-'A' : a_no_alt;
 
           int *st = ctx->hwnd_standalone_kb_state;
@@ -2840,7 +2855,7 @@ LRESULT WINAPI eel_lice_wndproc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPar
           if (GetAsyncKeyState(VK_CONTROL)&0x8000) f|=4;
           if (GetAsyncKeyState(VK_SHIFT)&0x8000) f|=8;
           if (GetAsyncKeyState(VK_MENU)&0x8000) f|=16;
-          if (GetAsyncKeyState(VK_LWIN)&0x8000) f|=32;
+          if ((GetAsyncKeyState(VK_LWIN)&0x8000) || (GetAsyncKeyState(VK_RWIN)&0x8000)) f|=32;
 
           ctx->m_has_cap|=f;
           if (ctx->m_last_menu_cnt && (GetTickCount()-ctx->m_last_menu_time)>250) ctx->m_last_menu_cnt = 0;
@@ -3115,17 +3130,10 @@ static const char *eel_lice_function_reference =
   "\4mouse_cap - a bitfield of mouse and keyboard modifier state. Note that a script must call gfx_getchar() at least once in order to get modifier state when the mouse is not captured by the window. Bitfield bits:\3"
     "\4" "1: left mouse button\n"
     "\4" "2: right mouse button\n"
-#ifdef __APPLE__
-    "\4" "4: Command key\n"
+    "\4" "4: Control (Windows) or Command (macOS) key\n"
     "\4" "8: Shift key\n"
-    "\4" "16: Option key\n"
-    "\4" "32: Control key\n"
-#else
-    "\4" "4: Control key\n"
-    "\4" "8: Shift key\n"
-    "\4" "16: Alt key\n"
-    "\4" "32: Windows key\n"
-#endif
+    "\4" "16: Alt (Windows) or Option (macOS) key\n"
+    "\4" "32: Windows (Windows) or Control (macOS) key\n"
     "\4" "64: middle mouse button\n"
   "\2"
   "\2\0"
@@ -3175,9 +3183,9 @@ static const char *eel_lice_function_reference =
     "\4flags&8: bottom justify\n"
     "\4flags&256: ignore right/bottom, otherwise text is clipped to (gfx_x, gfx_y, right, bottom)\0"
   "gfx_measurestr\t\"str\",&w,&h\tMeasures the drawing dimensions of a string with the current font (as set by gfx_setfont). \0"
-  "gfx_measurechar\tcharacter,&w,&h\tMeasures the drawing dimensions of a character with the current font (as set by gfx_setfont). \0"
+  "gfx_measurechar\tcodepoint,&w,&h\tMeasures the drawing dimensions of a character (for example, ascii code point 97 is 'a') with the current font (as set by gfx_setfont).\0"
   "gfx_setfont\tidx[,\"fontface\", sz, flags]\tCan select a font and optionally configure it. idx=0 for default bitmapped font, no configuration is possible for this font. idx=1..16 for a configurable font, specify fontface such as \"Arial\", sz of 8-100, and optionally specify flags, which is a multibyte character, which can include 'i' for italics, 'u' for underline, or 'b' for bold. These flags may or may not be supported depending on the font and OS. After calling gfx_setfont(), gfx_texth may be updated to reflect the new average line height.\0"
-  "gfx_getfont\t[#str]\tReturns current font index. If a string is passed, it will receive the actual font face used by this font, if available.\0"
+  "gfx_getfont\t[#str, ascent, descent, internal_leading]\tReturns current font index. If a string is passed, it will receive the actual font face used by this font, if available.\0"
   "gfx_printf\t\"format\"[, ...]\tFormats and draws a string at gfx_x, gfx_y, and updates gfx_x/gfx_y accordingly (the latter only if the formatted string contains newline). For more information on format strings, see sprintf()\0"
   "gfx_blurto\tx,y\tBlurs the region of the screen between gfx_x,gfx_y and x,y, and updates gfx_x,gfx_y to x,y.\0"
   "gfx_blit\tsource[, scale, rotation, srcx, srcy, srcw, srch, destx, desty, destw, desth, rotxoffs, rotyoffs]\t"

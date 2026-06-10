@@ -1,22 +1,23 @@
 @echo off
-REM - CALL "$(SolutionDir)\scripts\postbuild.bat" "$(BINARY_NAME)" "$(Platform)" "$(TargetPath)" "$(REAPER_32_PATH)" "$(REAPER_64_PATH)"
-set NAME=%1
-set PLATFORM=%2
-set BUILT_BINARY=%3
-set REAPER_32_PATH=%4
-set REAPER_64_PATH=%4
 
-echo BUILT_BINARY %BUILT_BINARY% 
-echo PLATFORM %PLATFORM% 
-echo REAPER_32_PATH %REAPER_32_PATH% 
-echo REAPER_64_PATH %REAPER_64_PATH% 
+REM - CALL "$(SolutionDir)scripts\postbuild-win.bat" "$(BINARY_NAME)" "$(Platform)" "$(TargetPath)" "$(REAPER_EXT_PATH)"
 
-if %PLATFORM% == "Win32" (
-  copy /y %BUILT_BINARY% %REAPER_32_PATH%
+set BINARY_NAME=%~1
+set PLATFORM=%~2
+set BUILT_BINARY=%~3
+set REAPER_EXT_PATH=%~4
+
+echo POSTBUILD SCRIPT VARIABLES -----------------------------------------------------
+echo BINARY_NAME %BINARY_NAME%
+echo PLATFORM %PLATFORM%
+echo BUILT_BINARY %BUILT_BINARY%
+echo REAPER_EXT_PATH %REAPER_EXT_PATH%
+echo END POSTBUILD SCRIPT VARIABLES -----------------------------------------------------
+
+if not exist "%REAPER_EXT_PATH%" (
+  echo creating REAPER UserPlugins directory: %REAPER_EXT_PATH%
+  mkdir "%REAPER_EXT_PATH%"
 )
 
-if %PLATFORM% == "x64" (
-  if exist "%ProgramFiles(x86)%" (
-    copy /y %BUILT_BINARY% %REAPER_64_PATH%
-  )
-)
+echo copying REAPER extension to: %REAPER_EXT_PATH%
+copy /y "%BUILT_BINARY%" "%REAPER_EXT_PATH%"

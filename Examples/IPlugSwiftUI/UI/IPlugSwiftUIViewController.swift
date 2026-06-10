@@ -25,6 +25,10 @@ func floatValue(data: Data) -> Float {
     
   }
   
+  override init!(editorDelegateAndBundleID editorDelegate: UnsafeMutableRawPointer!, _ bundleID: UnsafePointer<CChar>!) {
+    super.init(editorDelegateAndBundleID: editorDelegate, bundleID)
+  }
+  
   deinit {
   }
   
@@ -50,6 +54,8 @@ func floatValue(data: Data) -> Float {
     
     let contentView = ContentView().environmentObject(state)
     let hostingController = PlatformHostingController(rootView: contentView)
+    state.bundleID = getBundleID()
+    BundleLocator.shared.initialize(with: state.bundleID)
 
     view.addSubview(hostingController.view)
     hostingController.view.pinToSuperviewEdges()
@@ -60,8 +66,19 @@ func floatValue(data: Data) -> Float {
   }
   
   override func sendControlMsgFromDelegate(ctrlTag: Int, msgTag: Int, msg: Data!) {
-    if msgTag==kUpdateMessage {
-      self.state.lastVolume = floatValue(data: msg)
+    var floatArray: [Float] = []
+
+    if (ctrlTag == kCtrlTagScope)
+    {
+      msg.withUnsafeBytes { (pointer: UnsafeRawBufferPointer) in
+          let intSize = MemoryLayout<Int32>.size
+          let byteOffset = intSize * 3
+          let floatPointer = pointer.baseAddress!.advanced(by: byteOffset)
+          let floats = UnsafeRawBufferPointer(start: floatPointer, count: pointer.count - byteOffset).bindMemory(to: Float.self)
+          floatArray = Array(floats.prefix(kScopeBufferSize))
+      }
+      
+      state.waveform = floatArray
     }
   }
   

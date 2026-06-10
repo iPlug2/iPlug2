@@ -20,18 +20,23 @@
     #elif defined IGRAPHICS_GL3
       #include <OpenGL/gl3.h>
       #define NANOVG_GL3_IMPLEMENTATION
-    #else
-      #error Define either IGRAPHICS_GL2 or IGRAPHICS_GL3 for IGRAPHICS_NANOVG with OS_MAC
+    #elif defined IGRAPHICS_GLES2
+      #include <libGLESv2/angle_gl.h>
+      #define NANOVG_GLES2_IMPLEMENTATION
+    #elif defined IGRAPHICS_GLES3
+      #include <libGLESv2/angle_gl.h>
+      #define NANOVG_GLES3_IMPLEMENTATION
     #endif
   #elif defined OS_IOS
-//    #if defined IGRAPHICS_GLES2
-//      #define NANOVG_GLES2_IMPLEMENTATION
-//    #elif defined IGRAPHICS_GLES3
-//      #define NANOVG_GLES2_IMPLEMENTATION
-//    #else
-//      #error Define either IGRAPHICS_GLES2 or IGRAPHICS_GLES3 when using IGRAPHICS_GL and IGRAPHICS_NANOVG with OS_IOS
-//    #endif
-    #error NOT IMPLEMENTED
+    #if defined IGRAPHICS_GLES2
+      #include <libGLESv2/angle_gl.h>
+      #define NANOVG_GLES2_IMPLEMENTATION
+    #elif defined IGRAPHICS_GLES3
+      #include <libGLESv2/angle_gl.h>
+      #define NANOVG_GLES3_IMPLEMENTATION
+    #else
+      #error Define either IGRAPHICS_GLES2 or IGRAPHICS_GLES3 for IGRAPHICS_NANOVG with OS_IOS
+    #endif
   #elif defined OS_WIN
     #pragma comment(lib, "opengl32.lib")
     #if defined IGRAPHICS_GL2
@@ -313,7 +318,8 @@ APIBitmap* IGraphicsNanoVG::LoadAPIBitmap(const char* fileNameOrResID, int scale
   int idx = 0;
   int nvgImageFlags = 0;
   
-#ifdef OS_IOS
+  // Preloaded textures are only supported with Metal, not ANGLE/GLES
+#if defined OS_IOS && defined IGRAPHICS_METAL
   if (location == EResourceLocation::kPreloadedTexture)
   {
     idx = mnvgCreateImageFromHandle(mVG, gTextureMap[fileNameOrResID], nvgImageFlags);
@@ -331,18 +337,16 @@ APIBitmap* IGraphicsNanoVG::LoadAPIBitmap(const char* fileNameOrResID, int scale
 
     if (pResData)
     {
-      ActivateGLContext(); // no-op on non WIN/GL
+      ScopedGLContext scopedGLCtx {this};
       idx = nvgCreateImageMem(mVG, nvgImageFlags, (unsigned char*) pResData, size);
-      DeactivateGLContext(); // no-op on non WIN/GL
     }
   }
   else
 #endif
   if (location == EResourceLocation::kAbsolutePath)
   {
-    ActivateGLContext(); // no-op on non WIN/GL
+    ScopedGLContext scopedGLCtx {this};
     idx = nvgCreateImage(mVG, fileNameOrResID, nvgImageFlags);
-    DeactivateGLContext(); // no-op on non WIN/GL
   }
 
   return new Bitmap(mVG, fileNameOrResID, scale, idx, location == EResourceLocation::kPreloadedTexture);
@@ -358,10 +362,11 @@ APIBitmap* IGraphicsNanoVG::LoadAPIBitmap(const char* name, const void* pData, i
     int idx = 0;
     int nvgImageFlags = 0;
 
-    ActivateGLContext();
-    idx = idx = nvgCreateImageMem(mVG, nvgImageFlags, (unsigned char*)pData, dataSize);
-    DeactivateGLContext();
-
+    {
+      ScopedGLContext scopedGLCtx {this};
+      idx = nvgCreateImageMem(mVG, nvgImageFlags, (unsigned char*)pData, dataSize);
+    }
+    
     pBitmap = new Bitmap(mVG, name, scale, idx, false);
 
     storage.Add(pBitmap, name, scale);
@@ -480,8 +485,8 @@ void IGraphicsNanoVG::OnViewDestroyed()
 
 void IGraphicsNanoVG::DrawResize()
 {
-  ActivateGLContext();
-  
+  ScopedGLContext scopedGLCtx {this};
+
   if (mMainFrameBuffer != nullptr)
     nvgDeleteFramebuffer(mMainFrameBuffer);
   
@@ -492,8 +497,6 @@ void IGraphicsNanoVG::DrawResize()
     if (mMainFrameBuffer == nullptr)
       DBGMSG("Could not init FBO.\n");
   }
-  
-  DeactivateGLContext();
 }
 
 void IGraphicsNanoVG::BeginFrame()
@@ -505,7 +508,7 @@ void IGraphicsNanoVG::BeginFrame()
     glViewport(0, 0, WindowWidth() * GetScreenScale(), WindowHeight() * GetScreenScale());
     glClearColor(0.f, 0.f, 0.f, 0.f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-  #if defined OS_MAC
+  #if defined OS_MAC || defined OS_IOS
     glGetIntegerv(GL_FRAMEBUFFER_BINDING, &mInitialFBO); // stash apple fbo
   #endif
 #endif
@@ -531,7 +534,7 @@ void IGraphicsNanoVG::EndFrame()
   nvgFill(mVG);
   nvgRestore(mVG);
   
-#if defined OS_MAC && defined IGRAPHICS_GL
+#if (defined OS_MAC || defined OS_IOS) && defined IGRAPHICS_GL
   glBindFramebuffer(GL_FRAMEBUFFER, mInitialFBO); // restore apple fbo
 #endif
 
@@ -917,7 +920,7 @@ void IGraphicsNanoVG::DrawFastDropShadow(const IRECT& innerBounds, const IRECT& 
   nvgBeginPath(mVG);
 }
 
-void IGraphicsNanoVG::DrawMultiLineText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend)
+void IGraphicsNanoVG::DrawMultiLineText(const IText& text, const char* str, const IRECT& bounds, const IBlend* pBlend)
 {
   nvgSave(mVG);
   nvgFontSize(mVG, text.mSize);

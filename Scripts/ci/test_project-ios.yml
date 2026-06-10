@@ -15,7 +15,7 @@
 #       contents: '**'
 #     displayName: Clean Staging Directory
 
-#   - task: DownloadPipelineArtifact@0
+#   - task: DownloadPipelineArtifact@2
 #     continueOnError: true
 #     inputs:
 #       artifactName: 'IOS_APPAUv3_${{parameters.name}}_${{parameters.graphics}}'

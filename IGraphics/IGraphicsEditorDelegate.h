@@ -25,7 +25,8 @@ BEGIN_IGRAPHICS_NAMESPACE
 class IGraphics;
 class IControl;
 
-/** An editor delegate base class for a SOMETHING that uses IGraphics for it's UI */
+/** An editor delegate base class that uses IGraphics for the UI
+* @ingroup EditorDelegates */
 class IGEditorDelegate : public IEditorDelegate
 {
   friend class IGraphics;
@@ -41,7 +42,8 @@ public:
   void* OpenWindow(void* pHandle) final;
   void CloseWindow() final;
   void SetScreenScale(float scale) final;
-  
+  void OnParentWindowResize(int width, int height) override;
+
   bool OnKeyDown(const IKeyPress& key) override;
   bool OnKeyUp(const IKeyPress& key) override;
     
@@ -49,7 +51,7 @@ public:
   bool SerializeEditorState(IByteChunk& chunk) const override;
   int UnserializeEditorState(const IByteChunk& chunk, int startPos) override;
     
-  //The rest should be final, but the WebSocketEditorDelegate needs to override them
+  //The rest should be final, but speciality cases can override
   void SendControlValueFromDelegate(int ctrlTag, double normalizedValue) override;
   void SendControlMsgFromDelegate(int ctrlTag, int msgTag, int dataSize = 0, const void* pData = nullptr) override;
   void SendMidiMsgFromDelegate(const IMidiMsg& msg) override;

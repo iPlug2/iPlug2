@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 47;
+	objectVersion = 70;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -18,9 +18,6 @@
 		4F32AE7D231431BD00710734 /* AUv3Framework.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FA61F6E22E899B500A92C58 /* AUv3Framework.framework */; };
 		4F3E0F6A20A0BCD900A9C2BE /* IPlugSwiftUI-iOS.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4F3E0F6720A0BC5B00A9C2BE /* IPlugSwiftUI-iOS.storyboard */; };
 		4F3E0F6B20A0BCE300A9C2BE /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4F3E0F6820A0BCAF00A9C2BE /* Images.xcassets */; };
-		4F5466262687E80100C7EDBA /* ParamSliderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F5466252687E80100C7EDBA /* ParamSliderView.swift */; };
-		4FA0333E268E235B0030C402 /* VUView.metal in Sources */ = {isa = PBXBuildFile; fileRef = 4FA0333C268E235B0030C402 /* VUView.metal */; };
-		4FA0333F268E235B0030C402 /* VUView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FA0333D268E235B0030C402 /* VUView.swift */; };
 		4FA61F6822E8996C00A92C58 /* IPlugAUv3Appex.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FA61F6722E8996C00A92C58 /* IPlugAUv3Appex.m */; };
 		4FA61F7522E899B500A92C58 /* AUv3Framework.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FA61F6E22E899B500A92C58 /* AUv3Framework.framework */; };
 		4FA61F7622E899B500A92C58 /* AUv3Framework.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 4FA61F6E22E899B500A92C58 /* AUv3Framework.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -40,10 +37,6 @@
 		4FDF6D792267CE540007B686 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDF6D742267CE540007B686 /* main.m */; };
 		4FDF6D7B2267CE540007B686 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDF6D752267CE540007B686 /* AppDelegate.m */; };
 		4FDF6D7F2267CEBA0007B686 /* IPlugAUPlayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FDF6D7D2267CEBA0007B686 /* IPlugAUPlayer.mm */; };
-		4FFF679F268102A70002B341 /* IPlugSwiftUIState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FFF679A268102A70002B341 /* IPlugSwiftUIState.swift */; };
-		4FFF67A1268102A70002B341 /* IPlugSwiftUIViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FFF679C268102A70002B341 /* IPlugSwiftUIViewController.swift */; };
-		4FFF67A2268102A70002B341 /* TypeAliases.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FFF679D268102A70002B341 /* TypeAliases.swift */; };
-		4FFF67A3268102A70002B341 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FFF679E268102A70002B341 /* ContentView.swift */; };
 		91236D811B08F59300734C5E /* IPlugSwiftUIAppExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 91236D771B08F59300734C5E /* IPlugSwiftUIAppExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
@@ -102,7 +95,6 @@
 		4F3E0F6520A0BC4000A9C2BE /* IPlugSwiftUI-iOS-AUv3-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "IPlugSwiftUI-iOS-AUv3-Info.plist"; path = "../resources/IPlugSwiftUI-iOS-AUv3-Info.plist"; sourceTree = "<group>"; };
 		4F3E0F6720A0BC5B00A9C2BE /* IPlugSwiftUI-iOS.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = "IPlugSwiftUI-iOS.storyboard"; path = "../resources/IPlugSwiftUI-iOS.storyboard"; sourceTree = "<group>"; };
 		4F3E0F6820A0BCAF00A9C2BE /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = ../resources/Images.xcassets; sourceTree = "<group>"; };
-		4F5466252687E80100C7EDBA /* ParamSliderView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ParamSliderView.swift; sourceTree = "<group>"; };
 		4F6E673621C5613A005991A9 /* VoiceAllocator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VoiceAllocator.h; sourceTree = "<group>"; };
 		4F6E673721C5613A005991A9 /* SynthVoice.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SynthVoice.h; sourceTree = "<group>"; };
 		4F6E673821C5613A005991A9 /* VoiceAllocator.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = VoiceAllocator.cpp; sourceTree = "<group>"; };
@@ -131,8 +123,6 @@
 		4F977D5520CC9DD800D19F46 /* Oversampler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Oversampler.h; sourceTree = "<group>"; };
 		4F97F45D22564D6600EB54ED /* GenericUI.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = GenericUI.mm; path = ../../../IPlug/AUv3/GenericUI.mm; sourceTree = "<group>"; };
 		4F97F45E22564D6600EB54ED /* GenericUI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GenericUI.h; path = ../../../IPlug/AUv3/GenericUI.h; sourceTree = "<group>"; };
-		4FA0333C268E235B0030C402 /* VUView.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = VUView.metal; sourceTree = "<group>"; };
-		4FA0333D268E235B0030C402 /* VUView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VUView.swift; sourceTree = "<group>"; };
 		4FA61F6722E8996C00A92C58 /* IPlugAUv3Appex.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = IPlugAUv3Appex.m; path = ../../../IPlug/AUv3/IPlugAUv3Appex.m; sourceTree = "<group>"; };
 		4FA61F6E22E899B500A92C58 /* AUv3Framework.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = AUv3Framework.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FA61F7A22E89A2700A92C58 /* IPlugSwiftUI-iOS-AUv3Framework-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "IPlugSwiftUI-iOS-AUv3Framework-Info.plist"; path = "../resources/IPlugSwiftUI-iOS-AUv3Framework-Info.plist"; sourceTree = "<group>"; };
@@ -194,13 +184,13 @@
 		4FFF108420A1036200D3092F /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = config.h; path = ../config.h; sourceTree = "<group>"; };
 		4FFF108720A1036200D3092F /* IPlugSwiftUI.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = IPlugSwiftUI.mm; path = ../IPlugSwiftUI.mm; sourceTree = "<group>"; };
 		4FFF108820A1036200D3092F /* IPlugSwiftUI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugSwiftUI.h; path = ../IPlugSwiftUI.h; sourceTree = "<group>"; };
-		4FFF679A268102A70002B341 /* IPlugSwiftUIState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IPlugSwiftUIState.swift; sourceTree = "<group>"; };
-		4FFF679C268102A70002B341 /* IPlugSwiftUIViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IPlugSwiftUIViewController.swift; sourceTree = "<group>"; };
-		4FFF679D268102A70002B341 /* TypeAliases.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TypeAliases.swift; sourceTree = "<group>"; };
-		4FFF679E268102A70002B341 /* ContentView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		91236D0D1B08F42B00734C5E /* IPlugSwiftUI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = IPlugSwiftUI.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		91236D771B08F59300734C5E /* IPlugSwiftUIAppExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = IPlugSwiftUIAppExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		4F3A3D472D7F63B100AE89B6 /* UI */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); name = UI; path = ../UI; sourceTree = SOURCE_ROOT; };
+/* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		4FA61F6B22E899B500A92C58 /* Frameworks */ = {
@@ -418,25 +408,10 @@
 			name = AUv3;
 			sourceTree = "<group>";
 		};
-		4FFF6799268102A70002B341 /* UI */ = {
-			isa = PBXGroup;
-			children = (
-				4FA0333C268E235B0030C402 /* VUView.metal */,
-				4FA0333D268E235B0030C402 /* VUView.swift */,
-				4FFF679A268102A70002B341 /* IPlugSwiftUIState.swift */,
-				4FFF679C268102A70002B341 /* IPlugSwiftUIViewController.swift */,
-				4FFF679D268102A70002B341 /* TypeAliases.swift */,
-				4FFF679E268102A70002B341 /* ContentView.swift */,
-				4F5466252687E80100C7EDBA /* ParamSliderView.swift */,
-			);
-			name = UI;
-			path = ../UI;
-			sourceTree = "<group>";
-		};
 		91D3DA0B1B023C03008FFFBB = {
 			isa = PBXGroup;
 			children = (
-				4FFF6799268102A70002B341 /* UI */,
+				4F3A3D472D7F63B100AE89B6 /* UI */,
 				4FFF108420A1036200D3092F /* config.h */,
 				4FDCA0BF268E305F007C8124 /* IPlugSwiftUI-Bridging-Header.h */,
 				4FC145F926A60AF500DA8929 /* IPlugSwiftUI-Shared.h */,
@@ -489,6 +464,9 @@
 			buildRules = (
 			);
 			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				4F3A3D472D7F63B100AE89B6 /* UI */,
 			);
 			name = AUv3Framework;
 			productName = AUv3Framework;
@@ -652,8 +630,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				4F2A09CD267A992C00098867 /* IPlugAUViewController.mm in Sources */,
-				4FA0333F268E235B0030C402 /* VUView.swift in Sources */,
-				4F5466262687E80100C7EDBA /* ParamSliderView.swift in Sources */,
 				4FA61F8422E89B2000A92C58 /* GenericUI.mm in Sources */,
 				4FA61F8622E89B2000A92C58 /* IPlugAUv3.mm in Sources */,
 				4FA61F8522E89B2000A92C58 /* IPlugAUAudioUnit.mm in Sources */,
@@ -662,15 +638,10 @@
 				4F2A09CA267A964600098867 /* IPlugCocoaViewController.mm in Sources */,
 				4FA61F8222E89AFF00A92C58 /* IPlugTimer.cpp in Sources */,
 				4FA61F8322E89AFF00A92C58 /* IPlugPaths.mm in Sources */,
-				4FFF679F268102A70002B341 /* IPlugSwiftUIState.swift in Sources */,
 				4FA61F8122E89AFF00A92C58 /* IPlugParameter.cpp in Sources */,
-				4FFF67A1268102A70002B341 /* IPlugSwiftUIViewController.swift in Sources */,
 				4F0D965B23099F5A00BFDED0 /* IPlugProcessor.cpp in Sources */,
-				4FFF67A3268102A70002B341 /* ContentView.swift in Sources */,
 				4FA61F7F22E89AFF00A92C58 /* IPlugAPIBase.cpp in Sources */,
 				4FA61F9222E8A2B500A92C58 /* IPlugSwiftUI.mm in Sources */,
-				4FFF67A2268102A70002B341 /* TypeAliases.swift in Sources */,
-				4FA0333E268E235B0030C402 /* VUView.metal in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -746,7 +717,11 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = "$(SRCROOT)/../resources/IPlugSwiftUI-iOS-AUv3Framework-Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.IPlugSwiftUI.AUv3Framework;
@@ -800,7 +775,11 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = "$(SRCROOT)/../resources/IPlugSwiftUI-iOS-AUv3Framework-Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.IPlugSwiftUI.AUv3Framework;
@@ -819,7 +798,6 @@
 		91236D281B08F42B00734C5E /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = IPlugSwiftUIiOSAppIcon;
 				CLANG_CXX_LIBRARY = "libc++";
@@ -854,7 +832,10 @@
 				GCC_WARN_UNUSED_FUNCTION = NO;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = "$(SRCROOT)/../resources/IPlugSwiftUI-iOS-Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.IPlugSwiftUI;
@@ -869,7 +850,6 @@
 		91236D291B08F42B00734C5E /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = IPlugSwiftUIiOSAppIcon;
 				CLANG_CXX_LIBRARY = "libc++";
@@ -902,12 +882,16 @@
 				GCC_WARN_UNUSED_FUNCTION = NO;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = "$(SRCROOT)/../resources/IPlugSwiftUI-iOS-Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.IPlugSwiftUI;
 				PRODUCT_NAME = IPlugSwiftUI;
 				SDKROOT = iphoneos;
-				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
@@ -950,7 +934,11 @@
 				GCC_WARN_UNUSED_FUNCTION = NO;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = "$(SRCROOT)/../resources/IPlugSwiftUI-iOS-AUv3-Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.IPlugSwiftUI.AUv3;
@@ -996,13 +984,18 @@
 				GCC_WARN_UNUSED_FUNCTION = NO;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = "$(SRCROOT)/../resources/IPlugSwiftUI-iOS-AUv3-Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.IPlugSwiftUI.AUv3;
 				PRODUCT_NAME = IPlugSwiftUIAppExtension;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
-				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 4.2;
 				VALIDATE_PRODUCT = YES;
 			};
@@ -1112,7 +1105,8 @@
 					$AUv3_FRAMEWORKS,
 					"$(EXTRA_LNK_FLAGS)",
 				);
-				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 4.0;
 				SYMROOT = "../build-ios";
 				TARGETED_DEVICE_FAMILY = "1,2";

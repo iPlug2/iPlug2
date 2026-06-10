@@ -417,6 +417,10 @@ int IPlugProcessor::GetAUPluginType() const
   {
     return 'aumi';
   }
+  else if (mPlugType == EIPlugPluginType::kGenerator)
+  {
+    return 'augn';
+  }
   else
     return 'aufx';
 }

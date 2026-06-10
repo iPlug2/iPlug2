@@ -4,13 +4,17 @@
 #include "win32_utf8.h"
 
 
-Win7FileDialog::Win7FileDialog(const char *name, int issave)
+Win7FileDialog::Win7FileDialog(const char *name, int type)
 {
+  bool loadfile = type == 0;
+  bool savefile = type == 1;
+  bool choosedir = type == 2;
+
   m_dlgid = 0;
   m_inst = 0;
   m_proc = NULL;
 
-  if(!issave)
+  if (loadfile || choosedir)
     CoCreateInstance(__uuidof(FileOpenDialog), NULL, CLSCTX_INPROC_SERVER, IID_IUnknown, reinterpret_cast<void**>(&m_fod));
   else
     CoCreateInstance(__uuidof(FileSaveDialog), NULL, CLSCTX_INPROC_SERVER, IID_IUnknown, reinterpret_cast<void**>(&m_fod));
@@ -18,6 +22,8 @@ Win7FileDialog::Win7FileDialog(const char *name, int issave)
   if(m_fod != NULL)
   {
     m_fdc = m_fod;
+
+    if (choosedir) addOptions(FOS_PICKFOLDERS);
 
 #if defined(WDL_NO_SUPPORT_UTF8)
     WCHAR tmp[1024];

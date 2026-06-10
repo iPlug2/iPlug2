@@ -35,15 +35,18 @@ public:
 //  bool CompareState(const uint8_t* pIncomingState, int startPos) const override;
   
   void OnIdle() override;
-  void OnUIOpen() override;
   bool OnMessage(int msgTag, int ctrlTag, int dataSize, const void* pData) override;
+
+#if IPLUG_EDITOR
+  void OnUIOpen() override;
+  void UpdateUIControls();
+#endif
 
 #if IPLUG_DSP // http://bit.ly/2S64BDd
   void ProcessBlock(sample** inputs, sample** outputs, int nFrames) override;
 #endif
-  
+
 private:
-  void UpdateUIControls();
   
   std::atomic<int> mStepPos;
   int mPrevPos = -1;

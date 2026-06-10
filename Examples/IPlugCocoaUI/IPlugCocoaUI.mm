@@ -9,7 +9,7 @@
 #endif
 
 IPlugCocoaUI::IPlugCocoaUI(const InstanceInfo& info)
-: Plugin(info, MakeConfig(kNumParams, kNumPresets))
+: iplug::Plugin(info, MakeConfig(kNumParams, kNumPresets))
 {
   GetParam(kParamGain)->InitGain("Volume", -70.0);
 

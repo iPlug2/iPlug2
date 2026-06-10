@@ -59,3 +59,5 @@ GCC_CFLAGS[arch=x86_64] = -Wno-write-strings -mfpmath=sse -msse -msse2 -msse3 //
 
 // uncomment this to enable codesigning - necessary for AUv3 delivery
 CODE_SIGN_IDENTITY=//Mac Developer
+
+MACOSX_DEPLOYMENT_TARGET = 11.3

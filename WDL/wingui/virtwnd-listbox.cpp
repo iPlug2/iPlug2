@@ -469,9 +469,6 @@ void WDL_VirtualListBox::OnPaint(LICE_IBitmap *drawbm, int origin_x, int origin_
               m_font->SetTextColor(rev?bgc:color);
               m_font->SetCombineMode(LICE_BLIT_MODE_COPY, alpha); // maybe gray text only if !bkbm->bgimage
               RECT dr=thisr;
-#ifdef __APPLE__
-              OffsetRect(&dr,0,2);
-#endif
               const bool has_nl = strchr(buf,'\n') != NULL;
               RECT r2 = { 0, };
               if (has_nl || m_align == 0)

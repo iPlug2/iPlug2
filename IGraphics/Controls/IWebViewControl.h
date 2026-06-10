@@ -44,10 +44,9 @@ public:
    * @param enableDevTools Should the webview developer tools be available via context menu */
   IWebViewControl(const IRECT& bounds, bool opaque, OnReadyFunc readyFunc = nullptr, OnMessageFunc msgFunc = nullptr, bool enableDevTools = false, bool enableScroll = false)
   : IControl(bounds)
-  , IWebView(opaque)
+  , IWebView(opaque, enableDevTools)
   , mOnReadyFunc(readyFunc)
   , mOnMessageFunc(msgFunc)
-  , mEnableDevTools(enableDevTools)
   , mEnableScroll(enableScroll)
   {
     // The IControl itself should never receive mouse messages
@@ -64,7 +63,7 @@ public:
   void OnAttached() override
   {
     IGraphics* pGraphics = GetUI();
-    mPlatformView = OpenWebView(pGraphics->GetWindow(), mRECT.L, mRECT.T, mRECT.W(), mRECT.H(), pGraphics->GetDrawScale(), mEnableDevTools);
+    mPlatformView = OpenWebView(pGraphics->GetWindow(), mRECT.L, mRECT.T, mRECT.W(), mRECT.H(), pGraphics->GetDrawScale());
     pGraphics->AttachPlatformView(mRECT, mPlatformView);
     EnableScroll(mEnableScroll);
   }
@@ -129,7 +128,6 @@ private:
   void* mPlatformView = nullptr;
   OnReadyFunc mOnReadyFunc;
   OnMessageFunc mOnMessageFunc;
-  bool mEnableDevTools = false;
   bool mEnableInteraction = true;
   bool mEnableScroll = false;
 };

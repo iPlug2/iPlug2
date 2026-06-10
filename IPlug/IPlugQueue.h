@@ -31,8 +31,8 @@ template<typename T>
 class IPlugQueue final
 {
 public:
-  /** IPlugQueue constructor 
-   * @param size \todo */
+  /** IPlugQueue constructor
+   * @param size The queue capacity (number of elements) */
   IPlugQueue(int size)
   {
     Resize(size);
@@ -43,17 +43,17 @@ public:
   IPlugQueue(const IPlugQueue&) = delete;
   IPlugQueue& operator=(const IPlugQueue&) = delete;
     
-  /** \todo 
-   * @param size \todo */
+  /** Changes the queue capacity
+   * @param size The new queue capacity (number of elements) */
   void Resize(int size)
   {
     mData.Resize(size + 1);
   }
 
-  /** \todo 
-   * @param item \todo
-   * @return true \todo
-   * @return false \todo */
+  /** Adds an item to the queue
+   * @param item The item to add to the queue
+   * @return true if the item was successfully added
+   * @return false if the queue is full */
   bool Push(const T& item)
   {
     const auto currentWriteIndex = mWriteIndex.load(std::memory_order_relaxed);
@@ -67,10 +67,10 @@ public:
     return false;
   }
 
-  /** \todo 
-   * @param item \todo
-   * @return true \todo
-   * @return false \todo */
+  /** Removes and retrieves an item from the queue
+   * @param item Reference to store the retrieved item
+   * @return true if an item was successfully retrieved
+   * @return false if the queue is empty */
   bool Pop(T& item)
   {
     const auto currentReadIndex = mReadIndex.load(std::memory_order_relaxed);
@@ -83,10 +83,10 @@ public:
     return true;
   }
 
-  /** \todo
-   * @param args... \todo
-   * @return true \todo
-   * @return false \todo */
+  /** Constructs and adds an item to the queue in-place from arguments
+   * @param args... Arguments to forward to the item's constructor
+   * @return true if the item was successfully added
+   * @return false if the queue is full */
   template <typename... Args>
   bool PushFromArgs(Args ...args)
   {
@@ -101,8 +101,8 @@ public:
     return false;
   }
   
-  /** \todo 
-   * @return size_t \todo */
+  /** Returns the number of elements currently in the queue
+   * @return The number of elements available to pop */
   size_t ElementsAvailable() const
   {
     size_t write = mWriteIndex.load(std::memory_order_acquire);
@@ -111,27 +111,27 @@ public:
     return (read > write) ? mData.GetSize() - (read - write) : write - read;
   }
 
-  /** \todo
-   * useful for reading elements while a criterion is met. Can be used like
-   * while IPlugQueue.ElementsAvailable() && q.peek().mTime < 100 { elem = q.pop() ... }
-   * @return const T& \todo */
+  /** Returns a const reference to the next item without removing it
+   * Useful for reading elements while a criterion is met. Can be used like:
+   * `while (q.ElementsAvailable() && q.Peek().mTime < 100) { T elem; q.Pop(elem); ... }`
+   * @return const reference to the next item in the queue */
   const T& Peek()
   {
     const auto currentReadIndex = mReadIndex.load(std::memory_order_relaxed);
     return mData.Get()[currentReadIndex];
   }
 
-  /** \todo 
-   * @return true \todo
-   * @return false \todo */
+  /** Checks if the queue is currently empty
+   * @return true if the queue is empty
+   * @return false if the queue contains elements */
   bool WasEmpty() const
   {
     return (mWriteIndex.load() == mReadIndex.load());
   }
 
-  /** \todo 
-   * @return true \todo
-   * @return false \todo */
+  /** Checks if the queue is currently full
+   * @return true if the queue is full
+   * @return false if the queue has space for more elements */
   bool WasFull() const
   {
     const auto nextWriteIndex = Increment(mWriteIndex.load());
@@ -139,9 +139,9 @@ public:
   }
 
 private:
-  /** \todo 
-   * @param idx \todo
-   * @return size_t \todo */
+  /** Increments an index in the circular buffer, wrapping around when necessary
+   * @param idx The index to increment
+   * @return The incremented index, wrapped to stay within bounds */
   size_t Increment(size_t idx) const
   {
     return (idx + 1) % (mData.GetSize());

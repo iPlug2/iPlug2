@@ -141,8 +141,13 @@ CXXFLAGS=$(CFLAGS)
 ifeq ($(CXX),g++)
   GCC_VER := $(shell $(CXX) --version|head -n 1| sed 's/.* \([0-9][0-9]*\)[.][0-9.]*/\1/' )
   GCC_GT_10 := $(shell [ "$(GCC_VER)" -gt 10 ] && echo true )
+  GCC_GT_11 := $(shell [ "$(GCC_VER)" -gt 11 ] && echo true )
   ifeq ($(GCC_GT_10),true)
     CXXFLAGS += -std=c++03
+  endif
+  ifeq ($(GCC_GT_11),true)
+    # false positive in gcc 12/13
+    CFLAGS += -Wno-dangling-pointer
   endif
 endif
 

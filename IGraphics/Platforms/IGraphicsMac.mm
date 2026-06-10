@@ -11,6 +11,10 @@
 #include "IGraphicsMac.h"
 #import "IGraphicsMac_view.h"
 
+#if defined IGRAPHICS_GLES2 || defined IGRAPHICS_GLES3
+#import <libEGL/libEGL.h>
+#endif
+
 #include "IControl.h"
 #include "IPopupMenuControl.h"
 
@@ -93,10 +97,7 @@ void* IGraphicsMac::OpenWindow(void* pParent)
   IGRAPHICS_VIEW* pView = [[IGRAPHICS_VIEW alloc] initWithIGraphics: this];
   mView = (void*) pView;
     
-#ifdef IGRAPHICS_GL
-  [[pView openGLContext] makeCurrentContext];
-#endif
-    
+  ActivateGLContext();
   OnViewInitialized([pView layer]);
   SetScreenScale([[NSScreen mainScreen] backingScaleFactor]);
   GetDelegate()->LayoutUI(this);
@@ -135,11 +136,16 @@ void IGraphicsMac::CloseWindow()
   {    
     IGRAPHICS_VIEW* pView = (IGRAPHICS_VIEW*) mView;
       
-#ifdef IGRAPHICS_GL
+#if defined IGRAPHICS_GL2 || defined IGRAPHICS_GL3
     [[pView pixelFormat] release];
     [[pView openGLContext] release];
+#elif defined IGRAPHICS_GLES2 || defined IGRAPHICS_GLES3
+    [pView deactivateGLContext];
+    eglDestroySurface([pView getEGLDisplay], [pView getEGLSurface]);
+    eglDestroyContext([pView getEGLDisplay], [pView getEGLContext]);
+    eglTerminate([pView getEGLDisplay]);
 #endif
-      
+
     [pView removeAllToolTips];
     [pView killTimer];
     [pView removeFromSuperview];
@@ -729,17 +735,14 @@ EUIAppearance IGraphicsMac::GetUIAppearance() const
 
 void IGraphicsMac::ActivateGLContext()
 {
-#ifdef IGRAPHICS_GL
   IGRAPHICS_VIEW* pView = (IGRAPHICS_VIEW*) mView;
-  [[pView openGLContext] makeCurrentContext];
-#endif
+  [pView activateGLContext];
 }
 
 void IGraphicsMac::DeactivateGLContext()
 {
-#ifdef IGRAPHICS_GL
-  [NSOpenGLContext clearCurrentContext];
-#endif
+  IGRAPHICS_VIEW* pView = (IGRAPHICS_VIEW*) mView;
+  [pView deactivateGLContext];
 }
 
 #if defined IGRAPHICS_NANOVG

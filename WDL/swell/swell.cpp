@@ -30,8 +30,8 @@
 #include <sys/time.h>
 #include <sys/stat.h>
 #include <sys/socket.h>
-#include <sys/poll.h>
-#include <sys/fcntl.h>
+#include <poll.h>
+#include <fcntl.h>
 #include <sys/resource.h>
 
 
@@ -1187,6 +1187,11 @@ void *SWELL_ExtendedAPI(const char *key, void *v)
   {
     void swell_gdk_reactivate_app(void);
     swell_gdk_reactivate_app();
+  }
+  else if (!strcmp(key,"PREVENT_SCREENSAVER") || !strcmp(key,"-PREVENT_SCREENSAVER"))
+  {
+    void swell_gdk_prevent_screensaver(bool, const char *v);
+    swell_gdk_prevent_screensaver(key[0] != '-', (const char *) v);
   }
 #endif
   else if (!strcmp(key,"SWELL_DDrop_onDragLeave")) { *(void **)&SWELL_DDrop_onDragLeave = v; return v; }

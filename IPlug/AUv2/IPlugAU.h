@@ -199,6 +199,14 @@ protected:
   static bool GetStrFromDict(CFDictionaryRef pDict, const char* key, char* value);
   static bool GetDataFromDict(CFDictionaryRef pDict, const char* key, IByteChunk* pChunk);
 
+#pragma mark - Specialist Use
+public:
+  /** Get the AudioTimeStamp from the last render callback.
+   * @return The most recent render timestamp
+   * @note For specialist use when hosting AUs within AUs.
+   *       Thread safety: returns snapshot, may be stale if called off audio thread. */
+  const AudioTimeStamp& GetLastAudioTimeStamp() const { return mLastRenderTimeStamp; }
+
 private:
 
 #pragma mark -

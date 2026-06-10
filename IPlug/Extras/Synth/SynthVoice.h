@@ -61,7 +61,7 @@ public:
   virtual bool GetBusy() const = 0;
 
   /** Trigger is called by the VoiceAllocator when a new voice should start, or if the voice limit has been hit and an existing voice needs to re-trigger. While the VoiceInputs are sufficient to control a voice from the VoiceAllocator, this method can be used to do additional tasks like resetting oscillators.
-   * @param level Normalised starting level for this voice, derived from the velocity of the keypress, or in the case of a re-trigger the existing level \todo check
+   * @param level Normalised starting level for this voice, derived from the velocity of the keypress (range 0.0-1.0), or in the case of a re-trigger the existing level
    * @param isRetrigger If this is \c true it means the voice is being re-triggered, and you should accommodate for this in your algorithm */
   virtual void Trigger(double level, bool isRetrigger) {};
 

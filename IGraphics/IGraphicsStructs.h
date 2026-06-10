@@ -53,6 +53,7 @@ using IGestureFunc = std::function<void(IControl*, const IGestureInfo&)>;
 using IPopupFunction = std::function<void(IPopupMenu* pMenu)>;
 using IDisplayTickFunc = std::function<void()>;
 using IUIAppearanceChangedFunc = std::function<void(EUIAppearance appearance)>;
+using ILiveEditEventFunc = std::function<void(const char* eventJson)>;
 using ITouchID = uintptr_t;
 
 /** A click action function that does nothing */
@@ -340,8 +341,8 @@ struct IColor
     l /= 100.f;
   }
 
-  /** \todo
-   * @return int \todo */
+  /** Gets the lightness of the color (HSL lightness component)
+   * @return The lightness value (0-255), calculated as (min(R,G,B) + max(R,G,B)) / 2 */
   int GetLuminosity() const
   {
     int min = R < G ? (R < B ? R : B) : (G < B ? G : B);
@@ -785,6 +786,17 @@ struct IRECT
   static IRECT MakeXYWH(float l, float t, float w, float h)
   {
     return IRECT(l, t, l+w, t+h);
+  }
+  
+  /** Create a new IRECT of size (y,h) centred at the given position (x,y)
+   * @param x Mid horizontal point of new IRECT
+   * @param y Mid vertical point of new IRECT
+   * @param w Width of new IRECT
+   * @param h Height of new IRECT
+   * @return the new IRECT */
+  static IRECT MakeMidXYWH(float x, float y, float w, float h)
+  {
+    return IRECT(x-(w/2.0f), y-(h/2.0f), x+(w/2.0f), y+(h/2.0f));
   }
   
   /** @return bool true if all the fields of this IRECT are 0 */
@@ -1933,10 +1945,10 @@ public:
   }
   
 private:
-  /** \todo 
-   * @param r \todo
-   * @param i \todo
-   * @return IRECT \todo */
+  /** Shrinks a rectangle by removing the intersection area
+   * @param r The original rectangle
+   * @param i The intersection rectangle to remove
+   * @return The remaining portion of the original rectangle */
   IRECT Shrink(const IRECT &r, const IRECT &i)
   {
     if (i.L != r.L)
@@ -1948,10 +1960,10 @@ private:
     return IRECT(r.L, i.B, r.R, r.B);
   }
   
-  /** \todo 
-   * @param r \todo
-   * @param i \todo
-   * @return IRECT \todo */
+  /** Splits a rectangle around an intersection, adding one part to the list
+   * @param r The rectangle to split
+   * @param i The intersection rectangle
+   * @return The remaining portion after adding the split part to the list */
   IRECT Split(const IRECT r, const IRECT &i)
   {
     if (r.L == i.L)
@@ -2040,11 +2052,11 @@ struct IMatrix
     return Transform(IMatrix(1.0, std::tan(DegToRad(ya)), std::tan(DegToRad(xa)), 1.0, 0.0, 0.0));
   }
   
-  /** Transforms the point x, y  \todo
-   * @param x The x coordinate to transform
-   * @param y The y coordinate to transform
-   * @param x0 \todo
-   * @param y0 \todo */
+  /** Transforms a point using this matrix
+   * @param x Output x coordinate after transformation
+   * @param y Output y coordinate after transformation
+   * @param x0 Input x coordinate
+   * @param y0 Input y coordinate */
   void TransformPoint(double& x, double& y, double x0, double y0) const
   {
     x = x0 * mXX + y0 * mXY + mTX;
@@ -2059,10 +2071,10 @@ struct IMatrix
     TransformPoint(x, y, x, y);
   };
   
-  /** \todo 
-   * @param before \todo
-   * @param after \todo
-   * @return IMatrix& The result of the transform */
+  /** Sets up a transformation matrix to map one rectangle to another
+   * @param before The source rectangle
+   * @param after The destination rectangle
+   * @return Reference to this matrix after transformation */
   IMatrix& Transform(const IRECT& before, const IRECT& after)
   {
     const double sx = after.W() / before.W();

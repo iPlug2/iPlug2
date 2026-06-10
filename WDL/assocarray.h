@@ -339,7 +339,7 @@ private:
 };
 
 
-// WDL_AssocArray adds useful functions but cannot contain structs for keys or values
+// WDL_AssocArray adds useful functions but requires assignment operator for keys and values
 template <class KEY, class VAL> class WDL_AssocArray : public WDL_AssocArrayImpl<KEY, VAL>
 {
 public:
@@ -428,11 +428,10 @@ template <class VAL> class WDL_StringKeyedArray : public WDL_AssocArray<const ch
 public:
 
   explicit WDL_StringKeyedArray(bool caseSensitive=true, void (*valdispose)(VAL)=NULL, bool copyKeys=true)
-    : WDL_AssocArray<const char*, VAL>(caseSensitive?WDL_assocarray_cmpstr<const char>:WDL_assocarray_cmpistr<const char>, copyKeys?dupstr:NULL, copyKeys?freestr:NULL, valdispose) {}
+    : WDL_AssocArray<const char*, VAL>(caseSensitive?WDL_assocarray_cmpstr<const char>:WDL_assocarray_cmpistr<const char>, copyKeys?dupstr:NULL, copyKeys?wdl_freefunc<const char *>:NULL, valdispose) {}
 
   static const char *dupstr(const char *s) { return strdup(s);  } // these might not be necessary but depending on the libc maybe...
-  static void freestr(const char* s) { free((void*)s); }
-  static void freecharptr(char *p) { free(p); }
+  static void freecharptr(char *p) { free(p); } // remove eventually (wdl_freefunc replaced)
 };
 
 
@@ -441,13 +440,12 @@ template <class VAL> class WDL_StringKeyedArray2 : public WDL_AssocArrayImpl<con
 public:
 
   explicit WDL_StringKeyedArray2(bool caseSensitive=true, void (*valdispose)(VAL)=NULL, bool copyKeys=true)
-    : WDL_AssocArrayImpl<const char*, VAL>(caseSensitive?WDL_assocarray_cmpstr<const char>:WDL_assocarray_cmpistr<const char>, copyKeys?dupstr:NULL, copyKeys?freestr:NULL, valdispose) {}
+    : WDL_AssocArrayImpl<const char*, VAL>(caseSensitive?WDL_assocarray_cmpstr<const char>:WDL_assocarray_cmpistr<const char>, copyKeys?dupstr:NULL, copyKeys?wdl_freefunc<const char *>:NULL, valdispose) {}
   
   ~WDL_StringKeyedArray2() { }
 
   static const char *dupstr(const char *s) { return strdup(s);  } // these might not be necessary but depending on the libc maybe...
-  static void freestr(const char* s) { free((void*)s); }
-  static void freecharptr(char *p) { free(p); }
+  static void freecharptr(char *p) { free(p); } // remove eventually (wdl_freefunc replaced)
 };
 
 // sorts text as text, sorts anything that looks like a number as a number

@@ -15,6 +15,7 @@ extern "C" {
 #include <windows.h>
 #include <sys/stat.h>
 #include <stdio.h>
+#include <time.h>
 
 #define LB_GETTEXTUTF8 (LB_GETTEXT|0x8000)
 #define LB_GETTEXTLENUTF8 (LB_GETTEXTLEN|0x8000)
@@ -34,6 +35,7 @@ WDL_WIN32_UTF8_IMPL DWORD GetTempPathUTF8(DWORD nBufferLength, LPTSTR lpBuffer);
 WDL_WIN32_UTF8_IMPL BOOL SetCurrentDirectoryUTF8(LPCTSTR path);
 WDL_WIN32_UTF8_IMPL BOOL RemoveDirectoryUTF8(LPCTSTR path);
 WDL_WIN32_UTF8_IMPL HINSTANCE LoadLibraryUTF8(LPCTSTR path);
+WDL_WIN32_UTF8_IMPL DWORD GetFileAttributesUTF8(LPCTSTR path);
 
 WDL_WIN32_UTF8_IMPL HANDLE CreateFileUTF8(LPCTSTR lpFileName,DWORD dwDesiredAccess,DWORD dwShareMode,LPSECURITY_ATTRIBUTES lpSecurityAttributes,DWORD dwCreationDisposition,DWORD dwFlagsAndAttributes,HANDLE hTemplateFile);
 
@@ -67,13 +69,13 @@ WDL_WIN32_UTF8_IMPL BOOL GetMenuItemInfoUTF8(HMENU hMenu, UINT uItem,BOOL fByPos
    
 WDL_WIN32_UTF8_IMPL int statUTF8(const char *filename, struct stat *buffer);
 WDL_WIN32_UTF8_IMPL FILE *fopenUTF8(const char *filename, const char *mode);
+WDL_WIN32_UTF8_IMPL size_t strftimeUTF8(char *buf, size_t maxsz, const char *fmt, const struct tm *timeptr);
 
 WDL_WIN32_UTF8_IMPL int GetKeyNameTextUTF8(LONG lParam, LPTSTR lpString, int nMaxCount);
+WDL_WIN32_UTF8_IMPL int AddFontResourceExUTF8(LPCSTR path, DWORD fl, PVOID res);
 
 
-WDL_WIN32_UTF8_IMPL WCHAR *WDL_UTF8ToWC(const char *buf, BOOL doublenull, int minsize, DWORD *sizeout); 
-
-WDL_WIN32_UTF8_IMPL BOOL WDL_HasUTF8(const char *_str);
+WDL_WIN32_UTF8_IMPL WCHAR *WDL_UTF8ToWC(const char *buf, BOOL doublenull, int minsize, DWORD *sizeout);  // only converts UTF-8 if all 8-bit bytes are valid UTF-8 sequences
 
 WDL_WIN32_UTF8_IMPL void WDL_UTF8_HookComboBox(HWND h);
 WDL_WIN32_UTF8_IMPL void WDL_UTF8_HookListView(HWND h);
@@ -169,6 +171,11 @@ WDL_WIN32_UTF8_IMPL BOOL CreateProcessUTF8( LPCTSTR lpApplicationName, LPTSTR lp
 #undef DeleteFile
 #endif
 #define DeleteFile DeleteFileUTF8
+
+#ifdef GetFileAttributes
+#undef GetFileAttributes
+#endif
+#define GetFileAttributes GetFileAttributesUTF8
 
 #ifdef MoveFile
 #undef MoveFile
@@ -279,6 +286,11 @@ WDL_WIN32_UTF8_IMPL BOOL CreateProcessUTF8( LPCTSTR lpApplicationName, LPTSTR lp
 #endif
 #define CreateProcess CreateProcessUTF8
 
+#ifdef AddFontResourceEx
+#undef AddFontResourceEx
+#endif
+#define AddFontResourceEx AddFontResourceExUTF8
+
 #ifdef fopen
 #undef fopen
 #endif
@@ -290,22 +302,29 @@ WDL_WIN32_UTF8_IMPL BOOL CreateProcessUTF8( LPCTSTR lpApplicationName, LPTSTR lp
 #define stat(fn,s) statUTF8(fn,s)
 typedef char wdl_utf8_chk_stat_types_assert_failed[sizeof(struct stat) == sizeof(struct _stat) ? 1 : -1];
 
+
+#ifdef strftime
+#undef strftime
+#endif
+#define strftime(a,b,c,d) strftimeUTF8(a,b,c,d)
+
 #else
 
 #if defined(WDL_CHECK_FOR_NON_UTF8_FOPEN) && defined(fopen)
   #undef fopen
 #endif
 
-// compat defines for when UTF disabled
+// compat defines for when UTF-8 disabled, or on non-win32
 #define DrawTextUTF8 DrawText
 #define statUTF8 stat
 #define fopenUTF8 fopen
-#define WDL_UTF8_HookComboBox(x)
-#define WDL_UTF8_HookListView(x)
-#define WDL_UTF8_HookListBox(x)
-#define WDL_UTF8_HookTreeView(x)
-#define WDL_UTF8_HookTabCtrl(x)
-#define WDL_UTF8_ListViewConvertDispInfoToW(x)
+#define strftimeUTF8 strftime
+#define WDL_UTF8_HookComboBox(x) do { if (WDL_NORMALLY(x)) { } } while(0)
+#define WDL_UTF8_HookListView(x) do { if (WDL_NORMALLY(x)) { } } while(0)
+#define WDL_UTF8_HookListBox(x) do { if (WDL_NORMALLY(x)) { } } while(0)
+#define WDL_UTF8_HookTreeView(x) do { if (WDL_NORMALLY(x)) { } } while(0)
+#define WDL_UTF8_HookTabCtrl(x) do { if (WDL_NORMALLY(x)) { } } while(0)
+#define WDL_UTF8_ListViewConvertDispInfoToW(x) do { if (WDL_NORMALLY(x) && WDL_NOT_NORMALLY((x)->hdr.code == LVN_GETDISPINFOW)) { } } while(0)
 
 #define LB_GETTEXTUTF8 LB_GETTEXT
 #define LB_GETTEXTLENUTF8 LB_GETTEXTLEN

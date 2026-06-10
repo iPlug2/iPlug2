@@ -15,35 +15,35 @@ steps:
       contents: '**'
     displayName: Clean Staging Directory
 
-  - task: DownloadPipelineArtifact@0
+  - task: DownloadPipelineArtifact@2
     continueOnError: true
     inputs:
-      artifactName: 'MAC_VST2_${{parameters.name}}_${{parameters.graphics}}'
-      targetPath: $(Build.BinariesDirectory)
+      artifact: 'MAC_VST2_${{parameters.name}}_${{parameters.graphics}}'
+      path: $(Build.BinariesDirectory)
     displayName: Download MAC_VST2_${{parameters.name}}_${{parameters.graphics}}
     condition: eq(variables.build_vst2, True)
 
-  - task: DownloadPipelineArtifact@0
+  - task: DownloadPipelineArtifact@2
     continueOnError: true
     inputs:
-      artifactName: 'MAC_VST3_${{parameters.name}}_${{parameters.graphics}}'
-      targetPath: $(Build.BinariesDirectory)
+      artifact: 'MAC_VST3_${{parameters.name}}_${{parameters.graphics}}'
+      path: $(Build.BinariesDirectory)
     displayName: Download MAC_VST3_${{parameters.name}}_${{parameters.graphics}}
     condition: eq(variables.build_vst3, True)
-  
-  # - task: DownloadPipelineArtifact@0
+
+  # - task: DownloadPipelineArtifact@2
   #   continueOnError: true
   #   inputs:
-  #     artifactName: 'MAC_AAX_${{parameters.name}}_${{parameters.graphics}}'
-  #     targetPath: $(Build.BinariesDirectory)
+  #     artifact: 'MAC_AAX_${{parameters.name}}_${{parameters.graphics}}'
+  #     path: $(Build.BinariesDirectory)
   #   displayName: Download MAC_AAX_${{parameters.name}}_${{parameters.graphics}}
   #   condition: eq(variables.build_aax, True)
 
-  - task: DownloadPipelineArtifact@0
+  - task: DownloadPipelineArtifact@2
     continueOnError: true
     inputs:
-      artifactName: 'MAC_AU_${{parameters.name}}_${{parameters.graphics}}'
-      targetPath: $(Build.BinariesDirectory)
+      artifact: 'MAC_AU_${{parameters.name}}_${{parameters.graphics}}'
+      path: $(Build.BinariesDirectory)
     displayName: Download MAC_AU_${{parameters.name}}_${{parameters.graphics}}
     condition: eq(variables.build_auv2, True)
 

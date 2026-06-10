@@ -109,7 +109,7 @@ public:
   // if you want to manually attach a connection, use this:
   // you need to specify the port it came in on so the web server can build
   // links
-  void attachConnection(JNL_IConnection *con, int port);
+  virtual void attachConnection(JNL_IConnection *con, int port);
 
   // derived classes need to override this one =)
   virtual IPageGenerator *onConnection(JNL_HTTPServ *serv, int port)=0;
@@ -130,7 +130,7 @@ protected:
   class WS_conInst
   {
   public:
-    WS_conInst(JNL_IConnection *c, int which_port) : m_serv(c), m_pagegen(NULL), m_port(which_port)
+    WS_conInst(JNL_IConnection *c, int which_port) : m_serv(c), m_pagegen(NULL), m_port(which_port), m_req_cnt(0)
     {
       time(&m_connect_time);
     }
@@ -145,6 +145,7 @@ protected:
 
     int m_port; // port this came in on
     time_t m_connect_time;
+    unsigned int m_req_cnt;
   };
 
   int run_connection(WS_conInst *con);

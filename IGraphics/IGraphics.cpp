@@ -116,6 +116,8 @@ void IGraphics::Resize(int w, int h, float scale, bool needsPlatformResize)
   
   if(mLayoutOnResize)
     GetDelegate()->LayoutUI(this);
+
+  PostResize();
 }
 
 void IGraphics::SetLayoutOnResize(bool layoutOnResize)
@@ -201,7 +203,7 @@ void IGraphics::RemoveAllControls()
   mCornerResizer = nullptr;
   mPerfDisplay = nullptr;
     
-#ifndef NDEBUG
+#if !defined(NDEBUG) || defined(IPLUG_LIVE_EDIT)
   mLiveEdit = nullptr;
 #endif
   
@@ -440,7 +442,12 @@ void IGraphics::ShowFPSDisplay(bool enable)
   {
     if (!mPerfDisplay)
     {
-      mPerfDisplay = std::make_unique<IFPSDisplayControl>(GetBounds().GetPadded(-10).GetFromTLHC(200, 50));
+      if (mPerfDisplayBounds.Empty())
+      {
+        mPerfDisplayBounds = GetBounds().GetPadded(-10).GetFromTLHC(200, 50);
+      }
+      
+      mPerfDisplay = std::make_unique<IFPSDisplayControl>(mPerfDisplayBounds);
       mPerfDisplay->SetDelegate(*GetDelegate());
     }
   }
@@ -552,7 +559,7 @@ void IGraphics::ForAllControlsFunc(IControlFunction func)
   if (mPerfDisplay)
     func(mPerfDisplay.get());
   
-#ifndef NDEBUG
+#if !defined(NDEBUG) || defined(IPLUG_LIVE_EDIT)
   if (mLiveEdit)
     func(mLiveEdit.get());
 #endif
@@ -1228,11 +1235,14 @@ bool IGraphics::OnMouseDblClick(float x, float y, const IMouseMod& mod)
   return pControl;
 }
 
-void IGraphics::OnMouseWheel(float x, float y, const IMouseMod& mod, float d)
+bool IGraphics::OnMouseWheel(float x, float y, const IMouseMod& mod, float d)
 {
   IControl* pControl = GetMouseControl(x, y, false);
+  
   if (pControl)
     pControl->OnMouseWheel(x, y, mod, d);
+  
+  return pControl;
 }
 
 bool IGraphics::OnKeyDown(float x, float y, const IKeyPress& key)
@@ -1299,7 +1309,7 @@ int IGraphics::GetMouseControlIdx(float x, float y, bool mouseOver)
     {
       IControl* pControl = GetControl(c);
 
-#ifndef NDEBUG
+#if !defined(NDEBUG) || defined(IPLUG_LIVE_EDIT)
       if(!mLiveEdit)
       {
 #endif
@@ -1313,7 +1323,7 @@ int IGraphics::GetMouseControlIdx(float x, float y, bool mouseOver)
             }
           }
         }
-#ifndef NDEBUG
+#if !defined(NDEBUG) || defined(IPLUG_LIVE_EDIT)
       }
       else if (pControl->GetRECT().Contains(x, y) && pControl->GetParent() == nullptr)
       {
@@ -1349,7 +1359,7 @@ IControl* IGraphics::GetMouseControl(float x, float y, bool capture, bool mouseO
     pControl = mTextEntryControl.get();
   
   
-#if !defined(NDEBUG)
+#if !defined(NDEBUG) || defined(IPLUG_LIVE_EDIT)
   if (!pControl && mLiveEdit)
     pControl = mLiveEdit.get();
 #endif
@@ -1540,7 +1550,7 @@ void IGraphics::EnableTooltips(bool enable)
 
 void IGraphics::EnableLiveEdit(bool enable)
 {
-#ifndef NDEBUG
+#if !defined(NDEBUG) || defined(IPLUG_LIVE_EDIT)
   if (enable)
   {
     if (!mLiveEdit)
@@ -1692,7 +1702,7 @@ WDL_TypedBuf<uint8_t> IGraphics::LoadResource(const char* fileNameOrResID, const
 #endif
   if (resourceFound == EResourceLocation::kAbsolutePath)
   {
-    FILE* fd = fopenUTF8(path.Get(), "rb");
+    FILE* fd = fopen(path.Get(), "rb");
 
     if (!fd)
       return result;
@@ -1980,6 +1990,8 @@ void IGraphics::EndDragResize()
     ForAllControls(&IControl::OnRescale);
     SetAllControlsDirty();
   }
+  else if (mCornerResizer)
+    mCornerResizer->SetDirty(false);
 }
 
 void IGraphics::StartLayer(IControl* pControl, const IRECT& r, bool cacheable)

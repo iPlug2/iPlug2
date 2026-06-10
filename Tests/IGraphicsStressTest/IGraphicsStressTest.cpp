@@ -4,7 +4,7 @@
 #include "IControls.h"
 
 IGraphicsStressTest::IGraphicsStressTest(const InstanceInfo& info)
-: Plugin(info, MakeConfig(kNumParams, 1))
+: iplug::Plugin(info, MakeConfig(kNumParams, 1))
 {
   GetParam(0)->InitGain("Dummy");
   

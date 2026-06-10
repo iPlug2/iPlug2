@@ -106,6 +106,10 @@
   UIView* view = pluginVC.view;
   view.frame = auView.bounds;
   [auView addSubview: view];
+#if TARGET_OS_VISION && defined(VISIONOS_TRANSPARENT_VC)
+  self.view.opaque = false;
+  self.view.backgroundColor = UIColor.clearColor;
+#endif
 
   view.translatesAutoresizingMaskIntoConstraints = NO;
 
@@ -121,5 +125,12 @@
 {
   return UIRectEdgeAll;
 }
+
+#if TARGET_OS_VISION && defined(VISIONOS_TRANSPARENT_VC)
+- (UIContainerBackgroundStyle) preferredContainerBackgroundStyle
+{
+  return UIContainerBackgroundStyleHidden;
+}
+#endif
 @end
 

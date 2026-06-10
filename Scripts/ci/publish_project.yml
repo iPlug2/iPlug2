@@ -5,10 +5,10 @@ parameters:
 
 steps:
 - ${{ if eq(parameters.platformStr, 'WEB') }}:
-  - task: DownloadPipelineArtifact@0
+  - task: DownloadPipelineArtifact@2
     inputs:
-      artifactName: 'WEB_${{parameters.name}}_${{parameters.graphics}}'
-      targetPath: '${{parameters.graphics}}/${{parameters.name}}'
+      artifact: 'WEB_${{parameters.name}}_${{parameters.graphics}}'
+      path: '${{parameters.graphics}}/${{parameters.name}}'
 
   - bash: |
       sed -i.bak 's,var origin = "/";,var origin = "https://iplug2.github.io/${{parameters.graphics}}/${{parameters.name}}/";,g' ./${{parameters.graphics}}/${{parameters.name}}/scripts/${{parameters.name}}-awn.js

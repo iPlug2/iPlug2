@@ -7,7 +7,7 @@
 	<key>CFBundleExecutable</key>
 	<string>IGraphicsStressTest</string>
 	<key>CFBundleGetInfoString</key>
-	<string>IGraphicsStressTest v1.0.0 Copyright 2020 Acme Inc</string>
+	<string>IGraphicsStressTest v1.0.0 Copyright 2025 Acme Inc</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.AcmeInc.vst3.IGraphicsStressTest</string>
 	<key>CFBundleInfoDictionaryVersion</key>
@@ -25,6 +25,6 @@
 	<key>CSResourcesFileMapped</key>
 	<true/>
 	<key>LSMinimumSystemVersion</key>
-	<string>10.11.0</string>
+	<string>10.13.0</string>
 </dict>
 </plist>

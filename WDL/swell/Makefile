@@ -52,7 +52,7 @@ ifeq ($(COMPILER),GCC)
   endif
 endif
 
-ifndef ALLOW_WARNINGS
+ifdef DISALLOW_WARNINGS
   CFLAGS += -Werror
 endif
 ifndef DEPRECATED_WARNINGS
@@ -70,6 +70,9 @@ else
   endif
 endif
 
+ifeq ($(COMPILER),CLANG)
+  CFLAGS += -Wbitwise-instead-of-logical
+endif
 
 ifdef DEBUG
 CFLAGS += -O0 -g -D_DEBUG

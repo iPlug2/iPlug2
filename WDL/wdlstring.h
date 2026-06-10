@@ -70,6 +70,11 @@ class WDL_String
   #endif
 
     const char *Get() const { return m_hb.GetSize()?(char*)m_hb.Get():""; }
+    const char *GetAtOffs(int offs) const {
+      const int l = GetLength();
+      if (WDL_NOT_NORMALLY(offs < 0 || offs > l)) return Get()+l;
+      return Get()+offs;
+    }
 
   #ifdef WDL_STRING_FASTSUB_DEFINED
     int GetLength() const { int a = m_hb.GetSize(); return a>0?a-1:0; }

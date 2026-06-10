@@ -6,7 +6,7 @@
 #define PLUG_MFR_ID 'Acme'
 #define PLUG_URL_STR "https://iplug2.github.io"
 #define PLUG_EMAIL_STR "spam@me.com"
-#define PLUG_COPYRIGHT_STR "Copyright 2020 Acme Inc"
+#define PLUG_COPYRIGHT_STR "Copyright 2025 Acme Inc"
 #define PLUG_CLASS_NAME IPlugWebUI
 
 #define BUNDLE_NAME "IPlugWebUI"
@@ -28,7 +28,7 @@
 #define PLUG_HEIGHT 600
 #define PLUG_FPS 60
 #define PLUG_SHARED_RESOURCES 0
-#define PLUG_HOST_RESIZE 0
+#define PLUG_HOST_RESIZE 1
 
 #define AUV2_ENTRY IPlugWebUI_Entry
 #define AUV2_ENTRY_STR "IPlugWebUI_Entry"

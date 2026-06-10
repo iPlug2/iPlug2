@@ -11,6 +11,11 @@
 #import <UIKit/UIKit.h>
 #include "IGraphicsIOS.h"
 
+#ifdef IGRAPHICS_GL
+#import <libEGL/libEGL.h>
+#import <libGLESv2/angle_gl.h>
+#endif
+
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
 
@@ -70,11 +75,16 @@ UIColorPickerViewControllerDelegate
   UINavigationController* mMenuNavigationController;
   UITextField* mTextField;
   UIAlertController* mAlertController;
-  CAMetalLayer* mMTLLayer;
   int mTextFieldLength;
   IColorPickerHandlerFunc mColorPickerHandlerFunc;
   IFileDialogCompletionHandlerFunc mFileDialogFunc;
   float mPrevX, mPrevY;
+
+#ifdef IGRAPHICS_GL
+  EGLDisplay mEGLDisplay;
+  EGLSurface mEGLSurface;
+  EGLContext mEGLContext;
+#endif
 }
 - (id) initWithIGraphics: (IGraphicsIOS*) pGraphics;
 - (BOOL) isOpaque;
@@ -111,7 +121,10 @@ UIColorPickerViewControllerDelegate
 
 - (void) traitCollectionDidChange: (UITraitCollection*) previousTraitCollection;
 
-@property (readonly) CAMetalLayer* metalLayer;
+// only used for GLES via ANGLE
+- (void) activateGLContext;
+- (void) deactivateGLContext;
+- (void) swapBuffers;
 @property (nonatomic, strong) CADisplayLink *displayLink;
 
 @end

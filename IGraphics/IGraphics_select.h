@@ -20,14 +20,14 @@
   #if defined IGRAPHICS_GLES2
     #define IGRAPHICS_GL
     #if defined OS_IOS
-      #include <OpenGLES/ES2/gl.h>
+      #include <libGLESv2/angle_gl.h>
     #elif defined OS_WEB
       #include <GLES2/gl2.h>
     #endif
   #elif defined IGRAPHICS_GLES3
     #define IGRAPHICS_GL
     #if defined OS_IOS
-      #include <OpenGLES/ES3/gl.h>
+      #include <libGLESv2/angle_gl.h>
     #elif defined OS_WEB
       #include <GLES3/gl3.h>
     #endif
@@ -52,12 +52,6 @@
   #elif defined IGRAPHICS_SKIA
     #include "IGraphicsSkia.h"
     #define IGRAPHICS_DRAW_CLASS_TYPE IGraphicsSkia
-  #elif defined IGRAPHICS_CANVAS
-     #include "IGraphicsCanvas.h"
-     #define IGRAPHICS_DRAW_CLASS_TYPE IGraphicsCanvas
-    #if defined IGRAPHICS_GL || defined IGRAPHICS_METAL
-      #error When using IGRAPHICS_CANVAS, don't define IGRAPHICS_METAL or IGRAPHICS_GL*
-    #endif
   #else
     #error NO IGRAPHICS_MODE defined
   #endif
