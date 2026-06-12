@@ -10,26 +10,35 @@ class ButtonControl extends HTMLElement {
         }
         
         button {
-          background-color: #f3f4f6;
-          border: 2px solid #d1d5db;
+          background-color: var(--surface, #ffffff);
+          border: 1px solid var(--border, #c9ced6);
           border-radius: 6px;
-          color: #374151;
+          color: var(--text, #18202d);
           cursor: pointer;
           font-family: system-ui, -apple-system, sans-serif;
-          font-size: 14px;
+          font-size: var(--control-font-size, 14px);
           font-weight: 500;
-          padding: 8px 16px;
+          line-height: 1.2;
+          min-height: var(--control-min-height, 36px);
+          padding: var(--control-padding-block, 8px) var(--control-padding-inline, 16px);
+          white-space: nowrap;
+          box-shadow: 0 1px 1px rgba(24, 32, 45, 0.05);
           transition: all 0.2s ease;
         }
 
         button:hover {
-          background-color: #e5e7eb;
-          border-color: #9ca3af;
+          background-color: var(--surface-hover, #e8edf3);
+          border-color: var(--border-strong, #98a2b3);
         }
 
         button:active {
-          background-color: #d1d5db;
+          background-color: var(--surface-subtle, #eef1f5);
           transform: translateY(1px);
+        }
+
+        button:focus-visible {
+          outline: 2px solid var(--accent, #2563eb);
+          outline-offset: 2px;
         }
       </style>
       <button><slot></slot></button>

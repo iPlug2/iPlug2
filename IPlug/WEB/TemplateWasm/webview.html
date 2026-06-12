@@ -26,15 +26,39 @@
       top: 0;
       left: 50%;
       width: min(var(--plug-width), 100vw);
-      height: min(calc(var(--plug-height) + 40px), 100vh);
+      height: min(calc(var(--plug-height) + var(--iplug-controls-height, 40px)), 100vh);
       transform: translateX(-50%);
       overflow: hidden;
       background: transparent;
     }
 
+    #iplugWasmHost.host-resize {
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      transform: none;
+    }
+
+    #iplugWasmHost:fullscreen {
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      transform: none;
+    }
+
+    #iplugWasmHost:-webkit-full-screen {
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      transform: none;
+    }
+
     #webviewRoot {
       position: absolute;
-      inset: 0 0 40px 0;
+      inset: 0 0 var(--iplug-controls-height, 40px) 0;
       min-width: 0;
       min-height: 0;
       overflow: hidden;
@@ -62,7 +86,7 @@
 
     #loading {
       position: absolute;
-      inset: 0 0 40px 0;
+      inset: 0 0 var(--iplug-controls-height, 40px) 0;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -75,6 +99,13 @@
 
     #loading.hidden {
       display: none;
+    }
+
+    #iplugWasmHost > #controls {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
     }
   </style>
 </head>
@@ -121,8 +152,11 @@
       const pendingWebViewMessages = [];
       const pendingControllerActions = [];
 
+      host.classList.toggle('host-resize', HOST_RESIZE);
+
       const hostControls = new IPlugWasmHostControls({
         pluginName: PLUGIN_NAME,
+        container: host,
         showStatus: true,
         initialStatus: 'Loading UI...',
         fullscreenTarget: () => host,
@@ -721,7 +755,7 @@
         webViewReady = true;
         hideLoading();
         hostControls.setReady(true);
-        setStatus('Ready. Start audio to connect DSP.');
+        setStatus('Ready.');
         flushEvaluations();
         flushWebViewMessages();
         notifyWebContentLoaded(ownerPtr);
@@ -788,6 +822,12 @@
       }
 
       function applyWebViewBounds(x, y, width, height, scale) {
+        if (HOST_RESIZE) {
+          host.style.left = '0';
+          host.style.top = '0';
+          return;
+        }
+
         const scaledWidth = Math.max(1, Math.round(width * (scale || 1)));
         const scaledHeight = Math.max(1, Math.round(height * (scale || 1)));
         host.style.setProperty('--plug-width', `${scaledWidth}px`);

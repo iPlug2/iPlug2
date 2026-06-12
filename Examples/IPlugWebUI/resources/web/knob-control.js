@@ -13,20 +13,21 @@ class KnobControl extends HTMLElement {
     const units = this.getAttribute('units') || '';
     const minAngle = parseFloat(this.getAttribute('min-angle')) || -135;
     const maxAngle = parseFloat(this.getAttribute('max-angle')) || 135;
-    const circleStrokeColor = this.getAttribute('circle-stroke-color') || '#fff';
+    const circleStrokeColor = this.getAttribute('circle-stroke-color') || '#eef1f5';
     const circleStrokeWidth = parseFloat(this.getAttribute('circle-stroke-width')) || 2;
-    const circleFillColor = this.getAttribute('circle-fill-color') || '#000';
-    const pointerColor = this.getAttribute('pointer-color') || '#f00';
+    const circleFillColor = this.getAttribute('circle-fill-color') || '#18202d';
+    const pointerColor = this.getAttribute('pointer-color') || '#2563eb';
     const pointerWidth = parseFloat(this.getAttribute('pointer-width')) || 4;
-    const valueArcColor = this.getAttribute('value-arc-color') || '#f00';
+    const valueArcColor = this.getAttribute('value-arc-color') || '#2563eb';
     const valueArcWidth = parseFloat(this.getAttribute('value-arc-width')) || 3;
-    const trackBgColor = this.getAttribute('track-bg-color') || '#999';
+    const trackBgColor = this.getAttribute('track-bg-color') || '#c9ced6';
     
     this.attachShadow({ mode: 'open' });
     this.shadowRoot.innerHTML = `
     <style>
     :host {
       display: inline-block;
+      color: var(--text, #18202d);
     }
     .container {
       display: flex;
@@ -37,16 +38,22 @@ class KnobControl extends HTMLElement {
       height: 100%;
     }
     .label {
-      margin-bottom: 8px;
-      color: black;
+      margin-bottom: var(--knob-label-gap, 8px);
+      color: var(--text, #18202d);
       font-size: 14px;
+      font-weight: 600;
       pointer-events: none;
     }
     .value {
-      margin-top: 8px;
-      color: white;
+      margin-top: var(--knob-value-gap, 8px);
+      color: var(--muted-text, #5d6675);
       font-size: 12px;
+      min-height: 17px;
       pointer-events: none;
+    }
+    svg {
+      width: var(--knob-size, 80px);
+      height: var(--knob-size, 80px);
     }
     .hidden-cursor {
       cursor: none;
