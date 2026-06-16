@@ -144,7 +144,7 @@ BEGIN_IPLUG_NAMESPACE
     int i = (int) strlen(cStr);
     cStr[i++] = tz >= 0 ? '+' : '-';
     if (tz < 0) tz = -tz;
-    snprintf(&cStr[i], 32, "%02d%02d", tz / 60, tz % 60);
+    snprintf(&cStr[i], (size_t)(32 - i), "%02d%02d", tz / 60, tz % 60);
     
     static char sTimeStr[32];
     strcpy(sTimeStr, cStr);

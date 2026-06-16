@@ -89,6 +89,11 @@ if(NOT TARGET iPlug2::WebView)
       ${WEBVIEW_DIR}/IPlugWebViewEditorDelegate.cpp
       ${WEBVIEW_DIR}/IPlugWebView_web.cpp
     )
+  elseif(UNIX AND NOT APPLE)
+    set(WEBVIEW_SRC
+      ${WEBVIEW_DIR}/IPlugWebViewEditorDelegate.cpp
+      ${WEBVIEW_DIR}/IPlugWebView_linux.cpp
+    )
   endif()
 
   target_sources(iPlug2::WebView INTERFACE ${WEBVIEW_SRC})
@@ -126,5 +131,7 @@ if(NOT TARGET iPlug2::WebView)
     target_link_libraries(iPlug2::WebView INTERFACE
       iPlug2::IPlug
     )
+  elseif(UNIX AND NOT APPLE)
+    target_link_libraries(iPlug2::WebView INTERFACE iPlug2::IPlug)
   endif()
 endif()

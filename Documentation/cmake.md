@@ -26,6 +26,24 @@ CMake and Ninja can be installed via:
 - [cmake.org](https://cmake.org/download/)
 - `winget install Kitware.CMake` / `winget install Ninja-build.Ninja`
 
+### Linux
+
+- **CMake** 3.14 or later
+- **Ninja** (recommended) or Make
+- **GCC** or **Clang** with C++17 support
+- **Development libraries:**
+
+```bash
+# Ubuntu/Debian
+sudo apt-get install -y \
+  ninja-build pkg-config \
+  libfreetype-dev libfontconfig-dev \
+  libx11-dev libxi-dev libxext-dev libxrender-dev \
+  libxrandr-dev libxfixes-dev libxcursor-dev \
+  libgl-dev libgtk-3-dev \
+  libasound2-dev libjack-jackd2-dev libpulse-dev
+```
+
 ### Web (Emscripten)
 
 - **Emscripten SDK** for WebAssembly builds
@@ -46,7 +64,7 @@ CMake supports multiple build system generators:
 
 ### Ninja (Recommended)
 
-Fast, cross-platform. Works on macOS and Windows.
+Fast, cross-platform. Works on macOS, Windows, and Linux.
 
 ```bash
 cmake -G Ninja -DCMAKE_BUILD_TYPE=Release ..
@@ -85,9 +103,10 @@ cmake --build . --config Release
 mkdir build && cd build
 
 # Configure (choose one)
-cmake -G Ninja ..                              # Ninja (macOS/Windows)
-cmake -G "Visual Studio 17 2022" -A x64 ..     # Visual Studio
-cmake -G Xcode ..                              # Xcode
+cmake -G Ninja ..                              # Ninja (macOS/Windows/Linux)
+cmake -G "Visual Studio 17 2022" -A x64 ..     # Visual Studio (Windows)
+cmake -G Xcode ..                              # Xcode (macOS)
+cmake -G "Unix Makefiles" ..                   # Make (macOS/Linux)
 
 # Build
 cmake --build . --config Release
@@ -95,16 +114,16 @@ cmake --build . --config Release
 
 ## Supported Platforms & Targets
 
-| Format | Target Suffix | macOS | Windows | iOS | visionOS | Web |
-|--------|---------------|-------|---------|-----|----------|-----|
-| Standalone App | `-app` | ✓ | ✓ | ✓ | ✓ | - |
-| VST2 | `-vst2` | ✓ | ✓ | - | - | - |
-| VST3 | `-vst3` | ✓ | ✓ | - | - | - |
-| CLAP | `-clap` | ✓ | ✓ | - | - | - |
-| AAX | `-aax` | ✓ | ✓ | - | - | - |
-| AUv2 | `-au` | ✓ | - | - | - | - |
-| AUv3 | `AU-framework`, `AUv3-appex` | ✓ | - | ✓ | ✓ | - |
-| WAM | `-wam`, `-web` | - | - | - | - | ✓ |
+| Format | Target Suffix | macOS | Windows | Linux | iOS | visionOS | Web |
+|--------|---------------|-------|---------|-------|-----|----------|-----|
+| Standalone App | `-app` | ✓ | ✓ | ✓ | ✓ | ✓ | - |
+| VST2 | `-vst2` | ✓ | ✓ | - | - | - | - |
+| VST3 | `-vst3` | ✓ | ✓ | ✓ | - | - | - |
+| CLAP | `-clap` | ✓ | ✓ | ✓ | - | - | - |
+| AAX | `-aax` | ✓ | ✓ | - | - | - | - |
+| AUv2 | `-au` | ✓ | - | - | - | - | - |
+| AUv3 | `AU-framework`, `AUv3-appex` | ✓ | - | - | ✓ | ✓ | - |
+| WAM | `-wam`, `-web` | - | - | - | - | - | ✓ |
 
 **Notes:**
 - VST2 requires the VST2 SDK (deprecated, no longer distributed by Steinberg)
@@ -112,7 +131,7 @@ cmake --build . --config Release
 - CLAP requires the CLAP SDK
 - AAX requires the AAX SDK from Avid
 - AUv3 is embedded in the standalone APP on macOS
-- Linux is not yet supported
+- Linux uses X11, NanoVG/GL3, and ALSA/JACK for audio
 
 ## Build Commands
 
@@ -360,9 +379,9 @@ iplug_add_plugin(<name>
 
 | Format | Description | Platforms |
 |--------|-------------|-----------|
-| `APP` | Standalone application | macOS, Windows |
-| `VST3` | VST3 plugin | macOS, Windows |
-| `CLAP` | CLAP plugin | macOS, Windows |
+| `APP` | Standalone application | macOS, Windows, Linux |
+| `VST3` | VST3 plugin | macOS, Windows, Linux |
+| `CLAP` | CLAP plugin | macOS, Windows, Linux |
 | `AAX` | AAX plugin (requires SDK) | macOS, Windows |
 | `AU` | Audio Unit v2 | macOS only |
 | `AUV3` | Audio Unit v3 | macOS, iOS |
@@ -502,6 +521,18 @@ build/out/
             └── MyPlugin.aaxplugin
 ```
 
+### Linux
+
+```
+build/out/
+├── MyPlugin                         # Standalone app (executable)
+├── MyPlugin.vst3/
+│   └── Contents/
+│       └── x86_64-linux/
+│           └── MyPlugin.so
+└── MyPlugin.clap
+```
+
 ### Web
 
 ```
@@ -529,6 +560,11 @@ Plugins are automatically deployed (symlinked or copied) to standard locations:
 - AUv2: `~/Library/Audio/Plug-Ins/Components`
 - AAX: `/Library/Application Support/Avid/Audio/Plug-Ins`
 - APP: `~/Applications`
+
+**Linux:**
+- VST3: `~/.vst3`
+- CLAP: `~/.clap`
+- APP: remains in build directory (no default deploy path)
 
 **Windows:**
 - VST2: `%PROGRAMFILES%\VstPlugins`
@@ -633,7 +669,13 @@ emrun --no_emrun_detect index.html
 
 ### Linux
 
-Linux is not yet supported. CMake configuration will show an error message.
+- Uses X11 for windowing, NanoVG/GL3 for graphics, ALSA/JACK/PulseAudio for audio
+- GCC and Clang both supported; requires C++17
+- Supported formats: APP (standalone), VST3, CLAP
+- Plugins are deployed to `~/.vst3/` (VST3) and `~/.clap/` (CLAP) by default
+- Both Ninja and Unix Makefiles generators work (`linux-ninja` and `linux-make` presets)
+- `pkg-config` is used to find system libraries (freetype, fontconfig, X11, GTK3, ALSA, etc.)
+- The Skia backend is not yet supported on Linux; use NanoVG
 
 ## Troubleshooting
 
