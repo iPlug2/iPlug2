@@ -7555,6 +7555,7 @@ void SWELL_DisableContextMenu(HWND hwnd, bool dis)
 }
 
 extern char g_swell_disable_retina;
+extern bool g_swell_force_retina;
 int SWELL_IsRetinaHWND(HWND hwnd)
 {
   if (!hwnd || SWELL_GetOSXVersion() < 0x1070) return 0;
@@ -7573,6 +7574,8 @@ int SWELL_IsRetinaHWND(HWND hwnd)
   else if ([(id)hwnd isKindOfClass:[NSWindow class]]) w = (NSWindow *)hwnd;
 
   if (retina_disabled) return 0;
+
+  if (g_swell_force_retina) return 1;
 
   if (w)
   {
