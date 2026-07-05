@@ -5746,7 +5746,7 @@ BOOL InvalidateRect(HWND hwnd, const RECT *r, int eraseBk)
       SWELL_hwndChild *hc = (SWELL_hwndChild*)view;
       if (hc->m_use_metal > 0)
       {
-        if (![hc isHiddenOrHasHiddenAncestor]) 
+        if (![hc isHiddenOrHasHiddenAncestor] && [[hc window] isVisible])
         {
           NSRect sz = [hc bounds];
           if (sz.size.width != 0.0 && sz.size.height != 0.0)
