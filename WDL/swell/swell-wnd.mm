@@ -1850,17 +1850,17 @@ bool IsWindowVisible(HWND hwnd)
   if (!hwnd) return false;
 
   SWELL_BEGIN_TRY
-  id turd=(id)hwnd;
-  if ([turd isKindOfClass:[NSView class]])
+  id view=(id)hwnd;
+  if ([view isKindOfClass:[NSView class]])
   {
-    NSWindow *w = [turd window];
+    NSWindow *w = [view window];
     if (w && ![w isVisible]) return false;
     
-    return ![turd isHiddenOrHasHiddenAncestor];
+    return ![view isHiddenOrHasHiddenAncestor];
   }
-  if ([turd isKindOfClass:[NSWindow class]])
+  if ([view isKindOfClass:[NSWindow class]])
   {
-    return !![turd isVisible];
+    return !![view isVisible];
   }
   SWELL_END_TRY(;)
   return true;
@@ -4505,10 +4505,10 @@ int TabCtrl_InsertItem(HWND hwnd, int idx, TCITEM *item)
   NSString *str=(NSString *)SWELL_CStringToCFString(item->pszText);  
   [tabitem setLabel:str];
   [str release];
-  id turd=[tv getNotificationWindow];
+  id dest=[tv getNotificationWindow];
   [tv setNotificationWindow:nil];
   [tv insertTabViewItem:tabitem atIndex:idx];
-  [tv setNotificationWindow:turd];
+  [tv setNotificationWindow:dest];
   [tabitem release];
   return idx;
 }
