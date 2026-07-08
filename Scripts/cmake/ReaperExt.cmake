@@ -45,19 +45,17 @@ if(NOT TARGET iPlug2::ReaperExt)
       iPlug2::IPlug
     )
   elseif(APPLE)
-    # macOS needs SWELL for dialogs and window management
+    # macOS needs SWELL for dialogs and window management. A REAPER extension runs
+    # inside REAPER, which already provides SWELL, so we compile ONLY the module stub
+    # (swell-modstub.mm). Built with SWELL_PROVIDED_BY_APP it defines the SWELL API as
+    # function pointers and binds them to REAPER's SWELL at load time (and exports
+    # SWELL_dllMain). Compiling the full SWELL sources here would instead produce empty
+    # objects (they are all wrapped in #ifndef SWELL_PROVIDED_BY_APP), leaving the SWELL
+    # symbols undefined so the extension fails to load.
     target_include_directories(iPlug2::ReaperExt INTERFACE ${SWELL_DIR})
 
     set(SWELL_SRC
-      "${SWELL_DIR}/swell.cpp"
-      "${SWELL_DIR}/swell-ini.cpp"
-      "${SWELL_DIR}/swell-dlg.mm"
-      "${SWELL_DIR}/swell-gdi.mm"
-      "${SWELL_DIR}/swell-kb.mm"
-      "${SWELL_DIR}/swell-menu.mm"
-      "${SWELL_DIR}/swell-misc.mm"
-      "${SWELL_DIR}/swell-miscdlg.mm"
-      "${SWELL_DIR}/swell-wnd.mm"
+      "${SWELL_DIR}/swell-modstub.mm"
     )
 
     target_sources(iPlug2::ReaperExt INTERFACE ${SWELL_SRC})
@@ -85,6 +83,9 @@ endif()
 function(iplug_configure_reaperext target project_name)
   target_link_libraries(${target} PUBLIC iPlug2::ReaperExt)
 
+  # REAPER only loads extensions whose filename starts with "reaper_"
+  set(reaper_ext_name "reaper_${project_name}")
+
   set_target_properties(${target} PROPERTIES
     CXX_STANDARD ${IPLUG2_CXX_STANDARD}
     CXX_STANDARD_REQUIRED ON
@@ -100,7 +101,7 @@ function(iplug_configure_reaperext target project_name)
   if(WIN32)
     set(REAPER_EXT_OUTPUT_DIR "${CMAKE_BINARY_DIR}/out")
     set_target_properties(${target} PROPERTIES
-      OUTPUT_NAME "${project_name}"
+      OUTPUT_NAME "${reaper_ext_name}"
       LIBRARY_OUTPUT_DIRECTORY "${REAPER_EXT_OUTPUT_DIR}"
       LIBRARY_OUTPUT_DIRECTORY_DEBUG "${REAPER_EXT_OUTPUT_DIR}"
       LIBRARY_OUTPUT_DIRECTORY_RELEASE "${REAPER_EXT_OUTPUT_DIR}"
@@ -109,7 +110,7 @@ function(iplug_configure_reaperext target project_name)
   elseif(APPLE)
     set(REAPER_EXT_OUTPUT_DIR "${CMAKE_BINARY_DIR}/out")
     set_target_properties(${target} PROPERTIES
-      OUTPUT_NAME "${project_name}"
+      OUTPUT_NAME "${reaper_ext_name}"
       LIBRARY_OUTPUT_DIRECTORY "${REAPER_EXT_OUTPUT_DIR}"
       LIBRARY_OUTPUT_DIRECTORY_DEBUG "${REAPER_EXT_OUTPUT_DIR}"
       LIBRARY_OUTPUT_DIRECTORY_RELEASE "${REAPER_EXT_OUTPUT_DIR}"
@@ -118,10 +119,19 @@ function(iplug_configure_reaperext target project_name)
       # Skip code signing during build
       XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED "NO"
     )
+
+    # Restrict exports to the two entry points REAPER/SWELL need: ReaperPluginEntry
+    # (the extension entry) and SWELL_dllMain (marks this as a SWELL-enabled module).
+    # Mirrors GCC_SYMBOLS_PRIVATE_EXTERN=YES in the native project so we don't leak
+    # ~2000 internal C++/REAPER-API symbols from the module.
+    target_link_options(${target} PRIVATE
+      "LINKER:-exported_symbol,_ReaperPluginEntry"
+      "LINKER:-exported_symbol,_SWELL_dllMain"
+    )
   endif()
 
   # Auto-deploy to REAPER UserPlugins if enabled
   if(IPLUG_DEPLOY_PLUGINS)
-    iplug_deploy_target(${target} REAPEREXT ${project_name})
+    iplug_deploy_target(${target} REAPEREXT ${reaper_ext_name})
   endif()
 endfunction()
