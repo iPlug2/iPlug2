@@ -293,7 +293,9 @@ WDL_DLGRET ReaperExtBase::MainDlgProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
     }
     case WM_SIZE:
     {
+#ifndef NO_IGRAPHICS
       if (gPlug->GetUI())
+#endif
       {
         RECT r;
         GetClientRect(hwnd, &r);
