@@ -21,6 +21,8 @@
 #include "wdlstring.h"
 
 struct reaper_plugin_info_t;
+struct project_config_extension_t;
+class ProjectStateContext;
 
 BEGIN_IPLUG_NAMESPACE
 
@@ -58,6 +60,21 @@ public:
    * @param flag Reaper-supplied flag */
   virtual void OnActionRun(int commandId, int flag) {}; // NO-OP
 
+  /** Called (via "projectconfig") when the project is being saved, so the extension
+   * can persist state into the .RPP. Write lines with ctx->AddLine(...).
+   * @param ctx The project state context to write to */
+  virtual void SaveProjectState(ProjectStateContext* ctx) {}; // NO-OP
+
+  /** Called (via "projectconfig") for each project line not consumed by Reaper.
+   * @param line The line of project data
+   * @return true if this line belonged to the extension and was handled */
+  virtual bool LoadProjectStateLine(const char* line) { return false; };
+
+  /** Called (via "projectconfig") before project state is loaded (also on "new project").
+   * Override to reset state to defaults.
+   * @param isUndo true if this load is part of an undo/redo */
+  virtual void OnBeginLoadProjectState(bool isUndo) {}; // NO-OP
+
   /** Registers an action with the REAPER extension system
    * @param actionName The name of the action to register
    * @param func The function to call when the action is executed
@@ -93,6 +110,12 @@ public:
 
   // Reaper calls back to this after every main-section action ("hookpostcommand")
   static void PostCommandProc(int command, int flag);
+
+  // "projectconfig" callbacks - forwarded to the OnBeginLoadProjectState /
+  // LoadProjectStateLine / SaveProjectState virtuals on the running instance
+  static void BeginLoadProjectState(bool isUndo, project_config_extension_t* reg);
+  static bool ProcessExtensionLine(const char* line, ProjectStateContext* ctx, bool isUndo, project_config_extension_t* reg);
+  static void SaveExtensionConfig(ProjectStateContext* ctx, bool isUndo, project_config_extension_t* reg);
 
 private:
   static WDL_DLGRET MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);

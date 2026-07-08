@@ -33,6 +33,15 @@ struct ReaperAction
 
 std::vector<ReaperAction> gActions;
 
+// Persistent registration record for per-project state (see "projectconfig").
+// Must outlive registration, so it lives at file scope.
+project_config_extension_t gProjectConfig = {
+  ReaperExtBase::ProcessExtensionLine,
+  ReaperExtBase::SaveExtensionConfig,
+  ReaperExtBase::BeginLoadProjectState,
+  nullptr
+};
+
 //TODO: don't #include cpp here
 #include "ReaperExtBase.cpp"
 
@@ -74,6 +83,7 @@ extern "C"
       pRec->Register("toggleaction", (void*) ReaperExtBase::ToggleActionCallback);
       pRec->Register("hookcustommenu", (void*) ReaperExtBase::MenuHook);
       pRec->Register("hookpostcommand", (void*) ReaperExtBase::PostCommandProc);
+      pRec->Register("projectconfig", (void*) &gProjectConfig);
       
       AddExtensionsMainMenu();
       

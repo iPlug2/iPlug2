@@ -232,6 +232,26 @@ void ReaperExtBase::PostCommandProc(int command, int flag)
 }
 
 //static
+void ReaperExtBase::BeginLoadProjectState(bool isUndo, project_config_extension_t* reg)
+{
+  if (gPlug)
+    gPlug->OnBeginLoadProjectState(isUndo);
+}
+
+//static
+bool ReaperExtBase::ProcessExtensionLine(const char* line, ProjectStateContext* ctx, bool isUndo, project_config_extension_t* reg)
+{
+  return gPlug ? gPlug->LoadProjectStateLine(line) : false;
+}
+
+//static
+void ReaperExtBase::SaveExtensionConfig(ProjectStateContext* ctx, bool isUndo, project_config_extension_t* reg)
+{
+  if (gPlug)
+    gPlug->SaveProjectState(ctx);
+}
+
+//static
 bool ReaperExtBase::HookCommandProc(int command, int flag)
 {
   std::vector<ReaperAction>::iterator it = std::find_if (gActions.begin(), gActions.end(), [&](const auto& e) { return e.accel.accel.cmd == command; });
