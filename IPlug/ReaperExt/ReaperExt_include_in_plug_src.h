@@ -12,6 +12,7 @@ void (*AttachWindowTopmostButton)(HWND hwnd);
 #include "resource.h"
 #include <vector>
 #include <map>
+#include <deque>
 #include <cstring>
 
 REAPER_PLUGIN_HINSTANCE gHINSTANCE;
@@ -31,7 +32,9 @@ struct ReaperAction
   const char* contextMenuId = nullptr; // REAPER context menu to add this action to, if any
 };
 
-std::vector<ReaperAction> gActions;
+// std::deque (not std::vector) so element addresses stay stable: REAPER keeps the
+// raw &gActions.back().accel pointer we register, which a vector realloc would dangle.
+std::deque<ReaperAction> gActions;
 
 // Persistent registration record for per-project state (see "projectconfig").
 // Must outlive registration, so it lives at file scope.

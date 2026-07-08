@@ -254,7 +254,7 @@ void ReaperExtBase::SaveExtensionConfig(ProjectStateContext* ctx, bool isUndo, p
 //static
 bool ReaperExtBase::HookCommandProc(int command, int flag)
 {
-  std::vector<ReaperAction>::iterator it = std::find_if (gActions.begin(), gActions.end(), [&](const auto& e) { return e.accel.accel.cmd == command; });
+  auto it = std::find_if (gActions.begin(), gActions.end(), [&](const auto& e) { return e.accel.accel.cmd == command; });
 
   if(it != gActions.end())
   {
@@ -267,7 +267,7 @@ bool ReaperExtBase::HookCommandProc(int command, int flag)
 //static
 int ReaperExtBase::ToggleActionCallback(int command)
 {
-  std::vector<ReaperAction>::iterator it = std::find_if (gActions.begin(), gActions.end(), [&](const auto& e) { return e.accel.accel.cmd == command; });
+  auto it = std::find_if (gActions.begin(), gActions.end(), [&](const auto& e) { return e.accel.accel.cmd == command; });
   
   if(it != gActions.end())
   {
