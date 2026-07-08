@@ -52,6 +52,12 @@ public:
   /** Called during idle processing - override to perform periodic tasks */
   virtual void OnIdle() {}; // NO-OP
 
+  /** Called after any action in the main section runs (via "hookpostcommand").
+   * Override to react to user edits without polling.
+   * @param commandId The command that ran
+   * @param flag Reaper-supplied flag */
+  virtual void OnActionRun(int commandId, int flag) {}; // NO-OP
+
   /** Registers an action with the REAPER extension system
    * @param actionName The name of the action to register
    * @param func The function to call when the action is executed
@@ -84,6 +90,9 @@ public:
   // Reaper calls back to this when building a customizable menu, so we can add
   // registered actions to context menus (e.g. the media item right-click menu)
   static void MenuHook(const char* menuidstr, void* menu, int flag);
+
+  // Reaper calls back to this after every main-section action ("hookpostcommand")
+  static void PostCommandProc(int command, int flag);
 
 private:
   static WDL_DLGRET MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);

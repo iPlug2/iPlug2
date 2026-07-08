@@ -73,6 +73,7 @@ extern "C"
       pRec->Register("hookcommand", (void*) ReaperExtBase::HookCommandProc);
       pRec->Register("toggleaction", (void*) ReaperExtBase::ToggleActionCallback);
       pRec->Register("hookcustommenu", (void*) ReaperExtBase::MenuHook);
+      pRec->Register("hookpostcommand", (void*) ReaperExtBase::PostCommandProc);
       
       AddExtensionsMainMenu();
       

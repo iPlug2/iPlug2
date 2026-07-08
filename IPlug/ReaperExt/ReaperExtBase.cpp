@@ -225,6 +225,13 @@ void ReaperExtBase::MenuHook(const char* menuidstr, void* menu, int flag)
 }
 
 //static
+void ReaperExtBase::PostCommandProc(int command, int flag)
+{
+  if (gPlug)
+    gPlug->OnActionRun(command, flag);
+}
+
+//static
 bool ReaperExtBase::HookCommandProc(int command, int flag)
 {
   std::vector<ReaperAction>::iterator it = std::find_if (gActions.begin(), gActions.end(), [&](const auto& e) { return e.accel.accel.cmd == command; });
