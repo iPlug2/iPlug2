@@ -12,6 +12,7 @@ void (*AttachWindowTopmostButton)(HWND hwnd);
 #include "resource.h"
 #include <vector>
 #include <map>
+#include <cstring>
 
 REAPER_PLUGIN_HINSTANCE gHINSTANCE;
 HWND gParent;
@@ -27,6 +28,7 @@ struct ReaperAction
   gaccel_register_t accel = {{0,0,0}, ""};
   std::function<void()> func;
   bool addMenuItem = false;
+  const char* contextMenuId = nullptr; // REAPER context menu to add this action to, if any
 };
 
 std::vector<ReaperAction> gActions;
@@ -70,6 +72,7 @@ extern "C"
       
       pRec->Register("hookcommand", (void*) ReaperExtBase::HookCommandProc);
       pRec->Register("toggleaction", (void*) ReaperExtBase::ToggleActionCallback);
+      pRec->Register("hookcustommenu", (void*) ReaperExtBase::MenuHook);
       
       AddExtensionsMainMenu();
       

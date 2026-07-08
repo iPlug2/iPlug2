@@ -55,9 +55,11 @@ public:
   /** Registers an action with the REAPER extension system
    * @param actionName The name of the action to register
    * @param func The function to call when the action is executed
-   * @param addMenuItem If true, adds a menu item for this action
-   * @param pToggle Optional pointer to an int for toggle state */
-  void RegisterAction(const char* actionName, std::function<void()> func, bool addMenuItem = false, int* pToggle = nullptr/*, IKeyPress keyCmd*/);
+   * @param addMenuItem If true, adds a menu item for this action to the Extensions menu
+   * @param pToggle Optional pointer to an int for toggle state
+   * @param contextMenuId Optional REAPER context-menu id to also add this action to,
+   *        e.g. "Media item context", "Track control panel context". nullptr = none. */
+  void RegisterAction(const char* actionName, std::function<void()> func, bool addMenuItem = false, int* pToggle = nullptr, const char* contextMenuId = nullptr/*, IKeyPress keyCmd*/);
 
   /** Toggles the visibility of the main extension window */
   void ShowHideMainWindow();
@@ -78,7 +80,11 @@ public:
   
   // Reaper calls back to this when it wants to know an actions toggle state
   static int ToggleActionCallback(int command);
-  
+
+  // Reaper calls back to this when building a customizable menu, so we can add
+  // registered actions to context menus (e.g. the media item right-click menu)
+  static void MenuHook(const char* menuidstr, void* menu, int flag);
+
 private:
   static WDL_DLGRET MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
   

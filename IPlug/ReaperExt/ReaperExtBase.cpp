@@ -180,7 +180,7 @@ void ReaperExtBase::LoadDockState()
   }
 }
 
-void ReaperExtBase::RegisterAction(const char* actionName, std::function<void()> func, bool addMenuItem, int* pToggle/*, IKeyPress keyCmd*/)
+void ReaperExtBase::RegisterAction(const char* actionName, std::function<void()> func, bool addMenuItem, int* pToggle, const char* contextMenuId/*, IKeyPress keyCmd*/)
 {
   ReaperAction action;
   
@@ -194,9 +194,34 @@ void ReaperExtBase::RegisterAction(const char* actionName, std::function<void()>
   action.addMenuItem = addMenuItem;
   action.pToggle = pToggle;
   
+  action.contextMenuId = contextMenuId;
   gActions.push_back(action);
   
   mRec->Register("gaccel", (void*) &gActions.back().accel);
+}
+
+//static
+void ReaperExtBase::MenuHook(const char* menuidstr, void* menu, int flag)
+{
+  // flag==0: the default menu is being initialized; this is when we may add items.
+  if (flag != 0 || menuidstr == nullptr || menu == nullptr)
+    return;
+
+  HMENU hMenu = (HMENU) menu;
+
+  for (auto& action : gActions)
+  {
+    if (action.contextMenuId && strcmp(action.contextMenuId, menuidstr) == 0)
+    {
+      MENUITEMINFO mi = { sizeof(MENUITEMINFO), };
+      mi.fMask = MIIM_TYPE | MIIM_ID;
+      mi.fType = MFT_STRING;
+      mi.dwTypeData = LPSTR(action.accel.desc);
+      mi.wID = action.accel.accel.cmd;
+      // Append to the end of the menu (works regardless of user customization)
+      InsertMenuItem(hMenu, GetMenuItemCount(hMenu), TRUE, &mi);
+    }
+  }
 }
 
 //static
