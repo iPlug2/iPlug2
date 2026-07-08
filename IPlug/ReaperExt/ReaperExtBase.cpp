@@ -180,7 +180,7 @@ void ReaperExtBase::LoadDockState()
   }
 }
 
-void ReaperExtBase::RegisterAction(const char* actionName, std::function<void()> func, bool addMenuItem, int* pToggle/*, IKeyPress keyCmd*/)
+void ReaperExtBase::RegisterAction(const char* actionName, std::function<void()> func, bool addMenuItem, int* pToggle, const char* contextMenuId/*, IKeyPress keyCmd*/)
 {
   ReaperAction action;
   
@@ -194,15 +194,67 @@ void ReaperExtBase::RegisterAction(const char* actionName, std::function<void()>
   action.addMenuItem = addMenuItem;
   action.pToggle = pToggle;
   
+  action.contextMenuId = contextMenuId;
   gActions.push_back(action);
   
   mRec->Register("gaccel", (void*) &gActions.back().accel);
 }
 
 //static
+void ReaperExtBase::MenuHook(const char* menuidstr, void* menu, int flag)
+{
+  // flag==0: the default menu is being initialized; this is when we may add items.
+  if (flag != 0 || menuidstr == nullptr || menu == nullptr)
+    return;
+
+  HMENU hMenu = (HMENU) menu;
+
+  for (auto& action : gActions)
+  {
+    if (action.contextMenuId && strcmp(action.contextMenuId, menuidstr) == 0)
+    {
+      MENUITEMINFO mi = { sizeof(MENUITEMINFO), };
+      mi.fMask = MIIM_TYPE | MIIM_ID;
+      mi.fType = MFT_STRING;
+      mi.dwTypeData = LPSTR(action.accel.desc);
+      mi.wID = action.accel.accel.cmd;
+      // Append to the end of the menu (works regardless of user customization)
+      InsertMenuItem(hMenu, GetMenuItemCount(hMenu), TRUE, &mi);
+    }
+  }
+}
+
+//static
+void ReaperExtBase::PostCommandProc(int command, int flag)
+{
+  if (gPlug)
+    gPlug->OnActionRun(command, flag);
+}
+
+//static
+void ReaperExtBase::BeginLoadProjectState(bool isUndo, project_config_extension_t* reg)
+{
+  if (gPlug)
+    gPlug->OnBeginLoadProjectState(isUndo);
+}
+
+//static
+bool ReaperExtBase::ProcessExtensionLine(const char* line, ProjectStateContext* ctx, bool isUndo, project_config_extension_t* reg)
+{
+  return gPlug ? gPlug->LoadProjectStateLine(line) : false;
+}
+
+//static
+void ReaperExtBase::SaveExtensionConfig(ProjectStateContext* ctx, bool isUndo, project_config_extension_t* reg)
+{
+  if (gPlug)
+    gPlug->SaveProjectState(ctx);
+}
+
+//static
 bool ReaperExtBase::HookCommandProc(int command, int flag)
 {
-  std::vector<ReaperAction>::iterator it = std::find_if (gActions.begin(), gActions.end(), [&](const auto& e) { return e.accel.accel.cmd == command; });
+  auto it = std::find_if (gActions.begin(), gActions.end(), [&](const auto& e) { return e.accel.accel.cmd == command; });
 
   if(it != gActions.end())
   {
@@ -215,7 +267,7 @@ bool ReaperExtBase::HookCommandProc(int command, int flag)
 //static
 int ReaperExtBase::ToggleActionCallback(int command)
 {
-  std::vector<ReaperAction>::iterator it = std::find_if (gActions.begin(), gActions.end(), [&](const auto& e) { return e.accel.accel.cmd == command; });
+  auto it = std::find_if (gActions.begin(), gActions.end(), [&](const auto& e) { return e.accel.accel.cmd == command; });
   
   if(it != gActions.end())
   {
@@ -293,7 +345,9 @@ WDL_DLGRET ReaperExtBase::MainDlgProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
     }
     case WM_SIZE:
     {
+#ifndef NO_IGRAPHICS
       if (gPlug->GetUI())
+#endif
       {
         RECT r;
         GetClientRect(hwnd, &r);
