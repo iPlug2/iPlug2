@@ -25,10 +25,10 @@ IPlugReaperExtension::IPlugReaperExtension(reaper_plugin_info_t* pRec)
     InsertTrackAtIndex(GetNumTracks(), false);
   };
   
-  //Register an action. args: name: lambda, add menu item,
-  RegisterAction("IPlugReaperExtension: Action 1 - MsgBox", action1, true);
+  //Register an action. args: name, lambda, add to Extensions submenu, toggle ptr, context menu id, menu label
+  RegisterAction("IPlugReaperExtension: Action 1 - MsgBox", action1, true, nullptr, nullptr, "Action 1 - MsgBox");
   RegisterAction("IPlugReaperExtension: Action 2 - AddTrack", action2);
-  RegisterAction("IPlugReaperExtension: Action 3 - Show/Hide UI", [&]() { ShowHideMainWindow(); }, true, GetWindowTogglePtr());
+  RegisterAction("IPlugReaperExtension: Action 3 - Show/Hide UI", [&]() { ShowHideMainWindow(); }, true, GetWindowTogglePtr(), nullptr, "Show/Hide UI");
   
   mLayoutFunc = [&](IGraphics* pGraphics) {
     const IRECT bounds = pGraphics->GetBounds();

@@ -8,6 +8,7 @@ ReaperExtBase::ReaperExtBase(reaper_plugin_info_t* pRec)
 {
   mTimer = std::unique_ptr<Timer>(Timer::Create(std::bind(&ReaperExtBase::OnTimer, this, std::placeholders::_1), IDLE_TIMER_RATE));
   mDockId.Set(IPLUG_STRINGIFY(PLUG_CLASS_NAME));
+  mMenuName.Set(IPLUG_STRINGIFY(PLUG_CLASS_NAME));
   memset(&mDockState, 0, sizeof(ReaperExtDockState));
   // Note: LoadDockState() is called lazily via EnsureStateLoaded() after API imports
 }
@@ -208,47 +209,103 @@ void ReaperExtBase::LoadDockState()
   }
 }
 
-void ReaperExtBase::RegisterAction(const char* actionName, std::function<void()> func, bool addMenuItem, int* pToggle, const char* contextMenuId/*, IKeyPress keyCmd*/)
+void ReaperExtBase::RegisterAction(const char* actionName, std::function<void()> func, bool addMenuItem, int* pToggle, const char* contextMenuId, const char* menuLabel/*, IKeyPress keyCmd*/)
 {
   ReaperAction action;
-  
+
   int commandID = mRec->Register("command_id", (void*) actionName /* ?? */);
-  
+
   assert(commandID);
-  
+
   action.func = func;
   action.accel.accel.cmd = commandID;
   action.accel.desc = actionName;
   action.addMenuItem = addMenuItem;
   action.pToggle = pToggle;
-  
+
   action.contextMenuId = contextMenuId;
+  action.menuLabel = menuLabel ? menuLabel : actionName;
   gActions.push_back(action);
-  
+
   mRec->Register("gaccel", (void*) &gActions.back().accel);
+}
+
+static void AppendActionMenuItem(HMENU hMenu, const ReaperAction& action)
+{
+  MENUITEMINFO mi = { sizeof(MENUITEMINFO), };
+  mi.fMask = MIIM_TYPE | MIIM_ID;
+  mi.fType = MFT_STRING;
+  mi.dwTypeData = LPSTR(action.menuLabel);
+  mi.wID = action.accel.accel.cmd;
+  // Append to the end of the menu (works regardless of user customization)
+  InsertMenuItem(hMenu, GetMenuItemCount(hMenu), TRUE, &mi);
 }
 
 //static
 void ReaperExtBase::MenuHook(const char* menuidstr, void* menu, int flag)
 {
-  // flag==0: the default menu is being initialized; this is when we may add items.
-  if (flag != 0 || menuidstr == nullptr || menu == nullptr)
+  if (menuidstr == nullptr || menu == nullptr)
     return;
 
   HMENU hMenu = (HMENU) menu;
 
+  const bool isExtensionsMenu = strcmp(menuidstr, "Main extensions") == 0;
+
+  // flag==1: the menu is about to be shown. Per the SDK this - not flag==0 - is where
+  // check/grayed states are set, so toggle actions get a tick when they're on.
+  if (flag == 1)
+  {
+    for (auto& action : gActions)
+    {
+      const bool inThisMenu = (isExtensionsMenu && action.addMenuItem) ||
+                              (action.contextMenuId && strcmp(action.contextMenuId, menuidstr) == 0);
+
+      if (!inThisMenu || action.pToggle == nullptr)
+        continue;
+
+      // MF_BYCOMMAND searches nested submenus, so this finds items in our own submenu
+      CheckMenuItem(hMenu, action.accel.accel.cmd, MF_BYCOMMAND | (*action.pToggle ? MF_CHECKED : MF_UNCHECKED));
+    }
+
+    return;
+  }
+
+  // flag==0: the default menu is being initialized; this is when we may add items.
+  if (flag != 0)
+    return;
+
+  // The main Extensions menu, added by AddExtensionsMainMenu(). Give this extension its
+  // own submenu rather than adding items directly, so several extensions can coexist.
+  if (isExtensionsMenu)
+  {
+    HMENU hSubMenu = CreatePopupMenu();
+
+    for (auto& action : gActions)
+    {
+      if (action.addMenuItem)
+        AppendActionMenuItem(hSubMenu, action);
+    }
+
+    if (GetMenuItemCount(hSubMenu) == 0)
+    {
+      DestroyMenu(hSubMenu);
+      return;
+    }
+
+    MENUITEMINFO mi = { sizeof(MENUITEMINFO), };
+    mi.fMask = MIIM_TYPE | MIIM_SUBMENU;
+    mi.fType = MFT_STRING;
+    mi.dwTypeData = LPSTR(gPlug->mMenuName.Get());
+    mi.hSubMenu = hSubMenu; // owned by hMenu from here on; don't retain the handle
+    InsertMenuItem(hMenu, GetMenuItemCount(hMenu), TRUE, &mi);
+
+    return;
+  }
+
   for (auto& action : gActions)
   {
     if (action.contextMenuId && strcmp(action.contextMenuId, menuidstr) == 0)
-    {
-      MENUITEMINFO mi = { sizeof(MENUITEMINFO), };
-      mi.fMask = MIIM_TYPE | MIIM_ID;
-      mi.fType = MFT_STRING;
-      mi.dwTypeData = LPSTR(action.accel.desc);
-      mi.wID = action.accel.accel.cmd;
-      // Append to the end of the menu (works regardless of user customization)
-      InsertMenuItem(hMenu, GetMenuItemCount(hMenu), TRUE, &mi);
-    }
+      AppendActionMenuItem(hMenu, action);
   }
 }
 
