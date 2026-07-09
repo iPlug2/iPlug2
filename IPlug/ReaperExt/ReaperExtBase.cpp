@@ -8,8 +8,9 @@ ReaperExtBase::ReaperExtBase(reaper_plugin_info_t* pRec)
 {
   mTimer = std::unique_ptr<Timer>(Timer::Create(std::bind(&ReaperExtBase::OnTimer, this, std::placeholders::_1), IDLE_TIMER_RATE));
   mDockId.Set(IPLUG_STRINGIFY(PLUG_CLASS_NAME));
+  mMenuName.Set(IPLUG_STRINGIFY(PLUG_CLASS_NAME));
   memset(&mDockState, 0, sizeof(ReaperExtDockState));
-  // Note: LoadDockState() is called lazily in CreateMainWindow() after API imports
+  // Note: LoadDockState() is called lazily via EnsureStateLoaded() after API imports
 }
 
 ReaperExtBase::~ReaperExtBase()
@@ -67,19 +68,37 @@ bool ReaperExtBase::EditorResizeFromUI(int viewWidth, int viewHeight, bool needs
   return false;
 }
 
+/** Reads the persisted dock state on first use. Deferred out of the constructor because
+ * the REAPER API function pointers aren't imported yet at that point */
+void ReaperExtBase::EnsureStateLoaded()
+{
+  if (mStateLoaded)
+    return;
+
+  LoadDockState();
+  mStateLoaded = true;
+  UpdateToggleStates();
+}
+
 void ReaperExtBase::CreateMainWindow()
 {
   if (gHWND != NULL)
     return;
 
-  // Lazy load state on first window creation (after API imports are done)
-  if (!mStateLoaded)
-  {
-    LoadDockState();
-    mStateLoaded = true;
-  }
+  EnsureStateLoaded();
 
   gHWND = CreateDialog(gHINSTANCE, MAKEINTRESOURCE(IDD_DIALOG_MAIN), gParent, ReaperExtBase::MainDlgProc);
+
+  UpdateToggleStates();
+}
+
+/** Keeps the toggle ints in sync with the real state, so any action registered with
+ * GetWindowTogglePtr()/GetDockTogglePtr() reports the truth to REAPER. Dockedness is a
+ * persisted preference that applies whether or not the window is currently open */
+void ReaperExtBase::UpdateToggleStates()
+{
+  mWindowToggle = (gHWND != NULL) ? 1 : 0;
+  mDockToggle = IsDocked() ? 1 : 0;
 }
 
 void ReaperExtBase::DestroyMainWindow()
@@ -92,6 +111,8 @@ void ReaperExtBase::DestroyMainWindow()
   DockWindowRemove(gHWND);
   DestroyWindow(gHWND);
   gHWND = NULL;
+
+  UpdateToggleStates();
 }
 
 void ReaperExtBase::ShowHideMainWindow()
@@ -110,8 +131,16 @@ void ReaperExtBase::ShowHideMainWindow()
 
 void ReaperExtBase::ToggleDocking()
 {
+  EnsureStateLoaded();
+
+  // With no window open, just flip the persisted preference so the next open honours it
   if (gHWND == NULL)
+  {
+    mDockState.state ^= 2;
+    SaveDockState();
+    UpdateToggleStates();
     return;
+  }
 
   // Save floating position before toggling
   if (!IsDocked())
@@ -180,47 +209,134 @@ void ReaperExtBase::LoadDockState()
   }
 }
 
-void ReaperExtBase::RegisterAction(const char* actionName, std::function<void()> func, bool addMenuItem, int* pToggle, const char* contextMenuId/*, IKeyPress keyCmd*/)
+void ReaperExtBase::RegisterAction(const char* actionName, std::function<void()> func, bool addMenuItem, int* pToggle, const char* contextMenuId, const char* menuLabel/*, IKeyPress keyCmd*/)
 {
   ReaperAction action;
-  
+
   int commandID = mRec->Register("command_id", (void*) actionName /* ?? */);
-  
+
   assert(commandID);
-  
+
   action.func = func;
   action.accel.accel.cmd = commandID;
   action.accel.desc = actionName;
   action.addMenuItem = addMenuItem;
   action.pToggle = pToggle;
-  
+
   action.contextMenuId = contextMenuId;
+  action.menuLabel = menuLabel ? menuLabel : actionName;
   gActions.push_back(action);
-  
+
   mRec->Register("gaccel", (void*) &gActions.back().accel);
+}
+
+/** Sets the check state of the item with the given command id, searching nested submenus.
+ * SWELL's CheckMenuItem() searches submenus when passed MF_BYCOMMAND, but the native Win32
+ * one is not documented to, and our items live in a submenu we create. So find the item
+ * explicitly and check it by position, which is unambiguous on both platforms.
+ * @return true if the item was found */
+static bool CheckActionMenuItem(HMENU hMenu, int commandId, bool checked)
+{
+  const int nItems = GetMenuItemCount(hMenu);
+
+  for (int i = 0; i < nItems; i++)
+  {
+    MENUITEMINFO mi = { sizeof(MENUITEMINFO), };
+    mi.fMask = MIIM_ID | MIIM_SUBMENU;
+
+    if (!GetMenuItemInfo(hMenu, i, TRUE, &mi))
+      continue;
+
+    if (mi.hSubMenu)
+    {
+      if (CheckActionMenuItem(mi.hSubMenu, commandId, checked))
+        return true;
+    }
+    else if (static_cast<int>(mi.wID) == commandId)
+    {
+      CheckMenuItem(hMenu, i, MF_BYPOSITION | (checked ? MF_CHECKED : MF_UNCHECKED));
+      return true;
+    }
+  }
+
+  return false;
+}
+
+static void AppendActionMenuItem(HMENU hMenu, const ReaperAction& action)
+{
+  MENUITEMINFO mi = { sizeof(MENUITEMINFO), };
+  mi.fMask = MIIM_TYPE | MIIM_ID;
+  mi.fType = MFT_STRING;
+  mi.dwTypeData = LPSTR(action.menuLabel);
+  mi.wID = action.accel.accel.cmd;
+  // Append to the end of the menu (works regardless of user customization)
+  InsertMenuItem(hMenu, GetMenuItemCount(hMenu), TRUE, &mi);
 }
 
 //static
 void ReaperExtBase::MenuHook(const char* menuidstr, void* menu, int flag)
 {
-  // flag==0: the default menu is being initialized; this is when we may add items.
-  if (flag != 0 || menuidstr == nullptr || menu == nullptr)
+  if (menuidstr == nullptr || menu == nullptr)
     return;
 
   HMENU hMenu = (HMENU) menu;
 
+  const bool isExtensionsMenu = strcmp(menuidstr, "Main extensions") == 0;
+
+  // flag==1: the menu is about to be shown. Per the SDK this - not flag==0 - is where
+  // check/grayed states are set, so toggle actions get a tick when they're on.
+  if (flag == 1)
+  {
+    for (auto& action : gActions)
+    {
+      const bool inThisMenu = (isExtensionsMenu && action.addMenuItem) ||
+                              (action.contextMenuId && strcmp(action.contextMenuId, menuidstr) == 0);
+
+      if (!inThisMenu || action.pToggle == nullptr)
+        continue;
+
+      CheckActionMenuItem(hMenu, action.accel.accel.cmd, *action.pToggle != 0);
+    }
+
+    return;
+  }
+
+  // flag==0: the default menu is being initialized; this is when we may add items.
+  if (flag != 0)
+    return;
+
+  // The main Extensions menu, added by AddExtensionsMainMenu(). Give this extension its
+  // own submenu rather than adding items directly, so several extensions can coexist.
+  if (isExtensionsMenu)
+  {
+    HMENU hSubMenu = CreatePopupMenu();
+
+    for (auto& action : gActions)
+    {
+      if (action.addMenuItem)
+        AppendActionMenuItem(hSubMenu, action);
+    }
+
+    if (GetMenuItemCount(hSubMenu) == 0)
+    {
+      DestroyMenu(hSubMenu);
+      return;
+    }
+
+    MENUITEMINFO mi = { sizeof(MENUITEMINFO), };
+    mi.fMask = MIIM_TYPE | MIIM_SUBMENU;
+    mi.fType = MFT_STRING;
+    mi.dwTypeData = LPSTR(gPlug->mMenuName.Get());
+    mi.hSubMenu = hSubMenu; // owned by hMenu from here on; don't retain the handle
+    InsertMenuItem(hMenu, GetMenuItemCount(hMenu), TRUE, &mi);
+
+    return;
+  }
+
   for (auto& action : gActions)
   {
     if (action.contextMenuId && strcmp(action.contextMenuId, menuidstr) == 0)
-    {
-      MENUITEMINFO mi = { sizeof(MENUITEMINFO), };
-      mi.fMask = MIIM_TYPE | MIIM_ID;
-      mi.fType = MFT_STRING;
-      mi.dwTypeData = LPSTR(action.accel.desc);
-      mi.wID = action.accel.accel.cmd;
-      // Append to the end of the menu (works regardless of user customization)
-      InsertMenuItem(hMenu, GetMenuItemCount(hMenu), TRUE, &mi);
-    }
+      AppendActionMenuItem(hMenu, action);
   }
 }
 
@@ -256,28 +372,26 @@ bool ReaperExtBase::HookCommandProc(int command, int flag)
 {
   auto it = std::find_if (gActions.begin(), gActions.end(), [&](const auto& e) { return e.accel.accel.cmd == command; });
 
-  if(it != gActions.end())
-  {
-    it->func();
-  }
-  
-  return false;
+  if (it == gActions.end())
+    return false; // not ours - let REAPER pass it to the next hook
+
+  it->func();
+
+  return true; // handled; stop further hooks and the default action from running
 }
 
 //static
 int ReaperExtBase::ToggleActionCallback(int command)
 {
   auto it = std::find_if (gActions.begin(), gActions.end(), [&](const auto& e) { return e.accel.accel.cmd == command; });
-  
-  if(it != gActions.end())
-  {
-    if(it->pToggle == nullptr)
-      return -1;
-    else
-      return *it->pToggle;
-  }
-  
-  return 0;
+
+  // -1 means "not this extension's action, or it doesn't toggle". Returning 0 here would
+  // claim every other extension's commands and report them as off, since REAPER walks the
+  // registered toggleaction hooks until one of them answers.
+  if (it == gActions.end() || it->pToggle == nullptr)
+    return -1;
+
+  return *it->pToggle;
 }
 
 //static
@@ -341,6 +455,7 @@ WDL_DLGRET ReaperExtBase::MainDlgProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
 
       DockWindowRemove(hwnd);
       gHWND = NULL;
+      gPlug->UpdateToggleStates(); // also covers the user closing the window directly
       return 0;
     }
     case WM_SIZE:
