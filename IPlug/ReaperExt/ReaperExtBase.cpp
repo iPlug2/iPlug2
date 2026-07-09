@@ -230,6 +230,38 @@ void ReaperExtBase::RegisterAction(const char* actionName, std::function<void()>
   mRec->Register("gaccel", (void*) &gActions.back().accel);
 }
 
+/** Sets the check state of the item with the given command id, searching nested submenus.
+ * SWELL's CheckMenuItem() searches submenus when passed MF_BYCOMMAND, but the native Win32
+ * one is not documented to, and our items live in a submenu we create. So find the item
+ * explicitly and check it by position, which is unambiguous on both platforms.
+ * @return true if the item was found */
+static bool CheckActionMenuItem(HMENU hMenu, int commandId, bool checked)
+{
+  const int nItems = GetMenuItemCount(hMenu);
+
+  for (int i = 0; i < nItems; i++)
+  {
+    MENUITEMINFO mi = { sizeof(MENUITEMINFO), };
+    mi.fMask = MIIM_ID | MIIM_SUBMENU;
+
+    if (!GetMenuItemInfo(hMenu, i, TRUE, &mi))
+      continue;
+
+    if (mi.hSubMenu)
+    {
+      if (CheckActionMenuItem(mi.hSubMenu, commandId, checked))
+        return true;
+    }
+    else if (static_cast<int>(mi.wID) == commandId)
+    {
+      CheckMenuItem(hMenu, i, MF_BYPOSITION | (checked ? MF_CHECKED : MF_UNCHECKED));
+      return true;
+    }
+  }
+
+  return false;
+}
+
 static void AppendActionMenuItem(HMENU hMenu, const ReaperAction& action)
 {
   MENUITEMINFO mi = { sizeof(MENUITEMINFO), };
@@ -263,8 +295,7 @@ void ReaperExtBase::MenuHook(const char* menuidstr, void* menu, int flag)
       if (!inThisMenu || action.pToggle == nullptr)
         continue;
 
-      // MF_BYCOMMAND searches nested submenus, so this finds items in our own submenu
-      CheckMenuItem(hMenu, action.accel.accel.cmd, MF_BYCOMMAND | (*action.pToggle ? MF_CHECKED : MF_UNCHECKED));
+      CheckActionMenuItem(hMenu, action.accel.accel.cmd, *action.pToggle != 0);
     }
 
     return;
