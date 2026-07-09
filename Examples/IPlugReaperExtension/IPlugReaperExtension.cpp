@@ -29,6 +29,7 @@ IPlugReaperExtension::IPlugReaperExtension(reaper_plugin_info_t* pRec)
   RegisterAction("IPlugReaperExtension: Action 1 - MsgBox", action1, true, nullptr, nullptr, "Action 1 - MsgBox");
   RegisterAction("IPlugReaperExtension: Action 2 - AddTrack", action2);
   RegisterAction("IPlugReaperExtension: Action 3 - Show/Hide UI", [&]() { ShowHideMainWindow(); }, true, GetWindowTogglePtr(), nullptr, "Show/Hide UI");
+  RegisterAction("IPlugReaperExtension: Toggle dock UI", [&]() { ToggleDocking(); }, true, GetDockTogglePtr(), nullptr, "Toggle dock UI");
   
   mLayoutFunc = [&](IGraphics* pGraphics) {
     const IRECT bounds = pGraphics->GetBounds();
