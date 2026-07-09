@@ -9,7 +9,7 @@ ReaperExtBase::ReaperExtBase(reaper_plugin_info_t* pRec)
   mTimer = std::unique_ptr<Timer>(Timer::Create(std::bind(&ReaperExtBase::OnTimer, this, std::placeholders::_1), IDLE_TIMER_RATE));
   mDockId.Set(IPLUG_STRINGIFY(PLUG_CLASS_NAME));
   memset(&mDockState, 0, sizeof(ReaperExtDockState));
-  // Note: LoadDockState() is called lazily in CreateMainWindow() after API imports
+  // Note: LoadDockState() is called lazily via EnsureStateLoaded() after API imports
 }
 
 ReaperExtBase::~ReaperExtBase()
@@ -67,19 +67,37 @@ bool ReaperExtBase::EditorResizeFromUI(int viewWidth, int viewHeight, bool needs
   return false;
 }
 
+/** Reads the persisted dock state on first use. Deferred out of the constructor because
+ * the REAPER API function pointers aren't imported yet at that point */
+void ReaperExtBase::EnsureStateLoaded()
+{
+  if (mStateLoaded)
+    return;
+
+  LoadDockState();
+  mStateLoaded = true;
+  UpdateToggleStates();
+}
+
 void ReaperExtBase::CreateMainWindow()
 {
   if (gHWND != NULL)
     return;
 
-  // Lazy load state on first window creation (after API imports are done)
-  if (!mStateLoaded)
-  {
-    LoadDockState();
-    mStateLoaded = true;
-  }
+  EnsureStateLoaded();
 
   gHWND = CreateDialog(gHINSTANCE, MAKEINTRESOURCE(IDD_DIALOG_MAIN), gParent, ReaperExtBase::MainDlgProc);
+
+  UpdateToggleStates();
+}
+
+/** Keeps the toggle ints in sync with the real state, so any action registered with
+ * GetWindowTogglePtr()/GetDockTogglePtr() reports the truth to REAPER. Dockedness is a
+ * persisted preference that applies whether or not the window is currently open */
+void ReaperExtBase::UpdateToggleStates()
+{
+  mWindowToggle = (gHWND != NULL) ? 1 : 0;
+  mDockToggle = IsDocked() ? 1 : 0;
 }
 
 void ReaperExtBase::DestroyMainWindow()
@@ -92,6 +110,8 @@ void ReaperExtBase::DestroyMainWindow()
   DockWindowRemove(gHWND);
   DestroyWindow(gHWND);
   gHWND = NULL;
+
+  UpdateToggleStates();
 }
 
 void ReaperExtBase::ShowHideMainWindow()
@@ -110,8 +130,16 @@ void ReaperExtBase::ShowHideMainWindow()
 
 void ReaperExtBase::ToggleDocking()
 {
+  EnsureStateLoaded();
+
+  // With no window open, just flip the persisted preference so the next open honours it
   if (gHWND == NULL)
+  {
+    mDockState.state ^= 2;
+    SaveDockState();
+    UpdateToggleStates();
     return;
+  }
 
   // Save floating position before toggling
   if (!IsDocked())
@@ -256,28 +284,26 @@ bool ReaperExtBase::HookCommandProc(int command, int flag)
 {
   auto it = std::find_if (gActions.begin(), gActions.end(), [&](const auto& e) { return e.accel.accel.cmd == command; });
 
-  if(it != gActions.end())
-  {
-    it->func();
-  }
-  
-  return false;
+  if (it == gActions.end())
+    return false; // not ours - let REAPER pass it to the next hook
+
+  it->func();
+
+  return true; // handled; stop further hooks and the default action from running
 }
 
 //static
 int ReaperExtBase::ToggleActionCallback(int command)
 {
   auto it = std::find_if (gActions.begin(), gActions.end(), [&](const auto& e) { return e.accel.accel.cmd == command; });
-  
-  if(it != gActions.end())
-  {
-    if(it->pToggle == nullptr)
-      return -1;
-    else
-      return *it->pToggle;
-  }
-  
-  return 0;
+
+  // -1 means "not this extension's action, or it doesn't toggle". Returning 0 here would
+  // claim every other extension's commands and report them as off, since REAPER walks the
+  // registered toggleaction hooks until one of them answers.
+  if (it == gActions.end() || it->pToggle == nullptr)
+    return -1;
+
+  return *it->pToggle;
 }
 
 //static
@@ -341,6 +367,7 @@ WDL_DLGRET ReaperExtBase::MainDlgProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
 
       DockWindowRemove(hwnd);
       gHWND = NULL;
+      gPlug->UpdateToggleStates(); // also covers the user closing the window directly
       return 0;
     }
     case WM_SIZE:

@@ -93,6 +93,15 @@ public:
   /** Returns true if the window is currently docked */
   bool IsDocked() const { return (mDockState.state & 2) == 2; }
 
+  /** Toggle state for an action that shows/hides the main window. Pass to RegisterAction()
+   * as pToggle so the action gets a tick in menus and the action list while the window is open */
+  int* GetWindowTogglePtr() { return &mWindowToggle; }
+
+  /** Toggle state for an action that docks/undocks the main window. Pass to RegisterAction()
+   * as pToggle so the action gets a tick in menus and the action list while docked. Reflects
+   * the persisted preference, so it is meaningful even when the window is closed */
+  int* GetDockTogglePtr() { return &mDockToggle; }
+
   /** Sets the unique identifier used for dock state persistence
    * @param id Unique identifier string (defaults to PLUG_CLASS_NAME) */
   void SetDockId(const char* id) { mDockId.Set(id); }
@@ -125,6 +134,8 @@ private:
   void DestroyMainWindow();
   void SaveDockState();
   void LoadDockState();
+  void EnsureStateLoaded();
+  void UpdateToggleStates();
 
   reaper_plugin_info_t* mRec = nullptr;
   std::unique_ptr<Timer> mTimer;
@@ -132,6 +143,8 @@ private:
   WDL_FastString mDockId;
   bool mSaveStateOnDestroy = true;
   bool mStateLoaded = false;
+  int mWindowToggle = 0;
+  int mDockToggle = 0;
 };
 
 END_IPLUG_NAMESPACE

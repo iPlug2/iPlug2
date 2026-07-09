@@ -28,7 +28,7 @@ IPlugReaperExtension::IPlugReaperExtension(reaper_plugin_info_t* pRec)
   //Register an action. args: name: lambda, add menu item,
   RegisterAction("IPlugReaperExtension: Action 1 - MsgBox", action1, true);
   RegisterAction("IPlugReaperExtension: Action 2 - AddTrack", action2);
-  RegisterAction("IPlugReaperExtension: Action 3 - Show/Hide UI", [&]() { ShowHideMainWindow(); mGUIToggle = !mGUIToggle; }, true, &mGUIToggle);
+  RegisterAction("IPlugReaperExtension: Action 3 - Show/Hide UI", [&]() { ShowHideMainWindow(); }, true, GetWindowTogglePtr());
   
   mLayoutFunc = [&](IGraphics* pGraphics) {
     const IRECT bounds = pGraphics->GetBounds();
