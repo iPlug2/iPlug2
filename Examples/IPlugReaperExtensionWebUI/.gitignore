@@ -1,0 +1,28 @@
+*.vs
+*.exe
+*.sdf
+*.opensdf
+*.zip
+*.suo
+*.ncb
+*.vcproj.*
+*.pkg
+*.dmg
+*.depend
+*.layout
+*.mode1v3
+*.db
+*.LSOverride
+*.xcuserdata
+*.xcschememanagement.plist
+build-*
+ipch/*
+gui/*
+
+Icon?
+.DS_Stor*
+
+# The test project has no media directory configured, so audio processed by the extension
+# is written here, alongside REAPER's peak caches for it
+*.wav
+peaks/
