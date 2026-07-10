@@ -3154,7 +3154,7 @@ static bool want_key_embed_redirect(Display *disp, Window scan_id, Window *new_d
 
 static GdkFilterReturn filterCreateShowProc(GdkXEvent *xev, GdkEvent *event, gpointer data)
 {
-  const XEvent *xevent = (XEvent *)xev;
+  XEvent *xevent = (XEvent *)xev;
   if (WDL_NOT_NORMALLY(!xev)) return GDK_FILTER_CONTINUE;
 
   switch (xevent->type)
@@ -3174,6 +3174,20 @@ static GdkFilterReturn filterCreateShowProc(GdkXEvent *xev, GdkEvent *event, gpo
           k.xkey.window = dest;
           XSendEvent(disp, dest, False, NoEventMask, &k);
           return GDK_FILTER_REMOVE;
+        }
+        else if (xevent->xany.send_event)
+        {
+          Window scan_id = xevent->xkey.window;
+          for (int x=0;x<filter_windows.GetSize(); x++)
+          {
+            bridgeState *bs = filter_windows.Get(x);
+            if (bs && bs->native_disp == disp && bs->cur_parent_xid && bs->native_w == scan_id)
+            {
+              // redirect to the parent window for processing
+              xevent->xkey.window = bs->cur_parent_xid;
+              return GDK_FILTER_CONTINUE;
+            }
+          }
         }
       }
     break;
