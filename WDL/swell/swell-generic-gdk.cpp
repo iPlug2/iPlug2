@@ -2458,6 +2458,7 @@ struct bridgeState {
   Display *native_disp;
   GdkWindow *cur_parent;
   Window cur_parent_xid;
+  Window cur_parent_xid2; // first child in xid, if any, otherwise cur_parent_xid
   HWND hwnd_child;
 
   bool lastvis;
@@ -2498,6 +2499,18 @@ bridgeState::~bridgeState()
     XDestroyWindow(native_disp,native_w);
   }
 }
+
+static Window get_x11_first_child(Display *disp, Window xid)
+{
+  Window root, par, *list=NULL;
+  unsigned int nlist=0;
+  if (!disp || !xid || !XQueryTree(disp,xid,&root,&par,&list, &nlist)) return xid;
+  Window ret = xid;
+  if (list && nlist>0) ret = list[0];
+  if (list) XFree(list);
+  return ret;
+}
+
 bridgeState::bridgeState(bool needrep, GdkWindow *_w, Window _nw, Display *_disp, GdkWindow *_curpar, HWND _hwnd_child)
 {
   hwnd_child = _hwnd_child;
@@ -2509,6 +2522,7 @@ bridgeState::bridgeState(bool needrep, GdkWindow *_w, Window _nw, Display *_disp
   need_reparent=needrep;
   cur_parent = _curpar;
   cur_parent_xid = _curpar ? GDK_WINDOW_XID(_curpar) : 0;
+  cur_parent_xid2 = get_x11_first_child(_disp, cur_parent_xid);
   memset(&lastrect,0,sizeof(lastrect));
   filter_windows.Add(this);
 }
@@ -2657,6 +2671,7 @@ static LRESULT xbridgeProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
               bs->cur_parent = h->m_oswindow;
               bs->cur_parent_xid = h->m_oswindow ? GDK_WINDOW_XID(h->m_oswindow) : 0;
+              bs->cur_parent_xid2 = get_x11_first_child(bs->native_disp, bs->cur_parent_xid);
               bs->need_reparent=false;
               if (vis && bs->lastvis) gdk_window_show(bs->w);
             }
@@ -3109,7 +3124,7 @@ static bool want_key_embed_redirect(Display *disp, Window scan_id, Window *new_d
   {
     bridgeState *bs = filter_windows.Get(x);
     if (bs && bs->cur_parent &&
-        bs->cur_parent_xid == scan_id &&
+        (bs->cur_parent_xid == scan_id || bs->cur_parent_xid2 == scan_id) &&
         bs->native_disp == disp)
     {
       HWND foc = GetFocus();
@@ -3151,7 +3166,7 @@ static GdkFilterReturn filterCreateShowProc(GdkXEvent *xev, GdkEvent *event, gpo
         Window dest;
         Display *disp = xevent->xany.display;
         if (!xevent->xany.send_event &&
-            want_key_embed_redirect(disp,xevent->xkey.window - 1, &dest, xevent->xkey.keycode, xevent->xkey.state))
+            want_key_embed_redirect(disp,xevent->xkey.window, &dest, xevent->xkey.keycode, xevent->xkey.state))
         {
           XEvent k;
           memset(&k,0,sizeof(k));
@@ -3166,12 +3181,12 @@ static GdkFilterReturn filterCreateShowProc(GdkXEvent *xev, GdkEvent *event, gpo
       {
         // only used if gdk_disable_multidevice() was called prior to gdk_init_ (maybe some env var too?)
         Display *disp = xevent->xany.display;
-        Window scan_id = xevent->xfocus.window - 1;
+        Window scan_id = xevent->xfocus.window;
         for (int x=0;x<filter_windows.GetSize(); x++)
         {
           bridgeState *bs = filter_windows.Get(x);
           if (bs && bs->cur_parent &&
-              bs->cur_parent_xid == scan_id &&
+              (bs->cur_parent_xid == scan_id || bs->cur_parent_xid2 == scan_id) &&
               bs->native_disp == disp)
           {
             POINT pt;
@@ -3197,7 +3212,7 @@ static GdkFilterReturn filterCreateShowProc(GdkXEvent *xev, GdkEvent *event, gpo
         {
           Window dest;
           Display *disp = xevent->xany.display;
-          if (want_key_embed_redirect(disp,xievent->event-1, &dest, xievent->detail, xievent->mods.effective))
+          if (want_key_embed_redirect(disp,xievent->event, &dest, xievent->detail, xievent->mods.effective))
           {
             XEvent k;
             if (xievent->evtype == XI_KeyPress) k.xkey.type = KeyPress;
@@ -3224,12 +3239,12 @@ static GdkFilterReturn filterCreateShowProc(GdkXEvent *xev, GdkEvent *event, gpo
         {
           Display *disp = xevent->xany.display;
           XIFocusInEvent *foc = (XIFocusInEvent *)xievent;
-          Window scan_id = foc->event - 1;
+          Window scan_id = foc->event;
           for (int x=0;x<filter_windows.GetSize(); x++)
           {
             bridgeState *bs = filter_windows.Get(x);
             if (bs && bs->cur_parent &&
-                bs->cur_parent_xid == scan_id &&
+                (bs->cur_parent_xid == scan_id || bs->cur_parent_xid2 == scan_id) &&
                 bs->native_disp == disp)
             {
               POINT pt = { (int) foc->root_x, (int) foc->root_y };
