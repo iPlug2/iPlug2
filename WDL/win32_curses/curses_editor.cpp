@@ -1535,7 +1535,13 @@ void WDL_CursesEditor::getLinesFromClipboard(WDL_FastString &buf, WDL_PtrList<co
       {
         char b[32];
         if (!*t) break;
-        WDL_MakeUTFChar(b,*t++,sizeof(b));
+        int ch = *t++;
+        if (ch >= 0xD800 && ch <= 0xD800 + 0x3FF && s>0 && *t >= 0xDC00 && *t <= 0xDC00 + 0x3FF)
+        {
+          ch = 0x10000 + ((ch-0xD800)<<10) + (*t++ - 0xDC00);
+          s--;
+        }
+        WDL_MakeUTFChar(b,ch,sizeof(b));
         buf.Append(b);
       }
 
@@ -2154,17 +2160,23 @@ int WDL_CursesEditor::onChar(int c)
         if (CURSES_INSTANCE)
         {
 #ifdef CF_UNICODETEXT
-          const int l=(WDL_utf8_get_charlen(s_fake_clipboard.Get())+1)*sizeof(wchar_t);
-          HANDLE h=GlobalAlloc(GMEM_MOVEABLE,l);
-          wchar_t *t=(wchar_t*)GlobalLock(h);
-          if (t)
+          WCHAR tmpbuf[256];
+          WCHAR *p = WDL_utf8_to_utf16((const char *)s_fake_clipboard.Get(),tmpbuf,sizeof(tmpbuf),1);
+          if (WDL_NORMALLY(p))
           {
-            WDL_MBtoWideStr(t,s_fake_clipboard.Get(),l);
-            GlobalUnlock(h);
+            const int l=(wcslen(p)+1)*sizeof(WCHAR);
+            HANDLE h=GlobalAlloc(GMEM_MOVEABLE,l);
+            WCHAR *t=(WCHAR *)GlobalLock(h);
+            if (t)
+            {
+              memcpy(t,p,l);
+              GlobalUnlock(h);
+            }
+            OpenClipboard(CURSES_INSTANCE->m_hwnd);
+            EmptyClipboard();
+            SetClipboardData(CF_UNICODETEXT,h);
+            if (p != tmpbuf) free(p);
           }
-          OpenClipboard(CURSES_INSTANCE->m_hwnd);
-          EmptyClipboard();
-          SetClipboardData(CF_UNICODETEXT,h);
 #else
           int l=s_fake_clipboard.GetLength()+1;
           HANDLE h=GlobalAlloc(GMEM_MOVEABLE,l);
