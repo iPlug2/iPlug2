@@ -3352,13 +3352,10 @@ HWND SWELL_CreateXBridgeWindow(HWND viewpar, void **wref, const RECT *r)
   }
 
   Display *disp = gdk_x11_display_get_xdisplay(gdk_window_get_display(ospar));
-  XSetWindowAttributes attr;
-  memset(&attr,0,sizeof(attr));
-  attr.event_mask = KeyPress|KeyRelease;
   Window w = XCreateWindow(disp,GDK_WINDOW_XID(ospar),0,0,
       wdl_max(r->right-r->left,1),
       wdl_max(r->bottom-r->top,1),
-      0,CopyFromParent, InputOutput, CopyFromParent, CWEventMask, &attr);
+      0,CopyFromParent, InputOutput, CopyFromParent, 0, NULL);
   GdkWindow *gdkw = w ? gdk_x11_window_foreign_new_for_display(gdk_display_get_default(),w) : NULL;
 
   hwnd = new HWND__(viewpar,0,r,NULL, true, xbridgeProc);
