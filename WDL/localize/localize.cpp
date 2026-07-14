@@ -926,17 +926,21 @@ static void localize_dialog(HWND hwnd, WDL_KeyedArray<WDL_UINT64, char *> *sec)
 #endif
 }
 
-void __localizeInitializeDialog(HWND hwnd, const char *desc)
-{
-  if (!desc || !hwnd || !*desc) return;
-  WDL_KeyedArray<WDL_UINT64, char *> *s = g_translations.Get(desc);
-  if (s) localize_dialog(hwnd,s);
-}
-
 int localizeLastDialogResourceId; // valid only in localizePreInitDialogHook/localizePostInitDialogHook
 const char *localizeLastDialogResourceSub;
 void (*localizePreInitDialogHook)(HWND hwndDlg);
 void (*localizePostInitDialogHook)(HWND hwndDlg);
+
+void __localizeInitializeDialog(HWND hwnd, const char *desc)
+{
+  if (!desc || !hwnd || !*desc) return;
+
+  localizeLastDialogResourceId = 0; // we don't know the ID for this context
+  if (localizePreInitDialogHook) localizePreInitDialogHook(hwnd);
+  WDL_KeyedArray<WDL_UINT64, char *> *s = g_translations.Get(desc);
+  if (s) localize_dialog(hwnd,s);
+  if (localizePostInitDialogHook) localizePostInitDialogHook(hwnd);
+}
 
 static WDL_DLGRET __localDlgProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
