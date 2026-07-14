@@ -3,9 +3,11 @@
 #include "ptrlist.h"
 #include "win32_utf8.h"
 
+int wdl_win7_filebrowse_refcnt;
 
 Win7FileDialog::Win7FileDialog(const char *name, int type)
 {
+  wdl_win7_filebrowse_refcnt++;
   bool loadfile = type == 0;
   bool savefile = type == 1;
   bool choosedir = type == 2;
@@ -40,6 +42,7 @@ Win7FileDialog::Win7FileDialog(const char *name, int type)
 
 Win7FileDialog::~Win7FileDialog()
 {
+  wdl_win7_filebrowse_refcnt--;
 }
 
 void Win7FileDialog::setFilterList(const char *list)
