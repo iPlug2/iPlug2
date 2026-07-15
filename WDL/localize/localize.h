@@ -93,5 +93,9 @@ HWND __localizeDialog(HINSTANCE hInstance, const char * lpTemplate, HWND hwndPar
 #define __localizeCreateDialogParam(a,b,c,d,e) __localizeDialog(a,b,c,d,e,0)
 
 extern void (*localizePreInitDialogHook)(HWND hwndDlg);
+extern void (*localizePostInitDialogHook)(HWND hwndDlg);
+extern int localizeLastDialogResourceId; // valid only in localizePreInitDialogHook/localizePostInitDialogHook
+extern const char *localizeLastDialogResourceSub; // NULL or prefix
+
 
 #endif
