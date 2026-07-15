@@ -303,7 +303,7 @@ WDL_DLGRET IPlugAPPHost::PreferencesDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wPar
   auto getComboString = [&](WDL_String& str, int item, WPARAM idx) {
     std::string tempString;
     long len = (long) SendDlgItemMessage(hwndDlg, item, CB_GETLBTEXTLEN, idx, 0) + 1;
-    tempString.reserve(len);
+    tempString.resize(len);
     SendDlgItemMessage(hwndDlg, item, CB_GETLBTEXT, idx, (LPARAM) tempString.data());
     str.Set(tempString.c_str());
   };
