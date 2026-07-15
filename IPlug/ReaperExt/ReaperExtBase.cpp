@@ -440,6 +440,14 @@ WDL_DLGRET ReaperExtBase::MainDlgProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
         GetClientRect(hwnd, &r);
         int w = r.right - r.left;
         int h = r.bottom - r.top;
+#ifdef WEBVIEW_EDITOR_DELEGATE
+        // GetClientRect returns physical pixels. The WebView delegate expects logical
+        // (DPI-independent) dimensions and scales to physical internally, so convert here.
+        // (IGraphics, by contrast, wants physical and divides internally.) On a DPI-aware
+        // host like REAPER at 200%, skipping this would double-scale and clip the WebView.
+        w = static_cast<int>(w / scale);
+        h = static_cast<int>(h / scale);
+#endif
         if (w > 0 && h > 0)
           gPlug->OnParentWindowResize(w, h);
       }
@@ -468,6 +476,12 @@ WDL_DLGRET ReaperExtBase::MainDlgProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
         GetClientRect(hwnd, &r);
         int w = r.right - r.left;
         int h = r.bottom - r.top;
+#ifdef WEBVIEW_EDITOR_DELEGATE
+        // See WM_INITDIALOG: convert physical client size to logical for the WebView delegate.
+        const float scale = GetScaleForHWND(hwnd);
+        w = static_cast<int>(w / scale);
+        h = static_cast<int>(h / scale);
+#endif
         if (w > 0 && h > 0)
           gPlug->OnParentWindowResize(w, h);
       }
