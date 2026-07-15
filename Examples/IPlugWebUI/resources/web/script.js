@@ -20,7 +20,7 @@ function SAMFD(msgTag, dataSize, msg) {
 }
 
 function SMMFD(statusByte, dataByte1, dataByte2) {
-  console.log("Got MIDI Message" + status + ":" + dataByte1 + ":" + dataByte2);
+  console.log("Got MIDI Message" + statusByte + ":" + dataByte1 + ":" + dataByte2);
 }
 
 function SSMFD(offset, size, msg) {
