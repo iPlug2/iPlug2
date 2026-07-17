@@ -543,6 +543,36 @@ IVMenuButtonControl::IVMenuButtonControl(const IRECT& bounds, int paramIdx, cons
   });
 }
 
+IVMenuButtonControl::IVMenuButtonControl(const IRECT& bounds, IActionFunction aF, const std::vector<const char*>& options, const char* label, const IVStyle& style, EVShape shape, const char* menuTitle)
+: IContainerBase(bounds, kNoParameter, aF)
+, IVectorBase(style)
+, mMenu(menuTitle, {})
+{
+  AttachIControl(this, label);
+
+  for (const char* option : options) {
+    mMenu.AddItem(option);
+  }
+  
+  mMenu.CheckItemAlone(0);
+  
+  mText = style.valueText;
+  mDisablePrompt = false;
+  
+  SetAttachFunc([&, label, style, shape](IContainerBase* pContainer, const IRECT& bounds) {
+    AddChildControl(mButtonControl = new IVButtonControl(bounds, SplashClickActionFunc, label, style.WithValueText(style.valueText.WithVAlign(EVAlign::Middle)), false, true, shape), kNoTag, GetGroup());
+    
+    mButtonControl->SetValueStr(options[0]);
+    mButtonControl->SetAnimationEndActionFunction([&](IControl* pCaller){
+      pCaller->GetUI()->CreatePopupMenu(*this, mMenu, pCaller->GetRECT(), 0);
+    });
+  });
+  
+  SetResizeFunc([&](IContainerBase* pContainer, const IRECT& bounds) {
+    mButtonControl->SetTargetAndDrawRECTs(bounds);
+  });
+}
+
 void IVMenuButtonControl::SetStyle(const IVStyle& style)
 {
   IVectorBase::SetStyle(style);
@@ -562,6 +592,14 @@ void IVMenuButtonControl::OnPopupMenuSelection(IPopupMenu* pSelectedMenu, int va
   if (pSelectedMenu)
   {
     mButtonControl->SetValueStr(pSelectedMenu->GetChosenItem()->GetText());
+    
+    if (pSelectedMenu == &mMenu)
+    {
+      const auto checkedItemIndex = mMenu.GetChosenItemIdx();
+      mMenu.CheckItemAlone(checkedItemIndex);
+      SetValue(static_cast<double>(checkedItemIndex) / static_cast<double>(mMenu.NItems() - 1));
+      SetDirty(true);
+    }
   }
   IControl::OnPopupMenuSelection(pSelectedMenu, valIdx);
 }
