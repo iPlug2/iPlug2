@@ -50,10 +50,10 @@ tresult PLUGIN_API IPlugVST3::initialize(FUnknown* context)
 
   if (SingleComponentEffect::initialize(context) == kResultOk)
   {
+    IPlugVST3GetHost(this, context);
     IPlugVST3ProcessorBase::Initialize(this);
     IPlugVST3ControllerBase::Initialize(this, IsInstrument(), DoesMIDIIn());
 
-    IPlugVST3GetHost(this, context);
     OnHostIdentified();
     OnParamReset(kReset);
     

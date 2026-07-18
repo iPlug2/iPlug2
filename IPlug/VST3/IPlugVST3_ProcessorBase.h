@@ -79,7 +79,8 @@ public:
         WDL_String busName;
         GetBusName(ERoute::kOutput, busIdx, nOut, busName);
         Steinberg::UString(tmpStringBuf, 128).fromAscii(busName.Get(), 128);
-        pPlug->addAudioOutput(tmpStringBuf, busType, busIdx > 0 ? kAux : kMain, flags);
+        bool hostSupportsAuxOut = pPlug->GetHost() != kHostStudioOne;
+        pPlug->addAudioOutput(tmpStringBuf, busType, (busIdx > 0 && hostSupportsAuxOut) ? kAux : kMain, flags);
       }
     }
 
