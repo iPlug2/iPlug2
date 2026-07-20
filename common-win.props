@@ -97,7 +97,7 @@
       <AdditionalDependencies />
     </Lib>
     <ResourceCompile>
-      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)\resources\fonts;$(SolutionDir)\resources\img;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)\resources\fonts;$(SolutionDir)\resources\img;$(SolutionDir)\resources\shaders;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
