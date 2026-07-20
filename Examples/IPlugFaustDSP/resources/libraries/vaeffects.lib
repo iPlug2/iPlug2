@@ -1,0 +1,1053 @@
+//#################################### vaeffects.lib ########################################
+// A library of virtual analog filter effects. Its official prefix is `ve`.
+//
+// #### References
+// * <https://github.com/grame-cncm/faustlibraries/blob/master/vaeffects.lib>
+//########################################################################################
+
+ma = library("maths.lib");
+si = library("signals.lib");
+an = library("analyzers.lib");
+fi = library("filters.lib");
+ef = library("misceffects.lib");
+
+declare name "Faust Virtual Analog Filter Effect Library";
+declare version "1.3.0";
+
+//########################################################################################
+/************************************************************************
+FAUST library file, jos section
+
+Except where noted otherwise, The Faust functions below in this
+section are Copyright (C) 2003-2017 by Julius O. Smith III <jos@ccrma.stanford.edu>
+([jos](http://ccrma.stanford.edu/~jos/)), and released under the
+(MIT-style) [STK-4.3](#stk-4.3-license) license.
+
+All MarkDown comments in this section are Copyright 2016-2017 by Romain
+Michon and Julius O. Smith III, and are released under the
+[CCA4I](https://creativecommons.org/licenses/by/4.0/) license (TODO: if/when Romain agrees!)
+
+************************************************************************/
+
+//====================================Moog Filters========================================
+//========================================================================================
+
+//-------------------------`(ve.)moog_vcf`---------------------------
+// Moog "Voltage Controlled Filter" (VCF) in "analog" form. Moog VCF
+// implemented using the same logical block diagram as the classic
+// analog circuit.  As such, it neglects the one-sample delay associated
+// with the feedback path around the four one-poles.
+// This extra delay alters the response, especially at high frequencies
+// (see reference [1] for details).
+// See `moog_vcf_2b` below for a more accurate implementation.
+//
+// #### Usage
+//
+// ```
+// _ : moog_vcf(res,fr) : _
+// ```
+// Where:
+//
+// * `res`: normalized amount of corner-resonance between 0 and 1 
+// (0 is no resonance, 1 is maximum)
+// * `fr`: corner-resonance frequency in Hz (less than SR/6.3 or so)
+//
+// #### References
+// * <https://ccrma.stanford.edu/~stilti/papers/moogvcf.pdf>
+// * <https://ccrma.stanford.edu/~jos/pasp/vegf.html>
+//------------------------------------------------------------
+declare moog_vcf author "Julius O. Smith III";
+declare moog_vcf copyright "Copyright (C) 2003-2019 by Julius O. Smith III <jos@ccrma.stanford.edu>";
+declare moog_vcf license "MIT-style STK-4.3 license";
+moog_vcf(res,fr) = (+ : seq(i,4,fi.pole(p)) : *(unitygain(p))) ~ *(mk)
+with {
+     p = 1.0 - fr * 2.0 * ma.PI / ma.SR; // good approximation for fr << SR
+     unitygain(p) = pow(1.0-p,4.0); // one-pole unity-gain scaling
+     mk = -4.0*max(0,min(res,0.999999)); // need mk > -4 for stability
+};
+
+//-----------------------`(ve.)moog_vcf_2b[n]`---------------------------
+// Moog "Voltage Controlled Filter" (VCF) as two biquads. Implementation
+// of the ideal Moog VCF transfer function factored into second-order
+// sections. As a result, it is more accurate than `moog_vcf` above, but
+// its coefficient formulas are more complex when one or both parameters
+// are varied.  Here, res is the fourth root of that in `moog_vcf`, so, as
+// the sampling rate approaches infinity, `moog_vcf(res,fr)` becomes equivalent
+// to `moog_vcf_2b[n](res^4,fr)` (when res and fr are constant).
+// `moog_vcf_2b` uses two direct-form biquads (`tf2`).
+// `moog_vcf_2bn` uses two protected normalized-ladder biquads (`tf2np`).
+//
+// #### Usage
+//
+// ```
+// _ : moog_vcf_2b(res,fr) : _
+// _ : moog_vcf_2bn(res,fr) : _
+// ```
+//
+// Where:
+//
+// * `res`: normalized amount of corner-resonance between 0 and 1
+// 	(0 is min resonance, 1 is maximum)
+// * `fr`: corner-resonance frequency in Hz
+//------------------------------------------------------------
+declare moog_vcf_2b author "Julius O. Smith III";
+declare moog_vcf_2b copyright "Copyright (C) 2003-2019 by Julius O. Smith III <jos@ccrma.stanford.edu>";
+declare moog_vcf_2b license "MIT-style STK-4.3 license";
+moog_vcf_2b(res,fr) = fi.tf2s(0,0,b0,a11,a01,w1) : fi.tf2s(0,0,b0,a12,a02,w1)
+with {
+ s = 1; // minus the open-loop location of all four poles
+ frl = max(20,min(10000,fr)); // limit fr to reasonable 20-10k Hz range
+ w1 = 2*ma.PI*frl; // frequency-scaling parameter for bilinear xform
+ // Equivalent: w1 = 1; s = 2*PI*frl;
+ kmax = sqrt(2)*0.99999; // 0.99999 gives stability margin (tf2 is unprotected)
+ k = min(kmax,sqrt(2)*res); // fourth root of Moog VCF feedback gain
+ b0 = s^2;
+ s2k = sqrt(2) * k;
+ a11 = s * (2 + s2k);
+ a12 = s * (2 - s2k);
+ a01 = b0 * (1 + s2k + k^2);
+ a02 = b0 * (1 - s2k + k^2);
+};
+
+declare moog_vcf_2bn author "Julius O. Smith III";
+declare moog_vcf_2bn copyright "Copyright (C) 2003-2019 by Julius O. Smith III <jos@ccrma.stanford.edu>";
+declare moog_vcf_2bn license "MIT-style STK-4.3 license";
+moog_vcf_2bn(res,fr) = fi.tf2snp(0,0,b0,a11,a01,w1) : fi.tf2snp(0,0,b0,a12,a02,w1)
+with {
+ s = 1; // minus the open-loop location of all four poles
+ w1 = 2*ma.PI*max(fr,20); // frequency-scaling parameter for bilinear xform
+ k = sqrt(2)*0.99999*res; // fourth root of Moog VCF feedback gain
+ b0 = s^2;
+ s2k = sqrt(2) * k;
+ a11 = s * (2 + s2k);
+ a12 = s * (2 - s2k);
+ a01 = b0 * (1 + s2k + k^2);
+ a02 = b0 * (1 - s2k + k^2);
+};
+
+
+//------------------`(ve.)moogLadder`-----------------
+// Virtual analog model of the 4th-order Moog Ladder (without any nonlinearities), which is arguably the 
+// most well-known ladder filter in analog synthesizers. Several 
+// 1st-order filters are cascaded in series. Feedback is then used, in part, to 
+// control the cut-off frequency and the resonance.
+//
+// #### References
+//
+// [Zavalishin 2012] (revision 2.1.2, February 2020): 
+//
+// * <https://www.native-instruments.com/fileadmin/ni_media/downloads/pdf/VAFilterDesign_2.1.2.pdf>
+//
+// This fix is based on Lorenzo Della Cioppa's correction to Pirkle's implementation; see this post: 
+// https://www.kvraudio.com/forum/viewtopic.php?f=33&t=571909
+//
+// #### Usage
+//
+// ```
+// _ : moogLadder(normFreq,Q) : _
+// ```
+//
+// Where:
+//
+// * `normFreq`: normalized frequency (0-1)
+// * `Q`: quality factor between .707 (0 feedback coefficient) to 25 (feedback = 4, which is the self-oscillating threshold).
+//---------------------------------------------------------------------
+declare moogLadder author "Dario Sanfilippo";
+declare moogLadder license "MIT-style STK-4.3 license";
+moogLadder(normFreq, Q, x) = loop ~ si.bus(4) : (!,!,!,!,_)
+with {
+    loop(s1, s2, s3, s4) =  v1 + lp1 , // define s1
+                            v2 + lp2 , // define s2
+                            v3 + lp3 , // define s3
+                            v4 + lp4 , // define s4
+                            lp4 // system output
+        with {
+            invSqrt2 = 1/sqrt(2);
+            T = 1.0 / ma.SR;
+            cf = 2*(10^(3*normFreq+1));
+            k = 4.0 * (Q - invSqrt2) / (25.0 - invSqrt2);
+            omegaWarp = tan(ma.PI * cf * T);
+            g = omegaWarp / (1.0 + omegaWarp);
+            G = g * g * g * g; // ladder's G in generalised form y = G * xi + S
+            S = g * g * g * (s1 * (1 - g)) + g * g * (s2 * (1 - g)) + g * (s3 * (1 - g)) + (s4 * (1 - g)); // ladder's S in generalised form y = G * xi + S
+            u = (x - k * S) / (1.0 + k * G); // input to the first LP stage: u = (x - kS) / (1 + kG)
+            v1 = g * (u - s1); // v-signals in TPT integrator (Zavalishin, Figure 3.30)
+            v2 = g * (lp1 - s2); // second stage
+            v3 = g * (lp2 - s3); // third stage
+            v4 = g * (lp3 - s4); // fourth stage
+            lp1 = v1 + s1; // define outputs
+            lp2 = v2 + s2;
+            lp3 = v3 + s3;
+            lp4 = v4 + s4;
+        };
+};
+
+//------------------`(ve.)lowpassLadder4`-----------------
+// Topology-preserving transform implementation of a four-pole ladder lowpass.
+// This is essentially the same filter as the moogLadder above except for 
+// the parameters, which will be expressed in Hz, for the cutoff, and as a
+// raw feedback coefficient, for the resonance. 
+// Also, note that the parameter order has changed.
+//
+// #### References
+//
+// [Zavalishin 2012] (revision 2.1.2, February 2020): 
+//
+// * <https://www.native-instruments.com/fileadmin/ni_media/downloads/pdf/VAFilterDesign_2.1.2.pdf>
+//
+// #### Usage
+//
+// ```
+// _ : lowpassLadder4(k, CF) : _
+// ```
+//
+// Where:
+//
+// * `k`: feedback coefficient between 0 and 4, which is the stability threshold.
+// * `CF`: the filter's cutoff in Hz.
+//
+// Notes:
+// 
+// If you want to express the feedback coefficient as the resonance peak, you can use the formula: 
+//
+//      k = 4.0 - 1.0 / Q;
+//
+// where Q, between .25 and infinity, corresponds to the peak of the filter at cutoff. 
+// I.e., if you feed the filter with a sine whose frequency is the same as the cutoff, the output 
+// peak corresponds exactly to that set via the Q-param.
+declare lowpassLadder4 author "Dario Sanfilippo";
+declare lowpassLadder4 license "MIT License";
+lowpassLadder4(k, CF, x) = loop ~ si.bus(4) : si.block(4) , _
+    with {
+        loop(s0, s1, s2, s3) = u0 , u1 , u2 , u3 , LP3
+            with {
+                PIT = ma.PI * ma.T;
+                g = tan(CF * PIT);
+                G = g / (1.0 + g);
+                oneMinusG = 1.0 - G;
+                globalG = G * G * G * G; 
+                globalS = G * (G * (G * S0 + S1) + S2) + S3; 
+                u = (x - k * globalS) / (1.0 + k * globalG); 
+                v0 = G * (u - s0);
+                v1 = G * (LP0 - s1);
+                v2 = G * (LP1 - s2);
+                v3 = G * (LP2 - s3);
+                S0 = oneMinusG * s0;
+                S1 = oneMinusG * s1;
+                S2 = oneMinusG * s2;
+                S3 = oneMinusG * s3;
+                LP0 = v0 + s0; 
+                LP1 = v1 + s1;
+                LP2 = v2 + s2;
+                LP3 = v3 + s3;
+                u0 = v0 + LP0;
+                u1 = v1 + LP1;
+                u2 = v2 + LP2;
+                u3 = v3 + LP3;
+            };
+    };
+
+//------------------`(ve.)moogHalfLadder`-----------------
+// Virtual analog model of the 2nd-order Moog Half Ladder (simplified version of
+// `(ve.)moogLadder`). Several 1st-order filters are cascaded in series. 
+// Feedback is then used, in part, to control the cut-off frequency and the 
+// resonance.
+//
+// This filter was implemented in Faust by Eric Tarr during the 
+// [2019 Embedded DSP With Faust Workshop](https://ccrma.stanford.edu/workshops/faust-embedded-19/).
+// 
+// #### References
+//
+// * <https://www.willpirkle.com/app-notes/virtual-analog-moog-half-ladder-filter>
+// * <http://www.willpirkle.com/Downloads/AN-8MoogHalfLadderFilter.pdf>
+//
+// #### Usage
+//
+// ```
+// _ : moogHalfLadder(normFreq,Q) : _
+// ```
+//
+// Where:
+//
+// * `normFreq`: normalized frequency (0-1)
+// * `Q`: q
+//---------------------------------------------------------------------
+declare moogHalfLadder author "Eric Tarr";
+declare moogHalfLadder license "MIT-style STK-4.3 license";
+moogHalfLadder(normFreq,Q) = _ <: (s1,s2,s3,y) : !,!,!,_ 
+letrec{
+  's1 = -(s3*B3*k):-(s2*B2*k):-(s1*B1*k):*(alpha0):-(s1):*(alpha*2):+(s1);
+  's2 = -(s3*B3*k):-(s2*B2*k):-(s1*B1*k):*(alpha0):-(s1):*(alpha):+(s1):-(s2):*(alpha*2):+(s2);
+  's3 = -(s3*B3*k):-(s2*B2*k):-(s1*B1*k):*(alpha0):-(s1):*(alpha):+(s1):-(s2):*(alpha):+(s2):-(s3):*(alpha*2):+(s3);
+  'y = -(s3*B3*k):-(s2*B2*k):-(s1*B1*k):*(alpha0):-(s1):*(alpha):+(s1):-(s2):*(alpha):+(s2) <:_*-1,((-(s3):*(alpha):+(s3))*2):>_;
+}
+with{
+  invSqrt2 = 1/sqrt(2);
+  freq = 2*(10^(3*normFreq+1));
+  k = 2.0*(Q - invSqrt2)/(25.0 - invSqrt2);
+  wd = 2*ma.PI*freq;
+  T = 1/ma.SR;
+  wa = (2/T)*tan(wd*T/2);
+  g = wa*T/2; 
+  G = g/(1.0 + g);
+  alpha = G;
+  GA = 2*G-1; // All-pass gain
+  B1 = GA*G/(1+g);
+  B2 = GA/(1+g);
+  B3 = 2/(1+g);
+  alpha0 = 1/(1 + k*GA*G*G);
+};
+
+
+//------------------`(ve.)diodeLadder`-----------------
+// 4th order virtual analog diode ladder filter. In addition to the individual 
+// states used within each independent 1st-order filter, there are also additional 
+// feedback paths found in the block diagram. These feedback paths are labeled 
+// as connecting states. Rather than separately storing these connecting states 
+// in the Faust implementation, they are simply implicitly calculated by 
+// tracing back to the other states (`s1`,`s2`,`s3`,`s4`) each recursive step.
+//
+// This filter was implemented in Faust by Eric Tarr during the 
+// [2019 Embedded DSP With Faust Workshop](https://ccrma.stanford.edu/workshops/faust-embedded-19/).
+// 
+// #### References
+//
+// * <https://www.willpirkle.com/virtual-analog-diode-ladder-filter/>
+// * <http://www.willpirkle.com/Downloads/AN-6DiodeLadderFilter.pdf>
+//
+// #### Usage
+//
+// ```
+// _ : diodeLadder(normFreq,Q) : _
+// ```
+//
+// Where:
+//
+// * `normFreq`: normalized frequency (0-1)
+// * `Q`: q
+//---------------------------------------------------------------------
+declare diodeLadder author "Eric Tarr";
+declare diodeLadder license "MIT-style STK-4.3 license";
+diodeLadder(normFreq,Q) = ef.cubicnl(1,0)*1.5 <:(s1,s2,s3,s4,y)  : !,!,!,!,_ 
+letrec{
+  's1 = _-(s4*B4*SG4*k) : 
+    _-((s4*B4*d3+s3)*B3*SG3*k) : 
+    _-(((s4*B4*d3+s3)*B3*d2 + s2)*B2*SG3*k) :
+    _-((((s4*B4*d3+s3)*B3*d2 + s2)*B2*d1 + s1)*B1*SG1*k) :
+    _*alpha0: _*gam1 : _+((s4*B4*d3+s3)*B3*d2 + s2)*B2 : //_+S2
+    _+((((s4*B4*d3+s3)*B3*d2 + s2)*B2)*d1 + s1)*B1*G2 : // _ + (S2 ...
+    _*a1 : _-s1 :_*alpha*2 : _+s1;
+
+  's2 = _-(s4*B4*SG4*k) : 
+    _-((s4*B4*d3+s3)*B3*SG3*k) : 
+    _-(((s4*B4*d3+s3)*B3*d2 + s2)*B2*SG3*k):
+    _-((((s4*B4*d3+s3)*B3*d2 + s2)*B2*d1 + s1)*B1*SG1*k) :
+    _*alpha0: _*gam1 : _+((s4*B4*d3+s3)*B3*d2 + s2)*B2 : //_+S2
+    _+((((s4*B4*d3+s3)*B3*d2 + s2)*B2)*d1 + s1)*B1*G2 : // _ + (S2 ...
+    _*a1 : _-s1 :_*alpha : _+s1 : _*gam2 :
+    _+(s4*B4*d3 + s3)*B3 : //_+S3 :
+    _+(((s4*B4*d3 + s3)*B3)*d2 + s2)*B2*G3 : //_+(S3...)
+    _*a2 : _-s2 : _*alpha*2 : _+s2;
+		
+  's3 = _-(s4*B4*SG4*k) : 
+    _-((s4*B4*d3+s3)*B3*SG3*k) : 
+    _-(((s4*B4*d3+s3)*B3*d2 + s2)*B2*SG3*k) :
+    _-((((s4*B4*d3+s3)*B3*d2 + s2)*B2*d1 + s1)*B1*SG1*k) :
+    _*alpha0 : _*gam1 : _+((s4*B4*d3+s3)*B3*d2 + s2)*B2 : //_+S2
+    _+((((s4*B4*d3+s3)*B3*d2 + s2)*B2)*d1+s1)*B1*G2 : // _ + (S2 ...
+    _*a1 : _-s1 :_*alpha : _+s1 : _*gam2 :
+    _+(s4*B4*d3 + s3)*B3 : //_+S3 :
+    _+(((s4*B4*d3 + s3)*B3)*d2 + s2)*B2*G3 : //_+(S3...)
+    _*a2 : _-s2 : _*alpha : _+s2 : _*gam3:
+    _+s4*B4 : // _ + S4
+    _+((s4*B4)*d3 + s3)*B3*G4: // _ + S4 ...
+    _*a3 : _-s3 : _*alpha*2 : _+s3;
+  
+  's4 = _-(s4*B4*SG4*k) : 
+    _-((s4*B4*d3+s3)*B3*SG3*k) : 
+    _-(((s4*B4*d3+s3)*B3*d2 + s2)*B2*SG3*k) :
+    _-((((s4*B4*d3+s3)*B3*d2 + s2)*B2*d1 + s1 )*B1*SG1*k) :
+    _*alpha0 : _*gam1 : _+((s4*B4*d3+s3)*B3*d2 + s2)*B2 : //_+S2
+    _+((((s4*B4*d3+s3)*B3*d2 + s2)*B2)*d1 + s1)*B1*G2 : // _ + (S2 ...
+    _*a1 : _-s1 :_*alpha : _+s1 : _*gam2 :
+    _+(s4*B4*d3 + s3)*B3 : //_+S3 :
+    _+(((s4*B4*d3 + s3)*B3)  *d2+s2)*B2*G3 : //_+(S3...)
+    _*a2 : _-s2 : _*alpha : _+s2 : _*gam3 :
+    _+s4*B4 : // _ + S4
+    _+((s4*B4)*d3 + s3)*B3*G4: // _ + S4 ...
+    _*a3 : _-s3 : _*alpha : _+s3 : _*gam4 : _*a4 : _-s4 : _*alpha*2 : _+s4;
+  
+  // Output signal
+  'y = _-(s4*B4*SG4*k) : 
+    _-((s4*B4*d3+s3)*B3*SG3*k) : 
+    _-(((s4*B4*d3+s3)*B3*d2 + s2)*B2*SG3*k) :
+    _-((((s4*B4*d3+s3)*B3*d2 + s2)*B2*d1 + s1 )*B1*SG1*k) :
+    _*alpha0: _*gam1 : _+((s4*B4*d3+s3)*B3*d2 + s2)*B2 : //_+S2
+    _+((((s4*B4*d3+s3)*B3*d2 + s2)*B2)*d1 + s1)*B1*G2 : // _ + (S2 ...
+    _*a1 : _-s1 :_*alpha : _+s1 : _*gam2 :
+    _+(s4*B4*d3 + s3)*B3 : //_+S3 :
+    _+(((s4*B4*d3 + s3)*B3)*d2 + s2)*B2*G3 : //_+(S3...)
+    _*a2 : _-s2 : _*alpha : _+s2 : _*gam3 :
+    _+s4*B4 : // _ + S4
+    _+((s4*B4)*d3 + s3)*B3*G4: // _ + S4 ...
+    _*a3 : _-s3 : _*alpha : _+s3 : _*gam4 : _*a4 : _-s4 : _*alpha : _+s4;
+}
+with{
+  freq = 2*(10^(3*normFreq+1));
+  invSqrt2 = 1/sqrt(2);
+  k = (17 - (normFreq^10)*9.7)*(Q - invSqrt2)/(25.0 - invSqrt2);
+  wd = 2*ma.PI*freq;
+  T = 1/ma.SR;
+  wa = (2/T)*tan(wd*T/2);
+  g = wa*T/2; 
+  G4 = 0.5*g/(1 + g);
+  G3 = 0.5*g/(1 + g - 0.5*g*G4);
+  G2 = 0.5*g/(1 + g - 0.5*g*G3);
+  G1 = g/(1.0 + g - g*G2);
+  Gamma = G1*G2*G3*G4;
+  SG1 = G4*G3*G2; // feedback gain pre-calculated
+  SG2 = G4*G3; 
+  SG3 = G4; 
+  SG4 = 1;
+  alpha = g/(1+g);
+  alpha0 = 1/(1+k*Gamma);
+  gam1 = 1+G1*G2;
+  gam2 = 1+G2*G3;
+  gam3 = 1+G3*G4; 
+  gam4 = 1;
+  a1 = 1; // a0 for 1st LPF
+  a2 = 0.5; // a0 for 2nd LPF
+  a3 = 0.5;
+  a4 = 0.5;
+  B1 = 1/(1+g-g*G2); // Beta for 1st block
+  B2 = 1/(1+g-0.5*g*G3);
+  B3 = 1/(1+g-0.5*g*G4);
+  B4 = 1/(1+g);
+  d1 = g; // delta for 1st block
+  d2 = 0.5*g;
+  d3 = 0.5*g;
+  //d4 = 0;
+};
+
+
+//===================================Korg 35 Filters======================================
+// The following filters are virtual analog models of the Korg 35 low-pass 
+// filter and high-pass filter found in the MS-10 and MS-20 synthesizers.
+// The virtual analog models for the LPF and HPF are different, making these 
+// filters more interesting than simply tapping different states of the same 
+// circuit. 
+//
+// These filters were implemented in Faust by Eric Tarr during the 
+// [2019 Embedded DSP With Faust Workshop](https://ccrma.stanford.edu/workshops/faust-embedded-19/).
+//
+// #### Filter history:
+//
+// <https://secretlifeofsynthesizers.com/the-korg-35-filter/>
+//========================================================================================
+
+//------------------`(ve.)korg35LPF`-----------------
+// Virtual analog models of the Korg 35 low-pass filter found in the MS-10 and 
+// MS-20 synthesizers.
+//
+// #### Usage
+//
+// ```
+// _ : korg35LPF(normFreq,Q) : _
+// ```
+//
+// Where:
+//
+// * `normFreq`: normalized frequency (0-1)
+// * `Q`: q
+//---------------------------------------------------------------------
+declare korg35LPF author "Eric Tarr";
+declare korg35LPF license "MIT-style STK-4.3 license";
+korg35LPF(normFreq,Q) = _ <: (s1,s2,s3,y) : !,!,!,_
+letrec{
+  's1 = _-s1:_*(alpha*2):_+s1;
+  's2 = _-s1:_*alpha:_+s1:_+(s3*B3):_+(s2*B2):_*alpha0:_-s3:_*alpha:_+s3:_*K:_-s2:_*(alpha*2):_+s2;
+  's3 = _-s1:_*alpha:_+s1:_+(s3*B3):_+(s2*B2):_*alpha0:_-s3:_*(alpha*2):_+s3;
+  'y = _-s1:_*alpha:_+s1:_+(s3*B3):_+(s2*B2) :_*alpha0:_-s3:_*alpha:_+s3;
+}
+with{
+  invSqrt2 = 1/sqrt(2);
+  freq = 2*(10^(3*normFreq+1));
+  K = 2.0*(Q - invSqrt2)/(10.0 - invSqrt2);
+  wd = 2*ma.PI*freq;
+  T = 1/ma.SR;
+  wa = (2/T)*tan(wd*T/2);
+  g = wa*T/2; 
+  G = g/(1.0 + g);
+  alpha = G;
+  B3 = (K - K*G)/(1 + g);
+  B2 = -1/(1 + g);
+  alpha0 = 1/(1 - K*G + K*G*G); 
+};
+
+
+//------------------`(ve.)korg35HPF`-----------------
+// Virtual analog models of the Korg 35 high-pass filter found in the MS-10 and 
+// MS-20 synthesizers.
+//
+// #### Usage
+//
+// ```
+// _ : korg35HPF(normFreq,Q) : _
+// ```
+//
+// Where:
+//
+// * `normFreq`: normalized frequency (0-1)
+// * `Q`: q
+//---------------------------------------------------------------------
+declare korg35HPF author "Eric Tarr";
+declare korg35HPF license "MIT-style STK-4.3 license";
+korg35HPF(normFreq,Q) = _ <: (s1,s2,s3,y) : !,!,!,_
+letrec{
+  's1 = _-s1:_*(alpha*2):_+s1;
+  's2 = _<:(_-s1:_*alpha:_+s1)*-1,_:>_+(s3*B3):_+(s2*B2):_*alpha0:_*K:_-s2:_*alpha*2:_+s2;
+  's3 = _<:(_-s1:_*alpha:_+s1)*-1,_:>_+(s3*B3):_+(s2*B2):_*alpha0:_*K:_<:(_-s2:_*alpha:_+s2)*-1,_:>_-s3:_*alpha*2:_+s3;
+  'y = _<:(_-s1:_*alpha:_+s1)*-1,_:>_+(s3*B3):_+(s2*B2):_*alpha0;
+}
+with{
+  invSqrt2 = 1/sqrt(2);
+  freq = 2*(10^(3*normFreq+1));
+  K = 2.0*(Q - invSqrt2)/(10.0 - invSqrt2);
+  wd = 2*ma.PI*freq;
+  T = 1/ma.SR;
+  wa = (2/T)*tan(wd*T/2);
+  g = wa*T/2; 
+  G = g/(1.0 + g);
+  alpha = G;
+  B3 = 1.0/(1.0 + g);
+  B2 = -1.0*G/(1.0 + g);
+  alpha0 = 1/(1 - K*G + K*G*G);
+};
+
+
+//==================================Oberheim Filters======================================
+// The following filter (4 types) is an implementation of the virtual analog 
+// model described in Section 7.2 of the Will Pirkle book, "Designing Software 
+// Synthesizer Plug-ins in C++". It is based on the block diagram in Figure 7.5. 
+//
+// The Oberheim filter is a state-variable filter with soft-clipping distortion 
+// within the circuit. 
+//
+// In many VA filters, distortion is accomplished using the "tanh" function. 
+// For this Faust implementation, that distortion function was replaced with 
+// the `(ef.)cubicnl` function.
+//========================================================================================
+
+//------------------`(ve.)oberheim`-----------------
+// Generic multi-outputs Oberheim filter that produces the BSF, BPF, HPF and LPF outputs (see description above).
+//
+// #### Usage
+//
+// ```
+// _ : oberheim(normFreq,Q) : _,_,_,_
+// ```
+//
+// Where:
+//
+// * `normFreq`: normalized frequency (0-1)
+// * `Q`: q
+//---------------------------------------------------------------------
+declare oberheim author "Eric Tarr";
+declare oberheim license "MIT-style STK-4.3 license";
+oberheim(normFreq,Q) = _<:(s1,s2,ybsf,ybpf,yhpf,ylpf) : !,!,_,_,_,_  
+letrec{
+  's1 = _-s2:_-(s1*FBs1):_*alpha0:_*g<:_,(_+s1:ef.cubicnl(0.0,0)):>_;
+  's2 = _-s2:_-(s1*FBs1):_*alpha0:_*g:_+s1:ef.cubicnl(0.0,0):_*g*2:_+s2;
+  // Compute the BSF, BPF, HPF, LPF outputs
+  'ybsf = _-s2:_-(s1*FBs1):_*alpha0<:(_*g:_+s1:ef.cubicnl(0.0,0):_*g:_+s2),_:>_;
+  'ybpf = _-s2:_-(s1*FBs1):_*alpha0:_*g:_+s1:ef.cubicnl(0.0,0);
+  'yhpf = _-s2:_-(s1*FBs1):_*alpha0;
+  'ylpf = _-s2:_-(s1*FBs1):_*alpha0:_*g :_+s1:ef.cubicnl(0.0,0):_*g:_+s2;
+}
+with{
+  freq = 2*(10^(3*normFreq+1));
+  wd = 2*ma.PI*freq;
+  T = 1/ma.SR;
+  wa = (2/T)*tan(wd*T/2);
+  g = wa*T/2; 
+  G = g/(1.0 + g);
+  R = 1/(2*Q);
+  FBs1 = (2*R+g);
+  alpha0 = 1/(1 + 2*R*g + g*g);
+};
+
+
+//------------------`(ve.)oberheimBSF`-----------------
+// Band-Stop Oberheim filter (see description above). 
+// Specialize the generic implementation: keep the first BSF output, 
+// the compiler will only generate the needed code.
+//
+// #### Usage
+//
+// ```
+// _ : oberheimBSF(normFreq,Q) : _
+// ```
+//
+// Where:
+//
+// * `normFreq`: normalized frequency (0-1)
+// * `Q`: q
+//---------------------------------------------------------------------
+declare oberheimBSF author "Eric Tarr";
+declare oberheimBSF license "MIT-style STK-4.3 license";
+oberheimBSF(normFreq,Q) = oberheim(normFreq,Q):_,!,!,!;
+
+
+//------------------`(ve.)oberheimBPF`-----------------
+// Band-Pass Oberheim filter (see description above).
+// Specialize the generic implementation: keep the second BPF output, 
+// the compiler will only generate the needed code.
+//
+// #### Usage
+//
+// ```
+// _ : oberheimBPF(normFreq,Q) : _
+// ```
+//
+// Where:
+//
+// * `normFreq`: normalized frequency (0-1)
+// * `Q`: q
+//---------------------------------------------------------------------
+declare oberheimBPF author "Eric Tarr";
+declare oberheimBPF license "MIT-style STK-4.3 license";
+oberheimBPF(normFreq,Q) = oberheim(normFreq,Q):!,_,!,!;
+
+
+//------------------`(ve.)oberheimHPF`-----------------
+// High-Pass Oberheim filter (see description above).
+// Specialize the generic implementation: keep the third HPF output, 
+// the compiler will only generate the needed code.
+//
+// #### Usage
+//
+// ```
+// _ : oberheimHPF(normFreq,Q) : _
+// ```
+//
+// Where:
+//
+// * `normFreq`: normalized frequency (0-1)
+// * `Q`: q
+//---------------------------------------------------------------------
+declare oberheimHPF author "Eric Tarr";
+declare oberheimHPF license "MIT-style STK-4.3 license";
+oberheimHPF(normFreq,Q) = oberheim(normFreq,Q):!,!,_,!;
+
+
+//------------------`(ve.)oberheimLPF`-----------------
+// Low-Pass Oberheim filter (see description above). 
+// Specialize the generic implementation: keep the fourth LPF output,
+// the compiler will only generate the needed code.
+//
+// #### Usage
+//
+// ```
+// _ : oberheimLPF(normFreq,Q) : _
+// ```
+//
+// Where:
+//
+// * `normFreq`: normalized frequency (0-1)
+// * `Q`: q
+//---------------------------------------------------------------------
+declare oberheimLPF author "Eric Tarr";
+declare oberheimLPF license "MIT-style STK-4.3 license";
+oberheimLPF(normFreq,Q) = oberheim(normFreq,Q):!,!,!,_;
+
+
+//================================Sallen Key Filters======================================
+// The following filters were implemented based on VA models of synthesizer 
+// filters.
+//
+// The modeling approach is based on a Topology Preserving Transform (TPT) to 
+// resolve the delay-free feedback loop in the corresponding analog filters.  
+//
+// The primary processing block used to build other filters (Moog, Korg, etc.) is
+// based on a 1st-order Sallen-Key filter. 
+//
+// The filters included in this script are 1st-order LPF/HPF and 2nd-order 
+// state-variable filters capable of LPF, HPF, and BPF.  
+//
+// #### Resources:
+//
+// * Vadim Zavalishin (2018) "The Art of VA Filter Design", v2.1.0
+// <https://www.native-instruments.com/fileadmin/ni_media/downloads/pdf/VAFilterDesign_2.1.0.pdf>
+// * Will Pirkle (2014) "Resolving Delay-Free Loops in Recursive Filters Using 
+// the Modified Härmä Method", AES 137 <http://www.aes.org/e-lib/browse.cfm?elib=17517>
+// * Description and diagrams of 1st- and 2nd-order TPT filters: 
+// <https://www.willpirkle.com/706-2/>
+//========================================================================================
+
+
+//------------------`(ve.)sallenKeyOnePole`-----------------
+// Sallen-Key generic One Pole filter that produces the LPF and HPF outputs (see description above).
+//
+// For the Faust implementation of this filter, recursion (`letrec`) is used 
+// for storing filter "states". The output (e.g. `y`) is calculated by using 
+// the input signal and the previous states of the filter.
+// During the current recursive step, the states of the filter (e.g. `s`) for 
+// the next step are also calculated.
+// Admittedly, this is not an efficient way to implement a filter because it 
+// requires independently calculating the output and each state during each 
+// recursive step. However, it works as a way to store and use "states"
+// within the constraints of Faust. 
+
+// The simplest example is the 1st-order LPF (shown on the cover of Zavalishin 
+// 2018 and Fig 4.3 of <https://www.willpirkle.com/706-2/>). Here, the input 
+// signal is split in parallel for the calculation of the output signal, `y`, and 
+// the state `s`. The value of the state is only used for feedback to the next 
+// step of recursion. It is blocked (!) from also being routed to the output. 
+// A trick used for calculating the state `s` is to observe that the input to 
+// the delay block is the sum of two signal: what appears to be a feedforward 
+// path and a feedback path. In reality, the signals being summed are identical 
+// (signal*2) plus the value of the current state.
+//
+// #### Usage
+//
+// ```
+// _ : sallenKeyOnePole(normFreq) : _,_
+// ```
+//
+// Where:
+//
+// * `normFreq`: normalized frequency (0-1)
+
+declare sallenKeyOnePole author "Eric Tarr";
+declare sallenKeyOnePole license "MIT-style STK-4.3 license";
+sallenKeyOnePole(normFreq) = _<:(s,ylpf,-(ylpf)) : !,_,_
+letrec {  
+  's = -(s):*(2*G):+(s);
+  'ylpf = -(s):*(G):+(s);
+}
+with{
+  freq = 2*(10^(3*normFreq+1));
+  wd = 2*ma.PI*freq;
+  T = 1/ma.SR;
+  wa = (2/T)*tan(wd*T/2);
+  g = wa*T/2; 
+  G = g/(1.0 + g);
+};
+
+
+//------------------`(ve.)sallenKeyOnePoleLPF`-----------------
+// Sallen-Key One Pole lowpass filter (see description above).
+// Specialize the generic implementation: keep the first LPF output, 
+// the compiler will only generate the needed code.
+//
+// #### Usage
+//
+// ```
+// _ : sallenKeyOnePoleLPF(normFreq) : _
+// ```
+//
+// Where:
+//
+// * `normFreq`: normalized frequency (0-1)
+
+declare sallenKeyOnePoleLPF author "Eric Tarr";
+declare sallenKeyOnePoleLPF license "MIT-style STK-4.3 license";
+sallenKeyOnePoleLPF(normFreq) = sallenKeyOnePole(normFreq) : _,!;
+
+
+//------------------`(ve.)sallenKeyOnePoleHPF`-----------------
+// Sallen-Key One Pole Highpass filter (see description above). The dry input 
+// signal is routed in parallel to the output. The LPF'd signal is subtracted 
+// from the input so that the HPF remains.
+// Specialize the generic implementation: keep the second HPF output, 
+// the compiler will only generate the needed code.
+//
+// #### Usage
+//
+// ```
+// _ : sallenKeyOnePoleHPF(normFreq) : _
+// ```
+//
+// Where:
+//
+// * `normFreq`: normalized frequency (0-1)
+//---------------------------------------------------------------------
+declare sallenKeyOnePoleHPF author "Eric Tarr";
+declare sallenKeyOnePoleHPF license "MIT-style STK-4.3 license";
+sallenKeyOnePoleHPF(normFreq) = sallenKeyOnePole(normFreq) : !,_;
+
+
+//------------------`(ve.)sallenKey2ndOrder`-----------------
+// Sallen-Key generic 2nd order filter that produces the LPF, BPF and HPF outputs. 
+//
+// This is a 2nd-order Sallen-Key state-variable filter. The idea is that by 
+// "tapping" into different points in the circuit, different filters 
+// (LPF,BPF,HPF) can be achieved. See Figure 4.6 of 
+// <https://www.willpirkle.com/706-2/>
+//
+// This is also a good example of the next step for generalizing the Faust 
+// programming approach used for all these VA filters. In this case, there are 
+// three things to calculate each recursive step (`y`,`s1`,`s2`). For each thing, the 
+// circuit is only calculated up to that point. 
+//
+// Comparing the LPF to BPF, the output signal (`y`) is calculated similarly. 
+// Except, the output of the BPF stops earlier in the circuit. Similarly, the 
+// states (`s1` and `s2`) only differ in that `s2` includes a couple more terms 
+// beyond what is used for `s1`. 
+//
+// #### Usage
+//
+// ```
+// _ : sallenKey2ndOrder(normFreq,Q) : _,_,_
+// ```
+//
+// Where:
+//
+// * `normFreq`: normalized frequency (0-1)
+// * `Q`: quality factor controlling the sharpness/resonance of the filter around the center frequency (CF). For bandpass filters, higher Q increases the gain at the center frequency. Must be in the range `[ma.EPSILON, ma.MAX]`
+//---------------------------------------------------------------------
+declare sallenKey2ndOrder author "Eric Tarr";
+declare sallenKey2ndOrder license "MIT-style STK-4.3 license";
+sallenKey2ndOrder(normFreq,Q) = _<:(s1,s2,ylpf,ybpf,yhpf) : !,!,_,_,_ 
+letrec{
+  's1 = -(s2):-(s1*FBs1):*(alpha0):*(g*2):+(s1);
+  's2 = -(s2):-(s1*FBs1):*(alpha0):*(g):+(s1):*(g*2):+(s2);
+  // Compute the LPF, BPF, HPF outputs
+  'ylpf = -(s2):-(s1*FBs1):*(alpha0):*(g*2):+(s1):*(g):+(s2);
+  'ybpf = -(s2):-(s1*FBs1):*(alpha0):*(g):+(s1);
+  'yhpf = -(s2):-(s1*FBs1):*(alpha0); 
+}
+with{
+  freq = 2*(10^(3*normFreq+1));
+  wd = 2*ma.PI*freq;
+  T = 1/ma.SR;
+  wa = (2/T)*tan(wd*T/2);
+  g = wa*T/2; 
+  G = g/(1.0 + g);
+  R = 1/(2*Q);
+  FBs1 = (2*R+g);
+  alpha0 = 1/(1 + 2*R*g + g*g);
+};
+
+//------------------`(ve.)sallenKey2ndOrderLPF`-----------------
+// Sallen-Key 2nd order lowpass filter (see description above). 
+// Specialize the generic implementation: keep the first LPF output,
+// the compiler will only generate the needed code.
+//
+// #### Usage
+//
+// ```
+// _ : sallenKey2ndOrderLPF(normFreq,Q) : _
+// ```
+//
+// Where:
+//
+// * `normFreq`: normalized frequency (0-1)
+// * `Q`: quality factor controlling the sharpness/resonance of the filter around the center frequency (CF). For bandpass filters, higher Q increases the gain at the center frequency. Must be in the range `[ma.EPSILON, ma.MAX]`
+//---------------------------------------------------------------------
+declare sallenKey2ndOrderLPF author "Eric Tarr";
+declare sallenKey2ndOrderLPF license "MIT-style STK-4.3 license";
+sallenKey2ndOrderLPF(normFreq,Q) = sallenKey2ndOrder(normFreq,Q) : _,!,!;
+
+
+//------------------`(ve.)sallenKey2ndOrderBPF`-----------------
+// Sallen-Key 2nd order bandpass filter (see description above). 
+// Specialize the generic implementation: keep the second BPF output, 
+// the compiler will only generate the needed code.
+//
+// #### Usage
+//
+// ```
+// _ : sallenKey2ndOrderBPF(normFreq,Q) : _
+// ```
+//
+// Where:
+//
+// * `normFreq`: normalized frequency (0-1)
+// * `Q`: quality factor controlling the sharpness/resonance of the filter around the center frequency (CF). For bandpass filters, higher Q increases the gain at the center frequency. Must be in the range `[ma.EPSILON, ma.MAX]`
+//---------------------------------------------------------------------
+declare sallenKey2ndOrderBPF author "Eric Tarr";
+declare sallenKey2ndOrderBPF license "MIT-style STK-4.3 license";
+sallenKey2ndOrderBPF(normFreq,Q) = sallenKey2ndOrder(normFreq,Q) : !,_,!;
+
+
+//------------------`(ve.)sallenKey2ndOrderHPF`-----------------
+// Sallen-Key 2nd order highpass filter (see description above). 
+// Specialize the generic implementation: keep the third HPF output, 
+// the compiler will only generate the needed code.
+//
+// #### Usage
+//
+// ```
+// _ : sallenKey2ndOrderHPF(normFreq,Q) : _
+// ```
+//
+// Where:
+//
+// * `normFreq`: normalized frequency (0-1)
+// * `Q`: quality factor controlling the sharpness/resonance of the filter around the center frequency (CF). For bandpass filters, higher Q increases the gain at the center frequency. Must be in the range `[ma.EPSILON, ma.MAX]`
+//---------------------------------------------------------------------
+declare sallenKey2ndOrderHPF author "Eric Tarr";
+declare sallenKey2ndOrderHPF license "MIT-style STK-4.3 license";
+sallenKey2ndOrderHPF(normFreq,Q) = sallenKey2ndOrder(normFreq,Q) : !,!,_;
+
+
+//=========================================Effects========================================
+//========================================================================================
+
+//--------------------------`(ve.)wah4`-------------------------------
+// Wah effect, 4th order.
+// `wah4` is a standard Faust function.
+//
+// #### Usage
+//
+// ```
+// _ : wah4(fr) : _
+// ```
+//
+// Where:
+//
+// * `fr`: resonance frequency in Hz
+//
+// #### Reference
+//
+// <https://ccrma.stanford.edu/~jos/pasp/vegf.html>
+//------------------------------------------------------------
+wah4(fr) = 4*moog_vcf((3.2/4),fr:si.smooth(0.999));
+
+//------------------------`(ve.)autowah`-----------------------------
+// Auto-wah effect.
+// `autowah` is a standard Faust function.
+//
+// #### Usage
+//
+// ```
+// _ : autowah(level) : _
+// ```
+//
+// Where:
+//
+// * `level`: amount of effect desired (0 to 1).
+//------------------------------------------------------------
+autowah(level,x) = level * crybaby(an.amp_follower(0.1,x),x) + (1.0-level)*x;
+
+//--------------------------`(ve.)crybaby`-----------------------------
+// Digitized CryBaby wah pedal.
+// `crybaby` is a standard Faust function.
+//
+// #### Usage
+//
+// ```
+// _ : crybaby(wah) : _
+// ```
+//
+// Where:
+//
+// * `wah`: "pedal angle" from 0 to 1
+//
+// #### Reference
+//
+// <https://ccrma.stanford.edu/~jos/pasp/vegf.html>
+//------------------------------------------------------------
+crybaby(wah) = *(gs) : fi.tf2(1,-1,0,a1s,a2s)
+with {
+  Q  = pow(2.0,(2.0*(1.0-wah)+1.0)); // Resonance "quality factor"
+  fr = 450.0*pow(2.0,2.3*wah);       // Resonance tuning
+  g  = 0.1*pow(4.0,wah);             // gain (optional)
+
+  // Biquad fit using z = exp(s T) ~ 1 + sT for low frequencies:
+  frn = fr/ma.SR; // Normalized pole frequency (cycles per sample)
+  R = 1 - ma.PI*frn/Q; // pole radius
+  theta = 2*ma.PI*frn; // pole angle
+  a1 = 0-2.0*R*cos(theta); // biquad coeff
+  a2 = R*R;                // biquad coeff
+
+  // dezippering of slider-driven signals:
+  s = 0.999; // smoothing parameter (one-pole pole location)
+  a1s = a1 : si.smooth(s);
+  a2s = a2 : si.smooth(s);
+  gs =  g  : si.smooth(s);
+
+  //tf2 = component("filters.lib").tf2;
+};
+
+// end jos section
+/************************************************************************
+************************************************************************
+FAUST library file, GRAME section
+
+Except where noted otherwise, Copyright (C) 2003-2017 by GRAME,
+Centre National de Creation Musicale.
+----------------------------------------------------------------------
+GRAME LICENSE
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public License as
+published by the Free Software Foundation; either version 2.1 of the
+License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with the GNU C Library; if not, write to the Free
+Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+02111-1307 USA.
+
+EXCEPTION TO THE LGPL LICENSE : As a special exception, you may create a
+larger FAUST program which directly or indirectly imports this library
+file and still distribute the compiled code generated by the FAUST
+compiler, or a modified version of this compiled code, under your own
+copyright and license. This EXCEPTION TO THE LGPL LICENSE explicitly
+grants you the right to freely choose the license for the resulting
+compiled code. In particular the resulting compiled code has no obligation
+to be LGPL or GPL. For example you are free to choose a commercial or
+closed source license or any other license if you decide so.
+************************************************************************
+************************************************************************/
+
+//----------------------------`(ve.)vocoder`-------------------------
+// A very simple vocoder where the spectrum of the modulation signal
+// is analyzed using a filter bank.
+// `vocoder` is a standard Faust function.
+//
+// #### Usage
+//
+// ```
+// _ : vocoder(nBands,att,rel,BWRatio,source,excitation) : _
+// ```
+//
+// Where:
+//
+// * `nBands`: Number of vocoder bands
+// * `att`: Attack time in seconds
+// * `rel`: Release time in seconds
+// * `BWRatio`: Coefficient to adjust the bandwidth of each band (0.1 - 2)
+// * `source`: Modulation signal
+// * `excitation`: Excitation/Carrier signal
+//------------------------------------------------------------
+declare oneVocoderBand author "Romain Michon";
+oneVocoderBand(band,bandsNumb,bwRatio,bandGain,x) = x : fi.resonbp(bandFreq,bandQ,bandGain) with {
+        bandFreq = 25*pow(2,(band+1)*(9/bandsNumb));
+        BW = (bandFreq - 25*pow(2,(band)*(9/bandsNumb)))*bwRatio;
+        bandQ = bandFreq/BW;
+};
+
+vocoder(nBands,att,rel,BWRatio,source,excitation) = source <: par(i,nBands,oneVocoderBand(i,nBands,BWRatio,1) :
+	an.amp_follower_ar(att,rel) : _,excitation : oneVocoderBand(i,nBands,BWRatio)) :> _ ;
+
+//########################################################################################
+/************************************************************************
+FAUST library file, further contributions section
+
+All contributions below should indicate both the contributor and terms
+of license.  If no such indication is found, "git blame" will say who
+last edited each line, and that person can be emailed to inquire about
+license disposition, if their license choice is not already indicated
+elsewhere among the libraries.  It is expected that all software will be
+released under LGPL, STK-4.3, MIT, BSD, or a similar FOSS license.
+************************************************************************/
+
+// end further further contributions section

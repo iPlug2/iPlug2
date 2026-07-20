@@ -18,6 +18,7 @@
 
 #include "IControl.h"
 #include "Easing.h"
+#include "ISender.h"
 
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
@@ -66,6 +67,27 @@ public:
       pControl->SetValue(EaseCubicIn(1. -progress));
       
     }, decayTimeMs);
+  }
+  
+  void OnMsgFromDelegate(int msgTag, int dataSize, const void* pData) override
+  {
+    IByteStream stream(pData, dataSize);
+
+    int pos = 0;
+    ISenderData<1, std::pair<float, float>> d;
+    pos = stream.Get(&d, pos);
+    
+    const auto lowRangeDB = -72;
+    const auto highRangeDB = 6;
+
+    double lowPointAbs = std::fabs(lowRangeDB);
+    double rangeDB = std::fabs(highRangeDB - lowRangeDB);
+    
+    double avgValue = AmpToDB(static_cast<double>(std::get<1>(d.vals[0]) + 0.000001));
+    double linearAvgPos = (avgValue + lowPointAbs)/rangeDB;
+
+    SetValue(Clip(linearAvgPos, 0., 1.), 0);
+    SetDirty(false);
   }
 
 private:

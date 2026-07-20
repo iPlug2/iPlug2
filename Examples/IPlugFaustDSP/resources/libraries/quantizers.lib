@@ -1,0 +1,309 @@
+//##################################### quantizers.lib ########################################
+// Faust Frequency Quantization Library. Its official prefix is `qu`.
+//
+// #### References
+// * <https://github.com/grame-cncm/faustlibraries/blob/master/quantizers.lib>
+//########################################################################################
+
+ba = library("basics.lib");
+it = library("interpolators.lib");
+
+declare name "Faust Frequency Quantization Library";
+declare version "1.1.1";
+
+//=============================Functions Reference========================================
+//========================================================================================
+
+/************************************************************************
+************************************************************************
+This is free and unencumbered software released into the public domain.
+
+Anyone is free to copy, modify, publish, use, compile, sell, or
+distribute this software, either in source code form or as a compiled
+binary, for any purpose, commercial or non-commercial, and by any
+means.
+
+In jurisdictions that recognize copyright laws, the author or authors
+of this software dedicate any and all copyright interest in the
+software to the public domain. We make this dedication for the benefit
+of the public at large and to the detriment of our heirs and
+successors. We intend this dedication to be an overt act of
+relinquishment in perpetuity of all present and future rights to this
+software under copyright law.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+OTHER DEALINGS IN THE SOFTWARE.
+
+For more information, please refer to <http://unlicense.org/>
+************************************************************************
+************************************************************************/
+
+MinFreq = 10;
+MaxFreq = 20000;
+TableSize = 1024;
+
+qLog(x) = ba.tabulate(1,log(_),TableSize,MinFreq,MaxFreq,x).cub;
+qSmooth(x) = ba.tabulate(1,0.5*atan(_*20-10)/1.4711+0.5,TableSize,0,1,x).cub;
+
+
+//-------`(qu.)quantize`----------
+// Configurable frequency quantization tool. Output only the frequencies that are part of the specified scale.
+// Works for positive audio frequencies.
+//
+// #### Usage
+//
+// ```
+// _ : quantize(rf,nl) : _
+// ```
+// Where :
+//
+// * `rf` : frequency of the root note of the scale
+// * `nl` : list of the ratio of the frequencies of each note in relation to the root frequency
+//------------------------
+quantize(rf,nl) = _<: octave,_ <: _,!,noteRatio(nN) : rf*_*_
+with{
+    octave = (qLog(_)-log(rf))/log(2) <: select2(_<0, 1<<int(_), 1/(1<<int(1-_)));
+    nN = ba.count(nl);
+    noteRatio(1,oct) = 1;
+    noteRatio(n,oct) = _ <: (ba.take(n,nl)<=((_/oct)/rf))*ba.take(n,nl)+
+                            (ba.take(n,nl)>((_/oct)/rf))*(noteRatio(n-1,oct));
+};
+
+
+//-------`(qu.)quantizeSmoothed`----------
+// Configurable frequency quantization tool. Output frequencies that are closer to the frequencies of the specified scale notes.
+// Works for positive audio frequencies.
+//
+//
+// #### Usage
+//
+// ```
+// _ : quantizeSmoothed(rf,nl) : _
+// nl = (1,1.2,1.4,1.7);
+// ```
+// Where :
+//
+// * `rf` : frequency of the root note of the scale
+// * `nl` : list of the ratio of the frequencies of each note in relation to the root frequency
+//------------------------
+quantizeSmoothed(rf,nl) = _<: octave,_ <: _,!,noteRatio(nN) : rf*_*_
+with{
+    octave = (qLog(_)-log(rf))/log(2)<: select3((_>0)+(_>=0),
+        (1/(1<<int(1-_))),
+        2,
+        1<<int(_)
+    );
+    nN = ba.count(nl);
+    noteRatio(1,oct) = findValue(1,oct);
+    noteRatio(n,oct) = _ <: (ba.take(n,nl)<=((_/oct)/rf))*findValue(n,oct)+
+                            (ba.take(n,nl)>((_/oct)/rf))*(noteRatio(n-1,oct));
+
+    findValue(n,oct) = _<: (n<nN)*
+            (((_/oct)/rf)-ba.take(n,nl))/((ba.take(min(n+1,nN)-(n==nN),nl)-ba.take(n,nl)))
+                    +(n==nN)*
+            (((_/oct)/rf)-ba.take(n,nl))/(2-ba.take(n,nl)):       
+            qSmooth :  //smoothing curve
+            _*((n<nN)*(ba.take(min(n+1,nN)-(n==nN),nl)-ba.take(n,nl))+
+                (n==nN)*(2-ba.take(n,nl))
+            )+ba.take(n,nl);
+};
+
+
+//---------------------`(qu.)ionian`--------------------------
+// List of the frequency ratios of the notes of the ionian mode.
+//
+// #### Usage
+// ```
+// _ : quantize(rf,ionian) : _
+// ```
+//
+// Where:
+//
+// * `rf`: frequency of the root note of the scale
+//-------------------------------------------------------------
+ionian = (1,pow(2,2/12),pow(2,4/12),pow(2,5/12),pow(2,7/12),pow(2,9/12),pow(2,11/12));
+
+
+//---------------------`(qu.)dorian`--------------------------
+// List of the frequency ratios of the notes of the dorian mode.
+//
+// #### Usage
+// ```
+// _ : quantize(rf,dorian) : _
+// ```
+//
+// Where:
+//
+// * `rf`: frequency of the root note of the scale
+//-------------------------------------------------------------
+dorian = (1,pow(2,2/12),pow(2,3/12),pow(2,5/12),pow(2,7/12),pow(2,9/12),pow(2,10/12));
+
+
+//---------------------`(qu.)phrygian`--------------------------
+// List of the frequency ratios of the notes of the phrygian mode.
+//
+// #### Usage
+// ```
+// _ : quantize(rf,phrygian) : _
+// ```
+//
+// Where:
+//
+// * `rf`: frequency of the root note of the scale
+//-------------------------------------------------------------
+phrygian = (1,pow(2,1/12),pow(2,3/12),pow(2,5/12),pow(2,7/12),pow(2,8/12),pow(2,10/12));
+
+
+//---------------------`(qu.)lydian`--------------------------
+// List of the frequency ratios of the notes of the lydian mode.
+//
+// #### Usage
+// ```
+// _ : quantize(rf,lydian) : _
+// ```
+//
+// Where:
+//
+// * `rf`: frequency of the root note of the scale
+//-------------------------------------------------------------
+lydian = (1,pow(2,2/12),pow(2,4/12),pow(2,6/12),pow(2,7/12),pow(2,9/12),pow(2,11/12));
+
+
+//---------------------`(qu.)mixo`--------------------------
+// List of the frequency ratios of the notes of the mixolydian mode.
+//
+// #### Usage
+// ```
+// _ : quantize(rf,mixo) : _
+// ```
+//
+// Where:
+//
+// * `rf`: frequency of the root note of the scale
+//-------------------------------------------------------------
+mixo = (1,pow(2,2/12),pow(2,4/12),pow(2,5/12),pow(2,7/12),pow(2,9/12),pow(2,10/12));
+
+
+//---------------------`(qu.)eolian`--------------------------
+// List of the frequency ratios of the notes of the eolian mode.
+//
+// #### Usage
+// ```
+// _ : quantize(rf,eolian) : _
+// ```
+//
+// Where:
+//
+// * `rf`: frequency of the root note of the scale
+//-------------------------------------------------------------
+eolian = (1,pow(2,2/12),pow(2,3/12),pow(2,5/12),pow(2,7/12),pow(2,8/12),pow(2,10/12));
+
+
+//---------------------`(qu.)locrian`--------------------------
+// List of the frequency ratios of the notes of the locrian mode.
+//
+// #### Usage
+// ```
+// _ : quantize(rf,locrian) : _
+// ```
+//
+// Where:
+//
+// * `rf`: frequency of the root note of the scale
+//-------------------------------------------------------------
+locrian = (1,pow(2,1/12),pow(2,3/12),pow(2,5/12),pow(2,6/12),pow(2,8/12),pow(2,10/12));
+
+
+//---------------------`(qu.)pentanat`--------------------------
+// List of the frequency ratios of the notes of the pythagorean tuning for the minor pentatonic scale.
+//
+// #### Usage
+// ```
+// _ : quantize(rf,pentanat) : _
+// ```
+//
+// Where:
+//
+// * `rf`: frequency of the root note of the scale
+//-------------------------------------------------------------
+pentanat = (1,32/27,4/3,3/2,16/9);
+
+
+//---------------------`(qu.)kumoi`--------------------------
+// List of the frequency ratios of the notes of the kumoijoshi, the japanese pentatonic scale.
+//
+// #### Usage
+// ```
+// _ : quantize(rf,kumoi) : _
+// ```
+//
+// Where:
+//
+// * `rf`: frequency of the root note of the scale
+//-------------------------------------------------------------
+kumoi = (1,16/15,4/3,3/2,8/5);
+
+
+//---------------------`(qu.)natural`--------------------------
+// List of the frequency ratios of the notes of the natural major scale.
+//
+// #### Usage
+// ```
+// _ : quantize(rf,natural) : _
+// ```
+//
+// Where:
+//
+// * `rf`: frequency of the root note of the scale
+//-------------------------------------------------------------
+natural = (1,9/8,5/4,4/3,3/2,5/3,15/8);
+
+
+//---------------------`(qu.)dodeca`--------------------------
+// List of the frequency ratios of the notes of the dodecaphonic scale.
+//
+// #### Usage
+// ```
+// _ : quantize(rf,dodeca) : _
+// ```
+//
+// Where:
+//
+// * `rf`: frequency of the root note of the scale
+//-------------------------------------------------------------
+dodeca = (1,pow(2,1/12),pow(2,2/12),pow(2,3/12),pow(2,4/12),pow(2,5/12),pow(2,6/12),pow(2,7/12),pow(2,8/12),pow(2,9/12),pow(2,10/12),pow(2,11/12));
+
+
+//---------------------`(qu.)dimin`--------------------------
+// List of the frequency ratios of the notes of the diminished scale.
+//
+// #### Usage
+// ```
+// _ : quantize(rf,dimin) : _
+// ```
+//
+// Where:
+//
+// * `rf`: frequency of the root note of the scale
+//-------------------------------------------------------------
+dimin = (1,pow(2,1/12),pow(2,3/12),pow(2,4/12),pow(2,6/12),pow(2,7/12),pow(2,9/12),pow(2,10/12));
+
+
+//---------------------`(qu.)penta`--------------------------
+// List of the frequency ratios of the notes of the minor pentatonic scale.
+//
+// #### Usage
+// ```
+// _ : quantize(rf,penta) : _
+// ```
+//
+// Where:
+//
+// * `rf`: frequency of the root note of the scale
+//-------------------------------------------------------------
+penta = (1,pow(2,3/12),pow(2,5/12),pow(2,7/12),pow(2,10/12));
