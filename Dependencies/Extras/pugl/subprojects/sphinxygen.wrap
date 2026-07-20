@@ -1,0 +1,14 @@
+# Copyright 2022 David Robillard <d@drobilla.net>
+# SPDX-License-Identifier: 0BSD OR ISC
+
+[wrap-file]
+directory = sphinxygen-1.0.0
+source_url = https://download.drobilla.net/sphinxygen-1.0.0.tar.gz
+source_filename = sphinxygen-1.0.0.tar.gz
+source_hash = 96b19e3b37d4886dcf3e89d4ccf0b66c0deb9f2e34ac151a7a6659a421f0282d
+
+# [wrap-git]
+# url = https://gitlab.com/drobilla/sphinxygen.git
+# push-url = ssh://git@gitlab.com:drobilla/sphinxygen.git
+# revision = main
+# depth = 1
