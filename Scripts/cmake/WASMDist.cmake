@@ -574,6 +574,13 @@ function(iplug_build_wasm_dsp_dist project_name)
       ${project_name}_wasm_dsp_templates
     COMMENT "Building Wasm DSP distribution for ${project_name}"
   )
+
+  # The UI dist helpers add this target to their DEPENDS when it already
+  # exists; handle the opposite call order (UI dist created first) here so
+  # the co-build wiring is order-independent.
+  if(TARGET ${project_name}-wasm-ui-dist)
+    add_dependencies(${project_name}-wasm-ui-dist ${project_name}-wasm-dsp-dist)
+  endif()
 endfunction()
 
 # ============================================================================
@@ -618,6 +625,9 @@ function(iplug_build_wasm_webview_ui_dist project_name)
   )
   if(TARGET ${project_name}_wasm_webview_resources)
     list(APPEND UI_DEPENDS ${project_name}_wasm_webview_resources)
+  endif()
+  if(TARGET ${project_name}-wasm-dsp-dist)
+    list(APPEND UI_DEPENDS ${project_name}-wasm-dsp-dist)
   endif()
 
   add_custom_target(${project_name}-wasm-ui-dist ALL
@@ -679,6 +689,13 @@ function(iplug_build_wasm_ui_dist project_name)
   endif()
   if(TARGET ${project_name}_wasm_resources)
     list(APPEND UI_DEPENDS ${project_name}_wasm_resources)
+  endif()
+  # The UI bundle loads scripts/<name>-dsp.js at runtime, so make sure the
+  # DSP dist (which stages it plus -processor.js) is co-built whenever the
+  # caller has also asked for WASM_DSP. Without this dependency, building
+  # just `<name>-wasm-ui-dist` produces a staged dir that 404s at audio start.
+  if(TARGET ${project_name}-wasm-dsp-dist)
+    list(APPEND UI_DEPENDS ${project_name}-wasm-dsp-dist)
   endif()
 
   add_custom_target(${project_name}-wasm-ui-dist ALL

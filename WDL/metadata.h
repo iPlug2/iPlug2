@@ -1121,6 +1121,8 @@ bool EnumMetadataKeyFromMexKey(const char *mexkey, int idx, char *key, int keyle
     "ID3:TYER",
     "ID3:TDRC",
     "QT:year",
+    "QT:creation_time",
+    "PKEY:Media_DateEncoded",
     "APE:Year",
     "APE:Record Date",
     "VORBIS:DATE",

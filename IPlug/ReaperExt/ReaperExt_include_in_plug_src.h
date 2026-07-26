@@ -12,6 +12,8 @@ void (*AttachWindowTopmostButton)(HWND hwnd);
 #include "resource.h"
 #include <vector>
 #include <map>
+#include <deque>
+#include <cstring>
 
 REAPER_PLUGIN_HINSTANCE gHINSTANCE;
 HWND gParent;
@@ -27,9 +29,22 @@ struct ReaperAction
   gaccel_register_t accel = {{0,0,0}, ""};
   std::function<void()> func;
   bool addMenuItem = false;
+  const char* contextMenuId = nullptr; // REAPER context menu to add this action to, if any
+  const char* menuLabel = nullptr;     // label used in menus, defaults to the action name
 };
 
-std::vector<ReaperAction> gActions;
+// std::deque (not std::vector) so element addresses stay stable: REAPER keeps the
+// raw &gActions.back().accel pointer we register, which a vector realloc would dangle.
+std::deque<ReaperAction> gActions;
+
+// Persistent registration record for per-project state (see "projectconfig").
+// Must outlive registration, so it lives at file scope.
+project_config_extension_t gProjectConfig = {
+  ReaperExtBase::ProcessExtensionLine,
+  ReaperExtBase::SaveExtensionConfig,
+  ReaperExtBase::BeginLoadProjectState,
+  nullptr
+};
 
 //TODO: don't #include cpp here
 #include "ReaperExtBase.cpp"
@@ -70,33 +85,15 @@ extern "C"
       
       pRec->Register("hookcommand", (void*) ReaperExtBase::HookCommandProc);
       pRec->Register("toggleaction", (void*) ReaperExtBase::ToggleActionCallback);
+      pRec->Register("hookcustommenu", (void*) ReaperExtBase::MenuHook);
+      pRec->Register("hookpostcommand", (void*) ReaperExtBase::PostCommandProc);
+      pRec->Register("projectconfig", (void*) &gProjectConfig);
       
+      // Creates the Extensions main menu if it doesn't exist yet. It is populated from
+      // ReaperExtBase::MenuHook(), which REAPER calls with menuidstr "Main extensions".
       AddExtensionsMainMenu();
-      
+
       gParent = pRec->hwnd_main;
-      
-      HMENU hMenu = GetSubMenu(GetMenu(gParent),
-#ifdef OS_WIN
-                               8
-#else // OS X has one extra menu
-                               9
-#endif
-                               );
-      
-      int menuIdx = 6;
-      
-      for(auto& action : gActions)
-      {
-        if(action.addMenuItem)
-        {
-          MENUITEMINFO mi={sizeof(MENUITEMINFO),};
-          mi.fMask = MIIM_TYPE | MIIM_ID;
-          mi.fType = MFT_STRING;
-          mi.dwTypeData = LPSTR(action.accel.desc);
-          mi.wID = action.accel.accel.cmd;
-          InsertMenuItem(hMenu, menuIdx++, TRUE, &mi);
-        }
-      }
 
       return 1;
     }

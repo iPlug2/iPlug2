@@ -27,6 +27,8 @@ IGRAPHICS_EXTRAS_PATH = $(IGRAPHICS_PATH)/Extras
 IPLUG_EXTRAS_PATH = $(IPLUG_PATH)/Extras
 IPLUG_SYNTH_PATH = $(IPLUG_EXTRAS_PATH)/Synth
 IPLUG_WEB_PATH = $(IPLUG_PATH)/WEB
+WEBVIEW_PATH = $(IPLUG_EXTRAS_PATH)/WebView
+NLOHMANN_PATH = $(DEPS_PATH)/Extras/nlohmann
 NANOVG_PATH = $(DEPS_PATH)/IGraphics/NanoVG/src
 NANOSVG_PATH = $(DEPS_PATH)/IGraphics/NanoSVG/src
 YOGA_PATH = $(DEPS_PATH)/IGraphics/yoga
@@ -45,6 +47,10 @@ IGRAPHICS_SRC = $(IGRAPHICS_PATH)/IGraphics.cpp \
 	$(CONTROLS_PATH)/*.cpp \
 	$(PLATFORMS_PATH)/IGraphicsWeb.cpp
 
+# WebView source files (WebView UI module only)
+WEBVIEW_SRC = $(WEBVIEW_PATH)/IPlugWebViewEditorDelegate.cpp \
+	$(WEBVIEW_PATH)/IPlugWebView_web.cpp
+
 # Include paths (no WAM SDK needed)
 INCLUDE_PATHS = -I$(PROJECT_ROOT) \
 -I$(WDL_PATH) \
@@ -52,6 +58,8 @@ INCLUDE_PATHS = -I$(PROJECT_ROOT) \
 -I$(IPLUG_PATH) \
 -I$(IPLUG_EXTRAS_PATH) \
 -I$(IPLUG_WEB_PATH) \
+-I$(WEBVIEW_PATH) \
+-I$(NLOHMANN_PATH) \
 -I$(IGRAPHICS_PATH) \
 -I$(DRAWING_PATH) \
 -I$(CONTROLS_PATH) \
@@ -71,9 +79,14 @@ WASM_DSP_SRC = $(IPLUG_WEB_PATH)/IPlugWasmDSP.cpp \
 	$(IPLUG_PATH)/IPlugProcessor.cpp
 
 # UI module source files (runs on main thread with IGraphics)
+# May be overridden in a per-project config to $(WASM_WEBVIEW_UI_SRC) for WebView builds.
 WASM_UI_SRC = $(IPLUG_WEB_PATH)/IPlugWasmUI.cpp \
 	$(IGRAPHICS_SRC) \
 	$(IGRAPHICS_PATH)/IGraphicsEditorDelegate.cpp
+
+# WebView UI module source files (runs on main thread without IGraphics)
+WASM_WEBVIEW_UI_SRC = $(IPLUG_WEB_PATH)/IPlugWasmUI.cpp \
+	$(WEBVIEW_SRC)
 
 NANOVG_LDFLAGS = -s USE_WEBGL2=0 -s FULL_ES3=1
 
@@ -94,11 +107,20 @@ WASM_DSP_CFLAGS = -DWASM_DSP_API \
 WASM_UI_CFLAGS = -DWASM_UI_API \
 -DIPLUG_EDITOR=1
 
+# WebView UI module CFLAGS
+WEBVIEW_CFLAGS = -DWEBVIEW_EDITOR_DELEGATE \
+-DNO_IGRAPHICS
+
 # DSP module exports (minimal - JS calls via emscripten bindings)
 WASM_DSP_EXPORTS = "['_malloc', '_free']"
 
 # UI module exports
 WASM_UI_EXPORTS = "['_malloc', '_free', '_main', '_iplug_fsready', '_iplug_syncfs', '_iplug_popup_menu_selected']"
+
+# WebView UI module exports
+# Note: _iplug_popup_menu_selected is intentionally omitted - it is defined in
+# IGraphicsWeb.cpp, which the WebView module (built with -DNO_IGRAPHICS) does not link.
+WASM_WEBVIEW_UI_EXPORTS = "['_malloc', '_free', '_main', '_iplug_fsready', '_iplug_syncfs']"
 
 # Common linker flags
 LDFLAGS = -s ALLOW_MEMORY_GROWTH=1 --bind

@@ -161,12 +161,14 @@ class SWELL_DialogRegHelper {
   class SWELL_DialogRegValidator 
   {
     public:
-      SWELL_DialogRegValidator(const SWELL_DlgResourceEntry *recs, size_t recs_sz, int dlg_w, int dlg_h)
+      SWELL_DialogRegValidator(const SWELL_DlgResourceEntry *recs, size_t recs_sz, int dlg_w, int dlg_h, int recid)
       {
         if (recs_sz>1)
         {
           // check for duplicate IDs
+          // also check for multiple DEFPUSHBUTTON
           WDL_IntKeyedArray<bool> tmp;
+          int defpushcnt = 0;
           for (size_t x = 0; x < recs_sz; x ++)
           {
             const SWELL_DlgResourceEntry *list = recs + x;
@@ -176,6 +178,12 @@ class SWELL_DialogRegHelper {
             const int xpos = parms[coord_offs], ypos = parms[coord_offs+1];
             WDL_ASSERT(xpos >= -1);
             WDL_ASSERT(ypos >= -1);
+            if (list->flag1 && !strcmp(list->str1,"__SWELL_BUTTON"))
+            {
+              if (defpushcnt) wdl_log("resource %d has duplicate DEFPUSHBUTTON\n",recid);
+              WDL_ASSERT(!defpushcnt);
+              defpushcnt++;
+            }
 
             // far-bounds check; for old style pre-scaled coordinates this didn't work right (dlg_w/h were scaled)
             // and there are instances where out of bounds controls do make sense.
@@ -187,6 +195,7 @@ class SWELL_DialogRegHelper {
 
             if (idx != 0 && idx != -1)
             {
+              if (tmp.Get(idx)) wdl_log("resource %d has duplicate item ID %d\n",recid, idx);
               WDL_ASSERT(!tmp.Get(idx));
               tmp.Insert(idx,true);
             }
@@ -194,9 +203,9 @@ class SWELL_DialogRegHelper {
         }
       }
   };
-  #define SWELL_VALIDATE_DIALOG_RESOURCE(v,r,w,h) static SWELL_DialogRegValidator v(r+1, sizeof(r)/sizeof(r[0])-1,w,h);
+  #define SWELL_VALIDATE_DIALOG_RESOURCE(v,r,w,h,recid) static SWELL_DialogRegValidator v(r+1, sizeof(r)/sizeof(r[0])-1,w,h,recid);
 #else
-  #define SWELL_VALIDATE_DIALOG_RESOURCE(v,r,w,h)
+  #define SWELL_VALIDATE_DIALOG_RESOURCE(v,r,w,h,recid)
 #endif
 
 
@@ -210,7 +219,7 @@ class SWELL_DialogRegHelper {
 
                                             
 #define SWELL_DEFINE_DIALOG_RESOURCE_END(recid ) }; \
-                              SWELL_VALIDATE_DIALOG_RESOURCE( __swell_dlg_validator__##recid, __swell_dlg_list__##recid, __swell_dlg_helper_##recid.m_rec.width, __swell_dlg_helper_##recid.m_rec.height) \
+                              SWELL_VALIDATE_DIALOG_RESOURCE( __swell_dlg_validator__##recid, __swell_dlg_list__##recid, __swell_dlg_helper_##recid.m_rec.width, __swell_dlg_helper_##recid.m_rec.height, recid) \
                               static void SWELL__dlg_cf__##recid(HWND view, int wflags) { \
                                 SWELL_MakeSetCurParms(__swell_dlg_scale__##recid,__swell_dlg_scale__##recid * (SWELL_DLG_SCALE_AUTOGEN_YADJ),0,0,view,false,!(wflags&SWELL_DLG_WS_NOAUTOSIZE));  \
                                 SWELL_GenerateDialogFromList(__swell_dlg_list__##recid+1,sizeof(__swell_dlg_list__##recid)/sizeof(__swell_dlg_list__##recid[0])-1); \
@@ -233,7 +242,7 @@ class SWELL_DialogRegHelper {
                                        static const SWELL_DlgResourceEntry __swell_dlg_list__##recid[]={
 
 #define SWELL_DEFINE_DIALOG_RESOURCE_END2(recid) }; \
-                              SWELL_VALIDATE_DIALOG_RESOURCE( __swell_dlg_validator__##recid, __swell_dlg_list__##recid, __swell_dlg_helper_##recid.m_rec.width, __swell_dlg_helper_##recid.m_rec.height) \
+                              SWELL_VALIDATE_DIALOG_RESOURCE( __swell_dlg_validator__##recid, __swell_dlg_list__##recid, __swell_dlg_helper_##recid.m_rec.width, __swell_dlg_helper_##recid.m_rec.height, recid) \
                               static void SWELL__dlg_cf__##recid(HWND view, int wflags) { \
                                 SWELL_MakeSetCurParms(0.0 /* use default */,0.0 /* use default */, \
                                     0,0,view,false,!(wflags&SWELL_DLG_WS_NOAUTOSIZE));  \

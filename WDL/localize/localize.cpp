@@ -926,14 +926,21 @@ static void localize_dialog(HWND hwnd, WDL_KeyedArray<WDL_UINT64, char *> *sec)
 #endif
 }
 
+int localizeLastDialogResourceId; // valid only in localizePreInitDialogHook/localizePostInitDialogHook
+const char *localizeLastDialogResourceSub;
+void (*localizePreInitDialogHook)(HWND hwndDlg);
+void (*localizePostInitDialogHook)(HWND hwndDlg);
+
 void __localizeInitializeDialog(HWND hwnd, const char *desc)
 {
   if (!desc || !hwnd || !*desc) return;
+
+  localizeLastDialogResourceId = 0; // we don't know the ID for this context
+  if (localizePreInitDialogHook) localizePreInitDialogHook(hwnd);
   WDL_KeyedArray<WDL_UINT64, char *> *s = g_translations.Get(desc);
   if (s) localize_dialog(hwnd,s);
+  if (localizePostInitDialogHook) localizePostInitDialogHook(hwnd);
 }
-
-void (*localizePreInitDialogHook)(HWND hwndDlg);
 
 static WDL_DLGRET __localDlgProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -945,6 +952,9 @@ static WDL_DLGRET __localDlgProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 
         if (localizePreInitDialogHook)
           localizePreInitDialogHook(hwnd);
+
+        localizeLastDialogResourceId = 0;
+        localizeLastDialogResourceSub = NULL;
 
         if (l[2])
           localize_dialog(hwnd,(WDL_KeyedArray<WDL_UINT64, char *> *)l[2]);
@@ -960,6 +970,8 @@ static WDL_DLGRET __localDlgProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
           }
         }
 #endif
+        if (localizePostInitDialogHook)
+          localizePostInitDialogHook(hwnd);
 
         DLGPROC newproc = (DLGPROC) l[0];
         SetWindowLongPtr(hwnd,DWLP_DLGPROC,(LRESULT) newproc);
@@ -1013,6 +1025,8 @@ DLGPROC __localizePrepareDialog(const char *rescat, HINSTANCE hInstance, const c
     }
 #endif
   }
+  localizeLastDialogResourceId = (int)(INT_PTR)lpTemplate;
+  localizeLastDialogResourceSub = rescat;
 
   ptrs[0] = (void*)dlgProc;
   ptrs[1] = (void*)(INT_PTR)lParam;
@@ -1021,7 +1035,7 @@ DLGPROC __localizePrepareDialog(const char *rescat, HINSTANCE hInstance, const c
 #ifdef WDL_LOCALIZE_HOOK_DLGPROC
   WDL_LOCALIZE_HOOK_DLGPROC
 #endif
-  return (s||s2||(a>0 && localizePreInitDialogHook)) ? __localDlgProc : NULL;
+  return (s||s2||(a>0 && (localizePreInitDialogHook || localizePostInitDialogHook))) ? __localDlgProc : NULL;
 }
 
 HWND __localizeDialog(HINSTANCE hInstance, const char *lpTemplate, HWND hwndParent, DLGPROC dlgProc, LPARAM lParam, int mode)

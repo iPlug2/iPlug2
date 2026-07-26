@@ -1334,7 +1334,8 @@ void WDL_VirtualWnd_PreprocessBGConfig(WDL_VirtualWnd_BGCfg *a)
   }
 
 
-  int flags=0xffff;
+  int flags = 0xffff; // if bit set, fully opaque
+  int flags2 = 0xffff;  // if bit set, fully transparent
   LICE_pixel_chan *ch = (LICE_pixel_chan *) a->bgimage->getBits();
   int span = a->bgimage->getRowSpan()*4;
   if (a->bgimage->isFlipped())
@@ -1343,7 +1344,6 @@ void WDL_VirtualWnd_PreprocessBGConfig(WDL_VirtualWnd_BGCfg *a)
     span=-span;
   }
 
-  // not sure if this works yet -- it needs more testing for sure
   bool isFull=true;
   if (a->bgimage_lt[0] ||a->bgimage_lt[1] || a->bgimage_rb[0] || a->bgimage_rb[1])
   {
@@ -1374,27 +1374,26 @@ void WDL_VirtualWnd_PreprocessBGConfig(WDL_VirtualWnd_BGCfg *a)
     {
       while (xstate<3 && x>=xdivs[xstate]) xstate++;
 
-      if (*chptr != 255)
+      const LICE_pixel_chan v = *chptr;
+      if (v != 255)
       {
-        if (isFull) 
-        {
-          flags=0;
-          break;
-        }
-        else 
-        {
-          flags &= ~(1<<(ystate*4 + xstate));
-          if (!flags) break;
-        }
+        if (isFull) flags=0;
+        else flags &= ~(1<<(ystate*4 + xstate));
       }
+      if (v > 16) // some themes have some junk around 16 here, favor speed over accuracy
+      {
+        if (isFull) flags2=0;
+        else flags2 &= ~(1<<(ystate*4 + xstate));
+      }
+      if (!flags && !flags2) break;
       chptr+=4;
     }
-    if (!flags) break;
+    if (!flags && !flags2) break;
 
     ch += span;
   }
 
-  a->bgimage_noalphaflags=flags;
+  a->bgimage_noalphaflags = flags | (flags2<<16);
 
 }
 
@@ -1564,6 +1563,7 @@ void WDL_VirtualWnd_ScaledBlitBG(LICE_IBitmap *dest,
   }
 
   int no_alpha_flags=src->bgimage_noalphaflags;
+  if (!(mode & LICE_BLIT_USE_ALPHA)) no_alpha_flags &= 0xffff;
   int pass;
   int nbpass = 3;
   if (bottom_margin_out>0) 
@@ -1628,10 +1628,10 @@ void WDL_VirtualWnd_ScaledBlitBG(LICE_IBitmap *dest,
     }
     else if (outh > 0 && inh > 0)
     {
-
       if (no_lr)
       {
-        __VirtClipBlit(clipx,this_clipy,clipright,clipbottom,dest,src->bgimage,destx,outy,
+        if (!(no_alpha_flags & (2<<16)))
+          __VirtClipBlit(clipx,this_clipy,clipright,clipbottom,dest,src->bgimage,destx,outy,
                                 destw,outh,
                              src->bgimage_lt[0]+left_margin_out,iny,
                              sw-src->bgimage_lt[0]-src->bgimage_rb[0]-left_margin_out - right_margin_out,
@@ -1640,7 +1640,7 @@ void WDL_VirtualWnd_ScaledBlitBG(LICE_IBitmap *dest,
       else
       {
         // left 
-        if (left_margin_out>0 && !no_outside)
+        if (left_margin_out>0 && !no_outside && !(no_alpha_flags & (1<<16)))
         {
           __VirtClipBlit(clipx-lmod,this_clipy,clipright,clipbottom,dest,src->bgimage,destx-lmod,outy,lmod,outh,
                                1,iny,left_margin_out,inh,alpha,
@@ -1649,27 +1649,28 @@ void WDL_VirtualWnd_ScaledBlitBG(LICE_IBitmap *dest,
 
         if (!no_inside||is_outer)
         {
-          if (left_margin > 0)
+          if (left_margin > 0 && !(no_alpha_flags & (1<<16)))
             __VirtClipBlit(clipx,this_clipy,clipright,clipbottom,dest,src->bgimage,destx,outy,lm,outh,
                                  1+left_margin_out,iny,src->bgimage_lt[0]-1,inh,alpha,
                                  (no_alpha_flags&1) ? (mode&~LICE_BLIT_USE_ALPHA) :  mode);
 
 
           // center
-          __VirtClipBlit(clipx,this_clipy,clipright,clipbottom,dest,src->bgimage,destx+lm,outy,
-                                  destw-rm-lm,outh,
+          if (!(no_alpha_flags & (2<<16)))
+            __VirtClipBlit(clipx,this_clipy,clipright,clipbottom,dest,src->bgimage,destx+lm,outy,
+                               destw-rm-lm,outh,
                                src->bgimage_lt[0]+left_margin_out,iny,
                                sw-src->bgimage_lt[0]-src->bgimage_rb[0]-right_margin_out-left_margin_out,
                                inh,alpha,(no_alpha_flags&2) ? (mode&~LICE_BLIT_USE_ALPHA) :  mode);
           // right
-          if (right_margin > 0)
+          if (right_margin > 0 && !(no_alpha_flags & (4<<16)))
             __VirtClipBlit(clipx,this_clipy,clipright,clipbottom,dest,src->bgimage,destx+destw-rm,outy, rm,outh,
                                  sw-src->bgimage_rb[0]-right_margin_out,iny,
                                  src->bgimage_rb[0]-1,inh,alpha,(no_alpha_flags&4) ? (mode&~LICE_BLIT_USE_ALPHA) :  mode); 
         }
 
         // right outside area
-        if (right_margin_out>0 && !no_outside)
+        if (right_margin_out>0 && !no_outside && !(no_alpha_flags & (8<<16)))
         {
           __VirtClipBlit(clipx,this_clipy,clipright+rmod,clipbottom,dest,src->bgimage,destx+destw,outy,rmod,outh,
             sw-right_margin_out-1,iny,

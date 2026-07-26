@@ -27,8 +27,6 @@
  ==============================================================================
 */
 
-#pragma once
-
 #include "IPlugWebViewEditorDelegate.h"
 
 using namespace iplug;

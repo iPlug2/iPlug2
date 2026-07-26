@@ -149,6 +149,7 @@ static CGColorRef CreateColor(int col, float alpha=1.0f)
 #include "swell-gdi-internalpool.h"
 
 char g_swell_disable_retina;
+bool g_swell_force_retina;
 
 int SWELL_IsRetinaDC(HDC hdc)
 {
@@ -156,6 +157,7 @@ int SWELL_IsRetinaDC(HDC hdc)
   HDC__ *src=(HDC__*)hdc;
   if (!src || !HDC_VALID(src)) return 0;
   
+  if (g_swell_force_retina) return 1;
   if (!src->ctx) 
   {
 #ifndef SWELL_NO_METAL

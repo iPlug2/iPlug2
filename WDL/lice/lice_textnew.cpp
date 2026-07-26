@@ -539,13 +539,9 @@ LICE_CachedFont::charEnt *LICE_CachedFont::findChar(unsigned int c)
   return (charEnt *)bsearch(&a,m_extracharlist.Get(),m_extracharlist.GetSize(),sizeof(charEnt),_charSortFunc);
 }
 
-bool LICE_CachedFont::DrawGlyph(LICE_IBitmap *bm, unsigned int c, 
+bool LICE_CachedFont::DrawGlyph(LICE_IBitmap *bm, const charEnt *ch,
                                 int xpos, int ypos, const RECT *clipR)
 {
-  charEnt *ch = findChar(c);
-
-  if (!ch) return false;
-
   if (m_flags&LICE_FONT_FLAG_VERTICAL) 
   {
     if ((m_flags&(LICE_FONT_FLAG_VERTICAL|LICE_FONT_FLAG_VERTICAL_BOTTOMUP)) == (LICE_FONT_FLAG_VERTICAL|LICE_FONT_FLAG_VERTICAL_BOTTOMUP))
@@ -1318,12 +1314,12 @@ finish_up_native_render:
       }
     }
 
-    charEnt *ent = findChar(c);
+    const charEnt *ent = findChar(c);
     if (ent && ent->base_offset > 0 && ent->base_offset < m_cachestore.GetSize())
     {
       if (isVertRev) ypos -= ent->height;
 
-      bool drawn = DrawGlyph(bm,c,xpos,ypos,&use_rect);
+      bool drawn = DrawGlyph(bm,ent,xpos,ypos,&use_rect);
 
       if (m_flags&LICE_FONT_FLAG_VERTICAL)
       {

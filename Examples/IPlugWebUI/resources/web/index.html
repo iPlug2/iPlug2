@@ -4,7 +4,29 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style type="text/css">
+    :root {
+      --bg: #f4f6f8;
+      --surface: #ffffff;
+      --surface-subtle: #eef1f5;
+      --surface-hover: #e8edf3;
+      --text: #18202d;
+      --muted-text: #5d6675;
+      --border: #c9ced6;
+      --border-strong: #98a2b3;
+      --accent: #2563eb;
+      --accent-soft: #dbeafe;
+      --success-soft: #e6f6ee;
+      --control-font-size: 14px;
+      --control-min-height: 36px;
+      --control-padding-block: 8px;
+      --control-padding-inline: 16px;
+      --knob-size: 80px;
+      --knob-label-gap: 8px;
+      --knob-value-gap: 8px;
+    }
+
     * {
+      box-sizing: border-box;
       -webkit-touch-callout: none;
       -webkit-user-select: none;
     }
@@ -13,12 +35,39 @@
       pointer-events: none;
     }
     
+    html,
     body {
-      overflow: hidden;
-      padding: 0 20px;
+      width: 100%;
+      height: 100%;
+      margin: 0;
+    }
+
+    body {
+      overflow: auto;
+      padding: 28px;
       -webkit-overflow-scrolling: touch;
-      background-color: #ffffff;
+      background-color: var(--bg);
+      color: var(--text);
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-size: 15px;
+      line-height: 1.4;
+    }
+
+    .ui-shell {
+      width: 100%;
+      max-width: 920px;
+      min-height: calc(100vh - 56px);
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+    }
+
+    h1 {
+      margin: 0 0 20px;
+      color: var(--text);
+      font-size: 28px;
+      line-height: 1.1;
+      font-weight: 700;
     }
   
     .left {
@@ -54,10 +103,14 @@
     }
 
     .dropzone {
-        border: 4px dashed #d1d5db;
-        border-radius: 0.5rem;
+        width: 100%;
+        min-height: 96px;
+        padding: 20px;
+        border: 2px dashed var(--border);
+        border-radius: 8px;
+        color: var(--text);
         text-align: center;
-        background-color: #f3f4f6;
+        background-color: var(--surface-subtle);
         transition: all 0.2s ease;
         display: flex;
         flex-direction: column;
@@ -66,12 +119,12 @@
     }
 
     .dropzone.dragover {
-        border-color: #3b82f6;
-        background-color: #eff6ff;
+        border-color: var(--accent);
+        background-color: var(--accent-soft);
     }
 
     .dropzone.has-file {
-        background-color: #f0fdf4;
+        background-color: var(--success-soft);
     }
 
     .icon {
@@ -83,25 +136,33 @@
     .filename {
         font-size: 1.125rem;
         font-weight: 600;
-        color: #374151;
+        color: var(--text);
         margin: 0.5rem 0;
     }
 
     .filesize {
         font-size: 0.875rem;
-        color: #6b7280;
+        color: var(--muted-text);
         margin-bottom: 1rem;
     }
 
     .file-content {
         cursor: move;
         user-select: none;
+        max-width: 100%;
     }
 
     .drag-instructions {
         font-size: 0.875rem;
-        color: #4b5563;
+        color: var(--muted-text);
         margin-top: 1rem;
+    }
+
+    .instructions {
+        margin: 0;
+        color: var(--text);
+        font-size: 15px;
+        font-weight: 600;
     }
 
     /* Drag image styles */
@@ -110,7 +171,7 @@
         align-items: center;
         gap: 12px;
         padding: 12px;
-        background: white;
+        background: var(--surface);
         border-radius: 8px;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         max-width: 300px;
@@ -125,7 +186,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        background: #4f46e5;
+        background: var(--accent);
         border-radius: 6px;
         padding: 6px;
     }
@@ -145,19 +206,19 @@
 
     .drag-image .file-name {
         font-weight: 500;
-        color: #1f2937;
+        color: var(--text);
         font-size: 14px;
     }
 
     .drag-image .file-type {
-        color: #6b7280;
+        color: var(--muted-text);
         font-size: 12px;
     }
 
     .controls-container {
       display: flex;
       flex-direction: column;
-      gap: 20px;
+      gap: 16px;
     }
 
     .button-group {
@@ -179,19 +240,172 @@
     }
 
     .file-input-group {
-      margin-top: 10px;
+      margin-top: 2px;
     }
 
     input[type="file"] {
-      padding: 10px;
-      border: 2px solid #d1d5db;
+      width: min(100%, 340px);
+      max-width: 100%;
+      padding: 9px 10px;
+      border: 1px solid var(--border);
       border-radius: 6px;
-      /* width: 100%; */
+      color: var(--text);
+      background-color: var(--surface);
+      font: inherit;
     }
 
     button-control,
     knob-control {
       font-family: inherit;
+    }
+
+    .knob-container {
+      display: inline-flex;
+      align-items: center;
+      align-self: flex-start;
+      min-height: 124px;
+      padding: 12px 18px 16px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background-color: var(--surface);
+    }
+
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 24px;
+        margin-bottom: 16px;
+      }
+
+      .controls-container {
+        gap: 14px;
+      }
+
+      .dropzone {
+        min-height: 96px;
+        padding: 18px;
+      }
+
+      .knob-container {
+        padding: 8px 14px 10px;
+      }
+    }
+
+    @media (max-height: 420px) {
+      :root {
+        --control-font-size: 13px;
+        --control-min-height: 32px;
+        --control-padding-block: 6px;
+        --control-padding-inline: 12px;
+        --knob-size: 72px;
+        --knob-label-gap: 6px;
+        --knob-value-gap: 6px;
+      }
+
+      h1 {
+        margin-bottom: 10px;
+        font-size: 21px;
+      }
+
+      .controls-container {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        grid-template-areas:
+          "tests knob"
+          "sizes knob"
+          "links knob"
+          "file knob"
+          "drop knob";
+        gap: 7px 12px;
+        align-items: start;
+      }
+
+      .controls-container > .button-group:nth-of-type(1) {
+        grid-area: tests;
+      }
+
+      .controls-container > .button-group:nth-of-type(2) {
+        grid-area: sizes;
+      }
+
+      .links-group {
+        grid-area: links;
+      }
+
+      .file-input-group {
+        grid-area: file;
+        margin-top: 0;
+      }
+
+      .dropzone {
+        grid-area: drop;
+        min-height: 62px;
+        padding: 10px 12px;
+      }
+
+      .icon {
+        width: 1.75rem;
+        height: 1.75rem;
+        margin-bottom: 2px;
+      }
+
+      .filename {
+        max-width: 100%;
+        margin: 2px 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-size: 13px;
+      }
+
+      .filesize {
+        margin-bottom: 0;
+        font-size: 12px;
+      }
+
+      .drag-instructions {
+        margin-top: 2px;
+        font-size: 12px;
+      }
+
+      .instructions {
+        font-size: 14px;
+      }
+
+      input[type="file"] {
+        width: min(100%, 330px);
+        padding: 7px 9px;
+        font-size: 14px;
+      }
+
+      .button-group,
+      .links-group {
+        gap: 8px;
+      }
+
+      .knob-container {
+        grid-area: knob;
+        align-self: stretch;
+        justify-content: center;
+        min-height: 0;
+        padding: 8px 12px 10px;
+      }
+    }
+
+    @media (max-height: 420px) and (max-width: 420px) {
+      .controls-container {
+        grid-template-columns: 1fr;
+        grid-template-areas:
+          "tests"
+          "sizes"
+          "links"
+          "file"
+          "drop"
+          "knob";
+      }
+
+      .knob-container {
+        align-self: flex-start;
+      }
     }
   </style>
   
@@ -255,47 +469,52 @@
   </script>
 </head>
 <body>
-<h1>IPlugWebView - testing UI</h1>
-<div class="controls-container">
-  <div class="button-group">
-    <button-control onclick="SendTestBinaryData()">Binary Test</button-control>
-    <button-control onclick="SendTestMIDIData()">MIDI Test</button-control>
-  </div>
-  
-  <div class="button-group">
-    <button-control onclick="SAMFUI(0)">Small GUI</button-control>
-    <button-control onclick="SAMFUI(1)">Medium GUI</button-control>
-    <button-control onclick="SAMFUI(2)">Large GUI</button-control>
-  </div>
-  
-  <div class="links-group">
-    <a href="https://iplug2.github.io" target="_blank" class="link-button">
-      <button-control>Open iPlug2 Website</button-control>
-    </a>
-    <button-control onclick="window.location.href='https://github.com/iPlug2/iPlug2/raw/refs/heads/master/Examples/IPlugWebUI/README.md'">
-      Download A File
-    </button-control>
-  </div>
-  
-  <div class="file-input-group">
-    <input type="file" id="textfile" name="textfile" accept="text/*" />
-  </div>
-  
-  <div id="dropzone" class="dropzone">
+<main class="ui-shell">
+  <h1>IPlugWebView - testing UI</h1>
+  <div class="controls-container">
+    <div class="button-group">
+      <button-control onclick="SendTestBinaryData()">Binary Test</button-control>
+      <button-control onclick="SendTestMIDIData()">MIDI Test</button-control>
+    </div>
+
+    <div class="button-group">
+      <button-control onclick="SAMFUI(0)">Small GUI</button-control>
+      <button-control onclick="SAMFUI(1)">Medium GUI</button-control>
+      <button-control onclick="SAMFUI(2)">Large GUI</button-control>
+    </div>
+
+    <div class="links-group">
+      <a href="https://iplug2.github.io" target="_blank" class="link-button">
+        <button-control>Open iPlug2 Website</button-control>
+      </a>
+      <button-control onclick="window.location.href='https://github.com/iPlug2/iPlug2/raw/refs/heads/master/Examples/IPlugWebUI/README.md'">
+        Download A File
+      </button-control>
+    </div>
+
+    <div class="file-input-group">
+      <input type="file" id="textfile" name="textfile" accept="text/*" />
+    </div>
+
+    <div id="dropzone" class="dropzone">
       <div id="initial-content">
         <p class="instructions">Drag and drop a WAV file here</p>
-    </div>
-    <div id="file-content" class="file-content" style="display: none;" draggable="true">
+      </div>
+      <div id="file-content" class="file-content" style="display: none;" draggable="true">
         <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"></path>
         </svg>
+        <p id="filename" class="filename"></p>
+        <p id="filesize" class="filesize"></p>
         <p class="drag-instructions">Drag this anywhere to save the file</p>
+      </div>
+    </div>
+
+    <div class="knob-container">
+      <knob-control label="Gain" param-id=0></knob-control>
     </div>
   </div>
-  <div class="knob-container">
-    <knob-control label="Gain" param-id=0></knob-control>
-  </div>
-</div>
+</main>
 
 <script>
     let currentFile = null;

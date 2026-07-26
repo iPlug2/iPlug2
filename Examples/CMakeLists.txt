@@ -32,4 +32,5 @@ endif()
 # REAPER examples
 set(CMAKE_FOLDER "Examples/REAPER")
 add_subdirectory(IPlugReaperExtension)
+add_subdirectory(IPlugReaperExtensionWebUI)
 add_subdirectory(IPlugReaperPlugin)

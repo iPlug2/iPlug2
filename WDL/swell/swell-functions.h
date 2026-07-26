@@ -266,6 +266,10 @@ SWELL_API_DEFINE(HWND,FindWindowEx,(HWND par, HWND lastw, const char *classname,
 ** than r.top, due to flipped coordinates. SetWindowPos and other functions 
 ** handle negative heights gracefully, and you should too.
 **
+** In order to make the above logic work:
+** GetWindowRect() on a child window will have bottom <= top
+** GetWindowRect() on a top level window will have top < bottom
+**
 ** GetWindowContentViewRect gets the rectangle of the content view (pre-NCCALCSIZE etc)
 */
 SWELL_API_DEFINE(void, ClientToScreen,(HWND hwnd, POINT *p))

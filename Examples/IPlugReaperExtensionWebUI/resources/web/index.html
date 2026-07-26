@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style type="text/css">
+    * {
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+    }
+
+    body {
+      overflow: hidden;
+      margin: 0;
+      padding: 20px;
+      background-color: #2b2b2b;
+      color: #f0f0f0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    h1 {
+      font-size: 1.3rem;
+      margin: 0 0 16px 0;
+    }
+
+    button {
+      display: inline-block;
+      padding: 10px 16px;
+      font-size: 1rem;
+      font-family: inherit;
+      color: #fff;
+      background-color: #3b82f6;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    button:active {
+      background-color: #2563eb;
+    }
+
+    .count {
+      margin-top: 20px;
+      font-size: 1.1rem;
+    }
+
+    #trackcount {
+      font-weight: 600;
+    }
+
+    .section {
+      margin-top: 24px;
+      padding-top: 16px;
+      border-top: 1px solid #444;
+    }
+
+    .section h2 {
+      font-size: 1rem;
+      margin: 0 0 12px 0;
+      color: #cbd5e1;
+    }
+
+    .row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    input[type="range"] {
+      flex: 1;
+    }
+  </style>
+
+  <script src="script.js"></script>
+  <script>
+    // Message tags - must match EMsgTags in IPlugReaperExtensionWebUI.h
+    const kMsgTagAddTrack = 0;
+    const kMsgTagProcessItem = 1;
+    const kMsgTagToggleDock = 2;
+    const kMsgTagSetGain = 3;
+
+    // Stubs for the "from delegate" callbacks that script.js dispatches to.
+    // IPlugReaperExtensionWebUI has no parameters, but OnWebContentLoaded still sends a params message.
+    function OnParamChange(param, value) {}
+    function OnControlChange(ctrlTag, value) {}
+    function OnMessage(msgTag, dataSize, data) {}
+
+    // Called from C++ (IPlugReaperExtensionWebUI::OnIdle) via EvaluateJavaScript
+    function OnTrackCount(n) {
+      const el = document.getElementById("trackcount");
+      if (el) el.textContent = n;
+    }
+
+    // Just updates the label. Used by OnSetGain (C++ -> UI) so it doesn't echo back to C++.
+    function OnGainInput(v) {
+      document.getElementById("gainval").textContent = v + "%";
+    }
+
+    // Slider moved by the user: update the label and push the value to C++ so mGain stays
+    // current (the media-item context-menu action reads it), even if Process is never clicked.
+    function OnGainSlider(v) {
+      OnGainInput(v);
+      SAMFUI(kMsgTagSetGain, parseInt(v));
+    }
+
+    // Called from C++ to set the slider (e.g. after loading a project)
+    function OnSetGain(pct) {
+      document.getElementById("gain").value = pct;
+      OnGainInput(pct);
+    }
+
+    // Called from C++ to reflect whether the window is docked
+    function OnDockState(docked) {
+      document.getElementById("dockbtn").textContent = docked ? "Undock window" : "Dock window";
+    }
+
+    // Send the process request; the gain (0-100) travels in the ctrlTag int.
+    function ProcessSelectedItem() {
+      const pct = parseInt(document.getElementById("gain").value);
+      SAMFUI(kMsgTagProcessItem, pct);
+    }
+  </script>
+</head>
+<body>
+  <h1>IPlugReaperExtensionWebUI</h1>
+
+  <button onclick="SAMFUI(kMsgTagAddTrack)">Add Track</button>
+  <button id="dockbtn" onclick="SAMFUI(kMsgTagToggleDock)">Dock window</button>
+
+  <div class="count">Number of tracks: <span id="trackcount">&ndash;</span></div>
+
+  <div class="section">
+    <h2>Offline processing</h2>
+    <div class="row">
+      <label for="gain">Gain</label>
+      <input type="range" id="gain" min="0" max="100" value="100" oninput="OnGainSlider(this.value)" />
+      <span id="gainval">100%</span>
+    </div>
+    <button onclick="ProcessSelectedItem()">Process Selected Item</button>
+  </div>
+</body>
+</html>

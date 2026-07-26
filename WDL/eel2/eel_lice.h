@@ -379,7 +379,7 @@ public:
   HCURSOR m_cursor;
   int m_cursor_resid;
 #ifdef EEL_LICE_LOADTHEMECURSOR
-  char m_cursor_name[128];
+  WDL_FastString m_cursor_name;
 #endif
 
 #ifndef EEL_LICE_STANDALONE_NOINITQUIT
@@ -415,9 +415,6 @@ eel_lice_state::eel_lice_state(NSEEL_VMCTX vm, void *ctx, int image_slots, int f
   memset(&m_last_undocked_r,0,sizeof(m_last_undocked_r));
 #endif
 
-#ifdef EEL_LICE_LOADTHEMECURSOR
-  m_cursor_name[0]=0;
-#endif
 #endif
   m_user_ctx=ctx;
   m_vmref= vm;
@@ -1750,9 +1747,9 @@ EEL_F eel_lice_state::gfx_setcursor(void* opaque, EEL_F** parms, int nparms)
 #ifdef EEL_LICE_LOADTHEMECURSOR
   if (nparms > 1) p=EEL_STRING_GET_FOR_INDEX(parms[1][0], NULL);
 
-  if (strncmp(p?p:"",m_cursor_name,sizeof(m_cursor_name)-1))
+  if (strcmp(p?p:"",m_cursor_name.Get()))
   {
-    lstrcpyn(m_cursor_name, p?p:"", sizeof(m_cursor_name));
+    m_cursor_name.Set(p?p:"");
     chg = true;
   }
 #endif
