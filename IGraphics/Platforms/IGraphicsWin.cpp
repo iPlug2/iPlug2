@@ -1687,8 +1687,17 @@ bool IGraphicsWin::OpenURL(const char* url, const char* msgWindowTitle, const ch
   {
     return false;
   }
+  // Connectivity only bears on a NETWORK url. A file: url -- a plugin opening a
+  // manual it extracted next to itself, say -- is on this machine, and gating it
+  // on InternetGetConnectedState meant it silently would not open with no
+  // connection. That API is also unreliable in its own right: VPN-only and some
+  // metered configurations report no connection while http works fine.
+  //
+  // Same split IGraphicsMac and IGraphicsIOS already make on this argument.
+  const bool isNetworkURL = url && strstr(url, "http") != nullptr;
+
   DWORD inetStatus = 0;
-  if (InternetGetConnectedState(&inetStatus, 0))
+  if (!isNetworkURL || InternetGetConnectedState(&inetStatus, 0))
   {
     if (ShellExecuteW(mPlugWnd, L"open", UTF8AsUTF16(url).Get(), 0, 0, SW_SHOWNORMAL) > HINSTANCE(32))
     {
