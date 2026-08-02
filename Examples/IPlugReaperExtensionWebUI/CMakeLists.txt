@@ -55,20 +55,10 @@ iplug_add_target(${PROJECT_NAME} PUBLIC
 )
 
 # Configure as REAPER extension (sets up output, deployment, etc.)
-iplug_configure_reaperext(${PROJECT_NAME} ${PROJECT_NAME})
-
-# Deploy the WebView UI next to the extension so Release builds can load index.html at runtime.
-# (In Debug the extension loads directly from the source tree via __FILE__.) The destination
-# subfolder must match SHARED_RESOURCES_SUBPATH in config.h.
-if(IPLUG_DEPLOY_PLUGINS)
-  iplug_get_default_deploy_path(REAPEREXT)
-  if(IPLUG_DEPLOY_PATH_REAPEREXT)
-    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-      COMMAND ${CMAKE_COMMAND} -E copy_directory
-        "${PROJECT_DIR}/resources/web"
-        "${IPLUG_DEPLOY_PATH_REAPEREXT}/IPlugReaperExtensionWebUI"
-      COMMENT "Deploying WebView UI to ${IPLUG_DEPLOY_PATH_REAPEREXT}/IPlugReaperExtensionWebUI"
-      VERBATIM
-    )
-  endif()
-endif()
+# WEB_RESOURCES_DIR deploys the WebView UI next to the extension so Release builds can load
+# index.html at runtime. (In Debug the extension loads from the source tree via __FILE__.)
+# The destination subfolder is the project name, which must match SHARED_RESOURCES_SUBPATH
+# in config.h.
+iplug_configure_reaperext(${PROJECT_NAME} ${PROJECT_NAME}
+  WEB_RESOURCES_DIR ${PROJECT_DIR}/resources/web
+)
