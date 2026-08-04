@@ -27,6 +27,9 @@ using namespace iplug;
 #include <shellapi.h>
 
 // Include stb_image_write for PNG saving
+// STBIW_WINDOWS_UTF8 makes it open UTF-8 paths via _wfopen, matching the
+// UTF-8 screenshot path parsed from the wide command line below
+#define STBIW_WINDOWS_UTF8
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "../../Dependencies/IGraphics/STB/stb_image_write.h"
 
@@ -153,26 +156,24 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
 
     IPlugAPPHost* pAppHost = IPlugAPPHost::Create();
 
-    // Parse command line arguments
-    if (lpszCmdParam && lpszCmdParam[0])
+    // Parse command line arguments from the wide command line, so that quoted
+    // arguments (paths with spaces) and non-ASCII characters survive
+    int argc = 0;
+    LPWSTR* argv = CommandLineToArgvW(GetCommandLineW(), &argc);
+    if (argv)
     {
-      char* args = _strdup(lpszCmdParam);
-      char* token = strtok(args, " ");
-      while (token)
+      for (int i = 1; i < argc; i++)
       {
-        if (strcmp(token, "--screenshot") == 0)
+        if (wcscmp(argv[i], L"--screenshot") == 0 && (i + 1) < argc)
         {
-          token = strtok(nullptr, " ");
-          if (token)
-            pAppHost->SetScreenshotPath(token);
+          pAppHost->SetScreenshotPath(UTF16AsUTF8(argv[++i]).Get());
         }
-        else if (strcmp(token, "--no-io") == 0)
+        else if (wcscmp(argv[i], L"--no-io") == 0)
         {
           pAppHost->SetNoIO(true);
         }
-        token = strtok(nullptr, " ");
       }
-      free(args);
+      LocalFree(argv);
     }
 
     // Screenshot mode implies --no-io
