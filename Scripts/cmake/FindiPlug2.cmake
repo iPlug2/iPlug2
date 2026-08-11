@@ -175,6 +175,7 @@ function(iplug_configure_target target target_type project_name)
     APP
     VST2
     VST3
+    VST3ARA
     CLAP
     AUv2
     AAX
@@ -230,9 +231,15 @@ function(iplug_configure_target target target_type project_name)
   cmake_language(CALL iplug_configure_${function_suffix} ${target} ${project_name})
 
   # Auto-deploy main plugin formats (skip AUv3 intermediate targets)
-  set(DEPLOYABLE_TYPES APP VST2 VST3 CLAP AUv2 AAX)
+  set(DEPLOYABLE_TYPES APP VST2 VST3 VST3ARA CLAP AUv2 AAX)
   if(${target_type} IN_LIST DEPLOYABLE_TYPES)
-    iplug_deploy_target(${target} ${target_type} ${project_name})
+    # An ARA target produces a regular .vst3 bundle, so deploy it as VST3
+    if(${target_type} STREQUAL "VST3ARA")
+      set(deploy_format VST3)
+    else()
+      set(deploy_format ${target_type})
+    endif()
+    iplug_deploy_target(${target} ${deploy_format} ${project_name})
   endif()
 
   # Debuggable plugin types

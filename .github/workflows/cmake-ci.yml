@@ -252,6 +252,9 @@ jobs:
             cmake --build --preset macos-xcode $TARGETS
           fi
 
+      - name: Build ARA Example
+        run: cmake --build --preset macos-xcode --target IPlugARAExample-vst3-ara
+
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -331,6 +334,9 @@ jobs:
             done
             cmake --build --preset windows-vs2022 $TARGETS
           fi
+
+      - name: Build ARA Example
+        run: cmake --build --preset windows-vs2022 --target IPlugARAExample-vst3-ara
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
