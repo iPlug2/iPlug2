@@ -1,0 +1,4 @@
+// Minimal resource script for the VST3 build - embeds the UI font,
+// since loose resource files cannot be loaded from a VST3 bundle on Windows
+#include "..\config.h"
+ROBOTO_FN TTF ROBOTO_FN
