@@ -352,6 +352,9 @@ public:
    * @return /c true if double clicks should be mapped to single clicks */
   bool GetMouseDblAsSingleClick() const { return mDblAsSingleClick; }
 
+  /** Get whether right click should present host context menu. Useful to provide custom right-click functionality to multi-parameter controls. */
+  bool GetRightClickContextMenu() const {return mRightClickContextMenu; }
+
   /** Shows or hides the IControl.
    * @param hide Set to \c true to hide the control */
   virtual void Hide(bool hide);
@@ -555,6 +558,7 @@ protected:
   bool mDisabled = false;
   bool mDisablePrompt = true;
   bool mDblAsSingleClick = false;
+  bool mRightClickContextMenu = true;
   bool mMouseOverWhenDisabled = false;
   bool mMouseEventsWhenDisabled = false;
   bool mIgnoreMouse = false;
