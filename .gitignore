@@ -52,3 +52,15 @@ Examples/*/build*
 Tests/*/build*
 build/*
 .claude/settings.local.json
+
+# ---------------------------------------------------------------------------
+# John Crosby: local project folders, not part of this repo.
+#   JohnCrosby/  - plugin projects (BigBro, Zorro2 are their own repos)
+#   JoCr/        - repo: John-Crosby/ouranos7-linux (+ OuranosWaveMaker)
+#   JCFreeware/  - freeware plugin projects
+#   JCLegacy/    - archived/legacy plugin projects
+# ---------------------------------------------------------------------------
+/JohnCrosby/
+/JoCr/
+/JCFreeware/
+/JCLegacy/
