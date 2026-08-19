@@ -156,7 +156,10 @@ void IPlugAPPHost::PopulateDriverSpecificControls(HWND hwndDlg)
 
 #ifdef OS_WIN
   if (driverType == kDeviceASIO)
+  {
     SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_IN_DEV,CB_SETCURSEL, outdevidx, 0);
+    indevidx = outdevidx;
+  }
   else
 #endif
     SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_IN_DEV,CB_SETCURSEL, indevidx, 0);
