@@ -266,6 +266,22 @@ END_IPLUG_NAMESPACE
   #endif
 #endif
 
+#ifdef ARA_API
+  #ifndef VST3_API
+    #error ARA_API must be defined alongside VST3_API - ARA is an extension of a single component VST3 plug-in, not a standalone format
+  #endif
+
+  #ifndef ARA_FACTORY_ID
+    #pragma message WARN("ARA_FACTORY_ID not defined, using default based on bundle ID")
+    #define ARA_FACTORY_ID BUNDLE_DOMAIN "." BUNDLE_MFR "." BUNDLE_NAME ".arafactory"
+  #endif
+
+  #ifndef ARA_DOC_ARCHIVE_ID
+    #pragma message WARN("ARA_DOC_ARCHIVE_ID not defined, using default based on bundle ID")
+    #define ARA_DOC_ARCHIVE_ID BUNDLE_DOMAIN "." BUNDLE_MFR "." BUNDLE_NAME ".aradocumentarchive.1"
+  #endif
+#endif
+
 #ifdef AU_API
   #ifndef AUV2_ENTRY
     #error AUV2_ENTRY not defined - the name of the entry point for a component manager AUv2 plug-in, without quotes

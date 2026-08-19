@@ -27,6 +27,7 @@ Format names:
   APP        - Standalone application (no embedded AUv3 by default)
   VST2       - VST2 plugin (if SDK available) - DEPRECATED
   VST3       - VST3 plugin
+  VST3_ARA   - ARA-enabled VST3 plugin (ARA SDK fetched on demand) - use instead of VST3, not alongside it
   CLAP       - CLAP plugin (if SDK available)
   AAX        - AAX plugin (if SDK available)
   AU         - AUv2 (macOS only)
@@ -136,6 +137,18 @@ function(_iplug_create_desktop_targets plugin_name formats sources ui_lib resour
     iplug_configure_target(${plugin_name}-vst3 VST3 ${plugin_name})
     _iplug_add_resources(${plugin_name}-vst3 "${resources}")
     _iplug_add_web_resources(${plugin_name}-vst3 "${web_resources}")
+  endif()
+
+  # ARA-enabled VST3 (fetches the ARA SDK on demand)
+  if("VST3_ARA" IN_LIST formats)
+    include(${IPLUG2_CMAKE_DIR}/ARA.cmake)
+    add_library(${plugin_name}-vst3-ara MODULE ${sources})
+    iplug_add_target(${plugin_name}-vst3-ara PUBLIC
+      LINK iPlug2::VST3 iPlug2::ARA ${ui_lib} ${base_lib}
+    )
+    iplug_configure_target(${plugin_name}-vst3-ara VST3ARA ${plugin_name})
+    _iplug_add_resources(${plugin_name}-vst3-ara "${resources}")
+    _iplug_add_web_resources(${plugin_name}-vst3-ara "${web_resources}")
   endif()
 
   # CLAP (conditional on SDK availability)
@@ -428,7 +441,7 @@ macro(iplug_add_plugin plugin_name)
   endif()
 
   # Validate FORMATS
-  set(_iplug_valid_formats APP VST2 VST3 CLAP AAX AU AUV3 WAM WASM_DSP WASM_UI)
+  set(_iplug_valid_formats APP VST2 VST3 VST3_ARA CLAP AAX AU AUV3 WAM WASM_DSP WASM_UI)
   set(_iplug_valid_format_groups ALL ALL_PLUGINS ALL_DESKTOP MINIMAL_PLUGINS DESKTOP WEB WASM)
   if(PLUGIN_FORMATS)
     foreach(_fmt ${PLUGIN_FORMATS})

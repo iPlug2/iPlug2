@@ -26,6 +26,47 @@ set(IPLUG_AAX_DEPLOY_PATH "" CACHE PATH "Override default AAX deployment path")
 set(IPLUG_APP_DEPLOY_PATH "" CACHE PATH "Override default APP deployment path")
 set(IPLUG_REAPEREXT_DEPLOY_PATH "" CACHE PATH "Override default REAPER extension deployment path")
 
+# macOS code signing identity applied to deployed bundles.
+# "-" means ad-hoc, which is all that is needed to load a plug-in locally.
+# Set to a "Developer ID Application: ..." identity to produce a distributable signature.
+if(APPLE)
+  set(IPLUG_CODESIGN_IDENTITY "-" CACHE STRING "macOS signing identity for deployed plug-ins ('-' = ad-hoc, empty = don't sign)")
+endif()
+
+#------------------------------------------------------------------------
+# _iplug_codesign_bundle (internal)
+# Sign a bundle in place after it has been deployed.
+#
+# With the Xcode generator this is required rather than merely convenient:
+# CMake POST_BUILD commands become a build phase, and Xcode's own CodeSign
+# step runs after every build phase, so the deploy copy would otherwise
+# capture an unsigned binary alongside the previous build's stale
+# _CodeSignature, which macOS rejects outright.
+#
+# @param target     The CMake target
+# @param dest_path  Full path to the deployed bundle
+# @param label      Name used in the progress message
+#------------------------------------------------------------------------
+function(_iplug_codesign_bundle target dest_path label)
+  if(NOT APPLE OR "${IPLUG_CODESIGN_IDENTITY}" STREQUAL "")
+    return()
+  endif()
+
+  # Ad-hoc signatures cannot carry a secure timestamp; real identities want one
+  if("${IPLUG_CODESIGN_IDENTITY}" STREQUAL "-")
+    set(timestamp_flag "--timestamp=none")
+  else()
+    set(timestamp_flag "--timestamp")
+  endif()
+
+  add_custom_command(TARGET ${target} POST_BUILD
+    COMMAND /usr/bin/codesign --force --sign "${IPLUG_CODESIGN_IDENTITY}" ${timestamp_flag}
+            --generate-entitlement-der "${dest_path}"
+    COMMENT "[iPlug2] Codesigning ${label} (${IPLUG_CODESIGN_IDENTITY})"
+    VERBATIM
+  )
+endfunction()
+
 #------------------------------------------------------------------------
 # iplug_get_default_deploy_path
 # Get the default deployment path for a plugin format
@@ -158,6 +199,7 @@ function(_iplug_copy_plugin target source_path dest_dir plugin_name is_bundle)
       COMMAND ${CMAKE_COMMAND} -E copy_directory "${source_path}" "${dest_path}"
       COMMENT "[iPlug2] Deploying ${plugin_name} (copy)"
     )
+    _iplug_codesign_bundle(${target} "${dest_path}" "${plugin_name}")
   else()
     add_custom_command(TARGET ${target} POST_BUILD
       COMMAND ${CMAKE_COMMAND} -E echo "[iPlug2] Copying plugin: ${dest_path}"
