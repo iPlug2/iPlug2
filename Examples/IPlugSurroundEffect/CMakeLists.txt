@@ -9,6 +9,8 @@ include(${IPLUG2_DIR}/iPlug2.cmake)
 find_package(iPlug2 REQUIRED)
 
 iplug_add_plugin(${PROJECT_NAME}
+  DEFINES
+    CUSTOM_BUSTYPE_FUNC
   SOURCES
     IPlugSurroundEffect.cpp
     IPlugSurroundEffect.h
