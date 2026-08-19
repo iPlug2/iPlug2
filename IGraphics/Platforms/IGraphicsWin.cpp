@@ -1035,8 +1035,28 @@ EMsgBoxResult IGraphicsWin::ShowMessageBox(const char* str, const char* title, E
 void* IGraphicsWin::OpenWindow(void* pParent)
 {
   mParentWnd = (HWND) pParent;
-  int screenScale = GetScaleForHWND(mParentWnd);
-  int x = 0, y = 0, w = WindowWidth() * screenScale, h = WindowHeight() * screenScale;
+  // GetScaleForHWND returns a float, and on Windows the fractional scalings are
+  // the common ones: 125%, 150% and 175% are all offered by the Settings app.
+  // Truncating to int made all three arrive here as 1.0, so the view was created
+  // unscaled and SetScreenScale was told 1.0. Only 100% and 200% survived the cast
+  // intact.
+  //
+  // Nothing stayed wrong: the paint tick in Draw() re-reads the true scale, spots
+  // the disagreement and calls SetScreenScale again, and PlatformResize then grows
+  // the view and its parent to the size they should have had. The end geometry is
+  // the same either way -- measured, not assumed. What the cast cost was a second
+  // pass: SetScreenScale runs OnRescale over every control and DrawResize, and
+  // LayoutUI is called just below here, so all of that happened once at 1.0 and
+  // again at the real scale a frame later.
+  //
+  // The two products below are truncated rather than rounded on purpose:
+  // PlatformResize computes the same WindowWidth() * GetScreenScale() and
+  // truncates, and if these two disagreed it would see a non-zero delta and
+  // resize a window that is already the size it wants.
+  const float screenScale = GetScaleForHWND(mParentWnd);
+  int x = 0, y = 0;
+  int w = static_cast<int>(WindowWidth() * screenScale);
+  int h = static_cast<int>(WindowHeight() * screenScale);
 
   if (mPlugWnd)
   {
