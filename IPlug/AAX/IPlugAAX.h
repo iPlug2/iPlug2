@@ -119,6 +119,15 @@ public:
    */
   void DirtyPTCompareState() { mNumPlugInChanges++; }
 
+protected:
+  double mMeterLevelIn = 0.;
+  double mMeterLevelOut = 0.;
+  double mMeterLevelGR = 0.;
+
+  double GetInputBufferMaxValue (AAX_SIPlugRenderInfo* pRenderInfo, int nFrames);
+  double GetOutputBufferMaxValue (AAX_SIPlugRenderInfo* pRenderInfo, int nFrames);
+  void SetGRBufferMaxValue(double x) { mMeterLevelGR = x; };
+
 private:
   AAX_CParameter<bool>* mBypassParameter = nullptr;
   AAX_ITransport* mTransport = nullptr;
