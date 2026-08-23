@@ -1951,13 +1951,16 @@ private:
    * @return The remaining portion of the original rectangle */
   IRECT Shrink(const IRECT &r, const IRECT &i)
   {
-    if (i.L != r.L)
-      return IRECT(r.L, r.T, i.L, r.B);
-    if (i.T != r.T)
-      return IRECT(r.L, r.T, r.R, i.T);
-    if (i.R != r.R)
-      return IRECT(i.R, r.T, r.R, r.B);
-    return IRECT(r.L, i.B, r.R, r.B);
+    IRECT o = r;
+    if      (i.L != r.L && i.R == r.R)
+      o.R = i.L;
+    else if (i.T != r.T && i.B == r.B)
+      o.B = i.T;
+    else if (i.R != r.R && i.L == r.L)
+      o.L = i.R;
+    else if (i.B != r.B && i.T == r.T)
+      o.T = i.B;
+    return o;
   }
   
   /** Splits a rectangle around an intersection, adding one part to the list
