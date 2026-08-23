@@ -20,6 +20,7 @@
 #include "IBubbleControl.h"
 
 #include <map>
+#include <cassert>
 
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
@@ -108,13 +109,16 @@ class IVTabbedPagesControl : public IContainerBase, public IVectorBase
 public:
   IVTabbedPagesControl(const IRECT& bounds, const PageMap& pages, const char* label = "",
                        const IVStyle& style = DEFAULT_STYLE, float tabBarHeight = 20.0f,
-                       float tabBarFrac = 0.5f, EAlign tabsAlign = EAlign::Near)
+                       float tabBarFrac = 0.5f, EAlign tabsAlign = EAlign::Near, EVAlign tabBarVAlign = EVAlign::Top)
   : IContainerBase(bounds)
   , IVectorBase(style.WithDrawFrame(false).WithDrawShadows(false))
   , mTabBarHeight(tabBarHeight)
   , mTabBarFrac(tabBarFrac)
   , mTabsAlign(tabsAlign)
+  , mTabsVAlign(tabBarVAlign)
   {
+    assert(mTabsVAlign != EVAlign::Middle);
+    
     AttachIControl(this, label);
     
     for (auto& page : pages)
@@ -138,13 +142,13 @@ public:
     }
     else
     {
-      ForAllPagesFunc([&](IVTabPage* pPage) {
+      ForAllPagesFunc([&](IVTabPage* pPage, int index) {
         pPage->Hide(true);
       });
       
       // Show the tabs and first page
-      GetTabSwitchControl()->Hide(false);
-      GetPage(GetTabSwitchControl()->GetSelectedIdx())->Hide(false);
+      GetSwitchControl()->Hide(false);
+      GetPage(GetSelectedIdx())->Hide(false);
     }
     
     IControl::Hide(hide);
@@ -169,22 +173,27 @@ public:
   void OnAttached() override
   {    
     // Set up tabs
-    AddChildControl(new IVTabSwitchControl(GetTabBarArea(),
+//    AddChildControl(new IVTabSwitchControl(GetTabBarArea(),
+//    [&](IControl* pCaller) {
+//      ShowSelectedPage();
+//    }, mPageNames, "", GetStyle().WithWidgetFrac(1.0f)));
+    
+    AddChildControl(new IVMenuButtonControl(GetTabBarArea(),
     [&](IControl* pCaller) {
       ShowSelectedPage();
-    }, mPageNames, "", GetStyle().WithWidgetFrac(1.0f)));
+    }, mPageNames, "", GetStyle(), EVShape::Rectangle, GetLabelStr()));
     
-    GetTabSwitchControl()->SetShape(EVShape::EndsRounded);
+//    GetSwitchControl()->As<IVectorBase>()->SetShape(EVShape::EndsRounded);
     
     // Add all pages, set their bounds and hide them
-    ForAllPagesFunc([&](IVTabPage* pPage) {
+    ForAllPagesFunc([&](IVTabPage* pPage, int index) {
       AddChildControl(pPage);
       pPage->SetTargetAndDrawRECTs(GetPageArea());
       pPage->Hide(true);
     });
     
     // Show the tabs and first page
-    GetTabSwitchControl()->Hide(false);
+    GetSwitchControl()->Hide(false);
     GetPage(0)->Hide(false);
   }
   
@@ -197,9 +206,9 @@ public:
       }
     });
     
-    auto adjustedStyle = GetStyle().WithDrawFrame(false).WithDrawShadows(false);
-    GetTabSwitchControl()->SetStyle(adjustedStyle.WithWidgetFrac(1.0));
-    GetTabSwitchControl()->SetShape(EVShape::EndsRounded);
+//    auto adjustedStyle = GetStyle().WithDrawFrame(false).WithDrawShadows(false);
+//    GetSwitchControl()->As<IVectorBase>()->SetStyle(adjustedStyle.WithWidgetFrac(1.0));
+//    GetSwitchControl()->As<IVectorBase>()->SetShape(EVShape::EndsRounded);
   }
   
   void OnResize() override
@@ -208,9 +217,9 @@ public:
     
     if (NChildren())
     {
-      GetTabSwitchControl()->SetTargetAndDrawRECTs(GetTabBarArea());
+      GetSwitchControl()->SetTargetAndDrawRECTs(GetTabBarArea());
       
-      ForAllPagesFunc([&](IVTabPage* pPage) {
+      ForAllPagesFunc([&](IVTabPage* pPage, int index) {
         pPage->SetTargetAndDrawRECTs(GetPageArea());
       });
     }
@@ -218,11 +227,18 @@ public:
   
   float GetTabHeight() const { return mTabBarHeight; }
 
-  IRECT GetPageArea() const { return mWidgetBounds.GetReducedFromTop(GetTabHeight()); }
+  IRECT GetPageArea() const
+  {
+    return mTabsVAlign == EVAlign::Top ? mWidgetBounds.GetReducedFromTop(GetTabHeight()) :
+                                         mWidgetBounds.GetReducedFromBottom(GetTabHeight());
+  }
 
   IRECT GetTabBarArea() const
   {
-    return mWidgetBounds.GetFromTop(GetTabHeight()).FracRectHorizontal(mTabBarFrac, mTabsAlign == EAlign::Far);
+    const auto tabBarArea = mTabsVAlign == EVAlign::Top ? mWidgetBounds.GetFromTop(GetTabHeight()) :
+                                                          mWidgetBounds.GetFromBottom(GetTabHeight());
+    
+    return tabBarArea.FracRectHorizontal(mTabBarFrac, mTabsAlign == EAlign::Far);
   }
   
   int NPages() const { return mPages.GetSize(); }
@@ -235,30 +251,29 @@ private:
     mPages.Add(pPage);
   }
   
-  void ForAllPagesFunc(std::function<void(IVTabPage* pControl)> func)
+  void ForAllPagesFunc(std::function<void(IVTabPage* pControl, int index)> func)
   {
     for (int i=0; i<mPages.GetSize(); i++)
     {
-      func(mPages.Get(i));
+      func(mPages.Get(i), i);
     }
   }
   
-  IVTabSwitchControl* GetTabSwitchControl() { return GetChild(0)->As<IVTabSwitchControl>(); }
+  IControl* GetSwitchControl() { return GetChild(0)->As<IControl>(); }
   
   IVTabPage* GetPage(int pageIdx) { return mPages.Get(pageIdx); }
 
   void SelectPage(int index)
   {
-    GetTabSwitchControl()->SetValue(static_cast<double>(index));
+    GetSwitchControl()->SetValue(static_cast<double>(index));
     ShowSelectedPage();
   }
   
 private:
   void ShowSelectedPage()
   {
-    ForAllPagesFunc([&](IVTabPage* pPage) {
-      bool hide = strcmp(GetTabSwitchControl()->GetSelectedLabelStr(),
-                                         pPage->GetLabelStr());
+    ForAllPagesFunc([&](IVTabPage* pPage, int index) {
+      const bool hide = index != GetSelectedIdx();
       pPage->Hide(hide);
     });
     
@@ -268,11 +283,14 @@ private:
     }
   }
   
+  int GetSelectedIdx() { return int(0.5 + GetSwitchControl()->GetValue() * (double) (mPages.GetSize() - 1)); }
+  
   WDL_PtrList<IVTabPage> mPages;
   std::vector<const char*> mPageNames;
   float mTabBarHeight;
   float mTabBarFrac;
   EAlign mTabsAlign;
+  EVAlign mTabsVAlign;
 };
 
 END_IGRAPHICS_NAMESPACE
