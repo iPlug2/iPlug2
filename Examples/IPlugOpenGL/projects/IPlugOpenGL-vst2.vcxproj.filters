@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\IPlugOpenGL.cpp" />
+    <ClCompile Include="..\..\..\IPlug\IPlugAPIBase.cpp">
+      <Filter>IPlug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\IPlugParameter.cpp">
+      <Filter>IPlug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\IPlugProcessor.cpp">
+      <Filter>IPlug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\VST2\IPlugVST2.cpp">
+      <Filter>IPlug\VST2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\IPlugPluginBase.cpp">
+      <Filter>IPlug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\IPlugTimer.cpp">
+      <Filter>IPlug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\IPlugPaths.cpp">
+      <Filter>IPlug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Dependencies\Extras\pugl\src\common.c">
+      <Filter>pugl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Dependencies\Extras\pugl\src\internal.c">
+      <Filter>pugl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Dependencies\Extras\pugl\src\win.c">
+      <Filter>pugl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Dependencies\Extras\pugl\src\win_gl.c">
+      <Filter>pugl\src</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="../config.h" />
+    <ClInclude Include="..\IPlugOpenGL.h" />
+    <ClInclude Include="..\..\..\IPlug\IPlugAPIBase.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugConstants.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugLogger.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugMidi.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugPlatform.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugParameter.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugStructs.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugUtilities.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlug_include_in_plug_hdr.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlug_include_in_plug_src.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\resources\resource.h">
+      <Filter>resources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugProcessor.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugEditorDelegate.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Dependencies\IPlug\VST2_SDK\aeffect.h">
+      <Filter>IPlug\VST2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Dependencies\IPlug\VST2_SDK\aeffectx.h">
+      <Filter>IPlug\VST2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\VST2\IPlugVST2.h">
+      <Filter>IPlug\VST2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugTimer.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugPaths.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugPluginBase.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\ISender.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Dependencies\Extras\pugl\src\internal.h">
+      <Filter>pugl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Dependencies\Extras\pugl\src\win.h">
+      <Filter>pugl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Dependencies\Extras\pugl\include\pugl\attributes.h">
+      <Filter>pugl\include\pugl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Dependencies\Extras\pugl\include\pugl\cairo.h">
+      <Filter>pugl\include\pugl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Dependencies\Extras\pugl\include\pugl\gl.h">
+      <Filter>pugl\include\pugl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Dependencies\Extras\pugl\include\pugl\glu.h">
+      <Filter>pugl\include\pugl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Dependencies\Extras\pugl\include\pugl\pugl.h">
+      <Filter>pugl\include\pugl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Dependencies\Extras\pugl\include\pugl\stub.h">
+      <Filter>pugl\include\pugl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Dependencies\Extras\pugl\include\pugl\vulkan.h">
+      <Filter>pugl\include\pugl</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="IPlug">
+      <UniqueIdentifier>{2425d7db-3821-4242-b5c9-db34bda176ce}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="resources">
+      <UniqueIdentifier>{340070a8-76f3-47eb-9d5f-c13785b65579}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IPlug\VST2">
+      <UniqueIdentifier>{35a9e026-dde0-499a-9432-4ee1754ffba8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="config">
+      <UniqueIdentifier>{8c338368-7512-426b-af83-0f50719ca0bd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="pugl">
+      <UniqueIdentifier>{4f844057-f239-4e0c-844c-836b7c4ce962}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="pugl\src">
+      <UniqueIdentifier>{fee7ec0d-7c6c-4da0-b723-e6446f1ed832}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="pugl\include">
+      <UniqueIdentifier>{33af4bda-e358-4508-b099-28b9a623ee9d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="pugl\include\pugl">
+      <UniqueIdentifier>{e71ebc8a-80f6-4b00-bdc3-fe228c0cb7e0}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\resources\main.rc">
+      <Filter>resources</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\config\IPlugOpenGL-web.mk">
+      <Filter>config</Filter>
+    </None>
+    <None Include="..\config\IPlugOpenGL-win.props">
+      <Filter>config</Filter>
+    </None>
+    <None Include="..\config\IPlugOpenGL-mac.xcconfig">
+      <Filter>config</Filter>
+    </None>
+    <None Include="..\config\IPlugOpenGL-ios.xcconfig">
+      <Filter>config</Filter>
+    </None>
+  </ItemGroup>
+</Project>

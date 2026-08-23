@@ -1,0 +1,190 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\IPlugOpenGL.cpp" />
+    <ClCompile Include="..\..\..\IPlug\AAX\IPlugAAX.cpp">
+      <Filter>IPlug\AAX</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\AAX\IPlugAAX_Describe.cpp">
+      <Filter>IPlug\AAX</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\AAX\IPlugAAX_Parameters.cpp">
+      <Filter>IPlug\AAX</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Dependencies\IPlug\AAX_SDK\Interfaces\AAX_Exports.cpp">
+      <Filter>IPlug\AAX</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\IPlugAPIBase.cpp">
+      <Filter>IPlug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\IPlugParameter.cpp">
+      <Filter>IPlug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\IPlugPaths.cpp">
+      <Filter>IPlug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\IPlugPluginBase.cpp">
+      <Filter>IPlug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\IPlugProcessor.cpp">
+      <Filter>IPlug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\IPlugTimer.cpp">
+      <Filter>IPlug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Dependencies\Extras\pugl\src\common.c">
+      <Filter>pugl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Dependencies\Extras\pugl\src\internal.c">
+      <Filter>pugl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Dependencies\Extras\pugl\src\win.c">
+      <Filter>pugl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Dependencies\Extras\pugl\src\win_gl.c">
+      <Filter>pugl\src</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\IPlugOpenGL.h" />
+    <ClInclude Include="..\resources\resource.h">
+      <Filter>resources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\AAX\IPlugAAX.h">
+      <Filter>IPlug\AAX</Filter>
+    </ClInclude>
+    <ClInclude Include="..\config.h" />
+    <ClInclude Include="..\..\..\IPlug\AAX\IPlugAAX_TaperDelegate.h">
+      <Filter>IPlug\AAX</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\AAX\IPlugAAX_Parameters.h">
+      <Filter>IPlug\AAX</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlug_include_in_plug_hdr.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlug_include_in_plug_src.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugAPIBase.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugConstants.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugDelegate_select.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugEditorDelegate.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugLogger.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugMidi.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugParameter.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugPaths.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugPlatform.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugPluginBase.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\ISender.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugProcessor.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugQueue.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugStructs.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugTimer.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugUtilities.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Dependencies\Extras\pugl\src\internal.h">
+      <Filter>pugl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Dependencies\Extras\pugl\src\win.h">
+      <Filter>pugl\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Dependencies\Extras\pugl\include\pugl\attributes.h">
+      <Filter>pugl\include\pugl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Dependencies\Extras\pugl\include\pugl\cairo.h">
+      <Filter>pugl\include\pugl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Dependencies\Extras\pugl\include\pugl\gl.h">
+      <Filter>pugl\include\pugl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Dependencies\Extras\pugl\include\pugl\glu.h">
+      <Filter>pugl\include\pugl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Dependencies\Extras\pugl\include\pugl\pugl.h">
+      <Filter>pugl\include\pugl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Dependencies\Extras\pugl\include\pugl\stub.h">
+      <Filter>pugl\include\pugl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Dependencies\Extras\pugl\include\pugl\vulkan.h">
+      <Filter>pugl\include\pugl</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="resources">
+      <UniqueIdentifier>{a579504a-f161-47bd-bd30-7f18317f0e93}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IPlug">
+      <UniqueIdentifier>{047ecfad-1a55-49a2-8621-1a4ad2905606}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IPlug\AAX">
+      <UniqueIdentifier>{1fc481f5-85f5-43e6-924f-2be0689a4710}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="config">
+      <UniqueIdentifier>{464e659e-834a-453a-9150-dbaf783f8307}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="pugl">
+      <UniqueIdentifier>{9466a497-973f-4e6f-b511-7e19053144de}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="pugl\src">
+      <UniqueIdentifier>{149c92cb-0629-4138-bff7-dfa3c2ca24f1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="pugl\include">
+      <UniqueIdentifier>{919e8aea-e402-4228-9978-a6ddd9b2ab1c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="pugl\include\pugl">
+      <UniqueIdentifier>{034799d1-ec87-4079-b30a-d654991c5b84}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\resources\main.rc">
+      <Filter>resources</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\config\IPlugOpenGL-ios.xcconfig">
+      <Filter>config</Filter>
+    </None>
+    <None Include="..\config\IPlugOpenGL-web.mk">
+      <Filter>config</Filter>
+    </None>
+    <None Include="..\config\IPlugOpenGL-win.props">
+      <Filter>config</Filter>
+    </None>
+    <None Include="..\config\IPlugOpenGL-mac.xcconfig">
+      <Filter>config</Filter>
+    </None>
+  </ItemGroup>
+</Project>

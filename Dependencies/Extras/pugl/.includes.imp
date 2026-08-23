@@ -1,0 +1,7 @@
+[
+  { "include": [ "<ext/alloc_traits.h>", "private", "<string>", "public", ] },
+  { "include": [ "<ext/alloc_traits.h>", "private", "<vector>", "public", ] },
+  { "symbol":  [ "std::uintptr_t", "private", "<cstdint>", "public" ] },
+  { "symbol":  [ "timespec", "private", "<time.h>", "public" ] },
+  { "symbol":  [ "timeval", "private", "<time.h>", "public" ] }
+]

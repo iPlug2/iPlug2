@@ -1,0 +1,18 @@
+# Copyright 2020-2022 David Robillard <d@drobilla.net>
+# SPDX-License-Identifier: 0BSD OR ISC
+
+Checks: >
+  *,
+  -altera*,
+  -clang-diagnostic-unused-macros,
+  -cppcoreguidelines-pro-bounds-pointer-arithmetic,
+  -cppcoreguidelines-pro-type-reinterpret-cast,
+  -google-runtime-references,
+  -hicpp-named-parameter,
+  -llvmlibc-*,
+  -modernize-use-trailing-return-type,
+  -readability-identifier-length,
+  -readability-implicit-bool-conversion,
+  -readability-named-parameter,
+FormatStyle: file
+HeaderFilterRegex: 'pugl/.*'
