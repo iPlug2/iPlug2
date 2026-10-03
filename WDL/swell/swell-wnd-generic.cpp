@@ -67,7 +67,7 @@ static void ime_preedit_end_cb(GtkIMContext *im_context, gpointer user_data);
 
 static bool swell_im_preedit_paint(struct __SWELL_editControlState *es, HWND hwnd,
                              int &sel1, int &sel2, int &cursor_pos,
-                             WDL_FastString *title_out); // returns true if title_out should be used
+                             WDL_FastString *title_out, const WDL_FastString *orig_title); // returns true if title_out should be used
 static int swell_im_hwnd_want(HWND hwnd); // returns 1 if edit, 2 if combo, 3 for generic
 #endif
 
@@ -2865,7 +2865,7 @@ again:
 
 #ifdef SWELL_SUPPORT_GTK
           WDL_FastString tmp_im;
-          if (swell_im_preedit_paint(es, hwnd, sel1, sel2, cursor_pos, &tmp_im))
+          if (swell_im_preedit_paint(es, hwnd, sel1, sel2, cursor_pos, &tmp_im, title_orig))
             title = &tmp_im;
 #endif
           if (multiline)
@@ -3842,7 +3842,7 @@ popupMenu:
             r.left -= s->editstate.scroll_x;
 #ifdef SWELL_SUPPORT_GTK
             WDL_FastString tmp;
-            if (swell_im_preedit_paint(&s->editstate, hwnd, sel1, sel2, cursor_pos, &tmp))
+            if (swell_im_preedit_paint(&s->editstate, hwnd, sel1, sel2, cursor_pos, &tmp, &hwnd->m_title))
               title = &tmp;
 #endif
             editControlPaintLine(ps.hdc, title->Get(), title->GetLength(),
@@ -9012,12 +9012,12 @@ void swell_im_update_candidates_location()
   swell_gtk_im_context_set_cursor_location(swell_ime_context, &preedit_area);
 }
 
-static bool swell_im_preedit_paint(__SWELL_editControlState *es, HWND hwnd, int &sel1, int &sel2, int &cursor_pos, WDL_FastString *title_out)
+static bool swell_im_preedit_paint(__SWELL_editControlState *es, HWND hwnd, int &sel1, int &sel2, int &cursor_pos, WDL_FastString *title_out, const WDL_FastString *orig_title)
 {
   if (!hwnd || swell_ime_target != hwnd || !swell_ime_context) return false;
   if (!swell_ime_preedit_str) return false;
 
-  cursor_pos = wdl_clamp(cursor_pos, 0, hwnd->m_title.GetLength());
+  cursor_pos = wdl_clamp(cursor_pos, 0, orig_title->GetLength());
 
   const char *preedit_text = (const char *)swell_ime_preedit_str;
   const int preedit_byte_len = preedit_text ? strlen(preedit_text) : 0;
@@ -9028,11 +9028,11 @@ static bool swell_im_preedit_paint(__SWELL_editControlState *es, HWND hwnd, int 
   if (sel1 == sel2)
   {
     if (cursor_pos > 0)
-      title_out->Set(hwnd->m_title.Get(), cursor_pos);
+      title_out->Set(orig_title->Get(), cursor_pos);
     else
       title_out->Set("");
     if (preedit_text) title_out->Append(preedit_text);
-    title_out->Append(hwnd->m_title.Get() + cursor_pos);
+    title_out->Append(orig_title->Get() + cursor_pos);
     sel1 = cursor_pos;
     cursor_pos += preedit_byte_len;
     sel2 = cursor_pos;
@@ -9040,17 +9040,17 @@ static bool swell_im_preedit_paint(__SWELL_editControlState *es, HWND hwnd, int 
   }
   else if (sel2 > sel1)
   {
-    if (WDL_NOT_NORMALLY(sel1 < 0 || sel2 > hwnd->m_title.GetLength())) return false;
+    if (WDL_NOT_NORMALLY(sel1 < 0 || sel2 > orig_title->GetLength())) return false;
     if (sel1 > 0)
-      title_out->Set(hwnd->m_title.Get(), sel1);
+      title_out->Set(orig_title->Get(), sel1);
     else title_out->Set("");
     if (preedit_text) title_out->Append(preedit_text);
-    title_out->Append(hwnd->m_title.Get() + sel2);
+    title_out->Append(orig_title->Get() + sel2);
     cursor_pos = sel2 = sel1 + preedit_byte_len;
     scroll_pos = es->sel1 + preedit_len;
   }
   else
-    title_out->Set(hwnd->m_title.Get());
+    title_out->Set(orig_title->Get());
 
   title_out->SwapContentsWith(&hwnd->m_title);
   es->autoScrollToOffset(hwnd, scroll_pos, is_multiline, is_word_wrap);
