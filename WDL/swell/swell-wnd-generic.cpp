@@ -57,6 +57,7 @@ extern void (*swell_gtk_im_context_get_preedit_string)(GtkIMContext *, gchar **,
 extern GtkIMContext *(*swell_gtk_im_multicontext_new)(void);
 extern void (*swell_gtk_im_context_set_cursor_location)(GtkIMContext *, const GdkRectangle *);
 extern void (*swell_gtk_im_context_set_client_window)(GtkIMContext *context, GdkWindow *window);
+extern void (*swell_gtk_im_context_set_surrounding)(GtkIMContext *context,  const gchar *text, gint len, gint cursor_index);
 GtkIMContext *swell_ime_context;
 HWND swell_ime_target;
 static int swell_ime_preedit_state;
@@ -64,6 +65,8 @@ static gchar *swell_ime_preedit_str;
 static void ime_commit_cb(GtkIMContext *im_context, const gchar *str, gpointer user_data);
 static void ime_preedit_changed_cb(GtkIMContext *im_context, gpointer user_data);
 static void ime_preedit_end_cb(GtkIMContext *im_context, gpointer user_data);
+static gboolean ime_retrieve_surrounding_cb(GtkIMContext *im_context, gpointer user_data);
+static gboolean ime_delete_surrounding_cb(GtkIMContext *im_context, int offset, int n_chars, gpointer user_data);
 
 static bool swell_im_preedit_paint(struct __SWELL_editControlState *es, HWND hwnd,
                              int &sel1, int &sel2, int &cursor_pos,
@@ -7816,6 +7819,11 @@ LRESULT DefWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
               g_signal_connect(swell_ime_context, "commit", G_CALLBACK(ime_commit_cb), NULL);
               g_signal_connect(swell_ime_context, "preedit-changed", G_CALLBACK(ime_preedit_changed_cb), NULL);
               g_signal_connect(swell_ime_context, "preedit-end", G_CALLBACK(ime_preedit_end_cb), NULL);
+              if (swell_gtk_im_context_set_surrounding)
+              {
+                g_signal_connect(swell_ime_context, "retrieve-surrounding", G_CALLBACK(ime_retrieve_surrounding_cb), NULL);
+                g_signal_connect(swell_ime_context, "delete-surrounding", G_CALLBACK(ime_delete_surrounding_cb), NULL);
+              }
             }
           }
 
@@ -8957,6 +8965,45 @@ static void ime_preedit_end_cb(GtkIMContext *im_context, gpointer user_data) // 
   g_free(swell_ime_preedit_str);
   swell_ime_preedit_str=NULL;
   InvalidateRect(hwnd, NULL, FALSE);
+}
+
+static gboolean ime_retrieve_surrounding_cb(GtkIMContext *im_context, gpointer user_data)
+{
+  HWND hwnd = swell_ime_target;
+  if (!hwnd) return false;
+
+  if (!swell_gtk_im_context_set_surrounding) return false;
+
+  const int type = swell_im_hwnd_want(hwnd);
+  __SWELL_editControlState *es = NULL;
+  if (type == 2)
+    es = &((__SWELL_ComboBoxInternalState*)hwnd->m_private_data)->editstate;
+  else if (type == 1)
+    es = (__SWELL_editControlState*)hwnd->m_private_data;
+
+  if (!es) return false;
+
+  swell_gtk_im_context_set_surrounding(im_context,
+      hwnd->m_title.Get(),
+      hwnd->m_title.GetLength(),
+      utf8fs_charpos_to_bytepos(&hwnd->m_title,es->cursor_pos));
+  return true;
+}
+
+static gboolean ime_delete_surrounding_cb(GtkIMContext *im_context, int offset, int n_chars, gpointer user_data)
+{
+  HWND hwnd = swell_ime_target;
+  if (!hwnd) return false;
+
+  int index1 = utf8fs_charpos_to_bytepos(&hwnd->m_title,offset);
+  int index2 = utf8fs_charpos_to_bytepos(&hwnd->m_title,offset+n_chars);
+  if (index2>index1)
+  {
+    hwnd->m_title.DeleteSub(index1,index2-index1);
+    InvalidateRect(hwnd,NULL,FALSE);
+  }
+
+  return true;
 }
 
 void swell_im_update_candidates_location()

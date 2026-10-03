@@ -404,6 +404,7 @@ void (*swell_gtk_im_context_set_client_window)(GtkIMContext *context, GdkWindow 
 void (*swell_gtk_im_context_get_preedit_string)(GtkIMContext *, gchar **, PangoAttrList **, gint *);
 void (*swell_gtk_im_context_focus_in)(GtkIMContext *);
 void (*swell_gtk_im_context_focus_out)(GtkIMContext *);
+void (*swell_gtk_im_context_set_surrounding)(GtkIMContext *context,  const gchar *text, gint len, gint cursor_index);
 #endif
 
 #ifdef SWELL_SUPPORT_GTK
@@ -422,6 +423,7 @@ bool SWELL_load_gtk(void)
     *(void **)&swell_gtk_im_context_get_preedit_string = dlsym(RTLD_DEFAULT, "gtk_im_context_get_preedit_string");
     *(void **)&swell_gtk_im_context_focus_in = dlsym(RTLD_DEFAULT, "gtk_im_context_focus_in");
     *(void **)&swell_gtk_im_context_focus_out = dlsym(RTLD_DEFAULT, "gtk_im_context_focus_out");
+    *(void **)&swell_gtk_im_context_set_surrounding = dlsym(RTLD_DEFAULT, "gtk_im_context_set_surrounding");
   }
 
   if (swell_gtk_init_check && swell_gtk_main_do_event)
@@ -455,6 +457,7 @@ bool SWELL_load_gtk(void)
     swell_gtk_im_context_get_preedit_string = NULL;
     swell_gtk_im_context_focus_in = NULL;
     swell_gtk_im_context_focus_out = NULL;
+    swell_gtk_im_context_set_surrounding = NULL;
     SWELL_gdk_active = 3;
   }
   return SWELL_gdk_active == 2;
