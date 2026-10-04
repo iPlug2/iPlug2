@@ -419,6 +419,9 @@ HFONT CreateFont(int lfHeight, int lfWidth, int lfEscapement, int lfOrientation,
   if (lfWidth<0) lfWidth=-lfWidth;
   if (lfHeight >= -1 && lfHeight <= 1) lfHeight = -12; // reasonable default
 
+  font->wid = lfWidth;
+  font->color = lfHeight;
+
   static WDL_PtrList<fontConfigCacheEnt> cache;
   const int cache_flag = wdl_max(lfWeight,0) | (lfItalic ? (1<<30) : 0);
   FT_Face face=NULL;
@@ -976,6 +979,81 @@ BOOL GetTextMetrics(HDC ctx, TEXTMETRIC *tm)
   return 1;
 }
 
+#ifdef SWELL_FREETYPE
+
+static WDL_PtrList<HGDIOBJ__> s_glyph_font_fallbacks;
+static void init_glyph_fallbacks()
+{
+  static bool s_init;
+  if (s_init) return;
+  s_init = true;
+  const char *n = "missing_glyph_fontlist";
+  char buf[8192];
+  GetPrivateProfileString(".swell",n,"",buf,sizeof(buf),"");
+  if (!buf[0])
+  {
+    WritePrivateProfileString(".swell",n,"# semicolon delimited list of fonts for missing glyphs, e.g. Noto Sans CJK SC;Noto Sans CJK HK","");
+    return;
+  }
+
+  char *p = buf;
+  while (*p && *p != '#')
+  {
+    while (*p == ' ' || *p == '\t') p++;
+    if (!*p || *p == '#') break;
+    char *np = p;
+    while (*np && *np != '#' && *np != ';') np++;
+    char *ep = np - 1;
+    if (*np == '#') *np = 0;
+    else if (*np) *np++ = 0;
+
+    while (ep >= p && (*ep == '\t' || *ep == ' ')) *ep-- = 0;
+    if (*p)
+    {
+      HFONT f = CreateFont(-16,0,0,0,0,0,0,0,0,0,0,0,0,p);
+      if (f) s_glyph_font_fallbacks.Add(f);
+    }
+    p = np;
+  }
+}
+
+static int Load_Char_Fallback(HGDIOBJ__ *srcfont, FT_Face &face, int c, int flags) // true on failure
+{
+  if (!FT_Get_Char_Index(face,c))
+  {
+    init_glyph_fallbacks();
+    // try fallbacks
+    for (int i = 0; i < s_glyph_font_fallbacks.GetSize(); i ++)
+    {
+      HGDIOBJ__ *p = s_glyph_font_fallbacks.Get(i);
+      if (WDL_NORMALLY(p && HGDIOBJ_VALID(p,TYPE_FONT)))
+      {
+        FT_Face f=(FT_Face) p->typedata;
+        if (f && FT_Get_Char_Index(f,c))
+        {
+          if (WDL_NORMALLY(srcfont))
+          {
+            int lfHeight = srcfont->color, lfWidth = srcfont->wid, hf64;
+            if (lfHeight > 0)
+              hf64 = (int) (lfHeight * (double)f->units_per_EM / (double)(f->height) * 64.0 + 0.5);
+            else
+              hf64 = -lfHeight * 64;
+            FT_Set_Char_Size(f,lfWidth*64, hf64,0,0);
+          }
+
+          if (!FT_Load_Char(f,c,flags))
+          {
+            face = f;
+            return 0;
+          }
+        }
+      }
+    }
+  }
+
+  return FT_Load_Char(face,c,flags);
+}
+#endif
 
 int DrawText(HDC ctx, const char *buf, int buflen, RECT *r, int align)
 {
@@ -1039,10 +1117,11 @@ int DrawText(HDC ctx, const char *buf, int buflen, RECT *r, int align)
         if (font)
         {
 #ifdef SWELL_FREETYPE
-          if (c != '\t' && !FT_Load_Char(face, c, FT_LOAD_DEFAULT) && face->glyph)
+          FT_Face useface = face;
+          if (c != '\t' && !Load_Char_Fallback(font, useface, c, FT_LOAD_DEFAULT) && useface->glyph)
           {
             // measure character
-            FT_GlyphSlot g = face->glyph;
+            FT_GlyphSlot g = useface->glyph;
             int rext = xpos;
             if ((align&(DT_BOTTOM|DT_VCENTER|DT_CENTER|DT_RIGHT))!=DT_RIGHT)
               rext += (g->metrics.width + g->metrics.horiBearingX)/64;
@@ -1167,9 +1246,10 @@ int DrawText(HDC ctx, const char *buf, int buflen, RECT *r, int align)
       if (font)
       {
 #ifdef SWELL_FREETYPE
-        if (c != '\t' && !FT_Load_Char(face, c, FT_LOAD_RENDER) && face->glyph)
+        FT_Face useface = face;
+        if (c != '\t' && !Load_Char_Fallback(font, useface, c, FT_LOAD_RENDER) && useface->glyph)
         {
-          FT_GlyphSlot g = face->glyph;
+          FT_GlyphSlot g = useface->glyph;
           const int ha = g->metrics.horiAdvance/64;
           if (bgmode==OPAQUE) LICE_FillRect(surface,xpos,ypos,ha,(align & DT_SINGLELINE) ? (ascent-descent) : lineh,bgcol,1.0f,LICE_BLIT_MODE_COPY);
   

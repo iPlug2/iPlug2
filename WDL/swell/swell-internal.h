@@ -964,6 +964,7 @@ struct HGDIOBJ__
   int type;
   int additional_refcnt; // refcnt of 0 means one owner (if >0, additional owners)
 
+   // for freetype fonts, these will get lfHeight/lfWidth set (for glyph fallbacks)
   int color;
   int wid;
 
