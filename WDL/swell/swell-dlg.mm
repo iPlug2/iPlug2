@@ -1375,7 +1375,7 @@ static id<MTLDevice> mtl_def_device()
 }
 
 #define SIZE_IN_LAYOUT_VERSION 0x1300 // macOS 0x1070 (10.7)+ should support this, but doesn't seem to be needed for macOS 12 at least. (confirmed needed on 26)
-#define SIZE_IN_LAYOUT() (SWELL_GetOSXVersion() >= SIZE_IN_LAYOUT_VERSION && ![self isHiddenOrHasHiddenAncestor])
+#define SIZE_IN_LAYOUT() (SWELL_GetOSXVersion() >= SIZE_IN_LAYOUT_VERSION && [[self window] contentView] == self && ![self isHiddenOrHasHiddenAncestor])
 
 - (void)layout
 {
