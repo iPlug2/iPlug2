@@ -164,16 +164,12 @@ static LRESULT SWELL_SendMouseMessageImpl(SWELL_hwndChild *slf, int msg, NSEvent
   if (slf->m_hashaddestroy||!slf->m_wndproc) return -1;
   
   NSPoint swellProcessMouseEvent(int msg, NSView *view, NSEvent *event);
-  
-  NSPoint pt = swellProcessMouseEvent(msg,slf,theEvent);
-  unsigned short xpos=(int)floor(pt.x + 0.5);
-  unsigned short ypos=(int)floor(pt.y + 0.5);
-  
+
   LRESULT htc=HTCLIENT;
   if (msg != WM_MOUSEWHEEL && msg != WM_MOUSEHWHEEL && !capv) 
   { 
-    DWORD p=GetMessagePos(); 
-    htc=slf->m_wndproc((HWND)slf,WM_NCHITTEST,0,p); 
+    const LONG p = NSPOINT_TO_LONG([[theEvent window] convertBaseToScreen:[theEvent locationInWindow]]);
+    htc=slf->m_wndproc((HWND)slf,WM_NCHITTEST,0,p);
     if (slf->m_hashaddestroy||!slf->m_wndproc) return -1; // if somehow WM_NCHITTEST destroyed us, bail
     
     if (htc!=HTCLIENT) 
@@ -194,16 +190,13 @@ static LRESULT SWELL_SendMouseMessageImpl(SWELL_hwndChild *slf, int msg, NSEvent
   int l=0;
   if (msg == WM_MOUSEWHEEL || msg == WM_MOUSEHWHEEL)
   {
+    const LONG p = NSPOINT_TO_LONG([[theEvent window] convertBaseToScreen:[theEvent locationInWindow]]);
     float dw = (msg == WM_MOUSEWHEEL ? [theEvent deltaY] : [theEvent deltaX]);
     l = MAKELONG(0, (int)(dw*60.0));
-    // put todo: modifiers into low word of l?
-    
-    POINT p;
-    GetCursorPos(&p);
-    return slf->m_wndproc((HWND)slf,msg,l,MAKELONG(p.x&0xffff,p.y));
+    return slf->m_wndproc((HWND)slf,msg,l,p);
   }
 
-  LRESULT ret=slf->m_wndproc((HWND)slf,msg,l,MAKELONG(xpos&0xffff,ypos));
+  LRESULT ret=slf->m_wndproc((HWND)slf,msg,l, NSPOINT_TO_LONG(swellProcessMouseEvent(msg,slf,theEvent)));
   
   if (msg==WM_LBUTTONUP || msg==WM_RBUTTONUP || msg==WM_MOUSEMOVE || msg==WM_MBUTTONUP) {
     if (!GetCapture() && (slf->m_hashaddestroy || !slf->m_wndproc || !slf->m_wndproc((HWND)slf,WM_SETCURSOR,(WPARAM)slf,MAKELONG(htc,msg)))) {
