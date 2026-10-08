@@ -156,48 +156,46 @@ static void swellRenderOptimizely(int passflags, SWELL_hwndChild *view, HDC hdc,
 static LRESULT SWELL_SendMouseMessage(SWELL_hwndChild *slf, int msg, NSEvent *event);
 static LRESULT SWELL_SendMouseMessageImpl(SWELL_hwndChild *slf, int msg, NSEvent *theEvent)
 {
- 
   NSView *capv=(NSView *)GetCapture();
   if (capv && capv != slf && [capv window] == [slf window] && [capv isKindOfClass:[SWELL_hwndChild class]])
     return SWELL_SendMouseMessage((SWELL_hwndChild*)capv,msg,theEvent);
-  
-  if (slf->m_hashaddestroy||!slf->m_wndproc) return -1;
-  
-  NSPoint swellProcessMouseEvent(int msg, NSView *view, NSEvent *event);
 
-  LRESULT htc=HTCLIENT;
-  if (msg != WM_MOUSEWHEEL && msg != WM_MOUSEHWHEEL && !capv) 
-  { 
-    const LONG p = NSPOINT_TO_LONG([[theEvent window] convertBaseToScreen:[theEvent locationInWindow]]);
-    htc=slf->m_wndproc((HWND)slf,WM_NCHITTEST,0,p);
-    if (slf->m_hashaddestroy||!slf->m_wndproc) return -1; // if somehow WM_NCHITTEST destroyed us, bail
-    
-    if (htc!=HTCLIENT) 
-    { 
-      if (msg==WM_MOUSEMOVE) return slf->m_wndproc((HWND)slf,WM_NCMOUSEMOVE,htc,p); 
-      if (msg==WM_LBUTTONUP) return slf->m_wndproc((HWND)slf,WM_NCLBUTTONUP,htc,p); 
-      if (msg==WM_LBUTTONDOWN) return slf->m_wndproc((HWND)slf,WM_NCLBUTTONDOWN,htc,p); 
-      if (msg==WM_LBUTTONDBLCLK) return slf->m_wndproc((HWND)slf,WM_NCLBUTTONDBLCLK,htc,p); 
-      if (msg==WM_RBUTTONUP) return slf->m_wndproc((HWND)slf,WM_NCRBUTTONUP,htc,p); 
-      if (msg==WM_RBUTTONDOWN) return slf->m_wndproc((HWND)slf,WM_NCRBUTTONDOWN,htc,p); 
-      if (msg==WM_RBUTTONDBLCLK) return slf->m_wndproc((HWND)slf,WM_NCRBUTTONDBLCLK,htc,p); 
-      if (msg==WM_MBUTTONUP) return slf->m_wndproc((HWND)slf,WM_NCMBUTTONUP,htc,p); 
-      if (msg==WM_MBUTTONDOWN) return slf->m_wndproc((HWND)slf,WM_NCMBUTTONDOWN,htc,p); 
-      if (msg==WM_MBUTTONDBLCLK) return slf->m_wndproc((HWND)slf,WM_NCMBUTTONDBLCLK,htc,p); 
-    } 
-  } 
-  
-  int l=0;
+  if (slf->m_hashaddestroy||!slf->m_wndproc) return -1;
+
   if (msg == WM_MOUSEWHEEL || msg == WM_MOUSEHWHEEL)
   {
     const LONG p = NSPOINT_TO_LONG([[theEvent window] convertBaseToScreen:[theEvent locationInWindow]]);
     float dw = (msg == WM_MOUSEWHEEL ? [theEvent deltaY] : [theEvent deltaX]);
-    l = MAKELONG(0, (int)(dw*60.0));
+    int l = MAKELONG(0, (int)(dw*60.0));
     return slf->m_wndproc((HWND)slf,msg,l,p);
   }
 
-  LRESULT ret=slf->m_wndproc((HWND)slf,msg,l, NSPOINT_TO_LONG(swellProcessMouseEvent(msg,slf,theEvent)));
-  
+  LRESULT htc=HTCLIENT;
+  if (!capv)
+  {
+    const LONG p = NSPOINT_TO_LONG([[theEvent window] convertBaseToScreen:[theEvent locationInWindow]]);
+    htc=slf->m_wndproc((HWND)slf,WM_NCHITTEST,0,p);
+    if (slf->m_hashaddestroy||!slf->m_wndproc) return -1; // if somehow WM_NCHITTEST destroyed us, bail
+
+    if (htc!=HTCLIENT)
+    {
+      if (msg==WM_MOUSEMOVE) return slf->m_wndproc((HWND)slf,WM_NCMOUSEMOVE,htc,p);
+      if (msg==WM_LBUTTONUP) return slf->m_wndproc((HWND)slf,WM_NCLBUTTONUP,htc,p);
+      if (msg==WM_LBUTTONDOWN) return slf->m_wndproc((HWND)slf,WM_NCLBUTTONDOWN,htc,p);
+      if (msg==WM_LBUTTONDBLCLK) return slf->m_wndproc((HWND)slf,WM_NCLBUTTONDBLCLK,htc,p);
+      if (msg==WM_RBUTTONUP) return slf->m_wndproc((HWND)slf,WM_NCRBUTTONUP,htc,p);
+      if (msg==WM_RBUTTONDOWN) return slf->m_wndproc((HWND)slf,WM_NCRBUTTONDOWN,htc,p);
+      if (msg==WM_RBUTTONDBLCLK) return slf->m_wndproc((HWND)slf,WM_NCRBUTTONDBLCLK,htc,p);
+      if (msg==WM_MBUTTONUP) return slf->m_wndproc((HWND)slf,WM_NCMBUTTONUP,htc,p);
+      if (msg==WM_MBUTTONDOWN) return slf->m_wndproc((HWND)slf,WM_NCMBUTTONDOWN,htc,p);
+      if (msg==WM_MBUTTONDBLCLK) return slf->m_wndproc((HWND)slf,WM_NCMBUTTONDBLCLK,htc,p);
+    }
+  }
+
+  NSPoint swellProcessMouseEvent(int msg, NSView *view, NSEvent *event);
+
+  LRESULT ret=slf->m_wndproc((HWND)slf,msg,0, NSPOINT_TO_LONG(swellProcessMouseEvent(msg,slf,theEvent)));
+
   if (msg==WM_LBUTTONUP || msg==WM_RBUTTONUP || msg==WM_MOUSEMOVE || msg==WM_MBUTTONUP) {
     if (!GetCapture() && (slf->m_hashaddestroy || !slf->m_wndproc || !slf->m_wndproc((HWND)slf,WM_SETCURSOR,(WPARAM)slf,MAKELONG(htc,msg)))) {
       NSCursor *arr= [NSCursor arrowCursor];
