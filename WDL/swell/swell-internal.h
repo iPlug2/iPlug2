@@ -779,6 +779,13 @@ static WDL_STATICFUNC_UNUSED void NSRECT_TO_RECT(RECT *r, const NSRect &tr)
   r->top=(int)floor(tr.origin.y+0.5);
   r->bottom=(int)floor(tr.origin.y+tr.size.height+0.5);
 }
+static WDL_STATICFUNC_UNUSED LONG NSPOINT_TO_LONG(const NSPoint &pt)
+{
+  const int x = (int)floor(pt.x+0.5);
+  const int y = (int)floor(pt.y+0.5);
+  return MAKELONG(x&0xffff,y&0xffff);
+}
+
 #endif
 
 
