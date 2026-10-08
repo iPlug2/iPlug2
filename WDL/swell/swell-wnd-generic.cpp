@@ -8852,7 +8852,7 @@ void VALIDATE_HWND_LIST(HWND listHead, HWND par)
 #endif
 
 
-LRESULT SWELL_SendMouseMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+LRESULT SWELL_SendMouseMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, int x_root, int y_root)
 {
   if (!hwnd || !hwnd->m_wndproc) return -1;
   if (!IsWindowEnabled(hwnd))
@@ -8871,7 +8871,7 @@ LRESULT SWELL_SendMouseMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
   LRESULT htc=0;
   if (msg != WM_MOUSEWHEEL && !GetCapture())
   {
-    DWORD p=GetMessagePos();
+    DWORD p=MAKELONG(x_root&0xffff, y_root&0xffff);
 
     htc=hwnd->m_wndproc(hwnd,WM_NCHITTEST,0,p);
     if (hwnd->m_hashaddestroy||!hwnd->m_wndproc)

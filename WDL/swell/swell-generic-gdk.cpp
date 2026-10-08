@@ -962,7 +962,7 @@ static guint swell_gdkConvertKey(guint key, bool *extended)
   return 0;
 }
 
-LRESULT SWELL_SendMouseMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+LRESULT SWELL_SendMouseMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, int x_root, int y_root);
 
 static int hex_parse(char c)
 {
@@ -1549,7 +1549,7 @@ static void OnMotionEvent(GdkEventMotion *m)
     POINT p2={(int)m->x_root, (int)m->y_root};
     ScreenToClient(hwnd, &p2);
     if (hwnd) hwnd->Retain();
-    SWELL_SendMouseMessage(hwnd, WM_MOUSEMOVE, 0, MAKELPARAM(p2.x, p2.y));
+    SWELL_SendMouseMessage(hwnd, WM_MOUSEMOVE, 0, MAKELPARAM(p2.x, p2.y), (int)m->x_root, (int)m->y_root);
     if (hwnd) hwnd->Release();
   }
 }
@@ -1573,7 +1573,7 @@ static void OnScrollEvent(GdkEventScroll *b)
       int v = (b->direction == GDK_SCROLL_UP || b->direction == GDK_SCROLL_LEFT) ? 120 : -120;
 
       if (hwnd) hwnd->Retain();
-      SWELL_SendMouseMessage(hwnd, msg, (v<<16), MAKELPARAM(p2.x, p2.y));
+      SWELL_SendMouseMessage(hwnd, msg, (v<<16), MAKELPARAM(p2.x, p2.y), (int)b->x_root, (int)b->y_root);
       if (hwnd) hwnd->Release();
     }
   }
@@ -1639,7 +1639,7 @@ static void OnButtonEvent(GdkEventButton *b)
   else if(b->type == GDK_2BUTTON_PRESS) 
   {
     msg++; // convert WM_xBUTTONDOWN to WM_xBUTTONUP
-    SWELL_SendMouseMessage(hwnd2, msg, 0, MAKELPARAM(p2.x, p2.y));
+    SWELL_SendMouseMessage(hwnd2, msg, 0, MAKELPARAM(p2.x, p2.y), (int)b->x_root, (int)b->y_root);
 
     // if capture was released by WM_LBUTTONUP, allow the DBLCLICK to go to the correct window
     HWND hwnd3 = getMouseTarget(b->window,p,&hwnd);
@@ -1656,7 +1656,7 @@ static void OnButtonEvent(GdkEventButton *b)
     msg++; // convert WM_xBUTTONUP to WM_xBUTTONDBLCLK
   }
 
-  SWELL_SendMouseMessage(hwnd2, msg, 0, MAKELPARAM(p2.x, p2.y));
+  SWELL_SendMouseMessage(hwnd2, msg, 0, MAKELPARAM(p2.x, p2.y), (int)b->x_root, (int)b->y_root);
   if (hwnd2) hwnd2->Release();
 }
 
