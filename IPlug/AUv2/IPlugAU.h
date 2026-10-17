@@ -211,6 +211,8 @@ private:
 
 #pragma mark -
 
+  AudioChannelLayoutTag mInputChannelLayout  = kAudioChannelLayoutTag_Stereo;
+  AudioChannelLayoutTag mOutputChannelLayout = kAudioChannelLayoutTag_Stereo;
   bool mActive = false; // TODO: is this necessary? is it correct?
   double mLastRenderSampleTime = -1.0;
   WDL_String mCocoaViewFactoryClassName;
