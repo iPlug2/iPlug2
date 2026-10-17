@@ -22,6 +22,43 @@ std::unique_ptr<PLUG_CLASS_NAME> gPlug;
 RECT gPrevBounds;
 int gErrorCount = 0;
 
+#ifndef NO_IGRAPHICS
+/**
+ * REAPER decides whether to run its main keyboard shortcuts before delivering a
+ * key message to an extension window. IGraphics' optional text-entry control is
+ * drawn inside the graphics HWND rather than using a native EDIT control, so
+ * REAPER cannot otherwise tell that the user is typing. Route keys to the
+ * focused extension window while an IGraphics text edit is active.
+ */
+static int TextEntryAcceleratorProc(MSG* msg, accelerator_register_t*)
+{
+  if (!msg || !gPlug || !gHWND)
+    return 0;
+
+  IGraphics* graphics = gPlug->GetUI();
+  if (!graphics || !graphics->GetControlInTextEntry())
+    return 0;
+
+  const HWND focusedWindow = GetFocus();
+  if (!focusedWindow || (focusedWindow != gHWND && !IsChild(gHWND, focusedWindow)))
+    return 0;
+
+#ifdef OS_WIN
+  if (msg->message == WM_SYSKEYDOWN || msg->message == WM_SYSKEYUP)
+    return -20;
+#endif
+
+  return -1;
+}
+
+// REAPER retains this pointer for the lifetime of the extension.
+accelerator_register_t gTextEntryAccelerator = {
+  TextEntryAcceleratorProc,
+  true,
+  nullptr
+};
+#endif
+
 /** Helper struct for registering Reaper Actions */
 struct ReaperAction
 {
@@ -88,6 +125,9 @@ extern "C"
       pRec->Register("hookcustommenu", (void*) ReaperExtBase::MenuHook);
       pRec->Register("hookpostcommand", (void*) ReaperExtBase::PostCommandProc);
       pRec->Register("projectconfig", (void*) &gProjectConfig);
+#ifndef NO_IGRAPHICS
+      pRec->Register("accelerator", (void*) &gTextEntryAccelerator);
+#endif
       
       // Creates the Extensions main menu if it doesn't exist yet. It is populated from
       // ReaperExtBase::MenuHook(), which REAPER calls with menuidstr "Main extensions".
