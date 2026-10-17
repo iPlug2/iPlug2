@@ -189,7 +189,7 @@ jobs:
     name: macOS (Xcode)
     needs: parse-commands
     if: needs.parse-commands.outputs.should_run == 'true'
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -346,7 +346,7 @@ jobs:
     name: macOS (Ninja)
     needs: parse-commands
     if: needs.parse-commands.outputs.all_generators == 'true'
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -425,7 +425,7 @@ jobs:
     name: macOS (Make)
     needs: parse-commands
     if: needs.parse-commands.outputs.all_generators == 'true'
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -501,7 +501,7 @@ jobs:
     name: iOS (Xcode)
     needs: parse-commands
     if: needs.parse-commands.outputs.ios == 'true'
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -541,7 +541,7 @@ jobs:
     name: visionOS (Xcode)
     needs: parse-commands
     if: needs.parse-commands.outputs.visionos == 'true'
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -581,7 +581,7 @@ jobs:
     name: macOS (Universal)
     needs: parse-commands
     if: needs.parse-commands.outputs.universal == 'true'
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
       - name: Checkout
         uses: actions/checkout@v4
