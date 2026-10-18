@@ -491,7 +491,7 @@ void IWebViewImpl::EnableInteraction(bool enable)
 
 void IWebViewImpl::SetWebViewBounds(float x, float y, float w, float h, float scale)
 {
-  mWebViewBounds = GetScaledRect(x, y, w, h, GetScaleForHWND(mParentWnd));
+  mWebViewBounds = GetScaledRect(x, y, w, h, 1.0);
 
   if (mWebViewCtrlr)
   {
