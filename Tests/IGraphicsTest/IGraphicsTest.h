@@ -8,8 +8,5 @@ using namespace igraphics;
 class IGraphicsTest final : public Plugin
 {
 public:
-  IGraphicsTest(const InstanceInfo& info);
-  
-  void OnHostSelectedViewConfiguration(int width, int height) override;
-  bool OnHostRequestingSupportedViewConfiguration(int width, int height) override;
+  IGraphicsTest(const InstanceInfo& info);  
 };
