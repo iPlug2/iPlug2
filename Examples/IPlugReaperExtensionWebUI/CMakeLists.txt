@@ -7,12 +7,6 @@ if(IOS OR CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
   return()
 endif()
 
-# The WebView editor delegate uses std::filesystem, which requires macOS 10.15+
-# (iPlug2.cmake otherwise defaults to 10.13). Set before including iPlug2.cmake.
-if(APPLE AND NOT CMAKE_OSX_DEPLOYMENT_TARGET)
-  set(CMAKE_OSX_DEPLOYMENT_TARGET "10.15" CACHE STRING "Minimum macOS version")
-endif()
-
 # Discover IPLUG2_DIR if not already set (for independent builds)
 if(NOT DEFINED IPLUG2_DIR)
   set(IPLUG2_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../.." CACHE PATH "iPlug2 root directory")
