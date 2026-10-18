@@ -1,0 +1,119 @@
+# Copyright 2018-2022 David Robillard <d@drobilla.net>
+# SPDX-License-Identifier: 0BSD OR ISC
+
+stages: [build, deploy]
+
+default:
+  stage: build
+  image: lv2plugin/debian-x64
+  script:
+    - meson setup build -Dwerror=true
+    - ninja -C build
+
+dev:
+  stage: build
+  image: lv2plugin/debian-x64
+  script:
+    - meson setup build -Dbuildtype=debug -Ddocs=enabled -Ddocs_cpp=false -Dwarning_level=3 -Dwerror=true -Dlint=true
+    - ninja -C build
+    - meson configure -Dbuildtype=release build
+    - ninja -C build
+  artifacts:
+    paths:
+      - build/doc
+
+static:
+  stage: build
+  image: lv2plugin/debian-x64
+  script:
+    - meson setup build -Ddefault_library=static -Ddocs=disabled -Dwarning_level=3 -Dwerror=true
+    - ninja -C build
+    - meson configure -Dbuildtype=release build
+    - ninja -C build
+
+# Linux Platforms
+
+arm32:
+  stage: build
+  image: lv2plugin/debian-arm32
+  script:
+    - meson setup build --cross-file=/usr/share/meson/cross/arm-linux-gnueabihf.ini -Dbuildtype=debug -Ddocs=disabled -Dwarning_level=3 -Dwerror=true
+    - ninja -C build
+    - meson configure -Dbuildtype=release build
+    - ninja -C build
+
+arm64:
+  stage: build
+  image: lv2plugin/debian-arm64
+  script:
+    - meson setup build --cross-file=/usr/share/meson/cross/aarch64-linux-gnu.ini -Dbuildtype=debug -Ddocs=disabled -Dwarning_level=3 -Dwerror=true
+    - ninja -C build
+    - meson configure -Dbuildtype=release build
+    - ninja -C build
+
+mingw32:
+  stage: build
+  image: lv2plugin/debian-mingw32
+  script:
+    - meson setup build --cross-file=/usr/share/meson/cross/i686-w64-mingw32.ini -Dbuildtype=debug -Ddocs=disabled -Dwarning_level=everything -Dwerror=true
+    - ninja -C build
+    - meson configure -Dbuildtype=release build
+    - ninja -C build
+  variables:
+    WINEPATH: "Z:\\usr\\lib\\gcc\\i686-w64-mingw32\\10-win32"
+
+mingw64:
+  stage: build
+  image: lv2plugin/debian-mingw64
+  script:
+    - meson setup build --cross-file=/usr/share/meson/cross/x86_64-w64-mingw32.ini -Dbuildtype=debug -Ddocs=disabled -Dwarning_level=everything -Dwerror=true
+    - ninja -C build
+    - meson configure -Dbuildtype=release build
+    - ninja -C build
+
+# Linux Distributions
+
+fedora:
+  stage: build
+  image: lv2plugin/fedora-big
+  script:
+    - meson setup build -Dbuildtype=plain -Dwarning_level=3 -Dwerror=true
+    - ninja -C build
+  variables:
+    CFLAGS: -O2 -D_FORTIFY_SOURCE=2
+
+# Non-Linux/Docker rows (not hosted)
+
+mac:
+  stage: build
+  tags: [macos]
+  script:
+    - meson setup build -Dbuildtype=debug -Ddocs=disabled -Dwarning_level=everything -Dwerror=true
+    - ninja -C build
+    - meson configure -Dbuildtype=release build
+    - ninja -C build
+
+win:
+  stage: build
+  tags: [windows,meson]
+  script:
+    - meson setup build -Dbuildtype=debug -Ddocs=disabled -Dwarning_level=everything -Dwerror=true
+    - ninja -C build
+    - meson configure -Dbuildtype=release build
+    - ninja -C build
+
+pages:
+  stage: deploy
+  script:
+    - mkdir public
+    - mkdir public/c
+    - mkdir public/cpp
+    - mv build/doc/c/singlehtml/ public/c/singlehtml/
+    - mv build/doc/c/html/ public/c/html/
+  needs:
+    - dev
+  artifacts:
+    paths:
+      - public
+  only:
+    - main
