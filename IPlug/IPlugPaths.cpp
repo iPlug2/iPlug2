@@ -232,6 +232,13 @@ const void* LoadWinResource(const char* resid, const char* type, int& sizeInByte
   }
 }
 
+bool AccessBookmarkedPath(const WDL_TypedBuf<uint8_t>& bookmarkData, std::function<void()> func)
+{
+  func();
+
+  return true;
+}
+
 #elif defined OS_WEB
 #pragma mark - OS_WEB
 
@@ -282,6 +289,13 @@ EResourceLocation LocateResource(const char* name, const char* type, WDL_String&
     }
   }
   return EResourceLocation::kNotFound;
+}
+
+bool AccessBookmarkedPath(const WDL_TypedBuf<uint8_t>& bookmarkData, std::function<void()> func)
+{
+  func();
+
+  return true;
 }
 
 #endif
