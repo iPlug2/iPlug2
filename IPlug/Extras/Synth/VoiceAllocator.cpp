@@ -411,7 +411,7 @@ void VoiceAllocator::NoteOn(VoiceInputEvent e, int64_t sampleTime)
     case kPolyModeMono:
     {
       // TODO retrig / legato
-      bool retrig = false;
+      bool retrig = mHeldKeys.size() == 0 || mLegato == false;
 
       // trigger all voices in zone
       StartVoices(VoicesMatchingAddress({e.mAddress.mZone, kAllChannels, kAllKeys, 0}), channel, key, pitch, velocity, offset, sampleTime, retrig);
@@ -512,7 +512,7 @@ void VoiceAllocator::NoteOff(VoiceInputEvent e, int64_t sampleTime)
       // trigger the queued key for all voices in the zone at the minimum held velocity.
       // alternatively the release velocity of the note off could be used here.
       float pitch = mKeyToPitchFn(queuedKey + static_cast<int>(mPitchOffset));
-      bool retrig = false;
+      bool retrig = mLegato == false;
 
       StartVoices(VoicesMatchingAddress({e.mAddress.mZone, kAllChannels, kAllKeys, 0}), channel, queuedKey, pitch, mMinHeldVelocity, offset, sampleTime, retrig);
     }
