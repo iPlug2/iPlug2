@@ -103,6 +103,10 @@
 #define VST3_CONTROLLER_UID 0xF2AEE70E, 0x00DE4F4F, PLUG_MFR_ID, PLUG_UNIQUE_ID
 #endif
 
+#if defined ARA_API && !defined VST3_ARA_MAIN_FACTORY_UID
+#define VST3_ARA_MAIN_FACTORY_UID 0xF2AEE70F, 0x00DE4F50, PLUG_MFR_ID, PLUG_UNIQUE_ID
+#endif
+
   #ifndef EFFECT_TYPE_VST3
     #if PLUG_TYPE == 1
       #define EFFECT_TYPE_VST3 kInstrumentSynth
@@ -129,6 +133,10 @@
   #endif
   #pragma mark - VST3
   #if defined VST3_API
+  #ifdef ARA_API
+  #include "IPlugARA_include_in_plug_src.h"
+  #endif
+
   static Steinberg::FUnknown* createInstance(void*)
   {
     return (Steinberg::Vst::IAudioProcessor*) iplug::MakePlug(iplug::InstanceInfo());
@@ -145,6 +153,18 @@
               PLUG_VERSION_STR,                               // plug-in version
               kVstVersionString,                              // the VST 3 SDK version (don't change - use define)
               createInstance)                                 // function pointer called to be instantiate
+
+  #ifdef ARA_API
+  DEF_CLASS2(INLINE_UID_FROM_FUID(FUID(VST3_ARA_MAIN_FACTORY_UID)),
+              Steinberg::PClassInfo::kManyInstances,          // cardinality
+              kARAMainFactoryClass,                           // the ARA main factory category (don't change this)
+              PLUG_NAME,                                      // must match the kVstAudioEffectClass name
+              0,                                              // not used here
+              "",                                             // not used here
+              PLUG_VERSION_STR,                               // plug-in version
+              kVstVersionString,                              // the VST 3 SDK version (don't change - use define)
+              iplug::IPlugARAMainFactory::createInstance)     // function pointer called to be instantiate
+  #endif
 
   END_FACTORY
   #pragma mark - VST3 Processor

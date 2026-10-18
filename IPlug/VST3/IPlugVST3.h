@@ -35,6 +35,11 @@
 #include "IPlugVST3_ProcessorBase.h"
 #include "IPlugVST3_View.h"
 
+#ifdef ARA_API
+#include "ARA_API/ARAVST3.h"
+#include "IPlugARA.h"
+#endif
+
 BEGIN_IPLUG_NAMESPACE
 
 /** Used to pass various instance info to the API class, where needed */
@@ -48,6 +53,10 @@ class IPlugVST3 : public IPlugAPIBase
                 , public Steinberg::Vst::SingleComponentEffect
                 , public Steinberg::Vst::IMidiMapping
                 , public Steinberg::Vst::ChannelContext::IInfoListener
+#ifdef ARA_API
+                , public ARA::IPlugInEntryPoint
+                , public ARA::IPlugInEntryPoint2
+#endif
 {
 public:
   using ViewType = IPlugVST3View<IPlugVST3>;
@@ -114,6 +123,38 @@ public:
   // IInfoListener
   Steinberg::tresult PLUGIN_API setChannelContextInfos(Steinberg::Vst::IAttributeList* list) override;
 
+#ifdef ARA_API
+  // IEditorDelegate - ARA editor views must be notified when the UI opens/closes
+  void OnUIOpen() override;
+  void OnUIClose() override;
+
+  // ARA::IPlugInEntryPoint
+  const ARA::ARAFactory* PLUGIN_API getFactory() override;
+  const ARA::ARAPlugInExtensionInstance* PLUGIN_API bindToDocumentController(ARA::ARADocumentControllerRef documentControllerRef) override;
+
+  // ARA::IPlugInEntryPoint2
+  const ARA::ARAPlugInExtensionInstance* PLUGIN_API bindToDocumentControllerWithRoles(ARA::ARADocumentControllerRef documentControllerRef, ARA::ARAPlugInInstanceRoleFlags knownRoles, ARA::ARAPlugInInstanceRoleFlags assignedRoles) override;
+
+  /** @return \c true if the instance has been bound to an ARA document controller */
+  bool IsBoundToARA() const { return mARAPlugInExtension.isBoundToARA(); }
+
+  /** Get the ARA playback renderer role of this instance, or nullptr if it doesn't fulfill that role */
+  template <typename T = ARA::PlugIn::PlaybackRenderer>
+  T* GetARAPlaybackRenderer() const { return mARAPlugInExtension.getPlaybackRenderer<T>(); }
+
+  /** Get the ARA editor renderer role of this instance, or nullptr if it doesn't fulfill that role */
+  template <typename T = ARA::PlugIn::EditorRenderer>
+  T* GetARAEditorRenderer() const { return mARAPlugInExtension.getEditorRenderer<T>(); }
+
+  /** Get the ARA editor view role of this instance, or nullptr if it doesn't fulfill that role */
+  template <typename T = ARA::PlugIn::EditorView>
+  T* GetARAEditorView() const { return mARAPlugInExtension.getEditorView<T>(); }
+
+  /** Get the ARA document controller this instance is bound to, or nullptr if not bound */
+  template <typename T = ARA::PlugIn::DocumentController>
+  T* GetARADocumentController() const { return mARAPlugInExtension.getDocumentController<T>(); }
+#endif
+
   /** Get the color of the track that the plug-in is inserted on */
   void GetTrackColor(int& r, int& g, int& b) override { r = (mChannelColor>>16)&0xff; g = (mChannelColor>>8)&0xff; b = mChannelColor&0xff; };
 
@@ -158,16 +199,24 @@ public:
     audioOutputs.erase(std::remove(audioOutputs.begin(), audioOutputs.end(), pBus));
   }
    
-  // Interface    
+  // Interface
   OBJ_METHODS(IPlugVST3, SingleComponentEffect)
   DEFINE_INTERFACES
     DEF_INTERFACE(IMidiMapping)
     DEF_INTERFACE(IInfoListener)
+#ifdef ARA_API
+    DEF_INTERFACE(ARA::IPlugInEntryPoint)
+    DEF_INTERFACE(ARA::IPlugInEntryPoint2)
+#endif
   END_DEFINE_INTERFACES(SingleComponentEffect)
   REFCOUNT_METHODS(SingleComponentEffect)
 
 private:
   ViewType* mView;
+#ifdef ARA_API
+  ARA::PlugIn::PlugInExtension mARAPlugInExtension;
+  bool mARAInputsSilenced = false; // set once the input scratch buffers have been cleared for ARA playback rendering
+#endif
 };
 
 IPlugVST3* MakePlug(const InstanceInfo& info);
