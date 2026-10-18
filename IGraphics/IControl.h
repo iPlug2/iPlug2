@@ -1053,10 +1053,18 @@ public:
 
         // Fill in center with pressed color
         g.FillRoundRect(GetColor(kPR), centreBounds, tlr, trr, blr, brr, &blend);
+
+        // Shade when hovered
+        if (mouseOver)
+          g.FillRoundRect(GetColor(kHL), centreBounds, tlr, trr, blr, brr, &blend);
       }
       else
       {
         g.FillRoundRect(GetColor(kPR).WithContrast(contrast), handleBounds, tlr, trr, blr, brr/*, &blend*/);
+
+        // Shade when hovered
+        if (mouseOver)
+          g.FillRoundRect(GetColor(kHL), handleBounds, tlr, trr, blr, brr, &blend);
       }
     }
     else
