@@ -150,6 +150,8 @@ private:
   int mVBlankSkipUntil = 0; // support for skipping vblank notification if the last callback took  too long.  This helps keep the message pump clear in the case of overload.
   bool mVSYNCEnabled = false;
   
+  bool mIsResizingToSmallerSize = false;
+  
   const IParam* mEditParam = nullptr;
   IText mEditText;
   IRECT mEditRECT;
