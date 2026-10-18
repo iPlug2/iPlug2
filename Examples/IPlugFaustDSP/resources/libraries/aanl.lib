@@ -1,0 +1,973 @@
+//################################ aanl.lib ##########################################
+// A library for antialiased nonlinearities. Its official prefix is `aa`. 
+//
+// This library provides aliasing-suppressed nonlinearities through first-order 
+// and second-order approximations of continuous-time signals, functions,
+// and convolution based on antiderivatives. This technique is particularly 
+// effective if combined with low-factor oversampling, for example, operating
+// at 96 kHz or 192 kHz sample-rate.
+//
+// The library contains trigonometric functions as well as other nonlinear 
+// functions such as bounded and unbounded saturators.
+//
+// Due to their limited domains or ranges, some of these functions may not 
+// suitable for audio nonlinear processing or waveshaping, although
+// they have been included for completeness. Some other functions,
+// for example, tan() and tanh(), are only available with first-order
+// antialiasing due to the complexity of the antiderivative of the 
+// x * f(x) term, particularly because of the necessity of the dilogarithm 
+// function, which requires special implementation.
+//
+// Future improvements to this library may include an adaptive
+// mechanism to set the ill-conditioned cases threshold to improve
+// performance in varying cases.
+//
+// Note that the antialiasing functions introduce a delay in the path,
+// respectively half and one-sample delay for first and second-order functions.
+//
+// Also note that due to division by differences, it is vital to use
+// double-precision or more to reduce errors.
+//
+// The environment identifier for this library is `aa`. After importing
+// the standard libraries in Faust, the functions below can be called as `aa.function_name`.
+// 
+// #### References
+// * <https://github.com/grame-cncm/faustlibraries/blob/master/aanl.lib>
+// * Reducing the Aliasing in Nonlinear Waveshaping Using Continuous-time Convolution,
+// Julian Parker, Vadim Zavalishin, Efflam Le Bivic, DAFX, 2016
+// * <http://dafx16.vutbr.cz/dafxpapers/20-DAFx-16_paper_41-PN.pdf>
+//########################################################################################
+
+ba = library("basics.lib");
+ma = library("maths.lib");
+
+declare name "Faust Antialiased Nonlinearities";
+declare version "1.4.1";
+
+//==============================Auxiliary Functions=======================================
+//========================================================================================
+
+//-------`(aa.)clip`-----------
+// Clipping function.
+//-----------------------------
+clip(l, h, x) = max(l, min(h, x));
+
+
+//-------`(aa.)Rsqrt`----------
+// Real-valued sqrt().
+//-----------------------------
+Rsqrt(x) = sqrt(max(0.0, x));
+
+
+//-------`(aa.)Rlog`-----------
+// Real-valued log().
+//-----------------------------
+Rlog(x) = log(max(ma.EPSILON, x));
+
+
+//-------`(aa.)Rtan`-----------
+// Real-valued tan().
+//-----------------------------
+Rtan(x) = tan(clip(-ma.MAX, ma.MAX, x));
+
+
+//-------`(aa.)Racos`----------
+// Real-valued acos().
+//-----------------------------
+Racos(x) = acos(clip(-1.0, 1.0, x));
+
+
+//-------`(aa.)Rasin`----------
+// Real-valued asin().
+//-----------------------------
+Rasin(x) = asin(clip(-1.0, 1.0, x));
+
+
+//-------`(aa.)Racosh`----------
+// Real-valued acosh()
+//------------------------------
+Racosh(x) = ma.acosh(clip(1.0, ma.MAX, x));
+
+
+//-------`(aa.)Rcosh`----------
+// Real-valued cosh().
+//-----------------------------
+Rcosh(x) = min(ma.MAX, ma.cosh(x));
+
+
+//-------`(aa.)Rsinh`-----------
+// Real-valued sinh().
+//------------------------------
+Rsinh(x) = clip(-ma.MAX, ma.MAX, ma.sinh(x));
+
+
+//-------`(aa.)Ratanh`----------
+// Real-valued atanh().
+//------------------------------
+Ratanh(x) = ma.atanh(clip(-1.0 + ma.EPSILON, 1.0 - ma.EPSILON, x));
+
+
+//-------`(aa.)ADAA1`---------------------
+//  Generalised first-order ADAA function.
+//
+// #### Usage
+//
+// ```
+// _ : ADAA1(EPS, f, F1) : _
+// ```
+// 
+// Where:
+//
+// * `EPS`: a threshold to handle ill-conditioned cases
+// * `f`: a function that we want to process with ADAA
+// * `F1`: f's first antiderivative
+
+declare ADAA1 author "Dario Sanfilippo";
+declare ADAA1 copyright "Copyright (C) 2021 Dario Sanfilippo
+    <sanfilippo.dario@gmail.com>";
+declare ADAA1 license "MIT License";
+ADAA1(EPS, f, F1, x) = D1q 
+      with {
+           D1q = ba.if(abs(x - x') <= EPS, ill_D1q, safe_D1q)
+               with {
+                   ill_D1q = f(x_m);
+                   safe_D1q = (F1(x) - F1(x')) / (x - x');
+                   x_m = .5 * (x + x');
+               };
+      };
+
+
+//-------`(aa.)ADAA2`---------------------
+//  Generalised second-order ADAA function.
+//
+// #### Usage
+//
+// ```
+// _ : ADAA2(EPS, f, F1, F2) : _
+// ```
+//
+// Where:
+//
+// * `EPS`: a threshold to handle ill-conditioned cases
+// * `f`: a function that we want to process with ADAA
+// * `F1`: f's first antiderivative
+// * `F2`: f's second antiderivative
+
+declare ADAA2 author "Dario Sanfilippo";
+declare ADAA2 copyright "Copyright (C) 2021 Dario Sanfilippo
+    <sanfilippo.dario@gmail.com>";
+declare ADAA2 license "MIT License";
+ADAA2(EPS, f, F1, F2, x) = T1 + T2 
+      with {
+           T1 = ba.if((x - x') ^ 2.0 <= EPS, ill_T1, safe_T1)
+               with {
+                   ill_T1 = .5 * f((x + 2.0 * x') / 3.0);
+                   safe_T1 = (x * (F1(x) - F1(x')) - (F2(x) - F2(x'))) /
+                       ((x - x') ^ 2.0);
+               };
+           T2 = ba.if((x' - x'') ^ 2.0 <= EPS, ill_T2, safe_T2)
+               with {
+                   ill_T2 = .5 * f((x'' + 2.0 * x') / 3.0);
+                   safe_T2 = (x'' * (F1(x'') - F1(x')) - (F2(x'') - F2(x'))) /
+                       ((x'' - x') ^ 2.0);
+               };
+      };
+
+
+//==============================Main functions============================================
+//========================================================================================
+
+//================= Saturators ===============
+//
+// These antialiased saturators perform best with high-amplitude input
+// signals. If the input is only slightly saturated, hence producing
+// negligible aliasing, the trivial saturator may result in a better
+// overall output, as noise can be introduced by first and second ADAA
+// at low amplitudes. 
+//
+// Once determining the lowest saturation level for which the antialiased 
+// functions perform adequately, it might be sensible to cross-fade
+// between the trivial and the antialiased saturators according to the
+// amplitude profile of the input signal.
+//==============================================
+
+//-------`(aa.)hardclip`---------------------
+//
+// First-order ADAA hard-clip.
+//
+// The domain of this function is ℝ; its theoretical range is [-1.0; 1.0].
+//
+// #### Usage
+// ```
+// _ : aa.hardclip : _
+// ```
+//---------------------------------------------
+declare hardclip author "Dario Sanfilippo";
+declare hardclip copyright "Copyright (C) 2021 Dario Sanfilippo
+    <sanfilippo.dario@gmail.com>";
+declare hardclip license "MIT License";
+hardclip(x) = ADAA1(EPS, f, F1, x)
+      with {
+           EPS = .001;
+           f(x_f) = clip(-1.0, 1.0, x_f);
+           F1(x_F1) = ba.if(   (x_F1 <= 1.0) & (x_F1 >= -1.0), 
+                               .5 * x_F1 ^ 2.0, 
+                               x_F1 * ma.signum(x_F1) - .5);
+      };
+
+
+//-------`(aa.)hardclip2`---------------------
+//
+// Second-order ADAA hard-clip.
+//
+// The domain of this function is ℝ; its theoretical range is [-1.0; 1.0].
+//
+// #### Usage
+// ```
+// _ : aa.hardclip2 : _
+// ```
+//---------------------------------------------
+declare hardclip2 author "Dario Sanfilippo";
+declare hardclip2 copyright "Copyright (C) 2021 Dario Sanfilippo
+    <sanfilippo.dario@gmail.com>";
+declare hardclip2 license "MIT License";
+hardclip2(x) = ADAA2(EPS, f, F1, F2, x) 
+      with {
+           EPS = .001;
+           f(x_f) = clip(-1.0, 1.0, x_f);
+           F1(x_F1) = ba.if(   (x_F1 <= 1.0) & (x_F1 >= -1.0), 
+                               .5 * x_F1 ^ 2.0, 
+                               x_F1 * ma.signum(x_F1) - .5);
+           F2(x_F2) = ba.if(   (x_F2 <= 1.0) & (x_F2 >= -1.0), 
+                               (1.0 / 3.0) * x_F2 ^ 3.0, 
+                               ((.5 * x_F2 ^ 2.0) - 1.0 / 6.0) * 
+                                   ma.signum(x_F2));
+      };
+
+
+//-------`(aa.)cubic1`---------------------
+//
+// First-order ADAA cubic saturator.
+//
+// The domain of this function is ℝ; its theoretical range is 
+// [-2.0/3.0; 2.0/3.0].
+//
+// #### Usage
+// ```
+// _ : aa.cubic1 : _
+// ```
+//-------------------------------------------
+declare cubic1 author "Dario Sanfilippo";
+declare cubic1 copyright "Copyright (C) 2021 Dario Sanfilippo
+    <sanfilippo.dario@gmail.com>";
+declare cubic1 license "MIT License";
+cubic1(x) = ADAA1(EPS, f, F1, x)
+      with {
+           EPS = .001; 
+           f(x_f) = ba.if( (x_f < 1.0) & (x_f > -1.0), 
+                           x_f - x_f ^ 3.0 / 3.0, 
+                           (2.0 / 3.0) * ma.signum(x_f));
+           F1(x_F1) = ba.if(   x_F1 <= -1.0,
+                               x_F1 * -2.0 / 3.0,
+                               ba.if(  x_F1 >= 1.0,
+                                       x_F1 * 2.0 / 3.0,
+                                       x_F1 ^ 2.0 / 2.0 - x_F1 ^ 4.0 / 12.0));
+      };
+
+
+//-------`(aa.)parabolic`---------------------
+//
+// First-order ADAA parabolic saturator.
+//
+// The domain of this function is ℝ; its theoretical range is [-1.0; 1.0].
+//
+// #### Usage
+// ```
+// _ : aa.parabolic : _
+// ```
+//--------------------------------------------
+declare parabolic author "Dario Sanfilippo";
+declare parabolic copyright "Copyright (C) 2021 Dario Sanfilippo
+    <sanfilippo.dario@gmail.com>";
+declare parabolic license "MIT License";
+parabolic(x) = ADAA1(EPS, f, F1, x) 
+      with {
+           EPS = .001; 
+           f(x_f) = ba.if( abs(x_f) <= 2.0, 
+                           x_f * (1.0 - abs(x_f) / 4.0), 
+                           ma.signum(x_f));
+           F1(x_F1) = ba.if(   abs(x_F1) <= 2.0, 
+                               (-1.0 / 12.0) * x_F1 ^ 2.0 * 
+                                   (x_F1 * ma.signum(x_F1) - 6.0),
+                               abs(x_F1));
+      };
+
+
+//-------`(aa.)parabolic2`---------------------
+//
+// Second-order ADAA parabolic saturator.
+//
+// The domain of this function is ℝ; its theoretical range is [-1.0; 1.0].
+//
+// #### Usage
+// ```
+// _ : aa.parabolic : _
+// ```
+//---------------------------------------------
+declare parabolic2 author "Dario Sanfilippo";
+declare parabolic2 copyright "Copyright (C) 2021 Dario Sanfilippo
+    <sanfilippo.dario@gmail.com>";
+declare parabolic2 license "MIT License";
+parabolic2(x) = ADAA2(EPS, f, F1, F2, x) 
+      with {
+           EPS = .001; 
+           f(x_f) = ba.if( abs(x_f) <= 2.0,
+                           x_f * (1.0 - abs(x_f) / 4.0),
+                           ma.signum(x_f));
+           F1(x_F1) = ba.if(   abs(x_F1) <= 2.0,
+                               (-1.0 / 12.0) * x_F1 ^ 2.0 * 
+                                   (x_F1 * ma.signum(x_F1) - 6.0),
+                               abs(x_F1));
+           F2(x_F2) = ba.if(   abs(x_F2) <= 2.0,
+                               (1.0 / 48.0) * x_F2 ^ 3.0 * 
+                                   (16.0 - 3.0 * x_F2 * ma.signum(x_F2)),
+                               .5 * x_F2 ^ 2.0 * ma.signum(x_F2));
+      };
+
+
+//-------`(aa.)hyperbolic`---------------------
+//
+// First-order ADAA hyperbolic saturator.
+//
+// The domain of this function is ℝ; its theoretical range is [-1.0; 1.0].
+//
+// #### Usage
+// ```
+// _ : aa.hyperbolic : _
+// ```
+//---------------------------------------------
+declare hyperbolic author "Dario Sanfilippo";
+declare hyperbolic copyright "Copyright (C) 2021 Dario Sanfilippo
+     <sanfilippo.dario@gmail.com>";
+declare hyperbolic license "MIT License";
+hyperbolic(x) = ADAA1(EPS, f, F1, x)
+    with {
+        EPS = .001; 
+        f(x_f) = x_f / (1.0 + abs(x_f));
+        F1(x_F1) = abs(x_F1) - log(1.0 + abs(x_F1));
+    };
+
+
+//-------`(aa.)hyperbolic2`---------------------
+//
+// Second-order ADAA hyperbolic saturator.
+//
+// The domain of this function is ℝ; its theoretical range is [-1.0; 1.0].
+//
+// #### Usage
+// ```
+// _ : aa.hyperbolic2 : _
+// ```
+//----------------------------------------------
+declare hyperbolic2 author "Dario Sanfilippo";
+declare hyperbolic2 copyright "Copyright (C) 2021 Dario Sanfilippo
+     <sanfilippo.dario@gmail.com>";
+declare hyperbolic2 license "MIT License";
+hyperbolic2(x) = ADAA2(EPS, f, F1, F2, x)
+    with {
+        EPS = .001; 
+        f(x_f) = x_f / (1.0 + abs(x_f));
+        F1(x_F1) = abs(x_F1) - log(1.0 + abs(x_F1));
+        F2(x_F2) = ma.signum(x_F2) * (.5 * (3.0 - 2.0 * abs(x_F2) + x_F2 ^ 2.0 + 
+            2.0 * log(1.0 + abs(x_F2))) - 3.0 / 2.0) + 3.0 / 2.0;
+    };
+
+
+//-------`(aa.)sinarctan`---------------------
+//
+// First-order ADAA sin(atan()) saturator.
+//
+// The domain of this function is ℝ; its theoretical range is [-1.0; 1.0].
+//
+// #### Usage
+// ```
+// _ : aa.sinatan : _
+// ```
+//----------------------------------------------
+declare sinarctan author "Dario Sanfilippo";
+declare sinarctan copyright "Copyright (C) 2021 Dario Sanfilippo
+    <sanfilippo.dario@gmail.com>";
+declare sinarctan license "MIT License";
+sinarctan(x) = ADAA1(EPS, f, F1, x)
+      with {
+           EPS = .001; 
+           f(x_f) = x_f / sqrt(1.0 + x_f ^ 2.0);
+           F1(x_F1) = sqrt(x_F1 ^ 2.0 + 1.0) + const
+               with {
+                   const = -1.0; // for F1(0) = 0 to minimise precision loss
+               };
+      };
+
+
+//-------`(aa.)sinarctan2`---------------------
+//
+// Second-order ADAA sin(atan()) saturator.
+//
+// The domain of this function is ℝ; its theoretical range is [-1.0; 1.0].
+//
+// #### Usage
+// ```
+// _ : aa.sinarctan2 : _
+// ```
+//----------------------------------------------
+declare sinarctan2 author "Dario Sanfilippo";
+declare sinarctan2 copyright "Copyright (C) 2021 Dario Sanfilippo
+    <sanfilippo.dario@gmail.com>";
+declare sinarctan2 license "MIT License";
+sinarctan2(x) = ADAA2(EPS, f, F1, F2, x) 
+      with {
+           EPS = .001; 
+           f(x_f) = x_f / sqrt(1.0 + x_f ^ 2.0);
+           F1(x_F1) = sqrt(x_F1 ^ 2.0 + 1.0) + const
+               with {
+                   const = -1.0; // for F1(0) = 0 to minimise precision loss
+               };
+           F2(x_F2) = .5 * x_F2 * sqrt(x_F2 ^ 2.0 + 1.0) - .5 * ma.asinh(x_F2);
+      };
+
+
+softclipEnv = environment {
+    // this non anti-aliased version exists in misceffects.lib
+    softclip(x) = ba.ifNcNo(2, 1, 
+        absX < 1/3, 2*x,
+        absX < 2/3, ma.signum(x)*(3-(2-absX*3)^2)/3,
+        ma.signum(x)
+        )
+    with {
+        s = ba.if(x>0, 1, -1); // faster than ma.signum(x)
+        absX = abs(x);
+    };
+    EPS = .001; 
+
+    F1(x) = ba.ifNcNo(2, 1,
+        absX < 1/3, x^2,
+        absX < 2/3, -1.*absX/3+2*x^2-absX^3+1/27,
+        absX - 7/27
+    )
+    with {
+        absX = abs(x);
+    };
+
+    F2(x) = ba.ifNcNo(2, 1,
+        absX < 1/3, (2/3)*(x^3),
+        absX < 2/3, s*((-1/6)*(x^2)-(3/4)*(x^4)+1/324) + (4/3)*(x^3),
+        s*((0.5)*(x^2) - 5/108)
+    )
+    with {
+        s = ba.if(x>0, 1, -1); // faster than ma.signum(x)
+        absX = abs(x);
+    };
+
+    softclipQuadratic1 = ADAA1(EPS, softclip, F1);
+    softclipQuadratic2 = ADAA2(EPS, softclip, F1, F2);
+};
+
+
+//-------`(aa.)softclipQuadratic1`---------------------
+//
+// First-order ADAA quadratic softclip.
+//
+// The domain of this function is ℝ; its theoretical range is [-1.0; 1.0].
+//
+// #### Usage
+// ```
+// _ : aa.softclipQuadratic1 : _
+// ```
+//----------------------------------------------
+declare softclipQuadratic1 author "David Braun";
+declare softclipQuadratic1 copyright "Copyright (C) 2024 David Braun";
+declare softclipQuadratic1 license "MIT license";
+
+softclipQuadratic1 = softclipEnv.softclipQuadratic1;
+
+
+//-------`(aa.)softclipQuadratic2`---------------------
+//
+// Second-order ADAA quadratic softclip.
+//
+// The domain of this function is ℝ; its theoretical range is [-1.0; 1.0].
+//
+// #### Usage
+// ```
+// _ : aa.softclipQuadratic2 : _
+// ```
+//----------------------------------------------
+declare softclipQuadratic2 author "David Braun";
+declare softclipQuadratic2 copyright "Copyright (C) 2024 David Braun";
+declare softclipQuadratic2 license "MIT license";
+
+softclipQuadratic2 = softclipEnv.softclipQuadratic2;
+
+
+//-------`(aa.)tanh1`---------------------
+//
+// First-order ADAA tanh() saturator.
+//
+// The domain of this function is ℝ; its theoretical range is [-1.0; 1.0].
+//
+// #### Usage
+// ```
+// _ : aa.tanh1 : _
+// ```
+//----------------------------------------------
+declare tanh1 author "Dario Sanfilippo";
+declare tanh1 copyright "Copyright (C) 2021 Dario Sanfilippo
+    <sanfilippo.dario@gmail.com>";
+declare tanh1 license "MIT License";
+tanh1(x) = ADAA1(EPS, f, F1, x) 
+      with {
+           EPS = .001; 
+           f(x_f) = ma.tanh(x_f);
+           F1(x_F1) = log(Rcosh(x_F1));
+      };
+
+
+//-------`(aa.)arctan`---------------------
+//
+// First-order ADAA atan().
+//
+// The domain of this function is ℝ; its theoretical range is [-π/2.0; π/2.0].
+//
+// #### Usage
+// ```
+// _ : aa.arctan : _
+// ```
+//-------------------------------------------
+declare arctan author "Dario Sanfilippo";
+declare arctan copyright "Copyright (C) 2021 Dario Sanfilippo
+    <sanfilippo.dario@gmail.com>";
+declare arctan license "MIT License";
+arctan(x) = ADAA1(EPS, f, F1, x)
+      with {
+           EPS = .001; 
+           f(x_f) = atan(x_f);
+           F1(x_F1) = x_F1 * f(x_F1) - .5 * log(x_F1 ^ 2.0 + 1.0);
+      };
+
+
+//-------`(aa.)arctan2`---------------------
+//
+// Second-order ADAA atan().
+//
+// The domain of this function is ℝ; its theoretical range is ]-π/2.0; π/2.0[.
+//
+// #### Usage
+// ```
+// _ : aa.arctan2 : _
+// ```
+//-------------------------------------------
+declare arctan2 author "Dario Sanfilippo";
+declare arctan2 copyright "Copyright (C) 2021 Dario Sanfilippo
+    <sanfilippo.dario@gmail.com>";
+declare arctan2 license "MIT License";
+arctan2(x) = ADAA2(EPS, f, F1, F2, x)
+      with {
+           EPS = .001; 
+           f(x_f) = atan(x_f);
+           F1(x_F1) = x_F1 * f(x_F1) - .5 * log(x_F1 ^ 2.0 + 1.0);
+           F2(x_F2) = .5 * x_F2 ^ 2.0 * f(x_F2) - x_F2 / 2.0 + .5 * f(x_F2);
+      };
+
+
+//-------`(aa.)asinh1`---------------------
+//
+// First-order ADAA asinh() saturator (unbounded).
+//
+// The domain of this function is ℝ; its theoretical range is ℝ.
+//
+// #### Usage
+// ```
+// _ : aa.asinh1 : _
+// ```
+//-------------------------------------------
+declare asinh1 author "Dario Sanfilippo";
+declare asinh1 copyright "Copyright (C) 2021 Dario Sanfilippo
+    <sanfilippo.dario@gmail.com>";
+declare asinh1 license "MIT License";
+asinh1(x) = ADAA1(EPS, f, F1, x)
+      with {
+           EPS = .001; 
+           f(x_f) = ma.asinh(x_f);
+           F1(x_F1) = x_F1 * f(x_F1) - sqrt(1.0 + x_F1 ^ 2.0) + const
+               with {
+                   const = 1.0; // for F1(0) = 0 to minimise precision loss
+               };
+      };
+
+
+//-------`(aa.)asinh2`---------------------
+//
+// Second-order ADAA asinh() saturator (unbounded).
+//
+// The domain of this function is ℝ; its theoretical range is ℝ.
+//
+// #### Usage
+// ```
+// _ : aa.asinh2 : _
+// ```
+//-------------------------------------------
+declare asinh2 author "Dario Sanfilippo";
+declare asinh2 copyright "Copyright (C) 2021 Dario Sanfilippo
+    <sanfilippo.dario@gmail.com>";
+declare asinh2 license "MIT License";
+asinh2(x) = ADAA2(EPS, f, F1, F2, x)
+      with {
+           EPS = .001; 
+           f(x_f) = ma.asinh(x_f);
+           F1(x_F1) = x_F1 * f(x_F1) - sqrt(1.0 + x_F1 ^ 2.0) + const
+               with {
+                   const = 1.0; // for F1(0) = 0 to minimise precision loss
+               };
+           F2(x_F2) = .25 * (2.0 * x_F2 ^ 2.0 * f(x_F2) + f(x_F2) - 
+               sqrt(x_F2 ^ 2.0 + 1.0) * x_F2);
+      };
+
+
+//================= Trigonometry ===============
+// These functions are reliable if input signals are within their domains.
+//============================================
+
+
+//-------`(aa.)cosine1`---------------------
+//
+// First-order ADAA cos().
+//
+// The domain of this function is ℝ; its theoretical range is [-1.0; 1.0].
+//
+// #### Usage
+// ```
+// _ : aa.cosine1 : _
+// ```
+//-------------------------------------------
+declare cosine1 author "Dario Sanfilippo";
+declare cosine1 copyright "Copyright (C) 2021 Dario Sanfilippo
+    <sanfilippo.dario@gmail.com>";
+declare cosine1 license "MIT License";
+cosine1(x) = ADAA1(EPS, f, F1, x)
+      with {
+           EPS = .001; 
+           f(x_f) = cos(x_f);
+           F1(x_F1) = sin(x_F1);
+      };
+
+
+//-------`(aa.)cosine2`---------------------
+//
+// Second-order ADAA cos().
+//
+// The domain of this function is ℝ; its theoretical range is [-1.0; 1.0].
+//
+// #### Usage
+// ```
+// _ : aa.cosine2 : _
+// ```
+//-------------------------------------------
+declare cosine2 author "Dario Sanfilippo";
+declare cosine2 copyright "Copyright (C) 2021 Dario Sanfilippo
+    <sanfilippo.dario@gmail.com>";
+declare cosine2 license "MIT License";
+cosine2(x) = ADAA2(EPS, f, F1, F2, x)
+      with {
+           EPS = .001; 
+           f(x_f) = cos(x_f);
+           F1(x_F1) = sin(x_F1);
+           F2(x_F2) = x_F2 * sin(x_F2) + cos(x_F2);
+      };
+
+
+//-------`(aa.)arccos`---------------------
+//
+// First-order ADAA acos().
+//
+// The domain of this function is [-1.0; 1.0]; its theoretical range is
+// [π; 0.0].
+//
+// #### Usage
+// ```
+// _ : aa.arccos : _
+// ```
+//------------------------------------------
+declare arccos author "Dario Sanfilippo";
+declare arccos copyright "Copyright (C) 2021 Dario Sanfilippo
+    <sanfilippo.dario@gmail.com>";
+declare arccos license "MIT License";
+arccos(x) = ADAA1(EPS, f, F1, x)
+      with {
+           EPS = .001; 
+           f(x_f) = Racos(x_f);
+           F1(x_F1) = x_F1 * f(x_F1) - Rsqrt(1.0 - x_F1 ^ 2.0) + const
+               with {
+                   const = 1.0; // for F1(0) = 0 to minimise precision loss
+               };
+      };
+
+
+//-------`(aa.)arccos2`---------------------
+//
+// Second-order ADAA acos().
+//
+// The domain of this function is [-1.0; 1.0]; its theoretical range is 
+// [π; 0.0].
+//
+// Note that this function is not accurate for low-amplitude or low-frequency 
+// input signals. In that case, the first-order ADAA arccos() can be used.
+//
+// #### Usage
+// ```
+// _ : aa.arccos2 : _
+// ```
+//--------------------------------------------
+declare arccos2 author "Dario Sanfilippo";
+declare arccos2 copyright "Copyright (C) 2021 Dario Sanfilippo
+    <sanfilippo.dario@gmail.com>";
+declare arccos2 license "MIT License";
+arccos2(x) = ADAA2(EPS, f, F1, F2, x)
+      with {
+           EPS = .001; 
+           f(x_f) = Racos(x_f);
+           F1(x_F1) = x_F1 * f(x_F1) - Rsqrt(1.0 - x_F1 ^ 2.0) + const
+               with {
+                   const = 1.0; // for F1(0) = 0 to minimise precision loss
+               };
+           F2(x_F2) = .25 * (2.0 * x_F2 ^ 2.0 * f(x_F2) + Rasin(x_F2) -
+               Rsqrt(1.0 - x_F2 ^ 2.0));
+      };
+
+
+//-------`(aa.)acosh1`---------------------
+//
+// First-order ADAA acosh(). 
+//
+// The domain of this function is ℝ >= 1.0; its theoretical range is ℝ >= 0.0.
+//
+// #### Usage
+// ```
+// _ : aa.acosh1 : _
+// ```
+//------------------------------------------
+declare acosh1 author "Dario Sanfilippo";
+declare acosh1 copyright "Copyright (C) 2021 Dario Sanfilippo
+    <sanfilippo.dario@gmail.com>";
+declare acosh1 license "MIT License";
+acosh1(x) = ADAA1(EPS, f, F1, x)
+      with {
+           EPS = .001; 
+           f(x_f) = Racosh(x_f);
+           F1(x_F1) = x_F1 * f(x_F1) - Rsqrt(x_F1 - 1.0) * Rsqrt(x_F1 + 1.0);
+      };
+
+
+//-------`(aa.)acosh2`---------------------
+//
+// Second-order ADAA acosh().
+//
+// The domain of this function is ℝ >= 1.0; its theoretical range is ℝ >= 0.0.
+//
+// Note that this function is not accurate for low-frequency input signals. 
+// In that case, the first-order ADAA acosh() can be used.
+//
+// #### Usage
+// ```
+// _ : aa.acosh2 : _
+// ```
+//-------------------------------------------
+declare acosh2 author "Dario Sanfilippo";
+declare acosh2 copyright "Copyright (C) 2021 Dario Sanfilippo
+    <sanfilippo.dario@gmail.com>";
+declare acosh2 license "MIT License";
+acosh2(x) = ADAA2(EPS, f, F1, F2, x)
+      with {
+           EPS = .001;
+           f(x_f) = Racosh(x_f);
+           F1(x_F1) = x_F1 * f(x_F1) - Rsqrt(x_F1 - 1.0) * Rsqrt(x_F1 + 1.0);
+           F2(x_F2) = .5 * x_F2 ^ 2.0 * f(x_F2) - .25 * 
+               Rsqrt(x_F2 - 1.0) * Rsqrt(x_F2 + 1.0) * x_F2 -
+                   .25 * Rlog(x_F2 + Rsqrt(x_F2 - 1.0) * Rsqrt(x_F2 + 1.0));
+      };
+
+
+//-------`(aa.)sine`---------------------
+//
+// First-order ADAA sin().
+//
+// The domain of this function is ℝ; its theoretical range is ℝ.
+//
+// #### Usage
+// ```
+// _ : aa.sine : _
+// ```
+//----------------------------------------
+declare sine author "Dario Sanfilippo";
+declare sine copyright "Copyright (C) 2021 Dario Sanfilippo
+    <sanfilippo.dario@gmail.com>";
+declare sine license "MIT License";
+sine(x) = ADAA1(EPS, f, F1, x)
+      with {
+           EPS = .001;
+           f(x_f) = sin(x_f);
+           F1(x_F1) = -1.0 * cos(x_F1);
+      };
+
+
+//-------`(aa.)sine2`---------------------
+//
+// Second-order ADAA sin().
+//
+// The domain of this function is ℝ; its theoretical range is ℝ.
+//
+// #### Usage
+// ```
+// _ : aa.sine2 : _
+// ```
+//----------------------------------------
+declare sine2 author "Dario Sanfilippo";
+declare sine2 copyright "Copyright (C) 2021 Dario Sanfilippo
+    <sanfilippo.dario@gmail.com>";
+declare sine2 license "MIT License";
+sine2(x) = ADAA2(EPS, f, F1, F2, x) 
+      with {
+           EPS = .001;
+           f(x_f) = sin(x_f);
+           F1(x_F1) = 1.0 - cos(x_F1);
+           F2(x_F2) = sin(x_F2) - x_F2 * cos(x_F2);
+      };
+
+
+//-------`(aa.)arcsin`---------------------
+//
+// First-order ADAA asin().
+//
+// The domain of this function is [-1.0, 1.0]; its theoretical range is 
+// [-π/2.0; π/2.0].
+//
+// #### Usage
+// ```
+// _ : aa.arcsin : _
+// ```
+//------------------------------------------
+declare arcsin author "Dario Sanfilippo";
+declare arcsin copyright "Copyright (C) 2021 Dario Sanfilippo
+    <sanfilippo.dario@gmail.com>";
+declare arcsin license "MIT License";
+arcsin(x) = ADAA1(EPS, f, F1, x)
+      with {
+           EPS = .001;
+           f(x_f) = Rasin(x_f);
+           F1(x_F1) = x_F1 * f(x_F1) + Rsqrt(1.0 - x_F1 ^ 2.0) + const
+               with {
+                   const = -1.0; // for F1(0) = 0 to minimise precision loss
+               };
+      };
+
+
+//-------`(aa.)arcsin2`---------------------
+//
+// Second-order ADAA asin().
+//
+// The domain of this function is [-1.0, 1.0]; its theoretical range is
+// [-π/2.0; π/2.0].
+//
+// Note that this function is not accurate for low-frequency input signals.
+// In that case, the first-order ADAA asin() can be used.
+//
+// #### Usage
+// ```
+// _ : aa.arcsin2 : _
+// ```
+//------------------------------------------
+declare arcsin2 author "Dario Sanfilippo";
+declare arcsin2 copyright "Copyright (C) 2021 Dario Sanfilippo
+    <sanfilippo.dario@gmail.com>";
+declare arcsin2 license "MIT License";
+arcsin2(x) = ADAA2(EPS, f, F1, F2, x)
+      with {
+           EPS = .001;
+           f(x_f) = Rasin(x_f);
+           F1(x_F1) = x_F1 * f(x_F1) + Rsqrt(1.0 - x_F1 ^ 2.0) + const
+               with {
+                   const = -1.0; // for F1(0) = 0 to minimise precision loss
+               };
+           F2(x_F2) = .25 * (Rsqrt(1.0 - x_F2 ^ 2.0) * x_F2 + 
+               (2.0 * x_F2 ^ 2.0 - 1.0) * f(x_F2));
+      };
+
+
+//-------`(aa.)tangent`---------------------
+//
+// First-order ADAA tan().
+//
+// The domain of this function is [-π/2.0; π/2.0]; its theoretical range is ℝ.
+//
+// #### Usage
+// ```
+// _ : aa.tangent : _
+// ```
+//------------------------------------------
+declare tangent author "Dario Sanfilippo";
+declare tangent copyright "Copyright (C) 2021 Dario Sanfilippo
+    <sanfilippo.dario@gmail.com>";
+declare tangent license "MIT License";
+tangent(x) = ADAA1(EPS, f, F1, x)
+      with {
+           EPS = .001;
+           f(x_f) = Rtan(x_f);
+           F1(x_F1) = -1.0 * Rlog(cos(x_F1));
+      };
+
+
+//-------`(aa.)atanh1`---------------------
+//
+// First-order ADAA atanh(). 
+//
+// The domain of this function is [-1.0; 1.0]; its theoretical range is ℝ.
+//
+// #### Usage
+// ```
+// _ : aa.atanh1 : _
+// ```
+//------------------------------------------
+declare atanh1 author "Dario Sanfilippo";
+declare atanh1 copyright "Copyright (C) 2021 Dario Sanfilippo
+    <sanfilippo.dario@gmail.com>";
+declare atanh1 license "MIT License";
+atanh1(x) = ADAA1(EPS, f, F1, x)
+      with {
+           EPS = .001;
+           f(x_f) = Ratanh(x_f);
+           F1(x_F1) = .5 * Rlog(1.0 - x_F1 ^ 2.0) + x_F1 * f(x_F1);
+      };
+
+
+//-------`(aa.)atanh2`---------------------
+//
+// Second-order ADAA atanh().
+//
+// The domain of this function is [-1.0; 1.0]; its theoretical range is ℝ.
+//
+// #### Usage
+// ```
+// _ : aa.atanh2 : _
+// ```
+//------------------------------------------
+declare atanh2 author "Dario Sanfilippo";
+declare atanh2 copyright "Copyright (C) 2021 Dario Sanfilippo
+    <sanfilippo.dario@gmail.com>";
+declare atanh2 license "MIT License";
+atanh2(x) = ADAA2(EPS, f, F1, F2, x)
+      with {
+           EPS = .001;
+           f(x_f) = Ratanh(x_f);
+           F1(x_F1) = .5 * Rlog(1.0 - x_F1 ^ 2.0) + x_F1 * f(x_F1);
+           F2(x_F2) = .5 * x_F2 ^ 2.0 * f(x_F2) + x_F2 / 2.0 + .25 * 
+               Rlog(1.0 - x_F2) - .25 * Rlog(1.0 + x_F2);
+      };
