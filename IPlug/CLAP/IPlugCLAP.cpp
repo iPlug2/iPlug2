@@ -784,7 +784,7 @@ bool IPlugCLAP::audioPortsGetConfig(uint32_t index, clap_audio_ports_config* pCo
     // N.B. Configs in iPlug2 currently have no names so we reconstruct the strings...
     configName.AppendFormatted(CLAP_NAME_SIZE, "%d", getNChans(direction, 0));
     
-    for (int i = 0; i < NBuses(direction, index); i++)
+    for (int i = 1; i < NBuses(direction, index); i++)
       configName.AppendFormatted(CLAP_NAME_SIZE, ".%d", getNChans(direction, i));
   };
   
