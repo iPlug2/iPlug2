@@ -779,6 +779,13 @@ static WDL_STATICFUNC_UNUSED void NSRECT_TO_RECT(RECT *r, const NSRect &tr)
   r->top=(int)floor(tr.origin.y+0.5);
   r->bottom=(int)floor(tr.origin.y+tr.size.height+0.5);
 }
+static WDL_STATICFUNC_UNUSED LONG NSPOINT_TO_LONG(const NSPoint &pt)
+{
+  const int x = (int)floor(pt.x+0.5);
+  const int y = (int)floor(pt.y+0.5);
+  return MAKELONG(x&0xffff,y&0xffff);
+}
+
 #endif
 
 
@@ -798,8 +805,6 @@ SWELL_IMPLEMENT_GETOSXVERSION int SWELL_GetOSXVersion()
       }
       else if (NSAppKitVersionNumber >= 2500.0)
         v = 0x1500;
-      else if (NSAppKitVersionNumber >= 2487.0)
-        v = 0x1400;
       else if (NSAppKitVersionNumber >= 2487.0)
         v = 0x1400;
       else if (NSAppKitVersionNumber >= 2299.0)
@@ -966,6 +971,7 @@ struct HGDIOBJ__
   int type;
   int additional_refcnt; // refcnt of 0 means one owner (if >0, additional owners)
 
+   // for freetype fonts, these will get lfHeight/lfWidth set (for glyph fallbacks)
   int color;
   int wid;
 

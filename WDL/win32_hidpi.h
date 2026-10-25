@@ -54,7 +54,10 @@ WDL_WIN32_HIDPI_IMPL void WDL_mmSetWindowPos(HWND hwnd, HWND hwndAfter, int x, i
     !(f&(SWP_NOMOVE|SWP_NOSIZE|SWP__NOMOVETHENSIZE|SWP_ASYNCWINDOWPOS)) &&
     !(GetWindowLong(hwnd,GWL_STYLE)&WS_CHILD))
   {
-    SetWindowPos(hwnd,NULL,x,y,0,0,SWP_NOREDRAW|SWP_NOSIZE|SWP_NOZORDER|SWP_NOACTIVATE|SWP_DEFERERASE);
+    int ff = SWP_NOREDRAW|SWP_NOZORDER|SWP_NOACTIVATE|SWP_DEFERERASE;
+    if (IsWindowVisible(hwnd)) ff |= SWP_NOSIZE; // in darkmode, repositioning a hidden window without
+                                                 // sizing causes weird issues: slack:archives/C091GPNNLLC/p1787819639763799
+    SetWindowPos(hwnd,NULL,x,y,w,h,ff);
     f |= SWP_NOMOVE;
   }
   SetWindowPos(hwnd,hwndAfter,x,y,w,h,f&~SWP__NOMOVETHENSIZE);

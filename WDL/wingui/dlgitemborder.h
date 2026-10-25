@@ -196,15 +196,20 @@ static void WDL_STATICFUNC_UNUSED Dlg_DrawChildWindowBorders(HWND hwndDlg, INT_P
 #ifdef _WIN32
   if(hrgn) 
   {
+    bool b_del = false;
     HBRUSH b=NULL;
     if (!GSC)
     {
       LRESULT res = SendMessage(hwndDlg,WM_CTLCOLORDLG, (WPARAM)__use_ps->hdc, (LPARAM)hwndDlg);
-      if (res > 65536) b=(HBRUSH)(INT_PTR)res;
+      if ((UINT_PTR)res > 65536) b=(HBRUSH)(INT_PTR)res;
     }
-    if (!b) b=CreateSolidBrush(GSC?GSC(COLOR_3DFACE):GetSysColor(COLOR_3DFACE));
+    if (!b)
+    {
+      b = CreateSolidBrush(GSC?GSC(COLOR_3DFACE):GetSysColor(COLOR_3DFACE));
+      b_del = true;
+    }
     FillRgn(__use_ps->hdc,hrgn,b);
-    DeleteObject(b);
+    if (b_del) DeleteObject(b);
     DeleteObject(hrgn);
   }
 #endif

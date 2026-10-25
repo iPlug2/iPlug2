@@ -5641,6 +5641,8 @@ HWND WindowFromPoint(POINT p)
       if (p.x >= fr.origin.x && p.x < fr.origin.x + fr.size.width &&
           p.y >= fr.origin.y && p.y < fr.origin.y + fr.size.height)
       {
+        NSView *cv = [wnd contentView];
+        if ([cv isKindOfClass:[SWELL_FocusRectWnd class]]) continue;
         bestwnd=wnd;
         break;
       }    
@@ -6989,13 +6991,20 @@ BOOL ShellExecute(HWND hwndDlg, const char *action,  const char *content1, const
 
 
 
+extern int *g_swell_focusrect_color;
 
 @implementation SWELL_FocusRectWnd
 
 -(BOOL)isOpaque { return YES; }
 -(void) drawRect:(NSRect)rect
 {
-  NSColor *col=[NSColor colorWithCalibratedRed:0.5 green:0.5 blue:0.5 alpha:1.0];
+
+  NSColor *col=
+    g_swell_focusrect_color ?
+      [NSColor colorWithCalibratedRed:GetRValue(*g_swell_focusrect_color)/255.0
+                                green:GetGValue(*g_swell_focusrect_color)/255.0
+                                 blue:GetBValue(*g_swell_focusrect_color)/255.0 alpha:1.0] :
+      [NSColor colorWithCalibratedRed:0.5 green:0.5 blue:0.5 alpha:1.0];
   [col set];
   
   CGRect r = CGRectMake(rect.origin.x,rect.origin.y,rect.size.width,rect.size.height);

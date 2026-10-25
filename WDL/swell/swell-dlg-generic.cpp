@@ -349,7 +349,12 @@ HWND SWELL_CreateDialog(SWELL_DialogResourceIndex *reshead, const char *resid, H
       if (hFoc && hFoc->m_wantfocus && hFoc->m_visible && hFoc->m_enabled)
       {
         if (!h->m_hashaddestroy && !hFoc->m_hashaddestroy)
+        {
           SetFocus(hFoc);
+          // edit and combo boxes get their text selected when focused via initdialog
+          void SWELL_OnNavigationFocus(HWND ch);
+          SWELL_OnNavigationFocus(hFoc);
+        }
       }
     }
 

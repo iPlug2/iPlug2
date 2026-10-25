@@ -27,6 +27,8 @@
 #include "../lice/lice.h"
 #include "../assocarray.h"
 
+int wdl_virtwnd_alphaignore_level;
+
 WDL_VWnd_Painter::WDL_VWnd_Painter()
 {
   m_GSC=0;
@@ -1380,7 +1382,7 @@ void WDL_VirtualWnd_PreprocessBGConfig(WDL_VirtualWnd_BGCfg *a)
         if (isFull) flags=0;
         else flags &= ~(1<<(ystate*4 + xstate));
       }
-      if (v > 16) // some themes have some junk around 16 here, favor speed over accuracy
+      if (v > wdl_virtwnd_alphaignore_level)
       {
         if (isFull) flags2=0;
         else flags2 &= ~(1<<(ystate*4 + xstate));

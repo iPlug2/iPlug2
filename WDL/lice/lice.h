@@ -31,6 +31,7 @@
 #include "../swell/swell-types.h" // use SWELL on other systems
 #endif
 
+#include "../wdltypes.h"
 
 // one of these can be defined in your project if you choose:
 //#define LICE_FAVOR_SPEED // optimizes some stuff that doesnt seem to benefit much (like LICE_DeltaBlit/LICE_RotatedBlit/LICE_TransformBlit)
@@ -240,6 +241,7 @@ class LICE_SubBitmap : public LICE_IBitmap // note: you should only keep these a
     LICE_SubBitmap(LICE_IBitmap *parent, int x, int y, int w, int h)
     {
       m_parent=parent;
+      WDL_ASSERT((x>=0 && y>=0) || w<1 || h<1); // subbitmap at negative coordinates will cause drawing issues
       if(x<0)x=0; 
       if(y<0)y=0;
       m_x=x;m_y=y;
@@ -252,7 +254,10 @@ class LICE_SubBitmap : public LICE_IBitmap // note: you should only keep these a
     bool __resize(int w, int h)
     {
       m_w=0;m_h=0;
-      if (m_parent && m_x >= 0 && m_y >= 0 && m_x < m_parent->getWidth() && m_y < m_parent->getHeight())
+      if (m_parent &&
+          WDL_NORMALLY(w>=0) &&
+          WDL_NORMALLY(h>=0) &&
+          m_x >= 0 && m_y >= 0 && m_x < m_parent->getWidth() && m_y < m_parent->getHeight())
       {
         if (w > m_parent->getWidth()-m_x) w=m_parent->getWidth()-m_x;
         if (h > m_parent->getHeight()-m_y) h=m_parent->getHeight()-m_y;

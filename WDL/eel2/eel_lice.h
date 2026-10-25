@@ -333,6 +333,7 @@ public:
 
   int setup_frame(HWND hwnd, RECT r, int _mouse_x=0, int _mouse_y=0, int has_dpi=0); // mouse_x/y used only if hwnd is NULL
   void finish_draw();
+  void finish_cap(); // called by finish_draw()
 
   void gfx_lineto(EEL_F xpos, EEL_F ypos, EEL_F aaflag);
   void gfx_rectto(EEL_F xpos, EEL_F ypos);
@@ -393,6 +394,10 @@ public:
 
   int m_has_cap; // high 16 bits are current capture state, low 16 bits are temporary flags from mousedown
   bool m_has_had_getch; // set on first gfx_getchar(), makes mouse_cap updated with modifiers even when no mouse click is down
+  int m_cursor_hidden;
+  POINT m_cursor_lastpos; // cursor position (screen coordinates) set on setup_frame
+  POINT m_cursor_hidden_offs; // offset to adjust reported position by
+  POINT m_cursor_initialpos; // position when cursor was hidden
 
   WDL_PtrList<char> m_ddrop_files;
 };
@@ -451,6 +456,10 @@ eel_lice_state::eel_lice_state(NSEEL_VMCTX vm, void *ctx, int image_slots, int f
 
   if (m_gfx_texth) *m_gfx_texth=8;
 
+  m_cursor_hidden = 0;
+  memset(&m_cursor_lastpos,0,sizeof(m_cursor_lastpos));
+  memset(&m_cursor_hidden_offs,0,sizeof(m_cursor_hidden_offs));
+  memset(&m_cursor_initialpos,0,sizeof(m_cursor_initialpos));
   m_has_cap=0;
   m_has_had_getch=false;
   m_last_menu_time = GetTickCount() - 100000;
@@ -1566,7 +1575,7 @@ static int __drawTextWithFont(LICE_IBitmap *dest, const RECT *rect, LICE_IFont *
 #ifdef DYNAMIC_LICE
         (LICE_IBitmap_disabledAPI*)
 #endif
-        dest,rect->left,rect->top,rect->right-rect->left,rect->bottom-rect->top);
+        dest,rect->left,rect->top,(flags & DT_NOCLIP)?0:(rect->right-rect->left),(flags & DT_NOCLIP)?0:(rect->bottom-rect->top));
 
     if (!measureOnly)
     {
@@ -1909,14 +1918,21 @@ int eel_lice_state::setup_frame(HWND hwnd, RECT r, int _mouse_x, int _mouse_y, i
   int use_h = r.bottom - r.top;
 
   POINT pt = { _mouse_x, _mouse_y };
+  GetCursorPos(&m_cursor_lastpos);
   if (hwnd)
   {
-    GetCursorPos(&pt);
+    pt = m_cursor_lastpos;
     ScreenToClient(hwnd,&pt);
   }
 
-  *m_mouse_x=pt.x-r.left;
-  *m_mouse_y=pt.y-r.top;
+  int curs_x = pt.x - r.left, curs_y = pt.y - r.top;
+  if (m_has_cap && m_cursor_hidden)
+  {
+    curs_x += m_cursor_hidden_offs.x;
+    curs_y += m_cursor_hidden_offs.y;
+  }
+  *m_mouse_x = curs_x;
+  *m_mouse_y = curs_y;
 
   if (has_dpi>0 && *m_gfx_ext_retina > 0.0)
   {
@@ -2015,8 +2031,55 @@ int eel_lice_state::setup_frame(HWND hwnd, RECT r, int _mouse_x, int _mouse_y, i
   return dr;
 }
 
+void eel_lice_state::finish_cap()
+{
+  if (m_has_cap &&
+      // todo allow_mouse_hiding or something (tablet mode etc)
+      m_mouse_cap &&
+      (((int)*m_mouse_cap)&65536))
+  {
+    if (!m_cursor_hidden)
+    {
+      m_cursor_initialpos = m_cursor_lastpos;
+      int v;
+      do m_cursor_hidden++; while ((v=ShowCursor(FALSE))>=0);
+      if (v < -3 && m_cursor_hidden>1)
+      {
+        m_cursor_hidden--;
+        ShowCursor(TRUE);
+      }
+    }
+    if (m_cursor_hidden)
+    {
+#ifdef _WIN32
+      CURSORINFO ci={sizeof(ci)};
+      GetCursorInfo(&ci);
+#endif
+      if (
+#ifdef _WIN32
+        !(ci.flags&2) &&
+#endif
+        SetCursorPos(m_cursor_initialpos.x,m_cursor_initialpos.y))
+      {
+        // repositioned, adjust m_cursor_hidden_offs
+        m_cursor_hidden_offs.x += m_cursor_lastpos.x - m_cursor_initialpos.x;
+        int dy = m_cursor_lastpos.y - m_cursor_initialpos.y;
+#ifdef __APPLE__
+        dy = -dy;
+#endif
+        m_cursor_hidden_offs.y += dy;
+      }
+    }
+  }
+  else if (m_cursor_hidden>0)
+  {
+    memset(&m_cursor_hidden_offs,0,sizeof(m_cursor_hidden_offs));
+    while (m_cursor_hidden>0) { m_cursor_hidden--; ShowCursor(TRUE); }
+  }
+}
 void eel_lice_state::finish_draw()
 {
+  finish_cap();
   if (hwnd_standalone && m_framebuffer_dirty) 
   {
 #ifdef __APPLE__
@@ -2098,10 +2161,10 @@ static EEL_F * NSEEL_CGEN_CALL _gfx_update(void *opaque, EEL_F *n)
 
 #ifdef _WIN32
       MSG msg;
-      while (PeekMessage(&msg,NULL,0,0,PM_REMOVE)) 
+      while (PeekMessageW(&msg,NULL,0,0,PM_REMOVE)) 
       {
         TranslateMessage(&msg);
-        DispatchMessage(&msg);
+        DispatchMessageW(&msg);
       }
 #else
       void SWELL_RunEvents();
@@ -2186,6 +2249,16 @@ static EEL_F NSEEL_CGEN_CALL _gfx_getchar(void *opaque, INT_PTR np, EEL_F **plis
           plist[1][0] = (a2&0xffffff);
         }
         return a;
+      }
+      else if (ctx->m_kb_queue_valid > 0 && a >= 0x7500D800 && a <= 0x7500D800 + 0x3FF) // 'u' = 0x75
+      {
+        int a2 = ctx->m_kb_queue[ctx->m_kb_queue_pos & (qsize-1)];
+        if (a2 >= 0x7500DC00 && a2 <= 0x7500DC00 + 0x3FF) // surrogate pair
+        {
+          a = 0x75010000 + (((a&0xffff)-0xD800)<<10) + ((a2&0xffff) - 0xDC00);
+          ctx->m_kb_queue_pos++;
+          ctx->m_kb_queue_valid--;
+        }
       }
 #else
       if (a > 32 && a < 256 && np > 1)
@@ -2617,6 +2690,9 @@ LRESULT WINAPI eel_lice_wndproc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPar
 #endif
         ctx->m_kb_queue_valid=0;
         ctx->hwnd_standalone=hwnd;
+#if !defined(_WIN32) && !defined(__APPLE__)
+        SetProp(hwnd,"SWELL_IME_ENABLE",(HANDLE)(INT_PTR)1);
+#endif
       }
     return 0;
 #ifndef _WIN32
@@ -3132,6 +3208,7 @@ static const char *eel_lice_function_reference =
     "\4" "16: Alt (Windows) or Option (macOS) key\n"
     "\4" "32: Windows (Windows) or Control (macOS) key\n"
     "\4" "64: middle mouse button\n"
+    "\4" "65536: if set by script during mouse capture, hides cursor and virtualizes mouse position\n"
   "\2"
   "\2\0"
 

@@ -65,10 +65,7 @@
 #define WIN32_CURSES_CURSOR_TYPE_HORZBAR 1
 #define WIN32_CURSES_CURSOR_TYPE_BLOCK 2
 
-typedef struct win32CursesFB {
-  wchar_t c;
-  unsigned char attr;
-} win32CursesFB;
+typedef unsigned int win32CursesFB; // low 24 bits: codepoint, high 8 bits: attr
 
 typedef struct win32CursesCtx
 {
