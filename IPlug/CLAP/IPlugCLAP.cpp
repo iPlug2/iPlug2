@@ -798,12 +798,13 @@ bool IPlugCLAP::audioPortsGetConfig(uint32_t index, clap_audio_ports_config* pCo
   pConfig->input_port_count = static_cast<uint32_t>(NBuses(kInput, index));
   pConfig->output_port_count = static_cast<uint32_t>(NBuses(kOutput, index));
 
-  pConfig->has_main_input = pConfig->input_port_count > 1;
+  // Bus 0 is the main port (see audioPortsInfo), so any bus in a direction means a main port
+  pConfig->has_main_input = pConfig->input_port_count > 0;
   pConfig->main_input_channel_count = pConfig->has_main_input ? getNChans(kInput, 0) : 0;
   pConfig->main_input_port_type = ClapPortType(pConfig->main_input_channel_count);
   
-  pConfig->has_main_output = pConfig->output_port_count > 1;
-  pConfig->main_output_channel_count = pConfig->has_main_input ? getNChans(kOutput, 0) : 0;
+  pConfig->has_main_output = pConfig->output_port_count > 0;
+  pConfig->main_output_channel_count = pConfig->has_main_output ? getNChans(kOutput, 0) : 0;
   pConfig->main_output_port_type = ClapPortType(pConfig->main_output_channel_count);
 
   return true;
