@@ -384,10 +384,12 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 - (CALayer *)makeBackingLayer
 {
   // CAMetalLayer is correct for both Metal and GLES - ANGLE uses Metal backend on macOS
+  // NB: this file is not ARC; the caller retains, so the layer must be autoreleased
+  // or it is stranded (with its drawable pool) every time the window closes
 #if defined IGRAPHICS_METAL || defined IGRAPHICS_GLES2 || defined IGRAPHICS_GLES3
-  return [[CAMetalLayer alloc] init];
+  return [[[CAMetalLayer alloc] init] autorelease];
 #else
-  return [[CALayer alloc] init];
+  return [[[CALayer alloc] init] autorelease];
 #endif
 }
 
@@ -410,7 +412,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   #if defined IGRAPHICS_METAL || defined IGRAPHICS_GLES2 || defined IGRAPHICS_GLES3
   CAMetalLayer* mtlLayer = (CAMetalLayer*) self.layer;
   [mtlLayer setPixelFormat:MTLPixelFormatBGRA8Unorm];
-  mtlLayer.device = MTLCreateSystemDefaultDevice();
+  mtlLayer.device = [MTLCreateSystemDefaultDevice() autorelease]; // Create-rule +1, property assignment retains
   mtlLayer.framebufferOnly = YES;
   #elif defined IGRAPHICS_GL2 || defined IGRAPHICS_GL3
   NSOpenGLPixelFormatAttribute profile = NSOpenGLProfileVersionLegacy;
