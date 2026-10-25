@@ -11,10 +11,6 @@ IPLUG2_ROOT = ../../..
 
 BINARY_NAME = IPlugReaperExtensionWebUI
 
-// WebViewEditorDelegate uses std::filesystem, which requires macOS 10.15+
-// (common-mac.xcconfig defaults to 10.13). Matches the CMake build's target.
-MACOSX_DEPLOYMENT_TARGET = 10.15
-
 // ------------------------------
 // HEADER AND LIBRARY SEARCH PATHS
 EXTRA_INC_PATHS = $(IGRAPHICS_INC_PATHS) $(SWELL_PATH) $(REAPER_SDK) $(PROJECT_ROOT)/resources

@@ -165,8 +165,8 @@ cmake -G Ninja -DIPLUG2_UNIVERSAL=ON ..
 # Or set architectures directly
 cmake -G Ninja -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" ..
 
-# Deployment target (default: 10.13)
-cmake -G Ninja -DCMAKE_OSX_DEPLOYMENT_TARGET=10.15 ..
+# Deployment target (default: 13.0)
+cmake -G Ninja -DCMAKE_OSX_DEPLOYMENT_TARGET=14.0 ..
 ```
 
 ### Windows Options
