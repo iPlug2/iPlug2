@@ -249,10 +249,18 @@ void IPlugVST3::SendParameterValueFromUI(int paramIdx, double normalisedValue)
 void IPlugVST3::SetLatency(int latency)
 {
   // N.B. set the latency even if the handler is not yet set
-  
+
+  // Only notify the host when the latency value actually changes. restartComponent()
+  // is expensive, and issuing kLatencyChanged from inside setProcessing()/OnReset()
+  // (which is where SetLatency is commonly reached, e.g. on deactivate/remove) livelocks
+  // some hosts: they receive a restart request while already inside the processing-state
+  // transition and spin (observed as a hang on plugin removal in Renoise). A no-op latency
+  // update must therefore stay silent. GetLatency() still holds the previous value here.
+  const bool changed = (latency != GetLatency());
+
   IPlugProcessor::SetLatency(latency);
 
-  if (componentHandler)
+  if (changed && componentHandler)
   {
     FUnknownPtr<IComponentHandler> handler(componentHandler);
 
