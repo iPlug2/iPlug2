@@ -16,6 +16,10 @@ add_subdirectory(IPlugSideChain)
 add_subdirectory(IPlugSurroundEffect)
 add_subdirectory(IPlugVisualizer)
 
+# ARA examples
+set(CMAKE_FOLDER "Examples/ARA")
+add_subdirectory(IPlugARAExample)
+
 # WebView examples
 set(CMAKE_FOLDER "Examples/WebView")
 add_subdirectory(IPlugWebUI)
