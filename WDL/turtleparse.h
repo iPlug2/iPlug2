@@ -52,7 +52,7 @@ public:
     }
     else if (_list)
     {
-      value = (char *)new WDL_PtrList<wdl_turtle_pair>;
+      value = (char *)new WDL_PtrList<wdl_turtle_pair>(64);
       mode = _list == 2 ? MODE_COLLECTION : MODE_LIST;
     }
     else

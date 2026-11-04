@@ -193,6 +193,10 @@ class WDL_SharedMutex
       m_mutex.Leave();
     }
 
+#ifdef _DEBUG
+    bool HasAnySharedLocks() const { return m_sharedcnt > 0; } // only useful for assertions etc
+#endif
+
   private:
     WDL_Mutex m_mutex;
     volatile int m_sharedcnt;

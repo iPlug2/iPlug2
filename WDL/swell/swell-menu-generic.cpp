@@ -419,6 +419,7 @@ static LRESULT WINAPI submenuWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
   {
     case WM_CREATE:
       hwnd->m_classname = "__SWELL_MENU";
+      // WS_CHILD is used by menus to force override redirect
       hwnd->m_style = WS_CHILD;
       m_trackingMenus.Add(hwnd);
       SetWindowLongPtr(hwnd,GWLP_USERDATA,lParam);

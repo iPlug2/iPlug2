@@ -283,6 +283,8 @@ SWELL_API_DEFINE(BOOL, WinSetRect, (LPRECT lprc, int xLeft, int yTop, int xRight
 SWELL_API_DEFINE(void,WinUnionRect,(RECT *out, const RECT *in1, const RECT *in2))
 SWELL_API_DEFINE(int,WinIntersectRect,(RECT *out, const RECT *in1, const RECT *in2))
 
+SWELL_API_DEFINE(BOOL, MoveFile, (const char *srcfilename, const char *destfilename))
+
 SWELL_API_DEFINE(void, SetWindowPos,(HWND hwnd, HWND unused, int x, int y, int cx, int cy, int flags))
 
 SWELL_API_DEFINE(int, SWELL_SetWindowLevel, (HWND hwnd, int newlevel))

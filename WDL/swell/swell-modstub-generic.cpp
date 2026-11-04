@@ -77,6 +77,7 @@ public:
   {
     void *(*SWELLAPI_GetFunc)(const char *name)=NULL;
     char fn[4096];
+
     const int nSize=sizeof(fn)-64;
     int sz=readlink("/proc/self/exe",fn,nSize);
     if (sz<1)
@@ -101,9 +102,14 @@ public:
       printf("Error loading '%s': %s\n",fn,dlerror());
       exit(2);
     }
-    const char *preload_fn = (const char *)dlsym(tmp,"SWELL_WANT_LOAD_LIBRARY");
-    if (preload_fn && *preload_fn)
-      dlopen(preload_fn,RTLD_LAZY|RTLD_GLOBAL);
+
+    for (int x = 0; x < 5; x++)
+    {
+      if (x) snprintf(fn,sizeof(fn),"SWELL_WANT_LOAD_LIBRARY%d",x+1);
+      const char *preload_fn = (const char *)dlsym(tmp,x ? fn : "SWELL_WANT_LOAD_LIBRARY");
+      if (!preload_fn || !*preload_fn) break;
+      if (dlopen(preload_fn,RTLD_LAZY|RTLD_GLOBAL)) break;
+    }
 
     *(void **)&SWELLAPI_GetFunc = dlsym(tmp,"SWELLAPI_GetFunc"); 
       

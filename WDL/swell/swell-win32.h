@@ -23,9 +23,9 @@ static LRESULT WINAPI swellDisableCtxNewWndProc(HWND hwnd, UINT uMsg, WPARAM wPa
   if (uMsg == WM_DESTROY)
   {
     RemoveProp(hwnd,SWELL_DISABLE_CTX_OLDPROC_NAME);
-    if (oldProc) SetWindowLongPtr(hwnd,GWLP_WNDPROC,(LPARAM)oldProc);
+    if (oldProc) SetWindowLongPtrW(hwnd,GWLP_WNDPROC,(LPARAM)oldProc);
   }
-  return oldProc ? CallWindowProc((WNDPROC)oldProc,hwnd,uMsg,wParam,lParam) : DefWindowProc(hwnd,uMsg,wParam,lParam);
+  return oldProc ? CallWindowProcW((WNDPROC)oldProc,hwnd,uMsg,wParam,lParam) : DefWindowProcW(hwnd,uMsg,wParam,lParam);
 }
 
 void SWELL_DisableContextMenu(HWND h, bool dis)
@@ -41,12 +41,12 @@ void SWELL_DisableContextMenu(HWND h, bool dis)
   if (dis)
   {
     if (!GetProp(h,SWELL_DISABLE_CTX_OLDPROC_NAME))
-      SetProp(h,SWELL_DISABLE_CTX_OLDPROC_NAME,(HANDLE)SetWindowLongPtr(h,GWLP_WNDPROC,(LPARAM)swellDisableCtxNewWndProc));
+      SetProp(h,SWELL_DISABLE_CTX_OLDPROC_NAME,(HANDLE)SetWindowLongPtrW(h,GWLP_WNDPROC,(LPARAM)swellDisableCtxNewWndProc));
   }
   else
   {
     LPARAM op = (LPARAM)GetProp(h,SWELL_DISABLE_CTX_OLDPROC_NAME);
-    if (op) SetWindowLongPtr(h,GWLP_WNDPROC,op);
+    if (op) SetWindowLongPtrW(h,GWLP_WNDPROC,op);
     RemoveProp(h,SWELL_DISABLE_CTX_OLDPROC_NAME);
   }
 }
