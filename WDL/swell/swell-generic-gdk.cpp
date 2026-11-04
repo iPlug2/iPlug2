@@ -56,6 +56,12 @@ extern "C" {
 #include <GL/gl.h>
 #include <GL/glx.h>
 
+#ifdef SWELL_SUPPORT_GTK
+void swell_im_update_candidates_location();
+extern HWND swell_ime_target;
+extern GtkIMContext *swell_ime_context;
+#endif
+
 static void (*_gdk_drag_drop_done)(GdkDragContext *, gboolean); // may not always be available
 
 static guint32 _gdk_x11_window_get_desktop(GdkWindow *window)
@@ -111,7 +117,7 @@ static void _gdk_x11_window_move_to_desktop(GdkWindow *window, guint32 desktop)
 #define  SWELL_WINDOWSKEY_GDK_MASK GDK_MOD4_MASK
 #endif
 
-static int SWELL_gdk_active;
+static int SWELL_gdk_active; // -1 fail, 1=GDK, 2=GTK+ loaded, 3=GTK+ falied
 static GdkEvent *s_cur_evt;
 static GList *s_program_icon_list;
 
@@ -129,6 +135,8 @@ static int gdk_options;
 #define OPTION_ALLOW_MAYBE_INACTIVE 16
 #define OPTION_FULLSCREEN_FOR_OWNER_WINDOWS 32
 #define OPTION_FULLSCREEN_DYNAMIC 64
+#define OPTION_IS_WAYLAND 0x20000000
+#define OPTIONS_READ 0x40000000
 
 static HWND s_ddrop_hwnd;
 static POINT s_ddrop_pt;
@@ -295,6 +303,8 @@ void swell_oswindow_update_text(HWND hwnd)
   }
 }
 
+static Window get_x11_first_child(Display *disp, Window xid);
+
 void swell_oswindow_focus(HWND hwnd)
 {
   if (!hwnd)
@@ -307,11 +317,48 @@ void swell_oswindow_focus(HWND hwnd)
   while (hwnd && !hwnd->m_oswindow) hwnd=hwnd->m_parent;
   if (hwnd && !swell_app_is_inactive)
   {
+    bool force = false;
+    if (SWELL_focused_oswindow == hwnd->m_oswindow && !(gdk_options & OPTION_IS_WAYLAND))
+    {
+      // verify we already have focus
+      GdkDisplay *display = gdk_window_get_display(hwnd->m_oswindow);
+      Display *dpy = gdk_x11_display_get_xdisplay(display);
+      Window cf = 0;
+      int cfm = 0;
+      XGetInputFocus(dpy,&cf,&cfm);
+      if (!cf || (cf != GDK_WINDOW_XID(hwnd->m_oswindow) &&
+                  cf != get_x11_first_child(dpy,GDK_WINDOW_XID(hwnd->m_oswindow))))
+      {
+#ifdef _DEBUG
+        printf("swell-generic-gdk: our window (%d) was marked as focused, however another window (%d) was reported focused via XGetInputFocus(), correcting.\n",
+            (int)GDK_WINDOW_XID(hwnd->m_oswindow), (int)cf);
+#endif
+        // some other window actually has focus, we missed a notification, apparently, correct this
+        force = true;
+      }
+    }
+
     gdk_window_raise(hwnd->m_oswindow);
-    if (hwnd->m_oswindow != SWELL_focused_oswindow)
+
+    if (force || hwnd->m_oswindow != SWELL_focused_oswindow)
     {
       SWELL_focused_oswindow = hwnd->m_oswindow;
       gdk_window_focus(hwnd->m_oswindow,GDK_CURRENT_TIME);
+
+      if (force || hwnd->m_style == WS_CHILD || (!(hwnd->m_style & WS_CAPTION) && (gdk_options&OPTION_BORDERLESS_OVERRIDEREDIRECT)))
+      {
+        // WS_CHILD is used by menus to force override redirect
+        // if override redirect, gdk_window_focus() uses_NET_ACTIVE_WINDOW, but xfce4/plasma do not set focus properly
+        if (!(gdk_options & OPTION_IS_WAYLAND) &&
+            gdk_x11_screen_supports_net_wm_hint(gdk_window_get_screen(hwnd->m_oswindow), gdk_atom_intern_static_string("_NET_ACTIVE_WINDOW")))
+        {
+          GdkDisplay *display = gdk_window_get_display(hwnd->m_oswindow);
+          Display *dpy = gdk_x11_display_get_xdisplay(display);
+          gdk_x11_display_error_trap_push (display);
+          XSetInputFocus(dpy,GDK_WINDOW_XID(hwnd->m_oswindow),RevertToNone,CurrentTime);
+          gdk_x11_display_error_trap_pop_ignored (display);
+        }
+      }
       update_menubar_activations();
     }
   }
@@ -347,6 +394,76 @@ void swell_recalcMinMaxInfo(HWND hwnd)
   gdk_window_set_geometry_hints(hwnd->m_oswindow,&h,(GdkWindowHints) ((hwnd->m_has_had_position ? GDK_HINT_POS : 0) | GDK_HINT_MIN_SIZE | GDK_HINT_MAX_SIZE));
 }
 
+#ifdef SWELL_SUPPORT_GTK
+gboolean (*swell_gtk_init_check)(int *argc, char ***argv);
+void (*swell_gtk_main_do_event)(GdkEvent *);
+gboolean (*swell_gtk_im_context_filter_keypress)(GtkIMContext *context, GdkEventKey *event);
+void (*swell_gtk_im_context_set_cursor_location)(GtkIMContext *, const GdkRectangle *);
+GtkIMContext *(*swell_gtk_im_multicontext_new)(void);
+void (*swell_gtk_im_context_set_client_window)(GtkIMContext *context, GdkWindow *window);
+void (*swell_gtk_im_context_get_preedit_string)(GtkIMContext *, gchar **, PangoAttrList **, gint *);
+void (*swell_gtk_im_context_focus_in)(GtkIMContext *);
+void (*swell_gtk_im_context_focus_out)(GtkIMContext *);
+void (*swell_gtk_im_context_set_surrounding)(GtkIMContext *context,  const gchar *text, gint len, gint cursor_index);
+#endif
+
+#ifdef SWELL_SUPPORT_GTK
+bool SWELL_load_gtk(void)
+{
+  if (SWELL_gdk_active != 1) return SWELL_gdk_active == 2;
+
+  if (dlopen("libgtk-3.so.0",RTLD_NOW|RTLD_GLOBAL) || dlopen("libgtk+-3.so.0",RTLD_NOW|RTLD_GLOBAL))
+  {
+    *(void **)&swell_gtk_init_check = dlsym(RTLD_DEFAULT,"gtk_init_check");
+    *(void **)&swell_gtk_main_do_event = dlsym(RTLD_DEFAULT,"gtk_main_do_event");
+    *(void **)&swell_gtk_im_context_filter_keypress = dlsym(RTLD_DEFAULT,"gtk_im_context_filter_keypress");
+    *(void **)&swell_gtk_im_context_set_cursor_location = dlsym(RTLD_DEFAULT, "gtk_im_context_set_cursor_location");
+    *(void **)&swell_gtk_im_multicontext_new = dlsym(RTLD_DEFAULT, "gtk_im_multicontext_new");
+    *(void **)&swell_gtk_im_context_set_client_window = dlsym(RTLD_DEFAULT, "gtk_im_context_set_client_window");
+    *(void **)&swell_gtk_im_context_get_preedit_string = dlsym(RTLD_DEFAULT, "gtk_im_context_get_preedit_string");
+    *(void **)&swell_gtk_im_context_focus_in = dlsym(RTLD_DEFAULT, "gtk_im_context_focus_in");
+    *(void **)&swell_gtk_im_context_focus_out = dlsym(RTLD_DEFAULT, "gtk_im_context_focus_out");
+    *(void **)&swell_gtk_im_context_set_surrounding = dlsym(RTLD_DEFAULT, "gtk_im_context_set_surrounding");
+  }
+
+  if (swell_gtk_init_check && swell_gtk_main_do_event)
+  {
+    int argc = 1;
+    char buf[32];
+    strcpy(buf,"blah");
+    char *argv[1] = { buf };
+    char **argvv = argv;
+
+    void (*disable_setlocale)(void);
+    *(void **)&disable_setlocale = dlsym(RTLD_DEFAULT, "gtk_disable_setlocale");
+    if (disable_setlocale) disable_setlocale();
+
+    SWELL_gdk_active = swell_gtk_init_check(&argc,&argvv) ? 2 : 3;
+    if (SWELL_gdk_active == 3)
+      printf("swell-generic-gdk: GTK+ requested but initialization failed.\n");
+    else
+      printf("swell-generic-gdk: initialized GTK+ on request.\n");
+    gdk_event_handler_set(swell_gdkEventHandler,NULL,NULL);
+  }
+  else
+  {
+    printf("swell-generic-gdk: GTK+ requested but not found\n");
+    swell_gtk_main_do_event = NULL;
+    swell_gtk_init_check = NULL;
+    swell_gtk_im_context_set_cursor_location = NULL;
+    swell_gtk_im_context_filter_keypress = NULL;
+    swell_gtk_im_context_set_client_window = NULL;
+    swell_gtk_im_multicontext_new = NULL;
+    swell_gtk_im_context_get_preedit_string = NULL;
+    swell_gtk_im_context_focus_in = NULL;
+    swell_gtk_im_context_focus_out = NULL;
+    swell_gtk_im_context_set_surrounding = NULL;
+    SWELL_gdk_active = 3;
+  }
+  return SWELL_gdk_active == 2;
+}
+#endif
+
 void SWELL_initargs(int *argc, char ***argv) 
 {
   if (!SWELL_gdk_active) 
@@ -362,11 +479,8 @@ void SWELL_initargs(int *argc, char ***argv)
       _gdk_set_allowed_backends("x11");
 #endif
 
-#ifdef SWELL_SUPPORT_GTK
-    SWELL_gdk_active = gtk_init_check(argc,argv) ? 1 : -1;
-#else
-    SWELL_gdk_active = gdk_init_check(argc,argv) ? 1 : -1;
-#endif
+    if (!SWELL_gdk_active)
+      SWELL_gdk_active = gdk_init_check(argc,argv) ? 1 : -1;
     if (SWELL_gdk_active > 0)
     {
       char buf[1024];
@@ -494,7 +608,8 @@ static void init_options()
 {
   if (!gdk_options)
   {
-    gdk_options = 0x40000000;
+    gdk_options = OPTIONS_READ;
+    if (getenv("WAYLAND_DISPLAY")) gdk_options |= OPTION_IS_WAYLAND;
 
     if (swell_gdk_option("gdk_owned_windows_keep_above", "auto (default is 1)",1))
       gdk_options|=OPTION_KEEP_OWNED_ABOVE;
@@ -505,7 +620,7 @@ static void init_options()
     switch (swell_gdk_option("gdk_instant_menubar_inactivation", "auto (default is 1 if on Wayland, otherwise 0)",-1))
     {
       case -1:
-        if (getenv("WAYLAND_DISPLAY") == NULL) break;
+        if (!(gdk_options & OPTION_IS_WAYLAND)) break;
         // fall through
       case 1:
         gdk_options|=OPTION_ALLOW_MAYBE_INACTIVE;
@@ -652,6 +767,7 @@ void swell_oswindow_manage(HWND hwnd, bool wantfocus)
 
           if (!(hwnd->m_style & WS_CAPTION)) 
           {
+            // WS_CHILD is used by menus to force override redirect
             if (hwnd->m_style != WS_CHILD && !(gdk_options&OPTION_BORDERLESS_OVERRIDEREDIRECT))
             {
               if (transient_for)
@@ -846,7 +962,7 @@ static guint swell_gdkConvertKey(guint key, bool *extended)
   return 0;
 }
 
-LRESULT SWELL_SendMouseMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+LRESULT SWELL_SendMouseMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, int x_root, int y_root);
 
 static int hex_parse(char c)
 {
@@ -1401,6 +1517,14 @@ static void OnKeyEvent(GdkEventKey *k)
   MSG msg = { hwnd, msgtype, kv, modifiers, };
   INT_PTR extra_flags = 0;
   if (DialogBoxIsActive()) extra_flags |= 1;
+
+#ifdef SWELL_SUPPORT_GTK
+  if (hwnd == swell_ime_target &&
+      swell_ime_context &&
+      swell_gtk_im_context_filter_keypress &&
+      swell_gtk_im_context_filter_keypress(swell_ime_context, k))
+        return;
+#endif
   if (SWELLAppMain(SWELLAPP_PROCESSMESSAGE,(INT_PTR)&msg,extra_flags)<=0)
     SendMessage(hwnd, msg.message, kv, modifiers);
 }
@@ -1425,7 +1549,7 @@ static void OnMotionEvent(GdkEventMotion *m)
     POINT p2={(int)m->x_root, (int)m->y_root};
     ScreenToClient(hwnd, &p2);
     if (hwnd) hwnd->Retain();
-    SWELL_SendMouseMessage(hwnd, WM_MOUSEMOVE, 0, MAKELPARAM(p2.x, p2.y));
+    SWELL_SendMouseMessage(hwnd, WM_MOUSEMOVE, 0, MAKELPARAM(p2.x, p2.y), (int)m->x_root, (int)m->y_root);
     if (hwnd) hwnd->Release();
   }
 }
@@ -1449,7 +1573,7 @@ static void OnScrollEvent(GdkEventScroll *b)
       int v = (b->direction == GDK_SCROLL_UP || b->direction == GDK_SCROLL_LEFT) ? 120 : -120;
 
       if (hwnd) hwnd->Retain();
-      SWELL_SendMouseMessage(hwnd, msg, (v<<16), MAKELPARAM(p2.x, p2.y));
+      SWELL_SendMouseMessage(hwnd, msg, (v<<16), MAKELPARAM(p2.x, p2.y), (int)b->x_root, (int)b->y_root);
       if (hwnd) hwnd->Release();
     }
   }
@@ -1515,7 +1639,7 @@ static void OnButtonEvent(GdkEventButton *b)
   else if(b->type == GDK_2BUTTON_PRESS) 
   {
     msg++; // convert WM_xBUTTONDOWN to WM_xBUTTONUP
-    SWELL_SendMouseMessage(hwnd2, msg, 0, MAKELPARAM(p2.x, p2.y));
+    SWELL_SendMouseMessage(hwnd2, msg, 0, MAKELPARAM(p2.x, p2.y), (int)b->x_root, (int)b->y_root);
 
     // if capture was released by WM_LBUTTONUP, allow the DBLCLICK to go to the correct window
     HWND hwnd3 = getMouseTarget(b->window,p,&hwnd);
@@ -1532,7 +1656,7 @@ static void OnButtonEvent(GdkEventButton *b)
     msg++; // convert WM_xBUTTONUP to WM_xBUTTONDBLCLK
   }
 
-  SWELL_SendMouseMessage(hwnd2, msg, 0, MAKELPARAM(p2.x, p2.y));
+  SWELL_SendMouseMessage(hwnd2, msg, 0, MAKELPARAM(p2.x, p2.y), (int)b->x_root, (int)b->y_root);
   if (hwnd2) hwnd2->Release();
 }
 
@@ -1800,6 +1924,9 @@ static void swell_gdkEventHandler(GdkEvent *evt, gpointer data)
     case GDK_KEY_PRESS:
     case GDK_KEY_RELEASE:
       swell_dlg_destroyspare();
+#ifdef SWELL_SUPPORT_GTK
+      swell_im_update_candidates_location();
+#endif
       OnKeyEvent((GdkEventKey *)evt);
     break;
 #ifdef GDK_AVAILABLE_IN_3_4
@@ -1905,7 +2032,8 @@ static void swell_gdkEventHandler(GdkEvent *evt, gpointer data)
     break;
   }
 #ifdef SWELL_SUPPORT_GTK
-  gtk_main_do_event(evt);
+  if (swell_gtk_main_do_event)
+    swell_gtk_main_do_event(evt);
 #endif
   s_cur_evt = oldEvt;
 }
@@ -1917,12 +2045,6 @@ void SWELL_RunEvents()
 {
   if (SWELL_gdk_active>0) 
   {
-#if 0 && defined(SWELL_SUPPORT_GTK)
-    // does not seem to be necessary
-    while (gtk_events_pending())
-      gtk_main_iteration();
-#else
-
 #if SWELL_TARGET_GDK == 2
     gdk_window_process_all_updates();
 #endif
@@ -1937,7 +2059,6 @@ void SWELL_RunEvents()
         gdk_event_free(evt);
       }
     }
-#endif
 
     DWORD dt;
     if (s_ddrop_forward_last_has_dropped &&

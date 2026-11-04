@@ -80,7 +80,13 @@ if(NOT TARGET iPlug2::ReaperExt)
 endif()
 
 # Configure a REAPER extension target
+#
+# iplug_configure_reaperext(<target> <project_name>
+#   [WEB_RESOURCES_DIR <dir>]   # deployed to <UserPlugins>/<project_name>/
+# )
 function(iplug_configure_reaperext target project_name)
+  cmake_parse_arguments(REAPEREXT "" "WEB_RESOURCES_DIR" "" ${ARGN})
+
   target_link_libraries(${target} PUBLIC iPlug2::ReaperExt)
 
   # REAPER only loads extensions whose filename starts with "reaper_"
@@ -133,5 +139,37 @@ function(iplug_configure_reaperext target project_name)
   # Auto-deploy to REAPER UserPlugins if enabled
   if(IPLUG_DEPLOY_PLUGINS)
     iplug_deploy_target(${target} REAPEREXT ${reaper_ext_name})
+
+    # An extension is a bare dylib/DLL with no bundle to carry resources, so a WebView
+    # UI has nowhere to live in a release build. Deploy it alongside the extension, in
+    # <UserPlugins>/<project_name>/, which is where GetResourcePath() based lookups
+    # expect it. Keep <project_name> in step with SHARED_RESOURCES_SUBPATH in config.h.
+    if(REAPEREXT_WEB_RESOURCES_DIR)
+      iplug_get_default_deploy_path(REAPEREXT)
+
+      if("${IPLUG_DEPLOY_PATH_REAPEREXT}" STREQUAL "")
+        message(STATUS "[iPlug2] No REAPER UserPlugins path on this platform, skipping web resources")
+      else()
+        # POST_BUILD commands run in the binary dir, so resolve a relative directory
+        # against the caller's source dir rather than looking for it under the build tree.
+        get_filename_component(web_resources_dir "${REAPEREXT_WEB_RESOURCES_DIR}"
+          ABSOLUTE BASE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
+
+        if(NOT IS_DIRECTORY "${web_resources_dir}")
+          message(FATAL_ERROR "iplug_configure_reaperext(${target}): WEB_RESOURCES_DIR "
+            "'${REAPEREXT_WEB_RESOURCES_DIR}' does not exist (looked in ${web_resources_dir})")
+        endif()
+
+        set(web_deploy_path "${IPLUG_DEPLOY_PATH_REAPEREXT}/${project_name}")
+        message(STATUS "[iPlug2] Will deploy ${target} web resources to ${web_deploy_path}")
+
+        add_custom_command(TARGET ${target} POST_BUILD
+          COMMAND ${CMAKE_COMMAND} -E copy_directory
+            "${web_resources_dir}" "${web_deploy_path}"
+          COMMENT "[iPlug2] Deploying ${project_name} web resources"
+          VERBATIM
+        )
+      endif()
+    endif()
   endif()
 endfunction()

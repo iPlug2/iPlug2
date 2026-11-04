@@ -1236,6 +1236,7 @@ void LICE_ScaledBlit(LICE_IBitmap *dest, LICE_IBitmap *src,
   int destbm_w = dest->getWidth(), destbm_h = dest->getHeight();
   int __sc = (int)dest->Extended(LICE_EXT_GET_SCALING,NULL);
   const float srcx_orig = srcx, srcy_orig = srcy, srcw_orig = srcw, srch_orig = srch;
+  const int dstw_orig = dstw, dsth_orig = dsth;
   const int dstx_orig = dstx, dsty_orig = dsty;
   if (__sc>0)
   {
@@ -1277,6 +1278,16 @@ void LICE_ScaledBlit(LICE_IBitmap *dest, LICE_IBitmap *src,
       LICE_BlitInt(dest,src,dstx_orig,dsty_orig,&sr,alpha,mode,false);
       return;
     }
+  }
+  if (srcw == 1.0 && srch == 1.0 &&
+      (dstw > 2 || dsth > 2) &&
+      srcx >= 0.0 && srcy >= 0.0 && srcx < srcbm_w && srcy < srcbm_h)
+  {
+    const int sx = (int) srcx, sy = (int) srcy;
+    const LICE_pixel px = src->getBits()[sx + sy*src->getRowSpan()];
+    if (alpha != 0.0)
+      LICE_FillRect(dest, dstx_orig, dsty_orig, dstw_orig, dsth_orig, px, alpha, mode);
+    return;
   }
 
 #ifndef DISABLE_LICE_EXTENSIONS
