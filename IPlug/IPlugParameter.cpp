@@ -236,6 +236,7 @@ void IParam::Init(const IParam& p, const char* searchStr, const char* replaceStr
   }
   
   InitDouble(str.Get(), p.mDefault, p.mMin, p.mMax, p.mStep, p.mLabel, p.mFlags, group.Get(), *p.mShape, p.mUnit, p.mDisplayFunction);
+  mParseFunction = p.mParseFunction;
   
   for (auto i=0; i<p.NDisplayTexts(); i++)
   {
@@ -358,6 +359,10 @@ bool IParam::MapDisplayText(const char* str, double* pValue) const
 double IParam::StringToValue(const char* str) const
 {
   double v = 0.;
+
+  if (mParseFunction != nullptr && mParseFunction(str, v))
+    return Constrain(v);
+
   bool mapped = (bool) NDisplayTexts();
 
   if (mapped)
