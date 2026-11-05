@@ -1514,6 +1514,14 @@ void IGraphics::OnGUIIdle()
   ForAllControls(&IControl::OnGUIIdle);
 }
 
+void IGraphics::StartDragResize()
+{
+  mResizingInProcess = true;
+  mDragResizeStartW = Width();
+  mDragResizeStartH = Height();
+  mDragResizeFromScreen = GetMouseScreenLocation(mDragResizeScreenX, mDragResizeScreenY);
+}
+
 void IGraphics::OnDragResize(float x, float y)
 {
   if(mGUISizeMode == EUIResizerMode::Scale)
@@ -1525,7 +1533,19 @@ void IGraphics::OnDragResize(float x, float y)
   }
   else
   {
-    Resize(static_cast<int>(x), static_cast<int>(y), GetDrawScale());
+    float sx, sy;
+    if (mDragResizeFromScreen && GetMouseScreenLocation(sx, sy))
+    {
+      // Measure the drag on the screen: the host may move the view as the
+      // window grows (e.g. keeping its bottom edge in place), which
+      // would move the mouse in view coordinates and feed back into the size.
+      const float scale = GetDrawScale();
+      Resize(mDragResizeStartW + static_cast<int>(std::round((sx - mDragResizeScreenX) / scale)),
+             mDragResizeStartH + static_cast<int>(std::round((sy - mDragResizeScreenY) / scale)),
+             scale);
+    }
+    else
+      Resize(static_cast<int>(x), static_cast<int>(y), GetDrawScale());
   }
 }
 
