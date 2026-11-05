@@ -1151,6 +1151,18 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
   [self endUserInput ];
 }
 
+// Escape cancels text entry (as on Windows) instead of committing it.
+- (BOOL) control: (NSControl*) control textView: (NSTextView*) textView doCommandBySelector: (SEL) commandSelector
+{
+  if (commandSelector == @selector(cancelOperation:))
+  {
+    [self endUserInput ];
+    mGraphics->SetAllControlsDirty();
+    return YES;
+  }
+  return NO;
+}
+
 - (IPopupMenu*) createPopupMenu: (IPopupMenu&) menu : (NSRect) bounds;
 {
   IGRAPHICS_MENU_RCVR* pDummyView = [[[IGRAPHICS_MENU_RCVR alloc] initWithFrame:bounds] autorelease];
