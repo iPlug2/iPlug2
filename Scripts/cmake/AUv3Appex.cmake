@@ -16,7 +16,12 @@ function(iplug_configure_auv3appex target project_name)
 
   # Appex is an app bundle (executable) with .appex extension
   # Uses NSExtensionMain entry point from Foundation
-  # OUTPUT_NAME matches CFBundleExecutable in Info.plist
+  # OUTPUT_NAME matches CFBundleExecutable in Info.plist, and the bundle is
+  # ${project_name}.appex, as the Xcode projects produce. App Store validation
+  # rejects an appex whose CFBundleExecutable differs from its bundle name
+  # (ITMS-90362 "Invalid Info.plist value"), so the bundle must not be renamed
+  # after the build.
+  #
   # For Ninja: Use separate output dir to avoid collision with APP target
   if(XCODE)
     set(APPEX_OUTPUT_DIR "${CMAKE_BINARY_DIR}/out")
@@ -66,31 +71,26 @@ function(iplug_configure_auv3appex target project_name)
     )
   endif()
 
-  # Post-build: Create PkgInfo and rename bundle to final name
+  # Post-build: Create PkgInfo; for non-Xcode generators also move the bundle to out/
   # NOTE: Framework is NOT embedded in appex - it goes at app level (see iplug_embed_auv3_in_app)
   # NOTE: For Xcode generator, XCODE_ATTRIBUTE_WRAPPER_EXTENSION handles the .appex extension
   # PkgInfo via staged source + `cmake -E copy` (see APP.cmake for rationale).
   set(AUV3_APPEX_PKGINFO_SRC "${CMAKE_CURRENT_BINARY_DIR}/PkgInfo_${target}")
   file(WRITE "${AUV3_APPEX_PKGINFO_SRC}" "XPC!????")
+  set(APPEX_BUNDLE_NAME "${project_name}.appex")
 
   if(XCODE)
-    # For Xcode: XCODE_ATTRIBUTE_WRAPPER_EXTENSION creates .appex bundle directly
-    # Bundle is created as ${project_name}.appex, we rename to ${project_name}AUv3.appex
-    set(APPEX_BUNDLE "${CMAKE_BINARY_DIR}/out/$<CONFIG>/${project_name}.appex")
-    set(APPEX_FINAL "${CMAKE_BINARY_DIR}/out/$<CONFIG>/${project_name}AUv3.appex")
+    # For Xcode: XCODE_ATTRIBUTE_WRAPPER_EXTENSION creates ${APPEX_BUNDLE_NAME} directly
+    set(APPEX_BUNDLE "${CMAKE_BINARY_DIR}/out/$<CONFIG>/${APPEX_BUNDLE_NAME}")
     add_custom_command(TARGET ${target} POST_BUILD
       # Create PkgInfo
       COMMAND ${CMAKE_COMMAND} -E copy "${AUV3_APPEX_PKGINFO_SRC}" "${APPEX_BUNDLE}/Contents/PkgInfo"
-      # Rename bundle to final name with AUv3 suffix
-      COMMAND ${CMAKE_COMMAND} -E rm -rf "${APPEX_FINAL}"
-      COMMAND ${CMAKE_COMMAND} -E rename
-        "${APPEX_BUNDLE}"
-        "${APPEX_FINAL}"
-      COMMENT "Building ${project_name}AUv3.appex"
+      COMMENT "Building ${APPEX_BUNDLE_NAME}"
     )
   else()
     # For Ninja/other generators: Convert .app to .appex and move to final location
     # Bundle is built in appex-build/ subdir to avoid collision with APP target
+    set(APPEX_BUNDLE "${CMAKE_BINARY_DIR}/out/${APPEX_BUNDLE_NAME}")
     add_custom_command(TARGET ${target} POST_BUILD
       # Create PkgInfo
       COMMAND ${CMAKE_COMMAND} -E copy "${AUV3_APPEX_PKGINFO_SRC}" "$<TARGET_BUNDLE_DIR:${target}>/Contents/PkgInfo"
@@ -98,12 +98,12 @@ function(iplug_configure_auv3appex target project_name)
       COMMAND ${CMAKE_COMMAND} -E copy
         "${PLUG_RESOURCES_DIR}/${project_name}-macOS-AUv3-Info.plist"
         "$<TARGET_BUNDLE_DIR:${target}>/Contents/Info.plist"
-      # Move and rename .app bundle to .appex in final location
-      COMMAND ${CMAKE_COMMAND} -E rm -rf "${CMAKE_BINARY_DIR}/out/${project_name}AUv3.appex"
+      # Move the .app bundle to its final .appex location
+      COMMAND ${CMAKE_COMMAND} -E rm -rf "${APPEX_BUNDLE}"
       COMMAND ${CMAKE_COMMAND} -E rename
         "$<TARGET_BUNDLE_DIR:${target}>"
-        "${CMAKE_BINARY_DIR}/out/${project_name}AUv3.appex"
-      COMMENT "Building ${project_name}AUv3.appex"
+        "${APPEX_BUNDLE}"
+      COMMENT "Building ${APPEX_BUNDLE_NAME}"
     )
   endif()
 endfunction()
