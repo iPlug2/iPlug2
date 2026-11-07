@@ -45,23 +45,6 @@ void IPlugWasmUI::SendParameterValueFromUI(int paramIdx, double value)
   IPlugAPIBase::SendParameterValueFromUI(paramIdx, value);
 }
 
-void IPlugWasmUI::OnRestoreState()
-{
-  // The DSP instance only hears about parameter changes that are sent to it, so after restoring
-  // state on the UI instance (e.g. RestorePreset(), LoadPresetFromFXP()) send it every parameter value
-  for (int i = 0; i < NParams(); i++)
-  {
-    EM_ASM({
-      if (typeof window.iPlugController !== 'undefined') {
-        window.iPlugController.setParam($0, $1);
-      }
-    }, i, GetParam(i)->GetNormalized());
-  }
-
-  // Update the UI
-  IPlugAPIBase::OnRestoreState();
-}
-
 void IPlugWasmUI::SendMidiMsgFromUI(const IMidiMsg& msg)
 {
   EM_ASM({

@@ -39,10 +39,6 @@ public:
   void SendSysexMsgFromUI(const ISysEx& msg) override;
   void SendArbitraryMsgFromUI(int msgTag, int ctrlTag = kNoTag, int dataSize = 0, const void* pData = nullptr) override;
 
-  /** State (e.g. a preset) is restored on the UI instance, so this sends the new parameter values to the DSP instance.
-   * Plug-ins that override OnRestoreState() must call the base class! */
-  void OnRestoreState() override;
-
   /** Plug-ins that override OnIdle() must call the base class! */
   void OnIdle() override { SendDSPIdleTick(); }
 
