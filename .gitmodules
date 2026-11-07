@@ -1,0 +1,3 @@
+[submodule "Examples/IPlugElements/elements"]
+	path = Examples/IPlugElements/elements
+	url = git@github.com:cycfi/elements.git
