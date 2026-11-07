@@ -1413,6 +1413,8 @@ public:
 
   void SetGearing(double gearing) { mGearing = gearing; }
   bool IsFineControl(const IMouseMod& mod, bool wheel) const;
+
+  EDirection GetDirection() const { return mDirection; }
   
 protected:
   bool mHideCursorOnDrag = true;
@@ -1663,6 +1665,8 @@ public:
       mTrackNames.Get(chIdx)->Set(newName);
     }
   }
+
+  EDirection GetDirection() const { return mDirection; }
   
 protected:
   virtual void DrawBackground(IGraphics& g, const IRECT& r) override

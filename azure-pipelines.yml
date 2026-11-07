@@ -5,7 +5,7 @@ parameters:
   default: false
 
 variables:
-  build_deps: false # set true to build optional dependencies, if false, pre-built versions are downloaded
+  build_deps: false # set true to build optional dependencies, e.g. (Skia, FAUST etc), if false, pre-built versions are downloaded
 
   #GRAPHICS BACKENDS
   build_skia: false # set true to build Skia graphics backend (in addition to NanoVG)

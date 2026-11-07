@@ -1,0 +1,752 @@
+//#################################### interpolators.lib ########################################
+// A library to handle interpolation. Its official prefix is `it`.
+//
+// This library provides several basic interpolation functions, as well as interpolators 
+// taking a `gen` circuit of N outputs producing values to be interpolated, triggered
+// by a `idv` read index signal. Two points and four points interpolations are implemented.
+//
+// The `idv` parameter is to be used as a read index. In `-single` (= singleprecision) mode, 
+// a technique based on 2 signals with the pure integer index and a fractional part in the [0,1] 
+// range is used to avoid accumulating errors. In `-double` (= doubleprecision) or `-quad` (= quadprecision) modes, 
+// a standard implementation with a single fractional index signal is used. Three functions `int_part`, `frac_part` and `mak_idv` are available to manipulate the read index signal.
+//
+// Here is a use-case with `waveform`. Here the signal given to `interpolator_XXX` uses the `idv` model.
+// 
+// ```
+// waveform_interpolator(wf, step, interp) = interp(gen, idv)
+// with {
+//    gen(idx) = wf, (idx:max(0):min(size-1)) : rdtable with { size = wf:(_,!); };   /* waveform size */
+//    index = (+(step)~_)-step;  /* starting from 0 */
+//    idv = it.make_idv(index);  /* build the signal for interpolation in a generic way */
+// };
+// 
+// waveform_linear(wf, step) = waveform_interpolator(wf, step, it.interpolator_linear);
+// waveform_cosine(wf, step) = waveform_interpolator(wf, step, it.interpolator_cosine);
+// waveform_cubic(wf, step) = waveform_interpolator(wf, step, it.interpolator_cubic);
+// 
+// waveform_interp(wf, step, selector) = waveform_interpolator(wf, step, interp_select(selector))
+// with {
+//    /* adapts the argument order */
+//    interp_select(sel, gen, idv) = it.interpolator_select(gen, idv, sel);
+// };
+// 
+// waveform and index 
+// waveform_interpolator1(wf, idv, interp) = interp(gen, idv)
+// with {
+//    gen(idx) = wf, (idx:max(0):min(size-1)) : rdtable with { size = wf:(_,!); };   /* waveform size */
+// };
+// 
+// waveform_linear1(wf, idv) = waveform_interpolator1(wf, idv, it.interpolator_linear);
+// waveform_cosine1(wf, idv) = waveform_interpolator1(wf, idv, it.interpolator_cosine);
+// waveform_cubic1(wf, idv) = waveform_interpolator1(wf, idv, it.interpolator_cubic);
+// 
+// waveform_interp1(wf, idv, selector) = waveform_interpolator1(wf, idv, interp_select(selector))
+// with {
+//    /* adapts the argument order */
+//    interp_select(sel, gen, idv) = it.interpolator_select(gen, idv, sel);
+// };
+// ```
+// 
+// Some tests here:
+// 
+// ```
+// wf = waveform {0.0, 10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 50.0, 40.0, 30.0, 20.0, 10.0, 0.0};
+// 
+// process = waveform_linear(wf, step), waveform_cosine(wf, step), waveform_cubic(wf, step) with { step = 0.25; };
+// 
+// process = waveform_interp(wf, 0.25, nentry("algo", 0, 0, 3, 1));
+// 
+// process = waveform_interp1(wf, idv, nentry("algo", 0, 0, 3, 1))
+// with {
+//    step = 0.1;
+//    idv_aux = (+(step)~_)-step;  /* starting from 0 */
+//    idv = it.make_idv(idv_aux);  /* build the signal for interpolation in a generic way */
+// };
+// 
+// /* Test linear interpolation between 2 samples with a `(idx,dv)` signal built using a waveform */
+// linear_test = (idx,dv), it.interpolator_linear(gen, (idx,dv))
+// with {
+//    /* signal to interpolate (only 2 points here) */
+//    gen(id) = waveform {3.0, -1.0}, (id:max(0)) : rdtable;
+//    dv = waveform {0.0, 0.25, 0.50, 0.75, 1.0}, index : rdtable;
+//    idx = 0; 
+//    /* test index signal */
+//    index = (+(1)~_)-1;   /* starting from 0 */
+// };
+// 
+// /* Test cosine interpolation between 2 samples with a `(idx,dv)` signal built using a waveform */
+// cosine_test = (idx,dv), it.interpolator_cosine(gen, (idx,dv))
+// with {
+//    /* signal to interpolate (only 2 points here) */
+//    gen(id) = waveform {3.0, -1.0}, (id:max(0)) : rdtable;
+//    dv = waveform {0.0, 0.25, 0.50, 0.75, 1.0}, index : rdtable;
+//    idx = 0;
+//    /* test index signal */
+//    index = (+(1)~_)-1;   /* starting from 0 */
+// };
+// 
+// /* Test cubic interpolation between 4 samples with a `(idx,dv)` signal built using a waveform */
+// cubic_test = (idx,dv), it.interpolator_cubic(gen, (idx,dv))
+// with {
+//    /* signal to interpolate (only 4 points here) */
+//    gen(id) = waveform {-1.0, 2.0, 1.0, 4.0}, (id:max(0)) : rdtable;
+//    dv = waveform {0.0, 0.25, 0.50, 0.75, 1.0}, index : rdtable;
+//    idx = 0;
+//    /* test index signal */
+//    index = (+(1)~_)-1;   /* starting from 0 */
+// };
+// ```
+//
+// #### References
+//
+// <https://github.com/grame-cncm/faustlibraries/blob/master/interpolators.lib>
+//########################################################################################
+
+/************************************************************************
+************************************************************************
+FAUST library file
+Copyright (C) 2019-2020 GRAME, Centre National de Creation Musicale
+----------------------------------------------------------------------
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public License as
+published by the Free Software Foundation; either version 2.1 of the
+License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with the GNU C Library; if not, write to the Free
+Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+02111-1307 USA.
+
+EXCEPTION TO THE LGPL LICENSE : As a special exception, you may create a
+larger FAUST program which directly or indirectly imports this library
+file and still distribute the compiled code generated by the FAUST
+compiler, or a modified version of this compiled code, under your own
+copyright and license. This EXCEPTION TO THE LGPL LICENSE explicitly
+grants you the right to freely choose the license for the resulting
+compiled code. In particular the resulting compiled code has no obligation
+to be LGPL or GPL. For example you are free to choose a commercial or
+closed source license or any other license if you decide so.
+************************************************************************
+************************************************************************/
+
+ba = library("basics.lib");
+ro = library("routes.lib");
+ma = library("maths.lib");
+si = library("signals.lib");
+
+declare name "Faust Interpolator Library";
+declare version "1.4.0";
+
+// Produces 0 until the first trig, then 1 until the next trig (which outputs a 0 sample to reset), and so on
+reset(trig) = hold * (trig <= trig')
+with {
+    hold = select2(trig,_,trig) ~ _;
+};
+ 
+// The following 3 functions allow to adapt a 'single signal' fractional idv in this [idx, dv] model.
+singleprecision int_part(idv) = idv : _,!;
+singleprecision frac_part(idv) = idv : !,_;
+singleprecision make_idv(id) = int(id), ma.frac(id);
+
+// Infinite raising index
+singleprecision raise(trig, step, length) = id, dv
+letrec {
+    'id = (id + int(step) + int(dv + ma.frac(step))) * reset(trig);
+    'dv = ma.frac(dv + ma.frac(step)) * reset(trig);
+};
+
+// Modulo based raising index
+singleprecision raise_modulo(trig, step, length) = id, dv
+letrec {
+    'id = fmod(id + int(step) + int(dv + ma.frac(step)), length) * reset(trig);
+    'dv = ma.frac(dv + ma.frac(step)) * reset(trig);
+};
+
+// Decreasing index starting at 'length'
+singleprecision decrease(trig, step, length) = raise(trig, -step, length) : (+(length), _);
+
+// Modulo decreasing index starting at 'length'
+singleprecision decrease_modulo(trig, step, length) = raise_modulo(trig, -step, length) : (+(length), _);
+
+// The following 3 functions allow to adapt a 'single signal' fractional idv in this [idx, dv] model.
+
+doubleprecision quadprecision int_part(idv) = int(idv);
+doubleprecision quadprecision frac_part(idv) = ma.frac(idv);
+doubleprecision quadprecision make_idv(id) = id;
+
+// Infinite raising index
+doubleprecision quadprecision raise(trig, step, length) = idv
+letrec {
+    'idv = (idv + step) * reset(trig);
+};
+
+// Modulo based raising index
+doubleprecision quadprecision raise_modulo(trig, step, length) = idv
+letrec {
+    'idv = fmod(idv + step, length) * reset(trig);
+};
+
+// Decreasing index starting at 'length'
+doubleprecision quadprecision decrease(trig, step, length) = raise(trig, -step, length) + length;
+
+// Modulo decreasing index starting at 'length'
+doubleprecision quadprecision decrease_modulo(trig, step, length) = raise_modulo(trig, -step, length) + length;
+ 
+//=========================Two points interpolation functions=============================
+//========================================================================================
+
+//-------`(it.)interpolate_linear`----------
+// Linear interpolation between 2 values.
+//
+// #### Usage
+//
+// ```
+// interpolate_linear(dv,v0,v1) : _
+// ```
+//
+// Where:
+//
+// * `dv`: in the fractional value in [0..1] range
+// * `v0`: is the first value
+// * `v1`: is the second value
+//
+//
+// #### Reference:
+//
+// <https://github.com/jamoma/JamomaCore/blob/master/Foundation/library/includes/TTInterpolate.h>
+//
+//--------------------------------------------
+
+declare interpolate_linear author "Stéphane Letz";
+declare interpolate_linear licence "MIT";
+
+interpolate_linear(dv,v0,v1) = v0 + dv*(v1-v0);  // (faster than v0*(1-dv)+v1*dv which is currently not optimized...)
+
+
+//-------`(it.)interpolate_cosine`----------
+// Cosine interpolation between 2 values.
+//
+// #### Usage
+//
+// ```
+// interpolate_cosine(dv,v0,v1) : _
+// ```
+//
+// Where:
+//
+// * `dv`: in the fractional value in [0..1] range
+// * `v0`: is the first value
+// * `v1`: is the second value
+//
+//
+// #### Reference:
+//
+// <https://github.com/jamoma/JamomaCore/blob/master/Foundation/library/includes/TTInterpolate.h>
+//
+//--------------------------------------------
+declare interpolate_cosine author "Stéphane Letz";
+declare interpolate_cosine licence "MIT";
+
+interpolate_cosine(dv,v0,v1) = v0 + a2*(v1-v0) with { a2 = 0.5 * (1.0 - cos(dv*ma.PI)); };
+
+
+//=========================Four points interpolation functions============================
+//========================================================================================
+
+//-------`(it.)interpolate_cubic`----------
+// Cubic interpolation between 4 values.
+//
+// #### Usage
+//
+// ```
+// interpolate_cubic(dv,v0,v1,v2,v3) : _
+// ```
+//
+// Where:
+//
+// * `dv`: in the fractional value in [0..1] range
+// * `v0`: is the first value
+// * `v1`: is the second value
+// * `v2`: is the third value
+// * `v3`: is the fourth value
+//
+//
+// #### Reference:
+//
+// <https://www.paulinternet.nl/?page=bicubic>
+//
+//--------------------------------------------
+declare interpolate_cubic author "Stéphane Letz";
+declare interpolate_cubic licence "MIT";
+
+interpolate_cubic(dv,v0,v1,v2,v3) 
+	= v1 + 0.5*dv*(v2 - v0 + dv*(2.0*v0 - 5.0*v1 + 4.0*v2 - v3 + dv*(3.0*(v1 - v2) + v3 - v0)));
+
+
+//=========================Two points interpolators=======================================
+//========================================================================================
+
+//-------`(it.)interpolator_two_points`----------
+// Generic interpolator on two points (current and next index), assuming an increasing index.
+//
+// #### Usage
+//
+// ```
+// interpolator_two_points(gen, idv, interpolate_two_points) : si.bus(outputs(gen))
+// ```
+//
+// Where:
+//
+// * `gen`: a circuit with an 'idv' reader input that produces N outputs
+// * `idv`: a fractional read index expressed as a float value, or a (int,frac) pair
+// * `interpolate_two_points`: a two points interpolation function
+//
+//--------------------------------------------
+declare interpolator_two_points author "Stéphane Letz";
+declare interpolator_two_points licence "MIT";
+
+interpolator_two_points(gen, idv, interpolate_two_points) = (gen(id0), gen(id1))
+                                                            : ro.interleave(outputs(gen), 2)
+                                                            : par(i, outputs(gen), interpolate_two_points(dv))
+with {
+    id0 = int_part(idv); // index integer part
+    id1 = id0 + 1;       // next index
+    dv = frac_part(idv); // index fractional part in [0..1]
+};
+
+
+//-------`(it.)interpolator_linear`----------
+// Linear interpolator for a 'gen' circuit triggered by an 'idv' input to generate values.
+//
+// #### Usage
+//
+// ```
+// interpolator_linear(gen, idv) : si.bus(outputs(gen))
+// ```
+//
+// Where:
+//
+// * `gen`: a circuit with an 'idv' reader input that produces N outputs
+// * `idv`: a fractional read index expressed as a float value, or a (int,frac) pair
+//
+//--------------------------------------------
+declare interpolator_linear author "Stéphane Letz";
+declare interpolator_linear licence "MIT";
+
+interpolator_linear(gen, idv) = interpolator_two_points(gen, idv, interpolate_linear);
+
+
+//-------`(it.)interpolator_cosine`----------
+// Cosine interpolator for a 'gen' circuit triggered by an 'idv' input to generate values.
+//
+// #### Usage
+//
+// ```
+// interpolator_cosine(gen, idv) : si.bus(outputs(gen))
+// ```
+//
+// Where:
+//
+// * `gen`: a circuit with an 'idv' reader input that produces N outputs
+// * `idv`: a fractional read index expressed as a float value, or a (int,frac) pair
+//
+//--------------------------------------------
+declare interpolator_cosine author "Stéphane Letz";
+declare interpolator_cosine licence "MIT";
+
+interpolator_cosine(gen, idv) = interpolator_two_points(gen, idv, interpolate_cosine);
+
+
+// To be used in 'interpolator_select'
+interpolator_null(gen, idv) = interpolator_two_points(gen, idv, \(dv,v0,v1).(v0));
+
+
+//=========================Four points interpolators======================================
+//========================================================================================
+
+//-------`(it.)interpolator_four_points`----------
+// Generic interpolator on interpolator_four_points points (previous, current and two next indexes), assuming an increasing index.
+//
+// #### Usage
+//
+// ```
+// interpolator_four_points(gen, idv, interpolate_four_points) : si.bus(outputs(gen))
+// ```
+//
+// Where:
+//
+// * `gen`: a circuit with an 'idv' reader input that produces N outputs
+// * `idv`: a fractional read index expressed as a float value, or a (int,frac) pair
+// * `interpolate_four_points`: a four points interpolation function
+//
+//--------------------------------------------
+declare interpolator_four_points author "Stéphane Letz";
+declare interpolator_four_points licence "MIT";
+
+interpolator_four_points(gen, idv, interpolate_four_points) = (gen(id0), gen(id1), gen(id2), gen(id3))
+                                                            : ro.interleave(outputs(gen), 4)
+                                                            : par(i, outputs(gen), interpolate_four_points(dv))
+with {
+    id0 = id1 - 1;       // previous index
+    id1 = int_part(idv); // index integer part
+    id2 = id1 + 1;       // next index
+    id3 = id2 + 1;       // next index
+    dv = frac_part(idv); // index fractional part in [0..1]
+};
+
+
+//-------`(it.)interpolator_cubic`----------
+// Cubic interpolator for a 'gen' circuit triggered by an 'idv' input to generate values.
+//
+// #### Usage
+//
+// ```
+// interpolator_cubic(gen, idv) : si.bus(outputs(gen))
+// ```
+//
+// Where:
+//
+// * `gen`: a circuit with an 'idv' reader input that produces N outputs
+// * `idv`: a fractional read index expressed as a float value, or a (int,frac) pair
+//
+//--------------------------------------------
+declare interpolator_cubic author "Stéphane Letz";
+declare interpolator_cubic licence "MIT";
+
+interpolator_cubic(gen, idv) = interpolator_four_points(gen, idv, interpolate_cubic);
+
+// Enum of interpolation algorithms
+MAX_INTER = 4;
+
+linear = 0;
+cosine = 1;
+cubic  = 2;
+nointerp = MAX_INTER-1;
+
+
+//-------`(it.)interpolator_select`----------
+// Generic configurable interpolator (with selector between in [0..3]). The value 3 is used for no interpolation.
+//
+// #### Usage
+//
+// ```
+// interpolator_select(gen, idv, sel) : _,_... (equal to N = outputs(gen))
+// ```
+//
+// Where:
+//
+// * `gen`: a circuit with an 'idv' reader input that produces N outputs
+// * `idv`: a fractional read index expressed as a float value, or a (int,frac) pair
+// * `sel`: an interpolation algorithm selector in [0..3] (0 = linear, 1 = cosine, 2 = cubic, 3 = nointerp)
+//
+//--------------------------------------------
+declare interpolator_select author "Stéphane Letz";
+declare interpolator_select licence "MIT";
+
+interpolator_select(gen, idv, sel) = ba.selectmulti(ma.SR/10, interpolators, sel)
+with {
+	interpolators = (interpolator_linear(gen, idv),
+                    interpolator_cosine(gen, idv),
+                    interpolator_cubic(gen, idv),
+                    interpolator_null(gen, idv));
+};
+
+//======= Generic piecewise linear interpolation ===============================
+//==============================================================================
+//
+//-------`(it.)lerp`------------------------------------------------------------
+// Linear interpolation between two points.
+//
+// #### Usage
+//
+// ```
+// lerp(x0, x1, y0, y1, x) : si.bus(1);
+// ```
+//
+// Where:
+//
+// * `x0`: x-coordinate origin
+// * `x1`: x-coordinate destination
+// * `y0`: y-coordinate origin
+// * `y1`: y-coordinate destination
+// * `x`: x-coordinate input
+//------------------------------------------------------------------------------
+declare lerp author "Dario Sanfilippo";
+declare lerp licence "MIT";
+lerp(x0, x1, y0, y1, x) = y
+    with {
+        xRange = x1 - x0;
+        yRange = y1 - y0;
+        nonZeroDomain(x) = ba.if(x >= 0, max(ma.EPSILON, x), min(0 - ma.EPSILON, x));
+        c = (x - x0) / nonZeroDomain(xRange);
+        y = c * yRange + y0;
+    };
+//------------------------------------------------------------------------------
+
+//-------`(it.)piecewise`-------------------------------------------------------
+// Linear piecewise interpolation between N points.
+//
+// #### Usage
+//
+// ```
+// piecewise(xList, yList, x) : si.bus(1);
+// ```
+//
+// Where:
+//
+// * `xList`: x-coordinates list
+// * `yList`: y-coordinates list
+// * `x`: x-coordinate input
+//
+// #### Example test program
+// The code below will output the values of linear segments going through the
+// y coordinates as the input goes from -5 to 5:
+// 
+// ```
+// x = hslider("x", -5, -5.0, 5.0, .001);
+// process = it.piecewise((-5, -3, 0, 3, 5), (2, 0, 3, -3, -2), x);
+// ```
+//
+//------------------------------------------------------------------------------
+declare piecewise author "Dario Sanfilippo";
+declare piecewise licence "MIT";
+piecewise(xList, yList, x) = y , assert
+    with {
+        N = outputs(xList);
+        M = outputs(yList);
+        assert = par(i, N, 0) : si.block(M);
+        xPoint(i) = ba.selectn(N, i, xList);
+        yPoint(i) = ba.selectn(M, i, yList);
+        pieceSel = par(i, N - 2, (xPoint(i) <= x) & (x < xPoint(i + 1))) , x >= xPoint(N - 2) : par(i, N - 1, *(i)) :> _;
+        y = lerp(xPoint(pieceSel), xPoint(pieceSel + 1), yPoint(pieceSel), yPoint(pieceSel + 1), x);
+    };
+
+//=========================Lagrange based interpolators====================================
+//========================================================================================
+
+//-------`(it.)lagrangeCoeffs`---------------------------------------------
+//
+// This is a function to generate N + 1 coefficients for an Nth-order Lagrange
+// basis polynomial with arbitrary spacing of the points.
+//
+// #### Usage
+//
+// ```
+// lagrangeCoeffs(N, xCoordsList, x) : si.bus(N + 1)
+// ```
+//
+// Where:
+//
+// * `N`: order of the interpolation filter, known at compile-time
+// * `xCoordsList`: a list of N + 1 elements determining the x-axis coordinates of N + 1 values, known at compile-time
+// * `x`: a fractional position on the x-axis to obtain the interpolated y-value
+//
+// #### Reference
+//
+// <https://ccrma.stanford.edu/~jos/pasp/Lagrange_Interpolation.html>
+// <https://en.wikipedia.org/wiki/Lagrange_polynomial>
+//------------------------------------------------------------
+
+declare lagrangeCoeffs author "Dario Sanfilippo";
+declare lagrangeCoeffs copyright "Copyright (C) 2021 Dario Sanfilippo
+    <sanfilippo.dario@gmail.com>";
+declare lagrangeCoeffs license "MIT license";
+lagrangeCoeffs(N, xCoords, x) = par(n, N + 1, prod(k, N + 1, f(n, k)))
+    with {
+        xVals(i) = ba.take(i + 1, xCoords);
+        f(n, k) = ((x - xVals(k)) * (n != k) + (n == k)) / 
+                  ((xVals(n) - xVals(k)) + (n == k));
+    };
+// The following definition for uniformely-spaced points interpolation is kept for back-compatibility
+lagrange_h(N, x) = lagrangeCoeffs(N, xCoord, x)
+    with {
+        xCoord = par(i, N + 1, i);
+    };
+
+
+//-------`(it.)lagrangeInterpolation`--------------------------------------
+//
+// Nth-order Lagrange interpolator to interpolate between a set of arbitrarily spaced N + 1 points.
+//
+// #### Usage
+//
+// ```
+// x , yCoords : lagrangeInterpolation(N, xCoordsList) : _
+// ```
+//
+// Where:
+//
+// * `N`: order of the interpolator, known at compile-time
+// * `xCoordsList`: a list of N + 1 elements determining the x-axis spacing of the points, known at compile-time
+// * `x`: an x-axis position to interpolate between the y-values
+// * `yCoords`: N + 1 elements determining the values of the interpolation points
+//
+// Example: find the centre position of a four-point set using an order-3
+// Lagrange function fitting the equally-spaced points [2, 5, -1, 3]:
+//
+// ```
+// N = 3;
+// xCoordsList = (0, 1, 2, 3);
+// x = N / 2.0;
+// yCoords = 2, 5, -1, 3;
+// process = x, yCoords : it.lagrangeInterpolation(N, xCoordsList);
+// ```
+//
+// which outputs ~1.938.
+//
+// Example: output the dashed curve showed on the Wikipedia page (top figure in <https://en.wikipedia.org/wiki/Lagrange_polynomial>):
+//
+// ```
+// N = 3;
+// xCoordsList = (-9, -4, -1, 7);
+// x = os.phasor(16, 1) - 9;
+// yCoords = 5, 2, -2, 9;
+// process = x, yCoords : it.lagrangeInterpolation(N, xCoordsList);
+// ```
+//
+// #### Reference
+// 
+// <https://ccrma.stanford.edu/~jos/pasp/Lagrange_Interpolation.html>
+// Sanfilippo and Parker 2021, "Combining zeroth and first‐order analysis with Lagrange polynomials to reduce artefacts in live concatenative granular processing." Proceedings of the DAFx conference 2021, Vienna, Austria.
+// <https://dafx2020.mdw.ac.at/proceedings/papers/DAFx20in21_paper_38.pdf>
+//------------------------------------------------------------
+
+declare lagrangeInterpolation author "Dario Sanfilippo";
+declare lagrangeInterpolation copyright "Copyright (C) 2021 Dario Sanfilippo
+    <sanfilippo.dario@gmail.com>";
+declare lagrangeInterpolation license "MIT license";
+lagrangeInterpolation(N, xCoords, x) = si.dot(N + 1, lagrangeCoeffs(N, xCoords, x));
+// The following definition for uniformely-spaced points interpolation is kept for back-compatibility
+lagrangeN(N, x) = si.dot(N + 1, lagrange_h(N, x));
+
+
+//-------`(it.)frdtable`--------------------------------------------
+//
+// Look-up circular table with Nth-order Lagrange interpolation for fractional
+// indexes. The index is wrapped-around and the table is cycles for an index
+// span of size S, which is the table size in samples.
+//
+// #### Usage
+//
+// ```
+// frdtable(N, S, init, idx) : _
+// ```
+//
+// Where:
+//
+// * `N`: Lagrange interpolation order, known at compile-time
+// * `S`: table size in samples, known at compile-time
+// * `init`: the initial table content, known at compile-time
+// * `idx`: fractional index wrapped-around 0 and S
+//
+// #### Example test program
+// Test the effectiveness of the 5th-order interpolation scheme by 
+// creating a table look-up oscillator using only 16 points of a sinewave; 
+// compare the result with a non-interpolated version:
+//
+// ```
+// N = 5;
+// S = 16;
+// index = os.phasor(S, 1000);
+// process = rdtable(S, os.sinwaveform(S), int(index)) ,
+//           it.frdtable(N, S, os.sinwaveform(S), index);
+// ```
+//------------------------------------------------------------
+
+declare frdtable author "Dario Sanfilippo";
+declare frdtable copyright "Copyright (C) 2021 Dario Sanfilippo
+    <sanfilippo.dario@gmail.com>";
+declare frdtable license "LGPL v3.0 license";
+frdtable(N, S, init, idx) =
+    lagrangeN(N, f_idx, par(i, N + 1, table(i_idx - int(N / 2) + i)))
+    with {
+        table(j) = rdtable(S, init, int(ma.modulo(j, S)));
+        f_idx = ma.frac(idx) + int(N / 2);
+        i_idx = int(idx);
+    };
+
+
+//-------`(it.)frwtable`--------------------------------------------
+//
+// Look-up updatable circular table with Nth-order Lagrange interpolation for
+// fractional indexes. The index is wrapped-around and the table is circular
+// indexes ranging from 0 to S, which is the table size in samples.
+//
+// #### Usage
+//
+// ```
+// frwtable(N, S, init, w_idx, x, r_idx) : _
+// ```
+//
+// Where:
+//
+// * `N`: Lagrange interpolation order, known at compile-time
+// * `S`: table size in samples, known at compile-time
+// * `init`: the initial table content, known at compile-time
+// * `w_idx`: it should be an INT between 0 and S - 1
+// * `x`: input signal written on the w_idx positions
+// * `r_idx`: fractional index wrapped-around 0 and S
+//
+// #### Example test program
+// Test the effectiveness of the 5th-order interpolation scheme by
+// creating a table look-up oscillator using only 16 points of a sinewave;
+// compare the result with a non-interpolated version:
+//
+// ```
+// N = 5;
+// S = 16;
+// rIdx = os.phasor(S, 300);
+// wIdx = ba.period(S);
+// process = rwtable(S, os.sinwaveform(S), wIdx, os.sinwaveform(S), int(rIdx)) ,
+//           it.frwtable(N, S, os.sinwaveform(S), wIdx, os.sinwaveform(S), rIdx);
+// ```
+//------------------------------------------------------------
+
+declare frwtable author "Dario Sanfilippo";
+declare frwtable copyright "Copyright (C) 2021 Dario Sanfilippo
+    <sanfilippo.dario@gmail.com>";
+declare frwtable license "LGPL v3.0 license";
+frwtable(N, S, init, w_idx, x, r_idx) =
+    lagrangeN(N, f_idx, par(i, N + 1, table(i_idx - int(N / 2) + i)))
+    with {
+        table(j) = rwtable(S, init, w_idx, x, int(ma.modulo(j, S)));
+        f_idx = ma.frac(r_idx) + int(N / 2);
+        i_idx = int(r_idx);
+    };
+
+//=========================Misc functions=================================================
+//========================================================================================
+
+//---------------`(it.)remap`---------------------------------------------
+// Linearly map from an input domain to an output range.
+//
+// #### Usage
+//
+// ```
+// _ : remap(from1, from2, to1, to2) : _
+// ```
+//
+// Where:
+//
+// * `from1`: the domain's lower bound.
+// * `from2`: the domain's upper bound.
+// * `to1`: the range's lower bound.
+// * `to2`: the range's upper bound.
+//
+// Note that having `from1` == `from2` in the mapping will cause a division by zero that has to be taken in account.
+//
+// #### Example test program
+// An oscillator remapped from [-1., 1.] to [100., 1000.]:
+// ```
+// os.osc(440) : it.remap(-1., 1., 100., 1000.)
+// ```
+//------------------------------------------------------------
+declare remap author "David Braun";
+
+remap(from1, from2, to1, to2, x) = to1 + (x-from1)*(to2-to1)/(from2-from1);
+
