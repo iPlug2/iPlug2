@@ -1,0 +1,10 @@
+# Copyright 2020-2022 David Robillard <d@drobilla.net>
+# SPDX-License-Identifier: 0BSD OR ISC
+
+Checks: >
+  -bugprone-easily-swappable-parameters,
+  -hicpp-multiway-paths-covered,
+  -hicpp-signed-bitwise,
+  -llvm-header-guard,
+  -readability-function-cognitive-complexity,
+InheritParentConfig: true
