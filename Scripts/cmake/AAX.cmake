@@ -122,6 +122,11 @@ endif()
 # Configuration function for AAX targets
 function(iplug_configure_aax target project_name)
   target_link_libraries(${target} PUBLIC iPlug2::AAX)
+  # AAX_Export (AAX_Exports.cpp: ACFRegisterPlugin, ACFGetClassFactory, ...) is an
+  # OBJECT library. Linked only through the INTERFACE target above, its usage
+  # requirements propagate but its objects do not, so the plug-in had no ACF entry
+  # points and Pro Tools (Developer too) could not load it. Add the objects directly.
+  target_sources(${target} PRIVATE $<TARGET_OBJECTS:AAX_Export>)
 
   if(WIN32)
     # Windows: AAX bundle structure is ProjectName.aaxplugin/Contents/x64/ProjectName.aaxplugin
