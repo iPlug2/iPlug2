@@ -411,11 +411,29 @@ bool IPlugCLAP::renderSetMode(clap_plugin_render_mode mode) noexcept
 bool IPlugCLAP::stateSave(const clap_ostream* pStream) noexcept
 {
   IByteChunk chunk;
-  
+
   if (!SerializeState(chunk))
     return false;
-  
-  return pStream->write(pStream, chunk.GetData(), chunk.Size()) == chunk.Size();
+
+  // clap_ostream::write() may perform a short write (like POSIX write()) --
+  // it isn't required to write the whole buffer in one call, so this must
+  // loop until every byte is written rather than checking a single call's
+  // return value against the full size.
+  const uint8_t* pData = chunk.GetData();
+  int64_t remaining = chunk.Size();
+
+  while (remaining > 0)
+  {
+    const int64_t written = pStream->write(pStream, pData, static_cast<uint64_t>(remaining));
+
+    if (written <= 0)
+      return false;
+
+    pData += written;
+    remaining -= written;
+  }
+
+  return true;
 }
 
 bool IPlugCLAP::stateLoad(const clap_istream* pStream) noexcept
@@ -431,7 +449,7 @@ bool IPlugCLAP::stateLoad(const clap_istream* pStream) noexcept
 
   if (bytesRead != 0)
     return false;
-      
+
   bool restoredOK = UnserializeState(chunk, 0) >= 0;
   
   if (restoredOK)
