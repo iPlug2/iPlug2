@@ -944,6 +944,20 @@ emrun --no_emrun_detect index.html
   The Linux regression suite verifies these configuration restrictions and checks
   CLAP attach/show failures with a non-IGraphics editor that cannot open a window.
 
+An optional X11 embedding feasibility test is available on machines with
+`libwebkit2gtk-4.1-dev` installed:
+
+```bash
+cmake -S Tests/Linux -B build/linux-webkit-probe -G Ninja \
+  -DIPLUG_LINUX_WEBKIT_EMBED_PROBE=ON
+cmake --build build/linux-webkit-probe --target LinuxWebKitEmbedProbe
+ctest --test-dir build/linux-webkit-probe -R '^linux-webkit-embed$' --output-on-failure
+```
+
+This test embeds a GTK3 `GtkPlug` containing a WebKitGTK view in a raw X11
+parent, loads a page, and receives a JavaScript message. It does not enable
+Linux WebView plugins or prove compatibility with a DAW's event loop.
+
 ## Troubleshooting
 
 ### General
