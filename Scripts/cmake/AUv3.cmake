@@ -104,8 +104,8 @@ function(iplug_embed_auv3_in_app app_target project_name)
       COMMAND ${CMAKE_COMMAND} -E make_directory
         "$<TARGET_BUNDLE_DIR:${app_target}>/Contents/PlugIns"
       COMMAND ${CMAKE_COMMAND} -E copy_directory
-        "${CMAKE_BINARY_DIR}/out/$<CONFIG>/${project_name}AUv3.appex"
-        "$<TARGET_BUNDLE_DIR:${app_target}>/Contents/PlugIns/${project_name}AUv3.appex"
+        "${CMAKE_BINARY_DIR}/out/$<CONFIG>/${project_name}.appex"
+        "$<TARGET_BUNDLE_DIR:${app_target}>/Contents/PlugIns/${project_name}.appex"
       COMMENT "Embedding AUv3 (framework + appex) in ${project_name}.app"
     )
   else()
@@ -120,8 +120,8 @@ function(iplug_embed_auv3_in_app app_target project_name)
       COMMAND ${CMAKE_COMMAND} -E make_directory
         "$<TARGET_BUNDLE_DIR:${app_target}>/Contents/PlugIns"
       COMMAND ${CMAKE_COMMAND} -E copy_directory
-        "${CMAKE_BINARY_DIR}/out/${project_name}AUv3.appex"
-        "$<TARGET_BUNDLE_DIR:${app_target}>/Contents/PlugIns/${project_name}AUv3.appex"
+        "${CMAKE_BINARY_DIR}/out/${project_name}.appex"
+        "$<TARGET_BUNDLE_DIR:${app_target}>/Contents/PlugIns/${project_name}.appex"
       COMMENT "Embedding AUv3 (framework + appex) in ${project_name}.app"
     )
   endif()
