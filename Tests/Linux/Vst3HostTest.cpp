@@ -214,6 +214,7 @@ int main(int argc, char** argv)
   const auto exit = reinterpret_cast<bool (*)()>(dlsym(library, "ModuleExit"));
   const auto getFactory = reinterpret_cast<IPluginFactory* (*)()>(dlsym(library, "GetPluginFactory"));
   const auto idleCount = reinterpret_cast<unsigned (*)(unsigned)>(dlsym(library, "LinuxIdleProbeCount"));
+  const auto webProbe = reinterpret_cast<unsigned (*)(int)>(dlsym(library, "LinuxWebEditorProbe"));
   if (idleProbe && !idleCount)
   {
     fprintf(stderr, "Missing idle probe counters\n");
@@ -317,6 +318,49 @@ int main(int argc, char** argv)
       Check((result == kResultOk) == !expectFailure, "VST3 attach reports actual success or failure");
       if (result == kResultOk)
       {
+        if (strcmp(mode, "webview") == 0)
+        {
+          Check(webProbe != nullptr, "VST3 WebView exports test counters");
+          const auto deadline = Clock::now() + std::chrono::seconds(10);
+          while (webProbe && Clock::now() < deadline &&
+                 (webProbe(0) <= cycle || webProbe(1) <= cycle || webProbe(2) <= cycle))
+          {
+            frame.Pump();
+            host.Pump();
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+          }
+          Check(webProbe && webProbe(0) > cycle && webProbe(1) > cycle && webProbe(2) > cycle,
+                "VST3 WebView loads page and exchanges JS messages");
+          Window root = 0, owner = 0, *children = nullptr;
+          unsigned count = 0;
+          const bool queried = XQueryTree(display, parent, &root, &owner, &children, &count);
+          Check(queried && count > 0, "VST3 WebView embedded under host X11 parent");
+          if (children) XFree(children);
+          ViewRect resized(0, 0, 410 + static_cast<int>(cycle) * 10, 310);
+          Check(view->onSize(&resized) == kResultTrue, "resize VST3 WebView");
+          XResizeWindow(display, parent, resized.getWidth(), resized.getHeight());
+          const auto resizeDeadline = Clock::now() + std::chrono::seconds(2);
+          bool sizeMatched = false;
+          while (Clock::now() < resizeDeadline && !sizeMatched)
+          {
+            frame.Pump();
+            host.Pump();
+            XSync(display, False);
+            children = nullptr;
+            count = 0;
+            if (XQueryTree(display, parent, &root, &owner, &children, &count) && count)
+            {
+              XWindowAttributes size {};
+              sizeMatched = XGetWindowAttributes(display, children[0], &size) &&
+                            size.width == resized.getWidth() && size.height == resized.getHeight();
+            }
+            if (children) XFree(children);
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+          }
+          Check(sizeMatched, "VST3 WebView X11 plug follows host resize");
+        }
+        else
+        {
         if (strcmp(mode, "scale") == 0)
         {
           FUnknownPtr<IPlugViewContentScaleSupport> scale(view);
@@ -375,6 +419,7 @@ int main(int argc, char** argv)
             Check(idleCount(4) == closes + 1, "VST3 native close calls OnUIClose exactly once");
             Check(idleCount(5) == 0, "VST3 OnUIClose runs on main with live controls");
           }
+        }
         }
       }
       view->removed();

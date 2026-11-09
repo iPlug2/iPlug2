@@ -274,6 +274,24 @@ function(iplug_deploy_target target format project_name)
     # Default to SYMLINK
     _iplug_create_plugin_link(${target} "${source_path}" "${deploy_path}" "${plugin_name}")
   endif()
+  if(CMAKE_SYSTEM_NAME STREQUAL "Linux" AND format STREQUAL "CLAP")
+    get_target_property(_has_web_resources ${target} IPLUG_LINUX_WEB_RESOURCES)
+    if(_has_web_resources)
+      set(_web_source "$<TARGET_FILE:${target}>.resources")
+      set(_web_dest "${deploy_path}/${plugin_name}.resources")
+      if(IPLUG_DEPLOY_METHOD STREQUAL "COPY")
+        add_custom_command(TARGET ${target} POST_BUILD
+          COMMAND ${CMAKE_COMMAND} -E rm -rf "${_web_dest}"
+          COMMAND ${CMAKE_COMMAND} -E copy_directory "${_web_source}" "${_web_dest}"
+          VERBATIM)
+      else()
+        add_custom_command(TARGET ${target} POST_BUILD
+          COMMAND ${CMAKE_COMMAND} -E rm -rf "${_web_dest}"
+          COMMAND ${CMAKE_COMMAND} -E create_symlink "${_web_source}" "${_web_dest}"
+          VERBATIM)
+      endif()
+    endif()
+  endif()
 endfunction()
 
 #------------------------------------------------------------------------

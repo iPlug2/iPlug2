@@ -15,6 +15,9 @@
 #include "IPlugPluginBase.h"
 #include "plugin.hxx"
 #include "host-proxy.hxx"
+#if defined OS_LINUX && defined WEBVIEW_EDITOR_DELEGATE
+extern "C" void IPlugLinuxWebViewPump();
+#endif
 #ifndef NO_IGRAPHICS
   #if defined OS_LINUX
     #include "IGraphicsLinux.h"
@@ -68,6 +71,9 @@ IPlugCLAP::IPlugCLAP(const InstanceInfo& info, const Config& config)
 IPlugCLAP::~IPlugCLAP()
 {
 #ifdef OS_LINUX
+#if defined WEBVIEW_EDITOR_DELEGATE
+  mWebViewTimer.reset();
+#endif
   mTimer.reset();
 #ifndef NO_IGRAPHICS
   mLinuxGuiTimer.reset();
@@ -940,6 +946,10 @@ bool IPlugCLAP::guiCreate(const char* api, bool isFloating) noexcept
 
 void IPlugCLAP::guiDestroy() noexcept
 {
+#if defined OS_LINUX && defined WEBVIEW_EDITOR_DELEGATE
+  mWebViewTimer.reset();
+  mWebViewPending = false;
+#endif
 #if defined OS_LINUX && !defined NO_IGRAPHICS
   UnregisterLinuxHostCallbacks();
 #endif
@@ -950,7 +960,7 @@ void IPlugCLAP::guiDestroy() noexcept
 
 bool IPlugCLAP::guiShow() noexcept
 {
-#if defined OS_LINUX && !defined NO_IGRAPHICS
+#if defined OS_LINUX && (defined WEBVIEW_EDITOR_DELEGATE || !defined NO_IGRAPHICS)
   return HasUI() && (mGUIOpen || (mWindow && GUIWindowAttach(mWindow)));
 #else
   if (HasUI() && !mGUIOpen)
@@ -976,6 +986,10 @@ bool IPlugCLAP::guiShow() noexcept
 
 bool IPlugCLAP::guiHide() noexcept
 {
+#if defined OS_LINUX && defined WEBVIEW_EDITOR_DELEGATE
+  mWebViewTimer.reset();
+  mWebViewPending = false;
+#endif
 #if defined OS_LINUX && !defined NO_IGRAPHICS
   UnregisterLinuxHostCallbacks();
 #endif
@@ -1050,6 +1064,12 @@ bool IPlugCLAP::GUIWindowAttach(void* pWindow) noexcept
 #endif
     mWindow = pWindow;
     mGUIOpen = true;
+#if defined OS_LINUX && defined WEBVIEW_EDITOR_DELEGATE
+    mWebViewTimer.reset(Timer::Create([this](Timer&) {
+      if (!mWebViewPending.exchange(true)) _host.requestCallback();
+    }, 16));
+    if (!mWebViewTimer) { CloseWindow(); mGUIOpen = false; return false; }
+#endif
 #if defined OS_LINUX && !defined NO_IGRAPHICS
     // Switch to host-driven mode: stops the internal timer thread
     // and lets the host drive rendering via onTimer / onPosixFd.
@@ -1274,6 +1294,10 @@ void IPlugCLAP::onPosixFd(int fd, clap_posix_fd_flags_t flags) noexcept
 #if defined OS_LINUX
 void IPlugCLAP::onMainThread() noexcept
 {
+#if defined WEBVIEW_EDITOR_DELEGATE
+  mWebViewPending = false;
+  if (mGUIOpen) IPlugLinuxWebViewPump();
+#endif
   if (mLinuxIdlePending.exchange(false))
     OnTimer();
 #ifndef NO_IGRAPHICS

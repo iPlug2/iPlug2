@@ -225,7 +225,7 @@ public:
    */
   void LoadIndexHtml(const char* pathOfPluginSrc, const char* bundleid)
   {
-#if !defined OS_IOS && defined _DEBUG
+#if !defined OS_IOS && defined _DEBUG && !defined OS_LINUX
     namespace fs = std::filesystem;
     
     fs::path mainPath(pathOfPluginSrc);

@@ -14,6 +14,34 @@ if(IPLUG_LINUX_WEBKIT_EMBED_PROBE)
   set_tests_properties(linux-webkit-embed PROPERTIES TIMEOUT 20)
 endif()
 
+option(IPLUG_LINUX_WEBVIEW_EDITOR_TEST "Build the WebKitGTK CLAP editor regression test" OFF)
+if(IPLUG_LINUX_WEBVIEW_EDITOR_TEST)
+  iplug_add_plugin(LinuxWebEditor
+    SOURCES WebEditor.cpp WebEditor.h
+    WEB_RESOURCES resources/web/index.html
+    FORMATS CLAP UI WEBVIEW)
+  target_include_directories(LinuxWebEditor-clap BEFORE PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/EditorConfig")
+  set_target_properties(LinuxWebEditor-clap PROPERTIES ENABLE_EXPORTS ON)
+  add_dependencies(LinuxClapHostTest LinuxWebEditor-clap)
+  add_test(NAME linux-webview-editor
+    COMMAND "${XVFB_RUN}" -a "$<TARGET_FILE:LinuxClapHostTest>" "$<TARGET_FILE:LinuxWebEditor-clap>" webview)
+  set_tests_properties(linux-webview-editor PROPERTIES TIMEOUT 45
+    ENVIRONMENT "WEBKIT_DISABLE_SANDBOX_THIS_IS_DANGEROUS=1;LIBGL_ALWAYS_SOFTWARE=1")
+  if(TARGET LinuxVst3HostTest)
+    iplug_add_plugin(LinuxWebEditorVST3
+      SOURCES WebEditor.cpp WebEditor.h
+      WEB_RESOURCES resources/web/index.html
+      FORMATS VST3 UI WEBVIEW)
+    target_include_directories(LinuxWebEditorVST3-vst3 BEFORE PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/EditorConfig")
+    set_target_properties(LinuxWebEditorVST3-vst3 PROPERTIES ENABLE_EXPORTS ON)
+    add_dependencies(LinuxVst3HostTest LinuxWebEditorVST3-vst3)
+    add_test(NAME linux-webview-vst3
+      COMMAND "${XVFB_RUN}" -a "$<TARGET_FILE:LinuxVst3HostTest>" "$<TARGET_FILE:LinuxWebEditorVST3-vst3>" webview)
+    set_tests_properties(linux-webview-vst3 PROPERTIES TIMEOUT 45
+      ENVIRONMENT "WEBKIT_DISABLE_SANDBOX_THIS_IS_DANGEROUS=1;LIBGL_ALWAYS_SOFTWARE=1")
+  endif()
+endif()
+
 iplug_add_plugin(LinuxFailedEditor
   SOURCES FailedEditor.cpp FailedEditor.h
   FORMATS CLAP

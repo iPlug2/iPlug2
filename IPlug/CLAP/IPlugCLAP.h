@@ -180,6 +180,10 @@ private:
 #if defined OS_LINUX
   void onMainThread() noexcept override;
   std::atomic<bool> mLinuxIdlePending{false};
+#if defined WEBVIEW_EDITOR_DELEGATE
+  std::unique_ptr<Timer> mWebViewTimer;
+  std::atomic<bool> mWebViewPending{false};
+#endif
 #endif
 
 #if defined OS_LINUX && !defined NO_IGRAPHICS

@@ -220,6 +220,7 @@ int main(int argc, char** argv)
   const bool idleProbe = mode.compare(0, 4, "idle") == 0 || closeProbe;
   const auto idleCount = reinterpret_cast<unsigned (*)(unsigned)>(dlsym(library, "LinuxIdleProbeCount"));
   const auto queue = reinterpret_cast<void (*)()>(dlsym(library, "LinuxIdleProbeQueue"));
+  const auto webProbe = reinterpret_cast<unsigned (*)(int)>(dlsym(library, "LinuxWebEditorProbe"));
   if (idleProbe)
     Check(idleCount && queue, "load CLAP idle probe hooks");
   if (mode == "idle-fail")
@@ -340,6 +341,51 @@ int main(int argc, char** argv)
   Check(attached == !expectFailure, "GUI attach reports actual success or failure");
   if (attached)
   {
+    if (mode == "webview")
+    {
+      Check(webProbe != nullptr, "WebView plugin exports test counters");
+      for (int i = 0; i < 3; ++i)
+      {
+        Check(gui->show(plugin), "show WebView editor");
+        const auto deadline = Clock::now() + std::chrono::seconds(10);
+        while (webProbe && Clock::now() < deadline &&
+               (webProbe(0) <= static_cast<unsigned>(i) ||
+                webProbe(1) <= static_cast<unsigned>(i) ||
+                webProbe(2) <= static_cast<unsigned>(i)))
+        {
+          host.Pump(plugin);
+          std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        }
+        Check(webProbe && webProbe(0) > static_cast<unsigned>(i) &&
+              webProbe(1) > static_cast<unsigned>(i) && webProbe(2) > static_cast<unsigned>(i),
+              "page loaded, JS to C++ delivered and C++ to JS evaluated");
+        Window root = 0, owner = 0, *children = nullptr;
+        unsigned count = 0;
+        const bool queried = XQueryTree(display, window, &root, &owner, &children, &count);
+        const Window editor = queried && count ? children[0] : 0;
+        if (children) XFree(children);
+        Check(editor != 0, "WebView editor is embedded in host X11 window");
+        Check(gui->set_size(plugin, 400 + i * 10, 300), "WebView editor resizes");
+        XResizeWindow(display, window, 400 + i * 10, 300);
+        const auto resizeDeadline = Clock::now() + std::chrono::seconds(2);
+        XWindowAttributes size {};
+        bool resized = false;
+        while (editor && Clock::now() < resizeDeadline && !resized)
+        {
+          host.Pump(plugin);
+          XSync(display, False);
+          resized = XGetWindowAttributes(display, editor, &size) &&
+                    size.width == 400 + i * 10 && size.height == 300;
+          std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        }
+        Check(resized,
+              "WebView X11 plug follows host resize");
+        Check(gui->hide(plugin), "hide WebView editor");
+        host.CheckUnregistered();
+      }
+    }
+    else
+    {
     const bool fallback = !host.offerTimer || host.rejectTimer;
     if (fallback)
     {
@@ -413,6 +459,7 @@ int main(int argc, char** argv)
         Check(gui->show(plugin), "show editor again after native close");
         Check(host.WaitForRender(plugin, display, window), "native-closed editor can reopen");
       }
+    }
     }
   }
   if (mode == "scale")

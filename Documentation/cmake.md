@@ -339,8 +339,9 @@ the host/version, display server, GPU/driver and display scale when checking:
 - Real ALSA/JACK audio, device changes, processing restart, and state restore.
 
 These interactive cases, Windows execution and hardware GPU behavior have not
-been established by the headless Linux regression suite. Native Wayland, Skia
-and WebView remain outside the implemented Linux support scope.
+been established by the headless Linux regression suite. Native Wayland and
+Skia remain outside the implemented Linux support scope. The separate WebKitGTK
+editor backend still needs interactive DAW validation.
 
 The Linux-support diff also contains two existing vendored patches that should
 be reviewed separately from the platform implementation: SWELL INI writes now
@@ -934,15 +935,29 @@ emrun --no_emrun_detect index.html
 - Both Ninja and Unix Makefiles generators work (`linux-ninja` and `linux-make` presets)
 - `pkg-config` is used to find system libraries (freetype, fontconfig, X11, GTK3, ALSA, etc.)
 - The Skia backend is not yet supported on Linux; use NanoVG
-- WebView is not implemented on Linux, including embedded `IWebViewControl`.
-  The examples build skips IPlugWebUI, IPlugP5js, IPlugSvelteUI,
-  IPlugReaperExtensionWebUI, and IPlugOSCEditor with a status message.
-  Explicit `UI WEBVIEW` requests (including independent WebView example builds)
-  fail at configure time. `iPlug2::Extras::IWebViewControl` is not provided on
-  Linux; linking it is a configuration error. Use `UI IGRAPHICS` or `UI NONE`.
-  No WebKitGTK backend is enabled by installing GTK or WebKitGTK packages.
-  The Linux regression suite verifies these configuration restrictions and checks
-  CLAP attach/show failures with a non-IGraphics editor that cannot open a window.
+- `UI WEBVIEW` on Linux uses WebKitGTK 4.1 and an X11 `GtkPlug` editor.
+  Install `libwebkit2gtk-4.1-dev` before configuring a WebView plugin;
+  it is not required for other Linux plugins. `WEB_RESOURCES` are staged in
+  `<name>.clap.resources/web` alongside CLAP binaries, or in the VST3 bundle's
+  `Resources/web`. Deploy the CLAP binary together with its `.resources` folder.
+  The root examples build skips WebView examples unless
+  `-DIPLUG_LINUX_WEBVIEW_EXAMPLES=ON` is set. Embedded
+  `IWebViewControl` (including IPlugOSCEditor) and the REAPER WebView extension
+  remain unsupported on Linux. The backend currently does not implement custom
+  URL schemes, downloads, or the optional scroll toggle. It runs GTK events on
+  the host main thread via CLAP callbacks or the VST3 idle run loop; interactive
+  DAW, XWayland, focus/IME, and multi-instance testing is still required.
+  Xvfb in restricted containers may also require disabling the WebKit sandbox
+  for *tests only*; do not set that override in a production host.
+
+The optional WebView editor regression tests require WebKitGTK 4.1:
+
+```bash
+cmake -S Tests/Linux -B build/linux-webview -G Ninja \
+  -DIPLUG_LINUX_WEBVIEW_EDITOR_TEST=ON
+cmake --build build/linux-webview --target LinuxClapHostTest LinuxVst3HostTest
+ctest --test-dir build/linux-webview -R '^linux-webview-(editor|vst3)$' --output-on-failure
+```
 
 An optional X11 embedding feasibility test is available on machines with
 `libwebkit2gtk-4.1-dev` installed:
@@ -954,9 +969,9 @@ cmake --build build/linux-webkit-probe --target LinuxWebKitEmbedProbe
 ctest --test-dir build/linux-webkit-probe -R '^linux-webkit-embed$' --output-on-failure
 ```
 
-This test embeds a GTK3 `GtkPlug` containing a WebKitGTK view in a raw X11
-parent, loads a page, and receives a JavaScript message. It does not enable
-Linux WebView plugins or prove compatibility with a DAW's event loop.
+This standalone probe predates the plugin integration. It embeds a GTK3
+`GtkPlug` containing a WebKitGTK view in a raw X11 parent; unlike the editor
+regression tests above, it does not load an iPlug2 plugin.
 
 ## Troubleshooting
 
