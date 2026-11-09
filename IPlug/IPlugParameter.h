@@ -69,6 +69,9 @@ public:
   /** DisplayFunc allows custom parameter display functions, defined by a lambda matching this signature */
   using DisplayFunc = std::function<void(double, WDL_String&)>;
 
+  /** ParseFunc allows custom text-to-value parsing, the inverse of a DisplayFunc. It returns true and sets the (non-normalized) value if it understood the text; otherwise the default parsing is used. */
+  using ParseFunc = std::function<bool(const char*, double&)>;
+
 #pragma mark - Shape
 
   /** Base struct for parameter shaping */
@@ -329,6 +332,10 @@ public:
    * @param str CString text to display at value */
   void SetDisplayText(double value, const char* str);
 
+  /** Set a custom text-to-value parser, used by StringToValue()
+   * @param parseFunc Custom parse function, conforming to ParseFunc */
+  void SetParseFunc(ParseFunc parseFunc) { mParseFunction = parseFunc; }
+
   /** Set the parameters display precision
  * @param precision The display precision in digits*/
   void SetDisplayPrecision(int precision);
@@ -527,6 +534,7 @@ private:
   
   std::unique_ptr<Shape> mShape;
   DisplayFunc mDisplayFunction = nullptr;
+  ParseFunc mParseFunction = nullptr;
 
   WDL_TypedBuf<DisplayText> mDisplayTexts;
 } WDL_FIXALIGN;
