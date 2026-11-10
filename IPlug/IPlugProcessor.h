@@ -17,6 +17,7 @@
 #include <cstdio>
 #include <cassert>
 #include <limits>
+#include <atomic>
 #include <memory>
 #include <vector>
 
@@ -112,7 +113,7 @@ public:
   int GetBlockSize() const { return mBlockSize; }
 
   /** @return Plugin latency (in samples) */
-  int GetLatency() const { return mLatency; }
+  int GetLatency() const { return mLatency.load(std::memory_order_relaxed); }
 
   /** @return The tail size in samples (useful for reverberation plug-ins, that may need to decay after the transport stops or an audio item ends) */
   int GetTailSize() const { return mTailSize; }
@@ -296,7 +297,7 @@ private:
   /** \c true if the plug-in supports MIDI Polyphonic Expression */
   bool mDoesMPE;
   /** Plug-in latency (in samples) */
-  int mLatency;
+  std::atomic<int> mLatency;
   /** Current sample rate (in Hz) */
   double mSampleRate = DEFAULT_SAMPLE_RATE;
   /** Current block size (in samples) */
@@ -313,8 +314,15 @@ private:
   WDL_TypedBuf<sample*> mScratchData[2];
   /* A list of IChannelData structures corresponding to every input/output channel */
   WDL_PtrList<IChannelData<>> mChannelData[2];
-  /** A multi-channel delay line used to delay the bypassed signal when a plug-in with latency is bypassed. */
+  /** A multi-channel delay line used to delay the bypassed signal when a plug-in with latency is bypassed.
+   * After InitLatencyDelay() this is only touched on the audio thread, in PassThroughBuffers() */
   std::unique_ptr<NChanDelayLine<sample>> mLatencyDelay = nullptr;
+  /** A delay line allocated by SetLatency(), waiting to be picked up by the audio thread */
+  std::atomic<NChanDelayLine<sample>*> mPendingLatencyDelay {nullptr};
+  /** A delay line the audio thread has finished with, waiting to be freed off the audio thread */
+  std::atomic<NChanDelayLine<sample>*> mRetiredLatencyDelay {nullptr};
+  /** \c true if InitLatencyDelay() created a delay line, i.e. the API class uses PassThroughBuffers() */
+  bool mUsesLatencyDelay = false;
 protected: // protected because it needs to be access by the API classes, and don't want a setter/getter
   /** Contains detailed information about the transport state */
   ITimeInfo mTimeInfo;

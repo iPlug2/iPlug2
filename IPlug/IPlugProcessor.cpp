@@ -65,6 +65,9 @@ IPlugProcessor::~IPlugProcessor()
   mChannelData[ERoute::kInput].Empty(true);
   mChannelData[ERoute::kOutput].Empty(true);
   mIOConfigs.Empty(true);
+
+  delete mPendingLatencyDelay.exchange(nullptr);
+  delete mRetiredLatencyDelay.exchange(nullptr);
 }
 
 void IPlugProcessor::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
@@ -271,10 +274,23 @@ void IPlugProcessor::SetChannelLabel(ERoute direction, int idx, const char* form
 
 void IPlugProcessor::SetLatency(int samples)
 {
-  mLatency = samples;
+  samples = std::max(samples, 0);
+  mLatency.store(samples, std::memory_order_relaxed);
 
-  if (mLatencyDelay)
-    mLatencyDelay->SetDelayTime(mLatency);
+  if (mUsesLatencyDelay)
+  {
+    // The audio thread may be using mLatencyDelay in PassThroughBuffers(), so it can't be resized here.
+    // Allocate a replacement on this thread and hand it over; the audio thread swaps it in at the start of a block.
+    
+    // Free a delay line that the audio thread has finished with
+    delete mRetiredLatencyDelay.exchange(nullptr);
+
+    auto* pNewDelay = new NChanDelayLine<PLUG_SAMPLE_DST>(MaxNChannels(ERoute::kInput), MaxNChannels(ERoute::kOutput));
+    pNewDelay->SetDelayTime(samples);
+
+    // If the previous replacement was never picked up, the audio thread never saw it, so it is safe to free
+    delete mPendingLatencyDelay.exchange(pNewDelay);
+  }
 }
 
 //static
@@ -449,6 +465,7 @@ void IPlugProcessor::InitLatencyDelay()
   {
     mLatencyDelay = std::unique_ptr<NChanDelayLine<PLUG_SAMPLE_DST>>(new NChanDelayLine<PLUG_SAMPLE_DST>(MaxNChannels(ERoute::kInput), MaxNChannels(ERoute::kOutput)));
     mLatencyDelay->SetDelayTime(GetLatency());
+    mUsesLatencyDelay = true;
   }
 }
 
@@ -496,7 +513,17 @@ void IPlugProcessor::AttachBuffers(ERoute direction, int idx, int n, PLUG_SAMPLE
 
 void IPlugProcessor::PassThroughBuffers(PLUG_SAMPLE_DST type, int nFrames)
 {
-  if (mLatency && mLatencyDelay)
+  if (auto* pNewDelay = mPendingLatencyDelay.exchange(nullptr))
+  {
+    // Swap in the delay line allocated by SetLatency(), and leave the old one to be freed off the audio thread
+    auto* pUnfreed = mRetiredLatencyDelay.exchange(mLatencyDelay.release());
+    mLatencyDelay.reset(pNewDelay);
+
+    // Only reachable if SetLatency() is called concurrently from several threads
+    delete pUnfreed;
+  }
+
+  if (mLatencyDelay && mLatencyDelay->GetDelayTime() > 0)
     mLatencyDelay->ProcessBlock(mScratchData[ERoute::kInput].Get(), mScratchData[ERoute::kOutput].Get(), nFrames);
   else
     IPlugProcessor::ProcessBlock(mScratchData[ERoute::kInput].Get(), mScratchData[ERoute::kOutput].Get(), nFrames);

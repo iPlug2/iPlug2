@@ -31,9 +31,12 @@ public:
     ClearBuffer();
   }
 
+  int GetDelayTime() const { return static_cast<int>(mDTSamples); }
+
   void ClearBuffer()
   {
-    memset(mBuffer.Get(), 0, mNInChans * mDTSamples * sizeof(T));
+    if (mBuffer.GetSize())
+      memset(mBuffer.Get(), 0, mBuffer.GetSize() * sizeof(T));
   }
 
   void ProcessBlock(T** inputs, T** outputs, int nFrames)
