@@ -934,7 +934,28 @@ emrun --no_emrun_detect index.html
 - Plugins are deployed to `~/.vst3/` (VST3) and `~/.clap/` (CLAP) by default
 - Both Ninja and Unix Makefiles generators work (`linux-ninja` and `linux-make` presets)
 - `pkg-config` is used to find system libraries (freetype, fontconfig, X11, GTK3, ALSA, etc.)
-- The Skia backend is not yet supported on Linux; use NanoVG
+- NanoVG/GL3 remains the default. For Skia/GL3, run
+  `Dependencies/IGraphics/build-skia-linux.sh` to build the pinned Skia
+  `chrome/m130` revision. This installs headers and matching static libraries
+  below `Dependencies/Build/linux` (or set `IPLUG_SKIA_LINUX_DIR` to an
+  alternative installation directory for both the script and CMake).
+  Required archives: `libskia.a`, `libsvg.a`, `libskparagraph.a`,
+  `libskshaper.a`, `libskunicode_core.a`, `libskunicode_icu.a`.
+  Build with `-DIGRAPHICS_BACKEND=SKIA -DIGRAPHICS_RENDERER=GL3`.
+  For example, on a Linux machine with Ninja, Python 3, Git and development
+  headers for Fontconfig, Expat and FreeType installed:
+
+  ```bash
+  Dependencies/IGraphics/build-skia-linux.sh
+  cmake -S Tests/Linux -B build/linux-skia -G Ninja \
+    -DIGRAPHICS_BACKEND=SKIA -DIGRAPHICS_RENDERER=GL3
+  cmake --build build/linux-skia
+  ctest --test-dir build/linux-skia --output-on-failure
+  ```
+
+  Skia/CPU presentation is not implemented on Linux. Skia/GL3 passes the
+  Linux Xvfb regression suite with a software OpenGL renderer; real DAW and
+  hardware GPU testing is still required.
 - `UI WEBVIEW` on Linux uses WebKitGTK 4.1 and an X11 `GtkPlug` editor.
   Install `libwebkit2gtk-4.1-dev` before configuring a WebView plugin;
   it is not required for other Linux plugins. `WEB_RESOURCES` are staged in

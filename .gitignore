@@ -29,6 +29,7 @@ _*
 Icon?
 .DS_Stor*
 build-*
+!Dependencies/IGraphics/build-skia-linux.sh
 !.claude/skills/build-*
 Dependencies/IPlug/CLAP_HELPERS/*
 Dependencies/IPlug/CLAP_SDK/*
