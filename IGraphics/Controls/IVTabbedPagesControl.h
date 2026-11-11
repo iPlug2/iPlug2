@@ -19,7 +19,8 @@
 #include "IControls.h"
 #include "IBubbleControl.h"
 
-#include <map>
+#include <utility>
+#include <vector>
 
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
@@ -80,7 +81,8 @@ private:
   double mPadding = 0.0;
 };
 
-using PageMap = std::map<const char*, IVTabPage*>;
+/** Ordered list of (tab name, page) pairs. Tabs appear in the order given. */
+using PageMap = std::vector<std::pair<const char*, IVTabPage*>>;
 
 /** A control to manage tabbed pages of sub controls
  * Basic usage example:
