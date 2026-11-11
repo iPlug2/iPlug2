@@ -226,6 +226,8 @@ public:
       for (auto i = 0; i < mRate; i++) {
         for (auto c = 0; c < nInChans; c++) {
           mNextInputPtrs.Set(c, mInPtrLoopSrc->Get(c) + (i * nFrames));
+        }
+        for (auto c = 0; c < nOutChans; c++) {
           mNextOutputPtrs.Set(c, mOutPtrLoopSrc->Get(c) + (i * nFrames));
         }
         func(mNextInputPtrs.GetList(), mNextOutputPtrs.GetList(), nFrames);
