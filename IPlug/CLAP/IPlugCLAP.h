@@ -95,6 +95,8 @@ public:
   
   // IPlugProcessor
   void SetTailSize(int tailSize) override;
+  // Processor latency changes immediately; CLAP reports it at the next activation.
+  // Plug-ins must coordinate their own DSP reconfiguration with that restart.
   void SetLatency(int samples) override;
   bool SendMidiMsg(const IMidiMsg& msg) override;
   bool SendSysEx(const ISysEx& msg) override;

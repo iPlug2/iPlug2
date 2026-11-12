@@ -4,6 +4,8 @@
 #include <iostream>
 #include <stdexcept>
 #include <cstring>
+#include <thread>
+#include <clap/ext/thread-check.h>
 
 static void Require(bool condition, const char* message)
 {
@@ -16,9 +18,11 @@ struct Host
   Phase phase = Phase::Inactive;
   int notifications = 0, restarts = 0, callbacks = 0;
   bool invalidNotification = false;
+  bool threadCheck, latencySupport;
+  std::thread::id mainThread = std::this_thread::get_id();
   clap_host_t host {};
   static Host& Self(const clap_host_t* pHost) { return *static_cast<Host*>(pHost->host_data); }
-  Host()
+  Host(bool check, bool latency) : threadCheck(check), latencySupport(latency)
   {
     host.clap_version = CLAP_VERSION;
     host.host_data = this;
@@ -26,15 +30,18 @@ struct Host
     host.vendor = "iPlug2 tests";
     host.url = "https://iplug2.github.io";
     host.version = "1.0.0";
-    host.get_extension = [](const clap_host_t*, const char* id) -> const void* {
+    host.get_extension = [](const clap_host_t* pHost, const char* id) -> const void* {
       static const clap_host_latency_t latency {[](const clap_host_t* pHost) {
         auto& h = Self(pHost);
         ++h.notifications;
         h.invalidNotification |= h.phase != Phase::Activating;
       }};
-      // Deliberately omit thread-check support: activation notifications
-      // must not depend on the host supporting this optional extension.
-      return std::strcmp(id, CLAP_EXT_LATENCY) == 0 ? &latency : nullptr;
+      static const clap_host_thread_check_t threads {
+        [](const clap_host_t* pHost) { return std::this_thread::get_id() == Self(pHost).mainThread; },
+        [](const clap_host_t* pHost) { return std::this_thread::get_id() != Self(pHost).mainThread; }
+      };
+      if (std::strcmp(id, CLAP_EXT_THREAD_CHECK) == 0 && Self(pHost).threadCheck) return &threads;
+      return std::strcmp(id, CLAP_EXT_LATENCY) == 0 && Self(pHost).latencySupport ? &latency : nullptr;
     };
     host.request_restart = [](const clap_host_t* pHost) { ++Self(pHost).restarts; };
     host.request_process = [](const clap_host_t*) {};
@@ -56,9 +63,10 @@ public:
   void OnActivate(bool active) override { if (!active && deactivateLatency >= 0) SetLatency(deactivateLatency); }
 };
 
-int main() try
+static void Run(bool threadCheck, bool latencySupport)
 {
-  Host host;
+  Host host(threadCheck, latencySupport);
+  const int notified = latencySupport ? 1 : 0;
   auto* plugin = new TestPlugin(host);
   const auto* api = plugin->clapPlugin();
   Require(api->init(api), "init failed");
@@ -69,31 +77,57 @@ int main() try
   host.phase = Host::Phase::Activating;
   Require(api->activate(api, 48000, 1, 512), "activate failed");
   host.phase = Host::Phase::Active;
-  Require(latency->get(api) == 48 && host.notifications == 1, "activation must publish latency immediately");
-  plugin->SetLatency(72);
-  plugin->SetLatency(90);
-  plugin->SetLatency(90);
-  Require(host.restarts == 1, "restart requests must coalesce");
+  Require(latency->get(api) == 48 && host.notifications == notified, "activation must publish latency immediately");
+  std::thread audio([&] {
+    plugin->SetLatency(72);
+    plugin->SetLatency(90);
+    plugin->SetLatency(90);
+  });
+  audio.join();
+  Require(host.callbacks == 0, "latency updates must not queue main-thread callbacks");
+  Require(host.restarts == notified, "restart requests must coalesce");
   Require(latency->get(api) == 48, "active latency must stay stable");
-  Require(host.notifications == 1, "active change must not notify");
+  Require(host.notifications == notified, "active change must not notify");
   host.phase = Host::Phase::Deactivating;
   plugin->deactivateLatency = 84;
   api->deactivate(api);
   host.phase = Host::Phase::Inactive;
-  Require(host.notifications == 1 && host.restarts == 1, "deactivation must not notify or restart");
+  Require(host.notifications == notified && host.restarts == notified, "deactivation must not notify or restart");
   plugin->resetLatency = 72;
   host.phase = Host::Phase::Activating;
   Require(api->activate(api, 44100, 1, 256), "reactivate failed");
   host.phase = Host::Phase::Active;
-  Require(latency->get(api) == 72 && host.notifications == 2, "OnReset latency must be committed at activation");
+  Require(latency->get(api) == 72 && host.notifications == 2 * notified, "OnReset latency must be committed at activation");
   api->on_main_thread(api);
-  Require(!host.invalidNotification && host.notifications == 2, "notification escaped activation");
+  Require(!host.invalidNotification && host.notifications == 2 * notified, "notification escaped activation");
   plugin->deactivateLatency = -1;
+  for (int next : {72, 0, 48, 0})
+  {
+    const bool changed = latency->get(api) != static_cast<unsigned>(next);
+    host.phase = Host::Phase::Deactivating;
+    api->deactivate(api);
+    host.phase = Host::Phase::Inactive;
+    plugin->resetLatency = next;
+    const int count = host.notifications;
+    host.phase = Host::Phase::Activating;
+    Require(api->activate(api, 48000, 1, 64), "repeat activation failed");
+    host.phase = Host::Phase::Active;
+    Require(latency->get(api) == static_cast<unsigned>(next), "repeated activation lost latency");
+    Require(host.notifications == count + (changed ? notified : 0), "unchanged latency must not notify");
+  }
+  Require(!host.invalidNotification, "repeated activation notified outside activation");
   host.phase = Host::Phase::Deactivating;
   api->deactivate(api);
   host.phase = Host::Phase::Inactive;
   api->destroy(api);
-  std::cout << "CLAP latency lifecycle checks passed\n";
+}
+
+int main() try
+{
+  for (bool threadCheck : {false, true})
+    for (bool latencySupport : {false, true})
+      Run(threadCheck, latencySupport);
+  std::cout << "CLAP latency lifecycle checks passed (four host extension combinations)\n";
   return 0;
 }
 catch (const std::exception& error)
