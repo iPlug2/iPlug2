@@ -17,6 +17,8 @@
  * @copydoc IPlugCLAP
  */
 
+#include <atomic>
+
 #include "IPlugAPIBase.h"
 #include "IPlugProcessor.h"
 #include "plugin.hh"
@@ -109,7 +111,7 @@ private:
   
   // clap_plugin_latency
   bool implementsLatency() const noexcept override { return true; }
-  uint32_t latencyGet() const noexcept override { return GetLatency(); }
+  uint32_t latencyGet() const noexcept override { return mActiveLatency; }
   
   // clap_plugin_tail
   bool implementsTail() const noexcept override { return true; }
@@ -203,7 +205,10 @@ private:
   int mTailCount = 0;
   bool mHostHasTail = false;
   bool mTailUpdate = false;
-  bool mLatencyUpdate = false;
+  // The host observes a stable latency until the next activation.
+  int mActiveLatency = 0;
+  std::atomic<bool> mLatencyActive {false};
+  std::atomic<bool> mLatencyRestartPending {false};
   
   void* mWindow = nullptr;
   bool mGUIOpen = false;

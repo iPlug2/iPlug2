@@ -112,21 +112,15 @@ void IPlugCLAP::SetTailSize(int samples)
 
 void IPlugCLAP::SetLatency(int samples)
 {
+  if (samples == GetLatency())
+    return;
+
   IPlugProcessor::SetLatency(samples);
-  
-  if (GetClapHost().canUseLatency())
-  {
-    // If active request restart on the main thread (or update the host)
-    if (isActive())
-    {
-      mLatencyUpdate = true;
-      runOnMainThread([&](){ if (!isBeingDestroyed()) GetClapHost().requestRestart(); });
-    }
-    else
-    {
-      runOnMainThread([&](){ if (!isBeingDestroyed()) GetClapHost().latencyChanged(); });
-    }
-  }
+
+  // request_restart is thread-safe. Do not allocate a main-thread callback
+  // from an audio-thread parameter change, or notify while inactive.
+  if (mLatencyActive && GetClapHost().canUseLatency() && !mLatencyRestartPending.exchange(true))
+    GetClapHost().requestRestart();
 }
 
 bool IPlugCLAP::SendMidiMsg(const IMidiMsg& msg)
@@ -162,18 +156,24 @@ bool IPlugCLAP::activate(double sampleRate, uint32_t minFrameCount, uint32_t max
   mHostHasTail = GetClapHost().canUseTail();
   mTailCount = 0;
 
+  // CLAP permits latency changes and notifications only inside activate().
+  // OnReset/OnActivate may have changed the processor's requested latency.
+  const int latency = GetLatency();
+  const bool latencyChanged = mActiveLatency != latency;
+  mActiveLatency = latency;
+  mLatencyRestartPending = false;
+  if (latencyChanged && GetClapHost().canUseLatency())
+    GetClapHost().latencyChanged();
+  mLatencyActive = true;
+
   return true;
 }
 
 void IPlugCLAP::deactivate() noexcept
 {
+  mLatencyActive = false;
+  mLatencyRestartPending = false;
   OnActivate(false);
-  
-  if (mLatencyUpdate)
-  {
-    GetClapHost().latencyChanged();
-    mLatencyUpdate = false;
-  }
 
   // TODO - should we clear mTailUpdate here or elsewhere?
 }

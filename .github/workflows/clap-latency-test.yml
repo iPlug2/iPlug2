@@ -1,0 +1,34 @@
+name: CLAP latency lifecycle
+on:
+  push:
+    branches: [fix/clap-latency-restart]
+  pull_request:
+    paths:
+      - 'IPlug/CLAP/**'
+      - 'Tests/CLAPLatencyTest/**'
+      - '.github/workflows/clap-latency-test.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  latency:
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch CLAP headers
+        shell: bash
+        run: |
+          git init "$RUNNER_TEMP/clap"
+          git -C "$RUNNER_TEMP/clap" remote add origin https://github.com/free-audio/clap.git
+          git -C "$RUNNER_TEMP/clap" fetch --depth 1 origin a47f6badb49d948fd009998f28309cdab78979c9
+          git -C "$RUNNER_TEMP/clap" checkout --detach FETCH_HEAD
+          git init "$RUNNER_TEMP/clap-helpers"
+          git -C "$RUNNER_TEMP/clap-helpers" remote add origin https://github.com/free-audio/clap-helpers.git
+          git -C "$RUNNER_TEMP/clap-helpers" fetch --depth 1 origin a380c978f429103e08afc1d17e9efbf3e3c96ee2
+          git -C "$RUNNER_TEMP/clap-helpers" checkout --detach FETCH_HEAD
+      - name: Configure
+        run: cmake -S Tests/CLAPLatencyTest -B build-latency -A x64 "-DCLAP_SDK_DIR=$env:RUNNER_TEMP/clap" "-DCLAP_HELPERS_DIR=$env:RUNNER_TEMP/clap-helpers"
+      - name: Build
+        run: cmake --build build-latency --config Release --parallel 4
+      - name: Test
+        run: ctest --test-dir build-latency -C Release --output-on-failure
