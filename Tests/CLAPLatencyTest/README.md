@@ -12,7 +12,8 @@ cmake --build build-latency --config Release
 ctest --test-dir build-latency -C Release --output-on-failure
 ```
 
-The host deliberately omits the optional thread-check extension. It requires
+The host covers presence and absence of the optional thread-check and latency
+extensions, plus changes from an audio thread. It requires
 notifications synchronously within activation, a stable active latency value,
 coalesced restart requests, silent inactive/deactivation changes, and commitment
 of changes made by OnReset during reactivation. This checks CLAP protocol

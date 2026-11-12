@@ -1,7 +1,10 @@
 name: CLAP latency lifecycle
 on:
   push:
-    branches: [fix/clap-latency-restart]
+    paths:
+      - 'IPlug/CLAP/**'
+      - 'Tests/CLAPLatencyTest/**'
+      - '.github/workflows/clap-latency-test.yml'
   pull_request:
     paths:
       - 'IPlug/CLAP/**'
@@ -12,7 +15,11 @@ permissions:
   contents: read
 jobs:
   latency:
-    runs-on: windows-2022
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-2022, macos-15]
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
       - name: Fetch CLAP headers
@@ -27,7 +34,8 @@ jobs:
           git -C "$RUNNER_TEMP/clap-helpers" fetch --depth 1 origin a380c978f429103e08afc1d17e9efbf3e3c96ee2
           git -C "$RUNNER_TEMP/clap-helpers" checkout --detach FETCH_HEAD
       - name: Configure
-        run: cmake -S Tests/CLAPLatencyTest -B build-latency -A x64 "-DCLAP_SDK_DIR=$env:RUNNER_TEMP/clap" "-DCLAP_HELPERS_DIR=$env:RUNNER_TEMP/clap-helpers"
+        shell: bash
+        run: cmake -S Tests/CLAPLatencyTest -B build-latency "-DCLAP_SDK_DIR=$RUNNER_TEMP/clap" "-DCLAP_HELPERS_DIR=$RUNNER_TEMP/clap-helpers"
       - name: Build
         run: cmake --build build-latency --config Release --parallel 4
       - name: Test
