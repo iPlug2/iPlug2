@@ -219,6 +219,20 @@ void OSCInterface::MessageCallback(void* d1, int dev_idx, int len, void* msg)
 
 void OSCInterface::OnTimer(Timer& timer)
 {
+  ProcessOSC();
+}
+
+void OSCInterface::ProcessOSC()
+{
+  if (mProcessingOSC)
+    return;
+  struct ProcessingScope
+  {
+    explicit ProcessingScope(bool& processing) : mProcessing(processing) { mProcessing = true; }
+    ~ProcessingScope() { mProcessing = false; }
+    bool& mProcessing;
+  } processing(mProcessingOSC);
+
   // Process OUR devices only (instance-owned, not global)
   const int nDevices = mDevices.GetSize();
 
@@ -275,7 +289,8 @@ void OSCInterface::OnTimer(Timer& timer)
     }
   }
 
-  for (auto i = 0; i < nDevices; i++)
+  // Receive callbacks may replace or remove devices.
+  for (auto i = 0; i < mDevices.GetSize(); i++)
   {
     auto* pDev = mDevices.Get(i);
     if (pDev->mHasOutput)
@@ -288,16 +303,15 @@ OSCInterface::OSCInterface(OSCLogFunc logFunc)
 {
   JNL::open_socketlib();
 
-  // Each instance gets its own timer (not shared)
+#ifndef OS_LINUX
+  // Linux is polled by the owner, not by Timer's worker thread.
   mTimer = std::unique_ptr<Timer>(Timer::Create(std::bind(&OSCInterface::OnTimer, this, std::placeholders::_1), OSC_TIMER_RATE));
+#endif
 }
 
 OSCInterface::~OSCInterface()
 {
-  // Stop timer first to prevent callbacks during destruction.
-  // Timer::Stop() synchronously invalidates the timer on all platforms,
-  // and both the timer callback and destructor run on the main thread,
-  // so there's no race condition.
+  // Automatic timers and destruction share the main thread. Linux has no worker.
   mTimer = nullptr;
 
   // Clean up our own devices (instance-owned)

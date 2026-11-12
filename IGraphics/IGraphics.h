@@ -1271,8 +1271,8 @@ private:
   void DoCreatePopupMenu(IControl& control, IPopupMenu& menu, const IRECT& bounds, int valIdx, bool isContext);
   
   /** Called by ICornerResizer when drag resize commences */
-  void StartDragResize() { mResizingInProcess = true; }
-  
+  void StartDragResize() { mResizingInProcess = true; mDragStartWidth = Width(); mDragStartHeight = Height(); }
+
   /** Called when drag resize ends */
   void EndDragResize();
 
@@ -1718,6 +1718,9 @@ public:
   void ClearGestureRegions();
 
 protected:
+  /** Apply the configured drawing-scale limits. */
+  float ConstrainDrawScale(float scale) const { return Clip(scale, mMinScale, mMaxScale); }
+
   /** Drawing API method to load a bitmap, called internally
    * @param fileNameOrResID A CString absolute path or resource ID
    * @param scale Integer to identify the scale of the resource, for multi-scale bitmaps
@@ -1860,6 +1863,8 @@ private:
   int mMouseOverIdx = -1;
   float mMouseDownX = -1.f;
   float mMouseDownY = -1.f;
+  int mDragStartWidth = 0;
+  int mDragStartHeight = 0;
   float mMinScale;
   float mMaxScale;
   int mLastClickedParam = kNoParameter;
@@ -1871,7 +1876,13 @@ private:
   bool mResizingInProcess = false;
   bool mLayoutOnResize = false;
   bool mEnableMultiTouch = false;
+  // Native Linux host windows resize the layout unless a mode is explicitly
+  // selected with AttachCornerResizer(), including for docked REAPER editors.
+#ifdef OS_LINUX
+  EUIResizerMode mGUISizeMode = EUIResizerMode::Size;
+#else
   EUIResizerMode mGUISizeMode = EUIResizerMode::Scale;
+#endif
   double mPrevTimestamp = 0.;
   IKeyHandlerFunc mKeyHandlerFunc = nullptr;
   IDisplayTickFunc mDisplayTickFunc = nullptr;

@@ -211,7 +211,7 @@ private:
    * @param data The SysEx data to transmit */
   virtual void TransmitSysExDataFromProcessor(const SysExData& data) {}
 
-  void OnTimer(Timer& t);
+  void OnTimer();
 
   friend class IPlugAPP;
   friend class IPlugAAX;

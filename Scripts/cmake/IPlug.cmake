@@ -116,7 +116,23 @@ if(NOT TARGET iPlug2::IPlug)
       "-framework Foundation"
     )
   elseif(UNIX AND NOT APPLE AND NOT EMSCRIPTEN)
-    message("Error - Linux not yet supported")
+    # WDL assumes signed char; ARM Linux defaults to unsigned char
+    # Supply allocation declarations and the legacy byte-swap names used by
+    # WDL on Linux/Clang, without patching the third-party headers.
+    target_compile_options(iPlug2::IPlug INTERFACE
+      -fsigned-char
+      -include "${IPLUG_DIR}/IPlugLinuxHeaders.h"
+      # VST2/FXP preset magic uses multi-character character constants ('CcnK', 'FxCk', etc.)
+      # intentionally — these are 4CC codes, not programmer errors.
+      -Wno-multichar
+      # GCC 14+ false positives on std::atomic in WDL/IPlug headers:
+      # __atomic_load_8 "writing 8 bytes into a region of size 0"
+      $<$<CXX_COMPILER_ID:GNU>:-Wno-stringop-overflow>
+      $<$<CXX_COMPILER_ID:GNU>:-Wno-stringop-overread>
+    )
+    target_compile_definitions(iPlug2::IPlug INTERFACE OS_LINUX)
+    target_link_options(iPlug2::IPlug INTERFACE -static-libstdc++ -static-libgcc)
+    target_link_libraries(iPlug2::IPlug INTERFACE pthread dl)
   endif()
 
   # Generate PkgInfo file for macOS bundles (used by VST2, CLAP, etc.)
@@ -214,7 +230,7 @@ if(NOT TARGET iPlug2_Extras_IWebViewControl_obj)
   endif()
 endif()
 
-if(NOT TARGET iPlug2::Extras::IWebViewControl)
+if(NOT TARGET iPlug2::Extras::IWebViewControl AND NOT CMAKE_SYSTEM_NAME STREQUAL "Linux")
   add_library(iPlug2::Extras::IWebViewControl INTERFACE IMPORTED)
 
   if(WIN32)

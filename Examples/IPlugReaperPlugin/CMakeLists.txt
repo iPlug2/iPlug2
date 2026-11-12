@@ -60,12 +60,14 @@ if(NOT IOS AND NOT CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
   iplug_add_plugin_resources(${PROJECT_NAME}-app)
 
   # VST3 Target
-  add_library(${PROJECT_NAME}-vst3 MODULE ${SOURCE_FILES})
-  iplug_add_target(${PROJECT_NAME}-vst3 PUBLIC
-    LINK iPlug2::VST3 ${IGRAPHICS_LIB} _${PROJECT_NAME}-base
-  )
-  iplug_configure_target(${PROJECT_NAME}-vst3 VST3 ${PROJECT_NAME})
-  iplug_add_plugin_resources(${PROJECT_NAME}-vst3)
+  if(IPLUG2_VST3_SUPPORTED)
+    add_library(${PROJECT_NAME}-vst3 MODULE ${SOURCE_FILES})
+    iplug_add_target(${PROJECT_NAME}-vst3 PUBLIC
+      LINK iPlug2::VST3 ${IGRAPHICS_LIB} _${PROJECT_NAME}-base
+    )
+    iplug_configure_target(${PROJECT_NAME}-vst3 VST3 ${PROJECT_NAME})
+    iplug_add_plugin_resources(${PROJECT_NAME}-vst3)
+  endif()
 
   # CLAP Target
   if(IPLUG2_CLAP_SUPPORTED)

@@ -75,6 +75,9 @@ public:
   }
   
 private:
+#if defined OS_LINUX
+  Steinberg::IPtr<IPlugVST3Timer> mLinuxIdleTimer;
+#endif
   void TransmitMidiMsgFromProcessor(const IMidiMsg& msg) override;
   void TransmitSysExDataFromProcessor(const SysExData& data) override;
 

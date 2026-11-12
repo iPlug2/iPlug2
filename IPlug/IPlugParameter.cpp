@@ -363,7 +363,7 @@ double IParam::StringToValue(const char* str) const
   if (mapped)
     mapped = MapDisplayText(str, &v);
 
-  if (!mapped && Type() != kTypeEnum && Type() != kTypeBool)
+  if (!mapped)
   {
     v = atof(str);
 
@@ -371,7 +371,6 @@ double IParam::StringToValue(const char* str) const
       v = -v;
 
     v = Constrain(v);
-    mapped = true;
   }
 
   return v;

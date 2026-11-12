@@ -1,3 +1,6 @@
+#ifdef OS_LINUX
+#include "IPlugSWELLTimer.h"
+#endif
 
 #ifndef NO_IGRAPHICS
 #define BUNDLE_ID ""
@@ -119,6 +122,15 @@ extern "C"
       
       if (gErrorCount > 0)
         return 0;
+
+#ifdef OS_LINUX
+      if (!gPlug->StartMainThreadTimer())
+      {
+        fprintf(stderr, "Could not start REAPER extension main-thread dispatch\n");
+        gPlug.reset();
+        return 0;
+      }
+#endif
       
       pRec->Register("hookcommand", (void*) ReaperExtBase::HookCommandProc);
       pRec->Register("toggleaction", (void*) ReaperExtBase::ToggleActionCallback);

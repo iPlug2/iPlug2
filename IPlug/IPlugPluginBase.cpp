@@ -841,11 +841,20 @@ bool IPluginBase::LoadPresetFromFXP(const char* file)
       fseek(fp , 0 , SEEK_END);
       fileSize = ftell(fp);
       rewind(fp);
-      
+
+      if (fileSize <= 0) // ftell error (-1) or empty file: nothing valid to parse
+      {
+        fclose(fp);
+        return false;
+      }
+
       pgm.Resize((int) fileSize);
-      fread(pgm.GetData(), fileSize, 1, fp);
-      
+      const bool readOK = fread(pgm.GetData(), fileSize, 1, fp) == 1;
+
       fclose(fp);
+
+      if (!readOK)
+        return false;
       
       int pos = 0;
       
@@ -932,11 +941,20 @@ bool IPluginBase::LoadBankFromFXB(const char* file)
       fseek(fp , 0 , SEEK_END);
       fileSize = ftell(fp);
       rewind(fp);
-      
+
+      if (fileSize <= 0) // ftell error (-1) or empty file: nothing valid to parse
+      {
+        fclose(fp);
+        return false;
+      }
+
       bnk.Resize((int) fileSize);
-      fread(bnk.GetData(), fileSize, 1, fp);
-      
+      const bool readOK = fread(bnk.GetData(), fileSize, 1, fp) == 1;
+
       fclose(fp);
+
+      if (!readOK)
+        return false;
       
       int pos = 0;
       

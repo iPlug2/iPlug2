@@ -15,7 +15,17 @@
 #include "win32_utf8.h"
 #endif
 
+#ifdef OS_LINUX
+#include <alsa/asoundlib.h>
+#include <gdk/gdkx.h>  // GDK_WINDOW_XID
+#include <cerrno>
+#include <cstdio>
+#include <cstring>
+#include <filesystem>
+#endif
+
 #include "IPlugLogger.h"
+#include "IPlugPaths.h" // IsSafeAbsoluteDir
 
 using namespace iplug;
 
@@ -60,7 +70,20 @@ bool IPlugAPPHost::Init()
   if (!InitState())
     return false;
   
+#ifdef OS_LINUX
+  if (!mIPlug->MainThreadTimerIsRunning())
+  {
+    fprintf(stderr, "Standalone main-thread dispatch is unavailable\n");
+    return false;
+  }
+  if (!TryToChangeAudioDriverType())
+  {
+    fprintf(stderr, "Could not initialize audio driver %u\n", mState.mAudioDriverType);
+    return false;
+  }
+#else
   TryToChangeAudioDriverType(); // will init RTAudio with an API type based on gState->mAudioDriverType
+#endif
   ProbeAudioIO(); // find out what audio IO devs are available and put their IDs in the global variables gAudioInputDevs / gAudioOutputDevs
   InitMidi(); // creates RTMidiIn and RTMidiOut objects
   ProbeMidiIO(); // find out what midi IO devs are available and put their names in the global variables gMidiInputDevs / gMidiOutputDevs
@@ -75,7 +98,44 @@ bool IPlugAPPHost::Init()
 
 bool IPlugAPPHost::OpenWindow(HWND pParent)
 {
+#ifdef OS_LINUX
+  // pParent is a SWELL HWND (heap pointer, not an X11 Window).
+  // Extract the underlying X11 window so IGraphicsLinux can embed into it.
+  void* x11Parent = nullptr;
+  if (pParent)
+  {
+    GdkWindow* gdkWnd = static_cast<GdkWindow*>(SWELL_GetOSWindow(pParent, "GdkWindow"));
+    if (gdkWnd)
+    {
+      x11Parent = (void*)(uintptr_t)GDK_WINDOW_XID(gdkWnd);
+
+      // Export the GDK scale factor so IGraphicsLinux can create its X11 window
+      // at the correct physical-pixel size for HiDPI (Xwayland 200% etc.).
+      int scale = gdk_window_get_scale_factor(gdkWnd);
+      char buf[16];
+      snprintf(buf, sizeof(buf), "%d", scale);
+      setenv("IPLUG2_SCREEN_SCALE", buf, 1 /* overwrite */);
+
+      // If the dialog has a menu bar, export its height so IGraphicsLinux
+      // can offset the plugin window below it. The GDK window includes the
+      // non-client area but XGetWindowAttributes may return stale geometry
+      // on a separate Display connection, so we pass the value explicitly.
+      if (GetMenu(pParent))
+      {
+        int menuH = GetSystemMetrics(SM_CYMENU);
+        if (menuH > 0)
+        {
+          char buf[16];
+          snprintf(buf, sizeof(buf), "%d", menuH);
+          setenv("IPLUG2_MENU_OFFSET", buf, 1 /* overwrite */);
+        }
+      }
+    }
+  }
+  return mIPlug->OpenWindow(x11Parent) != nullptr;
+#else
   return mIPlug->OpenWindow(pParent) != nullptr;
+#endif
 }
 
 void IPlugAPPHost::CloseWindow()
@@ -90,9 +150,51 @@ bool IPlugAPPHost::InitState()
   SHGetSpecialFolderPathUTF8(NULL, strPath, MAX_PATH_LEN, CSIDL_LOCAL_APPDATA, FALSE);
   mINIPath.SetFormatted(MAX_PATH_LEN, "%s\\%s\\", strPath, BUNDLE_NAME);
 #elif defined OS_MAC
-  mINIPath.SetFormatted(MAX_PATH_LEN, "%s/Library/Application Support/%s/", getenv("HOME"), BUNDLE_NAME);
-#else
-  #error NOT IMPLEMENTED
+  const char* home = getenv("HOME");
+  if (!home || !home[0])
+    return false;
+  mINIPath.SetFormatted(MAX_PATH_LEN, "%s/Library/Application Support/%s/", home, BUNDLE_NAME);
+#elif defined OS_LINUX
+  const char* xdgConfig = getenv("XDG_CONFIG_HOME");
+  const char* home = getenv("HOME");
+  std::filesystem::path directory;
+  if (IsSafeAbsoluteDir(xdgConfig))
+    directory = std::filesystem::path(xdgConfig) / BUNDLE_NAME;
+  else if (IsSafeAbsoluteDir(home))
+    directory = std::filesystem::path(home) / ".config" / BUNDLE_NAME;
+  else
+  {
+    fprintf(stderr, "Cannot resolve settings directory: a safe absolute XDG_CONFIG_HOME or HOME is required\n");
+    return false;
+  }
+
+  // mkdir preserves private permissions on every newly created ancestor.
+  std::filesystem::path current;
+  for (const auto& part : directory)
+  {
+    current /= part;
+    if (mkdir(current.c_str(), S_IRWXU) != 0)
+    {
+      int error = errno;
+      struct stat info;
+      if (error == EEXIST)
+      {
+        if (stat(current.c_str(), &info) == 0)
+        {
+          if (S_ISDIR(info.st_mode))
+            continue;
+          error = ENOTDIR;
+        }
+        else
+          error = errno;
+      }
+      fprintf(stderr, "Cannot create settings directory '%s' at '%s': %s\n",
+              directory.c_str(), current.c_str(), strerror(error));
+      return false;
+    }
+  }
+  mINIPath.Set(directory.c_str());
+  mINIPath.Append("/");
 #endif
 
   struct stat st;
@@ -131,7 +233,7 @@ bool IPlugAPPHost::InitState()
     }
 
     // if settings file doesn't exist, populate with default values, otherwise overwrite
-    UpdateINI();
+    return UpdateINI();
   }
   else // folder doesn't exist - make folder and make file
   {
@@ -139,65 +241,78 @@ bool IPlugAPPHost::InitState()
     // folder doesn't exist - make folder and make file
     CreateDirectory(mINIPath.Get(), NULL);
     mINIPath.Append("settings.ini");
-    UpdateINI(); // will write file if doesn't exist
-#elif defined OS_MAC
-    mode_t process_mask = umask(0);
-    int result_code = mkdir(mINIPath.Get(), S_IRWXU | S_IRWXG | S_IRWXO);
-    umask(process_mask);
+    return UpdateINI(); // will write file if doesn't exist
+#elif defined(OS_MAC) || defined(OS_LINUX)
+    int result_code = mkdir(mINIPath.Get(), S_IRWXU);
 
     if (!result_code)
     {
       mINIPath.Append("settings.ini");
-      UpdateINI(); // will write file if doesn't exist
+      return UpdateINI(); // will write file if doesn't exist
     }
     else
     {
       return false;
     }
-#else
-  #error NOT IMPLEMENTED
 #endif
   }
 
   return true;
 }
 
-void IPlugAPPHost::UpdateINI()
+bool IPlugAPPHost::UpdateINI()
 {
   char buf[STRBUFSZ]; // temp buffer for writing integers to profile strings
   const char* ini = mINIPath.Get();
+  bool success = true;
+  auto write = [&](const char* section, const char* key, const char* value) {
+    if (!success)
+      return;
+    if (!WritePrivateProfileString(section, key, value, ini))
+    {
+#ifdef OS_LINUX
+      const int error = errno;
+      fprintf(stderr, "Cannot save settings '%s' [%s] %s: %s\n",
+              ini, section, key, strerror(error ? error : EIO));
+#else
+      fprintf(stderr, "Cannot save settings '%s' [%s] %s\n", ini, section, key);
+#endif
+      success = false;
+    }
+  };
 
   sprintf(buf, "%u", mState.mAudioDriverType);
-  WritePrivateProfileString("audio", "driver", buf, ini);
+  write("audio", "driver", buf);
 
-  WritePrivateProfileString("audio", "indev", mState.mAudioInDev.Get(), ini);
-  WritePrivateProfileString("audio", "outdev", mState.mAudioOutDev.Get(), ini);
+  write("audio", "indev", mState.mAudioInDev.Get());
+  write("audio", "outdev", mState.mAudioOutDev.Get());
 
   sprintf(buf, "%u", mState.mAudioInChanL);
-  WritePrivateProfileString("audio", "in1", buf, ini);
+  write("audio", "in1", buf);
   sprintf(buf, "%u", mState.mAudioInChanR);
-  WritePrivateProfileString("audio", "in2", buf, ini);
+  write("audio", "in2", buf);
   sprintf(buf, "%u", mState.mAudioOutChanL);
-  WritePrivateProfileString("audio", "out1", buf, ini);
+  write("audio", "out1", buf);
   sprintf(buf, "%u", mState.mAudioOutChanR);
-  WritePrivateProfileString("audio", "out2", buf, ini);
+  write("audio", "out2", buf);
   //sprintf(buf, "%u", mState.mAudioInIsMono);
   //WritePrivateProfileString("audio", "monoinput", buf, ini);
 
   WDL_String str;
   str.SetFormatted(32, "%i", mState.mBufferSize);
-  WritePrivateProfileString("audio", "buffer", str.Get(), ini);
+  write("audio", "buffer", str.Get());
 
   str.SetFormatted(32, "%i", mState.mAudioSR);
-  WritePrivateProfileString("audio", "sr", str.Get(), ini);
+  write("audio", "sr", str.Get());
 
-  WritePrivateProfileString("midi", "indev", mState.mMidiInDev.Get(), ini);
-  WritePrivateProfileString("midi", "outdev", mState.mMidiOutDev.Get(), ini);
+  write("midi", "indev", mState.mMidiInDev.Get());
+  write("midi", "outdev", mState.mMidiOutDev.Get());
 
   sprintf(buf, "%u", mState.mMidiInChan);
-  WritePrivateProfileString("midi", "inchan", buf, ini);
+  write("midi", "inchan", buf);
   sprintf(buf, "%u", mState.mMidiOutChan);
-  WritePrivateProfileString("midi", "outchan", buf, ini);
+  write("midi", "outchan", buf);
+  return success;
 }
 
 std::string IPlugAPPHost::GetAudioDeviceName(uint32_t deviceID) const
@@ -218,6 +333,13 @@ std::string IPlugAPPHost::GetAudioDeviceName(uint32_t deviceID) const
 
 std::optional<uint32_t> IPlugAPPHost::GetAudioDeviceID(const char* deviceNameToTest) const
 {
+#ifdef OS_LINUX
+  if (!mDAC)
+  {
+    fprintf(stderr, "Cannot look up audio device '%s': audio driver is not initialized\n", deviceNameToTest);
+    return std::nullopt;
+  }
+#endif
   auto deviceIDs = mDAC->getDeviceIds();
 
   for (auto deviceID : deviceIDs)
@@ -397,8 +519,11 @@ bool IPlugAPPHost::TryToChangeAudioDriverType()
     mDAC = std::make_unique<RtAudio>(RtAudio::MACOSX_CORE);
   //else
   //mDAC = std::make_unique<RtAudio>(RtAudio::UNIX_JACK);
-#else
-  #error NOT IMPLEMENTED
+#elif defined OS_LINUX
+  if (mState.mAudioDriverType == kDeviceAlsa)
+    mDAC = std::make_unique<RtAudio>(RtAudio::LINUX_ALSA);
+  else if (mState.mAudioDriverType == kDeviceJack)
+    mDAC = std::make_unique<RtAudio>(RtAudio::UNIX_JACK);
 #endif
 
   if (mDAC)
@@ -416,13 +541,21 @@ bool IPlugAPPHost::TryToChangeAudio()
   if (mNoIO || IsScreenshotMode())
     return true;
 
+#ifdef OS_LINUX
+  if (!mDAC)
+  {
+    fprintf(stderr, "Cannot initialize audio: audio driver is not initialized\n");
+    return false;
+  }
+#endif
+
 #if defined OS_WIN
   // ASIO has one device, use the output for the input ID
   auto inputID = GetAudioDeviceID(mState.mAudioDriverType == kDeviceASIO ? mState.mAudioOutDev.Get() : mState.mAudioInDev.Get());
 #elif defined OS_MAC
   auto inputID = GetAudioDeviceID(mState.mAudioInDev.Get());
-#else
-  #error NOT IMPLEMENTED
+#elif defined OS_LINUX
+  auto inputID = GetAudioDeviceID(mState.mAudioInDev.Get());
 #endif
   auto outputID = GetAudioDeviceID(mState.mAudioOutDev.Get());
 
@@ -515,8 +648,12 @@ bool IPlugAPPHost::SelectMIDIDevice(ERoute direction, const char* pPortName)
         mMidiIn->openPort(port-2);
         return true;
       }
-  #else
-   #error NOT IMPLEMENTED
+  #elif defined OS_LINUX
+      else
+      {
+        mMidiIn->openPort(port-1);
+        return true;
+      }
   #endif
     }
   }
@@ -555,8 +692,12 @@ bool IPlugAPPHost::SelectMIDIDevice(ERoute direction, const char* pPortName)
         mMidiOut->openPort(port-2);
         return true;
       }
-#else
-  #error NOT IMPLEMENTED
+#elif defined OS_LINUX
+      else
+      {
+        mMidiOut->openPort(port-1);
+        return true;
+      }
 #endif
     }
   }
@@ -798,4 +939,3 @@ void IPlugAPPHost::ErrorCallback(RtAudioErrorType type, const std::string &error
 {
   std::cerr << "\nerrorCallback: " << errorText << "\n\n";
 }
-

@@ -12,6 +12,7 @@ on:
       - 'IGraphics/**'
       - 'Examples/**/CMakeLists.txt'
       - 'Tests/**/CMakeLists.txt'
+      - 'Tests/Linux/**'
       - '.github/workflows/cmake-ci.yml'
   pull_request:
     branches: [master]
@@ -24,6 +25,7 @@ on:
       - 'IGraphics/**'
       - 'Examples/**/CMakeLists.txt'
       - 'Tests/**/CMakeLists.txt'
+      - 'Tests/Linux/**'
       - '.github/workflows/cmake-ci.yml'
   issue_comment:
     types: [created]
@@ -61,6 +63,10 @@ on:
         description: 'Include Windows ARM64EC build'
         type: boolean
         default: false
+
+permissions:
+  contents: read
+  pull-requests: read
 
 # Cancel in-progress runs for the same PR/branch
 concurrency:
@@ -859,4 +865,229 @@ jobs:
         with:
           name: wasm-artifacts
           path: build/web/out/
+          if-no-files-found: warn
+
+  # ============================================================================
+  # Linux - Ninja Generator (Default)
+  # ============================================================================
+  linux-ninja:
+    name: ${{ matrix.name }}
+    needs: parse-commands
+    if: needs.parse-commands.outputs.should_run == 'true'
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - label: gcc-x64
+            name: Linux (Ninja)
+            runner: ubuntu-22.04
+            cc: gcc
+            cxx: g++
+            sanitizers: false
+          - label: gcc-x64-ubuntu24
+            name: Linux (Ninja, Ubuntu 24.04)
+            runner: ubuntu-24.04
+            cc: gcc
+            cxx: g++
+            sanitizers: false
+          - label: gcc-arm64
+            name: Linux (Ninja, GCC ARM64)
+            runner: ubuntu-22.04-arm
+            cc: gcc
+            cxx: g++
+            sanitizers: false
+          - label: clang-sanitizers
+            name: Linux (Ninja, Clang sanitizers)
+            runner: ubuntu-22.04
+            cc: clang-14
+            cxx: clang++-14
+            sanitizers: true
+    runs-on: ${{ matrix.runner }}
+    env:
+      CC: ${{ matrix.cc }}
+      CXX: ${{ matrix.cxx }}
+      CFLAGS: ${{ matrix.sanitizers && '-fsanitize=address,undefined -fno-omit-frame-pointer' || '' }}
+      CXXFLAGS: ${{ matrix.sanitizers && '-fsanitize=address,undefined -fno-omit-frame-pointer' || '' }}
+      LDFLAGS: ${{ matrix.sanitizers && '-fsanitize=address,undefined' || '' }}
+      # GL/GTK retain process-wide caches; run leak checking separately for the core timer.
+      ASAN_OPTIONS: detect_leaks=0
+      UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.parse-commands.outputs.pr_sha || github.sha }}
+          submodules: recursive
+
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            ninja-build \
+            xvfb xauth xfonts-base libgl1-mesa-dri \
+            pkg-config \
+            libgdk-pixbuf-2.0-dev \
+            libglib2.0-dev \
+            libgtk-3-dev \
+            libfreetype-dev \
+            libfontconfig-dev \
+            libasound2-dev \
+            libjack-jackd2-dev \
+            libpulse-dev \
+            libgl-dev \
+            libx11-dev \
+            libx11-xcb-dev \
+            libxcb1-dev \
+            libxi-dev \
+            libxext-dev \
+            libxrender-dev \
+            libxrandr-dev \
+            libxfixes-dev \
+            libxcursor-dev
+
+      - name: Install Clang sanitizer runtime
+        if: matrix.sanitizers
+        run: sudo apt-get install -y --no-install-recommends clang-14 libclang-rt-14-dev
+
+      - name: Cache SDKs
+        id: cache-sdks
+        uses: actions/cache@v4
+        with:
+          path: |
+            Dependencies/IPlug/VST3_SDK
+            Dependencies/IPlug/CLAP_SDK
+            Dependencies/IPlug/CLAP_HELPERS
+            Dependencies/IPlug/WAM_SDK
+            Dependencies/IPlug/WAM_AWP
+          key: sdks-${{ runner.os }}-${{ hashFiles('Dependencies/IPlug/download-*.sh') }}
+
+      - name: Download Public SDKs
+        if: steps.cache-sdks.outputs.cache-hit != 'true'
+        run: |
+          cd Dependencies/IPlug
+          ./download-iplug-sdks.sh
+
+      - name: Configure CMake
+        run: cmake --preset linux-ninja -DIPLUG2_DISABLE_DEPRECATION_WARNINGS=ON -DIPLUG_DEPLOY_PLUGINS=OFF
+
+      - name: Build
+        run: |
+          EXAMPLES="${{ needs.parse-commands.outputs.examples }}"
+          if [[ "$EXAMPLES" == "all" || -z "$EXAMPLES" ]]; then
+            cmake --build --preset linux-ninja
+          else
+            TARGETS=""
+            IFS=',' read -ra EXAMPLE_LIST <<< "$EXAMPLES"
+            for example in "${EXAMPLE_LIST[@]}"; do
+              example=$(echo "$example" | xargs)
+              TARGETS="$TARGETS --target ${example}-app --target ${example}-vst3 --target ${example}-clap"
+            done
+            cmake --build --preset linux-ninja $TARGETS
+          fi
+
+      - name: Configure Linux regression tests
+        run: cmake -S Tests/Linux -B build/linux-regression -G Ninja -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build Linux regression tests
+        run: |
+          cmake --build build/linux-regression --parallel 2 \
+            --target IPlugEffect-app LinuxGuiTest LinuxStartupHooks \
+            LinuxDialogTest LinuxRuntimeTest LinuxClapHostTest LinuxVst3HostTest LinuxOscTest
+
+      - name: Run Linux regression tests
+        run: ctest --test-dir build/linux-regression --output-on-failure
+
+      - name: Check core timer leaks
+        if: matrix.sanitizers
+        env:
+          ASAN_OPTIONS: detect_leaks=1
+        run: ctest --test-dir build/linux-regression -R '^linux-timer-lifecycle$' --output-on-failure
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-ninja-${{ matrix.label }}-artifacts
+          path: build/linux-ninja/out/
+          if-no-files-found: warn
+
+  # ============================================================================
+  # Linux - Unix Makefiles Generator (Optional - /ci all-generators)
+  # ============================================================================
+  linux-make:
+    name: Linux (Make)
+    needs: parse-commands
+    if: needs.parse-commands.outputs.all_generators == 'true'
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.parse-commands.outputs.pr_sha || github.sha }}
+          submodules: recursive
+
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            pkg-config \
+            libgdk-pixbuf-2.0-dev \
+            libglib2.0-dev \
+            libgtk-3-dev \
+            libfreetype-dev \
+            libfontconfig-dev \
+            libasound2-dev \
+            libjack-jackd2-dev \
+            libpulse-dev \
+            libgl-dev \
+            libx11-dev \
+            libx11-xcb-dev \
+            libxcb1-dev \
+            libxi-dev \
+            libxext-dev \
+            libxrender-dev \
+            libxrandr-dev \
+            libxfixes-dev \
+            libxcursor-dev
+
+      - name: Cache SDKs
+        id: cache-sdks
+        uses: actions/cache@v4
+        with:
+          path: |
+            Dependencies/IPlug/VST3_SDK
+            Dependencies/IPlug/CLAP_SDK
+            Dependencies/IPlug/CLAP_HELPERS
+            Dependencies/IPlug/WAM_SDK
+            Dependencies/IPlug/WAM_AWP
+          key: sdks-${{ runner.os }}-${{ hashFiles('Dependencies/IPlug/download-*.sh') }}
+
+      - name: Download Public SDKs
+        if: steps.cache-sdks.outputs.cache-hit != 'true'
+        run: |
+          cd Dependencies/IPlug
+          ./download-iplug-sdks.sh
+
+      - name: Configure CMake
+        run: cmake --preset linux-make -DIPLUG2_DISABLE_DEPRECATION_WARNINGS=ON -DIPLUG_DEPLOY_PLUGINS=OFF
+
+      - name: Build
+        run: |
+          EXAMPLES="${{ needs.parse-commands.outputs.examples }}"
+          if [[ "$EXAMPLES" == "all" || -z "$EXAMPLES" ]]; then
+            cmake --build --preset linux-make -- -j$(nproc)
+          else
+            TARGETS=""
+            IFS=',' read -ra EXAMPLE_LIST <<< "$EXAMPLES"
+            for example in "${EXAMPLE_LIST[@]}"; do
+              example=$(echo "$example" | xargs)
+              TARGETS="$TARGETS --target ${example}-app --target ${example}-vst3 --target ${example}-clap"
+            done
+            cmake --build --preset linux-make $TARGETS -- -j$(nproc)
+          fi
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-make-artifacts
+          path: build/linux-make/out/
           if-no-files-found: warn

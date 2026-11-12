@@ -73,9 +73,12 @@
 #elif defined OS_WIN
   #include "wingdi.h"
   #define FONT_DESCRIPTOR_TYPE HFONT
+#elif defined OS_LINUX
+  // Linux uses a path string to locate fonts (resolved via Fontconfig)
+  #define FONT_DESCRIPTOR_TYPE WDL_String*
 #elif defined OS_WEB
   #define FONT_DESCRIPTOR_TYPE std::pair<WDL_String, WDL_String>*
-#else 
+#else
   // NO_IGRAPHICS
 #endif
 
