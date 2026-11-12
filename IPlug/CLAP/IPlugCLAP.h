@@ -84,6 +84,7 @@ class IPlugCLAP : public IPlugAPIBase
   
 public:
   IPlugCLAP(const InstanceInfo& info, const Config& config);
+  ~IPlugCLAP() override;
 
   // IPlugAPIBase
   void BeginInformHostOfParamChange(int idx) override;
@@ -165,15 +166,40 @@ private:
   bool guiGetSize(uint32_t* pWidth, uint32_t* pHeight) noexcept override;
   
   bool guiCanResize() const noexcept override;
+  bool guiGetResizeHints(clap_gui_resize_hints_t* pHints) noexcept override;
   bool guiAdjustSize(uint32_t* pWidth, uint32_t* pHeight) noexcept override;
   bool guiSetSize(uint32_t width, uint32_t height) noexcept override;
 
   // clap_plugin_gui_cocoa/win32
   bool guiIsApiSupported(const char* api, bool isFloating) noexcept override;
   bool guiSetParent(const clap_window* pWindow) noexcept override;
-  
+
   // Helper to attach GUI Windows
   bool GUIWindowAttach(void* parent) noexcept;
+
+#if defined OS_LINUX
+  void onMainThread() noexcept override;
+  std::atomic<bool> mLinuxIdlePending{false};
+#if defined WEBVIEW_EDITOR_DELEGATE
+  std::unique_ptr<Timer> mWebViewTimer;
+  std::atomic<bool> mWebViewPending{false};
+#endif
+#endif
+
+#if defined OS_LINUX && !defined NO_IGRAPHICS
+  // clap_plugin_timer_support + clap_plugin_posix_fd_support (Linux only)
+  bool implementsTimerSupport() const noexcept override { return true; }
+  void onTimer(clap_id timerId) noexcept override;
+  bool implementsPosixFdSupport() const noexcept override { return true; }
+  void onPosixFd(int fd, clap_posix_fd_flags_t flags) noexcept override;
+  bool RegisterLinuxHostCallbacks() noexcept;
+  void UnregisterLinuxHostCallbacks() noexcept;
+  void CheckLinuxGuiClosed() noexcept;
+  clap_id mLinuxTimerId = CLAP_INVALID_ID;
+  int mLinuxFd = -1;
+  std::unique_ptr<Timer> mLinuxGuiTimer;
+  std::atomic<bool> mLinuxCallbackPending{false};
+#endif
 
   // Parameter flushing from GUI
   void FlushParamsIfNeeded();

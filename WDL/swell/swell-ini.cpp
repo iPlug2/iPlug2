@@ -39,6 +39,7 @@
 #include <sys/stat.h>
 #include <sys/file.h>
 #include <sys/types.h>
+#include <errno.h>
 
 struct iniFileContext
 {
@@ -245,9 +246,9 @@ static iniFileContext *GetFileContext(const char *name)
   return ctx;
 }
 
-static void WriteBackFile(iniFileContext *ctx)
+static BOOL WriteBackFile(iniFileContext *ctx)
 {
-  if (!ctx||!ctx->m_curfn) return;
+  if (!ctx||!ctx->m_curfn) { errno=EINVAL; return FALSE; }
   char newfn[1024];
 
   const char *curfn = ctx->m_curfn;
@@ -260,6 +261,13 @@ static void WriteBackFile(iniFileContext *ctx)
     if (needfree) curfn = needfree;
   }
 
+  if (strlen(curfn) >= sizeof(newfn)-8)
+  {
+    free(needfree);
+    ctx->m_curfn_sz=-1;
+    errno=ENAMETOOLONG;
+    return FALSE;
+  }
   lstrcpyn_safe(newfn,curfn,sizeof(newfn)-8);
   {
     char *p=newfn;
@@ -279,11 +287,24 @@ static void WriteBackFile(iniFileContext *ctx)
   FILE *fp = WDL_fopenA(newfn,"w");
   if (!fp)
   {
+    const int error=errno;
     free(needfree);
-    return;
+    ctx->m_curfn_sz=-1;
+    errno=error;
+    return FALSE;
   }
   
-  flock(fileno(fp),LOCK_EX);
+  if (flock(fileno(fp),LOCK_EX))
+  {
+    const int error=errno;
+    fclose(fp);
+    unlink(newfn);
+    free(needfree);
+    ctx->m_curfn_sz=-1;
+    errno=error;
+    return FALSE;
+  }
+  errno=0;
   
   int x;
   for (x = 0; ; x ++)
@@ -304,19 +325,23 @@ static void WriteBackFile(iniFileContext *ctx)
     fprintf(fp,"\n");
   }  
   
-  fflush(fp);
-  flock(fileno(fp),LOCK_UN);
-  fclose(fp);
+  int error=ferror(fp) ? (errno ? errno : EIO) : 0;
+  if (fflush(fp) && !error) error=errno ? errno : EIO;
+  if (fclose(fp) && !error) error=errno ? errno : EIO;
 
-  if (!rename(newfn,curfn))
+  if (!error && rename(newfn,curfn)) error=errno;
+  if (!error)
   {
     ctx->m_curfn_time = getfileupdtimesize(curfn,&ctx->m_curfn_sz);
   }
   else
   {
-    // error updating, hmm how to handle this?
+    unlink(newfn);
+    ctx->m_curfn_sz=-1;
   }
   free(needfree);
+  if (error) { errno=error; return FALSE; }
+  return TRUE;
 }
 
 BOOL WritePrivateProfileSection(const char *appname, const char *strings, const char *fn)
@@ -353,9 +378,7 @@ BOOL WritePrivateProfileSection(const char *appname, const char *strings, const 
       strings += strlen(strings)+1;
     }
   }
-  WriteBackFile(ctx);
-  
-  return TRUE;
+  return WriteBackFile(ctx);
 }
 
 
@@ -373,7 +396,7 @@ BOOL WritePrivateProfileString(const char *appname, const char *keyname, const c
     if (ctx->m_sections.Get(appname))
     {
       ctx->m_sections.Delete(appname);
-      WriteBackFile(ctx);
+      return WriteBackFile(ctx);
     }
   }
   else 
@@ -384,7 +407,7 @@ BOOL WritePrivateProfileString(const char *appname, const char *keyname, const c
       if (cursec && cursec->Get(keyname))
       {
         cursec->Delete(keyname);
-        WriteBackFile(ctx);
+        return WriteBackFile(ctx);
       }
     }
     else
@@ -398,7 +421,7 @@ BOOL WritePrivateProfileString(const char *appname, const char *keyname, const c
           ctx->m_sections.Insert(appname,cursec);
         }
         cursec->Insert(keyname,strdup(val));
-        WriteBackFile(ctx);
+        return WriteBackFile(ctx);
       }
     }
 

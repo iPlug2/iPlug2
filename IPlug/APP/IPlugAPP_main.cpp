@@ -259,8 +259,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
     ReleaseMutex(hMutex);
 #endif
   }
-  catch(std::exception e)
+  catch(const std::exception& e)
   {
+    fprintf(stderr, "Fatal exception: %s\n", e.what());
     DBGMSG("Exception: %s", e.what());
     return 1;
   }
@@ -528,117 +529,100 @@ INT_PTR SWELLAppMain(int msg, INT_PTR parm1, INT_PTR parm2)
 
 #pragma mark - LINUX
 #elif defined(OS_LINUX)
-//#include <IPlugSWELL.h>
-//#include "swell-internal.h" // fixes problem with HWND forward decl
-//
-//HWND gHWND;
-//UINT gScrollMessage;
-//extern HMENU SWELL_app_stocksysmenu;
-//
-//int main(int argc, char **argv)
-//{
-//  SWELL_initargs(&argc, &argv);
-//  SWELL_Internal_PostMessage_Init();
-//  SWELL_ExtendedAPI("APPNAME", (void*) "IGraphics Test");
-//
-//  HMENU menu = LoadMenu(NULL, MAKEINTRESOURCE(IDR_MENU1));
-//  CreateDialog(gHINSTANCE, MAKEINTRESOURCE(IDD_DIALOG_MAIN), NULL, MainDlgProc);
-//  SetMenu(gHWND, menu);
-//
-//  while (!gHWND->m_hashaddestroy)
-//  {
-//    SWELL_RunMessageLoop();
-//    Sleep(10);
-//  };
-//
-//  if (gHWND)
-//    DestroyWindow(gHWND);
-//
-//  return 0;
-//}
-//
-//INT_PTR SWELLAppMain(int msg, INT_PTR parm1, INT_PTR parm2)
-//{
-//  switch (msg)
-//  {
-//    case SWELLAPP_ONLOAD:
-//      break;
-//    case SWELLAPP_LOADED:
-//    {
-//      HMENU menu = SWELL_GetCurrentMenu();
-//
-//      if (menu)
-//      {
-//        // work on a new menu
-//        menu = SWELL_DuplicateMenu(menu);
-//        HMENU src = LoadMenu(NULL, MAKEINTRESOURCE(IDR_MENU1));
-//
-//        for (auto x = 0; x < GetMenuItemCount(src)-1; x++)
-//        {
-//          HMENU sm = GetSubMenu(src,x);
-//          if (sm)
-//          {
-//            char str[1024];
-//            MENUITEMINFO mii = {sizeof(mii), MIIM_TYPE};
-//            mii.dwTypeData = str;
-//            mii.cch = sizeof(str);
-//            str[0] = 0;
-//            GetMenuItemInfo(src, x, TRUE, &mii);
-//            MENUITEMINFO mi= {sizeof(mi), MIIM_STATE|MIIM_SUBMENU|MIIM_TYPE,MFT_STRING, 0, 0, SWELL_DuplicateMenu(sm), NULL, NULL, 0, str};
-//            InsertMenuItem(menu, x+1, TRUE, &mi);
-//          }
-//        }
-//      }
-//
-//      if (menu)
-//      {
-//        HMENU sm = GetSubMenu(menu, 1);
-//        DeleteMenu(sm, ID_QUIT, MF_BYCOMMAND); // remove QUIT from our file menu, since it is in the system menu on OSX
-//        DeleteMenu(sm, ID_PREFERENCES, MF_BYCOMMAND); // remove PREFERENCES from the file menu, since it is in the system menu on OSX
-//
-//        // remove any trailing separators
-//        int a = GetMenuItemCount(sm);
-//
-//        while (a > 0 && GetMenuItemID(sm, a-1) == 0)
-//          DeleteMenu(sm, --a, MF_BYPOSITION);
-//
-//        DeleteMenu(menu, 1, MF_BYPOSITION); // delete file menu
-//      }
-//
-//      // if we want to set any default modifiers for items in the menus, we can use:
-//      // SetMenuItemModifier(menu,commandID,MF_BYCOMMAND,'A',FCONTROL) etc.
-//
-//      HWND hwnd = CreateDialog(gHINST,MAKEINTRESOURCE(IDD_DIALOG_MAIN), NULL, MainDlgProc);
-//
-//      if (menu)
-//      {
-//        SetMenu(hwnd, menu); // set the menu for the dialog to our menu (on Windows that menu is set from the .rc, but on SWELL
-//        SWELL_SetDefaultModalWindowMenu(menu); // other windows will get the stock (bundle) menus
-//      }
-//
-//      break;
-//    }
-//    case SWELLAPP_ONCOMMAND:
-//      // this is to catch commands coming from the system menu etc
-//      if (gHWND && (parm1&0xffff))
-//        SendMessage(gHWND, WM_COMMAND, parm1 & 0xffff, 0);
-//      break;
-//    case SWELLAPP_DESTROY:
-//      if (gHWND)
-//        DestroyWindow(gHWND);
-//      break;
-//    case SWELLAPP_PROCESSMESSAGE: // can hook keyboard input here
-//      // parm1 = (MSG*), should we want it -- look in swell.h to see what the return values refer to
-//      break;
-//  }
-//  return 0;
-//}
-//
-//#define CBS_HASSTRINGS 0
-//#define SWELL_DLG_SCALE_AUTOGEN 1
-//#define SET_IDD_DIALOG_PREF_SCALE 1.5
-//#include "swell-dlggen.h"
-//#include "resources/main.rc_mac_dlg"
-//#include "swell-menugen.h"
-//#include "resources/main.rc_mac_menu"
+#include "IPlugSWELL.h"
+
+#define WM_USER_OPENWINDOW (WM_USER + 1)
+
+HWND gHWND;
+HINSTANCE gHINSTANCE;
+int gStandaloneExitStatus = EXIT_SUCCESS;
+bool gStandaloneCloseRequested = false;
+
+static bool gNoIO = false;
+
+int main(int argc, char** argv)
+{
+  SWELL_initargs(&argc, &argv);
+  // Let SWELL forward events to GTK dialogs while retaining its own GDK event handler.
+  SWELL_ExtendedAPI("LOAD_GTK", nullptr);
+  SWELL_Internal_PostMessage_Init();
+  SWELL_ExtendedAPI("APPNAME", (void*) BUNDLE_NAME);
+
+  // Parse command line arguments
+  for (int i = 1; i < argc; i++)
+  {
+    if (strcmp(argv[i], "--no-io") == 0)
+      gNoIO = true;
+  }
+
+  IPlugAPPHost* pAppHost = IPlugAPPHost::Create();
+
+  if (gNoIO)
+    pAppHost->SetNoIO(true);
+
+  if (!pAppHost->Init())
+  {
+    fprintf(stderr, "Standalone initialization failed; audio and editor startup cancelled\n");
+    return 1;
+  }
+  if (!pAppHost->TryToChangeAudio())
+    fprintf(stderr, "Audio startup failed; check the standalone audio settings\n");
+
+  HMENU menu = LoadMenu(NULL, MAKEINTRESOURCE(IDR_MENU1));
+  if (!CreateDialog(gHINSTANCE, MAKEINTRESOURCE(IDD_DIALOG_MAIN), NULL, IPlugAPPHost::MainDlgProc))
+  {
+    fprintf(stderr, "Could not create the standalone window\n");
+    return EXIT_FAILURE;
+  }
+
+  if (menu)
+  {
+    SetMenu(gHWND, menu);
+  }
+  else
+    fprintf(stderr, "Standalone menu could not be loaded; opening the editor without it\n");
+
+  // Let the event loop process the optional menu resize before opening the editor.
+  if (!PostMessage(gHWND, WM_USER_OPENWINDOW, 0, 0))
+  {
+    fprintf(stderr, "Could not schedule standalone editor startup\n");
+    DestroyWindow(gHWND);
+    return EXIT_FAILURE;
+  }
+
+  while (gHWND)
+  {
+    SWELL_RunMessageLoop();
+    if (gStandaloneCloseRequested && gHWND)
+    {
+      gStandaloneCloseRequested = false;
+      DestroyWindow(gHWND);
+    }
+    Sleep(10);
+  }
+
+  if (gHWND)
+    DestroyWindow(gHWND);
+
+  return gStandaloneExitStatus;
+}
+
+INT_PTR SWELLAppMain(int msg, INT_PTR parm1, INT_PTR parm2)
+{
+  return 0;
+}
+
+#define CBS_HASSTRINGS 0
+#define SWELL_DLG_SCALE_AUTOGEN 1
+#define SET_IDD_DIALOG_PREF_SCALE 1.5
+#if PLUG_HOST_RESIZE
+#define SWELL_DLG_FLAGS_AUTOGEN SWELL_DLG_WS_FLIPPED|SWELL_DLG_WS_RESIZABLE
+#endif
+#include "swell-dlggen.h"
+#ifndef SWELL_DLG_WS_DEFAULT_SCALING
+#define SWELL_DLG_WS_DEFAULT_SCALING 0
+#endif
+#include "resources/main.rc_mac_dlg"
+#include "swell-menugen.h"
+#include "resources/main.rc_mac_menu"
 #endif

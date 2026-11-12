@@ -131,6 +131,10 @@ public:
 
   Steinberg::Vst::IComponentHandler* GetComponentHandler() { return componentHandler; }
   ViewType* GetView() { return mView; }
+
+#if defined OS_LINUX
+  bool EnsureLinuxIdleTimer(Steinberg::FUnknown* context);
+#endif
   
   Steinberg::Vst::AudioBus* getAudioInput(Steinberg::int32 index)
   {
@@ -167,6 +171,9 @@ public:
   REFCOUNT_METHODS(SingleComponentEffect)
 
 private:
+#if defined OS_LINUX
+  Steinberg::IPtr<IPlugVST3Timer> mLinuxIdleTimer;
+#endif
   ViewType* mView;
 };
 

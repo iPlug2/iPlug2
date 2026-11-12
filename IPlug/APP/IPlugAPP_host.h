@@ -58,6 +58,9 @@
   #define DEFAULT_OUTPUT_DEV "Built-in Output"
 #elif defined(OS_LINUX)
   #include "IPlugSWELL.h"
+  #define SLEEP(milliseconds) usleep((unsigned long)(milliseconds * 1000.0))
+  #define DEFAULT_INPUT_DEV "default"
+  #define DEFAULT_OUTPUT_DEV "default"
 #endif
 
 #include "RtAudio.h"
@@ -67,6 +70,10 @@
 
 extern HWND gHWND;
 extern HINSTANCE gHINSTANCE;
+#ifdef OS_LINUX
+extern int gStandaloneExitStatus;
+extern bool gStandaloneCloseRequested;
+#endif
 
 BEGIN_IPLUG_NAMESPACE
 
@@ -195,7 +202,7 @@ public:
 
   bool Init();
   bool InitState();
-  void UpdateINI();
+  bool UpdateINI();
   
   /** Returns the name of the audio device with a given RTAudio device ID
    * @param deviceID The ID RTAudio has given the audio device

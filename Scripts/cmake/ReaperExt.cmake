@@ -76,6 +76,10 @@ if(NOT TARGET iPlug2::ReaperExt)
       "-undefined dynamic_lookup"
       iPlug2::IPlug
     )
+  elseif(UNIX AND NOT APPLE)
+    # Linux needs SWELL for the generic GDK/headless backend
+    target_include_directories(iPlug2::ReaperExt INTERFACE ${SWELL_DIR})
+    target_link_libraries(iPlug2::ReaperExt INTERFACE iPlug2::IPlug)
   endif()
 endif()
 
@@ -133,6 +137,16 @@ function(iplug_configure_reaperext target project_name)
     target_link_options(${target} PRIVATE
       "LINKER:-exported_symbol,_ReaperPluginEntry"
       "LINKER:-exported_symbol,_SWELL_dllMain"
+    )
+  elseif(UNIX AND NOT APPLE)
+    set(REAPER_EXT_OUTPUT_DIR "${CMAKE_BINARY_DIR}/out")
+    set_target_properties(${target} PROPERTIES
+      OUTPUT_NAME "${reaper_ext_name}"
+      LIBRARY_OUTPUT_DIRECTORY "${REAPER_EXT_OUTPUT_DIR}"
+      LIBRARY_OUTPUT_DIRECTORY_DEBUG "${REAPER_EXT_OUTPUT_DIR}"
+      LIBRARY_OUTPUT_DIRECTORY_RELEASE "${REAPER_EXT_OUTPUT_DIR}"
+      SUFFIX ".so"
+      PREFIX ""
     )
   endif()
 

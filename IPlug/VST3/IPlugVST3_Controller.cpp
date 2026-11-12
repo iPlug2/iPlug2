@@ -28,12 +28,34 @@ IPlugVST3Controller::IPlugVST3Controller(const InstanceInfo& info, const Config&
 , mProcessorGUID(info.mOtherGUID)
 , IPlugVST3ControllerBase(parameters)
 {
+#ifndef OS_LINUX
   CreateTimer();
+#endif
 }
 
 IPlugVST3Controller::~IPlugVST3Controller()
 {
+#ifdef OS_LINUX
+  if (mLinuxIdleTimer)
+    mLinuxIdleTimer->Stop();
+#endif
 }
+
+#ifdef OS_LINUX
+bool IPlugVST3Controller::EnsureLinuxIdleTimer(FUnknown* context)
+{
+  if (!mLinuxIdleTimer)
+    mLinuxIdleTimer = owned(new IPlugVST3Timer([this] { OnTimer(); }));
+  return mLinuxIdleTimer->Start(context);
+}
+
+tresult PLUGIN_API IPlugVST3Controller::terminate()
+{
+  if (mLinuxIdleTimer)
+    mLinuxIdleTimer->Stop();
+  return EditControllerEx1::terminate();
+}
+#endif
 
 #pragma mark IEditController overrides
 
@@ -42,6 +64,9 @@ tresult PLUGIN_API IPlugVST3Controller::initialize(FUnknown* context)
   if (EditControllerEx1::initialize(context) == kResultTrue)
   {
     Initialize(this, mPlugIsInstrument, mDoesMidiIn);
+#ifdef OS_LINUX
+    EnsureLinuxIdleTimer(context);
+#endif
     IPlugVST3GetHost(this, context);
     OnHostIdentified();
     OnParamReset(kReset);

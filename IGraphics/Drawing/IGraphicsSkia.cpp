@@ -64,6 +64,8 @@
   #endif
 
 
+#elif defined OS_LINUX
+  #include "include/ports/SkFontMgr_fontconfig.h"
 #endif
 
 #if defined IGRAPHICS_GL
@@ -301,6 +303,8 @@ static sk_sp<SkFontMgr> SFontMgrFactory()
   return SkFontMgr_New_CoreText(nullptr);
 #elif defined OS_WIN
   return SkFontMgr_New_DirectWrite();
+#elif defined OS_LINUX
+  return SkFontMgr_New_FontConfig(nullptr);
 #else
   #error "Not supported"
 #endif
@@ -420,6 +424,8 @@ void IGraphicsSkia::OnViewInitialized(void* pContext)
   auto glInterface = GrGLInterfaces::MakeMac();
 #elif defined OS_WIN
   auto glInterface = GrGLInterfaces::MakeWin();
+#elif defined OS_LINUX
+  auto glInterface = GrGLMakeNativeInterface();
 #endif
   mGrContext = GrDirectContexts::MakeGL(glInterface);
 #elif defined IGRAPHICS_METAL
@@ -508,11 +514,9 @@ void IGraphicsSkia::BeginFrame()
     int fbo = 0, samples = 0, stencilBits = 0;
     glGetIntegerv(GL_FRAMEBUFFER_BINDING, &fbo);
     glGetIntegerv(GL_SAMPLES, &samples);
-#ifdef IGRAPHICS_GL3
-    glGetFramebufferAttachmentParameteriv(GL_DRAW_FRAMEBUFFER, GL_STENCIL, GL_FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE, &stencilBits);
-#else
+    // The default GLX framebuffer is not an FBO attachment. Query its stencil
+    // bits directly (GL_STENCIL is not a valid framebuffer attachment enum).
     glGetIntegerv(GL_STENCIL_BITS, &stencilBits);
-#endif
     
     GrGLFramebufferInfo fbInfo;
     fbInfo.fFBOID = fbo;

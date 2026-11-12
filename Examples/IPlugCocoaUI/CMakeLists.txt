@@ -84,22 +84,24 @@ if(NOT IOS)
   # ============================================================================
   # VST3 Target - with Cocoa UI
   # ============================================================================
-  add_library(${PROJECT_NAME}-vst3 MODULE ${SOURCE_FILES} ${SWIFT_FILES})
-  iplug_add_target(${PROJECT_NAME}-vst3 PUBLIC
-    LINK iPlug2::VST3 _${PROJECT_NAME}-base
-  )
-  iplug_configure_target(${PROJECT_NAME}-vst3 VST3 ${PROJECT_NAME})
+  if(IPLUG2_VST3_SUPPORTED)
+    add_library(${PROJECT_NAME}-vst3 MODULE ${SOURCE_FILES} ${SWIFT_FILES})
+    iplug_add_target(${PROJECT_NAME}-vst3 PUBLIC
+      LINK iPlug2::VST3 _${PROJECT_NAME}-base
+    )
+    iplug_configure_target(${PROJECT_NAME}-vst3 VST3 ${PROJECT_NAME})
 
-  set_target_properties(${PROJECT_NAME}-vst3 PROPERTIES
-    XCODE_ATTRIBUTE_SWIFT_VERSION 5.0
-    XCODE_ATTRIBUTE_SWIFT_OBJC_BRIDGING_HEADER "${PROJECT_DIR}/IPlugCocoaUI-Bridging-Header.h"
-    XCODE_ATTRIBUTE_CLANG_ENABLE_MODULES YES
-    XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "com.AcmeInc.vst3.${PROJECT_NAME}"
-  )
+    set_target_properties(${PROJECT_NAME}-vst3 PROPERTIES
+      XCODE_ATTRIBUTE_SWIFT_VERSION 5.0
+      XCODE_ATTRIBUTE_SWIFT_OBJC_BRIDGING_HEADER "${PROJECT_DIR}/IPlugCocoaUI-Bridging-Header.h"
+      XCODE_ATTRIBUTE_CLANG_ENABLE_MODULES YES
+      XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "com.AcmeInc.vst3.${PROJECT_NAME}"
+    )
 
-  target_link_libraries(${PROJECT_NAME}-vst3 PUBLIC
-    "-framework MetalKit"
-  )
+    target_link_libraries(${PROJECT_NAME}-vst3 PUBLIC
+      "-framework MetalKit"
+    )
+  endif()
 
   # ============================================================================
   # CLAP Target - with Cocoa UI
