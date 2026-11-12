@@ -340,8 +340,9 @@ the host/version, display server, GPU/driver and display scale when checking:
 
 These interactive cases, Windows execution and hardware GPU behavior have not
 been established by the headless Linux regression suite. Native Wayland and
-Skia remain outside the implemented Linux support scope. The separate WebKitGTK
-editor backend still needs interactive DAW validation.
+Skia/CPU presentation remain outside the implemented Linux support scope.
+Skia/GL3 and the separate WebKitGTK editor backend pass headless regressions,
+but still need interactive DAW and hardware GPU validation.
 
 The Linux-support diff also contains two existing vendored patches that should
 be reviewed separately from the platform implementation: SWELL INI writes now
