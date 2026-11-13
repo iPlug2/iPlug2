@@ -8,6 +8,8 @@
  ==============================================================================
  */
 
+#include <cmath>
+
 #include "pluginterfaces/vst/ivstparameterchanges.h"
 #include "pluginterfaces/vst/vstspeaker.h"
 #include "pluginterfaces/vst/ivstmidicontrollers.h"
@@ -81,7 +83,7 @@ void IPlugVST3ProcessorBase::ProcessMidiIn(IEventList* pEventList, IPlugQueue<IM
         {
           case Event::kNoteOnEvent:
           {
-            msg.MakeNoteOnMsg(event.noteOn.pitch, event.noteOn.velocity * 127, event.sampleOffset, event.noteOn.channel);
+            msg.MakeNoteOnMsg(event.noteOn.pitch, static_cast<int>(std::round(event.noteOn.velocity * 127.)), event.sampleOffset, event.noteOn.channel);
             ProcessMidiMsg(msg);
             processorQueue.Push(msg);
             break;
@@ -96,7 +98,7 @@ void IPlugVST3ProcessorBase::ProcessMidiIn(IEventList* pEventList, IPlugQueue<IM
           }
           case Event::kPolyPressureEvent:
           {
-            msg.MakePolyATMsg(event.polyPressure.pitch, event.polyPressure.pressure * 127., event.sampleOffset, event.polyPressure.channel);
+            msg.MakePolyATMsg(event.polyPressure.pitch, static_cast<int>(std::round(event.polyPressure.pressure * 127.)), event.sampleOffset, event.polyPressure.channel);
             ProcessMidiMsg(msg);
             processorQueue.Push(msg);
             break;
@@ -284,13 +286,20 @@ void IPlugVST3ProcessorBase::ProcessParameterChanges(ProcessData& data, IPlugQue
       IParamValueQueue* paramQueue = paramChanges->getParameterData(i);
       if (paramQueue)
       {
-        int32 numPoints = paramQueue->getPointCount();
-        int32 offsetSamples;
-        double value;
-        
-        if (paramQueue->getPoint(numPoints - 1,  offsetSamples, value) == kResultTrue)
+        const int32 numPoints = paramQueue->getPointCount();
+        const int idx = paramQueue->getParameterId();
+        if (numPoints == 0)
+          continue;
+
+        // MIDI controllers are events: retain every point and its sample offset.
+        // Ordinary parameter automation continues to use the final point.
+        const int32 firstPoint = idx >= kMIDICCParamStartIdx ? 0 : numPoints - 1;
+        for (int32 point = firstPoint; point < numPoints; point++)
         {
-          int idx = paramQueue->getParameterId();
+          int32 offsetSamples;
+          double value;
+          if (paramQueue->getPoint(point, offsetSamples, value) != kResultTrue)
+            continue;
           
           switch (idx)
           {
@@ -326,12 +335,17 @@ void IPlugVST3ProcessorBase::ProcessParameterChanges(ProcessData& data, IPlugQue
 
                 IMidiMsg msg;
 
-                if (ctrlr == kAfterTouch)
-                  msg.MakeChannelATMsg((int) (value * 127.), offsetSamples, channel);
-                else if (ctrlr == kPitchBend)
-                  msg.MakePitchWheelMsg((value * 2.)-1., channel, offsetSamples);
+                if (ctrlr == kPitchBend)
+                {
+                  // Recover the original 14-bit word without truncating a
+                  // negative offset from the center (8192) towards zero.
+                  const int pitch = static_cast<int>(std::round(value * 16383.));
+                  msg = IMidiMsg(offsetSamples, 0xE0 | channel, pitch & 0x7F, pitch >> 7);
+                }
+                else if (ctrlr == kAfterTouch)
+                  msg.MakeChannelATMsg(static_cast<int>(std::round(value * 127.)), offsetSamples, channel);
                 else
-                  msg.MakeControlChangeMsg((IMidiMsg::EControlChangeMsg) ctrlr, value, channel, offsetSamples);
+                  msg = IMidiMsg(offsetSamples, 0xB0 | channel, ctrlr, static_cast<int>(std::round(value * 127.)));
 
                 fromProcessor.Push(msg);
                 ProcessMidiMsg(msg);

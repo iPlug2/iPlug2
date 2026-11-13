@@ -1,0 +1,35 @@
+cmake_minimum_required(VERSION 3.14)
+project(IPlugVST3Midi LANGUAGES C CXX)
+if(APPLE)
+  enable_language(OBJCXX)
+endif()
+if(MSVC)
+  set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+endif()
+
+set(IPLUG2_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../.." CACHE PATH "iPlug2 root directory")
+get_filename_component(IPLUG2_DIR "${IPLUG2_DIR}" ABSOLUTE)
+include("${IPLUG2_DIR}/Scripts/cmake/VST3.cmake")
+if(NOT EXISTS "${VST3_SDK_DIR}/pluginterfaces/vst/ivstevents.h")
+  message(FATAL_ERROR "Download the VST3 SDK before configuring this test")
+endif()
+
+# No plugin entry point, graphics, window or host installation is required.
+get_target_property(defines iPlug2::VST3 INTERFACE_COMPILE_DEFINITIONS)
+list(REMOVE_ITEM defines IPLUG_EDITOR=1)
+set_target_properties(iPlug2::VST3 PROPERTIES INTERFACE_COMPILE_DEFINITIONS "${defines}")
+get_target_property(sources iPlug2::VST3 INTERFACE_SOURCES)
+list(FILTER sources EXCLUDE REGEX "/(linuxmain|dllmain|macmain|pluginfactory)\\.cpp$")
+set_target_properties(iPlug2::VST3 PROPERTIES INTERFACE_SOURCES "${sources}")
+add_executable(IPlugVST3Midi main.cpp
+  "${VST3_SDK_DIR}/public.sdk/source/vst/hosting/eventlist.cpp"
+  "${VST3_SDK_DIR}/public.sdk/source/vst/hosting/parameterchanges.cpp")
+target_compile_features(IPlugVST3Midi PRIVATE cxx_std_17)
+set_target_properties(IPlugVST3Midi PROPERTIES OBJCXX_STANDARD 17 OBJCXX_STANDARD_REQUIRED ON)
+target_compile_definitions(IPlugVST3Midi PRIVATE NO_IGRAPHICS IPLUG_EDITOR=0 VST3_NUM_CC_CHANS=16)
+target_link_libraries(IPlugVST3Midi PRIVATE iPlug2::VST3)
+
+enable_testing()
+foreach(check IN ITEMS notes controllers points)
+  add_test(NAME IPlugVST3Midi-${check} COMMAND IPlugVST3Midi ${check})
+endforeach()
