@@ -586,6 +586,13 @@ static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
 
 - (void) killTimer
 {
+#if defined AU_API
+  // A host may retain the Cocoa view after IGraphics has closed. Stop geometry
+  // callbacks before its mGraphics pointer can outlive the C++ object.
+  mHostResizeClosed = true;
+  [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                  name:NSViewFrameDidChangeNotification object:nil];
+#endif
 #ifdef IGRAPHICS_CVDISPLAYLINK
   CVDisplayLinkStop(mDisplayLink);
   dispatch_source_cancel(mDisplaySource);
@@ -648,7 +655,7 @@ static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
   [super viewWillMoveToSuperview:pNewSuperview];
   mHostParentSize = pNewSuperview ? [pNewSuperview bounds].size : NSZeroSize;
 
-  if (pNewSuperview && mGraphics && mGraphics->GetDelegate()->GetHostResizeEnabled())
+  if (!mHostResizeClosed && pNewSuperview && mGraphics && mGraphics->GetDelegate()->GetHostResizeEnabled())
   {
     [pNewSuperview setPostsFrameChangedNotifications:YES];
     [pCenter addObserver:self selector:@selector(hostFrameDidChange:)
@@ -658,7 +665,7 @@ static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
 
 - (void) hostFrameDidChange: (NSNotification*) pNotification
 {
-  if (!mGraphics || !mGraphics->GetDelegate()->GetHostResizeEnabled())
+  if (mHostResizeClosed || !mGraphics || !mGraphics->GetDelegate()->GetHostResizeEnabled())
     return;
 
   NSSize size = [self bounds].size;

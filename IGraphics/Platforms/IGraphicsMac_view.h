@@ -135,6 +135,7 @@ using namespace igraphics;
 #if defined AU_API
   NSSize mHostParentSize;
   bool mNotifyingHostResize;
+  bool mHostResizeClosed;
 #endif
 
 #if defined IGRAPHICS_GLES2 || defined IGRAPHICS_GLES3
