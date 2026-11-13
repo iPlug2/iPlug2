@@ -32,6 +32,14 @@ IPlugVST3::IPlugVST3(const InstanceInfo& info, const Config& config)
 , IPlugVST3ControllerBase(parameters)
 , mView(nullptr)
 {
+#ifdef ARA_API
+  processContextRequirements.needTransportState();
+  processContextRequirements.needProjectTimeMusic();
+  processContextRequirements.needTempo();
+  processContextRequirements.needTimeSignature();
+  processContextRequirements.needContinousTimeSamples();
+#endif
+
   CreateTimer();
 }
 
@@ -102,6 +110,26 @@ tresult PLUGIN_API IPlugVST3::setProcessing(TBool state)
 tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
 {
   TRACE
+
+#ifdef ARA_API
+  if (GetARAPlaybackRenderer() != nullptr)
+  {
+    if (!mARAInputsSilenced)
+    {
+      ZeroScratchBuffers();
+      mARAInputsSilenced = true;
+    }
+
+    SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), false);
+
+    ProcessData araData = data; // shallow copy, the host owns data
+    araData.numInputs = 0;
+    araData.inputs = nullptr;
+
+    Process(araData, processSetup, audioInputs, audioOutputs, mMidiMsgsFromEditor, mMidiMsgsFromProcessor, mSysExDataFromEditor, mSysexBuf);
+    return kResultOk;
+  }
+#endif
 
   Process(data, processSetup, audioInputs, audioOutputs, mMidiMsgsFromEditor, mMidiMsgsFromProcessor, mSysExDataFromEditor, mSysexBuf);
   return kResultOk;
@@ -188,6 +216,43 @@ Steinberg::tresult PLUGIN_API IPlugVST3::setChannelContextInfos(Steinberg::Vst::
 {
   return IPlugVST3ControllerBase::SetChannelContextInfos(pList) ? kResultTrue : kResultFalse;
 }
+
+#ifdef ARA_API
+#pragma mark ARA UI notifications
+
+void IPlugVST3::OnUIOpen()
+{
+  IPlugAPIBase::OnUIOpen();
+
+  if (auto* pEditorView = GetARAEditorView())
+    pEditorView->setEditorOpen(true);
+}
+
+void IPlugVST3::OnUIClose()
+{
+  if (auto* pEditorView = GetARAEditorView())
+    pEditorView->setEditorOpen(false);
+
+  IPlugAPIBase::OnUIClose();
+}
+
+#pragma mark ARA::IPlugInEntryPoint overrides
+
+const ARA::ARAFactory* PLUGIN_API IPlugVST3::getFactory()
+{
+  return GetIPlugARAFactory();
+}
+
+const ARA::ARAPlugInExtensionInstance* PLUGIN_API IPlugVST3::bindToDocumentController(ARA::ARADocumentControllerRef)
+{
+  return nullptr;
+}
+
+const ARA::ARAPlugInExtensionInstance* PLUGIN_API IPlugVST3::bindToDocumentControllerWithRoles(ARA::ARADocumentControllerRef documentControllerRef, ARA::ARAPlugInInstanceRoleFlags knownRoles, ARA::ARAPlugInInstanceRoleFlags assignedRoles)
+{
+  return mARAPlugInExtension.bindToARA(documentControllerRef, knownRoles, assignedRoles);
+}
+#endif
 
 #pragma mark IPlugAPIBase overrides
 

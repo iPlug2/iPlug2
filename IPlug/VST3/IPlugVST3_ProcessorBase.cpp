@@ -255,8 +255,7 @@ void IPlugVST3ProcessorBase::PrepareProcessContext(ProcessData& data, ProcessSet
   if (data.processContext)
     memcpy(&mProcessContext, data.processContext, sizeof(ProcessContext));
   
-  if (mProcessContext.state & ProcessContext::kProjectTimeMusicValid)
-    timeInfo.mSamplePos = (double) mProcessContext.projectTimeSamples;
+  timeInfo.mSamplePos = (double) mProcessContext.projectTimeSamples;
   timeInfo.mPPQPos = mProcessContext.projectTimeMusic;
   timeInfo.mTempo = mProcessContext.tempo;
   timeInfo.mLastBar = mProcessContext.barPositionMusic;
