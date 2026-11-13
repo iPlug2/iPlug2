@@ -9,6 +9,7 @@
 */
 
 #include <algorithm>
+#include <cmath>
 #include <cstdio>
 
 #include "IPlugCLAP.h"
@@ -415,7 +416,22 @@ bool IPlugCLAP::stateSave(const clap_ostream* pStream) noexcept
   if (!SerializeState(chunk))
     return false;
   
-  return pStream->write(pStream, chunk.GetData(), chunk.Size()) == chunk.Size();
+  // The host may accept fewer bytes than requested per write, so keep writing until it's all out
+  const uint8_t* pData = chunk.GetData();
+  int64_t bytesRemaining = chunk.Size();
+  
+  while (bytesRemaining > 0)
+  {
+    const int64_t bytesWritten = pStream->write(pStream, pData, static_cast<uint64_t>(bytesRemaining));
+    
+    if (bytesWritten <= 0)
+      return false;
+    
+    pData += bytesWritten;
+    bytesRemaining -= bytesWritten;
+  }
+  
+  return true;
 }
 
 bool IPlugCLAP::stateLoad(const clap_istream* pStream) noexcept
@@ -486,10 +502,13 @@ bool IPlugCLAP::paramsValueToText(clap_id paramIdx, double value, char* display,
 
   WDL_String str;
   
-  pParam->GetDisplay(value, isDoubleType, str);
+  // Stepped parameters are exposed to CLAP with integer values, round so that display texts are found
+  const double plainValue = isDoubleType ? pParam->FromNormalized(value) : std::round(value);
   
-  // Add Label
-  if (CStringHasContents(pParam->GetLabel()))
+  pParam->GetDisplay(plainValue, false, str);
+  
+  // Add Label, unless the value has display text (which wouldn't map back to a value with the label added)
+  if (CStringHasContents(pParam->GetLabel()) && !CStringHasContents(pParam->GetDisplayText(plainValue)))
   {
     str.Append(" ");
     str.Append(pParam->GetLabel());
