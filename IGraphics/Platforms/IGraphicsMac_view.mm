@@ -403,6 +403,14 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   
   mMouseOutDuringDrag = false;
 
+#if defined AU_API
+  [self setPostsFrameChangedNotifications:YES];
+  [[NSNotificationCenter defaultCenter] addObserver:self
+                                           selector:@selector(hostFrameDidChange:)
+                                               name:NSViewFrameDidChangeNotification
+                                             object:self];
+#endif
+
   self.layer.frame = r;
   self.wantsLayer = YES;
   self.layer.opaque = YES;
@@ -578,6 +586,13 @@ static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
 
 - (void) killTimer
 {
+#if defined AU_API
+  // A host may retain the Cocoa view after IGraphics has closed. Stop geometry
+  // callbacks before its mGraphics pointer can outlive the C++ object.
+  mHostResizeClosed = true;
+  [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                  name:NSViewFrameDidChangeNotification object:nil];
+#endif
 #ifdef IGRAPHICS_CVDISPLAYLINK
   CVDisplayLinkStop(mDisplayLink);
   dispatch_source_cancel(mDisplaySource);
@@ -629,6 +644,60 @@ static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
 {
   return YES;
 }
+
+#if defined AU_API
+- (void) viewWillMoveToSuperview: (NSView*) pNewSuperview
+{
+  NSNotificationCenter* pCenter = [NSNotificationCenter defaultCenter];
+  if ([self superview])
+    [pCenter removeObserver:self name:NSViewFrameDidChangeNotification object:[self superview]];
+
+  [super viewWillMoveToSuperview:pNewSuperview];
+  mHostParentSize = pNewSuperview ? [pNewSuperview bounds].size : NSZeroSize;
+
+  if (!mHostResizeClosed && pNewSuperview && mGraphics && mGraphics->GetDelegate()->GetHostResizeEnabled())
+  {
+    [pNewSuperview setPostsFrameChangedNotifications:YES];
+    [pCenter addObserver:self selector:@selector(hostFrameDidChange:)
+                   name:NSViewFrameDidChangeNotification object:pNewSuperview];
+  }
+}
+
+- (void) hostFrameDidChange: (NSNotification*) pNotification
+{
+  if (mHostResizeClosed || !mGraphics || !mGraphics->GetDelegate()->GetHostResizeEnabled())
+    return;
+
+  NSSize size = [self bounds].size;
+  if ([pNotification object] != self)
+  {
+    NSView* pParent = [self superview];
+    if ([pNotification object] != pParent)
+      return;
+
+    size = [pParent bounds].size;
+    const bool changed = !NSEqualSizes(size, mHostParentSize);
+    mHostParentSize = size;
+    // If the editor is the window's content view, its superview includes the
+    // title bar. The editor's own frame notification supplies the usable size.
+    if (!changed || [[self window] contentView] == self)
+      return;
+  }
+
+  // IGraphics updates its dimensions before PlatformResize changes the view.
+  // Do not report those UI requests back as host resizes, or reenter a delegate
+  // that fits the view to the size currently being reported.
+  if (mNotifyingHostResize || size.width <= 0 || size.height <= 0 ||
+      NSEqualSizes(size, NSMakeSize(mGraphics->WindowWidth(), mGraphics->WindowHeight())))
+    return;
+
+  mNotifyingHostResize = true;
+  const auto scale = mGraphics->GetPlatformWindowScale();
+  mGraphics->GetDelegate()->OnParentWindowResize(static_cast<int>(size.width * scale),
+                                               static_cast<int>(size.height * scale));
+  mNotifyingHostResize = false;
+}
+#endif
 
 - (void) viewDidMoveToWindow
 {
