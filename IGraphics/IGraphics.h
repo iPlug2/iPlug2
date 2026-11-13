@@ -811,6 +811,12 @@ public:
    * @param x Where the X position will be stored
    * @param y Where the Y position will be stored */
   virtual void GetMouseLocation(float& x, float&y) const = 0;
+
+  /** Get the mouse position in screen coordinates, in points with y increasing downwards. Drag resizing uses it so that the size follows the mouse even when the host moves the view as it resizes the window.
+   * @param x The screen X coordinate
+   * @param y The screen Y coordinate
+   * @return \c true if the platform supports it */
+  virtual bool GetMouseScreenLocation(float& x, float& y) const { return false; }
   
   /** Call to hide/show the mouse cursor
    * @param hide Should the cursor be hidden or shown
@@ -1271,7 +1277,7 @@ private:
   void DoCreatePopupMenu(IControl& control, IPopupMenu& menu, const IRECT& bounds, int valIdx, bool isContext);
   
   /** Called by ICornerResizer when drag resize commences */
-  void StartDragResize() { mResizingInProcess = true; }
+  void StartDragResize();
   
   /** Called when drag resize ends */
   void EndDragResize();
@@ -1869,6 +1875,11 @@ private:
   bool mShowControlBounds = false;
   bool mShowAreaDrawn = false;
   bool mResizingInProcess = false;
+  bool mDragResizeFromScreen = false;
+  float mDragResizeScreenX = 0.f;
+  float mDragResizeScreenY = 0.f;
+  int mDragResizeStartW = 0;
+  int mDragResizeStartH = 0;
   bool mLayoutOnResize = false;
   bool mEnableMultiTouch = false;
   EUIResizerMode mGUISizeMode = EUIResizerMode::Scale;
