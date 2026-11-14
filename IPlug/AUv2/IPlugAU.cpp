@@ -776,7 +776,21 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
     }
     case kAudioUnitProperty_AudioChannelLayout:
     {
-      return kAudioUnitErr_InvalidPropertyValue;
+      if (scope != kAudioUnitScope_Input && scope != kAudioUnitScope_Output)
+        return kAudioUnitErr_InvalidScope;
+      BusChannels* pBus = GetBus(scope, element);
+      if (!pBus)
+        return kAudioUnitErr_InvalidElement;
+      static const UInt32 kLayoutSize = sizeof(AudioChannelLayout) - sizeof(AudioChannelDescription);
+      *pDataSize = kLayoutSize;
+      *pWriteable = true;
+      if (pData)
+      {
+        AudioChannelLayout* pLayout = (AudioChannelLayout*) pData;
+        memset(pLayout, 0, kLayoutSize);
+        pLayout->mChannelLayoutTag = (scope == kAudioUnitScope_Input) ? mInputChannelLayout : mOutputChannelLayout;
+      }
+      return noErr;
     }
     case kAudioUnitProperty_TailTime:                    // 20,   // listenable
     {
@@ -1209,6 +1223,15 @@ OSStatus IPlugAU::SetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
       {
         pBus->mNHostChannels = pBus->mNPlugChannels;
       }
+      // Sync channel layout tag to match the new stream format channel count
+      {
+        const int nChans = pBus->mNHostChannels;
+        const AudioChannelLayoutTag tag = (nChans == 1) ? kAudioChannelLayoutTag_Mono : kAudioChannelLayoutTag_Stereo;
+        if (scope == kAudioUnitScope_Input) mInputChannelLayout = tag;
+        else mOutputChannelLayout = tag;
+      }
+      // Force reconnection in next RenderProc so stale channel connections are cleared
+      pBus->mConnected = false;
       AssessInputConnections();
       return (connectionOK ? noErr : (int) kAudioUnitErr_InvalidProperty); // casting to int avoids gcc error
     }
@@ -1225,7 +1248,27 @@ OSStatus IPlugAU::SetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
     NO_OP(kAudioUnitProperty_SetExternalBuffer);         // 15,
     NO_OP(kAudioUnitProperty_ParameterValueStrings);     // 16,
     NO_OP(kAudioUnitProperty_GetUIComponentList);        // 18,
-    NO_OP(kAudioUnitProperty_AudioChannelLayout);        // 19, //TODO?: Set kAudioUnitProperty_AudioChannelLayout
+    case kAudioUnitProperty_AudioChannelLayout:          // 19, accept layout from host (e.g. Logic Pro mono tracks)
+    {
+      if (pData)
+      {
+        const AudioChannelLayout* pLayout = (const AudioChannelLayout*) pData;
+        const AudioChannelLayoutTag tag = pLayout->mChannelLayoutTag;
+        BusChannels* pBus = GetBus(scope, element);
+        if (pBus)
+        {
+          const int nChans = static_cast<int>(tag & 0xFFFF); // low 16 bits = channel count
+          if (nChans > 0) pBus->mNHostChannels = nChans;
+          pBus->mConnected = false;
+          AssessInputConnections();
+        }
+        if (scope == kAudioUnitScope_Input)
+          mInputChannelLayout = tag;
+        else
+          mOutputChannelLayout = tag;
+      }
+      return noErr;
+    }
     NO_OP(kAudioUnitProperty_TailTime);                  // 20,
     case kAudioUnitProperty_BypassEffect:                // 21,
     {
@@ -1692,16 +1735,17 @@ OSStatus IPlugAU::RenderProc(void* pPlug, AudioUnitRenderActionFlags* pFlags, co
   
     BusChannels* pOutBus = _this->mOutBuses.Get(outputBusIdx);
 
-    // if this bus is not connected OR the number of buffers that the host has given are not equal to the number the bus expects
-    if (!(pOutBus->mConnected) || pOutBus->mNHostChannels != pOutBufList->mNumberBuffers)
+    // if this bus is not connected OR the actual buffer count differs from the last connected count
+    if (!(pOutBus->mConnected) || pOutBus->mNHostChannels != (int)pOutBufList->mNumberBuffers)
     {
       const int startChannelIdx = pOutBus->mPlugChannelStartIdx;
-      const int nConnected = std::max(pOutBus->mNHostChannels, static_cast<int>(pOutBufList->mNumberBuffers));
+      const int nConnected = static_cast<int>(pOutBufList->mNumberBuffers); // use actual buffer count to avoid connecting channels with no backing buffer
       const int nUnconnected = std::max(pOutBus->mNPlugChannels - nConnected, 0);
       
       assert(nConnected > -1);
       _this->SetChannelConnections(ERoute::kOutput, startChannelIdx, nConnected, true);
       _this->SetChannelConnections(ERoute::kOutput, startChannelIdx + nConnected, nUnconnected, false); // This will disconnect the right hand channel on a single stereo bus
+      pOutBus->mNHostChannels = nConnected; // sync so condition doesn't re-fire every render
       pOutBus->mConnected = true;
     }
 
