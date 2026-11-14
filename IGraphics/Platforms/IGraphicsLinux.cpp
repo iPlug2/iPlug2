@@ -1032,6 +1032,15 @@ void IGraphicsLinux::CloseWindow()
     mBlankCursor = 0;
   }
 
+#if defined IGRAPHICS_SKIA && defined IGRAPHICS_CPU
+  DestroyCPUImage();
+  if (mCPUGC)
+  {
+    XFreeGC(mDisplay, mCPUGC);
+    mCPUGC = nullptr;
+  }
+#endif
+
   DestroyInputContext();
   if (mTooltipFont)
   {
@@ -1177,6 +1186,95 @@ void IGraphicsLinux::SetScreenScaleFromHost(float scale)
   }
   SetScreenScale(scale);
 }
+
+#if defined IGRAPHICS_SKIA && defined IGRAPHICS_CPU
+void IGraphicsLinux::DestroyCPUImage()
+{
+  if (mCPUImage)
+  {
+    // XDestroyImage also frees the separately allocated pixel buffer.
+    XDestroyImage(mCPUImage);
+    mCPUImage = nullptr;
+  }
+}
+
+void IGraphicsLinux::PresentCPUFrame(const SkPixmap& pixels)
+{
+  if (!mDisplay || !mPlugWnd || pixels.width() <= 0 || pixels.height() <= 0)
+    return;
+
+  if (mCPUImage && (mCPUImage->width != pixels.width() || mCPUImage->height != pixels.height()))
+    DestroyCPUImage();
+
+  if (!mCPUImage)
+  {
+    XWindowAttributes attributes{};
+    if (!XGetWindowAttributes(mDisplay, mPlugWnd, &attributes) || attributes.visual->c_class != TrueColor)
+      return;
+    mCPUImage = XCreateImage(mDisplay, attributes.visual, attributes.depth, ZPixmap,
+                             0, nullptr, pixels.width(), pixels.height(), 32, 0);
+    if (!mCPUImage)
+      return;
+    const size_t stride = static_cast<size_t>(mCPUImage->bytes_per_line);
+    if (!stride || static_cast<size_t>(pixels.height()) > std::numeric_limits<size_t>::max() / stride)
+    {
+      DestroyCPUImage();
+      return;
+    }
+    mCPUImage->data = static_cast<char*>(calloc(pixels.height(), stride));
+    if (!mCPUImage->data)
+    {
+      DestroyCPUImage();
+      return;
+    }
+  }
+
+  // The usual X11 visual is 24-bit RGB in a 32-bit little-endian pixel.
+  // Ask Skia for an explicit format instead of assuming its native N32 order.
+  if (mCPUImage->bits_per_pixel == 32 && mCPUImage->byte_order == LSBFirst &&
+      mCPUImage->red_mask == 0xff0000 && mCPUImage->green_mask == 0xff00 &&
+      mCPUImage->blue_mask == 0xff && mCPUImage->depth == 24)
+  {
+    const auto info = SkImageInfo::Make(pixels.width(), pixels.height(),
+                                      kBGRA_8888_SkColorType, kPremul_SkAlphaType);
+    if (!pixels.readPixels(info, mCPUImage->data, mCPUImage->bytes_per_line))
+      return;
+  }
+  else
+  {
+    // Respect the server's visual masks and byte order (including RGB565 and
+    // 30-bit displays). XPutPixel handles the XImage's storage layout.
+    const auto channel = [](unsigned value, unsigned long mask) -> unsigned long {
+      if (!mask)
+        return 0;
+      unsigned shift = 0;
+      while (!(mask & 1)) { mask >>= 1; ++shift; }
+      return ((static_cast<unsigned long>(value) * mask + 127) / 255) << shift;
+    };
+    for (int y = 0; y < pixels.height(); ++y)
+      for (int x = 0; x < pixels.width(); ++x)
+      {
+        const SkColor color = pixels.getColor(x, y);
+        const unsigned alpha = SkColorGetA(color);
+        const auto premul = [alpha](unsigned value) { return (value * alpha + 127) / 255; };
+        const unsigned long rgb = channel(premul(SkColorGetR(color)), mCPUImage->red_mask) |
+                                  channel(premul(SkColorGetG(color)), mCPUImage->green_mask) |
+                                  channel(premul(SkColorGetB(color)), mCPUImage->blue_mask);
+        // A depth-32 X11 window may be composited; present an opaque UI.
+        const unsigned long opaque = mCPUImage->depth == 32 ?
+          (0xffffffffUL & ~(mCPUImage->red_mask | mCPUImage->green_mask | mCPUImage->blue_mask)) : 0;
+        XPutPixel(mCPUImage, x, y, rgb | opaque);
+      }
+  }
+
+  if (!mCPUGC)
+    mCPUGC = XCreateGC(mDisplay, mPlugWnd, 0, nullptr);
+  if (!mCPUGC)
+    return;
+  XPutImage(mDisplay, mPlugWnd, mCPUGC, mCPUImage, 0, 0, 0, 0, pixels.width(), pixels.height());
+  XFlush(mDisplay);
+}
+#endif
 
 void IGraphicsLinux::DrawResize()
 {

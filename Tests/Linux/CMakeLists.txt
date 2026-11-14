@@ -176,3 +176,18 @@ if(CMAKE_CXX_FLAGS MATCHES "-fsanitize=[^ ]*address")
     set_tests_properties(linux-clap-fallback-fail linux-clap-idle-fail PROPERTIES DISABLED TRUE)
   endif()
 endif()
+
+# Verify actual CPU pixels, scaling and window lifecycle without a GLX extension.
+if(IGRAPHICS_BACKEND STREQUAL "SKIA" AND IGRAPHICS_RENDERER STREQUAL "CPU")
+  include("${IPLUG2_DIR}/iPlug2.cmake")
+  find_package(iPlug2 REQUIRED)
+  add_executable(LinuxSkiaCPUTest SkiaCPUTest.cpp)
+  target_link_libraries(LinuxSkiaCPUTest PRIVATE iPlug2::IGraphics::Skia::CPU)
+  target_compile_definitions(LinuxSkiaCPUTest PRIVATE IPLUG_EDITOR=1 IPLUG_DSP=0)
+  foreach(depth 16 24 30)
+    add_test(NAME linux-skia-cpu-${depth}
+      COMMAND "${XVFB_RUN}" -a -s "-screen 0 1280x1024x${depth} -extension GLX"
+        "$<TARGET_FILE:LinuxSkiaCPUTest>")
+    set_tests_properties(linux-skia-cpu-${depth} PROPERTIES TIMEOUT 30)
+  endforeach()
+endif()

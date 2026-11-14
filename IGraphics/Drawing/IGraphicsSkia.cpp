@@ -571,6 +571,10 @@ void IGraphicsSkia::EndFrame()
     StretchDIBits(hdc, 0, 0, w, h, 0, 0, w, h, bmpInfo->bmiColors, bmpInfo, DIB_RGB_COLORS, SRCCOPY);
     ReleaseDC(hWnd, hdc);
     EndPaint(hWnd, &ps);
+  #elif defined OS_LINUX
+    SkPixmap pixels;
+    if (mSurface && mSurface->peekPixels(&pixels))
+      PresentCPUFrame(pixels);
   #else
     #error NOT IMPLEMENTED
   #endif

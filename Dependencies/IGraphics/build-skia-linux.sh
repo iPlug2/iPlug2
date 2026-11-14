@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Build the Skia revision used by iPlug2 for the Linux GL3 backend.
+# Build the Skia revision used by iPlug2 for the Linux GL3 and CPU backends.
 # Dependencies are installed only below Dependencies/Build/linux.
 root="$(cd "$(dirname "$0")/.." && pwd)"
 install_dir="${IPLUG_SKIA_LINUX_DIR:-$root/Build/linux}"

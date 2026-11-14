@@ -146,6 +146,13 @@ protected:
   void CreatePlatformTextEntry(int paramIdx, const IText& text, const IRECT& bounds, int length, const char* str) override;
 
 private:
+#if defined IGRAPHICS_SKIA && defined IGRAPHICS_CPU
+  void PresentCPUFrame(const SkPixmap& pixels) override;
+  void DestroyCPUImage();
+  XImage* mCPUImage = nullptr;
+  GC mCPUGC = nullptr;
+#endif
+
   void CalculateHostResize(int width, int height, int& designWidth, int& designHeight, float& scale);
   struct DispatchScope
   {

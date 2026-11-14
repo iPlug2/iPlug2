@@ -339,9 +339,9 @@ the host/version, display server, GPU/driver and display scale when checking:
 - Real ALSA/JACK audio, device changes, processing restart, and state restore.
 
 These interactive cases, Windows execution and hardware GPU behavior have not
-been established by the headless Linux regression suite. Native Wayland and
-Skia/CPU presentation remain outside the implemented Linux support scope.
-Skia/GL3 and the separate WebKitGTK editor backend pass headless regressions,
+been established by the headless Linux regression suite. Native Wayland
+remains outside the implemented Linux support scope.
+Skia and the separate WebKitGTK editor backend pass headless regressions,
 but still need interactive DAW and hardware GPU validation.
 
 The Linux-support diff also contains two existing vendored patches that should
@@ -935,7 +935,7 @@ emrun --no_emrun_detect index.html
 - Plugins are deployed to `~/.vst3/` (VST3) and `~/.clap/` (CLAP) by default
 - Both Ninja and Unix Makefiles generators work (`linux-ninja` and `linux-make` presets)
 - `pkg-config` is used to find system libraries (freetype, fontconfig, X11, GTK3, ALSA, etc.)
-- NanoVG/GL3 remains the default. For Skia/GL3, run
+- NanoVG/GL3 remains the default. For Skia/GL3 or Skia/CPU, run
   `Dependencies/IGraphics/build-skia-linux.sh` to build the pinned Skia
   `chrome/m130` revision. This installs headers and matching static libraries
   below `Dependencies/Build/linux` (or set `IPLUG_SKIA_LINUX_DIR` to an
@@ -954,9 +954,12 @@ emrun --no_emrun_detect index.html
   ctest --test-dir build/linux-skia --output-on-failure
   ```
 
-  Skia/CPU presentation is not implemented on Linux. Skia/GL3 passes the
-  Linux Xvfb regression suite with a software OpenGL renderer; real DAW and
-  hardware GPU testing is still required.
+  Select `-DIGRAPHICS_RENDERER=CPU` for Skia software rasterization and X11
+  presentation using `XPutImage`. It uses the same Skia installation as GL3.
+  CPU rendering does not create a GLX context; the current build dependencies
+  still include OpenGL because the other graphics targets are also configured.
+  Real DAW testing is still required for both backends, along with hardware
+  GPU testing for GL3.
 - `UI WEBVIEW` on Linux uses WebKitGTK 4.1 and an X11 `GtkPlug` editor.
   Install `libwebkit2gtk-4.1-dev` before configuring a WebView plugin;
   it is not required for other Linux plugins. `WEB_RESOURCES` are staged in
