@@ -116,16 +116,12 @@ void IPlugCLAP::SetLatency(int samples)
   
   if (GetClapHost().canUseLatency())
   {
-    // If active request restart on the main thread (or update the host)
+    // clap_host_latency::changed() may only be called from within activate(),
+    // so record the change and report it on the next activation, requesting a
+    // restart if the plugin is currently active.
+    mLatencyUpdate = true;
     if (isActive())
-    {
-      mLatencyUpdate = true;
       runOnMainThread([&](){ if (!isBeingDestroyed()) GetClapHost().requestRestart(); });
-    }
-    else
-    {
-      runOnMainThread([&](){ if (!isBeingDestroyed()) GetClapHost().latencyChanged(); });
-    }
   }
 }
 
@@ -159,6 +155,12 @@ bool IPlugCLAP::activate(double sampleRate, uint32_t minFrameCount, uint32_t max
   OnParamReset(kReset);
   OnReset();
 
+  if (mLatencyUpdate)
+  {
+    GetClapHost().latencyChanged();
+    mLatencyUpdate = false;
+  }
+
   mHostHasTail = GetClapHost().canUseTail();
   mTailCount = 0;
 
@@ -168,12 +170,6 @@ bool IPlugCLAP::activate(double sampleRate, uint32_t minFrameCount, uint32_t max
 void IPlugCLAP::deactivate() noexcept
 {
   OnActivate(false);
-  
-  if (mLatencyUpdate)
-  {
-    GetClapHost().latencyChanged();
-    mLatencyUpdate = false;
-  }
 
   // TODO - should we clear mTailUpdate here or elsewhere?
 }
