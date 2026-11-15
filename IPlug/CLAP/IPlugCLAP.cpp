@@ -486,16 +486,20 @@ bool IPlugCLAP::paramsValueToText(clap_id paramIdx, double value, char* display,
 
   WDL_String str;
   
-  pParam->GetDisplay(value, isDoubleType, str);
-  
-  // Add Label
-  if (CStringHasContents(pParam->GetLabel()))
+  // Stepped parameters are exposed to CLAP with plain values, constrain so that display texts are found
+  const double plainValue = isDoubleType ? pParam->FromNormalized(value) : pParam->Constrain(value);
+
+  pParam->GetDisplay(plainValue, false, str);
+
+  // Add Label, unless the value has display text (which wouldn't map back to a value with the label added)
+  if (CStringHasContents(pParam->GetLabel()) && !CStringHasContents(pParam->GetDisplayText(plainValue)))
   {
     str.Append(" ");
     str.Append(pParam->GetLabel());
   }
-  
-  if (size < str.GetLength())
+
+  // size includes the null terminator
+  if (size <= static_cast<uint32_t>(str.GetLength()))
     return false;
     
   strcpy(display, str.Get());
