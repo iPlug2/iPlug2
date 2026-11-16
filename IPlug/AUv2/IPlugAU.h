@@ -100,6 +100,7 @@ private:
     int mNHostChannels;
     int mNPlugChannels;
     int mPlugChannelStartIdx;
+    AudioChannelLayoutTag mLayoutTag; // 0 = not set by host, derive from channel count
   };
   
   struct BufferList
@@ -133,6 +134,7 @@ private:
   void AssessInputConnections();
 
   UInt32 GetTagForNumChannels(int numChannels);
+  AudioChannelLayoutTag GetCurrentChannelLayoutTag(AudioUnitScope scope, AudioUnitElement element);
   UInt32 GetChannelLayoutTags(AudioUnitScope scope, AudioUnitElement element, AudioChannelLayoutTag* pTags);
   
 #pragma mark - Component Manager Methods

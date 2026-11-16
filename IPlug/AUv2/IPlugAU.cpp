@@ -390,6 +390,29 @@ OSStatus IPlugAU::IPlugAUEntry(ComponentParameters *params, void* pPlug)
 }
 #endif //AU_NO_COMPONENT_ENTRY
 
+AudioChannelLayoutTag IPlugAU::GetCurrentChannelLayoutTag(AudioUnitScope scope, AudioUnitElement element)
+{
+  BusChannels* pBus = GetBus(scope, element);
+  const UInt32 nTags = pBus ? GetChannelLayoutTags(scope, element, nullptr) : 0;
+  if (!nTags)
+    return 0;
+
+  const int nChans = pBus->mNHostChannels >= 0 ? pBus->mNHostChannels : pBus->mNPlugChannels;
+
+  if (pBus->mLayoutTag && AudioChannelLayoutTag_GetNumberOfChannels(pBus->mLayoutTag) == nChans)
+    return pBus->mLayoutTag;
+
+  WDL_TypedBuf<AudioChannelLayoutTag> tags;
+  tags.Resize(nTags);
+  GetChannelLayoutTags(scope, element, tags.Get());
+  for (auto i = 0; i < tags.GetSize(); i++)
+  {
+    if (AudioChannelLayoutTag_GetNumberOfChannels(tags.Get()[i]) == nChans)
+      return tags.Get()[i];
+  }
+  return kAudioChannelLayoutTag_DiscreteInOrder | nChans;
+}
+
 #pragma mark - GetChannelLayoutTags
 
 UInt32 IPlugAU::GetChannelLayoutTags(AudioUnitScope scope, AudioUnitElement element, AudioChannelLayoutTag* tags)
@@ -774,9 +797,20 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
     {
       return kAudioUnitErr_InvalidProperty;
     }
-    case kAudioUnitProperty_AudioChannelLayout:
+    case kAudioUnitProperty_AudioChannelLayout:          // 19,
     {
-      return kAudioUnitErr_InvalidPropertyValue;
+      const AudioChannelLayoutTag tag = GetCurrentChannelLayoutTag(scope, element);
+      if (!tag)
+        return kAudioUnitErr_InvalidProperty;
+      *pDataSize = offsetof(AudioChannelLayout, mChannelDescriptions);
+      *pWriteable = true;
+      if (pData)
+      {
+        AudioChannelLayout* pLayout = (AudioChannelLayout*) pData;
+        memset(pLayout, 0, *pDataSize);
+        pLayout->mChannelLayoutTag = tag;
+      }
+      return noErr;
     }
     case kAudioUnitProperty_TailTime:                    // 20,   // listenable
     {
@@ -1209,6 +1243,7 @@ OSStatus IPlugAU::SetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
       {
         pBus->mNHostChannels = pBus->mNPlugChannels;
       }
+      pBus->mLayoutTag = 0; // channel count may have changed, layout reverts to the default for the new count
       AssessInputConnections();
       return (connectionOK ? noErr : (int) kAudioUnitErr_InvalidProperty); // casting to int avoids gcc error
     }
@@ -1225,7 +1260,30 @@ OSStatus IPlugAU::SetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
     NO_OP(kAudioUnitProperty_SetExternalBuffer);         // 15,
     NO_OP(kAudioUnitProperty_ParameterValueStrings);     // 16,
     NO_OP(kAudioUnitProperty_GetUIComponentList);        // 18,
-    NO_OP(kAudioUnitProperty_AudioChannelLayout);        // 19, //TODO?: Set kAudioUnitProperty_AudioChannelLayout
+    case kAudioUnitProperty_AudioChannelLayout:          // 19,
+    {
+      // As AUBase: the layout must be one we publish and must match the bus's current stream format channel count
+      BusChannels* pBus = GetBus(scope, element);
+      const UInt32 nTags = pBus ? GetChannelLayoutTags(scope, element, nullptr) : 0;
+      if (!nTags)
+        return kAudioUnitErr_InvalidProperty;
+      if (!pData)
+        return kAudioUnitErr_InvalidPropertyValue;
+
+      const AudioChannelLayoutTag tag = ((const AudioChannelLayout*) pData)->mChannelLayoutTag;
+      const int nChans = pBus->mNHostChannels >= 0 ? pBus->mNHostChannels : pBus->mNPlugChannels;
+      if (AudioChannelLayoutTag_GetNumberOfChannels(tag) != nChans)
+        return kAudioUnitErr_InvalidPropertyValue;
+
+      WDL_TypedBuf<AudioChannelLayoutTag> tags;
+      tags.Resize(nTags);
+      GetChannelLayoutTags(scope, element, tags.Get());
+      if (tags.Find(tag) < 0)
+        return kAudioUnitErr_InvalidPropertyValue;
+
+      pBus->mLayoutTag = tag;
+      return noErr;
+    }
     NO_OP(kAudioUnitProperty_TailTime);                  // 20,
     case kAudioUnitProperty_BypassEffect:                // 21,
     {
@@ -1696,7 +1754,7 @@ OSStatus IPlugAU::RenderProc(void* pPlug, AudioUnitRenderActionFlags* pFlags, co
     if (!(pOutBus->mConnected) || pOutBus->mNHostChannels != pOutBufList->mNumberBuffers)
     {
       const int startChannelIdx = pOutBus->mPlugChannelStartIdx;
-      const int nConnected = std::max(pOutBus->mNHostChannels, static_cast<int>(pOutBufList->mNumberBuffers));
+      const int nConnected = static_cast<int>(pOutBufList->mNumberBuffers); // only channels that have a buffer are connected
       const int nUnconnected = std::max(pOutBus->mNPlugChannels - nConnected, 0);
       
       assert(nConnected > -1);
