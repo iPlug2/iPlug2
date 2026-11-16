@@ -101,6 +101,7 @@ private:
     int mNPlugChannels;
     int mPlugChannelStartIdx;
     AudioChannelLayoutTag mLayoutTag; // 0 = not set by host, derive from channel count
+    int mNRenderBuffers; // output buffer count channel connections were last set up for (render thread only)
   };
   
   struct BufferList

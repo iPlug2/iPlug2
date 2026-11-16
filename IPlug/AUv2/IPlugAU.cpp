@@ -1750,8 +1750,8 @@ OSStatus IPlugAU::RenderProc(void* pPlug, AudioUnitRenderActionFlags* pFlags, co
   
     BusChannels* pOutBus = _this->mOutBuses.Get(outputBusIdx);
 
-    // if this bus is not connected OR the number of buffers that the host has given are not equal to the number the bus expects
-    if (!(pOutBus->mConnected) || pOutBus->mNHostChannels != pOutBufList->mNumberBuffers)
+    // if this bus is not connected OR the host has given a different number of buffers than last time
+    if (!(pOutBus->mConnected) || pOutBus->mNRenderBuffers != static_cast<int>(pOutBufList->mNumberBuffers))
     {
       const int startChannelIdx = pOutBus->mPlugChannelStartIdx;
       const int nConnected = static_cast<int>(pOutBufList->mNumberBuffers); // only channels that have a buffer are connected
@@ -1760,6 +1760,7 @@ OSStatus IPlugAU::RenderProc(void* pPlug, AudioUnitRenderActionFlags* pFlags, co
       assert(nConnected > -1);
       _this->SetChannelConnections(ERoute::kOutput, startChannelIdx, nConnected, true);
       _this->SetChannelConnections(ERoute::kOutput, startChannelIdx + nConnected, nUnconnected, false); // This will disconnect the right hand channel on a single stereo bus
+      pOutBus->mNRenderBuffers = nConnected;
       pOutBus->mConnected = true;
     }
 
