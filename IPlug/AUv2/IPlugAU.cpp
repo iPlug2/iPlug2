@@ -248,9 +248,9 @@ OSStatus IPlugAU::IPlugAUEntry(ComponentParameters *params, void* pPlug)
       AudioUnitScope scope = GET_COMP_PARAM(AudioUnitScope, 3, 5);
       AudioUnitElement element = GET_COMP_PARAM(AudioUnitElement, 2, 5);
       const void* pData = GET_COMP_PARAM(const void*, 1, 5);
-      UInt32* pDataSize = GET_COMP_PARAM(UInt32*, 0, 5);
+      UInt32 dataSize = GET_COMP_PARAM(UInt32, 0, 5);
       
-      return _this->DoSetProperty(_this, propID, scope, element, pData, pDataSize);
+      return _this->DoSetProperty(_this, propID, scope, element, pData, dataSize);
     }
     case kAudioUnitAddPropertyListenerSelect:
     {
@@ -390,27 +390,40 @@ OSStatus IPlugAU::IPlugAUEntry(ComponentParameters *params, void* pPlug)
 }
 #endif //AU_NO_COMPONENT_ENTRY
 
-AudioChannelLayoutTag IPlugAU::GetCurrentChannelLayoutTag(AudioUnitScope scope, AudioUnitElement element)
+int IPlugAU::GetChannelLayoutTagList(AudioUnitScope scope, AudioUnitElement element, WDL_TypedBuf<AudioChannelLayoutTag>& tags)
 {
-  BusChannels* pBus = GetBus(scope, element);
-  const UInt32 nTags = pBus ? GetChannelLayoutTags(scope, element, nullptr) : 0;
-  if (!nTags)
-    return 0;
+  const int nTags = GetBus(scope, element) ? static_cast<int>(GetChannelLayoutTags(scope, element, nullptr)) : 0;
+  tags.Resize(nTags);
+  if (nTags)
+    GetChannelLayoutTags(scope, element, tags.Get());
+  return nTags;
+}
 
-  const int nChans = pBus->mNHostChannels >= 0 ? pBus->mNHostChannels : pBus->mNPlugChannels;
+OSStatus IPlugAU::GetCurrentChannelLayoutTag(AudioUnitScope scope, AudioUnitElement element, AudioChannelLayoutTag& tag)
+{
+  WDL_TypedBuf<AudioChannelLayoutTag> tags;
+  if (!GetChannelLayoutTagList(scope, element, tags))
+    return kAudioUnitErr_InvalidProperty;
+
+  BusChannels* pBus = GetBus(scope, element);
+  const int nChans = pBus->NChannels();
 
   if (pBus->mLayoutTag && AudioChannelLayoutTag_GetNumberOfChannels(pBus->mLayoutTag) == nChans)
-    return pBus->mLayoutTag;
+  {
+    tag = pBus->mLayoutTag;
+    return noErr;
+  }
 
-  WDL_TypedBuf<AudioChannelLayoutTag> tags;
-  tags.Resize(nTags);
-  GetChannelLayoutTags(scope, element, tags.Get());
-  for (auto i = 0; i < tags.GetSize(); i++)
+  for (int i = 0; i < tags.GetSize(); i++)
   {
     if (AudioChannelLayoutTag_GetNumberOfChannels(tags.Get()[i]) == nChans)
-      return tags.Get()[i];
+    {
+      tag = tags.Get()[i];
+      return noErr;
+    }
   }
-  return kAudioChannelLayoutTag_DiscreteInOrder | nChans;
+
+  return kAudioUnitErr_InvalidPropertyValue; // as AUBase: layouts are published, but none matches the current format
 }
 
 #pragma mark - GetChannelLayoutTags
@@ -687,11 +700,7 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
       *pWriteable = true;
       if (pData)
       {
-        int nChannels = pBus->mNHostChannels;  // Report how many channels the host has connected.
-        if (nChannels < 0)    // Unless the host hasn't connected any yet, in which case report the default.
-        {
-          nChannels = pBus->mNPlugChannels;
-        }
+        const int nChannels = pBus->NChannels(); // channels the host has connected, or the default if it hasn't yet
         STREAM_DESC* pASBD = (STREAM_DESC*) pData;
         MakeDefaultASBD(pASBD, GetSampleRate(), nChannels, false);
       }
@@ -799,9 +808,10 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
     }
     case kAudioUnitProperty_AudioChannelLayout:          // 19,
     {
-      const AudioChannelLayoutTag tag = GetCurrentChannelLayoutTag(scope, element);
-      if (!tag)
-        return kAudioUnitErr_InvalidProperty;
+      AudioChannelLayoutTag tag = 0;
+      const OSStatus err = GetCurrentChannelLayoutTag(scope, element, tag);
+      if (err != noErr)
+        return err;
       *pDataSize = offsetof(AudioChannelLayout, mChannelDescriptions);
       *pWriteable = true;
       if (pData)
@@ -1141,7 +1151,7 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
 }
 
 OSStatus IPlugAU::SetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, AudioUnitElement element,
-                                     UInt32* pDataSize, const void* pData)
+                                     UInt32 dataSize, const void* pData)
 {
   Trace(TRACELOC, "(%d:%s):(%d:%s):%d", propID, AUPropertyStr(propID), scope, AUScopeStr(scope), element);
 
@@ -1173,7 +1183,7 @@ OSStatus IPlugAU::SetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
                                 kAudioUnitScope_Output, pAUC->sourceOutputNumber, &srcASBD, &size) == noErr);
         negotiatedOK &= // Try to set our own format to match.
           (SetProperty(kAudioUnitProperty_StreamFormat, kAudioUnitScope_Input,
-                       pAUC->destInputNumber, &size, &srcASBD) == noErr);
+                       pAUC->destInputNumber, size, &srcASBD) == noErr);
         if (negotiatedOK)     // Connection terms successfully negotiated.
         {
           pInBusConn->mUpstreamUnit = pAUC->sourceAudioUnit;
@@ -1263,22 +1273,15 @@ OSStatus IPlugAU::SetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
     case kAudioUnitProperty_AudioChannelLayout:          // 19,
     {
       // As AUBase: the layout must be one we publish and must match the bus's current stream format channel count
-      BusChannels* pBus = GetBus(scope, element);
-      const UInt32 nTags = pBus ? GetChannelLayoutTags(scope, element, nullptr) : 0;
-      if (!nTags)
-        return kAudioUnitErr_InvalidProperty;
-      if (!pData)
-        return kAudioUnitErr_InvalidPropertyValue;
-
-      const AudioChannelLayoutTag tag = ((const AudioChannelLayout*) pData)->mChannelLayoutTag;
-      const int nChans = pBus->mNHostChannels >= 0 ? pBus->mNHostChannels : pBus->mNPlugChannels;
-      if (AudioChannelLayoutTag_GetNumberOfChannels(tag) != nChans)
-        return kAudioUnitErr_InvalidPropertyValue;
-
       WDL_TypedBuf<AudioChannelLayoutTag> tags;
-      tags.Resize(nTags);
-      GetChannelLayoutTags(scope, element, tags.Get());
-      if (tags.Find(tag) < 0)
+      if (!GetChannelLayoutTagList(scope, element, tags))
+        return kAudioUnitErr_InvalidProperty;
+      if (!pData || dataSize < offsetof(AudioChannelLayout, mChannelDescriptions))
+        return kAudioUnitErr_InvalidPropertyValue;
+
+      BusChannels* pBus = GetBus(scope, element);
+      const AudioChannelLayoutTag tag = ((const AudioChannelLayout*) pData)->mChannelLayoutTag;
+      if (AudioChannelLayoutTag_GetNumberOfChannels(tag) != pBus->NChannels() || tags.Find(tag) < 0)
         return kAudioUnitErr_InvalidPropertyValue;
 
       pBus->mLayoutTag = tag;
@@ -1860,6 +1863,7 @@ void IPlugAU::ClearConnections()
     BusChannels* pInBus = mInBuses.Get(i);
     pInBus->mConnected = false;
     pInBus->mNHostChannels = -1;
+    pInBus->mLayoutTag = 0;
     InputBusConnection* pInBusConn = mInBusConnections.Get(i);
     memset(pInBusConn, 0, sizeof(InputBusConnection));
   }
@@ -1869,6 +1873,7 @@ void IPlugAU::ClearConnections()
     BusChannels* pOutBus = mOutBuses.Get(i);
     pOutBus->mConnected = false;
     pOutBus->mNHostChannels = -1;
+    pOutBus->mLayoutTag = 0;
   }
 }
 
@@ -2210,7 +2215,7 @@ OSStatus IPlugAU::AUMethodGetProperty(void* pSelf, AudioUnitPropertyID inID, Aud
 }
 
 //static
-OSStatus IPlugAU::AUMethodSetProperty(void* pSelf, AudioUnitPropertyID inID, AudioUnitScope inScope, AudioUnitElement inElement, const void* inData, UInt32* inDataSize)
+OSStatus IPlugAU::AUMethodSetProperty(void* pSelf, AudioUnitPropertyID inID, AudioUnitScope inScope, AudioUnitElement inElement, const void* inData, UInt32 inDataSize)
 {
   return DoSetProperty(GetPlug(pSelf), inID, inScope, inElement, inData, inDataSize);
 }
@@ -2365,7 +2370,7 @@ OSStatus IPlugAU::DoGetProperty(IPlugAU* _this, AudioUnitPropertyID inID, AudioU
 }
 
 //static
-OSStatus IPlugAU::DoSetProperty(IPlugAU* _this, AudioUnitPropertyID inID, AudioUnitScope inScope, AudioUnitElement inElement, const void* inData, UInt32* inDataSize)
+OSStatus IPlugAU::DoSetProperty(IPlugAU* _this, AudioUnitPropertyID inID, AudioUnitScope inScope, AudioUnitElement inElement, const void* inData, UInt32 inDataSize)
 {
   return _this->SetProperty(inID, inScope, inElement, inDataSize, inData);
 }
