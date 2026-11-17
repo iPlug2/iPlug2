@@ -15,6 +15,7 @@
 
 #include "nanovg.h"
 #include "mutex.h"
+#include <chrono>
 #include <stack>
 
 // Thanks to Olli Wang/MOUI for much of this macro magic  https://github.com/ollix/moui
@@ -162,6 +163,10 @@ private:
   void SetClipRegion(const IRECT& r) override;
   void UpdateLayer() override;
   void ClearFBOStack();
+#ifdef IGRAPHICS_GL
+  /** Reallocate the main frame buffer at exactly the size of the window, preserving its contents */
+  void TrimMainFrameBuffer(int width, int height);
+#endif
   
   bool mInDraw = false;
   WDL_Mutex mFBOMutex;
@@ -169,6 +174,9 @@ private:
   StaticStorage<APIBitmap> mBitmapCache; //not actually static (doesn't require retaining or releasing)
   NVGcontext* mVG = nullptr;
   NVGframebuffer* mMainFrameBuffer = nullptr;
+  int mMainFrameBufferWidth = 0; // The allocated size in pixels, which can be larger than the window during a resize (GL only)
+  int mMainFrameBufferHeight = 0;
+  std::chrono::steady_clock::time_point mLastResizeTime;
   int mInitialFBO = 0;
 };
 
