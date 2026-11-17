@@ -68,9 +68,13 @@ permissions:
   contents: read
   pull-requests: read
 
-# Cancel in-progress runs for the same PR/branch
+# Cancel in-progress runs for the same PR/branch.
+# issue_comment events run on the default branch ref and the concurrency group
+# is evaluated before the job-level /ci filter, so comments need their own keys:
+#  - "/ci" comments: per-PR group, so a newer /ci supersedes an older one
+#  - any other comment: unique per run, so it can never cancel a real build
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  group: ${{ github.workflow }}-${{ github.event_name == 'issue_comment' && (startsWith(github.event.comment.body, '/ci') && format('ci-comment-{0}', github.event.issue.number) || github.run_id) || github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:

@@ -57,6 +57,11 @@ iplug_add_target(_${PROJECT_NAME}-base INTERFACE
 # macOS targets (not iOS)
 # ============================================================================
 if(NOT IOS)
+  # Storyboard is loaded by name in the plugin constructor, so it must be in every bundle
+  set(MACOS_STORYBOARD UI/IPlugCocoaUI-macOS-MainInterface.storyboard)
+  set_source_files_properties(${MACOS_STORYBOARD} PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
+  list(APPEND SOURCE_FILES ${MACOS_STORYBOARD})
+
   # ============================================================================
   # APP Target (Standalone Application) - with Cocoa UI
   # ============================================================================
