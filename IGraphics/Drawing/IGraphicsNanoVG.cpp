@@ -147,6 +147,13 @@ IGraphicsNanoVG::Bitmap::~Bitmap()
 // Fonts
 static StaticStorage<IFontData> sFontCache;
 
+#ifdef IGRAPHICS_GL
+// The main frame buffer is allocated in steps of this many pixels during a window resize
+static constexpr int kMainFrameBufferGranularity = 256;
+// ... and trimmed to the size of the window this long after the last resize
+static constexpr int kMainFrameBufferTrimDelayMs = 500;
+#endif
+
 extern std::map<std::string, MTLTexturePtr> gTextureMap;
 
 // Retrieving pixels
@@ -476,6 +483,7 @@ void IGraphicsNanoVG::OnViewDestroyed()
     nvgDeleteFramebuffer(mMainFrameBuffer);
   
   mMainFrameBuffer = nullptr;
+  mMainFrameBufferWidth = mMainFrameBufferHeight = 0;
   
   if(mVG)
     nvgDeleteContext(mVG);
@@ -487,17 +495,73 @@ void IGraphicsNanoVG::DrawResize()
 {
   ScopedGLContext scopedGLCtx {this};
 
+  int width = static_cast<int>(WindowWidth() * GetScreenScale());
+  int height = static_cast<int>(WindowHeight() * GetScreenScale());
+
+#ifdef IGRAPHICS_GL
+  // Reallocating the frame buffer for every step of a live window resize makes memory usage balloon,
+  // because GL drivers are slow to release the deleted buffers. Instead the frame buffer is allocated
+  // in coarse steps while resizing (only part of it is used) and trimmed to the exact size afterwards.
+  mLastResizeTime = std::chrono::steady_clock::now();
+
+  if (mMainFrameBuffer != nullptr)
+  {
+    if (width <= mMainFrameBufferWidth && height <= mMainFrameBufferHeight)
+      return; // the existing frame buffer is big enough
+
+    auto roundUp = [](int x) { return (x + kMainFrameBufferGranularity - 1) / kMainFrameBufferGranularity * kMainFrameBufferGranularity; };
+    width = roundUp(width);
+    height = roundUp(height);
+  }
+#endif
+
   if (mMainFrameBuffer != nullptr)
     nvgDeleteFramebuffer(mMainFrameBuffer);
-  
+
+  mMainFrameBuffer = nullptr;
+  mMainFrameBufferWidth = mMainFrameBufferHeight = 0;
+
   if (mVG)
   {
-    mMainFrameBuffer = nvgCreateFramebuffer(mVG, WindowWidth() * GetScreenScale(), WindowHeight() * GetScreenScale(), 0);
-  
+    mMainFrameBuffer = nvgCreateFramebuffer(mVG, width, height, 0);
+
     if (mMainFrameBuffer == nullptr)
       DBGMSG("Could not init FBO.\n");
+    else
+    {
+      mMainFrameBufferWidth = width;
+      mMainFrameBufferHeight = height;
+    }
   }
 }
+
+#ifdef IGRAPHICS_GL
+void IGraphicsNanoVG::TrimMainFrameBuffer(int width, int height)
+{
+  NVGframebuffer* pTrimmed = nvgCreateFramebuffer(mVG, width, height, 0);
+
+  if (pTrimmed == nullptr)
+    return;
+
+  // Copy the used (bottom left) part of the old frame buffer
+  nvgBindFramebuffer(pTrimmed);
+  glViewport(0, 0, width, height);
+  glClearColor(0.f, 0.f, 0.f, 0.f);
+  glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+  nvgBeginFrame(mVG, static_cast<float>(width), static_cast<float>(height), 1.f);
+  NVGpaint img = nvgImagePattern(mVG, 0.f, static_cast<float>(height - mMainFrameBufferHeight), static_cast<float>(mMainFrameBufferWidth), static_cast<float>(mMainFrameBufferHeight), 0.f, mMainFrameBuffer->image, 1.f);
+  nvgBeginPath(mVG);
+  nvgRect(mVG, 0.f, 0.f, static_cast<float>(width), static_cast<float>(height));
+  nvgFillPaint(mVG, img);
+  nvgFill(mVG);
+  nvgEndFrame(mVG);
+
+  nvgDeleteFramebuffer(mMainFrameBuffer);
+  mMainFrameBuffer = pTrimmed;
+  mMainFrameBufferWidth = width;
+  mMainFrameBufferHeight = height;
+}
+#endif
 
 void IGraphicsNanoVG::BeginFrame()
 {
@@ -511,8 +575,19 @@ void IGraphicsNanoVG::BeginFrame()
   #if defined OS_MAC || defined OS_IOS
     glGetIntegerv(GL_FRAMEBUFFER_BINDING, &mInitialFBO); // stash apple fbo
   #endif
+
+  // Once a window resize has finished, give back the part of the main frame buffer that is not used
+  const int width = static_cast<int>(WindowWidth() * GetScreenScale());
+  const int height = static_cast<int>(WindowHeight() * GetScreenScale());
+
+  if (mMainFrameBuffer && (mMainFrameBufferWidth != width || mMainFrameBufferHeight != height)
+      && std::chrono::steady_clock::now() - mLastResizeTime > std::chrono::milliseconds(kMainFrameBufferTrimDelayMs))
+  {
+    TrimMainFrameBuffer(width, height);
+    glViewport(0, 0, width, height);
+  }
 #endif
-  
+
   nvgBindFramebuffer(mMainFrameBuffer); // begin main frame buffer update
   nvgBeginFrame(mVG, WindowWidth(), WindowHeight(), GetScreenScale());
 }
@@ -524,6 +599,16 @@ void IGraphicsNanoVG::EndFrame()
   nvgBeginFrame(mVG, WindowWidth(), WindowHeight(), GetScreenScale());
   
   NVGpaint img = nvgImagePattern(mVG, 0, 0, WindowWidth(), WindowHeight(), 0, mMainFrameBuffer->image, 1.0f);
+
+#ifdef IGRAPHICS_GL
+  const float scale = GetScreenScale();
+  const int width = static_cast<int>(WindowWidth() * scale);
+  const int height = static_cast<int>(WindowHeight() * scale);
+
+  // During a window resize the frame buffer can be larger than the window, with the bottom left part in use
+  if (mMainFrameBufferWidth != width || mMainFrameBufferHeight != height)
+    img = nvgImagePattern(mVG, 0, (height - mMainFrameBufferHeight) / scale, mMainFrameBufferWidth / scale, mMainFrameBufferHeight / scale, 0, mMainFrameBuffer->image, 1.0f);
+#endif
 
   nvgSave(mVG);
   nvgResetTransform(mVG);
