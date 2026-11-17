@@ -950,8 +950,15 @@ void IGraphicsWin::CreateGLContext()
     0,
     0,
     0, 0, 0, 0,
+#ifdef IGRAPHICS_NANOVG
+    // NanoVG draws everything into its own FBO (which has its own stencil attachment) and only
+    // blits the result to the window, so a depth/stencil buffer on the window is wasted memory
+    0, // Number of bits for the depthbuffer
+    0, // Number of bits for the stencilbuffer
+#else
     24, // Number of bits for the depthbuffer
     8, // Number of bits for the stencilbuffer
+#endif
     0, // Number of Aux buffers in the framebuffer.
     PFD_MAIN_PLANE,
     0,

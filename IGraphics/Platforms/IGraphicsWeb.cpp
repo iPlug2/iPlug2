@@ -26,14 +26,14 @@ EM_JS(int, iplug_wasm_capture_bridge_enabled, (), {
 });
 
 // Helper to create WebGL context for Shadow DOM (CSS selectors don't work).
-EM_JS(int, createWebGLContextForShadowDOM, (), {
+EM_JS(int, createWebGLContextForShadowDOM, (int surfaceBuffers), {
   var canvas = Module.canvas;
   if (!canvas) return 0;
   var preserveDrawingBuffer = false;
   try {
     preserveDrawingBuffer = new URLSearchParams(window.location.search).get("iplugWasmCapture") === "1";
   } catch (e) {}
-  var attrs = { stencil: true, depth: true, antialias: true, alpha: true, preserveDrawingBuffer: preserveDrawingBuffer };
+  var attrs = { stencil: !!surfaceBuffers, depth: !!surfaceBuffers, antialias: !!surfaceBuffers, alpha: true, preserveDrawingBuffer: preserveDrawingBuffer };
   var ctx = canvas.getContext("webgl", attrs) || canvas.getContext("experimental-webgl", attrs);
   if (!ctx) return 0;
   return GL.registerContext(ctx, attrs);
@@ -1036,9 +1036,16 @@ void* IGraphicsWeb::OpenWindow(void* pHandle)
 #ifdef IGRAPHICS_GL
   EmscriptenWebGLContextAttributes attr;
   emscripten_webgl_init_context_attributes(&attr);
-  attr.stencil = true;
-  attr.depth = true;
-  attr.antialias = true;
+#ifdef IGRAPHICS_NANOVG
+  // NanoVG draws everything (with its own antialiasing) into an FBO that has its own stencil attachment
+  // and only blits the result to the canvas, so depth/stencil/MSAA buffers on the canvas are wasted memory
+  const bool surfaceBuffers = false;
+#else
+  const bool surfaceBuffers = true;
+#endif
+  attr.stencil = surfaceBuffers;
+  attr.depth = surfaceBuffers;
+  attr.antialias = surfaceBuffers;
   attr.alpha = true;
   // Capture is URL opt-in because preserveDrawingBuffer can reduce WebGL
   // presentation throughput in regular production plugin embeds.
@@ -1050,7 +1057,7 @@ void* IGraphicsWeb::OpenWindow(void* pHandle)
   if (mInShadowDOM)
   {
     // Shadow DOM: create context via JS since CSS selectors don't work
-    ctx = createWebGLContextForShadowDOM();
+    ctx = createWebGLContextForShadowDOM(surfaceBuffers);
   }
   else
   {
