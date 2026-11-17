@@ -116,16 +116,12 @@ void IPlugCLAP::SetLatency(int samples)
   
   if (GetClapHost().canUseLatency())
   {
-    // If active request restart on the main thread (or update the host)
+    // clap_host_latency::changed() may only be called from within activate(),
+    // so record the change and report it on the next activation, requesting a
+    // restart if the plugin is currently active.
+    mLatencyUpdate = true;
     if (isActive())
-    {
-      mLatencyUpdate = true;
       runOnMainThread([&](){ if (!isBeingDestroyed()) GetClapHost().requestRestart(); });
-    }
-    else
-    {
-      runOnMainThread([&](){ if (!isBeingDestroyed()) GetClapHost().latencyChanged(); });
-    }
   }
 }
 
@@ -159,6 +155,12 @@ bool IPlugCLAP::activate(double sampleRate, uint32_t minFrameCount, uint32_t max
   OnParamReset(kReset);
   OnReset();
 
+  if (mLatencyUpdate)
+  {
+    GetClapHost().latencyChanged();
+    mLatencyUpdate = false;
+  }
+
   mHostHasTail = GetClapHost().canUseTail();
   mTailCount = 0;
 
@@ -168,12 +170,6 @@ bool IPlugCLAP::activate(double sampleRate, uint32_t minFrameCount, uint32_t max
 void IPlugCLAP::deactivate() noexcept
 {
   OnActivate(false);
-  
-  if (mLatencyUpdate)
-  {
-    GetClapHost().latencyChanged();
-    mLatencyUpdate = false;
-  }
 
   // TODO - should we clear mTailUpdate here or elsewhere?
 }
@@ -411,11 +407,29 @@ bool IPlugCLAP::renderSetMode(clap_plugin_render_mode mode) noexcept
 bool IPlugCLAP::stateSave(const clap_ostream* pStream) noexcept
 {
   IByteChunk chunk;
-  
+
   if (!SerializeState(chunk))
     return false;
-  
-  return pStream->write(pStream, chunk.GetData(), chunk.Size()) == chunk.Size();
+
+  // clap_ostream::write() may perform a short write (like POSIX write()) --
+  // it isn't required to write the whole buffer in one call, so this must
+  // loop until every byte is written rather than checking a single call's
+  // return value against the full size.
+  const uint8_t* pData = chunk.GetData();
+  int64_t remaining = chunk.Size();
+
+  while (remaining > 0)
+  {
+    const int64_t written = pStream->write(pStream, pData, static_cast<uint64_t>(remaining));
+
+    if (written <= 0)
+      return false;
+
+    pData += written;
+    remaining -= written;
+  }
+
+  return true;
 }
 
 bool IPlugCLAP::stateLoad(const clap_istream* pStream) noexcept
@@ -431,11 +445,16 @@ bool IPlugCLAP::stateLoad(const clap_istream* pStream) noexcept
 
   if (bytesRead != 0)
     return false;
-      
+
   bool restoredOK = UnserializeState(chunk, 0) >= 0;
   
   if (restoredOK)
+  {
     OnRestoreState();
+
+    if (GetClapHost().canUseParams())
+      GetClapHost().paramsRescan(CLAP_PARAM_RESCAN_VALUES);
+  }
   
   return restoredOK;
 }
@@ -486,16 +505,20 @@ bool IPlugCLAP::paramsValueToText(clap_id paramIdx, double value, char* display,
 
   WDL_String str;
   
-  pParam->GetDisplay(value, isDoubleType, str);
-  
-  // Add Label
-  if (CStringHasContents(pParam->GetLabel()))
+  // Stepped parameters are exposed to CLAP with plain values, constrain so that display texts are found
+  const double plainValue = isDoubleType ? pParam->FromNormalized(value) : pParam->Constrain(value);
+
+  pParam->GetDisplay(plainValue, false, str);
+
+  // Add Label, unless the value has display text (which wouldn't map back to a value with the label added)
+  if (CStringHasContents(pParam->GetLabel()) && !CStringHasContents(pParam->GetDisplayText(plainValue)))
   {
     str.Append(" ");
     str.Append(pParam->GetLabel());
   }
-  
-  if (size < str.GetLength())
+
+  // size includes the null terminator
+  if (size <= static_cast<uint32_t>(str.GetLength()))
     return false;
     
   strcpy(display, str.Get());
@@ -784,7 +807,7 @@ bool IPlugCLAP::audioPortsGetConfig(uint32_t index, clap_audio_ports_config* pCo
     // N.B. Configs in iPlug2 currently have no names so we reconstruct the strings...
     configName.AppendFormatted(CLAP_NAME_SIZE, "%d", getNChans(direction, 0));
     
-    for (int i = 0; i < NBuses(direction, index); i++)
+    for (int i = 1; i < NBuses(direction, index); i++)
       configName.AppendFormatted(CLAP_NAME_SIZE, ".%d", getNChans(direction, i));
   };
   
@@ -798,12 +821,13 @@ bool IPlugCLAP::audioPortsGetConfig(uint32_t index, clap_audio_ports_config* pCo
   pConfig->input_port_count = static_cast<uint32_t>(NBuses(kInput, index));
   pConfig->output_port_count = static_cast<uint32_t>(NBuses(kOutput, index));
 
-  pConfig->has_main_input = pConfig->input_port_count > 1;
+  // Bus 0 is the main port (see audioPortsInfo), so any bus in a direction means a main port
+  pConfig->has_main_input = pConfig->input_port_count > 0;
   pConfig->main_input_channel_count = pConfig->has_main_input ? getNChans(kInput, 0) : 0;
   pConfig->main_input_port_type = ClapPortType(pConfig->main_input_channel_count);
   
-  pConfig->has_main_output = pConfig->output_port_count > 1;
-  pConfig->main_output_channel_count = pConfig->has_main_input ? getNChans(kOutput, 0) : 0;
+  pConfig->has_main_output = pConfig->output_port_count > 0;
+  pConfig->main_output_channel_count = pConfig->has_main_output ? getNChans(kOutput, 0) : 0;
   pConfig->main_output_port_type = ClapPortType(pConfig->main_output_channel_count);
 
   return true;
