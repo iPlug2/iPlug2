@@ -24,7 +24,7 @@
 
 from __future__ import generators
 
-import fileinput, glob, string, sys, os, re, uuid, pprint, random
+import fileinput, glob, string, sys, os, re, uuid, pprint, random, base64, binascii, struct
 from shutil import copy, copytree, ignore_patterns, rmtree
 from os.path import join
 
@@ -85,6 +85,52 @@ def replacestrsChop(filename, s, r):
     if(line.startswith(s)):
       line = r + "\n"
     sys.stdout.write(line)
+
+def fourCharHex(fourcc):
+  return ''.join('%02X' % b for b in bytearray(fourcc.encode('ascii')))
+
+def vst3ProcessorGUID(mfrid, uniqueid):
+  "hex string of the default VST3_PROCESSOR_UID, see IPlug_include_in_plug_src.h"
+  return "F2AEE70D00DE4F4E" + fourCharHex(mfrid) + fourCharHex(uniqueid)
+
+def reaperVST3ID(guid):
+  "the integer REAPER stores alongside a VST3 class ID: 31-bit FNV-1a hash of the GUID in COM byte order"
+  b = bytearray(binascii.unhexlify(guid))
+  com = b[3::-1] + b[5:3:-1] + b[7:5:-1] + b[8:]
+  h = 0x811c9dc5
+  for c in com:
+    h = ((h ^ c) * 0x01000193) & 0xffffffff
+  return h & 0x7fffffff
+
+def fixreaperproject(filename, projectname, guid):
+  "point the VST3 FX for projectname in a REAPER project at the class ID guid"
+  vstline = re.compile(br'^(\s*<VST "VST3[^"]*" ' + re.escape(projectname.encode('ascii')) + br'\.vst3 \d+ "[^"]*" )\d+\{[0-9A-Fa-f]{32}\}')
+  newid = reaperVST3ID(guid)
+  # the FX state starts with the same ID (little endian) and a 2 byte magic number, which is exactly 8 base64 chars
+  statestart = base64.b64encode(struct.pack("<I", newid) + b"\xee\x5e")
+  found = False
+  fixstate = False
+
+  with open(filename, 'rb') as f:
+    lines = f.readlines()
+
+  for i, line in enumerate(lines):
+    if fixstate:
+      fixstate = False
+      stripped = line.lstrip()
+      indent = line[:len(line) - len(stripped)]
+      if len(stripped) >= 8 and base64.b64decode(stripped[:8])[4:] == b"\xee\x5e":
+        lines[i] = indent + statestart + stripped[8:]
+    elif vstline.match(line):
+      lines[i] = vstline.sub(lambda m: m.group(1) + str(newid).encode('ascii') + b"{" + guid.encode('ascii') + b"}", line)
+      found = True
+      fixstate = True
+
+  if found:
+    with open(filename, 'wb') as f:
+      f.writelines(lines)
+
+  return found
 
 def dirwalk(dir, searchproject, replaceproject, searchman, replaceman, oldroot= "", newroot=""):
   for f in os.listdir(dir):
@@ -240,9 +286,18 @@ def main():
   try:
     config = parse_config(outputpath)
 
-    config["PLUG_UNIQUE_ID"] = randomFourChar()
+    uniqueid = randomFourChar()
 
-    set_uniqueid(outputpath, config["PLUG_UNIQUE_ID"])
+    # set_uniqueid() re-parses config.h into the same dict, leaving the old ID in it
+    set_uniqueid(outputpath, uniqueid)
+    config["PLUG_UNIQUE_ID"] = uniqueid
+
+    # the VST3 class ID is derived from PLUG_MFR_ID and PLUG_UNIQUE_ID, so the REAPER project must be updated to match
+    if len(config["PLUG_MFR_ID"]) == 4:
+      guid = vst3ProcessorGUID(config["PLUG_MFR_ID"], config["PLUG_UNIQUE_ID"])
+      for f in os.listdir(outputpath):
+        if f.lower().endswith(".rpp") and fixreaperproject(os.path.join(outputpath, f), outputprojectname, guid):
+          print("Updated VST3 class ID in " + f + " to {" + guid + "}")
 
     pp = pprint.PrettyPrinter(indent=4)
     pp.pprint(config)
