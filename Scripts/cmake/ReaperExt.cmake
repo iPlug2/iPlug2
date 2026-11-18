@@ -77,8 +77,23 @@ if(NOT TARGET iPlug2::ReaperExt)
       iPlug2::IPlug
     )
   elseif(UNIX AND NOT APPLE AND NOT EMSCRIPTEN)
-    # Linux needs SWELL for the generic GDK/headless backend
+    # As on macOS, REAPER provides SWELL, so compile only the module stub. Built with
+    # SWELL_PROVIDED_BY_APP it defines the SWELL API as function pointers, which REAPER
+    # binds through the exported SWELL_dllMain when it loads the extension. REAPER does
+    # not export the SWELL functions as dynamic symbols, so without the stub the
+    # extension fails to load.
     target_include_directories(iPlug2::ReaperExt INTERFACE ${SWELL_DIR})
+
+    set(SWELL_SRC
+      "${SWELL_DIR}/swell-modstub-generic.cpp"
+    )
+
+    target_sources(iPlug2::ReaperExt INTERFACE ${SWELL_SRC})
+
+    target_compile_definitions(iPlug2::ReaperExt INTERFACE
+      SWELL_PROVIDED_BY_APP
+    )
+
     target_link_libraries(iPlug2::ReaperExt INTERFACE iPlug2::IPlug)
   endif()
 endif()
