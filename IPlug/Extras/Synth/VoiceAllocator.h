@@ -20,6 +20,8 @@
 #include <stdint.h>
 #include <functional>
 #include <bitset>
+#include <climits>
+#include <memory>
 //#include <iostream>
 
 #include "IPlugLogger.h"
