@@ -22,12 +22,12 @@ add_subdirectory(IPlugVisualizer)
 
 # WebView examples
 set(CMAKE_FOLDER "Examples/WebView")
-if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-  message(STATUS "Skipping IPlugWebUI, IPlugP5js and IPlugSvelteUI: WebView is not implemented on Linux.")
-else()
+if(NOT CMAKE_SYSTEM_NAME STREQUAL "Linux" OR IPLUG_LINUX_WEBVIEW_EXAMPLES)
   add_subdirectory(IPlugWebUI)
   add_subdirectory(IPlugP5js)
   add_subdirectory(IPlugSvelteUI)
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+  message(STATUS "Skipping WebView examples (enable IPLUG_LINUX_WEBVIEW_EXAMPLES and install WebKitGTK 4.1 to build).")
 endif()
 
 # Swift/Cocoa examples (requires Xcode generator)

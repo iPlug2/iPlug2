@@ -15,6 +15,9 @@
 
 #ifdef OS_LINUX
 #include "IPlugSWELLTimer.h"
+#if defined WEBVIEW_EDITOR_DELEGATE
+extern "C" void IPlugLinuxWebViewPump();
+#endif
 #endif
 
 #if defined OS_MAC || defined OS_LINUX
@@ -46,6 +49,9 @@ IPlugAPP::IPlugAPP(const InstanceInfo& info, const Config& config)
     CloseWindowIfRequested();
 #endif
     OnTimer();
+#if defined WEBVIEW_EDITOR_DELEGATE
+    IPlugLinuxWebViewPump();
+#endif
   }, IDLE_TIMER_RATE));
 #else
   CreateTimer();

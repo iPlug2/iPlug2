@@ -17,6 +17,9 @@
 #include "pluginterfaces/vst/ivstmidicontrollers.h"
 
 #include "IPlugVST3.h"
+#if defined OS_LINUX && defined WEBVIEW_EDITOR_DELEGATE
+extern "C" void IPlugLinuxWebViewPump();
+#endif
 
 using namespace iplug;
 using namespace Steinberg;
@@ -49,7 +52,12 @@ IPlugVST3::~IPlugVST3()
 bool IPlugVST3::EnsureLinuxIdleTimer(FUnknown* context)
 {
   if (!mLinuxIdleTimer)
-    mLinuxIdleTimer = owned(new IPlugVST3Timer([this] { OnTimer(); }));
+    mLinuxIdleTimer = owned(new IPlugVST3Timer([this] {
+      OnTimer();
+#if defined WEBVIEW_EDITOR_DELEGATE
+      IPlugLinuxWebViewPump();
+#endif
+    }));
   return mLinuxIdleTimer->Start(context);
 }
 #endif
