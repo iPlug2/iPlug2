@@ -132,9 +132,8 @@ if(NOT TARGET iPlug2::IPlug)
     )
     target_compile_definitions(iPlug2::IPlug INTERFACE OS_LINUX)
     # Link the C++ runtime statically so plugins do not depend on the host's
-    # libstdc++ version, and keep its symbols out of the dynamic symbol table
-    # so they cannot be interposed by (or onto) the host and other plugins.
-    target_link_options(iPlug2::IPlug INTERFACE -static-libstdc++ -static-libgcc "LINKER:--exclude-libs,libstdc++.a:libgcc.a:libgcc_eh.a")
+    # libstdc++ version
+    target_link_options(iPlug2::IPlug INTERFACE -static-libstdc++ -static-libgcc)
     target_link_libraries(iPlug2::IPlug INTERFACE pthread dl)
   endif()
 
