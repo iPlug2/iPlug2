@@ -945,7 +945,8 @@ jobs:
 
       - name: Install Clang sanitizer runtime
         if: matrix.sanitizers
-        run: sudo apt-get install -y --no-install-recommends clang-14 libclang-rt-14-dev
+        # On Ubuntu 22.04 the sanitizer runtimes are part of libclang-common-14-dev
+        run: sudo apt-get install -y --no-install-recommends clang-14 libclang-common-14-dev
 
       - name: Cache SDKs
         id: cache-sdks
