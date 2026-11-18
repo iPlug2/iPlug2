@@ -13,6 +13,7 @@
 #include "pluginterfaces/base/ibstream.h"
 #
 #include "IPlugAPIBase.h"
+#include "IPlugVST3_Timer.h"
 #include "IPlugVST3_Parameter.h"
 #include "IPlugVST3_ControllerBase.h"
 

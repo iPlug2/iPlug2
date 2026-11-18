@@ -32,10 +32,27 @@ IPlugVST3::IPlugVST3(const InstanceInfo& info, const Config& config)
 , IPlugVST3ControllerBase(parameters)
 , mView(nullptr)
 {
+#ifndef OS_LINUX
   CreateTimer();
+#endif
 }
 
-IPlugVST3::~IPlugVST3() {}
+IPlugVST3::~IPlugVST3()
+{
+#ifdef OS_LINUX
+  if (mLinuxIdleTimer)
+    mLinuxIdleTimer->Stop();
+#endif
+}
+
+#ifdef OS_LINUX
+bool IPlugVST3::EnsureLinuxIdleTimer(FUnknown* context)
+{
+  if (!mLinuxIdleTimer)
+    mLinuxIdleTimer = owned(new IPlugVST3Timer([this] { OnTimer(); }));
+  return mLinuxIdleTimer->Start(context);
+}
+#endif
 
 #pragma mark AudioEffect overrides
 
@@ -53,6 +70,9 @@ tresult PLUGIN_API IPlugVST3::initialize(FUnknown* context)
     IPlugVST3ProcessorBase::Initialize(this);
     IPlugVST3ControllerBase::Initialize(this, IsInstrument(), DoesMIDIIn());
 
+#ifdef OS_LINUX
+    EnsureLinuxIdleTimer(context);
+#endif
     IPlugVST3GetHost(this, context);
     OnHostIdentified();
     OnParamReset(kReset);
@@ -67,6 +87,10 @@ tresult PLUGIN_API IPlugVST3::terminate()
 {
   TRACE
 
+#ifdef OS_LINUX
+  if (mLinuxIdleTimer)
+    mLinuxIdleTimer->Stop();
+#endif
   return SingleComponentEffect::terminate();
 }
 
