@@ -9,6 +9,9 @@
 # Plugin deployment configuration for iPlug2
 # Supports symlink and copy deployment to standard system directories
 
+# Capture script directory at include time (CMAKE_CURRENT_LIST_DIR changes inside functions)
+set(_IPLUG_DEPLOY_SCRIPT_DIR "${CMAKE_CURRENT_LIST_DIR}" CACHE INTERNAL "")
+
 #------------------------------------------------------------------------
 # Options
 #------------------------------------------------------------------------
@@ -93,6 +96,11 @@ function(iplug_get_default_deploy_path format)
     elseif(format STREQUAL "AU" OR format STREQUAL "AUv2")
       # AU not supported on Linux
       return()
+    elseif(format STREQUAL "AAX")
+      # AAX not supported on Linux
+      return()
+    elseif(format STREQUAL "REAPEREXT")
+      set(default_path "$ENV{HOME}/.config/REAPER/UserPlugins")
     elseif(format STREQUAL "APP")
       # Leave APP in build directory on Linux
       set(default_path "")
@@ -179,6 +187,17 @@ function(_iplug_copy_plugin target source_path dest_dir plugin_name is_bundle)
       COMMENT "[iPlug2] Deploying ${plugin_name} (copy)"
       VERBATIM
     )
+    if(UNIX AND NOT APPLE AND NOT EMSCRIPTEN)
+      set(_res_src "${source_path}.resources")
+      set(_res_dst "${dest_path}.resources")
+      add_custom_command(TARGET ${target} POST_BUILD
+        COMMAND ${CMAKE_COMMAND}
+          "-Dsrc=${_res_src}" "-Ddst=${_res_dst}"
+          -P "${_IPLUG_DEPLOY_SCRIPT_DIR}/CopyIfExists.cmake"
+        COMMENT "[iPlug2] Deploying resources -> ${_res_dst}"
+        VERBATIM
+      )
+    endif()
   endif()
 endfunction()
 
@@ -239,6 +258,8 @@ function(iplug_deploy_target target format project_name)
   elseif(format STREQUAL "REAPEREXT")
     if(APPLE)
       set(plugin_name "${project_name}.dylib")
+    elseif(UNIX AND NOT EMSCRIPTEN)
+      set(plugin_name "${project_name}.so")
     else()
       set(plugin_name "${project_name}.dll")
     endif()
