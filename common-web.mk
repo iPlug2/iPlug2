@@ -84,7 +84,9 @@ WAM_EXPORTS = "[\
 WEB_EXPORTS = "['_malloc', '_free', '_main', '_iplug_fsready', '_iplug_syncfs', '_iplug_popup_menu_selected']"
 
 # LDFLAGS for both WAM and WEB targets
-LDFLAGS = -s ALLOW_MEMORY_GROWTH=1 --bind
+# The project makefiles link with $(CC) (emcc), which since Emscripten 6.0.6 only
+# links the C++ runtime when asked to
+LDFLAGS = -s ALLOW_MEMORY_GROWTH=1 -s DEFAULT_TO_CXX=1 --bind
 
 # We can't compile the WASM module synchronously on main thread (.wasm over 4k in size requires async compile on chrome) https://developers.google.com/web/updates/2018/04/loading-wasm
 # and you can't compile asynchronously in AudioWorklet scope
