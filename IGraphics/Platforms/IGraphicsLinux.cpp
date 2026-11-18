@@ -2339,3 +2339,480 @@ void IGraphicsLinux::DispatchKeyEvent(XKeyEvent& event)
   } while (offset < length && !mCloseRequested);
 }
 
+void IGraphicsLinux::ProcessX11Events()
+{
+  if (IsInPlatformCallback())
+    return;
+  DispatchScope dispatch(mDispatchDepth);
+  DispatchX11Events();
+}
+
+void IGraphicsLinux::DispatchX11Events()
+{
+  if (!mDisplay || !mPlugWnd || mCloseRequested)
+    return;
+
+  while (!mCloseRequested && XPending(mDisplay))
+  {
+    XEvent ev;
+    XNextEvent(mDisplay, &ev);
+    if (ev.type == Expose && ev.xexpose.window == mTooltipWindow)
+    {
+      DrawTooltip();
+      continue;
+    }
+    if (XFilterEvent(&ev, mPlugWnd))
+      continue;
+
+    const float scale = GetTotalScale();
+    switch (ev.type)
+    {
+    case Expose: {
+      // Handled by the render path below; drain duplicate exposures
+      while (XCheckTypedWindowEvent(mDisplay, mPlugWnd, Expose, &ev))
+        ;
+      mNeedsRedraw = true;
+      break;
+    }
+
+    case ConfigureNotify: {
+      XConfigureEvent& ce = ev.xconfigure;
+      if (ce.window != mPlugWnd)
+        break;
+
+      // Drain all pending ConfigureNotify events and use the latest.
+      // During rapid resizing (corner-resizer drag or host resize),
+      // multiple ConfigureNotify events queue up. Processing stale
+      // intermediate sizes would cause unnecessary FBO recreations
+      // and potential size oscillations. Only the final size matters.
+      {
+        XEvent next;
+        while (XCheckTypedWindowEvent(mDisplay, mPlugWnd, ConfigureNotify, &next))
+        {
+          ce = next.xconfigure;
+        }
+      }
+
+      const int physW = ce.width;
+      const int physH = ce.height;
+      // Check if the internal state already matches this physical
+      // size (e.g. OnParentWindowResize already processed it).
+      const int curPhysW = static_cast<int>(WindowWidth() * GetScreenScale());
+      const int curPhysH = static_cast<int>(WindowHeight() * GetScreenScale());
+      if (physW == curPhysW && physH == curPhysH)
+      {
+        break;
+      }
+
+      // The X server resized our window. Suppress PlatformResize to
+      // avoid a resize oscillation.
+      mInConfigureNotify = true;
+
+      ResizeFromHost(physW, physH);
+
+      mInConfigureNotify = false;
+      // A WM may ignore the aspect ratio or scale limits. Reconcile the child
+      // once; the resulting ConfigureNotify already matches our state.
+      if (physW != static_cast<int>(WindowWidth() * GetScreenScale()) || physH != static_cast<int>(WindowHeight() * GetScreenScale()))
+        PlatformResize(false);
+      break;
+    }
+
+    case ButtonPress:
+    case ButtonRelease: {
+      HideTooltip();
+      mTooltipControl = -1;
+      XButtonEvent& be = ev.xbutton;
+      const float x = be.x / scale;
+      const float y = be.y / scale;
+      const bool shift = (be.state & ShiftMask) != 0;
+      const bool ctrl = (be.state & ControlMask) != 0;
+      const bool alt = (be.state & Mod1Mask) != 0;
+
+      if (be.button == Button4 || be.button == Button5)
+      {
+        // Scroll wheel — only fire on press
+        if (ev.type == ButtonPress)
+        {
+          XSetInputFocus(mDisplay, mPlugWnd, RevertToParent, be.time);
+          const float delta = (be.button == Button4) ? 1.f : -1.f;
+          IMouseMod mod(false, false, shift, ctrl, alt);
+          OnMouseWheel(x, y, mod, delta);
+        }
+        break;
+      }
+
+      // Buttons 6/7 are horizontal scroll and 8/9 back/forward; they are not clicks.
+      if (be.button > Button3)
+        break;
+
+      const bool left = (be.button == Button1);
+      const bool right = (be.button == Button3);
+      IMouseMod mod(left, right, shift, ctrl, alt);
+
+      mCursorX = x;
+      mCursorY = y;
+
+      IMouseInfo info;
+      info.x = x;
+      info.y = y;
+      info.dX = 0.f;
+      info.dY = 0.f;
+      info.ms = mod;
+      std::vector<IMouseInfo> list{info};
+
+      if (ev.type == ButtonPress)
+      {
+        // A child of the host's window does not gain focus automatically.
+        // Only an explicit click transfers focus; mapping/hovering never does.
+        XSetInputFocus(mDisplay, mPlugWnd, RevertToParent, be.time);
+        XFlush(mDisplay);
+        // Measure distance in screen-logical pixels, independent of UI zoom.
+        static constexpr unsigned long kDblClickTimeoutMs = 400;
+        static constexpr float kDblClickDistance = 4.f;
+        const float clickX = be.x / GetScreenScale();
+        const float clickY = be.y / GetScreenScale();
+        if (left && mLastLeftClickTime && static_cast<uint32_t>(be.time - mLastLeftClickTime) < kDblClickTimeoutMs && std::fabs(clickX - mLastLeftClickX) <= kDblClickDistance
+            && std::fabs(clickY - mLastLeftClickY) <= kDblClickDistance)
+        {
+          OnMouseDblClick(x, y, mod);
+          mLastLeftClickTime = 0; // reset so triple-click doesn't fire again
+        }
+        else
+        {
+          OnMouseDown(list);
+          mLastLeftClickTime = left ? be.time : 0;
+          mLastLeftClickX = clickX;
+          mLastLeftClickY = clickY;
+        }
+      }
+      else
+      {
+        OnMouseUp(list);
+      }
+      break;
+    }
+
+    case MotionNotify: {
+      XMotionEvent& me = ev.xmotion;
+      const float x = me.x / scale;
+      const float y = me.y / scale;
+      const bool shift = (me.state & ShiftMask) != 0;
+      const bool ctrl = (me.state & ControlMask) != 0;
+      const bool alt = (me.state & Mod1Mask) != 0;
+      const bool lbtn = (me.state & Button1Mask) != 0;
+      const bool rbtn = (me.state & Button3Mask) != 0;
+      IMouseMod mod(lbtn, rbtn, shift, ctrl, alt);
+
+      IMouseInfo info;
+      info.x = x;
+      info.y = y;
+      info.dX = x - mCursorX;
+      info.dY = y - mCursorY;
+      info.ms = mod;
+      std::vector<IMouseInfo> list{info};
+
+      if (lbtn || rbtn)
+      {
+        HideTooltip();
+        mTooltipControl = -1;
+        OnMouseDrag(list);
+        mCursorX = x;
+        mCursorY = y;
+      }
+      else
+      {
+        OnMouseOver(x, y, mod);
+        mCursorX = x;
+        mCursorY = y;
+        const int hovered = TooltipsEnabled() ? GetMouseOver() : -1;
+        if (hovered != mTooltipControl || std::fabs(mTooltipX - x) > 4.f || std::fabs(mTooltipY - y) > 4.f)
+        {
+          HideTooltip();
+          mTooltipControl = hovered;
+          mTooltipX = x;
+          mTooltipY = y;
+          mTooltipHoverTime = HoverMillis();
+        }
+      }
+      break;
+    }
+
+    case LeaveNotify:
+      HideTooltip();
+      mTooltipControl = -1;
+      OnMouseOut();
+      break;
+
+    case FocusIn:
+      if (mInputMethodDisconnected)
+        CreateInputContext();
+      if (mInputContext)
+        XSetICFocus(mInputContext);
+      break;
+
+    case FocusOut:
+      HideTooltip();
+      if (mInputContext)
+        XUnsetICFocus(mInputContext);
+      break;
+
+    case KeyPress:
+    case KeyRelease:
+      DispatchKeyEvent(ev.xkey);
+      break;
+
+    case ClientMessage: {
+      if (ev.xclient.window == mPlugWnd && ev.xclient.format == 32)
+      {
+        auto& msg = ev.xclient;
+        if (msg.message_type == mXdndEnter)
+        {
+          HideTooltip();
+          mTooltipControl = -1;
+          ResetDrag();
+          const int version = (msg.data.l[1] >> 24) & 0xff;
+          if (version >= 3)
+          {
+            mDragSource = static_cast<Window>(msg.data.l[0]);
+            if (msg.data.l[1] & 1)
+            {
+              Atom type = 0;
+              int format = 0;
+              unsigned long count = 0, remaining = 0;
+              unsigned char* data = nullptr;
+              if (XGetWindowProperty(mDisplay, mDragSource, mXdndTypeList, 0, 1024, 0, XA_ATOM, &type, &format, &count, &remaining, &data) == 0 && type == XA_ATOM && format == 32 && remaining == 0
+                  && data)
+              {
+                const auto* types = reinterpret_cast<const Atom*>(data);
+                for (unsigned long i = 0; i < count; ++i)
+                  if (types[i] == mUriList)
+                    mDragSupported = true;
+              }
+              if (data)
+                XFree(data);
+            }
+            else
+              for (int i = 2; i < 5; ++i)
+                if (static_cast<Atom>(msg.data.l[i]) == mUriList)
+                  mDragSupported = true;
+          }
+          break;
+        }
+        if (msg.message_type == mXdndLeave && static_cast<Window>(msg.data.l[0]) == mDragSource)
+        {
+          ResetDrag();
+          break;
+        }
+        if (msg.message_type == mXdndPosition && static_cast<Window>(msg.data.l[0]) == mDragSource)
+        {
+          int x = 0, y = 0;
+          Window child = 0;
+          const int rootX = static_cast<short>(msg.data.l[2] >> 16);
+          const int rootY = static_cast<short>(msg.data.l[2] & 0xffff);
+          XTranslateCoordinates(mDisplay, DefaultRootWindow(mDisplay), mPlugWnd, rootX, rootY, &x, &y, &child);
+          mDropX = x / GetTotalScale();
+          mDropY = y / GetTotalScale();
+          XEvent reply{};
+          reply.xclient.type = ClientMessage;
+          reply.xclient.display = mDisplay;
+          reply.xclient.window = mDragSource;
+          reply.xclient.message_type = mXdndStatus;
+          reply.xclient.format = 32;
+          reply.xclient.data.l[0] = mPlugWnd;
+          reply.xclient.data.l[1] = mDragSupported ? 1 : 0;
+          reply.xclient.data.l[4] = mDragSupported ? mXdndActionCopy : 0;
+          XSendEvent(mDisplay, mDragSource, 0, NoEventMask, &reply);
+          XFlush(mDisplay);
+          break;
+        }
+        if (msg.message_type == mXdndDrop && static_cast<Window>(msg.data.l[0]) == mDragSource)
+        {
+          if (mDragSupported)
+            XConvertSelection(mDisplay, mXdndSelection, mUriList, mDropProperty, mPlugWnd, msg.data.l[2]);
+          else
+          {
+            XEvent reply{};
+            reply.xclient.type = ClientMessage;
+            reply.xclient.display = mDisplay;
+            reply.xclient.window = mDragSource;
+            reply.xclient.message_type = mXdndFinished;
+            reply.xclient.format = 32;
+            reply.xclient.data.l[0] = mPlugWnd;
+            XSendEvent(mDisplay, mDragSource, 0, NoEventMask, &reply);
+            ResetDrag();
+          }
+          XFlush(mDisplay);
+          break;
+        }
+      }
+      if (ev.xclient.message_type == XInternAtom(mDisplay, "WM_PROTOCOLS", 0) && ev.xclient.format == 32 && (Atom)ev.xclient.data.l[0] == mWMDeleteMessage)
+      {
+        mCloseRequested = true;
+        mTimerRunning = false;
+        return;
+      }
+      break;
+    }
+
+    case SelectionNotify: {
+      if (ev.xselection.selection != mXdndSelection || !mDragSource)
+        break;
+      bool accepted = false;
+      const Window dragSource = mDragSource;
+      const Window targetWindow = mPlugWnd;
+      if (ev.xselection.property == mDropProperty)
+      {
+        Atom type = 0;
+        int format = 0;
+        unsigned long count = 0, remaining = 0;
+        unsigned char* data = nullptr;
+        if (XGetWindowProperty(mDisplay, mPlugWnd, mDropProperty, 0, 262144, 1, mUriList, &type, &format, &count, &remaining, &data) == 0 && type == mUriList && format == 8 && remaining == 0 && data)
+        {
+          const auto paths = ParseDroppedFiles(data, count);
+          XFree(data);
+          data = nullptr;
+          if (!paths.empty())
+          {
+            accepted = true;
+            if (paths.size() == 1)
+              OnDrop(paths[0].c_str(), mDropX, mDropY);
+            else
+            {
+              std::vector<const char*> pointers;
+              for (const auto& path : paths)
+                pointers.push_back(path.c_str());
+              OnDropMultiple(pointers, mDropX, mDropY);
+            }
+          }
+        }
+        if (data)
+          XFree(data);
+      }
+      XEvent reply{};
+      reply.xclient.type = ClientMessage;
+      reply.xclient.display = mDisplay;
+      reply.xclient.window = dragSource;
+      reply.xclient.message_type = mXdndFinished;
+      reply.xclient.format = 32;
+      reply.xclient.data.l[0] = targetWindow;
+      reply.xclient.data.l[1] = accepted ? 1 : 0;
+      reply.xclient.data.l[2] = accepted ? mXdndActionCopy : 0;
+      if (mDisplay && mPlugWnd == targetWindow)
+      {
+        XSendEvent(mDisplay, dragSource, 0, NoEventMask, &reply);
+        XFlush(mDisplay);
+      }
+      ResetDrag();
+      break;
+    }
+
+    default:
+      break;
+    }
+  }
+}
+
+void* IGraphicsLinux::TimerThreadProc(void* pParam)
+{
+  IGraphicsLinux* pGraphics = reinterpret_cast<IGraphicsLinux*>(pParam);
+  while (pGraphics->mTimerRunning)
+  {
+    usleep(TIMER_INTERVAL_US);
+    if (pGraphics->mTimerRunning)
+      pGraphics->OnDisplayTimer();
+  }
+  return nullptr;
+}
+
+bool IGraphicsLinux::StartTimer()
+{
+  if (mHostDriven || mTimerRunning)
+    return true;
+
+#if defined APP_API || defined REAPER_EXT_API
+  mMainLoopTimer.reset(SWELLTimer::Create([this](Timer&) { OnDisplayTimer(); }, std::max(1, 1000 / FPS())));
+  if (!mMainLoopTimer)
+  {
+    fprintf(stderr, "Could not start Linux graphics main-loop timer\n");
+    return false;
+  }
+  mTimerRunning = true;
+  return true;
+#else
+  mTimerRunning = true;
+  const int error = pthread_create(&mTimerThread, nullptr, TimerThreadProc, this);
+  if (error)
+  {
+    mTimerRunning = false;
+    mTimerThread = 0;
+    fprintf(stderr, "Could not start Linux graphics timer: %s\n", strerror(error));
+    return false;
+  }
+
+  return true;
+#endif
+}
+
+void IGraphicsLinux::StopTimer()
+{
+  mTimerRunning = false;
+  mMainLoopTimer.reset();
+  if (mTimerThread && !pthread_equal(mTimerThread, pthread_self()))
+  {
+    pthread_join(mTimerThread, nullptr);
+    mTimerThread = 0;
+  }
+}
+
+void IGraphicsLinux::OnDisplayTimer()
+{
+  if (IsInPlatformCallback())
+    return;
+  DispatchScope dispatch(mDispatchDepth);
+  // Teardown joins this timer while holding GfxMutex; skip busy frames instead of waiting.
+  std::unique_lock<std::recursive_mutex> lock(GetDelegate()->GfxMutex(), std::try_to_lock);
+  if (!lock.owns_lock())
+    return;
+  if (!mDisplay || !mPlugWnd || mCloseRequested)
+    return;
+
+  DispatchX11Events();
+  if (!mDisplay || !mPlugWnd || mCloseRequested)
+    return;
+
+  if (!TooltipsEnabled() && mTooltipWindow)
+    HideTooltip();
+  if (mTooltipControl >= 0 && !mTooltipWindow && TooltipsEnabled() && HoverMillis() - mTooltipHoverTime >= 700)
+    ShowTooltip(mTooltipX, mTooltipY);
+
+  IRECTList rects;
+  const bool dirty = IsDirty(rects);
+  if (mNeedsRedraw || dirty)
+  {
+    if (mNeedsRedraw)
+    {
+      // Full redraw (e.g. from Expose)
+      mNeedsRedraw = false;
+      rects.Clear();
+      rects.Add(GetBounds());
+    }
+    ScopedGLContext scopedGLCtx{this};
+    Draw(rects);
+#if defined(IGRAPHICS_GL2) || defined(IGRAPHICS_GL3)
+    glXSwapBuffers(mDisplay, mPlugWnd);
+#endif
+  }
+}
+
+#ifndef NO_IGRAPHICS
+  #if defined IGRAPHICS_NANOVG
+    // Unity-build the NanoVG drawing backend into the platform translation unit.
+    // nanovg.c and glad.c are compiled separately via CMake sources.
+    #include "IGraphicsNanoVG.cpp"
+  #elif defined IGRAPHICS_SKIA
+    #include "IGraphicsSkia.cpp"
+  #else
+    #error "Either NO_IGRAPHICS or a drawing backend (IGRAPHICS_NANOVG, IGRAPHICS_SKIA) must be defined"
+  #endif
+#endif
