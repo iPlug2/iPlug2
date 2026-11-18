@@ -2052,3 +2052,290 @@ void IGraphicsLinux::CachePlatformFont(const char* fontID, const PlatformFontPtr
   // NanoVG caches loaded fonts in its own atlas; no additional platform cache needed.
 }
 
+void IGraphicsLinux::ActivateGLContext()
+{
+#ifdef IGRAPHICS_GL
+  mGLContextStack.push_back({glXGetCurrentDisplay(), glXGetCurrentContext(), glXGetCurrentDrawable(), glXGetCurrentReadDrawable()});
+  if (!mDisplay || !mGLContext)
+    return;
+  if (!glXMakeCurrent(mDisplay, mPlugWnd, (GLXContext)mGLContext))
+    fprintf(stderr, "Could not activate the Linux graphics GLX context\n");
+#endif
+}
+
+void IGraphicsLinux::DeactivateGLContext()
+{
+#ifdef IGRAPHICS_GL
+  assert(!mGLContextStack.empty());
+  const auto state = mGLContextStack.back();
+  mGLContextStack.pop_back();
+  if (glXGetCurrentDisplay() == state.display && glXGetCurrentContext() == state.context && glXGetCurrentDrawable() == state.drawable && glXGetCurrentReadDrawable() == state.readDrawable)
+    return;
+
+  Display* display = state.context ? state.display : glXGetCurrentDisplay();
+  if (display && !glXMakeContextCurrent(display, state.drawable, state.readDrawable, static_cast<GLXContext>(state.context)))
+    fprintf(stderr, "Could not restore the previous GLX context\n");
+#endif
+}
+
+#ifdef IGRAPHICS_GL
+XVisualInfo* IGraphicsLinux::CreateGLContext()
+{
+  // Classic GLX 1.2 API — compatible with all Mesa drivers including software
+  // renderers (llvmpipe, softpipe) on Xwayland where the GLX 1.3 FBConfig +
+  // glXCreateNewContext path fails to create DRI drawables.
+  int screen = DefaultScreen(mDisplay);
+
+  int attribs[] = {
+    GLX_RGBA, GLX_DOUBLEBUFFER, GLX_RED_SIZE, 8, GLX_GREEN_SIZE, 8, GLX_BLUE_SIZE, 8, GLX_DEPTH_SIZE, 24, 0 /* None */
+  };
+
+  XVisualInfo* pVisualInfo = glXChooseVisual(mDisplay, screen, attribs);
+  if (!pVisualInfo)
+    return nullptr;
+
+  mGLContext = (void*)glXCreateContext(mDisplay, pVisualInfo, nullptr, GL_TRUE);
+  if (!mGLContext)
+  {
+    XFree(pVisualInfo);
+    return nullptr;
+  }
+  // Caller owns pVisualInfo and must XFree() it after creating the X window
+  return pVisualInfo;
+}
+
+void IGraphicsLinux::DestroyGLContext()
+{
+  if (mDisplay && mGLContext)
+  {
+    if (glXGetCurrentContext() == mGLContext)
+      if (!glXMakeCurrent(mDisplay, 0, nullptr))
+        fprintf(stderr, "Could not release the Linux graphics GLX context\n");
+    glXDestroyContext(mDisplay, (GLXContext)mGLContext);
+    mGLContext = nullptr;
+  }
+}
+#endif
+
+// Map X11 keysym to Windows virtual key code (used by IKeyPress).
+// Covers the subset that iPlug2 controls actually handle.
+static int KeysymToVK(KeySym ks)
+{
+  switch (ks)
+  {
+  case XK_BackSpace:
+    return kVK_BACK;
+  case XK_Tab:
+    return kVK_TAB;
+  case XK_Return:
+    return kVK_RETURN;
+  case XK_Escape:
+    return kVK_ESCAPE;
+  case XK_space:
+    return kVK_SPACE;
+  case XK_Prior:
+    return kVK_PRIOR;
+  case XK_Next:
+    return kVK_NEXT;
+  case XK_End:
+    return kVK_END;
+  case XK_Home:
+    return kVK_HOME;
+  case XK_Left:
+    return kVK_LEFT;
+  case XK_Up:
+    return kVK_UP;
+  case XK_Right:
+    return kVK_RIGHT;
+  case XK_Down:
+    return kVK_DOWN;
+  case XK_Insert:
+    return kVK_INSERT;
+  case XK_Delete:
+    return kVK_DELETE;
+  case XK_F1:
+    return kVK_F1;
+  case XK_F2:
+    return kVK_F2;
+  case XK_F3:
+    return kVK_F3;
+  case XK_F4:
+    return kVK_F4;
+  case XK_F5:
+    return kVK_F5;
+  case XK_F6:
+    return kVK_F6;
+  case XK_F7:
+    return kVK_F7;
+  case XK_F8:
+    return kVK_F8;
+  case XK_F9:
+    return kVK_F9;
+  case XK_F10:
+    return kVK_F10;
+  case XK_F11:
+    return kVK_F11;
+  case XK_F12:
+    return kVK_F12;
+  case XK_Shift_L:
+  case XK_Shift_R:
+    return kVK_SHIFT;
+  case XK_Control_L:
+  case XK_Control_R:
+    return kVK_CONTROL;
+  case XK_Alt_L:
+  case XK_Alt_R:
+    return kVK_MENU;
+  default:
+    if (ks >= XK_0 && ks <= XK_9)
+      return kVK_0 + (int)(ks - XK_0);
+    if (ks >= XK_a && ks <= XK_z)
+      return kVK_A + (int)(ks - XK_a);
+    if (ks >= XK_A && ks <= XK_Z)
+      return kVK_A + (int)(ks - XK_A);
+    return kVK_NONE;
+  }
+}
+
+void IGraphicsLinux::CreateInputContext()
+{
+  mInputMethodDisconnected = false;
+  // Use the host's locale/modifiers; changing them here would affect every plugin.
+  mInputMethod = XOpenIM(mDisplay, nullptr, nullptr, nullptr);
+  if (mInputMethod)
+  {
+    XIMCallback destroyed{};
+    destroyed.client_data = reinterpret_cast<XPointer>(this);
+    destroyed.callback = [](XIM, XPointer data, XPointer) {
+      auto* graphics = reinterpret_cast<IGraphicsLinux*>(data);
+      graphics->mInputContext = nullptr;
+      graphics->mInputMethod = nullptr;
+      graphics->mInputMethodDisconnected = true;
+      fprintf(stderr, "The Linux input method disconnected; Compose and IME input are unavailable\n");
+    };
+    if (XSetIMValues(mInputMethod, XNDestroyCallback, &destroyed, nullptr))
+    {
+      fprintf(stderr, "Could not register the Linux input method disconnect callback; Compose and IME input are unavailable\n");
+      DestroyInputContext();
+      return;
+    }
+    mInputContext = XCreateIC(mInputMethod, XNInputStyle, XIMPreeditNothing | XIMStatusNothing, XNClientWindow, mPlugWnd, XNFocusWindow, mPlugWnd, nullptr);
+  }
+  if (!mInputContext)
+  {
+    fprintf(stderr, "Could not create the Linux input context; Compose and IME input are unavailable\n");
+    DestroyInputContext();
+    return;
+  }
+  long filterEvents = 0;
+  if (XGetICValues(mInputContext, XNFilterEvents, &filterEvents, nullptr) == nullptr)
+  {
+    XWindowAttributes attributes{};
+    if (XGetWindowAttributes(mDisplay, mPlugWnd, &attributes))
+      XSelectInput(mDisplay, mPlugWnd, attributes.your_event_mask | filterEvents);
+  }
+}
+
+void IGraphicsLinux::DestroyInputContext()
+{
+  if (mInputContext)
+  {
+    XDestroyIC(mInputContext);
+    mInputContext = nullptr;
+  }
+  if (mInputMethod)
+  {
+    XCloseIM(mInputMethod);
+    mInputMethod = nullptr;
+  }
+}
+
+void IGraphicsLinux::DispatchKeyEvent(XKeyEvent& event)
+{
+  KeySym symbol = 0;
+  WDL_TypedBuf<char> text;
+  text.Resize(64);
+  if (!text.Get())
+  {
+    fprintf(stderr, "Could not allocate the Linux keyboard input buffer\n");
+    return;
+  }
+  int length = 0;
+  if (event.type == KeyPress && mInputContext)
+  {
+    int status = 0;
+    length = Xutf8LookupString(mInputContext, &event, text.Get(), text.GetSize() - 1, &symbol, &status);
+    if (status == XBufferOverflow && length > 0 && length < INT_MAX)
+    {
+      text.Resize(length + 1);
+      if (text.GetSize() != length + 1)
+      {
+        fprintf(stderr, "Could not allocate the Linux input method commit buffer\n");
+        return;
+      }
+      length = Xutf8LookupString(mInputContext, &event, text.Get(), text.GetSize() - 1, &symbol, &status);
+    }
+    if (status != XLookupChars && status != XLookupKeySym && status != XLookupBoth)
+    {
+      if (status != XLookupNone)
+        fprintf(stderr, "Could not read the Linux input method commit (status %d)\n", status);
+      return;
+    }
+    if (status == XLookupChars)
+      symbol = 0;
+    if (status == XLookupKeySym)
+      length = 0;
+  }
+  else
+  {
+    // Key releases cannot use Xutf8LookupString. Encode printable keysyms rather
+    // than assuming XLookupString's locale-dependent bytes are Latin-1 or UTF-8.
+    length = XLookupString(&event, text.Get(), text.GetSize() - 1, &symbol, nullptr);
+    const bool ascii = length == 1 && static_cast<unsigned char>(text.Get()[0]) < 0x80;
+    if (!ascii && symbol >= 0xA0 && symbol <= 0xFF)
+      length = wdl_utf8_makechar(static_cast<int>(symbol), text.Get(), text.GetSize() - 1);
+    else if (!ascii && (symbol & 0xFF000000UL) == 0x01000000UL)
+    {
+      const auto codepoint = static_cast<int>(symbol & 0xFFFFFFUL);
+      if (codepoint <= 0x10FFFF && !(codepoint >= 0xD800 && codepoint <= 0xDFFF))
+        length = wdl_utf8_makechar(codepoint, text.Get(), text.GetSize() - 1);
+    }
+  }
+  if (length < 0 || length >= text.GetSize())
+  {
+    fprintf(stderr, "Invalid Linux input method commit length %d\n", length);
+    return;
+  }
+  text.Get()[length] = '\0';
+  // A phrase commit can accompany the Return keysym used to accept an IME candidate.
+  if (length > 1)
+    symbol = 0;
+
+  int offset = 0;
+  do
+  {
+    char character[5]{};
+    int size = 0;
+    if (offset < length)
+    {
+      int codepoint = 0;
+      size = wdl_utf8_parsechar(text.Get() + offset, &codepoint);
+      char encoded[4]{};
+      if (size > 4 || offset + size > length || codepoint > 0x10FFFF || (codepoint >= 0xD800 && codepoint <= 0xDFFF) || wdl_utf8_makechar(codepoint, encoded, sizeof(encoded)) != size
+          || memcmp(encoded, text.Get() + offset, size) != 0)
+      {
+        fprintf(stderr, "The Linux input method returned invalid UTF-8\n");
+        return;
+      }
+      memcpy(character, text.Get() + offset, size);
+    }
+    // IKeyPress holds one UTF-8 code point, while an IME can commit an entire phrase.
+    IKeyPress key(character, offset == 0 ? KeysymToVK(symbol) : kVK_NONE, (event.state & ShiftMask) != 0, (event.state & ControlMask) != 0, (event.state & Mod1Mask) != 0);
+    if (event.type == KeyPress)
+      OnKeyDown(mCursorX, mCursorY, key);
+    else
+      OnKeyUp(mCursorX, mCursorY, key);
+    offset += size;
+  } while (offset < length && !mCloseRequested);
+}
+
