@@ -1440,3 +1440,615 @@ void IGraphicsLinux::GetMouseLocation(float& x, float& y) const
   y = winY / scale;
 }
 
+EMsgBoxResult IGraphicsLinux::ShowMessageBox(const char* str, const char* title, EMsgBoxType type, IMsgBoxCompletionHandlerFunc completionHandler)
+{
+  auto complete = [&](EMsgBoxResult result) {
+    if (completionHandler)
+      completionHandler(result);
+    return result;
+  };
+  GTK3* pGTK = LoadGTK3();
+  const bool customButtons = type == kMB_YESNOCANCEL || type == kMB_RETRYCANCEL;
+  if (!pGTK || !pGTK->message_dialog_new || (customButtons && !pGTK->dialog_add_button))
+  {
+    fprintf(stderr, "Cannot show message box: required GTK functions are unavailable\n");
+    return complete(kCANCEL);
+  }
+
+  int gtkMsgType = kGTK_MESSAGE_INFO;
+  int gtkBtnType = kGTK_BUTTONS_OK;
+  switch (type)
+  {
+  case kMB_OK:
+    break;
+  case kMB_OKCANCEL:
+    gtkMsgType = kGTK_MESSAGE_QUESTION;
+    gtkBtnType = kGTK_BUTTONS_OK_CANCEL;
+    break;
+  case kMB_YESNO:
+    gtkMsgType = kGTK_MESSAGE_QUESTION;
+    gtkBtnType = kGTK_BUTTONS_YES_NO;
+    break;
+  case kMB_YESNOCANCEL:
+  case kMB_RETRYCANCEL:
+    gtkMsgType = kGTK_MESSAGE_QUESTION;
+    gtkBtnType = kGTK_BUTTONS_NONE;
+    break;
+  default:
+    fprintf(stderr, "Cannot show message box: unsupported button type %d\n", type);
+    return complete(kCANCEL);
+  }
+
+  void* dialog = pGTK->message_dialog_new(nullptr, 0, gtkMsgType, gtkBtnType, "%s", str ? str : "");
+  if (!dialog)
+  {
+    fprintf(stderr, "Could not create the message box\n");
+    return complete(kCANCEL);
+  }
+  if (type == kMB_YESNOCANCEL)
+  {
+    pGTK->dialog_add_button(dialog, "_Cancel", kGTK_RESPONSE_CANCEL);
+    pGTK->dialog_add_button(dialog, "_No", kGTK_RESPONSE_NO);
+    pGTK->dialog_add_button(dialog, "_Yes", kGTK_RESPONSE_YES);
+  }
+  else if (type == kMB_RETRYCANCEL)
+  {
+    pGTK->dialog_add_button(dialog, "_Cancel", kGTK_RESPONSE_CANCEL);
+    pGTK->dialog_add_button(dialog, "_Retry", kGTK_RESPONSE_RETRY);
+  }
+  if (title && pGTK->window_set_title)
+    pGTK->window_set_title(dialog, title);
+  GtkPresentDialog(pGTK, dialog);
+
+  int resp = pGTK->dialog_run(dialog);
+  pGTK->widget_destroy(dialog);
+  GtkDrainEvents(pGTK);
+
+  EMsgBoxResult result = kCANCEL;
+  switch (resp)
+  {
+  case kGTK_RESPONSE_OK:
+    result = kOK;
+    break;
+  case kGTK_RESPONSE_YES:
+    result = kYES;
+    break;
+  case kGTK_RESPONSE_NO:
+    result = kNO;
+    break;
+  case kGTK_RESPONSE_CANCEL:
+    result = kCANCEL;
+    break;
+  case kGTK_RESPONSE_RETRY:
+    result = kRETRY;
+    break;
+  default:
+    result = kCANCEL;
+    break;
+  }
+
+  return complete(result);
+}
+
+bool IGraphicsLinux::RevealPathInExplorerOrFinder(WDL_String& path, bool select)
+{
+  // Open parent directory with xdg-open
+  WDL_String dir(path);
+  if (select)
+  {
+    // Truncate to the parent dir via WDL_String, not by writing '\0' through
+    // Get() — that desyncs the cached length and is UB on the const buffer.
+    if (strrchr(dir.Get(), '/'))
+      dir.remove_filepart(false);
+  }
+
+  return LaunchDetached("xdg-open", dir.Get());
+}
+
+void IGraphicsLinux::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action, const char* ext, IFileDialogCompletionHandlerFunc completionHandler)
+{
+  WDL_String outFile, outPath;
+  auto complete = [&]() {
+    fileName.Set(outFile.Get());
+    path.Set(outPath.Get());
+    if (completionHandler)
+      completionHandler(fileName, path);
+  };
+  GTK3* pGTK = LoadGTK3();
+  if (!pGTK)
+  {
+    fprintf(stderr, "Cannot show file dialog: GTK is unavailable\n");
+    complete();
+    return;
+  }
+
+  const bool isSave = (action == EFileAction::Save);
+  const int gtkAction = isSave ? kGTK_FILE_CHOOSER_ACTION_SAVE : kGTK_FILE_CHOOSER_ACTION_OPEN;
+  const char* acceptBtn = isSave ? "_Save" : "_Open";
+
+  void* dialog = pGTK->file_chooser_dialog_new(isSave ? "Save File" : "Open File", nullptr, gtkAction, "_Cancel", kGTK_RESPONSE_CANCEL, acceptBtn, kGTK_RESPONSE_OK, nullptr);
+
+  if (!dialog)
+  {
+    fprintf(stderr, "Could not create the file dialog\n");
+    complete();
+    return;
+  }
+  if (!GtkAddFileFilters(pGTK, dialog, ext))
+  {
+    pGTK->widget_destroy(dialog);
+    GtkDrainEvents(pGTK);
+    complete();
+    return;
+  }
+
+  // Set initial directory
+  if (path.GetLength() && pGTK->file_chooser_set_current_folder)
+    pGTK->file_chooser_set_current_folder(dialog, path.Get());
+
+  // For save dialogs, suggest filename
+  if (isSave && fileName.GetLength() && pGTK->file_chooser_set_current_name)
+    pGTK->file_chooser_set_current_name(dialog, fileName.Get());
+  GtkPresentDialog(pGTK, dialog);
+
+  if (pGTK->dialog_run(dialog) == kGTK_RESPONSE_OK)
+  {
+    char* chosen = pGTK->file_chooser_get_filename(dialog);
+    if (chosen)
+    {
+      outFile.Set(chosen);
+      const char* slash = strrchr(chosen, '/');
+      if (slash)
+        outPath.Set(chosen, (int)(slash - chosen + 1));
+      free(chosen);
+    }
+    else
+      fprintf(stderr, "File dialog accepted without a selected file\n");
+  }
+
+  pGTK->widget_destroy(dialog);
+  GtkDrainEvents(pGTK);
+
+  complete();
+}
+
+void IGraphicsLinux::PromptForDirectory(WDL_String& dir, IFileDialogCompletionHandlerFunc completionHandler)
+{
+  WDL_String outDir;
+  auto complete = [&]() {
+    dir.Set(outDir.Get());
+    if (completionHandler)
+      completionHandler(WDL_String{}, dir);
+  };
+  GTK3* pGTK = LoadGTK3();
+  if (!pGTK)
+  {
+    fprintf(stderr, "Cannot show directory dialog: GTK is unavailable\n");
+    complete();
+    return;
+  }
+
+  void* dialog = pGTK->file_chooser_dialog_new("Select Folder", nullptr, kGTK_FILE_CHOOSER_ACTION_SELECT_FOLDER, "_Cancel", kGTK_RESPONSE_CANCEL, "_Select", kGTK_RESPONSE_OK, nullptr);
+
+  if (!dialog)
+  {
+    fprintf(stderr, "Could not create the directory dialog\n");
+    complete();
+    return;
+  }
+
+  if (dir.GetLength() && pGTK->file_chooser_set_current_folder)
+    pGTK->file_chooser_set_current_folder(dialog, dir.Get());
+  GtkPresentDialog(pGTK, dialog);
+
+  if (pGTK->dialog_run(dialog) == kGTK_RESPONSE_OK)
+  {
+    char* chosen = pGTK->file_chooser_get_filename(dialog);
+    if (chosen)
+    {
+      outDir.Set(chosen);
+      if (outDir.GetLength() && outDir.Get()[outDir.GetLength() - 1] != '/')
+        outDir.Append("/");
+      free(chosen);
+    }
+    else
+      fprintf(stderr, "Directory dialog accepted without a selected directory\n");
+  }
+
+  pGTK->widget_destroy(dialog);
+  GtkDrainEvents(pGTK);
+
+  complete();
+}
+
+bool IGraphicsLinux::PromptForColor(IColor& color, const char* str, IColorPickerHandlerFunc func)
+{
+  GTK3* pGTK = LoadGTK3();
+  if (!pGTK || !pGTK->color_chooser_dialog_new)
+    return false;
+
+  void* dialog = pGTK->color_chooser_dialog_new(str ? str : "Choose Color", nullptr);
+
+  if (pGTK->color_chooser_set_rgba)
+  {
+    GdkRGBA rgba = {color.R / 255.0, color.G / 255.0, color.B / 255.0, color.A / 255.0};
+    pGTK->color_chooser_set_rgba(dialog, &rgba);
+  }
+  GtkPresentDialog(pGTK, dialog);
+
+  const bool accepted = (pGTK->dialog_run(dialog) == kGTK_RESPONSE_OK);
+
+  if (accepted && pGTK->color_chooser_get_rgba)
+  {
+    GdkRGBA rgba = {};
+    pGTK->color_chooser_get_rgba(dialog, &rgba);
+    color.R = (int)(rgba.red * 255.0 + 0.5);
+    color.G = (int)(rgba.green * 255.0 + 0.5);
+    color.B = (int)(rgba.blue * 255.0 + 0.5);
+    color.A = (int)(rgba.alpha * 255.0 + 0.5);
+    if (func)
+      func(color);
+  }
+
+  pGTK->widget_destroy(dialog);
+  GtkDrainEvents(pGTK);
+  return accepted;
+}
+
+bool IGraphicsLinux::OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure) { return LaunchDetached("xdg-open", url); }
+
+bool IGraphicsLinux::GetTextFromClipboard(WDL_String& str)
+{
+  std::lock_guard<std::recursive_mutex> lock(GetDelegate()->GfxMutex());
+  if (!mDisplay || !mPlugWnd || !mClipboardAtom)
+    return false;
+
+  const Window owner = XGetSelectionOwner(mDisplay, mClipboardAtom);
+  if (GetLinuxClipboard().GetOwnedText(owner, DisplayString(mDisplay), str))
+    return true;
+  if (!owner)
+    return false;
+
+  // Native clipboard owners in the host may need the same GTK main thread to
+  // answer. Like modal dialogs, this wait can reenter host callbacks: defer any
+  // editor teardown until the synchronous paste has returned to its caller.
+  DispatchScope dispatch(mDispatchDepth);
+  GTK3* pGTK = LoadGTK3();
+
+  // Ask the clipboard owner to convert to UTF-8 and store in our scratch property
+  XConvertSelection(mDisplay, mClipboardAtom, mUTF8StringAtom, mSelDataAtom, mPlugWnd, 0L /* CurrentTime */);
+  XFlush(mDisplay);
+
+  // Keep the event consumer locked out until we have read SelectionNotify.
+  for (int i = 0; i < 50; ++i)
+  {
+    if (pGTK && pGTK->events_pending && pGTK->main_iteration_do && pGTK->events_pending())
+      pGTK->main_iteration_do(0);
+    if (mCloseRequested)
+      return false;
+    usleep(10000); // 10 ms
+
+    XEvent ev;
+    if (XCheckTypedWindowEvent(mDisplay, mPlugWnd, SelectionNotify, &ev))
+    {
+      if (ev.xselection.selection != mClipboardAtom)
+        continue;
+
+      if (ev.xselection.property == 0 /* None */)
+        return false; // owner couldn't convert
+
+      Atom type;
+      int fmt;
+      unsigned long nitems, remaining;
+      unsigned char* data = nullptr;
+
+      const int status = XGetWindowProperty(mDisplay, mPlugWnd, mSelDataAtom, 0, 65536, 1 /* delete after read */, AnyPropertyType, &type, &fmt, &nitems, &remaining, &data);
+      // Require remaining == 0 so we never report success on a truncated
+      // read, and bound nitems before the int cast to avoid UB.
+      if (status == 0 && fmt == 8 && (type == mUTF8StringAtom || type == XA_STRING) && data && remaining == 0 && nitems <= 0x7FFFFFFFUL)
+      {
+        str.Set((const char*)data, (int)nitems);
+        XFree(data);
+        return true;
+      }
+      if (data)
+        XFree(data);
+      return false;
+    }
+  }
+  fprintf(stderr, "Timed out waiting for the X11 clipboard owner\n");
+  return false;
+}
+
+bool IGraphicsLinux::SetTextInClipboard(const char* str)
+{
+  std::lock_guard<std::recursive_mutex> lock(GetDelegate()->GfxMutex());
+  if (!mDisplay || !mPlugWnd || !mClipboardAtom)
+    return false;
+
+  return GetLinuxClipboard().SetText(str, DisplayString(mDisplay));
+}
+
+// State passed through GTK menu-item activation callbacks.
+struct GtkMenuState
+{
+  IPopupMenu* pMenu = nullptr;
+  int chosenIdx = -1;
+};
+
+/** Recursively builds a GtkMenu from an IPopupMenu.
+ *  Each leaf item's "activate" signal stores the selected index. */
+static void* BuildGtkMenu(GTK3* pGTK, IPopupMenu& menu, GtkMenuState* pState)
+{
+  void* gtkMenu = pGTK->menu_new();
+
+  for (int i = 0; i < menu.NItems(); ++i)
+  {
+    IPopupMenu::Item* pItem = menu.GetItem(i);
+    void* gtkItem = nullptr;
+
+    if (pItem->GetIsSeparator())
+    {
+      gtkItem = pGTK->separator_menu_item_new();
+    }
+    else if (pItem->GetChecked() && pGTK->check_menu_item_new_with_label)
+    {
+      gtkItem = pGTK->check_menu_item_new_with_label(pItem->GetText());
+      if (pGTK->check_menu_item_set_active)
+        pGTK->check_menu_item_set_active(gtkItem, 1);
+    }
+    else
+    {
+      gtkItem = pGTK->menu_item_new_with_label(pItem->GetText());
+    }
+
+    if (!gtkItem)
+      continue;
+
+    // Disabled or title items are insensitive
+    if (!pItem->GetEnabled() || pItem->GetIsTitle())
+    {
+      if (pGTK->widget_set_sensitive)
+        pGTK->widget_set_sensitive(gtkItem, 0);
+    }
+
+    // Submenus
+    if (pItem->GetSubmenu() && pGTK->menu_item_set_submenu)
+    {
+      void* sub = BuildGtkMenu(pGTK, *pItem->GetSubmenu(), pState);
+      pGTK->menu_item_set_submenu(gtkItem, sub);
+    }
+    else if (pItem->GetEnabled() && !pItem->GetIsTitle() && !pItem->GetIsSeparator() && pGTK->signal_connect_data)
+    {
+      // Store the menu pointer and index in the state for the callback.
+      // We use a small lambda-like static function with user data.
+      struct ActivateData
+      {
+        GtkMenuState* state;
+        IPopupMenu* menu;
+        int idx;
+      };
+      auto* ad = new ActivateData{pState, &menu, i};
+
+      // GCallback signature: void callback(GtkMenuItem*, gpointer)
+      auto activateCb = +[](void*, void* userData) {
+        auto* d = static_cast<ActivateData*>(userData);
+        d->state->pMenu = d->menu;
+        d->state->chosenIdx = d->idx;
+      };
+
+      // GDestroyNotify frees the ActivateData when the signal is disconnected.
+      auto destroyCb = +[](void* userData) { delete static_cast<ActivateData*>(userData); };
+
+      pGTK->signal_connect_data(gtkItem, "activate", (void*)activateCb, ad, (void*)destroyCb, 0);
+    }
+
+    pGTK->menu_shell_append(gtkMenu, gtkItem);
+  }
+
+  if (pGTK->widget_show_all)
+    pGTK->widget_show_all(gtkMenu);
+
+  return gtkMenu;
+}
+
+IPopupMenu* IGraphicsLinux::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT bounds, bool& isAsync)
+{
+  isAsync = false;
+
+  GTK3* pGTK = LoadGTK3();
+  if (!pGTK || !pGTK->menu_new || !pGTK->menu_item_new_with_label || !pGTK->menu_shell_append || !pGTK->main || !pGTK->main_quit)
+    return nullptr;
+
+  GtkMenuState state;
+  void* gtkMenu = BuildGtkMenu(pGTK, menu, &state);
+
+  // Quit the GTK main loop when the menu is dismissed (deactivate signal).
+  if (pGTK->signal_connect_data)
+  {
+    auto deactivateCb = +[](void*, void*) {
+      // LoadGTK3() returns cached pointer; safe to call again
+      GTK3* pGTK = LoadGTK3();
+      if (pGTK && pGTK->main_quit)
+        pGTK->main_quit();
+    };
+    pGTK->signal_connect_data(gtkMenu, "deactivate", (void*)deactivateCb, nullptr, nullptr, 0);
+  }
+
+  // The button press that opened the menu holds an implicit pointer grab on
+  // our X connection. GTK needs its own grab to show the menu and silently
+  // abandons the popup when it cannot get one, so release ours first.
+  if (mDisplay)
+  {
+    XUngrabPointer(mDisplay, 0 /* CurrentTime */);
+    XSync(mDisplay, 0);
+  }
+
+  // Position the popup menu anchored to the control's bounding rectangle.
+  // gtk_menu_popup_at_rect is the non-deprecated GTK3 API (since 3.22).
+  // It needs a GdkWindow — we create a "foreign" wrapper around mPlugWnd.
+  // Falls back to gtk_menu_popup_at_pointer(NULL) on older GTK or if the
+  // foreign window can't be created (e.g. Wayland without X11 backend).
+  bool popped = false;
+
+  if (pGTK->menu_popup_at_rect && pGTK->gdk_display_get_default && pGTK->gdk_x11_window_foreign && mPlugWnd)
+  {
+    void* gdkDisplay = pGTK->gdk_display_get_default();
+    if (gdkDisplay)
+    {
+      void* gdkWindow = pGTK->gdk_x11_window_foreign(gdkDisplay, static_cast<unsigned long>(mPlugWnd));
+
+      if (gdkWindow)
+      {
+        // Control coordinates to window pixels (draw and screen scale), then
+        // to GDK units, which GDK multiplies by its own window scale.
+        using fn_window_scale = int (*)(void*);
+        auto window_scale = (fn_window_scale)dlsym(pGTK->handle, "gdk_window_get_scale_factor");
+        float s = GetTotalScale() / static_cast<float>(window_scale ? std::max(1, window_scale(gdkWindow)) : 1);
+        GdkRectangle rect;
+        rect.x = static_cast<int>(bounds.L * s);
+        rect.y = static_cast<int>(bounds.B * s);
+        rect.width = static_cast<int>(bounds.W() * s);
+        rect.height = 1;
+
+        pGTK->menu_popup_at_rect(gtkMenu, gdkWindow, &rect, kGDK_GRAVITY_NORTH_WEST, kGDK_GRAVITY_NORTH_WEST, nullptr);
+        popped = true;
+
+        if (pGTK->g_object_unref)
+          pGTK->g_object_unref(gdkWindow);
+      }
+    }
+  }
+
+  if (!popped && pGTK->menu_popup_at_pointer)
+    pGTK->menu_popup_at_pointer(gtkMenu, nullptr);
+
+  // Run a nested GTK main loop — blocks until the menu closes. If GTK did not
+  // show the menu (e.g. its pointer grab failed) "deactivate" never fires, and
+  // the loop would block the application forever, so skip it.
+  if (!pGTK->widget_get_mapped || pGTK->widget_get_mapped(gtkMenu))
+    pGTK->main();
+  else
+    fprintf(stderr, "IGraphicsLinux: GTK did not show the popup menu\n");
+
+  // GTK owns the menu widget tree; destroy it.
+  pGTK->widget_destroy(gtkMenu);
+  GtkDrainEvents(pGTK);
+
+  if (state.pMenu && state.chosenIdx >= 0)
+  {
+    state.pMenu->SetChosenItemIdx(state.chosenIdx);
+
+    if (state.pMenu->GetFunction())
+      state.pMenu->ExecFunction();
+
+    return state.pMenu;
+  }
+
+  return nullptr;
+}
+
+void IGraphicsLinux::CreatePlatformTextEntry(int paramIdx, const IText& text, const IRECT& bounds, int length, const char* str)
+{
+  // GTK dialog flags: GTK_DIALOG_MODAL = 1, GTK_DIALOG_DESTROY_WITH_PARENT = 2
+  static constexpr int kGTK_DIALOG_MODAL = 1;
+
+  GTK3* pGTK = LoadGTK3();
+  if (!pGTK || !pGTK->dialog_new_with_buttons || !pGTK->dialog_get_content_area || !pGTK->entry_new || !pGTK->entry_get_text || !pGTK->box_pack_start)
+  {
+    ClearInTextEntryControl();
+    return;
+  }
+
+  void* dialog = pGTK->dialog_new_with_buttons("Edit Value", nullptr, kGTK_DIALOG_MODAL, "_Cancel", kGTK_RESPONSE_CANCEL, "_OK", kGTK_RESPONSE_OK, nullptr);
+
+  void* entry = pGTK->entry_new();
+  if (pGTK->entry_set_text && str)
+    pGTK->entry_set_text(entry, str);
+  if (pGTK->entry_set_max_length && length > 0)
+    pGTK->entry_set_max_length(entry, length);
+
+  // Wire Enter key in the entry to trigger the OK response
+  if (pGTK->signal_connect_data && pGTK->dialog_response)
+  {
+    auto activateCb = +[](void*, void* userData) {
+      GTK3* pGTK = LoadGTK3();
+      if (pGTK && pGTK->dialog_response)
+        pGTK->dialog_response(userData, kGTK_RESPONSE_OK);
+    };
+    pGTK->signal_connect_data(entry, "activate", (void*)activateCb, dialog, nullptr, 0);
+  }
+
+  void* contentArea = pGTK->dialog_get_content_area(dialog);
+  pGTK->box_pack_start(contentArea, entry, 1, 1, 0);
+
+  if (pGTK->widget_show_all)
+    pGTK->widget_show_all(dialog);
+  GtkPresentDialog(pGTK, dialog);
+
+  int response = pGTK->dialog_run(dialog);
+
+  if (response == kGTK_RESPONSE_OK)
+  {
+    const char* result = pGTK->entry_get_text(entry);
+    SetControlValueAfterTextEdit(result ? result : "");
+  }
+  else
+  {
+    ClearInTextEntryControl();
+  }
+
+  pGTK->widget_destroy(dialog);
+  GtkDrainEvents(pGTK);
+}
+
+PlatformFontPtr IGraphicsLinux::LoadPlatformFont(const char* fontID, const char* fileNameOrResID)
+{
+  WDL_String fullPath;
+  const EResourceLocation loc = LocateResource(fileNameOrResID, "ttf", fullPath, GetBundleID(), nullptr, nullptr);
+  if (loc == EResourceLocation::kNotFound)
+    return nullptr;
+
+  return PlatformFontPtr(new LinuxFileFont(fullPath.Get(), false));
+}
+
+PlatformFontPtr IGraphicsLinux::LoadPlatformFont(const char* fontID, const char* fontName, ETextStyle style)
+{
+  Fontconfig* pFontconfig = LoadFontconfig();
+  if (!pFontconfig)
+    return nullptr;
+
+  _FcPattern* pattern = pFontconfig->PatternCreate();
+  if (!pattern)
+    return nullptr;
+
+  pFontconfig->PatternAddString(pattern, "family", (const unsigned char*)fontName);
+  pFontconfig->PatternAddInteger(pattern, "weight", style == ETextStyle::Bold ? kFC_WEIGHT_BOLD : kFC_WEIGHT_REGULAR);
+  pFontconfig->PatternAddInteger(pattern, "slant", style == ETextStyle::Italic ? kFC_SLANT_ITALIC : kFC_SLANT_ROMAN);
+
+  pFontconfig->ConfigSubstitute(nullptr, pattern, kFC_MatchPattern);
+  pFontconfig->DefaultSubstitute(pattern);
+
+  int result = 1; // FcResultNoMatch
+  _FcPattern* matched = pFontconfig->FontMatch(nullptr, pattern, &result);
+  pFontconfig->PatternDestroy(pattern);
+
+  if (!matched)
+    return nullptr;
+
+  PlatformFontPtr ret;
+  unsigned char* path = nullptr;
+  if (pFontconfig->PatternGetString(matched, "file", 0, &path) == kFC_ResultMatch && path)
+    ret = PlatformFontPtr(new LinuxFileFont((const char*)path, true));
+
+  pFontconfig->PatternDestroy(matched);
+  return ret;
+}
+
+PlatformFontPtr IGraphicsLinux::LoadPlatformFont(const char* fontID, void* pData, int dataSize) { return PlatformFontPtr(new LinuxMemFont(pData, dataSize)); }
+
+void IGraphicsLinux::CachePlatformFont(const char* fontID, const PlatformFontPtr& font)
+{
+  // NanoVG caches loaded fonts in its own atlas; no additional platform cache needed.
+}
+
