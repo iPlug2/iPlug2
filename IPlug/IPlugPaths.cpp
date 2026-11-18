@@ -19,6 +19,11 @@
 
 #if defined OS_WEB
 #include <emscripten/val.h>
+#elif defined OS_LINUX
+#include <cerrno>
+#include <unistd.h>
+#include <climits>
+#include <dlfcn.h>
 #elif defined OS_WIN
 #include <windows.h>
 #include <Shlobj.h>
@@ -230,6 +235,152 @@ const void* LoadWinResource(const char* resid, const char* type, int& sizeInByte
     sizeInBytes = size;
     return pResourceData;
   }
+}
+
+#elif defined OS_LINUX
+#pragma mark - OS_LINUX
+
+#include <cstdlib>
+#include <sys/stat.h>
+
+void AppSupportPath(WDL_String& path, bool isSystem)
+{
+  if (isSystem)
+  {
+    path.Set("/etc");
+  }
+  else
+  {
+    const char* xdgConfig = getenv("XDG_CONFIG_HOME");
+    if (IsSafeAbsoluteDir(xdgConfig))
+      path.Set(xdgConfig);
+    else
+    {
+      const char* home = getenv("HOME");
+      if (!IsSafeAbsoluteDir(home)) return;
+      path.SetFormatted(PATH_MAX, "%s/.config", home);
+    }
+  }
+}
+
+void DesktopPath(WDL_String& path)
+{
+  const char* home = getenv("HOME");
+  if (!IsSafeAbsoluteDir(home)) return;
+  path.SetFormatted(PATH_MAX, "%s/Desktop", home);
+}
+
+void VST3PresetsPath(WDL_String& path, const char* mfrName, const char* pluginName, bool isSystem)
+{
+  if (isSystem)
+    path.SetFormatted(PATH_MAX, "/usr/share/vst3/presets/%s/%s", mfrName, pluginName);
+  else
+  {
+    const char* home = getenv("HOME");
+    if (!IsSafeAbsoluteDir(home)) return;
+    path.SetFormatted(PATH_MAX, "%s/.vst3/presets/%s/%s", home, mfrName, pluginName);
+  }
+}
+
+// dladdr only needs an address inside this shared object to resolve the module
+// path; a dedicated file-scope anchor is more robust than &LocateResource, which
+// the compiler may inline or clone, moving the address out of this TU.
+static void IPlugPathsDladdrAnchor() {}
+
+EResourceLocation LocateResource(const char* name, const char* type, WDL_String& result,
+                                  const char*, void*, const char* sharedResourcesSubPath)
+{
+  if (!name || !name[0])
+    return EResourceLocation::kNotFound;
+
+  // If it's already an absolute path that exists, use it directly
+  struct stat st;
+  if (name[0] == '/' && stat(name, &st) == 0)
+  {
+    result.Set(name);
+    return EResourceLocation::kAbsolutePath;
+  }
+
+  const char* fileNameOnly = strrchr(name, '/');
+  fileNameOnly = fileNameOnly ? fileNameOnly + 1 : name;
+
+  // Reject traversal: fileNameOnly is composed into trusted base dirs below, so a
+  // "." or ".." basename would escape the resource directory.
+  if (!strcmp(fileNameOnly, ".") || !strcmp(fileNameOnly, ".."))
+    return EResourceLocation::kNotFound;
+
+  WDL_String candidate;
+
+  // Compose <fmt> with the given args, stat it, and on success store it in result.
+  // Note: routing through this lambda drops SetFormatted's printf format-attribute
+  // checking (fmt is no longer a literal at the call). Every call site below passes
+  // a string literal with only const char* args, so this is safe.
+  auto tryPath = [&](const char* fmt, auto... args) -> bool {
+    candidate.SetFormatted(PATH_MAX, fmt, args...);
+    if (stat(candidate.Get(), &st) == 0)
+    {
+      result.Set(candidate.Get());
+      return true;
+    }
+    return false;
+  };
+
+  // Use dladdr to find the directory of this plugin's own shared library (or executable).
+  // This correctly handles VST3/CLAP plugins loaded into a host — /proc/self/exe would
+  // give the host's path, not the plugin's.
+  Dl_info dlInfo = {};
+  const bool moduleLocated = dladdr((void*)&IPlugPathsDladdrAnchor, &dlInfo) && dlInfo.dli_fname;
+  if (moduleLocated)
+  {
+    WDL_String modulePath;
+    char resolvedPath[PATH_MAX];
+    if (realpath(dlInfo.dli_fname, resolvedPath))
+      modulePath.Set(resolvedPath);
+    else
+    {
+      fprintf(stderr, "Could not resolve resource module path '%s': %s\n",
+              dlInfo.dli_fname, strerror(errno));
+      modulePath.Set(dlInfo.dli_fname);
+    }
+
+    if (tryPath("%s.resources/%s/%s", modulePath.Get(), type, fileNameOnly))
+      return EResourceLocation::kAbsolutePath;
+
+    if (tryPath("%s.resources/%s", modulePath.Get(), fileNameOnly))
+      return EResourceLocation::kAbsolutePath;
+
+#if defined VST3_API || defined VST3C_API || defined VST3P_API
+    WDL_String soDir(modulePath.Get());
+    soDir.remove_filepart(true);
+    if (tryPath("%s../Resources/%s/%s", soDir.Get(), type, fileNameOnly))
+      return EResourceLocation::kAbsolutePath;
+
+    if (tryPath("%s../Resources/%s", soDir.Get(), fileNameOnly))
+      return EResourceLocation::kAbsolutePath;
+#endif
+  }
+
+  // Only use the executable fallback when the module could not be identified.
+  char buf[PATH_MAX];
+  ssize_t len = moduleLocated ? -1 : readlink("/proc/self/exe", buf, sizeof(buf) - 1);
+  if (len > 0)
+  {
+    buf[len] = '\0';
+    if (tryPath("%s.resources/%s/%s", buf, type, fileNameOnly))
+      return EResourceLocation::kAbsolutePath;
+
+    if (tryPath("%s.resources/%s", buf, fileNameOnly))
+      return EResourceLocation::kAbsolutePath;
+  }
+
+  // Try path as-is relative to cwd
+  if (stat(name, &st) == 0)
+  {
+    result.Set(name);
+    return EResourceLocation::kAbsolutePath;
+  }
+
+  return EResourceLocation::kNotFound;
 }
 
 #elif defined OS_WEB

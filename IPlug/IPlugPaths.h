@@ -19,6 +19,36 @@
 
 BEGIN_IPLUG_NAMESPACE
 
+/** @return \c true if \p str contains a ".." component delimited by '/'. Used to
+ * reject directory traversal in environment-provided paths and resource names
+ * before they are composed into filesystem paths (CWE-22 / CWE-73). */
+static inline bool PathHasDotDotComponent(const char* str)
+{
+  if (!str)
+    return false;
+
+  for (const char* s = str; *s;)
+  {
+    const char* slash = strchr(s, '/');
+    const size_t len = slash ? static_cast<size_t>(slash - s) : strlen(s);
+    if (len == 2 && s[0] == '.' && s[1] == '.')
+      return true;
+    if (!slash)
+      break;
+    s = slash + 1;
+  }
+  return false;
+}
+
+/** @return \c true if \p dir is safe to use as a base directory: a non-empty
+ * absolute path containing no ".." component. Validate environment-provided
+ * config dirs (e.g. \c XDG_CONFIG_HOME, \c HOME) with this before composing
+ * paths, per the XDG spec (which requires absolute paths) and CWE-22. */
+static inline bool IsSafeAbsoluteDir(const char* dir)
+{
+  return dir && dir[0] == '/' && !PathHasDotDotComponent(dir);
+}
+
 #if defined OS_MAC || defined OS_IOS
 using PluginIDType = const char *;
 #elif defined OS_WIN
