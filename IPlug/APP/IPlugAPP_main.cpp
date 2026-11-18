@@ -259,8 +259,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
     ReleaseMutex(hMutex);
 #endif
   }
-  catch(std::exception e)
+  catch(const std::exception& e)
   {
+    fprintf(stderr, "Fatal exception: %s\n", e.what());
     DBGMSG("Exception: %s", e.what());
     return 1;
   }
