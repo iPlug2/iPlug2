@@ -10,6 +10,12 @@
 
 #include "IPlugAPP.h"
 #include "IPlugAPP_host.h"
+#include <cstdio>
+#include <cmath>
+
+#ifdef OS_LINUX
+#include "IPlugSWELLTimer.h"
+#endif
 
 #if defined OS_MAC || defined OS_LINUX
 #include <IPlugSWELL.h>
@@ -34,7 +40,16 @@ IPlugAPP::IPlugAPP(const InstanceInfo& info, const Config& config)
 
   SetBlockSize(DEFAULT_BLOCK_SIZE);
   
+#ifdef OS_LINUX
+  mTimer.reset(SWELLTimer::Create([this](Timer&) {
+#ifndef NO_IGRAPHICS
+    CloseWindowIfRequested();
+#endif
+    OnTimer();
+  }, IDLE_TIMER_RATE));
+#else
   CreateTimer();
+#endif
 }
 
 bool IPlugAPP::EditorResize(int viewWidth, int viewHeight)
@@ -43,7 +58,7 @@ bool IPlugAPP::EditorResize(int viewWidth, int viewHeight)
   
   if (viewWidth != GetEditorWidth() || viewHeight != GetEditorHeight())
   {
-    #if defined OS_MAC || defined NO_IGRAPHICS 
+    #if defined OS_MAC || defined OS_LINUX || defined NO_IGRAPHICS
     RECT rcClient, rcWindow;
     POINT ptDiff;
     
@@ -58,15 +73,27 @@ bool IPlugAPP::EditorResize(int viewWidth, int viewHeight)
     #ifdef OS_WIN
     flags = SWP_NOMOVE;
     float ss = GetScaleForHWND(gHWND);
+    #elif defined OS_LINUX
+    flags = SWP_NOMOVE | SWP_NOZORDER;
+    float ss = 1.f;
+    // Convert editor units to the container's GDK units (see ResolveLinuxScreenScale).
+    const float containerScale = IPlugAPPHost::ResolveLinuxScreenScale(gHWND);
+    const int containerWidth = static_cast<int>(std::lround(viewWidth * containerScale));
+    const int containerHeight = static_cast<int>(std::lround(viewHeight * containerScale));
     #else
     float ss = 1.f;
     #endif
     
+    #ifndef OS_LINUX
+    const int containerWidth = viewWidth;
+    const int containerHeight = viewHeight;
+    #endif
+
     SetWindowPos(gHWND, 0,
                  static_cast<LONG>(rcWindow.left * ss),
-                 static_cast<LONG>((rcWindow.bottom - viewHeight - ptDiff.y) * ss),
-                 static_cast<LONG>((viewWidth + ptDiff.x) * ss),
-                 static_cast<LONG>((viewHeight + ptDiff.y) * ss), flags);
+                 static_cast<LONG>((rcWindow.bottom - containerHeight - ptDiff.y) * ss),
+                 static_cast<LONG>((containerWidth + ptDiff.x) * ss),
+                 static_cast<LONG>((containerHeight + ptDiff.y) * ss), flags);
     parentResized = true;
     #endif
     

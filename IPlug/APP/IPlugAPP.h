@@ -56,6 +56,9 @@ public:
   void AppProcess(double** inputs, double** outputs, int nFrames);
 
 private:
+#ifdef OS_LINUX
+  bool MainThreadTimerIsRunning() const { return mTimer != nullptr; }
+#endif
   IPlugAPPHost* mAppHost = nullptr;
   IPlugQueue<IMidiMsg> mMidiMsgsFromCallback {MIDI_TRANSFER_SIZE};
   IPlugQueue<SysExData> mSysExMsgsFromCallback {SYSEX_TRANSFER_SIZE};
