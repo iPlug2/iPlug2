@@ -333,7 +333,13 @@ if(NOT TARGET iPlug2::IGraphics::Skia)
   target_link_libraries(iPlug2::IGraphics::Skia INTERFACE iPlug2::IGraphics)
   target_compile_definitions(iPlug2::IGraphics::Skia INTERFACE IGRAPHICS_SKIA)
 
-  set(SKIA_PATH ${DEPS_DIR}/Build/src/skia)
+  if(CMAKE_SYSTEM_NAME STREQUAL "Linux" AND IGRAPHICS_BACKEND STREQUAL "SKIA")
+    set(IPLUG_SKIA_LINUX_DIR "${DEPS_DIR}/Build/linux" CACHE PATH
+      "Linux Skia installation (src/skia headers and lib archives)")
+    set(SKIA_PATH "${IPLUG_SKIA_LINUX_DIR}/src/skia")
+  else()
+    set(SKIA_PATH ${DEPS_DIR}/Build/src/skia)
+  endif()
   target_include_directories(iPlug2::IGraphics::Skia INTERFACE
     ${SKIA_PATH}
     ${SKIA_PATH}/include
@@ -364,6 +370,30 @@ if(NOT TARGET iPlug2::IGraphics::Skia)
       ${SKIA_LIB_PATH}/libskunicode_core.a
       ${SKIA_LIB_PATH}/libskunicode_icu.a
     )
+  elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux" AND IGRAPHICS_BACKEND STREQUAL "SKIA")
+    if(IGRAPHICS_RENDERER STREQUAL "CPU")
+      message(FATAL_ERROR "Skia CPU rendering is not implemented on Linux; select IGRAPHICS_RENDERER=GL3.")
+    elseif(NOT IGRAPHICS_RENDERER STREQUAL "GL3")
+      message(FATAL_ERROR "Skia on Linux requires IGRAPHICS_RENDERER=GL3.")
+    endif()
+    # Use archives built from the same Skia revision as the headers. System
+    # packages commonly ship an incompatible Skia API or omit the modules.
+    set(SKIA_LIB_PATH "${IPLUG_SKIA_LINUX_DIR}/lib")
+    set(SKIA_LINUX_LIBS svg skparagraph skshaper skunicode_icu skunicode_core skia)
+    if(NOT EXISTS "${SKIA_PATH}/include/core/SkSurface.h")
+      message(FATAL_ERROR "Linux Skia headers missing: ${SKIA_PATH}. Build Skia chrome/m130 and set IPLUG_SKIA_LINUX_DIR.")
+    endif()
+    foreach(lib IN LISTS SKIA_LINUX_LIBS)
+      if(NOT EXISTS "${SKIA_LIB_PATH}/lib${lib}.a")
+        message(FATAL_ERROR "Linux Skia archive missing: ${SKIA_LIB_PATH}/lib${lib}.a. Build Skia chrome/m130 and set IPLUG_SKIA_LINUX_DIR.")
+      endif()
+      target_link_libraries(iPlug2::IGraphics::Skia INTERFACE "${SKIA_LIB_PATH}/lib${lib}.a")
+    endforeach()
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(SKIA_FONTCONFIG REQUIRED IMPORTED_TARGET fontconfig)
+    pkg_check_modules(SKIA_EXPAT REQUIRED IMPORTED_TARGET expat)
+    target_link_libraries(iPlug2::IGraphics::Skia INTERFACE
+      PkgConfig::SKIA_FONTCONFIG PkgConfig::SKIA_EXPAT)
   endif()
 endif()
 
@@ -398,6 +428,12 @@ if(NOT TARGET iPlug2::IGraphics::Skia::GL3)
     target_link_libraries(iPlug2::IGraphics::Skia::GL3 INTERFACE
       "-framework OpenGL"
     )
+  elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    target_include_directories(iPlug2::IGraphics::Skia::GL3 INTERFACE
+      ${IGRAPHICS_DEPS_DIR}/glad_GL3/include)
+    target_sources(iPlug2::IGraphics::Skia::GL3 INTERFACE
+      ${IGRAPHICS_DEPS_DIR}/glad_GL3/src/glad.c)
+    target_link_libraries(iPlug2::IGraphics::Skia::GL3 INTERFACE OpenGL::GL)
   endif()
 
   target_link_libraries(iPlug2::IGraphics::Skia::GL3 INTERFACE
