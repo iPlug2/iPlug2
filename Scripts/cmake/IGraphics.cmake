@@ -498,7 +498,8 @@ if(NOT TARGET iPlug2_Extras_FlexBox_obj)
     target_compile_options(iPlug2_Extras_FlexBox_obj PRIVATE /MT$<$<CONFIG:Debug>:d>)
   endif()
   if(UNIX AND NOT APPLE AND NOT EMSCRIPTEN)
-    target_compile_options(iPlug2_Extras_FlexBox_obj PRIVATE -fsigned-char)
+    # This object library does not link iPlug2::IPlug, so repeat its Linux compile options
+    target_compile_options(iPlug2_Extras_FlexBox_obj PRIVATE -fsigned-char -include "${IPLUG_DIR}/IPlugLinuxHeaders.h")
   endif()
 endif()
 
