@@ -816,3 +816,627 @@ static Fontconfig* LoadFontconfig()
   return &fc;
 }
 
+IGraphicsLinux::IGraphicsLinux(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
+  : IGRAPHICS_DRAW_CLASS(dlg, w, h, fps, scale)
+{
+#if defined VST3_API || defined VST3C_API || defined CLAP_API
+  mHostDriven = true;
+#endif
+  // Required before any Xlib calls from multiple threads
+  XInitThreads();
+}
+
+IGraphicsLinux::~IGraphicsLinux() { CloseWindow(); }
+
+void* IGraphicsLinux::OpenWindow(void* pParent)
+{
+  StopTimer();
+  mCloseRequested = false;
+  mDisplay = XOpenDisplay(nullptr);
+  if (!mDisplay)
+    return nullptr;
+
+  int screen = DefaultScreen(mDisplay);
+  Window root = RootWindow(mDisplay, screen);
+
+  mParentWnd = root;
+  if (pParent)
+  {
+    auto* connection = XGetXCBConnection(mDisplay);
+    if (!connection)
+    {
+      fprintf(stderr, "Could not access the XCB connection to validate the editor parent\n");
+      XCloseDisplay(mDisplay);
+      mDisplay = nullptr;
+      return nullptr;
+    }
+    const uintptr_t parent = reinterpret_cast<uintptr_t>(pParent);
+    xcb_generic_error_t* error = nullptr;
+    xcb_get_window_attributes_reply_t* attributes = nullptr;
+    if (parent <= UINT32_MAX)
+      attributes = xcb_get_window_attributes_reply(connection, xcb_get_window_attributes(connection, static_cast<xcb_window_t>(parent)), &error);
+    if (attributes && !error)
+      mParentWnd = static_cast<Window>(parent);
+    else
+      fprintf(stderr, "Invalid X11 editor parent 0x%lx; using a top-level window\n", static_cast<unsigned long>(parent));
+    free(attributes);
+    free(error);
+    if (xcb_connection_has_error(connection))
+    {
+      fprintf(stderr, "The XCB connection failed while validating the editor parent\n");
+      XCloseDisplay(mDisplay);
+      mDisplay = nullptr;
+      return nullptr;
+    }
+  }
+
+  // Detect HiDPI scale factor. The standalone APP sets IPLUG2_SCREEN_SCALE after
+  // querying gdk_window_get_scale_factor(). Plugin hosts may set GDK_SCALE.
+  // Note: on Xwayland the X11 coordinate space uses physical pixels, not logical
+  // pixels, so XDisplayWidth returns the logical (scaled-down) extent. Do NOT
+  // compare physW against XDisplayWidth — it will always exceed the logical extent
+  // on HiDPI displays. Trust gdk_window_get_scale_factor instead.
+  {
+    float gdkScale = 1.f;
+    const char* s = getenv("IPLUG2_SCREEN_SCALE");
+    if (!s)
+      s = getenv("GDK_SCALE");
+    if (s)
+    {
+      char* end = nullptr;
+      const float parsed = strtof(s, &end);
+      if (end != s && *end == '\0' && std::isfinite(parsed) && parsed >= 1.f && parsed <= 8.f)
+        gdkScale = parsed;
+    }
+    if (gdkScale > 1.f && !GetDelegate()->HasHostScreenScale())
+      SetScreenScale(gdkScale);
+    // SetScreenScale is safe here: mPlugWnd==0 so PlatformResize skips,
+    // and mVG==nullptr so DrawResize skips.
+  }
+
+  // In standalone mode the parent window is SWELL's GDK window which includes
+  // the non-client area (menu bar). IPlugAPP_host exports the menu bar height
+  // so we can offset the plugin window below it. Querying XGetWindowAttributes
+  // on a separate Display connection returns stale geometry, so we use the env
+  // var set by the host instead.
+  int clientOffY = 0;
+  {
+    const char* menuOff = getenv("IPLUG2_MENU_OFFSET");
+    if (menuOff)
+      clientOffY = std::clamp(atoi(menuOff), 0, 100);
+  }
+
+#ifdef IGRAPHICS_GL
+  XVisualInfo* pVisualInfo = CreateGLContext();
+  if (!mGLContext)
+  {
+    XCloseDisplay(mDisplay);
+    mDisplay = nullptr;
+    return nullptr;
+  }
+  // Create a colormap compatible with the GL visual so the window and context
+  // share the same visual — required for glXMakeCurrent to succeed.
+  mGLColormap = XCreateColormap(mDisplay, root, pVisualInfo->visual, AllocNone);
+
+  XSetWindowAttributes attrs = {};
+  attrs.event_mask = ExposureMask | StructureNotifyMask | ButtonPressMask | ButtonReleaseMask | PointerMotionMask | KeyPressMask | KeyReleaseMask | EnterWindowMask | LeaveWindowMask | FocusChangeMask
+                     | PropertyChangeMask;
+  attrs.colormap = mGLColormap;
+  // Required when the GL visual's depth differs from the parent's: without a
+  // border pixel XCreateWindow fails with BadMatch, which is fatal by default.
+  attrs.border_pixel = 0;
+
+  // X11 window must be in physical pixels (WindowWidth/Height are logical).
+  const auto physW = (unsigned)(WindowWidth() * GetScreenScale());
+  const auto physH = (unsigned)(WindowHeight() * GetScreenScale());
+
+  mPlugWnd = XCreateWindow(mDisplay, mParentWnd, 0, clientOffY, physW, physH, 0, pVisualInfo->depth, InputOutput, pVisualInfo->visual, CWColormap | CWBorderPixel | CWEventMask, &attrs);
+  XFree(pVisualInfo);
+#else
+  XSetWindowAttributes attrs = {};
+  attrs.event_mask = ExposureMask | StructureNotifyMask | ButtonPressMask | ButtonReleaseMask | PointerMotionMask | KeyPressMask | KeyReleaseMask | EnterWindowMask | LeaveWindowMask | FocusChangeMask
+                     | PropertyChangeMask;
+  attrs.background_pixel = BlackPixel(mDisplay, screen);
+
+  const auto physW = (unsigned)(WindowWidth() * GetScreenScale());
+  const auto physH = (unsigned)(WindowHeight() * GetScreenScale());
+
+  mPlugWnd = XCreateWindow(mDisplay, mParentWnd, 0, clientOffY, physW, physH, 0, CopyFromParent, InputOutput, CopyFromParent, CWEventMask | CWBackPixel, &attrs);
+#endif
+
+  if (!mPlugWnd)
+  {
+#ifdef IGRAPHICS_GL
+    DestroyGLContext();
+    if (mGLColormap)
+    {
+      XFreeColormap(mDisplay, mGLColormap);
+      mGLColormap = 0;
+    }
+#endif
+    XCloseDisplay(mDisplay);
+    mDisplay = nullptr;
+    return nullptr;
+  }
+
+  mWMDeleteMessage = XInternAtom(mDisplay, "WM_DELETE_WINDOW", 0 /* False */);
+  mClipboardAtom = XInternAtom(mDisplay, "CLIPBOARD", 0 /* False */);
+  mUTF8StringAtom = XInternAtom(mDisplay, "UTF8_STRING", 0 /* False */);
+  mSelDataAtom = XInternAtom(mDisplay, "IPLUG2_SEL_DATA", 0 /* False */);
+  mXdndAware = XInternAtom(mDisplay, "XdndAware", 0);
+  mXdndEnter = XInternAtom(mDisplay, "XdndEnter", 0);
+  mXdndPosition = XInternAtom(mDisplay, "XdndPosition", 0);
+  mXdndStatus = XInternAtom(mDisplay, "XdndStatus", 0);
+  mXdndLeave = XInternAtom(mDisplay, "XdndLeave", 0);
+  mXdndDrop = XInternAtom(mDisplay, "XdndDrop", 0);
+  mXdndFinished = XInternAtom(mDisplay, "XdndFinished", 0);
+  mXdndSelection = XInternAtom(mDisplay, "XdndSelection", 0);
+  mXdndTypeList = XInternAtom(mDisplay, "XdndTypeList", 0);
+  mXdndActionCopy = XInternAtom(mDisplay, "XdndActionCopy", 0);
+  mUriList = XInternAtom(mDisplay, "text/uri-list", 0);
+  mDropProperty = XInternAtom(mDisplay, "IPLUG2_DROP_DATA", 0);
+  const unsigned long xdndVersion = 5;
+  XChangeProperty(mDisplay, mPlugWnd, mXdndAware, XA_ATOM, 32, PropModeReplace, reinterpret_cast<const unsigned char*>(&xdndVersion), 1);
+
+  // WM protocols and size hints are only appropriate for top-level windows.
+  // When embedded in a host parent, setting them causes the window manager to
+  // adopt and reparent the plugin window, making it appear as a second window.
+  bool isTopLevel = (mParentWnd == (Window)XRootWindow(mDisplay, DefaultScreen(mDisplay)));
+  if (isTopLevel)
+  {
+    XSetWMProtocols(mDisplay, mPlugWnd, &mWMDeleteMessage, 1);
+
+    // Tell the WM the fixed (or resizable) size range so it doesn't arbitrarily
+    // resize the plugin window to the screen dimensions on first map.
+    XSizeHints hints = {};
+    hints.flags = PSize | PMinSize;
+    hints.width = WindowWidth();
+    hints.height = WindowHeight();
+    hints.min_width = WindowWidth();
+    hints.min_height = WindowHeight();
+    XSetWMNormalHints(mDisplay, mPlugWnd, &hints);
+  }
+
+  XMapWindow(mDisplay, mPlugWnd);
+  XFlush(mDisplay);
+
+#ifdef IGRAPHICS_GL
+  bool initialized = false;
+  {
+    ScopedGLContext scopedGLCtx{this};
+    if (glXGetCurrentContext() == mGLContext && glXGetCurrentDrawable() == mPlugWnd)
+    {
+      gladLoadGL();
+      OnViewInitialized(nullptr);
+      GetDelegate()->LayoutUI(this);
+      SetAllControlsDirty();
+      DrawResize();
+      initialized = true;
+    }
+  }
+  if (!initialized)
+  {
+    DestroyGLContext();
+    if (mGLColormap)
+    {
+      XFreeColormap(mDisplay, mGLColormap);
+      mGLColormap = 0;
+    }
+    XDestroyWindow(mDisplay, mPlugWnd);
+    mPlugWnd = 0;
+    XCloseDisplay(mDisplay);
+    mDisplay = nullptr;
+    return nullptr;
+  }
+#else
+  OnViewInitialized(nullptr);
+  GetDelegate()->LayoutUI(this);
+  SetAllControlsDirty();
+  DrawResize();
+#endif
+
+  CreateInputContext();
+  UpdateTooltips();
+  GetDelegate()->OnUIOpen();
+
+  // Mark dirty so the first timer tick renders immediately, even if no
+  // Expose event arrives before the initial frame.
+  mNeedsRedraw = true;
+  if (!StartTimer())
+    return nullptr;
+
+  return (void*)(uintptr_t)mPlugWnd;
+}
+
+void IGraphicsLinux::CloseWindow()
+{
+  if (IsInPlatformCallback())
+  {
+    RequestWindowClose();
+    return;
+  }
+  StopTimer();
+  ResetDrag();
+  HideTooltip();
+  if (!mDisplay)
+    return;
+
+  {
+    ScopedGLContext scopedGLCtx{this};
+    OnViewDestroyed();
+  }
+
+#ifdef IGRAPHICS_GL
+  DestroyGLContext();
+#endif
+
+  if (mBlankCursor)
+  {
+    XFreeCursor(mDisplay, mBlankCursor);
+    mBlankCursor = 0;
+  }
+
+  DestroyInputContext();
+  if (mTooltipFont)
+  {
+    XFreeFontSet(mDisplay, mTooltipFont);
+    mTooltipFont = nullptr;
+  }
+  if (mPlugWnd)
+  {
+    XDestroyWindow(mDisplay, mPlugWnd);
+    mPlugWnd = 0;
+  }
+
+#ifdef IGRAPHICS_GL
+  if (mGLColormap)
+  {
+    XFreeColormap(mDisplay, mGLColormap);
+    mGLColormap = 0;
+  }
+#endif
+
+  XCloseDisplay(mDisplay);
+  mDisplay = nullptr;
+}
+
+void IGraphicsLinux::ResetDrag()
+{
+  mDragSource = 0;
+  mDragSupported = false;
+}
+
+void IGraphicsLinux::HideTooltip()
+{
+  if (mDisplay && mTooltipWindow)
+  {
+    XDestroyWindow(mDisplay, mTooltipWindow);
+    mTooltipWindow = 0;
+  }
+}
+
+void IGraphicsLinux::UpdateTooltips()
+{
+  HideTooltip();
+  mTooltipControl = -1;
+  mTooltipHoverTime = HoverMillis();
+}
+
+void IGraphicsLinux::ShowTooltip(float x, float y)
+{
+  if (!mDisplay || !mPlugWnd || !TooltipsEnabled() || mTooltipControl < 0 || mTooltipWindow)
+    return;
+  IControl* pControl = GetControl(mTooltipControl);
+  if (!pControl || pControl->IsHidden() || !pControl->GetTooltip() || !*pControl->GetTooltip())
+    return;
+  if (!mTooltipFont)
+  {
+    char** missing = nullptr;
+    int count = 0;
+    char* defaultString = nullptr;
+    mTooltipFont = XCreateFontSet(mDisplay, "-*-sans-medium-r-normal--14-*-*-*-*-*-*-*", &missing, &count, &defaultString);
+    if (missing)
+      XFreeStringList(missing);
+    // Minimal Xvfb installations (and some desktops) have no "sans" XLFD.
+    // The core fixed font is present with the standard X11 font packages.
+    if (!mTooltipFont)
+    {
+      missing = nullptr;
+      mTooltipFont = XCreateFontSet(mDisplay, "fixed", &missing, &count, &defaultString);
+      if (missing)
+        XFreeStringList(missing);
+    }
+  }
+  if (!mTooltipFont)
+    return;
+  const char* label = pControl->GetTooltip();
+  const int len = static_cast<int>(strlen(label));
+  XRectangle ink{}, logical{};
+  Xutf8TextExtents(mTooltipFont, label, len, &ink, &logical);
+  const int width = std::max(20, static_cast<int>(logical.width) + 12);
+  const int height = std::max(20, static_cast<int>(logical.height) + 8);
+  int rootX = 0, rootY = 0;
+  Window child = 0;
+  XTranslateCoordinates(mDisplay, mPlugWnd, DefaultRootWindow(mDisplay), static_cast<int>(x * GetTotalScale()) + 12, static_cast<int>(y * GetTotalScale()) + 20, &rootX, &rootY, &child);
+  const int screen = DefaultScreen(mDisplay);
+  rootX = std::max(0, std::min(rootX, DisplayWidth(mDisplay, screen) - width));
+  rootY = std::max(0, std::min(rootY, DisplayHeight(mDisplay, screen) - height));
+  XSetWindowAttributes attrs{};
+  attrs.override_redirect = 1;
+  attrs.background_pixel = WhitePixel(mDisplay, screen);
+  attrs.event_mask = ExposureMask;
+  mTooltipWindow =
+    XCreateWindow(mDisplay, DefaultRootWindow(mDisplay), rootX, rootY, width, height, 1, CopyFromParent, InputOutput, CopyFromParent, CWOverrideRedirect | CWBackPixel | CWEventMask, &attrs);
+  if (mTooltipWindow)
+    XMapRaised(mDisplay, mTooltipWindow);
+}
+
+void IGraphicsLinux::DrawTooltip()
+{
+  if (!mTooltipWindow || mTooltipControl < 0 || !mTooltipFont)
+    return;
+  IControl* pControl = GetControl(mTooltipControl);
+  if (!pControl || !pControl->GetTooltip())
+    return;
+  const char* label = pControl->GetTooltip();
+  XRectangle ink{}, logical{};
+  Xutf8TextExtents(mTooltipFont, label, static_cast<int>(strlen(label)), &ink, &logical);
+  XWindowAttributes attrs{};
+  if (!XGetWindowAttributes(mDisplay, mTooltipWindow, &attrs))
+    return;
+  GC gc = XCreateGC(mDisplay, mTooltipWindow, 0, nullptr);
+  XSetForeground(mDisplay, gc, BlackPixel(mDisplay, DefaultScreen(mDisplay)));
+  XDrawRectangle(mDisplay, mTooltipWindow, gc, 0, 0, attrs.width - 1, attrs.height - 1);
+  Xutf8DrawString(mDisplay, mTooltipWindow, mTooltipFont, gc, 6, 4 - logical.y, label, static_cast<int>(strlen(label)));
+  XFreeGC(mDisplay, gc);
+}
+
+void IGraphicsLinux::PlatformResize(bool parentHasResized)
+{
+  // When handling a ConfigureNotify, the X server already sized our window.
+  // Calling XResizeWindow here would create an oscillation.
+  if (mInConfigureNotify)
+    return;
+
+  if (mDisplay && mPlugWnd)
+  {
+    // X11 window must be in physical pixels (WindowWidth/Height are logical).
+    auto w = (unsigned)(WindowWidth() * GetScreenScale());
+    auto h = (unsigned)(WindowHeight() * GetScreenScale());
+    XResizeWindow(mDisplay, mPlugWnd, w, h);
+  }
+}
+
+void IGraphicsLinux::SetScreenScaleFromHost(float scale)
+{
+  if (scale == GetScreenScale())
+    return;
+  if (mDisplay && mPlugWnd)
+  {
+    // Complete older native resize requests before changing the coordinate
+    // conversion. Their ConfigureNotify events describe the previous scale.
+    XSync(mDisplay, 0);
+    XEvent event;
+    while (XCheckTypedWindowEvent(mDisplay, mPlugWnd, ConfigureNotify, &event))
+    {
+    }
+  }
+  SetScreenScale(scale);
+}
+
+void IGraphicsLinux::DrawResize()
+{
+  std::lock_guard<std::recursive_mutex> lock(GetDelegate()->GfxMutex());
+  IGRAPHICS_DRAW_CLASS::DrawResize();
+}
+
+void IGraphicsLinux::ResizeFromHost(int width, int height)
+{
+  std::lock_guard<std::recursive_mutex> lock(GetDelegate()->GfxMutex());
+  if (width <= 0 || height <= 0)
+    return;
+
+  int designWidth, designHeight;
+  float scale;
+  CalculateHostResize(width, height, designWidth, designHeight, scale);
+  Resize(designWidth, designHeight, scale, false);
+}
+
+void IGraphicsLinux::CalculateHostResize(int width, int height, int& designWidth, int& designHeight, float& scale)
+{
+  const float screenScale = GetScreenScale();
+  const auto pixels = [screenScale](int dimension, float candidateScale) { return PhysicalWindowDimension(dimension, candidateScale, screenScale); };
+  if (GetResizerMode() == EUIResizerMode::Scale)
+  {
+    designWidth = Width();
+    designHeight = Height();
+    GetDelegate()->ConstrainEditorResize(designWidth, designHeight);
+
+    const auto fits = [&](float candidateScale) { return pixels(designWidth, candidateScale) <= width && pixels(designHeight, candidateScale) <= height; };
+    float lo = ConstrainDrawScale(0.f);
+    float hi = ConstrainDrawScale(std::numeric_limits<float>::max());
+    if (fits(hi))
+      lo = hi;
+    else if (fits(lo))
+    {
+      // Find the last representable scale that fits the requested pixel bounds.
+      // Inverting their lower edges loses a pixel at each integer conversion.
+      // Querying the resulting dimensions admits this same scale again.
+      for (;;)
+      {
+        const float mid = lo + (hi - lo) * .5f;
+        if (mid == lo || mid == hi)
+          break;
+        if (fits(mid))
+          lo = mid;
+        else
+          hi = mid;
+      }
+    }
+    scale = lo;
+    // Keep exact scales such as 1.5 when they produce the same pixel dimensions.
+    const float nominalScale = ConstrainDrawScale(std::min(width / screenScale / designWidth, height / screenScale / designHeight));
+    if (pixels(designWidth, nominalScale) == pixels(designWidth, scale) && pixels(designHeight, nominalScale) == pixels(designHeight, scale))
+      scale = nominalScale;
+  }
+  else
+  {
+    scale = ConstrainDrawScale(GetDrawScale());
+    // Use the same upper-bound search for integer design pixels in Size mode.
+    const auto fitDimension = [&](int requested, int maximum) {
+      int lo = 0, hi = maximum;
+      while (lo < hi)
+      {
+        const int mid = hi - (hi - lo) / 2;
+        if (pixels(mid, scale) <= requested)
+          lo = mid;
+        else
+          hi = mid - 1;
+      }
+      const int nominal = static_cast<int>(std::lround(std::min<double>(maximum, requested / screenScale / scale)));
+      return pixels(nominal, scale) == pixels(lo, scale) ? nominal : lo;
+    };
+    designWidth = fitDimension(width, GetDelegate()->GetMaxWidth());
+    designHeight = fitDimension(height, GetDelegate()->GetMaxHeight());
+    // Editor constraints describe dimensions before drawing/display scaling.
+    GetDelegate()->ConstrainEditorResize(designWidth, designHeight);
+  }
+}
+
+void IGraphicsLinux::ConstrainHostResize(int& width, int& height)
+{
+  std::lock_guard<std::recursive_mutex> lock(GetDelegate()->GfxMutex());
+  int designWidth, designHeight;
+  float scale;
+  CalculateHostResize(width, height, designWidth, designHeight, scale);
+  width = static_cast<int>(PhysicalWindowDimension(designWidth, scale, GetScreenScale()));
+  height = static_cast<int>(PhysicalWindowDimension(designHeight, scale, GetScreenScale()));
+}
+
+void IGraphicsLinux::ForceEndUserEdit() {}
+
+void IGraphicsLinux::HideMouseCursor(bool hide, bool lock)
+{
+  if (!mDisplay || !mPlugWnd)
+    return;
+
+  if (hide)
+  {
+    if (!mBlankCursor)
+    {
+      static const char emptyData[] = {0, 0, 0, 0, 0, 0, 0, 0};
+      XColor black = {};
+      Pixmap emptyBitmap = XCreateBitmapFromData(mDisplay, mPlugWnd, emptyData, 8, 8);
+      mBlankCursor = XCreatePixmapCursor(mDisplay, emptyBitmap, emptyBitmap, &black, &black, 0, 0);
+      XFreePixmap(mDisplay, emptyBitmap);
+    }
+    XDefineCursor(mDisplay, mPlugWnd, mBlankCursor);
+    mCursorHidden = true;
+    mCursorLock = lock;
+    if (lock)
+    {
+      mHiddenCursorX = mCursorX;
+      mHiddenCursorY = mCursorY;
+    }
+  }
+  else
+  {
+    XUndefineCursor(mDisplay, mPlugWnd);
+    if (mCursorLock)
+      MoveMouseCursor(mHiddenCursorX, mHiddenCursorY);
+    mCursorHidden = false;
+    mCursorLock = false;
+  }
+}
+
+void IGraphicsLinux::MoveMouseCursor(float x, float y)
+{
+  if (mDisplay && mPlugWnd)
+  {
+    const float scale = GetTotalScale();
+    XWarpPointer(mDisplay, 0 /* None */, mPlugWnd, 0, 0, 0, 0, (int)(x * scale), (int)(y * scale));
+  }
+}
+
+ECursor IGraphicsLinux::SetMouseCursor(ECursor cursorType)
+{
+  if (!mDisplay || !mPlugWnd)
+    return cursorType;
+
+  unsigned int shape = XC_left_ptr;
+  switch (cursorType)
+  {
+  case ECursor::ARROW:
+    shape = XC_left_ptr;
+    break;
+  case ECursor::IBEAM:
+    shape = XC_xterm;
+    break;
+  case ECursor::WAIT:
+    shape = XC_watch;
+    break;
+  case ECursor::CROSS:
+    shape = XC_crosshair;
+    break;
+  case ECursor::UPARROW:
+    shape = XC_sb_up_arrow;
+    break;
+  case ECursor::SIZENWSE:
+    shape = XC_sizing;
+    break;
+  case ECursor::SIZENESW:
+    shape = XC_sizing;
+    break;
+  case ECursor::SIZEWE:
+    shape = XC_sb_h_double_arrow;
+    break;
+  case ECursor::SIZENS:
+    shape = XC_sb_v_double_arrow;
+    break;
+  case ECursor::SIZEALL:
+    shape = XC_fleur;
+    break;
+  case ECursor::INO:
+    shape = XC_X_cursor;
+    break;
+  case ECursor::HAND:
+    shape = XC_hand2;
+    break;
+  case ECursor::APPSTARTING:
+    shape = XC_watch;
+    break;
+  case ECursor::HELP:
+    shape = XC_question_arrow;
+    break;
+  default:
+    shape = XC_left_ptr;
+    break;
+  }
+
+  Cursor cursor = XCreateFontCursor(mDisplay, shape);
+  XDefineCursor(mDisplay, mPlugWnd, cursor);
+  XFreeCursor(mDisplay, cursor);
+  return IGraphics::SetMouseCursor(cursorType);
+}
+
+void IGraphicsLinux::GetMouseLocation(float& x, float& y) const
+{
+  if (!mDisplay || !mPlugWnd)
+  {
+    x = y = 0.f;
+    return;
+  }
+
+  Window root, child;
+  int rootX, rootY, winX, winY;
+  unsigned int mask;
+  if (!XQueryPointer(mDisplay, mPlugWnd, &root, &child, &rootX, &rootY, &winX, &winY, &mask))
+  {
+    x = y = 0.f;
+    return;
+  }
+  const float scale = GetTotalScale();
+  x = winX / scale;
+  y = winY / scale;
+}
+
