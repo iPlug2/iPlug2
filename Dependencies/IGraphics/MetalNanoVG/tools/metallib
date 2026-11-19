@@ -50,6 +50,8 @@ execute_cmd() {
     CMD="$CMD -mios-version-min=8.0"
   elif [ $SDK = "macosx" ]; then
     CMD="$CMD -mmacosx-version-min=10.11"
+  elif [ $SDK = "xros" ]; then
+    CMD="$CMD -target air64-apple-xros1.0"
   fi
 
   CMD="$CMD -o $AIR_FILE_NAME"
