@@ -17,9 +17,6 @@
 
 #ifdef OS_LINUX
 #include "IGraphicsLinux.h"
-#define IPLUG_GFX_LOCK std::lock_guard<std::recursive_mutex> gfxLock(mGfxMutex)
-#else
-#define IPLUG_GFX_LOCK ((void)0)
 #endif
 
 using namespace iplug;
@@ -36,7 +33,6 @@ IGEditorDelegate::~IGEditorDelegate()
 
 void* IGEditorDelegate::OpenWindow(void* pParent)
 {
-  IPLUG_GFX_LOCK;
 #ifdef OS_LINUX
   if (mGraphics && static_cast<IGraphicsLinux*>(mGraphics.get())->IsInPlatformCallback())
   {
@@ -71,7 +67,6 @@ void* IGEditorDelegate::OpenWindow(void* pParent)
 
 void IGEditorDelegate::CloseWindow()
 {
-  IPLUG_GFX_LOCK;
 #ifdef OS_LINUX
   if (!mGraphics)
     return;
@@ -108,7 +103,6 @@ void IGEditorDelegate::CloseWindow()
 #ifdef OS_LINUX
 bool IGEditorDelegate::PrepareGraphics()
 {
-  IPLUG_GFX_LOCK;
   if (!mGraphics)
   {
     mGraphics.reset(CreateGraphics());
@@ -126,7 +120,6 @@ bool IGEditorDelegate::PrepareGraphics()
 
 bool IGEditorDelegate::SetHostScreenScale(float scale)
 {
-  IPLUG_GFX_LOCK;
   if (!std::isfinite(scale) || scale <= 0.f || !PrepareGraphics())
     return false;
   const double width = mGraphics->WindowWidth() * static_cast<double>(scale);
@@ -140,7 +133,6 @@ bool IGEditorDelegate::SetHostScreenScale(float scale)
 
 bool IGEditorDelegate::CloseWindowIfRequested()
 {
-  IPLUG_GFX_LOCK;
   if (mGraphics && !static_cast<IGraphicsLinux*>(mGraphics.get())->IsInPlatformCallback() &&
       static_cast<IGraphicsLinux*>(mGraphics.get())->WindowCloseRequested())
   {
@@ -153,7 +145,6 @@ bool IGEditorDelegate::CloseWindowIfRequested()
 
 void IGEditorDelegate::OnParentWindowResize(int width, int height)
 {
-  IPLUG_GFX_LOCK;
   if (auto* pGraphics = GetUI()) 
   {
 #ifdef OS_LINUX
@@ -167,7 +158,6 @@ void IGEditorDelegate::OnParentWindowResize(int width, int height)
 
 void IGEditorDelegate::SetScreenScale(float scale)
 {
-  IPLUG_GFX_LOCK;
 #ifdef OS_LINUX
   SetHostScreenScale(scale);
 #else
@@ -178,7 +168,6 @@ void IGEditorDelegate::SetScreenScale(float scale)
 
 void IGEditorDelegate::SendControlValueFromDelegate(int ctrlTag, double normalizedValue)
 {
-  IPLUG_GFX_LOCK;
   if(!mGraphics)
     return;
 
@@ -194,7 +183,6 @@ void IGEditorDelegate::SendControlValueFromDelegate(int ctrlTag, double normaliz
 
 void IGEditorDelegate::SendControlMsgFromDelegate(int ctrlTag, int msgTag, int dataSize, const void* pData)
 {
-  IPLUG_GFX_LOCK;
   if(!mGraphics)
     return;
   
@@ -210,7 +198,6 @@ void IGEditorDelegate::SendControlMsgFromDelegate(int ctrlTag, int msgTag, int d
 
 void IGEditorDelegate::SendParameterValueFromDelegate(int paramIdx, double value, bool normalized)
 {
-  IPLUG_GFX_LOCK;
   if(mGraphics)
   {
     if (!normalized)
@@ -239,7 +226,6 @@ void IGEditorDelegate::SendParameterValueFromDelegate(int paramIdx, double value
 
 void IGEditorDelegate::SendMidiMsgFromDelegate(const IMidiMsg& msg)
 {
-  IPLUG_GFX_LOCK;
   if(mGraphics)
   {
     for (auto c = 0; c < mGraphics->NControls(); c++) // TODO: could keep a map
@@ -258,7 +244,6 @@ void IGEditorDelegate::SendMidiMsgFromDelegate(const IMidiMsg& msg)
 
 bool IGEditorDelegate::SerializeEditorSize(IByteChunk& data) const
 {
-  IPLUG_GFX_LOCK;
   bool savedOK = true;
     
   int width = mGraphics ? mGraphics->Width() : mLastWidth;
@@ -274,7 +259,6 @@ bool IGEditorDelegate::SerializeEditorSize(IByteChunk& data) const
 
 int IGEditorDelegate::UnserializeEditorSize(const IByteChunk& data, int startPos)
 {
-  IPLUG_GFX_LOCK;
   int width = 0;
   int height = 0;
   float scale = 0.f;
@@ -310,7 +294,6 @@ int IGEditorDelegate::UnserializeEditorState(const IByteChunk& chunk, int startP
 
 bool IGEditorDelegate::OnKeyDown(const IKeyPress& key)
 {
-  IPLUG_GFX_LOCK;
   IGraphics* pGraphics = GetUI();
   
   if (pGraphics)
@@ -325,7 +308,6 @@ bool IGEditorDelegate::OnKeyDown(const IKeyPress& key)
 
 bool IGEditorDelegate::OnKeyUp(const IKeyPress& key)
 {
-  IPLUG_GFX_LOCK;
   IGraphics* pGraphics = GetUI();
 
   if (pGraphics)

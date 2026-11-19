@@ -62,9 +62,6 @@
 using namespace iplug;
 using namespace igraphics;
 
-// Timer interval in microseconds (60 fps = ~16667 us)
-static constexpr int TIMER_INTERVAL_US = 16667;
-
 namespace
 {
 // Match WindowWidth()/WindowHeight() followed by the X11/display-scale conversion.
@@ -1224,15 +1221,8 @@ void IGraphicsLinux::SetScreenScaleFromHost(float scale)
   SetScreenScale(scale);
 }
 
-void IGraphicsLinux::DrawResize()
-{
-  std::lock_guard<std::recursive_mutex> lock(GetDelegate()->GfxMutex());
-  IGRAPHICS_DRAW_CLASS::DrawResize();
-}
-
 void IGraphicsLinux::ResizeFromHost(int width, int height)
 {
-  std::lock_guard<std::recursive_mutex> lock(GetDelegate()->GfxMutex());
   if (width <= 0 || height <= 0)
     return;
 
@@ -1305,7 +1295,6 @@ void IGraphicsLinux::CalculateHostResize(int width, int height, int& designWidth
 
 void IGraphicsLinux::ConstrainHostResize(int& width, int& height)
 {
-  std::lock_guard<std::recursive_mutex> lock(GetDelegate()->GfxMutex());
   int designWidth, designHeight;
   float scale;
   CalculateHostResize(width, height, designWidth, designHeight, scale);
@@ -1699,7 +1688,6 @@ bool IGraphicsLinux::OpenURL(const char* url, const char* msgWindowTitle, const 
 
 bool IGraphicsLinux::GetTextFromClipboard(WDL_String& str)
 {
-  std::lock_guard<std::recursive_mutex> lock(GetDelegate()->GfxMutex());
   if (!mDisplay || !mPlugWnd || !mClipboardAtom)
     return false;
 
@@ -1762,7 +1750,6 @@ bool IGraphicsLinux::GetTextFromClipboard(WDL_String& str)
 
 bool IGraphicsLinux::SetTextInClipboard(const char* str)
 {
-  std::lock_guard<std::recursive_mutex> lock(GetDelegate()->GfxMutex());
   if (!mDisplay || !mPlugWnd || !mClipboardAtom)
     return false;
 
@@ -2713,18 +2700,6 @@ void IGraphicsLinux::DispatchX11Events()
   }
 }
 
-void* IGraphicsLinux::TimerThreadProc(void* pParam)
-{
-  IGraphicsLinux* pGraphics = reinterpret_cast<IGraphicsLinux*>(pParam);
-  while (pGraphics->mTimerRunning)
-  {
-    usleep(TIMER_INTERVAL_US);
-    if (pGraphics->mTimerRunning)
-      pGraphics->OnDisplayTimer();
-  }
-  return nullptr;
-}
-
 bool IGraphicsLinux::StartTimer()
 {
   if (mHostDriven || mTimerRunning)
@@ -2740,17 +2715,9 @@ bool IGraphicsLinux::StartTimer()
   mTimerRunning = true;
   return true;
 #else
-  mTimerRunning = true;
-  const int error = pthread_create(&mTimerThread, nullptr, TimerThreadProc, this);
-  if (error)
-  {
-    mTimerRunning = false;
-    mTimerThread = 0;
-    fprintf(stderr, "Could not start Linux graphics timer: %s\n", strerror(error));
-    return false;
-  }
-
-  return true;
+  // Plug-in editors are drawn from the host's run loop (see SetHostDriven).
+  fprintf(stderr, "The Linux editor needs a host-driven display timer\n");
+  return false;
 #endif
 }
 
@@ -2758,11 +2725,6 @@ void IGraphicsLinux::StopTimer()
 {
   mTimerRunning = false;
   mMainLoopTimer.reset();
-  if (mTimerThread && !pthread_equal(mTimerThread, pthread_self()))
-  {
-    pthread_join(mTimerThread, nullptr);
-    mTimerThread = 0;
-  }
 }
 
 void IGraphicsLinux::OnDisplayTimer()
@@ -2770,10 +2732,6 @@ void IGraphicsLinux::OnDisplayTimer()
   if (IsInPlatformCallback())
     return;
   DispatchScope dispatch(mDispatchDepth);
-  // Teardown joins this timer while holding GfxMutex; skip busy frames instead of waiting.
-  std::unique_lock<std::recursive_mutex> lock(GetDelegate()->GfxMutex(), std::try_to_lock);
-  if (!lock.owns_lock())
-    return;
   if (!mDisplay || !mPlugWnd || mCloseRequested)
     return;
 

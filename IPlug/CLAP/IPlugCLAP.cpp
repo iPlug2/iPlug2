@@ -1079,8 +1079,7 @@ bool IPlugCLAP::GUIWindowAttach(void* pWindow) noexcept
     }
 #endif
 #if defined OS_LINUX && !defined NO_IGRAPHICS
-    // Switch to host-driven mode: stops the internal timer thread
-    // and lets the host drive rendering via onTimer / onPosixFd.
+    // Host-driven mode: the host drives rendering via onTimer / onPosixFd.
     static_cast<IGraphicsLinux*>(GetUI())->SetHostDriven(true);
     if (!RegisterLinuxHostCallbacks())
     {
@@ -1269,7 +1268,6 @@ void IPlugCLAP::onPosixFd(int fd, clap_posix_fd_flags_t flags) noexcept
 {
   if (mGUIOpen && fd == mLinuxFd && (flags & CLAP_POSIX_FD_READ))
   {
-    std::lock_guard<std::recursive_mutex> lock(GfxMutex());
     if (auto* pGraphics = static_cast<IGraphicsLinux*>(GetUI()))
       pGraphics->ProcessX11Events();
     CheckLinuxGuiClosed();

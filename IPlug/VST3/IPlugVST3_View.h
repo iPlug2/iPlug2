@@ -308,7 +308,6 @@ public:
     if (fd == mLinuxFd && fd >= 0)
     {
       Steinberg::IPtr<IPlugVST3View> keepAlive(this);
-      std::lock_guard<std::recursive_mutex> lock(mOwner.GfxMutex());
       if (auto* pGraphics = static_cast<iplug::igraphics::IGraphicsLinux*>(mOwner.GetUI()))
       {
         pGraphics->ProcessX11Events();

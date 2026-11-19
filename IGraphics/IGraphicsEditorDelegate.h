@@ -11,9 +11,6 @@
 #pragma once
 
 #include <memory>
-#ifdef OS_LINUX
-#include <mutex>
-#endif
 
 #include "IPlugEditorDelegate.h"
 
@@ -102,13 +99,6 @@ public:
 
   /** Complete a pending native close on the owner's main thread, outside graphics dispatch. */
   bool CloseWindowIfRequested();
-
-  /** Mutex protecting mGraphics access from concurrent threads on Linux.
-   *  The host may call SendParameterValueFromDelegate, CloseWindow, etc.
-   *  from any thread while the timer/draw thread is running. Recursive
-   *  because resize and close paths re-enter (e.g. OnParentWindowResize
-   *  and DrawResize may be called while the lock is held). */
-  std::recursive_mutex& GfxMutex() { return mGfxMutex; }
 #endif
 
 protected:
@@ -122,7 +112,6 @@ private:
   float mLastScale = 0.f;
   bool mClosing = false; // used to prevent re-entrancy on closing
 #ifdef OS_LINUX
-  mutable std::recursive_mutex mGfxMutex;
   float mHostScreenScale = 0.f;
 #endif
 };

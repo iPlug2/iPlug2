@@ -105,7 +105,6 @@ public:
   bool IsInPlatformCallback() const { return mDispatchDepth != 0; }
 
   void PlatformResize(bool parentHasResized) override;
-  void DrawResize() override;
   /** Apply a new host scale without interpreting older native sizes at the new scale. */
   void SetScreenScaleFromHost(float scale);
   /** Apply a host/X11 size in physical pixels, preserving the configured resize mode. */
@@ -206,13 +205,12 @@ private:
   float mTooltipX = 0.f, mTooltipY = 0.f;
   unsigned long mTooltipHoverTime = 0;
   bool mInputMethodDisconnected = false;
-  std::atomic<bool> mTimerRunning{false};
+  bool mTimerRunning = false;
 
   float mHiddenCursorX = 0.f;
   float mHiddenCursorY = 0.f;
   Cursor mBlankCursor = 0; // cached invisible cursor for HideMouseCursor
   bool mNeedsRedraw = false;
-  // Read by host threads while the display timer thread dispatches
   std::atomic<bool> mCloseRequested{false};
   std::atomic<int> mDispatchDepth{0};
   unsigned long mLastLeftClickTime = 0; // X11 server timestamp of last left-button press
@@ -230,8 +228,6 @@ private:
   bool StartTimer();
   void StopTimer();
 
-  static void* TimerThreadProc(void* pParam);
-  pthread_t mTimerThread = 0;
   std::unique_ptr<Timer> mMainLoopTimer;
 };
 
