@@ -26,6 +26,24 @@ CMake and Ninja can be installed via:
 - [cmake.org](https://cmake.org/download/)
 - `winget install Kitware.CMake` / `winget install Ninja-build.Ninja`
 
+### Linux
+
+- **CMake** 3.18 or later (3.21 to use the presets)
+- **Ninja** (recommended) or Make
+- **GCC** or **Clang** with C++17 support
+- **Development libraries:**
+
+```bash
+# Ubuntu/Debian
+sudo apt-get install -y \
+  ninja-build pkg-config \
+  libfreetype-dev libfontconfig-dev \
+  libx11-dev libx11-xcb-dev libxcb1-dev libxi-dev libxext-dev libxrender-dev \
+  libxrandr-dev libxfixes-dev libxcursor-dev \
+  libgl-dev libgtk-3-dev \
+  libasound2-dev libjack-jackd2-dev libpulse-dev
+```
+
 ### Web (Emscripten)
 
 - **Emscripten SDK** for WebAssembly builds
@@ -46,7 +64,7 @@ CMake supports multiple build system generators:
 
 ### Ninja (Recommended)
 
-Fast, cross-platform. Works on macOS and Windows.
+Fast, cross-platform. Works on macOS, Windows, and Linux.
 
 ```bash
 cmake -G Ninja -DCMAKE_BUILD_TYPE=Release ..
@@ -85,9 +103,10 @@ cmake --build . --config Release
 mkdir build && cd build
 
 # Configure (choose one)
-cmake -G Ninja ..                              # Ninja (macOS/Windows)
-cmake -G "Visual Studio 17 2022" -A x64 ..     # Visual Studio
-cmake -G Xcode ..                              # Xcode
+cmake -G Ninja ..                              # Ninja (macOS/Windows/Linux)
+cmake -G "Visual Studio 17 2022" -A x64 ..     # Visual Studio (Windows)
+cmake -G Xcode ..                              # Xcode (macOS)
+cmake -G "Unix Makefiles" ..                   # Make (macOS/Linux)
 
 # Build
 cmake --build . --config Release
@@ -95,16 +114,16 @@ cmake --build . --config Release
 
 ## Supported Platforms & Targets
 
-| Format | Target Suffix | macOS | Windows | iOS | visionOS | Web |
-|--------|---------------|-------|---------|-----|----------|-----|
-| Standalone App | `-app` | ✓ | ✓ | ✓ | ✓ | - |
-| VST2 | `-vst2` | ✓ | ✓ | - | - | - |
-| VST3 | `-vst3` | ✓ | ✓ | - | - | - |
-| CLAP | `-clap` | ✓ | ✓ | - | - | - |
-| AAX | `-aax` | ✓ | ✓ | - | - | - |
-| AUv2 | `-au` | ✓ | - | - | - | - |
-| AUv3 | `AU-framework`, `AUv3-appex` | ✓ | - | ✓ | ✓ | - |
-| WAM | `-wam`, `-web` | - | - | - | - | ✓ |
+| Format | Target Suffix | macOS | Windows | Linux | iOS | visionOS | Web |
+|--------|---------------|-------|---------|-------|-----|----------|-----|
+| Standalone App | `-app` | ✓ | ✓ | ✓ | ✓ | ✓ | - |
+| VST2 | `-vst2` | ✓ | ✓ | - | - | - | - |
+| VST3 | `-vst3` | ✓ | ✓ | ✓ | - | - | - |
+| CLAP | `-clap` | ✓ | ✓ | ✓ | - | - | - |
+| AAX | `-aax` | ✓ | ✓ | - | - | - | - |
+| AUv2 | `-au` | ✓ | - | - | - | - | - |
+| AUv3 | `AU-framework`, `AUv3-appex` | ✓ | - | - | ✓ | ✓ | - |
+| WAM | `-wam`, `-web` | - | - | - | - | - | ✓ |
 
 **Notes:**
 - VST2 requires the VST2 SDK (deprecated, no longer distributed by Steinberg)
@@ -112,7 +131,12 @@ cmake --build . --config Release
 - CLAP requires the CLAP SDK
 - AAX requires the AAX SDK from Avid
 - AUv3 is embedded in the standalone APP on macOS
-- Linux is not yet supported
+- Linux uses X11, NanoVG/GL3, and ALSA/JACK for audio
+
+An absent or incomplete VST3 SDK disables automatic VST3 target creation, without
+preventing standalone builds. CMake reports the first missing SDK file and the
+download command. To install it, run `./download-vst3-sdk.sh` from
+`Dependencies/IPlug/`, then configure again.
 
 ## Build Commands
 
@@ -347,7 +371,7 @@ iplug_add_plugin(<name>
 | Parameter | Description | Default |
 |-----------|-------------|---------|
 | `SOURCES` | Source files (.cpp, .h, .mm) | Required |
-| `RESOURCES` | Bundle resources (fonts, images) - goes into `Resources/` | None |
+| `RESOURCES` | Fonts/images in bundle `Resources/`, or a binary-specific `.resources/` directory for flat Linux binaries | None |
 | `WEB_RESOURCES` | Web UI files (HTML, JS, CSS) - goes into `Resources/web/` | None |
 | `FORMATS` | Target formats to build | `ALL` |
 | `EXCLUDE_FORMATS` | Formats to exclude | None |
@@ -360,9 +384,9 @@ iplug_add_plugin(<name>
 
 | Format | Description | Platforms |
 |--------|-------------|-----------|
-| `APP` | Standalone application | macOS, Windows |
-| `VST3` | VST3 plugin | macOS, Windows |
-| `CLAP` | CLAP plugin | macOS, Windows |
+| `APP` | Standalone application | macOS, Windows, Linux |
+| `VST3` | VST3 plugin | macOS, Windows, Linux |
+| `CLAP` | CLAP plugin | macOS, Windows, Linux |
 | `AAX` | AAX plugin (requires SDK) | macOS, Windows |
 | `AU` | Audio Unit v2 | macOS only |
 | `AUV3` | Audio Unit v3 | macOS, iOS |
@@ -502,6 +526,18 @@ build/out/
             └── MyPlugin.aaxplugin
 ```
 
+### Linux
+
+```
+build/out/
+├── MyPlugin                         # Standalone app (executable)
+├── MyPlugin.vst3/
+│   └── Contents/
+│       └── x86_64-linux/
+│           └── MyPlugin.so
+└── MyPlugin.clap
+```
+
 ### Web
 
 ```
@@ -530,6 +566,11 @@ Plugins are automatically deployed (symlinked or copied) to standard locations:
 - AAX: `/Library/Application Support/Avid/Audio/Plug-Ins`
 - APP: `~/Applications`
 
+**Linux:**
+- VST3: `~/.vst3`
+- CLAP: `~/.clap`
+- APP: remains in build directory (no default deploy path)
+
 **Windows:**
 - VST2: `%PROGRAMFILES%\VstPlugins`
 - VST3: `%LOCALAPPDATA%\Programs\Common\VST3` (per-user, no admin required)
@@ -539,6 +580,11 @@ Plugins are automatically deployed (symlinked or copied) to standard locations:
 > **Note:** VST3/CLAP use per-user paths by default (spec-compliant, hosts scan both locations). For system-wide installation, use `-DIPLUG_VST3_DEPLOY_PATH="%COMMONPROGRAMFILES%\VST3"`.
 
 ### Deployment Options
+
+`iplug_configure_target()` retains automatic deployment for directly configured
+targets. When adding resources after configuration, pass `DEFER_DEPLOYMENT` and
+call `iplug_deploy_target()` after adding the resources. `iplug_add_plugin()` does
+this automatically so deployment runs once, after resource copying.
 
 ```bash
 # Disable automatic deployment
@@ -633,7 +679,81 @@ emrun --no_emrun_detect index.html
 
 ### Linux
 
-Linux is not yet supported. CMake configuration will show an error message.
+- Uses X11 for windowing, NanoVG/GL3 for graphics, ALSA/JACK/PulseAudio for audio
+- GCC and Clang both supported; requires C++17
+- Supported formats: APP (standalone), VST3, CLAP
+- Plugins are deployed to `~/.vst3/` (VST3) and `~/.clap/` (CLAP) by default
+- Both Ninja and Unix Makefiles generators work (`linux-ninja` and `linux-make` presets)
+- `pkg-config` is used to find system libraries (freetype, fontconfig, X11, GTK3, ALSA, etc.)
+- JACK and PulseAudio support in the standalone app is built when their development packages are found; ALSA is required
+- Resources are staged beside each binary: `<name>.resources/<type>/` for the standalone app,
+  `<name>.clap.resources/<type>/` for CLAP and `Contents/Resources/<type>/` inside the VST3 bundle.
+  When installing manually, keep a binary and its `.resources` directory together
+- The standalone app takes `--no-io` to open the editor without audio/MIDI devices, and honours
+  `IPLUG2_SCREEN_SCALE` (e.g. `1.5`) to override the monitor scale factor
+- VST3 editors need the host to provide a Linux `IRunLoop`; CLAP editors use the host's timer and
+  POSIX fd extensions when available, and fall back to `on_main_thread` callbacks
+- Native Wayland is not supported; editors run through XWayland
+- `Tests/Linux` contains a headless regression suite, see `Tests/Linux/README.md`
+- NanoVG/GL3 remains the default. For Skia/GL3, run
+  `Dependencies/IGraphics/build-skia-linux.sh` to build the pinned Skia
+  `chrome/m130` revision. This installs headers and matching static libraries
+  below `Dependencies/Build/linux` (or set `IPLUG_SKIA_LINUX_DIR` to an
+  alternative installation directory for both the script and CMake).
+  Required archives: `libskia.a`, `libsvg.a`, `libskparagraph.a`,
+  `libskshaper.a`, `libskunicode_core.a`, `libskunicode_icu.a`.
+  Build with `-DIGRAPHICS_BACKEND=SKIA -DIGRAPHICS_RENDERER=GL3`.
+  For example, on a Linux machine with Ninja, Python 3, Git and development
+  headers for Fontconfig, Expat and FreeType installed:
+
+  ```bash
+  Dependencies/IGraphics/build-skia-linux.sh
+  cmake -S Tests/Linux -B build/linux-skia -G Ninja \
+    -DIGRAPHICS_BACKEND=SKIA -DIGRAPHICS_RENDERER=GL3
+  cmake --build build/linux-skia
+  ctest --test-dir build/linux-skia --output-on-failure
+  ```
+
+  Skia/CPU presentation is not implemented on Linux. Skia/GL3 passes the
+  Linux Xvfb regression suite with a software OpenGL renderer; real DAW and
+  hardware GPU testing is still required.
+- `UI WEBVIEW` on Linux uses WebKitGTK 4.1 and an X11 `GtkPlug` editor.
+  Install `libwebkit2gtk-4.1-dev` before configuring a WebView plugin;
+  it is not required for other Linux plugins. `WEB_RESOURCES` are staged in
+  `<name>.clap.resources/web` alongside CLAP binaries, or in the VST3 bundle's
+  `Resources/web`. Deploy the CLAP binary together with its `.resources` folder.
+  The root examples build skips WebView examples unless
+  `-DIPLUG_LINUX_WEBVIEW_EXAMPLES=ON` is set. Embedded
+  `IWebViewControl` (including IPlugOSCEditor) and the REAPER WebView extension
+  remain unsupported on Linux. The backend currently does not implement custom
+  URL schemes, downloads, or the optional scroll toggle. It runs GTK events on
+  the host main thread via CLAP callbacks or the VST3 idle run loop; interactive
+  DAW, XWayland, focus/IME, and multi-instance testing is still required.
+  Xvfb in restricted containers may also require disabling the WebKit sandbox
+  for *tests only*; do not set that override in a production host.
+
+#### OSC polling
+
+Linux OSC does not create a worker timer. Call `ProcessOSC()` regularly from the
+owning main thread, typically from the plugin's `OnIdle()`. When inheriting both
+OSC interfaces, poll both:
+
+```cpp
+void MyPlugin::OnIdle()
+{
+  OSCSender::ProcessOSC();
+  OSCReceiver::ProcessOSC();
+}
+```
+
+All OSC operations, including sending, changing destinations or receive ports,
+setting log callbacks, and destruction must use that same thread. Received
+messages call `OnOSCMessage()` synchronously during polling; no receive callback runs
+during construction or after destruction. A receive callback may change ports or
+destinations, but must not destroy its OSC interface. Recursive polling is ignored
+until the current tick finishes. Polling and socket operations are not
+realtime-safe and must not run in `ProcessBlock()`. macOS and Windows retain their
+existing automatic main-thread timers; they do not require manual polling.
 
 ## Troubleshooting
 

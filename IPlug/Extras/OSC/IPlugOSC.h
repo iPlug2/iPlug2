@@ -32,6 +32,10 @@ using OSCMessageReceivedFunc = std::function<void(OscMessageRead& msg)>;
 class OSCSender : private OSCInterface
 {
 public:
+  /** On Linux, call regularly from OnIdle() on the owning main thread.
+   * SendOSCMessage(), SetDestination(), SetLogFunc() and destruction must use the same thread. */
+  using OSCInterface::ProcessOSC;
+
   /** Construct a new OSCSender
    * @param ip The IP address to send messages to
    * @param port The port number on which to listen for messages
@@ -61,6 +65,11 @@ private:
 class OSCReceiver : private OSCInterface
 {
 public:
+  /** On Linux, call regularly from OnIdle() on the owning main thread.
+   * SetReceivePort(), SetLogFunc() and destruction must use the same thread.
+   * OnOSCMessage() runs synchronously inside this call. */
+  using OSCInterface::ProcessOSC;
+
   /** Construct a new OSCReceiver
    * @param port The port number on which to listen for messages
    * @param logFunc std::function to log connection details  */

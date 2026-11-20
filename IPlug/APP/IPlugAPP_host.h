@@ -58,6 +58,9 @@
   #define DEFAULT_OUTPUT_DEV "Built-in Output"
 #elif defined(OS_LINUX)
   #include "IPlugSWELL.h"
+  #define SLEEP(milliseconds) usleep((unsigned long)(milliseconds * 1000.0))
+  #define DEFAULT_INPUT_DEV "default"
+  #define DEFAULT_OUTPUT_DEV "default"
 #endif
 
 #include "RtAudio.h"
@@ -67,6 +70,12 @@
 
 extern HWND gHWND;
 extern HINSTANCE gHINSTANCE;
+#ifdef OS_LINUX
+/** Posted to the main dialog once its menu is attached, to size the window and open the editor */
+#define WM_USER_OPENWINDOW (WM_USER + 1)
+extern int gStandaloneExitStatus;
+extern bool gStandaloneCloseRequested;
+#endif
 
 BEGIN_IPLUG_NAMESPACE
 
@@ -192,6 +201,16 @@ public:
   
   bool OpenWindow(HWND pParent);
   void CloseWindow();
+
+#ifdef OS_LINUX
+  /** Resolves the editor's screen scale for the standalone window and exports it to IGraphicsLinux
+   * via IPLUG2_SCREEN_SCALE. A value the user set in the environment before launch (e.g. 1.5) takes
+   * priority over the monitor's integer scale factor (reported by SWELL in its HiDPI mode, or by
+   * GDK's window scale otherwise).
+   * @param pWnd The standalone container window
+   * @return The factor converting editor units to container (GDK) units: editor scale / GDK scale */
+  static float ResolveLinuxScreenScale(HWND pWnd);
+#endif
 
   bool Init();
   bool InitState();
