@@ -116,7 +116,7 @@ static int MacKeyEventToVK(NSEvent* pEvent, int& flag)
       else
       {
         if (code >= 'a' && code <= 'z') code += 'A'-'a';
-        if (code == 25 && (flag & FSHIFT)) code = kVK_TAB;
+        if (code == 25 && (flag & kFSHIFT)) code = kVK_TAB; // shift+tab. N.B. not FSHIFT, which <sys/param.h> defines as something else
         if (isalnum(code) || code==' ' || code == '\r' || code == '\n' || code ==27 || code == kVK_TAB) flag |= kFVIRTKEY;
       }
     }
