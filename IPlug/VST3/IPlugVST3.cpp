@@ -152,6 +152,10 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
       mARAInputsSilenced = true;
     }
 
+    // ARA playback renderers ignore their inputs, so present them to the plug-in as disconnected.
+    // This is re-applied every block (it only re-points a few channel pointers) because
+    // setupProcessing() can resize the scratch buffers, which would leave the input pointers
+    // set by a one-off call dangling.
     SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), false);
 
     ProcessData araData = data; // shallow copy, the host owns data
@@ -277,6 +281,9 @@ const ARA::ARAFactory* PLUGIN_API IPlugVST3::getFactory()
 
 const ARA::ARAPlugInExtensionInstance* PLUGIN_API IPlugVST3::bindToDocumentController(ARA::ARADocumentControllerRef)
 {
+  // Deprecated since ARA 2.0 and only used by ARA 1 hosts. The ARA Library's factory does not
+  // advertise ARA 1 support (ARA_SUPPORT_VERSION_1 is not defined), so a conforming host always
+  // binds via bindToDocumentControllerWithRoles().
   return nullptr;
 }
 

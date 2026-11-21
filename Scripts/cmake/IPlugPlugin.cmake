@@ -136,6 +136,23 @@ function(_iplug_add_resources target resources)
 endfunction()
 
 # ============================================================================
+# _iplug_add_windows_rc (internal)
+# On Windows, compile the project's resources/main.rc (if present) into a target.
+# The .rc file references files like "Roboto-Regular.ttf" without a path, so the
+# RC compiler is told where to find fonts, images etc.
+# ============================================================================
+function(_iplug_add_windows_rc target)
+  set(_rc_file "${CMAKE_CURRENT_SOURCE_DIR}/resources/main.rc")
+  if(NOT WIN32 OR NOT EXISTS "${_rc_file}")
+    return()
+  endif()
+  target_sources(${target} PRIVATE "${_rc_file}")
+  set_source_files_properties("${_rc_file}" PROPERTIES
+    COMPILE_FLAGS "/I\"${CMAKE_CURRENT_SOURCE_DIR}/resources/fonts\" /I\"${CMAKE_CURRENT_SOURCE_DIR}/resources/img\" /I\"${CMAKE_CURRENT_SOURCE_DIR}/resources\""
+  )
+endfunction()
+
+# ============================================================================
 # Create APP, VST3, CLAP, AAX targets (macOS/Windows only)
 # ============================================================================
 function(_iplug_create_desktop_targets plugin_name formats sources ui_lib resources web_resources base_lib)
@@ -146,17 +163,8 @@ function(_iplug_create_desktop_targets plugin_name formats sources ui_lib resour
 
   # APP target (uses add_executable, needs .rc on Windows)
   if("APP" IN_LIST formats)
-    set(_app_sources ${sources})
-    set(_rc_file "${CMAKE_CURRENT_SOURCE_DIR}/resources/main.rc")
-    if(WIN32 AND EXISTS "${_rc_file}")
-      list(APPEND _app_sources "${_rc_file}")
-      # Tell RC compiler where to find resources (fonts, images, etc.)
-      # The .rc file references files like "Roboto-Regular.ttf" without path
-      set_source_files_properties("${_rc_file}" PROPERTIES
-        COMPILE_FLAGS "/I\"${CMAKE_CURRENT_SOURCE_DIR}/resources/fonts\" /I\"${CMAKE_CURRENT_SOURCE_DIR}/resources/img\" /I\"${CMAKE_CURRENT_SOURCE_DIR}/resources\""
-      )
-    endif()
-    add_executable(${plugin_name}-app ${_app_sources})
+    add_executable(${plugin_name}-app ${sources})
+    _iplug_add_windows_rc(${plugin_name}-app)
     iplug_add_target(${plugin_name}-app PUBLIC
       LINK iPlug2::APP ${ui_lib} ${base_lib}
     )
@@ -194,6 +202,9 @@ function(_iplug_create_desktop_targets plugin_name formats sources ui_lib resour
   if("VST3_ARA" IN_LIST formats)
     include(${IPLUG2_CMAKE_DIR}/ARA.cmake)
     add_library(${plugin_name}-vst3-ara MODULE ${sources})
+    # On Windows, loose resource files cannot be loaded from inside the .vst3 bundle,
+    # so compile resources/main.rc (fonts, images) into the module instead
+    _iplug_add_windows_rc(${plugin_name}-vst3-ara)
     iplug_add_target(${plugin_name}-vst3-ara PUBLIC
       LINK iPlug2::VST3 iPlug2::ARA ${ui_lib} ${base_lib}
     )
@@ -559,6 +570,13 @@ macro(iplug_add_plugin plugin_name)
   _iplug_expand_formats("${PLUGIN_FORMATS}" _iplug_formats)
   if(PLUGIN_EXCLUDE_FORMATS)
     list(REMOVE_ITEM _iplug_formats ${PLUGIN_EXCLUDE_FORMATS})
+  endif()
+
+  # VST3 and VST3_ARA both produce ${plugin_name}.vst3 and would overwrite each other
+  if("VST3" IN_LIST _iplug_formats AND "VST3_ARA" IN_LIST _iplug_formats)
+    message(FATAL_ERROR "iplug_add_plugin(${plugin_name}): VST3 and VST3_ARA cannot be combined - "
+      "both produce ${plugin_name}.vst3. Use VST3_ARA on its own (it is also a regular VST3 plug-in), "
+      "or add VST3 to EXCLUDE_FORMATS when using a format group.")
   endif()
 
   # Determine UI library and include necessary modules

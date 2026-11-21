@@ -25,13 +25,3 @@ iplug_add_plugin(${PROJECT_NAME}
   RESOURCES
     resources/fonts/Roboto-Regular.ttf
 )
-
-# On Windows loose resource files cannot be loaded from a VST3 bundle,
-# so compile the UI font into the module as a Windows resource
-if(WIN32 AND TARGET ${PROJECT_NAME}-vst3-ara)
-  set(_ara_rc "${CMAKE_CURRENT_SOURCE_DIR}/resources/main.rc")
-  target_sources(${PROJECT_NAME}-vst3-ara PRIVATE "${_ara_rc}")
-  set_source_files_properties("${_ara_rc}" PROPERTIES
-    COMPILE_FLAGS "/I\"${CMAKE_CURRENT_SOURCE_DIR}/resources/fonts\" /I\"${CMAKE_CURRENT_SOURCE_DIR}/resources\""
-  )
-endif()

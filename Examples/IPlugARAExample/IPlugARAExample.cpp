@@ -18,7 +18,7 @@ IPlugARAExample::IPlugARAExample(const InstanceInfo& info)
 
   mLayoutFunc = [&](IGraphics* pGraphics) {
     pGraphics->AttachCornerResizer(EUIResizerMode::Scale, false);
-    pGraphics->AttachPanelBackground(IColor(255, 24, 26, 30));
+    pGraphics->AttachPanelBackground(COLOR_GRAY);
     pGraphics->LoadFont("Roboto-Regular", ROBOTO_FN);
 
     const IRECT bounds = pGraphics->GetBounds().GetPadded(-8.f);
@@ -26,18 +26,15 @@ IPlugARAExample::IPlugARAExample(const InstanceInfo& info)
     const IRECT footer = bounds.GetFromBottom(80.f);
     const IRECT timeline = IRECT(bounds.L, title.B + 4.f, bounds.R, footer.T - 4.f);
 
-    pGraphics->AttachControl(new ITextControl(title, "IPlugARAExample - ARA 2 demo", IText(16.f, COLOR_WHITE, "Roboto-Regular", EAlign::Near, EVAlign::Middle)));
+    pGraphics->AttachControl(new ITextControl(title, "IPlugARAExample - ARA 2 demo", DEFAULT_TEXT.WithSize(16.f).WithAlign(EAlign::Near)));
     pGraphics->AttachControl(new ARATimelineControl(timeline, *this));
-    const IVStyle sliderStyle = DEFAULT_STYLE
-      .WithLabelText(IText(14.f, COLOR_WHITE, "Roboto-Regular", EAlign::Center, EVAlign::Middle))
-      .WithValueText(IText(12.f, COLOR_WHITE, "Roboto-Regular", EAlign::Center, EVAlign::Middle));
-    pGraphics->AttachControl(new IVSliderControl(footer.GetFromRight(220.f).GetMidVPadded(30.f), kGain, "Gain", sliderStyle, false, EDirection::Horizontal));
+    pGraphics->AttachControl(new IVSliderControl(footer.GetFromRight(220.f).GetMidVPadded(30.f), kGain, "Gain", DEFAULT_STYLE, false, EDirection::Horizontal));
     pGraphics->AttachControl(new IMultiLineTextControl(footer.GetReducedFromRight(230.f),
       "As an ARA playback renderer this plug-in replaces its input with the audio of the playback regions assigned by the host, "
       "stretched to the region borders and with the audio modification's edits applied. It analyses each audio source on a background "
       "thread (reporting progress to the host) and exports the detected notes back to the host as ARA content.\n"
       "Click a region to move the host transport there, alt-click to audition it via the ARA editor renderer, right-click to reverse it.",
-      IText(12.f, IColor(255, 150, 150, 150), "Roboto-Regular", EAlign::Near, EVAlign::Top)));
+      DEFAULT_TEXT.WithSize(12.f).WithAlign(EAlign::Near).WithVAlign(EVAlign::Top)));
   };
 #endif
 }
