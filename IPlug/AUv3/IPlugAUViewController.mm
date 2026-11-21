@@ -152,16 +152,9 @@
   // flexibleMaxX = extra space on right, flexibleMinY = extra space below (stay at top)
   self.view.autoresizingMask = NSViewMaxXMargin | NSViewMinYMargin;
 
-  // Set preferredContentSize here for out-of-process (OOP) hosts.
-  // For in-process hosts like REAPER, audioUnit is available synchronously in
-  // audioUnitInitialized (called from createAudioUnitWithComponentDescription),
-  // so we also set it there. Setting it twice is harmless.
-  if (self.audioUnit)
-  {
-    int width = (int) [(IPLUG_AUAUDIOUNIT*) self.audioUnit width];
-    int height = (int) [(IPLUG_AUAUDIOUNIT*) self.audioUnit height];
-    self.preferredContentSize = CGSizeMake(width, height);
-  }
+  // If the audio unit already exists, tell the host the editor's size now.
+  // Otherwise audioUnitInitialized does it once the audio unit is created.
+  [self updatePreferredContentSize];
 }
 
 
@@ -172,18 +165,38 @@
   return self.audioUnit;
 }
 
-- (void) audioUnitInitialized
+// Tells the host the editor's size. The host reads preferredContentSize once the
+// view controller exists, so it must be set as soon as the audio unit is known.
+- (void) updatePreferredContentSize
 {
-  // Set preferredContentSize synchronously for in-process hosts (e.g. REAPER).
-  // In-process hosts call createAudioUnitWithComponentDescription on the main thread,
-  // so audioUnit is available here before viewDidLoad. For OOP hosts this runs on a
-  // background thread, so we also set preferredContentSize in viewDidLoad.
-  if ([NSThread isMainThread])
+  if (self.audioUnit)
   {
     int width = (int) [(IPLUG_AUAUDIOUNIT*) self.audioUnit width];
     int height = (int) [(IPLUG_AUAUDIOUNIT*) self.audioUnit height];
     self.preferredContentSize = CGSizeMake(width, height);
   }
+}
+
+- (void) audioUnitInitialized
+{
+  // In-process hosts (e.g. REAPER) create the audio unit on the main thread, before
+  // viewDidLoad, so the size can be set synchronously here.
+  if ([NSThread isMainThread])
+  {
+    [self updatePreferredContentSize];
+    return;
+  }
+
+#ifndef OS_IOS
+  // Created off the main thread (out-of-process hosts do this). viewDidLoad may
+  // already have run with no audio unit, in which case nothing has told the host
+  // the size yet and the view is shown at the xib's frame (a cropped editor). Set
+  // it on the main thread now that the size is known. iOS hosts size the extension
+  // view themselves (see viewDidLayoutSubviews), so this is macOS only.
+  dispatch_async(dispatch_get_main_queue(), ^{
+    [self updatePreferredContentSize];
+  });
+#endif
 }
 
 @end
