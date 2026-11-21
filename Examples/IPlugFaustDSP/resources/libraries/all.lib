@@ -1,0 +1,37 @@
+//##################################### all.lib ##########################################
+// The purpose of this library is to give access to all the Faust standard libraries
+// from a single point.
+//########################################################################################
+
+import("aanl.lib");
+import("analyzers.lib");
+import("basics.lib");
+import("compressors.lib");
+import("delays.lib");
+import("demos.lib");
+import("dx7.lib");
+import("envelopes.lib");
+import("fds.lib");
+import("filters.lib");
+import("hoa.lib");
+import("interpolators.lib");
+import("linearalgebra.lib");
+import("maths.lib");
+import("mi.lib");
+import("misceffects.lib");
+import("oscillators.lib");
+import("noises.lib");
+import("phaflangers.lib");
+import("physmodels.lib");
+import("quantizers.lib");
+import("reducemaps.lib");
+import("reverbs.lib");
+import("routes.lib");
+import("signals.lib");
+import("soundfiles.lib");
+import("spats.lib");
+import("synths.lib");
+import("vaeffects.lib");
+import("version.lib");
+import("wdmodels.lib");
+import("webaudio.lib");
