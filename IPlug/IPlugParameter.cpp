@@ -175,6 +175,21 @@ void IParam::InitFrequency(const char *name, double defaultVal, double minVal, d
   InitDouble(name, defaultVal, minVal, maxVal, step, "Hz", flags, group, ShapeExp(), kUnitFrequency);
 }
 
+void IParam::InitFrequencyAutoRange(const char* name, double defaultVal, double minVal, double maxVal, double step, int flags, const char* group)
+{
+  InitDouble(name, defaultVal, minVal, maxVal, step, "", flags, group, ShapeExp(), kUnitCustom);
+  auto freqFormatter = [](double val, WDL_String& str, IParam* parent)
+  {
+    const double onethousand = parent->FromNormalized(parent->ToNormalized(1000.));
+    const bool gte1k = val >= onethousand || val >= 1000.;
+    const char* units = gte1k? "kHz" : "Hz";
+    if (gte1k) val *= 0.001;
+    const int displayPrecision = parent->GetDisplayPrecision();
+    str.SetFormatted(MAX_PARAM_DISPLAY_LEN, "%.*f %s", displayPrecision, val, units);
+  };
+  SetDisplayFunc(std::bind(freqFormatter, std::placeholders::_1, std::placeholders::_2, this));
+}
+
 void IParam::InitSeconds(const char *name, double defaultVal, double minVal, double maxVal, double step, int flags, const char *group)
 {
   InitDouble(name, defaultVal, minVal, maxVal, step, "Seconds", flags, group, ShapeLinear(), kUnitSeconds);
