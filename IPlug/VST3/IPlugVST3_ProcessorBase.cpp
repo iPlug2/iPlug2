@@ -178,7 +178,7 @@ void IPlugVST3ProcessorBase::ProcessMidiOut(IPlugQueue<SysExData>& sysExQueue, S
         toAdd.midiCCOut.channel = msg.Channel();
         toAdd.sampleOffset = msg.mOffset;
         toAdd.midiCCOut.controlNumber = ControllerNumbers::kPitchBend;
-        int16 tmp = static_cast<int16> (msg.PitchWheel() * 0x3FFF);
+        int tmp = std::clamp(static_cast<int>((msg.PitchWheel() + 1.0) * 8192.0), 0, 16383);
         toAdd.midiCCOut.value = (tmp & 0x7F);
         toAdd.midiCCOut.value2 = ((tmp >> 7) & 0x7F);
         pOutputEvents->addEvent(toAdd);
