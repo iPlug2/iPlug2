@@ -20,6 +20,10 @@ add_subdirectory(IPlugSideChain)
 add_subdirectory(IPlugSurroundEffect)
 add_subdirectory(IPlugVisualizer)
 
+# ARA examples
+set(CMAKE_FOLDER "Examples/ARA")
+add_subdirectory(IPlugARAExample)
+
 # WebView examples
 set(CMAKE_FOLDER "Examples/WebView")
 if(NOT CMAKE_SYSTEM_NAME STREQUAL "Linux" OR IPLUG_LINUX_WEBVIEW_EXAMPLES)
