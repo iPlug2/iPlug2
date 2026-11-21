@@ -42,7 +42,7 @@
     if (!__GetDpiForWindow)
     {
       HINSTANCE h = LoadLibraryW(L"user32.dll");
-      if (h) *(void **)&__GetDpiForWindow = GetProcAddress(h, "GetDpiForWindow");
+      if (h) __GetDpiForWindow = (UINT(WINAPI *)(HWND))GetProcAddress(h, "GetDpiForWindow");
 
       if (!__GetDpiForWindow)
         return 1;
@@ -418,7 +418,7 @@ static const clap_plugin* clap_create_plugin(const clap_plugin_factory_t *factor
   return nullptr;
 }
 
-CLAP_EXPORT const clap_plugin_factory_t clap_factory = {
+static const clap_plugin_factory_t clap_factory = {
   clap_get_plugin_count,
   clap_get_plugin_descriptor,
   clap_create_plugin,
