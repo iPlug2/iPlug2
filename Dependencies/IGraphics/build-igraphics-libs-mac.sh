@@ -102,6 +102,8 @@ buildFreetype()
   
   export MACOSX_DEPLOYMENT_TARGET=$DEPLOYMENT_TARGET
 
+  export CPATH="$(xcrun --show-sdk-path)/usr/include"
+
   # TODO: for some reason these exports cause x86 build to fail
   if [[ $ARCH == "arm64" ]]; then
     export CC="$(xcrun -sdk macosx -find clang)"
