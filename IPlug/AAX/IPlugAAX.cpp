@@ -20,6 +20,8 @@
 #include "AAX_CNumberDisplayDelegate.h"
 #include "AAX_CUnitDisplayDelegateDecorator.h"
 
+#include "config.h"
+
 using namespace iplug;
 
 AAX_CEffectParameters *AAX_CALLBACK IPlugAAX::Create()
@@ -323,8 +325,16 @@ void IPlugAAX::RenderAudio(AAX_SIPlugRenderInfo* pRenderInfo, const TParamValPai
     AttachBuffers(ERoute::kOutput, 0, maxNOutChans, pRenderInfo->mAudioOutputs, numSamples);
   }
   
-  if (bypass) 
+  if (bypass) {
+    mMeterLevelIn = GetInputBufferMaxValue(pRenderInfo, numSamples);
+    mMeterLevelGR = 0.;
     PassThroughBuffers(0.0f, numSamples);
+    mMeterLevelOut = GetOutputBufferMaxValue(pRenderInfo, numSamples);
+    *pRenderInfo->mMeters[0] = fmax(mMeterLevelIn, *pRenderInfo->mMeters[0]);
+    *pRenderInfo->mMeters[1] = fmax(mMeterLevelOut, *pRenderInfo->mMeters[1]);
+    if(strcmp(AAX_PLUG_CATEGORY_STR, "Dynamics") == 0)
+      *pRenderInfo->mMeters[2] = fmax(mMeterLevelGR, *pRenderInfo->mMeters[2]);
+  }
   else 
   {
     int32_t num, denom;
@@ -361,9 +371,16 @@ void IPlugAAX::RenderAudio(AAX_SIPlugRenderInfo* pRenderInfo, const TParamValPai
       ProcessMidiMsg(msg);
     }
     
+    mMeterLevelIn = GetInputBufferMaxValue(pRenderInfo, numSamples);
+    mMeterLevelGR = 0.;
     ENTER_PARAMS_MUTEX
     ProcessBuffers(0.0f, numSamples);
     LEAVE_PARAMS_MUTEX
+    mMeterLevelOut = GetOutputBufferMaxValue(pRenderInfo, numSamples);
+    *pRenderInfo->mMeters[0] = fmax(mMeterLevelIn, *pRenderInfo->mMeters[0]);
+    *pRenderInfo->mMeters[1] = fmax(mMeterLevelOut, *pRenderInfo->mMeters[1]);
+    if(strcmp(AAX_PLUG_CATEGORY_STR, "Dynamics") == 0)
+      *pRenderInfo->mMeters[2] = fmax(mMeterLevelGR, *pRenderInfo->mMeters[2]);
   }
   
   // Midi Out
@@ -613,3 +630,44 @@ bool IPlugAAX::SendMidiMsg(const IMidiMsg& msg)
   mMidiOutputQueue.Add(msg);
   return true;
 }
+
+double IPlugAAX::GetInputBufferMaxValue (AAX_SIPlugRenderInfo* pRenderInfo, int nFrames)
+{
+    int i, n = NChannelsConnected(ERoute::kInput);
+    
+    double mMax = 0.0;
+    float** ppInChannel = pRenderInfo->mAudioInputs; //mChannelData[ERoute::kInput].GetList();
+    
+    for (i = 0; i < n; ++i, ++ppInChannel)
+    {
+        float* pInChannel = *ppInChannel;
+        float* pSrc = pInChannel;
+        for (int j = 0; j < nFrames; ++j, ++pSrc)
+        {
+            mMax = fmax(fabs(*pSrc),mMax);
+        }
+    }
+    return mMax;
+};
+
+double IPlugAAX::GetOutputBufferMaxValue (AAX_SIPlugRenderInfo* pRenderInfo, int nFrames)
+{
+    int i, n = NChannelsConnected(ERoute::kOutput);
+
+    double mMax = 0.0;
+    float** ppOutChannel = pRenderInfo->mAudioOutputs; //mChannelData[ERoute::kOutput].GetList();
+    
+    for (i = 0; i < n; ++i, ++ppOutChannel)
+    {
+        float* pOutChannel = *ppOutChannel;
+        if (true) //pOutChannel->mConnected)
+        {
+            float* pSrc = pOutChannel;
+            for (int j = 0; j < nFrames; ++j, ++pSrc)
+            {
+                mMax = fmax(fabs(*pSrc),mMax);
+            }
+        }
+    }
+    return mMax;
+};
