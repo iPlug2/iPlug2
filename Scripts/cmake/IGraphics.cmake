@@ -371,13 +371,14 @@ if(NOT TARGET iPlug2::IGraphics::Skia)
       ${SKIA_LIB_PATH}/libskunicode_icu.a
     )
   elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux" AND IGRAPHICS_BACKEND STREQUAL "SKIA")
-    if(IGRAPHICS_RENDERER STREQUAL "CPU")
-      message(FATAL_ERROR "Skia CPU rendering is not implemented on Linux; select IGRAPHICS_RENDERER=GL3.")
-    elseif(NOT IGRAPHICS_RENDERER STREQUAL "GL3")
-      message(FATAL_ERROR "Skia on Linux requires IGRAPHICS_RENDERER=GL3.")
+    if(NOT IGRAPHICS_RENDERER STREQUAL "CPU" AND NOT IGRAPHICS_RENDERER STREQUAL "GL3")
+      message(FATAL_ERROR "Skia on Linux requires IGRAPHICS_RENDERER=GL3 or CPU.")
     endif()
     # Use archives built from the same Skia revision as the headers. System
     # packages commonly ship an incompatible Skia API or omit the modules.
+    # build-skia-linux.sh builds Release archives. Keep the headers' ABI in
+    # Release mode even when the consuming plugin is built in Debug mode.
+    target_compile_definitions(iPlug2::IGraphics::Skia INTERFACE SK_RELEASE)
     set(SKIA_LIB_PATH "${IPLUG_SKIA_LINUX_DIR}/lib")
     set(SKIA_LINUX_LIBS svg skparagraph skshaper skunicode_icu skunicode_core skia)
     if(NOT EXISTS "${SKIA_PATH}/include/core/SkSurface.h")
