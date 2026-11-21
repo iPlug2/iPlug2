@@ -990,6 +990,9 @@ jobs:
             cmake --build --preset linux-ninja $TARGETS
           fi
 
+      - name: Build ARA Example
+        run: cmake --build --preset linux-ninja --target IPlugARAExample-vst3-ara
+
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
