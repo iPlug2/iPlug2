@@ -620,6 +620,29 @@ void ICaptionControl::OnMouseDown(float x, float y, const IMouseMod& mod)
   }
 }
 
+void ICaptionControl::OnMouseWheel(float x, float y, const IMouseMod& mod, float d)
+{
+  const IParam* pParam = GetParam();
+  if (pParam && pParam->GetStepped() && pParam->GetStep() > 0)
+  {
+    const double range = pParam->GetRange();
+
+    if (range > 0. && d != 0.f)
+    {
+      double l, h;
+      pParam->GetBounds(l,h);
+      const double step = pParam->GetStep();
+      double v = l + GetValue() * range;
+      v += d > 0 ? -step : step;
+      v = Clip(v, l, h);
+      v -= l;
+      v /= range;
+      SetValue(v);
+      SetDirty();
+    }
+  }
+}
+
 void ICaptionControl::Draw(IGraphics& g)
 {
   const IParam* pParam = GetParam();
