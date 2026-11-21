@@ -302,10 +302,14 @@ public:
 protected:
   virtual IRECT GetKnobDragBounds() override;
 
-  float mTrackToHandleDistance = 4.f;
-  float mInnerPointerFrac = 0.1f;
-  float mOuterPointerFrac = 1.f;
-  float mPointerThickness = 2.5f;
+  float mTrackToHandleDistance = 5.f;
+    float mInnerPointerFrac = 0.4f;
+    float mOuterPointerFrac = 1.05f;
+    float mPointerThickness = 3.33f;
+ // float mTrackToHandleDistance = 4.f;
+//  float mInnerPointerFrac = 0.1f;
+ // float mOuterPointerFrac = 1.f;
+ // float mPointerThickness = 2.5f;
   float mAngle1, mAngle2;
   float mAnchorAngle; // for bipolar arc
   bool mValueMouseOver = false;
