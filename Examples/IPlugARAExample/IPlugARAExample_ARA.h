@@ -467,11 +467,12 @@ public:
 
     const double gain = pModification->GetGain();
     const bool reverse = pModification->GetReverse();
+    const double invRegionDuration = 1. / static_cast<double>(regionDurationInPlaybackSamples);
 
     for (auto pos = start; pos < end; pos++)
     {
       // normalized position within the region, then into the modification's sample range
-      double u = static_cast<double>(pos - regionStart) / static_cast<double>(regionDurationInPlaybackSamples);
+      double u = static_cast<double>(pos - regionStart) * invRegionDuration;
 
       if (reverse)
         u = 1. - u;

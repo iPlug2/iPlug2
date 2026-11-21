@@ -63,20 +63,19 @@ public:
   void Draw(IGraphics& g) override
   {
     const IRECT r = mRECT;
-    g.FillRect(IColor(255, 32, 34, 40), r);
-    g.DrawRect(IColor(255, 60, 64, 72), r);
+    g.FillRect(DEFAULT_FGCOLOR, r);
+    g.DrawRect(DEFAULT_FRCOLOR, r);
 
-    const IText headerText(13.f, IColor(255, 220, 220, 220), "Roboto-Regular", EAlign::Near, EVAlign::Middle);
-    const IText dimText(12.f, IColor(255, 150, 150, 150), "Roboto-Regular", EAlign::Near, EVAlign::Middle);
-    const IText smallText(11.f, IColor(255, 235, 235, 235), "Roboto-Regular", EAlign::Near, EVAlign::Top);
+    const IText headerText = DEFAULT_TEXT.WithSize(13.f).WithAlign(EAlign::Near);
+    const IText dimText = headerText.WithSize(12.f).WithFGColor(COLOR_DARK_GRAY);
+    const IText smallText = DEFAULT_TEXT.WithSize(11.f).WithAlign(EAlign::Near).WithVAlign(EVAlign::Top);
 
     auto* pDC = mPlug.GetARADocumentController<IPlugARAExampleDocumentController>();
 
     if (!pDC)
     {
-      const IText bigText(18.f, IColor(255, 200, 200, 200), "Roboto-Regular", EAlign::Center, EVAlign::Middle);
-      g.DrawText(bigText, "Not bound to an ARA document controller", r);
-      g.DrawText(IText(13.f, IColor(255, 140, 140, 140), "Roboto-Regular", EAlign::Center, EVAlign::Middle),
+      g.DrawText(DEFAULT_TEXT.WithSize(18.f), "Not bound to an ARA document controller", r);
+      g.DrawText(DEFAULT_TEXT.WithSize(13.f).WithFGColor(COLOR_DARK_GRAY),
                  "Load this plug-in in an ARA host (e.g. REAPER: FX settings -> \"Allow use of ARA\")", r.GetVShifted(28.f));
       return;
     }
@@ -178,7 +177,6 @@ public:
     const float bodyT = rulerT + kRulerH;
     mBodyT = bodyT;
 
-    const auto timeToX = [&](double t) { return mTimelineL + static_cast<float>((t / tEnd) * (mTimelineR - mTimelineL)); };
 
     // time ruler
     double tick = 0.1;
@@ -189,11 +187,11 @@ public:
       tick = candidate;
     }
 
-    const IText tickText(10.f, IColor(255, 130, 130, 130), "Roboto-Regular", EAlign::Near, EVAlign::Top);
+    const IText tickText = dimText.WithSize(10.f).WithVAlign(EVAlign::Top);
     for (double t = 0.; t < tEnd; t += tick)
     {
-      const float x = timeToX(t);
-      g.DrawLine(IColor(255, 55, 58, 66), x, rulerT + kRulerH, x, r.B - 1.f);
+      const float x = TimeToX(t);
+      g.DrawLine(DEFAULT_FRCOLOR.WithOpacity(0.2f), x, rulerT + kRulerH, x, r.B - 1.f);
       str.SetFormatted(32, "%gs", t);
       g.DrawText(tickText, str.Get(), IRECT(x + 2.f, rulerT + 2.f, x + 48.f, rulerT + kRulerH));
     }
@@ -207,16 +205,15 @@ public:
 
     for (auto* pSeq : sequences)
     {
-      const float rowT = bodyT + rowIdx * mRowH;
-      if (rowT + 4.f > r.B)
+      float rowT, rowB;
+      if (!GetRowBounds(rowIdx, rowT, rowB))
         break;
-      const float rowB = std::min(rowT + mRowH, r.B - 1.f);
       rowIdx++;
 
       const bool hidden = std::find(hiddenSequences.begin(), hiddenSequences.end(), pSeq) != hiddenSequences.end();
 
       if (rowIdx % 2)
-        g.FillRect(IColor(255, 37, 39, 46), IRECT(r.L + 1.f, rowT, r.R - 1.f, rowB));
+        g.FillRect(COLOR_BLACK.WithOpacity(0.06f), IRECT(r.L + 1.f, rowT, r.R - 1.f, rowB));
 
       // sequence label + host-provided track color
       const IColor seqColor = ARAColorToIColor(pSeq->getColor(), IColor(255, 90, 120, 180));
@@ -236,10 +233,8 @@ public:
 
         auto* pSource = pModification->getAudioSource<IPlugARAExampleAudioSource>();
 
-        const float blockL = std::max(timeToX(pReg->getStartInPlaybackTime()), mTimelineL);
-        const float blockR = std::min(timeToX(pReg->getEndInPlaybackTime()), mTimelineR);
-
-        if (blockR - blockL < 1.f)
+        float blockL, blockR;
+        if (!GetRegionXBounds(pReg, blockL, blockR))
           continue;
 
         const IRECT block(blockL, rowT + 3.f, blockR, rowB - 3.f);
@@ -249,9 +244,9 @@ public:
 
         g.FillRect(regionColor.WithOpacity(hidden ? 0.15f : (selected ? 0.5f : 0.3f)), block);
         DrawWaveform(g, block, pReg, pModification, pSource, regionColor);
-        DrawNotes(g, block, pReg, pSource);
+        DrawNotes(g, block, pReg, pModification, pSource);
         DrawAnalysisProgress(g, block, pSource);
-        g.DrawRect(selected ? COLOR_WHITE : regionColor, block, 0, selected ? 2.f : 1.f);
+        g.DrawRect(selected ? COLOR_BLACK : regionColor, block, 0, selected ? 2.f : 1.f);
 
         if (block.W() > 40.f)
         {
@@ -282,9 +277,9 @@ public:
     }
 
     // playhead
-    const float playheadX = timeToX(mPlug.GetPlayheadPos());
+    const float playheadX = TimeToX(mPlug.GetPlayheadPos());
     if (playheadX >= mTimelineL && playheadX <= mTimelineR)
-      g.DrawLine(COLOR_WHITE, playheadX, rulerT, playheadX, r.B - 1.f, 0, 1.5f);
+      g.DrawLine(COLOR_BLACK, playheadX, rulerT, playheadX, r.B - 1.f, 0, 1.5f);
   }
 
 private:
@@ -309,8 +304,9 @@ private:
 
     for (auto* pSeq : sequences)
     {
-      const float rowT = mBodyT + rowIdx * mRowH;
-      const float rowB = rowT + mRowH;
+      float rowT, rowB;
+      if (!GetRowBounds(rowIdx, rowT, rowB))
+        break;
       rowIdx++;
 
       if (y < rowT || y > rowB)
@@ -318,15 +314,35 @@ private:
 
       for (auto* pReg : pSeq->getPlaybackRegions())
       {
-        const float blockL = mTimelineL + static_cast<float>((pReg->getStartInPlaybackTime() / mTimeEnd) * (mTimelineR - mTimelineL));
-        const float blockR = mTimelineL + static_cast<float>((pReg->getEndInPlaybackTime() / mTimeEnd) * (mTimelineR - mTimelineL));
-
-        if (x >= blockL && x <= blockR)
+        float blockL, blockR;
+        if (GetRegionXBounds(pReg, blockL, blockR) && x >= blockL && x <= blockR)
           return pReg;
       }
     }
 
     return nullptr;
+  }
+
+  // Timeline geometry shared by Draw() and HitTestRegion(), using the layout cached by Draw()
+  float TimeToX(double t) const
+  {
+    return mTimelineL + static_cast<float>((t / mTimeEnd) * (mTimelineR - mTimelineL));
+  }
+
+  /** @return false if the row with the given index does not fit in the control */
+  bool GetRowBounds(int rowIdx, float& rowT, float& rowB) const
+  {
+    rowT = mBodyT + rowIdx * mRowH;
+    rowB = std::min(rowT + mRowH, mRECT.B - 1.f);
+    return rowT + 4.f <= mRECT.B;
+  }
+
+  /** @return false if the region is too narrow to be drawn or clicked */
+  bool GetRegionXBounds(ARA::PlugIn::PlaybackRegion* pReg, float& blockL, float& blockR) const
+  {
+    blockL = std::max(TimeToX(pReg->getStartInPlaybackTime()), mTimelineL);
+    blockR = std::min(TimeToX(pReg->getEndInPlaybackTime()), mTimelineR);
+    return blockR - blockL >= 1.f;
   }
 
   /** Draw the waveform of the region, honouring the audio modification's reverse edit and the
@@ -369,7 +385,7 @@ private:
   }
 
   /** Draw the notes the plug-in detected and exports to the host, as a small pitch lane */
-  void DrawNotes(IGraphics& g, const IRECT& block, ARA::PlugIn::PlaybackRegion* pReg, IPlugARAExampleAudioSource* pSource)
+  void DrawNotes(IGraphics& g, const IRECT& block, ARA::PlugIn::PlaybackRegion* pReg, IPlugARAExampleAudioModification* pModification, IPlugARAExampleAudioSource* pSource)
   {
     if (!pSource->HasAnalysis() || block.H() < 16.f)
       return;
@@ -400,6 +416,7 @@ private:
     if (minPitch > maxPitch)
       return;
 
+    const bool reverse = pModification->GetReverse();
     const float laneT = block.T + 2.f;
     const float laneH = std::min(block.H() * 0.45f, 24.f);
     const int pitchSpan = std::max(1, maxPitch - minPitch);
@@ -409,8 +426,15 @@ private:
       if (note.pitchNumber == ARA::kARAInvalidPitchNumber)
         continue;
 
-      const double u0 = (note.startPosition - modStart) / modDuration;
-      const double u1 = (note.startPosition + note.noteDuration - modStart) / modDuration;
+      double u0 = (note.startPosition - modStart) / modDuration;
+      double u1 = (note.startPosition + note.noteDuration - modStart) / modDuration;
+
+      if (reverse) // mirror the note within the region, as the waveform and the renderer do
+      {
+        const double r0 = 1. - u1;
+        u1 = 1. - u0;
+        u0 = r0;
+      }
 
       if (u1 < 0. || u0 > 1.)
         continue;
@@ -421,7 +445,7 @@ private:
       const float pitchNorm = static_cast<float>(maxPitch - note.pitchNumber) / static_cast<float>(pitchSpan);
       const float y = laneT + pitchNorm * (laneH - 4.f);
 
-      g.FillRect(IColor(220, 255, 210, 90), IRECT(x0, y, std::max(x1, x0 + 2.f), y + 3.f));
+      g.FillRect(IColor(230, 200, 90, 0), IRECT(x0, y, std::max(x1, x0 + 2.f), y + 3.f));
     }
   }
 
@@ -434,8 +458,8 @@ private:
     const float progress = pSource->GetAnalysisProgress();
     const IRECT bar = IRECT(block.L + 2.f, block.B - 7.f, block.R - 2.f, block.B - 2.f);
 
-    g.FillRect(IColor(180, 20, 22, 26), bar);
-    g.FillRect(IColor(220, 90, 200, 255), bar.FracRectHorizontal(progress));
+    g.FillRect(DEFAULT_FRCOLOR.WithOpacity(0.6f), bar);
+    g.FillRect(IColor(255, 40, 140, 220), bar.FracRectHorizontal(progress));
   }
 
   IPlugARAExample& mPlug;
