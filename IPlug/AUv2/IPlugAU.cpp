@@ -705,28 +705,31 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
     case kAudioUnitProperty_SupportedNumChannels:        // 13,
     {
       ASSERT_SCOPE(kAudioUnitScope_Global);
-      int n = NIOConfigs(); //TODO: THIS IS INCORRECT!
-      *pDataSize = n * sizeof(AUChannelInfo);
+      // AU channel infos describe the main buses only; auxiliary buses (e.g. sidechain) are negotiated separately
+      WDL_TypedBuf<AUChannelInfo> chInfos;
+      for (int i = 0; i < NIOConfigs(); ++i)
+      {
+        const IOConfig* pIO = GetIOConfig(i);
+        const int nIn = pIO->NChansOnBusSAFE(ERoute::kInput, 0);
+        const int nOut = pIO->NChansOnBusSAFE(ERoute::kOutput, 0);
+        AUChannelInfo info;
+        info.inChannels = nIn < 0 ? -1 : nIn;
+        info.outChannels = nOut < 0 ? -1 : nOut;
+
+        bool duplicate = false;
+        for (int j = 0; j < chInfos.GetSize() && !duplicate; ++j)
+          duplicate = chInfos.Get()[j].inChannels == info.inChannels && chInfos.Get()[j].outChannels == info.outChannels;
+
+        if (!duplicate)
+        {
+          chInfos.Add(info);
+          Trace(TRACELOC, "IO:%d:%d", info.inChannels, info.outChannels);
+        }
+      }
+      *pDataSize = chInfos.GetSize() * sizeof(AUChannelInfo);
       if (pData)
       {
-        AUChannelInfo* pChInfo = (AUChannelInfo*) pData;
-        for (int i = 0; i < n; ++i, ++pChInfo)
-        {
-          const IOConfig* pIO = GetIOConfig(i);
-          
-          if(pIO->ContainsWildcard(ERoute::kInput))
-             pChInfo->inChannels = -1;
-          else
-            pChInfo->inChannels = pIO->GetTotalNChannels(kInput);
-          
-          if(pIO->ContainsWildcard(ERoute::kOutput))
-            pChInfo->outChannels = -1;
-          else
-            pChInfo->outChannels = pIO->GetTotalNChannels(kOutput);
-          
-          Trace(TRACELOC, "IO:%d:%d", pChInfo->inChannels, pChInfo->outChannels);
-
-        }
+        memcpy(pData, chInfos.Get(), *pDataSize);
       }
       return noErr;
     }
@@ -1182,7 +1185,7 @@ OSStatus IPlugAU::SetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
       {
         return kAudioUnitErr_InvalidProperty;
       }
-      pBus->mNHostChannels = 0;
+      const int prevNHostChannels = pBus->mNHostChannels;
       // The connection is OK if the plugin expects the same number of channels as the host is attempting to connect,
       // or if the plugin supports mono channels (meaning it's flexible about how many inputs to expect)
       // and the plugin supports at least as many channels as the host is attempting to connect.
@@ -1200,6 +1203,10 @@ OSStatus IPlugAU::SetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
       if (connectionOK)
       {
         pBus->mNHostChannels = nHostChannels;
+        if (scope == kAudioUnitScope_Output)
+        {
+          pBus->mConnected = false; // plug channel connections are updated on the next render
+        }
         if (pASBD->mSampleRate > 0.0)
         {
           SetSampleRate(pASBD->mSampleRate);
@@ -1207,7 +1214,7 @@ OSStatus IPlugAU::SetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
       }
       else
       {
-        pBus->mNHostChannels = pBus->mNPlugChannels;
+        pBus->mNHostChannels = prevNHostChannels;
       }
       AssessInputConnections();
       return (connectionOK ? noErr : (int) kAudioUnitErr_InvalidProperty); // casting to int avoids gcc error
@@ -1340,53 +1347,82 @@ const char* IPlugAU::AUInputTypeStr(int type)
   }
 }
 
-int IPlugAU::NHostChannelsConnected(WDL_PtrList<BusChannels>* pBuses, int excludeIdx)
+// Main buses (input 0 / output 0) must match the main buses of one IO config. Auxiliary buses (e.g. sidechain)
+// are checked independently: iPlug maps them onto fixed plug channel slots and zeroes any unconnected channels,
+// so e.g. a mono main input with a stereo sidechain is fine if some config declares a stereo sidechain.
+static bool ChannelCountsMatch(int nConfigChannels, int nHostChannels)
 {
-  bool init = false;
-  int nCh = 0, n = pBuses->GetSize();
-  
-  for (int i = 0; i < n; ++i)
+  return nHostChannels < 0 || nConfigChannels < 0 || nConfigChannels == nHostChannels;
+}
+
+int IPlugAU::MainBusHostChannels(WDL_PtrList<BusChannels>* pBuses)
+{
+  return pBuses->GetSize() ? pBuses->Get(0)->mNHostChannels : -1;
+}
+
+bool IPlugAU::MainBusesLegal(int nMainIn, int nMainOut) const
+{
+  bool legal = false;
+
+  for (int i = 0; i < NIOConfigs() && !legal; ++i)
   {
-    if (i != excludeIdx)
-    {
-      int nHostChannels = pBuses->Get(i)->mNHostChannels;
-      if (nHostChannels >= 0)
-      {
-        nCh += nHostChannels;
-        init = true;
-      }
-    }
+    const IOConfig* pIO = GetIOConfig(i);
+    legal = ChannelCountsMatch(pIO->NChansOnBusSAFE(ERoute::kInput, 0), nMainIn)
+         && ChannelCountsMatch(pIO->NChansOnBusSAFE(ERoute::kOutput, 0), nMainOut);
   }
-  
-  if (init)
+
+  Trace(TRACELOC, "main %d:%d:%s", nMainIn, nMainOut, (legal ? "legal" : "illegal"));
+  return legal;
+}
+
+bool IPlugAU::AuxBusLegal(ERoute direction, int busIdx, int nChannels) const
+{
+  bool legal = false;
+
+  for (int i = 0; i < NIOConfigs() && !legal; ++i)
   {
-    return nCh;
+    const IOConfig* pIO = GetIOConfig(i);
+    legal = busIdx < pIO->NBuses(direction) && ChannelCountsMatch(pIO->NChansOnBusSAFE(direction, busIdx), nChannels);
   }
-  
-  return -1;
+
+  Trace(TRACELOC, "aux %s %d:%d:%s", RoutingDirStrs[direction], busIdx, nChannels, (legal ? "legal" : "illegal"));
+  return legal;
 }
 
 bool IPlugAU::CheckLegalIO(AudioUnitScope scope, int busIdx, int nChannels)
 {
-  if (scope == kAudioUnitScope_Input)
+  const ERoute direction = (scope == kAudioUnitScope_Input) ? ERoute::kInput : ERoute::kOutput;
+
+  if (busIdx > 0)
   {
-    int nIn = std::max(NHostChannelsConnected(&mInBuses, busIdx), 0);
-    int nOut = (mActive ? NHostChannelsConnected(&mOutBuses) : -1);
-    return LegalIO(nIn + nChannels, nOut);
+    return AuxBusLegal(direction, busIdx, nChannels);
+  }
+
+  if (direction == ERoute::kInput)
+  {
+    return MainBusesLegal(nChannels, mActive ? MainBusHostChannels(&mOutBuses) : -1);
   }
   else
   {
-    int nIn = (mActive ? NHostChannelsConnected(&mInBuses) : -1);
-    int nOut = std::max(NHostChannelsConnected(&mOutBuses, busIdx), 0);
-    return LegalIO(nIn, nOut + nChannels);
+    return MainBusesLegal(mActive ? MainBusHostChannels(&mInBuses) : -1, nChannels);
   }
 }
 
 bool IPlugAU::CheckLegalIO()
 {
-  int nIn = NHostChannelsConnected(&mInBuses);
-  int nOut = NHostChannelsConnected(&mOutBuses);
-  return ((!nIn && !nOut) || LegalIO(nIn, nOut));
+  bool legal = MainBusesLegal(MainBusHostChannels(&mInBuses), MainBusHostChannels(&mOutBuses));
+
+  for (int i = 1; i < mInBuses.GetSize() && legal; ++i)
+  {
+    legal = AuxBusLegal(ERoute::kInput, i, mInBuses.Get(i)->mNHostChannels);
+  }
+
+  for (int i = 1; i < mOutBuses.GetSize() && legal; ++i)
+  {
+    legal = AuxBusLegal(ERoute::kOutput, i, mOutBuses.Get(i)->mNHostChannels);
+  }
+
+  return legal;
 }
 
 void IPlugAU::AssessInputConnections()
