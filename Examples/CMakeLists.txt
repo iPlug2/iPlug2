@@ -46,3 +46,10 @@ else()
   add_subdirectory(IPlugReaperExtensionWebUI)
 endif()
 add_subdirectory(IPlugReaperPlugin)
+
+# Opt-in because Visage downloads and compiles additional graphics dependencies.
+option(IPLUG2_BUILD_VISAGE "Build the Visage UI example" OFF)
+if(IPLUG2_BUILD_VISAGE)
+  set(CMAKE_FOLDER "Examples/Visage")
+  add_subdirectory(IPlugVisage)
+endif()
