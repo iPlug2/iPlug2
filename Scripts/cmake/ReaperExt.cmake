@@ -76,6 +76,25 @@ if(NOT TARGET iPlug2::ReaperExt)
       "-undefined dynamic_lookup"
       iPlug2::IPlug
     )
+  elseif(UNIX AND NOT APPLE AND NOT EMSCRIPTEN)
+    # As on macOS, REAPER provides SWELL, so compile only the module stub. Built with
+    # SWELL_PROVIDED_BY_APP it defines the SWELL API as function pointers, which REAPER
+    # binds through the exported SWELL_dllMain when it loads the extension. REAPER does
+    # not export the SWELL functions as dynamic symbols, so without the stub the
+    # extension fails to load.
+    target_include_directories(iPlug2::ReaperExt INTERFACE ${SWELL_DIR})
+
+    set(SWELL_SRC
+      "${SWELL_DIR}/swell-modstub-generic.cpp"
+    )
+
+    target_sources(iPlug2::ReaperExt INTERFACE ${SWELL_SRC})
+
+    target_compile_definitions(iPlug2::ReaperExt INTERFACE
+      SWELL_PROVIDED_BY_APP
+    )
+
+    target_link_libraries(iPlug2::ReaperExt INTERFACE iPlug2::IPlug)
   endif()
 endif()
 
@@ -133,6 +152,16 @@ function(iplug_configure_reaperext target project_name)
     target_link_options(${target} PRIVATE
       "LINKER:-exported_symbol,_ReaperPluginEntry"
       "LINKER:-exported_symbol,_SWELL_dllMain"
+    )
+  elseif(UNIX AND NOT APPLE AND NOT EMSCRIPTEN)
+    set(REAPER_EXT_OUTPUT_DIR "${CMAKE_BINARY_DIR}/out")
+    set_target_properties(${target} PROPERTIES
+      OUTPUT_NAME "${reaper_ext_name}"
+      LIBRARY_OUTPUT_DIRECTORY "${REAPER_EXT_OUTPUT_DIR}"
+      LIBRARY_OUTPUT_DIRECTORY_DEBUG "${REAPER_EXT_OUTPUT_DIR}"
+      LIBRARY_OUTPUT_DIRECTORY_RELEASE "${REAPER_EXT_OUTPUT_DIR}"
+      SUFFIX ".so"
+      PREFIX ""
     )
   endif()
 

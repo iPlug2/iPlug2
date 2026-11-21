@@ -123,7 +123,9 @@ WASM_UI_EXPORTS = "['_malloc', '_free', '_main', '_iplug_fsready', '_iplug_syncf
 WASM_WEBVIEW_UI_EXPORTS = "['_malloc', '_free', '_main', '_iplug_fsready', '_iplug_syncfs']"
 
 # Common linker flags
-LDFLAGS = -s ALLOW_MEMORY_GROWTH=1 --bind
+# The project makefiles link with $(CC) (emcc), which since Emscripten 6.0.6 only
+# links the C++ runtime when asked to
+LDFLAGS = -s ALLOW_MEMORY_GROWTH=1 -s DEFAULT_TO_CXX=1 --bind
 
 # DSP module linker flags
 # CRITICAL: SINGLE_FILE=1 embeds WASM as BASE64 for synchronous loading in AudioWorklet

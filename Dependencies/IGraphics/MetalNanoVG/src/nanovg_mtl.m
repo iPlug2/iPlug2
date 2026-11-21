@@ -123,6 +123,7 @@ typedef struct MNVGfragUniforms MNVGfragUniforms;
 @interface MNVGbuffers : NSObject
 
 @property (nonatomic, strong) id<MTLCommandBuffer> commandBuffer;
+@property (nonatomic, strong) id<CAMetalDrawable> drawable;
 @property (nonatomic, assign) BOOL isBusy;
 @property (nonatomic, assign) int image;
 @property (nonatomic, strong) id<MTLBuffer> viewSizeBuffer;
@@ -192,6 +193,8 @@ typedef struct MNVGfragUniforms MNVGfragUniforms;
 - (MNVGtexture*)allocTexture;
 
 - (void)convexFill:(MNVGcall*)call;
+
+- (void)createSamplerForTexture:(MNVGtexture*)tex;
 
 -(void)fill:(MNVGcall*)call;
 
@@ -493,6 +496,9 @@ static void mtlnvg__vset(NVGvertex* vtx, float x, float y, float u, float v) {
 }
 
 void nvgDeleteMTL(NVGcontext* ctx) {
+  // Completion handlers still own and reset the frame slots until the GPU
+  // finishes. Do not destroy their storage while those callbacks can run.
+  mnvgWaitUntilCompleted(ctx);
   nvgDeleteInternal(ctx);
 }
 
@@ -523,6 +529,22 @@ void mnvgDeleteFramebuffer(MNVGframebuffer* framebuffer) {
   free(framebuffer);
 }
 
+MNVGframebuffer* mnvgCreateCoverageFramebuffer(NVGcontext* ctx, int width,
+                                               int height, int imageFlags) {
+  MNVGframebuffer* framebuffer = calloc(1, sizeof(MNVGframebuffer));
+  if (framebuffer == NULL) return NULL;
+  NVGparams* params = nvgInternalParams(ctx);
+  framebuffer->image = params->renderCreateTexture(
+      params->userPtr, NVG_TEXTURE_ALPHA, width, height,
+      imageFlags | NVG_IMAGE_PREMULTIPLIED, NULL);
+  if (framebuffer->image <= 0) {
+    free(framebuffer);
+    return NULL;
+  }
+  framebuffer->ctx = ctx;
+  return framebuffer;
+}
+
 void mnvgClearWithColor(NVGcontext* ctx, NVGcolor color) {
   MNVGcontext* mtl = (__bridge MNVGcontext*)nvgInternalParams(ctx)->userPtr;
   float alpha = (float)color.a;
@@ -547,6 +569,7 @@ int mnvgCreateImageFromHandle(NVGcontext* ctx, void* textureId, int imageFlags) 
   tex->type = NVG_TEXTURE_RGBA;
   tex->tex = (__bridge id<MTLTexture>)textureId;
   tex->flags = imageFlags;
+  [mtl createSamplerForTexture:tex];
 
   return tex->id;
 }
@@ -556,19 +579,38 @@ void* mnvgDevice(NVGcontext* ctx) {
   return (__bridge void*)mtl.metalLayer.device;
 }
 
+static void mnvgWaitForImageCommands(MNVGcontext* mtl, int image) {
+  NSMutableArray<id<MTLCommandBuffer>>* commands = [NSMutableArray array];
+  // Completion handlers release frame slots on a different thread. Retain a
+  // stable snapshot before waiting, without holding the pool lock on the GPU.
+  @synchronized(mtl.cbuffers) {
+    for (MNVGbuffers* buffers in mtl.cbuffers) {
+      if (buffers.isBusy && buffers.commandBuffer != nil &&
+          (image == 0 || buffers.image == image)) {
+        [commands addObject:buffers.commandBuffer];
+      }
+    }
+  }
+  // Several queued frames can write the same image. Waiting only the first
+  // matching slot can expose an earlier clear instead of the latest drawing.
+  for (id<MTLCommandBuffer> command in commands) {
+    [command waitUntilCompleted];
+  }
+}
+
+void mnvgWaitUntilCompleted(NVGcontext* ctx) {
+  if (ctx == NULL) return;
+  MNVGcontext* mtl = (__bridge MNVGcontext*)nvgInternalParams(ctx)->userPtr;
+  mnvgWaitForImageCommands(mtl, 0);
+}
+
 void* mnvgImageHandle(NVGcontext* ctx, int image) {
   MNVGcontext* mtl = (__bridge MNVGcontext*)nvgInternalParams(ctx)->userPtr;
   MNVGtexture* tex = [mtl findTexture:image];
   if (tex == nil) return NULL;
 
   // Makes sure the command execution for the image has been done.
-  for (MNVGbuffers* buffers in mtl.cbuffers) {
-    if (buffers.isBusy && buffers.image == image && buffers.commandBuffer) {
-      id<MTLCommandBuffer> commandBuffer = buffers.commandBuffer;
-      [commandBuffer waitUntilCompleted];
-      break;
-    }
-  }
+  mnvgWaitForImageCommands(mtl, image);
 
   return (__bridge void*)tex->tex;
 }
@@ -587,13 +629,7 @@ void mnvgReadPixels(NVGcontext* ctx, int image, int x, int y, int width,
   }
 
   // Makes sure the command execution for the image has been done.
-  for (MNVGbuffers* buffers in mtl.cbuffers) {
-    if (buffers.isBusy && buffers.image == image && buffers.commandBuffer) {
-      id<MTLCommandBuffer> commandBuffer = buffers.commandBuffer;
-      [commandBuffer waitUntilCompleted];
-      break;
-    }
-  }
+  mnvgWaitForImageCommands(mtl, image);
 
 #if TARGET_OS_SIMULATOR
   CAMetalLayer* metalLayer = mtl.metalLayer;
@@ -888,6 +924,40 @@ enum MNVGTarget mnvgTarget() {
   [_renderEncoder setDepthStencilState:_defaultStencilState];
 }
 
+- (void)createSamplerForTexture:(MNVGtexture*)tex {
+  const int imageFlags = tex->flags;
+  // a texture from a handle may come with its own mipmaps
+  const BOOL hasMipmaps = tex->tex.mipmapLevelCount > 1;
+
+  MTLSamplerDescriptor* samplerDescriptor = [MTLSamplerDescriptor new];
+  if (imageFlags & NVG_IMAGE_NEAREST) {
+    samplerDescriptor.minFilter = MTLSamplerMinMagFilterNearest;
+    samplerDescriptor.magFilter = MTLSamplerMinMagFilterNearest;
+    if (hasMipmaps)
+      samplerDescriptor.mipFilter = MTLSamplerMipFilterNearest;
+  } else {
+    samplerDescriptor.minFilter = MTLSamplerMinMagFilterLinear;
+    samplerDescriptor.magFilter = MTLSamplerMinMagFilterLinear;
+    if (hasMipmaps)
+      samplerDescriptor.mipFilter = MTLSamplerMipFilterLinear;
+  }
+
+  if (imageFlags & NVG_IMAGE_REPEATX) {
+    samplerDescriptor.sAddressMode = MTLSamplerAddressModeRepeat;
+  } else {
+    samplerDescriptor.sAddressMode = MTLSamplerAddressModeClampToEdge;
+  }
+
+  if (imageFlags & NVG_IMAGE_REPEATY) {
+    samplerDescriptor.tAddressMode = MTLSamplerAddressModeRepeat;
+  } else {
+    samplerDescriptor.tAddressMode = MTLSamplerAddressModeClampToEdge;
+  }
+
+  tex->sampler = [_metalLayer.device
+      newSamplerStateWithDescriptor:samplerDescriptor];
+}
+
 - (MNVGtexture*)findTexture:(int)id {
   for (MNVGtexture* texture in _textures) {
     if (texture->id == id)
@@ -901,12 +971,14 @@ enum MNVGTarget mnvgTarget() {
 }
 
 - (void)renderCancel {
-  _buffers.image = 0;
-  _buffers.isBusy = NO;
-  _buffers.nindexes = 0;
-  _buffers.nverts = 0;
-  _buffers.ncalls = 0;
-  _buffers.nuniforms = 0;
+  @synchronized(_cbuffers) {
+    _buffers.image = 0;
+    _buffers.nindexes = 0;
+    _buffers.nverts = 0;
+    _buffers.ncalls = 0;
+    _buffers.nuniforms = 0;
+    _buffers.isBusy = NO;
+  }
   dispatch_semaphore_signal(_semaphore);
 }
 
@@ -1190,6 +1262,11 @@ enum MNVGTarget mnvgTarget() {
   textureDescriptor.storageMode = MTLStorageModePrivate;
 #endif  // TARGET_OS_SIMULATOR
   tex->tex = [_metalLayer.device newTextureWithDescriptor:textureDescriptor];
+  if (tex->tex == nil) {
+    tex->id = 0;
+    tex->flags = 0;
+    return 0;
+  }
 
   if (data != NULL) {
     NSUInteger bytesPerRow;
@@ -1239,33 +1316,7 @@ enum MNVGTarget mnvgTarget() {
     }
   }
 
-  MTLSamplerDescriptor* samplerDescriptor = [MTLSamplerDescriptor new];
-  if (imageFlags & NVG_IMAGE_NEAREST) {
-    samplerDescriptor.minFilter = MTLSamplerMinMagFilterNearest;
-    samplerDescriptor.magFilter = MTLSamplerMinMagFilterNearest;
-    if (imageFlags & NVG_IMAGE_GENERATE_MIPMAPS)
-      samplerDescriptor.mipFilter = MTLSamplerMipFilterNearest;
-  } else {
-    samplerDescriptor.minFilter = MTLSamplerMinMagFilterLinear;
-    samplerDescriptor.magFilter = MTLSamplerMinMagFilterLinear;
-    if (imageFlags & NVG_IMAGE_GENERATE_MIPMAPS)
-      samplerDescriptor.mipFilter = MTLSamplerMipFilterLinear;
-  }
-
-  if (imageFlags & NVG_IMAGE_REPEATX) {
-    samplerDescriptor.sAddressMode = MTLSamplerAddressModeRepeat;
-  } else {
-    samplerDescriptor.sAddressMode = MTLSamplerAddressModeClampToEdge;
-  }
-
-  if (imageFlags & NVG_IMAGE_REPEATY) {
-    samplerDescriptor.tAddressMode = MTLSamplerAddressModeRepeat;
-  } else {
-    samplerDescriptor.tAddressMode = MTLSamplerAddressModeClampToEdge;
-  }
-
-  tex->sampler = [_metalLayer.device
-      newSamplerStateWithDescriptor:samplerDescriptor];
+  [self createSamplerForTexture:tex];
 
   return tex->id;
 }
@@ -1424,21 +1475,28 @@ error:
   }
 
   id<MTLCommandBuffer> commandBuffer = [_commandQueue commandBuffer];
+  commandBuffer.label = @"MetalNanoVG Surface";
   id<MTLTexture> colorTexture = nil;;
   vector_uint2 textureSize;
 
   _buffers.commandBuffer = commandBuffer;
-  __block MNVGbuffers* buffers = _buffers;
+  MNVGbuffers* buffers = _buffers;
   [commandBuffer enqueue];
   [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> buffer) {
-      buffers.isBusy = NO;
+    @synchronized(self.cbuffers) {
       buffers.commandBuffer = nil;
+      buffers.drawable = nil;
       buffers.image = 0;
       buffers.nindexes = 0;
       buffers.nverts = 0;
       buffers.ncalls = 0;
       buffers.nuniforms = 0;
-      dispatch_semaphore_signal(self.semaphore);
+      // Publish availability only after all previous-frame state is cleared.
+      // Otherwise the render thread can reuse this slot and have its new draw
+      // calls erased by the remainder of this completion handler.
+      buffers.isBusy = NO;
+    }
+    dispatch_semaphore_signal(self.semaphore);
   }];
 
   if (s_framebuffer == NULL ||
@@ -1451,16 +1509,27 @@ error:
     textureSize = (vector_uint2){(uint)colorTexture.width,
                                  (uint)colorTexture.height};
   }
-  if (textureSize.x == 0 || textureSize.y == 0) return;
+  if (textureSize.x == 0 || textureSize.y == 0) {
+    // Even an aborted frame must complete its enqueued command and release
+    // its slot. Otherwise the queue and context-destruction fence can stall.
+    [commandBuffer commit];
+    return;
+  }
   [self updateStencilTextureToSize:&textureSize];
 
   id<CAMetalDrawable> drawable = nil;
   if (colorTexture == nil) {
     drawable = _metalLayer.nextDrawable;
+    // Keep the drawable alive until the GPU has finished using its texture.
+    // This is especially important when presentsWithTransaction is enabled:
+    // resizing the CAMetalLayer can otherwise recycle the drawable after the
+    // command buffer is scheduled but before it has completed.
+    buffers.drawable = drawable;
     colorTexture = drawable.texture;
   }
   _renderEncoder = [self renderCommandEncoderWithColorTexture:colorTexture];
   if (_renderEncoder == nil) {
+    [commandBuffer commit];
     return;
   }
   MNVGcall* call = &buffers.calls[0];
@@ -1689,15 +1758,19 @@ error:
 - (void)renderViewportWithWidth:(float)width
                          height:(float)height
                devicePixelRatio:(float)devicePixelRatio {
-  _viewPortSize = (vector_uint2){width * devicePixelRatio,
-                                 height * devicePixelRatio};
+  // Fractional display density must not truncate an exact framebuffer extent
+  // one pixel short after float conversion; retained copies would shrink it.
+  _viewPortSize = (vector_uint2){lroundf(width * devicePixelRatio),
+                                 lroundf(height * devicePixelRatio)};
 
   dispatch_semaphore_wait(_semaphore, DISPATCH_TIME_FOREVER);
-  for (MNVGbuffers* buffers in _cbuffers) {
-    if (!buffers.isBusy) {
-      buffers.isBusy = YES;
-      _buffers = buffers;
-      break;
+  @synchronized(_cbuffers) {
+    for (MNVGbuffers* buffers in _cbuffers) {
+      if (!buffers.isBusy) {
+        buffers.isBusy = YES;
+        _buffers = buffers;
+        break;
+      }
     }
   }
 

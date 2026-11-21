@@ -44,6 +44,9 @@ public:
   
   virtual ~ReaperExtBase();
 
+#ifdef OS_LINUX
+  bool StartMainThreadTimer();
+#endif
   //IEditorDelegate
   void BeginInformHostOfParamChangeFromUI(int paramIdx) override {}; // NO-OP
   
@@ -156,6 +159,11 @@ private:
   bool mStateLoaded = false;
   int mWindowToggle = 0;
   int mDockToggle = 0;
+#if defined OS_LINUX && !defined NO_IGRAPHICS
+  HWND mXBridge = nullptr;
+  enum class EWindowAction { None, Hide, ToggleDock };
+  EWindowAction mPendingWindowAction = EWindowAction::None;
+#endif
 };
 
 END_IPLUG_NAMESPACE
