@@ -328,7 +328,8 @@ APIBitmap* IGraphicsNanoVG::LoadAPIBitmap(const char* fileNameOrResID, int scale
 #if defined OS_IOS && defined IGRAPHICS_METAL
   if (location == EResourceLocation::kPreloadedTexture)
   {
-    idx = mnvgCreateImageFromHandle(mVG, gTextureMap[fileNameOrResID], nvgImageFlags);
+    // KTX files may carry their own mipmaps; MetalNanoVG only samples them with this flag
+    idx = mnvgCreateImageFromHandle(mVG, gTextureMap[fileNameOrResID], nvgImageFlags | NVG_IMAGE_GENERATE_MIPMAPS);
   }
   else
 #endif
