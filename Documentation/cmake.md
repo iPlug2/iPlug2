@@ -363,6 +363,7 @@ iplug_add_plugin(<name>
   [DEFINES <def1> [def2 ...]]
   [UI <IGRAPHICS|WEBVIEW|NONE>]
   [WAM_SITE_ORIGIN <origin>]
+  [RC_INCLUDE_DIRS <dir1> [dir2 ...]]
 )
 ```
 
@@ -379,6 +380,7 @@ iplug_add_plugin(<name>
 | `DEFINES` | Additional compile definitions | None |
 | `UI` | UI framework: `IGRAPHICS`, `WEBVIEW`, or `NONE` | `IGRAPHICS` |
 | `WAM_SITE_ORIGIN` | WAM site origin for CORS | `"/"` |
+| `RC_INCLUDE_DIRS` | Windows only: extra include directories for the resource compiler when compiling `resources/main.rc` (e.g. a fonts folder shared between projects). Relative paths are resolved against the project directory | None |
 
 ### Format Names
 

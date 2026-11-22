@@ -161,14 +161,8 @@ function(iplug_configure_aax target project_name)
       )
     endif()
 
-    # Copy icon file if present
-    set(ICON_FILE ${PLUG_RESOURCES_DIR}/${project_name}.ico)
-    if(EXISTS ${ICON_FILE})
-      add_custom_command(TARGET ${target} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy "${ICON_FILE}" "${CMAKE_BINARY_DIR}/out/${project_name}.aaxplugin/Contents/PlugIn.ico"
-        COMMENT "Copying AAX icon for ${project_name}"
-      )
-    endif()
+    # Explorer folder icon (same as the Visual Studio projects)
+    iplug_add_bundle_icon(${target} "${CMAKE_BINARY_DIR}/out/${project_name}.aaxplugin" "${AAX_SDK_DIR}/Utilities/PlugIn.ico")
 
   elseif(APPLE)
     # macOS: AAX is a bundle with .aaxplugin extension
