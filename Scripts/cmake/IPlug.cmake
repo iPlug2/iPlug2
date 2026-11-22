@@ -319,17 +319,13 @@ endif()
 # PlugIn.ico and a desktop.ini into the bundle root and sets the attributes
 # Explorer needs to honour them.
 #
-# Uses ${PLUG_RESOURCES_DIR}/<project_name>.ico if it exists, otherwise
-# default_icon. Does nothing if neither exists.
-function(iplug_add_bundle_icon target project_name bundle_dir default_icon)
+# Does nothing if icon_file doesn't exist.
+function(iplug_add_bundle_icon target bundle_dir icon_file)
   if(NOT WIN32)
     return()
   endif()
 
-  set(_icon "${PLUG_RESOURCES_DIR}/${project_name}.ico")
-  if(NOT PLUG_RESOURCES_DIR OR NOT EXISTS "${_icon}")
-    set(_icon "${default_icon}")
-  endif()
+  set(_icon "${icon_file}")
   if(NOT EXISTS "${_icon}")
     return()
   endif()

@@ -161,8 +161,8 @@ function(iplug_configure_aax target project_name)
       )
     endif()
 
-    # Explorer folder icon: <project_name>.ico from resources/, else the AAX SDK icon
-    iplug_add_bundle_icon(${target} ${project_name} "${CMAKE_BINARY_DIR}/out/${project_name}.aaxplugin" "${AAX_SDK_DIR}/Utilities/PlugIn.ico")
+    # Explorer folder icon (same as the Visual Studio projects)
+    iplug_add_bundle_icon(${target} "${CMAKE_BINARY_DIR}/out/${project_name}.aaxplugin" "${AAX_SDK_DIR}/Utilities/PlugIn.ico")
 
   elseif(APPLE)
     # macOS: AAX is a bundle with .aaxplugin extension

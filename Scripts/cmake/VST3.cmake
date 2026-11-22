@@ -171,8 +171,8 @@ function(iplug_configure_vst3 target project_name)
       COMMENT "Creating VST3 bundle structure for ${project_name}"
     )
 
-    # Explorer folder icon: <project_name>.ico from resources/, else the Steinberg VST logo
-    iplug_add_bundle_icon(${target} ${project_name} "${CMAKE_BINARY_DIR}/out/${project_name}.vst3" "${IPLUG2_DIR}/Scripts/icons/VST_Logo_Steinberg.ico")
+    # Explorer folder icon (same as the Visual Studio projects)
+    iplug_add_bundle_icon(${target} "${CMAKE_BINARY_DIR}/out/${project_name}.vst3" "${IPLUG2_DIR}/Scripts/icons/VST_Logo_Steinberg.ico")
   elseif(APPLE)
     # VST3 on macOS is a bundle with .vst3 extension
     set_target_properties(${target} PROPERTIES
