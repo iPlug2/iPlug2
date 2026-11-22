@@ -112,6 +112,37 @@ using namespace igraphics;
 - (bool) becomeFirstResponder;
 @end
 
+#ifdef IGRAPHICS_ACCESSKIT
+#include "IGraphicsAccessibility.h"
+
+BEGIN_IPLUG_NAMESPACE
+BEGIN_IGRAPHICS_NAMESPACE
+
+/** Owns the AccessKit adapter that exposes the controls in an IGRAPHICS_VIEW via NSAccessibility */
+class IGraphicsAccessibilityMac : public IGraphicsAccessibility
+{
+public:
+  IGraphicsAccessibilityMac(IGraphics& graphics, NSView* pView);
+  ~IGraphicsAccessibilityMac();
+
+  /** Inform the adapter that the view gained or lost the keyboard focus */
+  void SetViewFocused(bool focused);
+  NSArray* GetChildren();
+  id GetFocus();
+  id HitTest(NSPoint point);
+
+protected:
+  void UpdateIfActive(accesskit_tree_update_factory factory, void* pUserData) override;
+
+private:
+  accesskit_macos_adapter* mAdapter = nullptr;
+  bool mViewFocused = false;
+};
+
+END_IGRAPHICS_NAMESPACE
+END_IPLUG_NAMESPACE
+#endif
+
 #if defined IGRAPHICS_GL2 || defined IGRAPHICS_GL3
 #define VIEW_BASE NSOpenGLView
 #else
@@ -140,8 +171,14 @@ using namespace igraphics;
   
 @public
   IGraphicsMac* mGraphics; // OBJC instance variables have to be pointers
+#ifdef IGRAPHICS_ACCESSKIT
+  IGraphicsAccessibilityMac* mAccessibility; // Owned by mGraphics
+#endif
 }
 - (id) initWithIGraphics: (IGraphicsMac*) pGraphics;
+#ifdef IGRAPHICS_ACCESSKIT
+- (void) updateAccessibilityFocus;
+#endif
 - (BOOL) isOpaque;
 - (BOOL) acceptsFirstResponder;
 - (BOOL) acceptsFirstMouse: (NSEvent*) pEvent;

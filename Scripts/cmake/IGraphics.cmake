@@ -12,6 +12,10 @@ include(${CMAKE_CURRENT_LIST_DIR}/IPlug.cmake)
 
 set(IGRAPHICS_DEPS_DIR ${DEPS_DIR}/IGraphics)
 
+# Optional accessibility support (screen readers etc.) on macOS and Windows, using AccessKit
+# Requires the prebuilt libraries, see Dependencies/IGraphics/download-accesskit.sh
+option(IGRAPHICS_ACCESSKIT "Enable IGraphics accessibility support via AccessKit" OFF)
+
 if(NOT TARGET iPlug2::IGraphics)
   add_library(iPlug2::IGraphics INTERFACE IMPORTED)
 
@@ -93,6 +97,40 @@ if(NOT TARGET iPlug2::IGraphics)
       dl
       pthread
     )
+  endif()
+
+  if(IGRAPHICS_ACCESSKIT AND (WIN32 OR (APPLE AND NOT IOS)))
+    set(ACCESSKIT_DIR "${DEPS_DIR}/Build/accesskit" CACHE PATH "Location of the prebuilt AccessKit C bindings")
+
+    if(WIN32)
+      if(CMAKE_GENERATOR_PLATFORM MATCHES "^(ARM64|arm64)$" OR (NOT CMAKE_GENERATOR_PLATFORM AND CMAKE_SYSTEM_PROCESSOR MATCHES "^(ARM64|arm64|aarch64)$"))
+        set(ACCESSKIT_ARCH "arm64")
+      elseif(CMAKE_SIZEOF_VOID_P EQUAL 4)
+        set(ACCESSKIT_ARCH "x86")
+      else()
+        set(ACCESSKIT_ARCH "x86_64")
+      endif()
+      set(ACCESSKIT_LIB_DIR "${ACCESSKIT_DIR}/lib/windows/${ACCESSKIT_ARCH}/msvc/static")
+      set(ACCESSKIT_LIB "${ACCESSKIT_LIB_DIR}/accesskit.lib")
+    else()
+      set(ACCESSKIT_LIB_DIR "${ACCESSKIT_DIR}/lib/macos/universal/static")
+      set(ACCESSKIT_LIB "${ACCESSKIT_LIB_DIR}/libaccesskit.a")
+    endif()
+
+    if(NOT EXISTS "${ACCESSKIT_LIB}")
+      message(FATAL_ERROR "IGRAPHICS_ACCESSKIT is ON but ${ACCESSKIT_LIB} was not found. Run Dependencies/IGraphics/download-accesskit.sh")
+    endif()
+
+    target_compile_definitions(iPlug2::IGraphics INTERFACE IGRAPHICS_ACCESSKIT)
+    target_include_directories(iPlug2::IGraphics INTERFACE "${ACCESSKIT_DIR}/include")
+    target_link_libraries(iPlug2::IGraphics INTERFACE "${ACCESSKIT_LIB}")
+
+    if(WIN32)
+      # IGraphicsWin.cpp links accesskit.lib and the system libraries that it needs with #pragma comment(lib, ...)
+      target_link_directories(iPlug2::IGraphics INTERFACE "${ACCESSKIT_LIB_DIR}")
+    endif()
+
+    message(STATUS "IGraphics: accessibility enabled (AccessKit)")
   endif()
 
   target_link_libraries(iPlug2::IGraphics INTERFACE iPlug2::IPlug)

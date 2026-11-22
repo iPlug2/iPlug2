@@ -37,6 +37,10 @@ using VST3_API_BASE = iplug::IPlugVST3Controller;
 #include "ITextEntryControl.h"
 #include "IBubbleControl.h"
 
+#ifdef IGRAPHICS_ACCESSKIT
+#include "IGraphicsAccessibility.h"
+#endif
+
 using namespace iplug;
 using namespace igraphics;
 
@@ -144,6 +148,9 @@ void IGraphics::SetScaleConstraints(float lo, float hi)
 
 void IGraphics::RemoveControlWithTag(int ctrlTag)
 {
+  if (GetControlWithTag(ctrlTag) == mKeyboardFocus)
+    mKeyboardFocus = nullptr;
+
   mControls.DeletePtr(GetControlWithTag(ctrlTag), true);
   mCtrlTags.erase(ctrlTag);
   SetAllControlsDirty();
@@ -167,6 +174,9 @@ void IGraphics::RemoveControls(int fromIdx)
 
     if(pControl == mInPopupMenu)
       mInPopupMenu = nullptr;
+
+    if(pControl == mKeyboardFocus)
+      mKeyboardFocus = nullptr;
     
     if(pControl->GetTag() > kNoTag)
       mCtrlTags.erase(pControl->GetTag());
@@ -195,6 +205,9 @@ void IGraphics::RemoveControl(IControl* pControl)
 
   if(pControl == mInPopupMenu)
     mInPopupMenu = nullptr;
+
+  if(pControl == mKeyboardFocus)
+    mKeyboardFocus = nullptr;
   
   if(pControl->GetTag() > kNoTag)
     mCtrlTags.erase(pControl->GetTag());
@@ -208,6 +221,7 @@ void IGraphics::RemoveAllControls()
 {
   ReleaseMouseCapture();
   ClearMouseOver();
+  mKeyboardFocus = nullptr;
 
   mPopupControl = nullptr;
   mTextEntryControl = nullptr;
@@ -861,6 +875,11 @@ bool IGraphics::IsDirty(IRECTList& rects)
   if (mDisplayTickFunc)
     mDisplayTickFunc();
 
+#ifdef IGRAPHICS_ACCESSKIT
+  if (mAccessibility)
+    mAccessibility->ProcessActions();
+#endif
+
   ForAllControlsFunc([](IControl* pControl) { pControl->Animate(); } );
 
   bool dirty = false;
@@ -893,6 +912,11 @@ bool IGraphics::IsDirty(IRECTList& rects)
     OnGUIIdle();
     mIdleTicks = 0;
   }
+#endif
+
+#ifdef IGRAPHICS_ACCESSKIT
+  if (mAccessibility)
+    mAccessibility->OnFrame(dirty);
 #endif
 
   return dirty;
@@ -956,6 +980,9 @@ void IGraphics::DrawControl(IControl* pControl, const IRECT& bounds, float scale
 void IGraphics::Draw(const IRECT& bounds, float scale)
 {
   ForAllControlsFunc([this, bounds, scale](IControl* pControl) { DrawControl(pControl, bounds, scale); });
+
+  if (mFocusRingVisible && mKeyboardFocus)
+    DrawFocusRing(bounds);
 
 #ifndef NDEBUG
   if (mShowAreaDrawn)
@@ -1024,6 +1051,26 @@ void IGraphics::OnMouseDown(const std::vector<IMouseInfo>& points)
     
     if (pCapturedControl)
     {
+      if (mKeyboardNavEnabled && singlePoint)
+      {
+        // Clicking a control (or a child of a control) that can take the keyboard focus gives it the focus, without showing the focus ring
+        IAccessibleNodeList nodes;
+
+        for (IControl* pControl = pCapturedControl; pControl; pControl = pControl->GetParent())
+        {
+          nodes.clear();
+          pControl->GetAccessibleNodes(nodes);
+
+          auto itr = std::find_if(nodes.begin(), nodes.end(), [](const IAccessibleNode& node) { return node.focusable; });
+
+          if (itr != nodes.end())
+          {
+            SetKeyboardFocus(pControl, static_cast<int>(itr - nodes.begin()), false);
+            break;
+          }
+        }
+      }
+
       int nVals = pCapturedControl->NVals();
 #if defined AAX_API || !defined IGRAPHICS_NO_CONTEXT_MENU
       int valIdx = pCapturedControl->GetValIdxForPos(x, y);
@@ -1270,16 +1317,224 @@ bool IGraphics::OnKeyDown(float x, float y, const IKeyPress& key)
         x, y, key.utf8);
 
   bool handled = false;
+
+  if (mKeyboardNavEnabled && !mInTextEntry && !mInPopupMenu)
+    handled = OnKeyboardNavigation(key);
   
-  IControl* pControl = GetMouseControl(x, y, false);
+  if (!handled)
+  {
+    IControl* pControl = GetMouseControl(x, y, false);
   
-  if (pControl && pControl != GetControl(0))
-    handled = pControl->OnKeyDown(x, y, key);
+    if (pControl && pControl != GetControl(0))
+      handled = pControl->OnKeyDown(x, y, key);
+  }
 
   if(!handled)
     handled = mKeyHandlerFunc ? mKeyHandlerFunc(key, false) : false;
   
   return handled;
+}
+
+void IGraphics::EnableKeyboardNavigation(bool enable)
+{
+  mKeyboardNavEnabled = enable;
+
+  if (!enable)
+    SetKeyboardFocus(nullptr);
+}
+
+IControl* IGraphics::GetKeyboardFocus(int* pNodeIdx)
+{
+  if (mKeyboardFocus && mControls.Find(mKeyboardFocus) < 0)
+    mKeyboardFocus = nullptr;
+
+  if (pNodeIdx)
+    *pNodeIdx = mKeyboardFocus ? mKeyboardFocusNodeIdx : 0;
+
+  return mKeyboardFocus;
+}
+
+void IGraphics::SetKeyboardFocus(IControl* pControl, int nodeIdx, bool showFocusRing)
+{
+  IControl* pPrevFocus = GetKeyboardFocus();
+
+  if (pPrevFocus == pControl && mKeyboardFocusNodeIdx == nodeIdx && mFocusRingVisible == showFocusRing)
+    return;
+
+  // Setting the controls dirty makes sure that the focus ring gets redrawn, and that the accessibility tree is updated
+  if (pPrevFocus)
+    pPrevFocus->SetDirty(false);
+
+  mKeyboardFocus = pControl;
+  mKeyboardFocusNodeIdx = pControl ? nodeIdx : 0;
+  mFocusRingVisible = pControl && showFocusRing;
+
+  if (pControl)
+    pControl->SetDirty(false);
+}
+
+bool IGraphics::MoveKeyboardFocus(bool forwards)
+{
+  struct FocusTarget { IControl* pControl; int nodeIdx; };
+
+  std::vector<FocusTarget> targets;
+  IAccessibleNodeList nodes;
+  int focusNodeIdx = 0;
+  IControl* pFocus = GetKeyboardFocus(&focusNodeIdx);
+  int current = -1;
+
+  for (int c = 0; c < NControls(); c++)
+  {
+    IControl* pControl = GetControl(c);
+
+    if (pControl->IsHidden() || pControl->IsDisabled())
+      continue;
+
+    nodes.clear();
+    pControl->GetAccessibleNodes(nodes);
+
+    for (int n = 0; n < static_cast<int>(nodes.size()); n++)
+    {
+      if (nodes[n].focusable && !nodes[n].disabled)
+      {
+        if (pControl == pFocus && n == focusNodeIdx)
+          current = static_cast<int>(targets.size());
+
+        targets.push_back({pControl, n});
+      }
+    }
+  }
+
+  if (targets.empty())
+    return false;
+
+  const int nTargets = static_cast<int>(targets.size());
+  int next;
+
+  if (current < 0)
+    next = forwards ? 0 : nTargets - 1;
+  else
+    next = (current + (forwards ? 1 : nTargets - 1)) % nTargets;
+
+  SetKeyboardFocus(targets[next].pControl, targets[next].nodeIdx);
+
+  return true;
+}
+
+bool IGraphics::OnKeyboardNavigation(const IKeyPress& key)
+{
+  if (key.C || key.A)
+    return false;
+
+  if (key.VK == kVK_TAB)
+    return MoveKeyboardFocus(!key.S);
+
+  int nodeIdx = 0;
+  IControl* pFocus = GetKeyboardFocus(&nodeIdx);
+
+  if (!pFocus || pFocus->IsHidden() || pFocus->IsDisabled())
+    return false;
+
+  if (pFocus->OnKeyDown(pFocus->GetRECT().MW(), pFocus->GetRECT().MH(), key))
+    return true;
+
+  IAccessibleNodeList nodes;
+  pFocus->GetAccessibleNodes(nodes);
+
+  if (nodeIdx >= static_cast<int>(nodes.size()))
+    return false;
+
+  const IAccessibleNode& node = nodes[nodeIdx];
+
+  // Sliders go up with the up arrow, but lists of options go to the next option with the down arrow
+  const bool isList = node.role == EAccessibleRole::RadioGroup || node.role == EAccessibleRole::TabList || node.role == EAccessibleRole::ComboBox;
+  const bool isAdjustable = isList || node.role == EAccessibleRole::Slider;
+  bool handled = false;
+
+  switch (key.VK)
+  {
+    case kVK_UP:
+      if (isAdjustable)
+        handled = pFocus->OnAccessibleAction(isList ? EAccessibleAction::Decrement : EAccessibleAction::Increment, nodeIdx);
+      break;
+    case kVK_DOWN:
+      if (isAdjustable)
+        handled = pFocus->OnAccessibleAction(isList ? EAccessibleAction::Increment : EAccessibleAction::Decrement, nodeIdx);
+      break;
+    case kVK_RIGHT:
+      if (isAdjustable)
+        handled = pFocus->OnAccessibleAction(EAccessibleAction::Increment, nodeIdx);
+      break;
+    case kVK_LEFT:
+      if (isAdjustable)
+        handled = pFocus->OnAccessibleAction(EAccessibleAction::Decrement, nodeIdx);
+      break;
+    case kVK_PRIOR:
+      if (node.role == EAccessibleRole::Slider)
+        handled = pFocus->OnAccessibleAction(EAccessibleAction::Increment, nodeIdx, 10.);
+      break;
+    case kVK_NEXT:
+      if (node.role == EAccessibleRole::Slider)
+        handled = pFocus->OnAccessibleAction(EAccessibleAction::Decrement, nodeIdx, 10.);
+      break;
+    case kVK_HOME:
+      if (node.hasNumericValue)
+        handled = pFocus->OnAccessibleAction(EAccessibleAction::SetValue, nodeIdx, node.min);
+      break;
+    case kVK_END:
+      if (node.hasNumericValue)
+        handled = pFocus->OnAccessibleAction(EAccessibleAction::SetValue, nodeIdx, node.max);
+      break;
+    case kVK_SPACE:
+    case kVK_RETURN:
+      if (!isList || node.role == EAccessibleRole::ComboBox)
+        handled = pFocus->OnAccessibleAction(EAccessibleAction::Click, nodeIdx);
+      break;
+    case kVK_ESCAPE:
+      SetKeyboardFocus(nullptr);
+      handled = true;
+      break;
+    default:
+      break;
+  }
+
+  // Using the keyboard reveals the focus ring, if the focus was set by clicking on the control
+  if (handled && key.VK != kVK_ESCAPE && GetKeyboardFocus() == pFocus)
+    SetKeyboardFocus(pFocus, nodeIdx, true);
+
+  return handled;
+}
+
+void IGraphics::DrawFocusRing(const IRECT& bounds)
+{
+  int nodeIdx = 0;
+  IControl* pFocus = GetKeyboardFocus(&nodeIdx);
+
+  if (!pFocus || pFocus->IsHidden())
+    return;
+
+  IRECT ringBounds = pFocus->GetRECT();
+
+  if (nodeIdx > 0)
+  {
+    IAccessibleNodeList nodes;
+    pFocus->GetAccessibleNodes(nodes);
+
+    if (nodeIdx < static_cast<int>(nodes.size()))
+      ringBounds = nodes[nodeIdx].bounds.Intersect(ringBounds);
+  }
+
+  // The ring is drawn inside the control's bounds, so that it is covered by the control's dirty rectangle
+  ringBounds.Pad(-1.f);
+
+  const IRECT clipBounds = bounds.Intersect(ringBounds.GetPadded(1.f));
+
+  if (clipBounds.W() <= 0.f || clipBounds.H() <= 0.f)
+    return;
+
+  PrepareRegion(clipBounds);
+  DrawRoundRect(mFocusRingColor, ringBounds, 2.f, nullptr, 2.f);
+  CompleteRegion(clipBounds);
 }
 
 bool IGraphics::OnKeyUp(float x, float y, const IKeyPress& key)
@@ -2983,3 +3238,8 @@ void IGraphics::DoDrawSVG(const ISVG& svg, const IBlend* pBlend, const IColor* p
   }
 #endif
   }
+
+#ifdef IGRAPHICS_ACCESSKIT
+// Included here so that IGraphicsAccessibility.cpp doesn't have to be added to every project
+#include "IGraphicsAccessibility.cpp"
+#endif

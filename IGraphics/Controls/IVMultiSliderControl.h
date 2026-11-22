@@ -41,6 +41,7 @@ public:
   {
     mDrawTrackFrame = false;
     mTrackPadding = 1.f;
+    mAccessibleRole = EAccessibleRole::Slider;
   }
 
   /** Constructs a vector multi slider control that is linked to sequential parameters
@@ -55,6 +56,7 @@ public:
   {
     mDrawTrackFrame = false;
     mTrackPadding = 1.f;
+    mAccessibleRole = EAccessibleRole::Slider;
   }
   
   /** Constructs a vector multi slider control that is linked to a list of parameters that need not be sequential
@@ -69,6 +71,7 @@ public:
   {
     mDrawTrackFrame = false;
     mTrackPadding = 1.f;
+    mAccessibleRole = EAccessibleRole::Slider;
   }
   
   void Draw(IGraphics& g) override

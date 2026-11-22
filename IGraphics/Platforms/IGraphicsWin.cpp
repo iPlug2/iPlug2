@@ -31,6 +31,67 @@
 using namespace iplug;
 using namespace igraphics;
 
+#ifdef IGRAPHICS_ACCESSKIT
+#include "IGraphicsAccessibility.h"
+
+#pragma comment(lib, "accesskit.lib")
+#pragma comment(lib, "bcrypt.lib")
+#pragma comment(lib, "ntdll.lib")
+#pragma comment(lib, "propsys.lib")
+#pragma comment(lib, "runtimeobject.lib")
+#pragma comment(lib, "uiautomationcore.lib")
+#pragma comment(lib, "userenv.lib")
+#pragma comment(lib, "ws2_32.lib")
+
+BEGIN_IPLUG_NAMESPACE
+BEGIN_IGRAPHICS_NAMESPACE
+
+/** Owns the AccessKit adapter that exposes the controls in an IGraphicsWin window via UI Automation */
+class IGraphicsAccessibilityWin : public IGraphicsAccessibility
+{
+public:
+  IGraphicsAccessibilityWin(IGraphics& graphics, HWND hWnd)
+  : IGraphicsAccessibility(graphics)
+  {
+    mAdapter = accesskit_windows_adapter_new(hWnd, GetFocus() == hWnd, ActionHandler, this);
+  }
+
+  ~IGraphicsAccessibilityWin()
+  {
+    accesskit_windows_adapter_free(mAdapter);
+  }
+
+  void SetWindowFocused(bool focused)
+  {
+    if (accesskit_windows_queued_events* pEvents = accesskit_windows_adapter_update_window_focus_state(mAdapter, focused))
+      accesskit_windows_queued_events_raise(pEvents);
+  }
+
+  bool HandleGetObject(WPARAM wParam, LPARAM lParam, LRESULT& result)
+  {
+    accesskit_opt_lresult optResult = accesskit_windows_adapter_handle_wm_getobject(mAdapter, wParam, lParam, ActivationHandler, this);
+
+    if (optResult.has_value)
+      result = optResult.value;
+
+    return optResult.has_value;
+  }
+
+protected:
+  void UpdateIfActive(accesskit_tree_update_factory factory, void* pUserData) override
+  {
+    if (accesskit_windows_queued_events* pEvents = accesskit_windows_adapter_update_if_active(mAdapter, factory, pUserData))
+      accesskit_windows_queued_events_raise(pEvents);
+  }
+
+private:
+  accesskit_windows_adapter* mAdapter = nullptr;
+};
+
+END_IGRAPHICS_NAMESPACE
+END_IPLUG_NAMESPACE
+#endif
+
 #pragma warning(disable:4244) // Pointer size cast mismatch.
 #pragma warning(disable:4312) // Pointer size cast mismatch.
 #pragma warning(disable:4311) // Pointer size cast mismatch.
@@ -244,6 +305,18 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
   {
     return DefWindowProcW(hWnd, msg, wParam, lParam);
   }
+
+#ifdef IGRAPHICS_ACCESSKIT
+  if (msg == WM_GETOBJECT && pGraphics->mAccessibility)
+  {
+    LRESULT result = 0;
+
+    if (static_cast<IGraphicsAccessibilityWin*>(pGraphics->mAccessibility.get())->HandleGetObject(wParam, lParam, result))
+      return result;
+
+    return DefWindowProcW(hWnd, msg, wParam, lParam);
+  }
+#endif
 
   if (pGraphics->mParamEditWnd && pGraphics->mParamEditMsg == kEditing)
   {
@@ -637,10 +710,18 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
     }
     case WM_SETFOCUS:
     {
+#ifdef IGRAPHICS_ACCESSKIT
+      if (pGraphics->mAccessibility)
+        static_cast<IGraphicsAccessibilityWin*>(pGraphics->mAccessibility.get())->SetWindowFocused(true);
+#endif
       return 0;
     }
     case WM_KILLFOCUS:
     {
+#ifdef IGRAPHICS_ACCESSKIT
+      if (pGraphics->mAccessibility)
+        static_cast<IGraphicsAccessibilityWin*>(pGraphics->mAccessibility.get())->SetWindowFocused(false);
+#endif
       return 0;
     }
   }
@@ -1058,6 +1139,10 @@ void* IGraphicsWin::OpenWindow(void* pParent)
 
   mPlugWnd = CreateWindowW(wndClassName, L"IPlug", WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS, x, y, w, h, mParentWnd, 0, mHInstance, this);
 
+#ifdef IGRAPHICS_ACCESSKIT
+  mAccessibility = std::make_unique<IGraphicsAccessibilityWin>(*this, mPlugWnd);
+#endif
+
   HDC dc = GetDC(mPlugWnd);
   SetPlatformContext(dc);
   ReleaseDC(mPlugWnd, dc);
@@ -1182,6 +1267,10 @@ void IGraphicsWin::CloseWindow()
 {
   if (mPlugWnd)
   {
+#ifdef IGRAPHICS_ACCESSKIT
+    mAccessibility = nullptr;
+#endif
+
     if (mVSYNCEnabled)
       StopVBlankThread();
     else

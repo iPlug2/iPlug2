@@ -182,6 +182,8 @@ public:
   void OnMouseOut() override { mMouseOverButton = -1; ISwitchControlBase::OnMouseOut(); SetDirty(false); }
   void OnResize() override;
   virtual bool IsHit(float x, float y) const override;
+  void GetAccessibleNodes(IAccessibleNodeList& nodes) override;
+  bool OnAccessibleAction(EAccessibleAction action, int nodeIdx = 0, double value = 1.) override;
   
   /** returns the label string on the selected tab */
   const char* GetSelectedLabelStr() const;
@@ -249,6 +251,7 @@ public:
 
   void SetValueFromDelegate(double value, int valIdx = 0) override;
   void SetStyle(const IVStyle& style) override;
+  bool OnAccessibleAction(EAccessibleAction action, int nodeIdx = 0, double value = 1.) override;
 
 private:
   IVButtonControl* mButtonControl = nullptr;
@@ -390,6 +393,7 @@ public:
   void OnMouseUp(float x, float y, const IMouseMod& mod) override;
   void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override;
   void OnResize() override;
+  void GetAccessibleNodes(IAccessibleNodeList& nodes) override;
 protected:
   float mHandleRadius;
   bool mMouseDown = false;

@@ -41,6 +41,7 @@ public:
   , mHighRangeDB(highRangeDB)
   , mMarkers(markers)
   {
+    mAccessibleRole = EAccessibleRole::Meter;
   }
   
   void SetResponse(EResponse response)
