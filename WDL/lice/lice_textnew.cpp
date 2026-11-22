@@ -23,15 +23,23 @@ static char __1ifNT2if98=0; // 2 for iswin98
 #endif
 
 
-static int utf8makechar(char *ptrout, unsigned short charIn)
+static int utf8makechar(char *ptrout, unsigned int charIn)
 {
   unsigned char *pout = (unsigned char *)ptrout;
   if (charIn < 128) { *pout = (unsigned char)charIn; return 1; }
   if (charIn < 2048) { pout[0] = 0xC0 + (charIn>>6); pout[1] = 0x80 + (charIn&0x3f); return 2; }
-  pout[0] = 0xE0 + (charIn>>12);
-  pout[1] = 0x80 + ((charIn>>6)&0x3f);
-  pout[2] = 0x80 + (charIn&0x3f);
-  return 3;
+  if (charIn < 65536)
+  {
+    pout[0] = 0xE0 + (charIn>>12);
+    pout[1] = 0x80 + ((charIn>>6)&0x3f);
+    pout[2] = 0x80 + (charIn&0x3f);
+    return 3;
+  }
+  pout[0]=0xF0|(charIn>>18);
+  pout[1]=0x80|((charIn>>12)&0x3F);
+  pout[2]=0x80|((charIn>>6)&0x3F);
+  pout[3]=0x80|(charIn&0x3F);
+  return 4;
 }
 
 static int utf8char(const char *ptr, unsigned int *charOut) // returns char length
@@ -67,7 +75,7 @@ static int utf8char(const char *ptr, unsigned int *charOut) // returns char leng
   {
     if (p[1] >= 0x80 && p[1] <= 0xC0 && p[2] >= 0x80 && p[2] <= 0xC0 && p[3] >= 0x80 && p[3] <= 0xC0)
     {
-      if (charOut) *charOut = ' '; // dont support 4 byte sequences yet(ever?)
+      if (charOut) *charOut = ((tc&7)<<18)|((p[1]&0x3F)<<12)|((p[2]&0x3F)<<6)|(p[3]&0x3F);
       return 4;
     }
   }  
@@ -160,9 +168,35 @@ void LICE_CachedFont::SetFromHFont(HFONT font, int flags)
   }
 }
 
-#define COMBINING_THRESHOLD (1<<20)
-#define DECODE_COMBINING(x) ((x)>>20) // we may want to make these make more efficient use of space
-#define ENCODE_COMBINING(x) ((x)<<20)
+#define CHAR1_COMBINEABLE(x) (((x) >= 'a' && (x) <= 'z') || ((x) >= 'A' && (x) <= 'Z'))
+#define CHAR2_COMBINEABLE(x) ((x) >= 0x300 && (x) <= 0x36F)
+
+static bool DECODE_COMBINING(unsigned int *c, unsigned int *c2)
+{
+  const unsigned int c0 = *c;
+  if ((c0&0xFF000000) == 0x1000000) // encoded a-z+combining char
+  {
+    const unsigned int c1 = (c0>>16) & 0xFF;
+    const unsigned int c2v = c0 & 0xFFFF;
+    if (WDL_NORMALLY(c2v) && WDL_NORMALLY(CHAR1_COMBINEABLE(c1)))
+    {
+      WDL_ASSERT(CHAR2_COMBINEABLE(c2v));
+      *c2 = c2v;
+      *c = c1;
+      return true;
+    }
+  }
+  return false;
+}
+
+static void ENCODE_COMBINING(unsigned int *c, unsigned int c2)
+{
+  if (WDL_NOT_NORMALLY(*c > 127)) return;
+  // c2 typically 0x300..0x36F
+  // *c typically ASCII latin a-zA-Z
+  // need to not conflict with usable range of 10FFFF, which is 21 bits
+  *c = (1<<24) | ((*c << 16)&0xFF0000) | (c2&0xFFFF);
+}
 
 bool LICE_CachedFont::RenderGlyph(unsigned int idx) // return TRUE if ok
 {
@@ -217,16 +251,31 @@ bool LICE_CachedFont::RenderGlyph(unsigned int idx) // return TRUE if ok
   if (__1ifNT2if98==1) 
 #endif
   {
-    WCHAR tmpstr[3]={(WCHAR)(idx&0xffff),0};
-    if (idx >= COMBINING_THRESHOLD && (idx & (COMBINING_THRESHOLD-1)) < 128) // include any combining character
-      tmpstr[1] = (WCHAR) DECODE_COMBINING(idx);
+    WCHAR tmpstr[3];
+    unsigned int c2;
+    int l = 1;
+    if (idx >= 0x10000 && idx < 0x10FFFF)
+    {
+      tmpstr[0] = 0xD800 + (((idx-0x10000)>>10)&0x3FF);
+      tmpstr[1] = 0xDC00 + (((idx-0x10000)&0x3FF));
+      l++;
+    }
+    else
+    {
+      if (DECODE_COMBINING(&idx,&c2))
+      {
+        tmpstr[1] = (WCHAR) (c2&0xFFFF);
+        l++;
+      }
+      tmpstr[0] = (WCHAR) (idx&0xFFFF);
+    }
 
-    ::DrawTextW(s_tempbitmap->getDC(),tmpstr,tmpstr[1] ? -1 : 1,&r,DT_CALCRECT|DT_SINGLELINE|DT_NOPREFIX);
+    ::DrawTextW(s_tempbitmap->getDC(),tmpstr,l,&r,DT_CALCRECT|DT_SINGLELINE|DT_NOPREFIX);
     advance=r.right;
     r.right += right_extra_pad+left_extra_pad;
     LICE_FillRect(s_tempbitmap,0,0,r.right,r.bottom,0,1.0f,LICE_BLIT_MODE_COPY);
     r.left+=left_extra_pad;
-    ::DrawTextW(s_tempbitmap->getDC(),tmpstr,tmpstr[1] ? -1 : 1,&r,DT_SINGLELINE|DT_LEFT|DT_TOP|DT_NOPREFIX|DT_NOCLIP);
+    ::DrawTextW(s_tempbitmap->getDC(),tmpstr,l,&r,DT_SINGLELINE|DT_LEFT|DT_TOP|DT_NOPREFIX|DT_NOCLIP);
   }
   #if defined(WDL_SUPPORT_WIN9X)
   else
@@ -235,11 +284,17 @@ bool LICE_CachedFont::RenderGlyph(unsigned int idx) // return TRUE if ok
 
 #if !defined(_WIN32) || defined(WDL_SUPPORT_WIN9X)
   {
-    char tmpstr[8]={(char)(idx&127),0};
+    char tmpstr[8];
+    memset(tmpstr,0,sizeof(tmpstr));
 #ifndef _WIN32
-    if (idx >= COMBINING_THRESHOLD && (idx & (COMBINING_THRESHOLD-1)) < 128)
-      utf8makechar(tmpstr + 1, DECODE_COMBINING(idx));
+    unsigned int c2;
+    if (DECODE_COMBINING(&idx,&c2))
+    {
+      tmpstr[0] = idx&127;
+      utf8makechar(tmpstr + 1, c2);
+    }
     else if (idx>=128) utf8makechar(tmpstr,idx);
+    else tmpstr[0] = idx&127;
 #endif
     ::DrawText(s_tempbitmap->getDC(),tmpstr,-1,&r,DT_CALCRECT|DT_SINGLELINE|DT_NOPREFIX);
     advance=r.right;
@@ -740,16 +795,16 @@ static BOOL LICE_Text_HasUTF8(const char *_str)
 static const char *adv_str(const char *str, int *strcnt, unsigned int *c)
 {
   int charlen=utf8char(str, c);
-  if (charlen == 1 && ((*c >= 'a' && *c <= 'z') || (*c >= 'A' && *c <= 'Z')))
+  if (charlen == 1 && CHAR1_COMBINEABLE(*c))
   {
     if (!strcnt || *strcnt < 0 || *strcnt >= 3)
     {
       unsigned int c2 = 0;
       const int len2 = utf8char(str + charlen, &c2);
-      if (c2 >= 0x300 && c2 <= 0x36F) // we could add other characters here (and on the renderglyph side)
+      if (CHAR2_COMBINEABLE(c2))
       {
         charlen += len2;
-        *c |= ENCODE_COMBINING(c2);
+        ENCODE_COMBINING(c, c2);
       }
     }
   }

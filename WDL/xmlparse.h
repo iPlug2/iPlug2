@@ -38,8 +38,11 @@ class wdl_xml_element {
     static void attr_free(char *a) { free(a); }
   public:
     wdl_xml_element(const char *_name, int _line, int _col, bool _sort_attr=true) : 
+      elements(32),
       attributes(WDL_assocarray_cmpstr<char>,NULL,attr_free,attr_free), name(strdup(_name)), line(_line), col(_col),
-      m_sort_attributes(_sort_attr), m_has_discrete_close(false) { }
+      m_sort_attributes(_sort_attr), m_has_discrete_close(false) {
+        attributes.SetGranul(32);
+      }
     ~wdl_xml_element() { free(name); elements.Empty(true); }
 
     WDL_PtrList<wdl_xml_element> elements;
@@ -64,6 +67,14 @@ class wdl_xml_element {
         }
       }
       return attributes.Get((char*)v,(char*)def);
+    }
+
+    wdl_xml_element *get_element_by_name(const char *searchname, int cnt=0)
+    {
+      for (int x = 0; x < elements.GetSize(); x ++)
+        if (elements.Get(x)->name && !strcmp(searchname,elements.Get(x)->name) && !cnt--)
+          return elements.Get(x);
+      return NULL;
     }
 };
 

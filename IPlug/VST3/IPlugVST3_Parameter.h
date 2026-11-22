@@ -82,7 +82,7 @@ class IPlugVST3PresetParameter : public Steinberg::Vst::Parameter
 {
 public:
   IPlugVST3PresetParameter(int nPresets)
-  : Steinberg::Vst::Parameter(STR16("Preset"), kPresetParam, STR16(""), 0, nPresets - 1, Steinberg::Vst::ParameterInfo::kIsProgramChange)
+  : Steinberg::Vst::Parameter(STR16("Preset"), kPresetParam, STR16(""), 0, nPresets - 1, Steinberg::Vst::ParameterInfo::kIsProgramChange | Steinberg::Vst::ParameterInfo::kIsList)
   {}
   
   Steinberg::Vst::ParamValue toPlain(Steinberg::Vst::ParamValue valueNormalized) const override

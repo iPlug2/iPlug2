@@ -125,11 +125,13 @@ private:
     void* mProcArgs;
   };
   
-  int NHostChannelsConnected(WDL_PtrList<BusChannels>* pBuses, int excludeIdx = -1);
   void ClearConnections();
   BusChannels* GetBus(AudioUnitScope scope, AudioUnitElement busIdx);
   bool CheckLegalIO(AudioUnitScope scope, int busIdx, int nChannels);
   bool CheckLegalIO();
+  int MainBusHostChannels(WDL_PtrList<BusChannels>* pBuses);
+  bool MainBusesLegal(int nMainIn, int nMainOut) const;
+  bool AuxBusLegal(ERoute direction, int busIdx, int nChannels) const;
   void AssessInputConnections();
 
   UInt32 GetTagForNumChannels(int numChannels);

@@ -271,7 +271,13 @@ void IParam::GetDisplay(double value, bool normalized, WDL_String& str, bool wit
 
   if (withDisplayText)
   {
-    const char* displayText = GetDisplayText(value);
+    // Round to the nearest valid step first (a no-op for non-stepped params):
+    // display texts are keyed to exact stepped values, so an unstepped raw
+    // value (e.g. a host round-tripping an arbitrary double through an enum
+    // param) would otherwise miss the lookup below and fall through to the
+    // numeric formatting further down -- which StringToValue can't parse back
+    // for kTypeEnum/kTypeBool, breaking the ToString/StringToValue round trip.
+    const char* displayText = GetDisplayText(Constrain(value));
 
     if (CStringHasContents(displayText))
     {

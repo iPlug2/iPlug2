@@ -87,6 +87,11 @@ void mnvgBindFramebuffer(MNVGframebuffer* framebuffer);
 MNVGframebuffer* mnvgCreateFramebuffer(NVGcontext* ctx, int width,
                                        int height, int imageFlags);
 
+// Single-channel coverage, sampled as premultiplied white. Draw white coverage
+// and use blends independent of destination alpha (R8 has no alpha channel).
+MNVGframebuffer* mnvgCreateCoverageFramebuffer(NVGcontext* ctx, int width,
+                                               int height, int imageFlags);
+
 // Deletes the specified framebuffer.
 void mnvgDeleteFramebuffer(MNVGframebuffer* framebuffer);
 
@@ -106,6 +111,9 @@ int mnvgCreateImageFromHandle(NVGcontext* ctx, void* textureId, int imageFlags);
 // Returns a pointer to the corresponded `id<MTLDevice>` object.
 void* mnvgDevice(NVGcontext* ctx);
 
+// Waits until all command buffers submitted by the context have completed.
+void mnvgWaitUntilCompleted(NVGcontext* ctx);
+
 // Returns a pointer to the `id<MTLTexture>` object of the specified image.
 void* mnvgImageHandle(NVGcontext* ctx, int image);
 
@@ -114,7 +122,7 @@ void mnvgReadPixels(NVGcontext* ctx, int image, int x, int y, int width,
                     int height, void* data);
 
 // Returns the current OS target.
-enum MNVGTarget mnvgTarget(void);
+enum MNVGTarget mnvgTarget();
 
 #ifdef __cplusplus
 }

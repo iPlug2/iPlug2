@@ -80,7 +80,13 @@ void IGraphics::SetScreenScale(float scale)
   
   assert(windowWidth > 0 && windowHeight > 0 && "Window dimensions invalid");
 
-  bool parentResized = GetDelegate()->EditorResizeFromUI(windowWidth, windowHeight, true);
+  bool parentResized = false;
+#ifdef OS_LINUX
+  if (!WindowIsOpen())
+    GetDelegate()->SetEditorSize(windowWidth, windowHeight);
+  else
+#endif
+    parentResized = GetDelegate()->EditorResizeFromUI(windowWidth, windowHeight, true);
   PlatformResize(parentResized);
   ForAllControls(&IControl::OnRescale);
   SetAllControlsDirty();
@@ -91,11 +97,10 @@ void IGraphics::Resize(int w, int h, float scale, bool needsPlatformResize)
 {
   GetDelegate()->ConstrainEditorResize(w, h);
   
-  scale = Clip(scale, mMinScale, mMaxScale);
+  scale = ConstrainDrawScale(scale);
   
   if (w == Width() && h == Height() && scale == GetDrawScale()) return;
   
-  //DBGMSG("resize %i, resize %i, scale %f\n", w, h, scale);
   ReleaseMouseCapture();
 
   mDrawScale = scale;
@@ -108,7 +113,13 @@ void IGraphics::Resize(int w, int h, float scale, bool needsPlatformResize)
   int windowWidth = WindowWidth() * GetPlatformWindowScale();
   int windowHeight = WindowHeight() * GetPlatformWindowScale();
 
-  bool parentResized = GetDelegate()->EditorResizeFromUI(windowWidth, windowHeight, needsPlatformResize);
+  bool parentResized = false;
+#ifdef OS_LINUX
+  if (!WindowIsOpen())
+    GetDelegate()->SetEditorSize(windowWidth, windowHeight);
+  else
+#endif
+    parentResized = GetDelegate()->EditorResizeFromUI(windowWidth, windowHeight, needsPlatformResize);
   PlatformResize(parentResized);
   ForAllControls(&IControl::OnResize);
   SetAllControlsDirty();
@@ -334,7 +345,17 @@ void IGraphics::AttachCornerResizer(EUIResizerMode sizeMode, bool layoutOnResize
 
 void IGraphics::AttachCornerResizer(ICornerResizerControl* pControl, EUIResizerMode sizeMode, bool layoutOnResize)
 {
-#ifndef AUv3_API
+#if defined(AUv3_API)
+  DBGMSG("AttachCornerResizer() is disabled for AUv3");
+#elif defined(OS_LINUX)
+  // On Linux, the host (or window manager for standalone) provides
+  // its own resize handle. The corner resizer conflicts because both
+  // catch mouse events in the same region, causing feedback loops.
+  // Still set the resize mode so Scale/Size mode works correctly.
+  mGUISizeMode = sizeMode;
+  mLayoutOnResize = layoutOnResize;
+  delete pControl;
+#else
   assert(!mCornerResizer); // only want one corner resizer
 
   std::unique_ptr<ICornerResizerControl> control(pControl);
@@ -346,8 +367,6 @@ void IGraphics::AttachCornerResizer(ICornerResizerControl* pControl, EUIResizerM
     mLayoutOnResize = layoutOnResize;
     mCornerResizer->SetDelegate(*GetDelegate());
   }
-#else
-DBGMSG("AttachCornerResizer() is disabled for AUv3");
 #endif
 }
 
@@ -2173,7 +2192,7 @@ void IGraphics::ApplyLayerDropShadow(ILayerPtr& layer, const IShadow& shadow)
   kernel.Resize(iSize);
         
   for (int i = 0; i < iSize; i++)
-    kernel.Get()[i] = static_cast<uint8_t>(std::round(255.f * std::expf(-(i * i) * blurConst)));
+    kernel.Get()[i] = static_cast<uint8_t>(std::round(255.f * std::exp(-(i * i) * blurConst)));
   
   // Kernel normalisation
   int normFactor = kernel.Get()[0];

@@ -68,9 +68,7 @@ void __addnstr(win32CursesCtx *ctx, const char *str,int n)
   while (n && *str)
   {
     int c,sz=wdl_utf8_parsechar(str,&c);
-    p->c=(wchar_t)c;
-    p->attr=attr;
-    p++;
+    *p++ = (c&0xFFFFFF) | (attr << 24);
     str+=sz;
     if (n > 0 && (n-=sz)<0) n = 0;
 
@@ -88,12 +86,8 @@ void __clrtoeol(win32CursesCtx *ctx)
   if (!ctx->m_framebuffer || ctx->m_cursor_y < 0 || ctx->m_cursor_y >= ctx->lines || n < 1) return;
   win32CursesFB *p=ctx->m_framebuffer + (ctx->m_cursor_x + ctx->m_cursor_y*ctx->cols);
   int sx=ctx->m_cursor_x;
-  while (n--)
-  {
-    p->c=0;
-    p->attr=ctx->m_cur_erase_attr;
-    p++;
-  }
+  const unsigned int fill = ctx->m_cur_erase_attr << 24;
+  while (n--) *p++ = fill;
   m_InvalidateArea(ctx,sx,ctx->m_cursor_y,ctx->cols,ctx->m_cursor_y+1);
 }
 
@@ -435,6 +429,9 @@ LRESULT CALLBACK cursesWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lP
   ctx->need_redraw|=1;
       #endif
       SetTimer(hwnd,CURSOR_BLINK_TIMER,CURSOR_BLINK_TIMER_MS,NULL);
+#if !defined(_WIN32) && !defined(__APPLE__)
+      SetProp(hwnd,"SWELL_IME_ENABLE",(HANDLE)(INT_PTR)1);
+#endif
     return 0;
     case WM_ERASEBKGND:
     return 1;
@@ -538,13 +535,14 @@ LRESULT CALLBACK cursesWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lP
 
               for (;; x ++, xpos+=ctx->m_font_w, p ++)
               {
-                wchar_t c=' ';
+                int c=' ';
                 int attr=0;
 
                 if (x < right)
                 {
-                  c=p->c;
-                  attr=p->attr;
+                  c = *p;
+                  attr = c >> 24;
+                  c &= 0xFFFFFF;
                 }
 
                 const bool isCursor = cstate && y == ctx->m_cursor_y && x == ctx->m_cursor_x;
@@ -577,7 +575,20 @@ LRESULT CALLBACK cursesWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lP
                 {
                   #ifdef _WIN32
                     int txpos = xpos;
-                    TextOutW(hdc,txpos,ypos,isNotBlank ? &c : L" ",1);
+                    if (c >= 0x10000 && c < 0x10FFFF)
+                    {
+                      WCHAR tmp[2];
+                      tmp[0] = 0xD800 + (((c-0x10000)>>10)&0x3FF);
+                      tmp[1] = 0xDC00 + (((c-0x10000)&0x3FF));
+                      const int max_charw = ctx->m_font_w, max_charh = ctx->m_font_h;
+                      RECT tr={xpos,ypos,xpos+max_charw, ypos+max_charh};
+                      DrawTextW(hdc,tmp,2,&tr,DT_LEFT|DT_TOP|DT_NOPREFIX|DT_NOCLIP);
+                    }
+                    else
+                    {
+                      WCHAR cc = (WCHAR)c;
+                      TextOutW(hdc,txpos,ypos,isNotBlank ? &cc : L" ",1);
+                    }
                   #else
                     const int max_charw = ctx->m_font_w, max_charh = ctx->m_font_h;
                     RECT tr={xpos,ypos,xpos+max_charw, ypos+max_charh};
@@ -681,7 +692,7 @@ LRESULT CALLBACK cursesWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lP
               {
                 if (y < topmarg || y>=bm1 || (y<div1b && y >= div1a))
                 {
-                  const int attr = ctx->m_framebuffer ? ctx->m_framebuffer[(y+1) * ctx->cols - 1].attr : 0; // last attribute of line
+                  const int attr = ctx->m_framebuffer ? (ctx->m_framebuffer[(y+1) * ctx->cols - 1]>>24) : 0; // last attribute of line
 
                   const int yp = y * fonth;
                   RECT tr = { wdl_max(ex,updr.left), wdl_max(yp,updr.top), updr.right, wdl_min(yp+fonth,updr.bottom) };
@@ -798,6 +809,35 @@ void __endwin(win32CursesCtx *ctx)
   }
 }
 
+static int curses_get_char(win32CursesCtx *ctx, int peek)
+{
+  if (ctx->m_kb_queue_valid)
+  {
+    const int qsize = sizeof(ctx->m_kb_queue)/sizeof(ctx->m_kb_queue[0]);
+    int a = ctx->m_kb_queue[ctx->m_kb_queue_pos & (qsize-1)];
+    int sz = 1;
+#ifdef _WIN32
+    if (a >= 0xD800 && a <= 0xD800 + 0x3FF)
+    {
+      if (ctx->m_kb_queue_valid >= 2)
+      {
+        int b = ctx->m_kb_queue[(ctx->m_kb_queue_pos+1) & (qsize-1)];
+        if (b >= 0xDC00 && b < 0xDC00 + 0x3FF)
+        {
+          sz++;
+          a = 0x10000 + ((a-0xD800)<<10) + (b - 0xDC00);
+        }
+      }
+      else if (peek) return -1; // wait for surrogate pair
+    }
+#endif
+    if (peek) return a;
+    ctx->m_kb_queue_pos+=sz;
+    ctx->m_kb_queue_valid-=sz;
+    return a;
+  }
+  return -1;
+}
 
 int curses_getch(win32CursesCtx *ctx)
 {
@@ -809,28 +849,22 @@ int curses_getch(win32CursesCtx *ctx)
     MSG msg;
     if (ctx->want_getch_runmsgpump>1)
     {
-      while(!ctx->m_kb_queue_valid && GetMessage(&msg,NULL,0,0))
+      while (curses_get_char(ctx, 1) == -1 && GetMessageW(&msg,NULL,0,0))
       {
         TranslateMessage(&msg);
-        DispatchMessage(&msg);
+        DispatchMessageW(&msg);
       }
     }
-    else while(PeekMessage(&msg,NULL,0,0,PM_REMOVE))
+    else while (PeekMessageW(&msg,NULL,0,0,PM_REMOVE))
     {
       TranslateMessage(&msg);
-      DispatchMessage(&msg);
+      DispatchMessageW(&msg);
     }
   }
 #endif
 
-  if (ctx->m_kb_queue_valid)
-  {
-    const int qsize = sizeof(ctx->m_kb_queue)/sizeof(ctx->m_kb_queue[0]);
-    const int a = ctx->m_kb_queue[ctx->m_kb_queue_pos & (qsize-1)];
-    ctx->m_kb_queue_pos++;
-    ctx->m_kb_queue_valid--;
-    return a;
-  }
+  int a = curses_get_char(ctx, 0);
+  if (a >= 0) return a;
 
   if (ctx->need_redraw&1)
   {

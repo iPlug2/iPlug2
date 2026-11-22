@@ -103,7 +103,9 @@ END_IPLUG_NAMESPACE
   #endif
   #define EXPORT __attribute__ ((visibility("default")))
 #elif defined OS_LINUX
-  //TODO:
+  #define EXPORT __attribute__ ((visibility("default")))
+  #define BUNDLE_ID ""
+  #define APP_GROUP_ID ""
 #elif defined OS_WEB
   #define BUNDLE_ID ""
   #define APP_GROUP_ID ""

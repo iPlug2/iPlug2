@@ -107,6 +107,8 @@ class WDL_String
     WDL_String(const WDL_String &s) : m_hb(128) { Set(&s); }
     WDL_String(const WDL_String *s) : m_hb(128) { if (s && s != this) Set(s); }
     ~WDL_String() { }
+
+    void SwapContentsWith(WDL_String *b) { m_hb.SwapContentsWith(&b->m_hb); }
 #endif // ! WDL_STRING_IMPL_ONLY
 
 #ifndef WDL_STRING_INTF_ONLY

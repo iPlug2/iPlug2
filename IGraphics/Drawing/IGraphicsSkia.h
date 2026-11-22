@@ -131,6 +131,11 @@ public:
   void DrawMultiLineText(const IText& text, const char* str, const IRECT& bounds, const IBlend* pBlend) override;
 
 protected:
+#if defined OS_LINUX && defined IGRAPHICS_CPU
+  /** Present the raster surface using the Linux platform window. */
+  virtual void PresentCPUFrame(const SkPixmap& pixels) = 0;
+#endif
+
     
   float DoMeasureText(const IText& text, const char* str, IRECT& bounds) const override;
   void DoDrawText(const IText& text, const char* str, const IRECT& bounds, const IBlend* pBlend) override;

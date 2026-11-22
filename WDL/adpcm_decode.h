@@ -27,12 +27,12 @@ public:
     else nbytes -= nblocks*MSADPCM_PREAMBLELEN*nch;
 
     // scale from bytes to samples
-    nbytes = (nbytes*8)/(nch*bps);
+    INT64 ns = (nbytes*8)/(nch*bps);
 
-    if (type==IMAADPCM_TYPE||type==CADPCM2_TYPE) nbytes++; // IMA has just one initial sample
-    else nbytes+=2; // msadpcm has 2 initial sample values
+    if (type==IMAADPCM_TYPE||type==CADPCM2_TYPE) ns+=nblocks; // IMA has one initial sample per block
+    else ns+=nblocks*2; // msadpcm has 2 initial samples per block
 
-    return nbytes;
+    return ns;
   }
 
   WDL_adpcm_decoder(int blockalign,int nch, int type, int bps)

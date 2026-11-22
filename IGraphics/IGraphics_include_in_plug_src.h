@@ -88,6 +88,11 @@
     RegisterGraphicsInstance(pGraphics);
     return pGraphics;
   }
+  #elif defined OS_LINUX
+  IGraphics* MakeGraphics(IGEditorDelegate& dlg, int w, int h, int fps = 0, float scale = 1.)
+  {
+    return new IGraphicsLinux(dlg, w, h, fps, scale);
+  }
   #else
     #error "No OS defined!"
   #endif

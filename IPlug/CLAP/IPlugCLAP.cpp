@@ -15,11 +15,20 @@
 #include "IPlugPluginBase.h"
 #include "plugin.hxx"
 #include "host-proxy.hxx"
+#if defined OS_LINUX && defined WEBVIEW_EDITOR_DELEGATE
+extern "C" void IPlugLinuxWebViewPump();
+#endif
+#if defined OS_LINUX && !defined NO_IGRAPHICS
+#include "IGraphicsLinux.h"
+#endif
 
 // TODO - respond to situations in which parameters can't be pushed (search try_push)
 // Keep in the queue or discard?? - up to us?
 
 using namespace iplug;
+#if defined OS_LINUX && !defined NO_IGRAPHICS
+using namespace igraphics;
+#endif
 
 void ClapNameCopy(char* destination, const char* source)
 {
@@ -50,7 +59,22 @@ IPlugCLAP::IPlugCLAP(const InstanceInfo& info, const Config& config)
   mAudioIO64.Resize(nChans);
   
   SetHost(info.mHost->name, version);
+#ifndef OS_LINUX
   CreateTimer();
+#endif
+}
+
+IPlugCLAP::~IPlugCLAP()
+{
+#ifdef OS_LINUX
+#if defined WEBVIEW_EDITOR_DELEGATE
+  mWebViewTimer.reset();
+#endif
+  mTimer.reset();
+#ifndef NO_IGRAPHICS
+  mLinuxGuiTimer.reset();
+#endif
+#endif
 }
 
 uint32_t IPlugCLAP::tailGet() const noexcept
@@ -90,7 +114,7 @@ bool IPlugCLAP::EditorResize(int viewWidth, int viewHeight)
 {
   if (HasUI())
   {
-    if (viewWidth != GetEditorWidth() || viewHeight != GetEditorHeight())
+    if ((viewWidth != GetEditorWidth() || viewHeight != GetEditorHeight()) && GetClapHost().canUseGui())
     {
       GetClapHost().guiRequestResize(viewWidth, viewHeight);
     }
@@ -116,16 +140,12 @@ void IPlugCLAP::SetLatency(int samples)
   
   if (GetClapHost().canUseLatency())
   {
-    // If active request restart on the main thread (or update the host)
+    // clap_host_latency::changed() may only be called from within activate(),
+    // so record the change and report it on the next activation, requesting a
+    // restart if the plugin is currently active.
+    mLatencyUpdate = true;
     if (isActive())
-    {
-      mLatencyUpdate = true;
       runOnMainThread([&](){ if (!isBeingDestroyed()) GetClapHost().requestRestart(); });
-    }
-    else
-    {
-      runOnMainThread([&](){ if (!isBeingDestroyed()) GetClapHost().latencyChanged(); });
-    }
   }
 }
 
@@ -148,6 +168,17 @@ bool IPlugCLAP::init() noexcept
 {
   SetDefaultConfig();
   
+#ifdef OS_LINUX
+  mTimer.reset(Timer::Create([this](Timer&) {
+    if (!mLinuxIdlePending.exchange(true))
+      _host.requestCallback();
+  }, IDLE_TIMER_RATE));
+  if (!mTimer)
+  {
+    fprintf(stderr, "Could not start the CLAP idle callback timer\n");
+    return false;
+  }
+#endif
   return true;
 }
 
@@ -159,6 +190,12 @@ bool IPlugCLAP::activate(double sampleRate, uint32_t minFrameCount, uint32_t max
   OnParamReset(kReset);
   OnReset();
 
+  if (mLatencyUpdate)
+  {
+    GetClapHost().latencyChanged();
+    mLatencyUpdate = false;
+  }
+
   mHostHasTail = GetClapHost().canUseTail();
   mTailCount = 0;
 
@@ -168,12 +205,6 @@ bool IPlugCLAP::activate(double sampleRate, uint32_t minFrameCount, uint32_t max
 void IPlugCLAP::deactivate() noexcept
 {
   OnActivate(false);
-  
-  if (mLatencyUpdate)
-  {
-    GetClapHost().latencyChanged();
-    mLatencyUpdate = false;
-  }
 
   // TODO - should we clear mTailUpdate here or elsewhere?
 }
@@ -411,11 +442,29 @@ bool IPlugCLAP::renderSetMode(clap_plugin_render_mode mode) noexcept
 bool IPlugCLAP::stateSave(const clap_ostream* pStream) noexcept
 {
   IByteChunk chunk;
-  
+
   if (!SerializeState(chunk))
     return false;
-  
-  return pStream->write(pStream, chunk.GetData(), chunk.Size()) == chunk.Size();
+
+  // clap_ostream::write() may perform a short write (like POSIX write()) --
+  // it isn't required to write the whole buffer in one call, so this must
+  // loop until every byte is written rather than checking a single call's
+  // return value against the full size.
+  const uint8_t* pData = chunk.GetData();
+  int64_t remaining = chunk.Size();
+
+  while (remaining > 0)
+  {
+    const int64_t written = pStream->write(pStream, pData, static_cast<uint64_t>(remaining));
+
+    if (written <= 0)
+      return false;
+
+    pData += written;
+    remaining -= written;
+  }
+
+  return true;
 }
 
 bool IPlugCLAP::stateLoad(const clap_istream* pStream) noexcept
@@ -431,11 +480,16 @@ bool IPlugCLAP::stateLoad(const clap_istream* pStream) noexcept
 
   if (bytesRead != 0)
     return false;
-      
+
   bool restoredOK = UnserializeState(chunk, 0) >= 0;
   
   if (restoredOK)
+  {
     OnRestoreState();
+
+    if (GetClapHost().canUseParams())
+      GetClapHost().paramsRescan(CLAP_PARAM_RESCAN_VALUES);
+  }
   
   return restoredOK;
 }
@@ -486,16 +540,20 @@ bool IPlugCLAP::paramsValueToText(clap_id paramIdx, double value, char* display,
 
   WDL_String str;
   
-  pParam->GetDisplay(value, isDoubleType, str);
-  
-  // Add Label
-  if (CStringHasContents(pParam->GetLabel()))
+  // Stepped parameters are exposed to CLAP with plain values, constrain so that display texts are found
+  const double plainValue = isDoubleType ? pParam->FromNormalized(value) : pParam->Constrain(value);
+
+  pParam->GetDisplay(plainValue, false, str);
+
+  // Add Label, unless the value has display text (which wouldn't map back to a value with the label added)
+  if (CStringHasContents(pParam->GetLabel()) && !CStringHasContents(pParam->GetDisplayText(plainValue)))
   {
     str.Append(" ");
     str.Append(pParam->GetLabel());
   }
-  
-  if (size < str.GetLength())
+
+  // size includes the null terminator
+  if (size <= static_cast<uint32_t>(str.GetLength()))
     return false;
     
   strcpy(display, str.Get());
@@ -784,7 +842,7 @@ bool IPlugCLAP::audioPortsGetConfig(uint32_t index, clap_audio_ports_config* pCo
     // N.B. Configs in iPlug2 currently have no names so we reconstruct the strings...
     configName.AppendFormatted(CLAP_NAME_SIZE, "%d", getNChans(direction, 0));
     
-    for (int i = 0; i < NBuses(direction, index); i++)
+    for (int i = 1; i < NBuses(direction, index); i++)
       configName.AppendFormatted(CLAP_NAME_SIZE, ".%d", getNChans(direction, i));
   };
   
@@ -798,12 +856,13 @@ bool IPlugCLAP::audioPortsGetConfig(uint32_t index, clap_audio_ports_config* pCo
   pConfig->input_port_count = static_cast<uint32_t>(NBuses(kInput, index));
   pConfig->output_port_count = static_cast<uint32_t>(NBuses(kOutput, index));
 
-  pConfig->has_main_input = pConfig->input_port_count > 1;
+  // Bus 0 is the main port (see audioPortsInfo), so any bus in a direction means a main port
+  pConfig->has_main_input = pConfig->input_port_count > 0;
   pConfig->main_input_channel_count = pConfig->has_main_input ? getNChans(kInput, 0) : 0;
   pConfig->main_input_port_type = ClapPortType(pConfig->main_input_channel_count);
   
-  pConfig->has_main_output = pConfig->output_port_count > 1;
-  pConfig->main_output_channel_count = pConfig->has_main_input ? getNChans(kOutput, 0) : 0;
+  pConfig->has_main_output = pConfig->output_port_count > 0;
+  pConfig->main_output_channel_count = pConfig->has_main_output ? getNChans(kOutput, 0) : 0;
   pConfig->main_output_port_type = ClapPortType(pConfig->main_output_channel_count);
 
   return true;
@@ -853,8 +912,10 @@ bool IPlugCLAP::guiIsApiSupported(const char* api, bool isFloating) noexcept
   return !isFloating && !strcmp(api, CLAP_WINDOW_API_COCOA);
 #elif defined OS_WIN
   return !isFloating && !strcmp(api, CLAP_WINDOW_API_WIN32);
+#elif defined OS_LINUX
+  return !isFloating && !strcmp(api, CLAP_WINDOW_API_X11);
 #else
-#error Not Implemented!
+  return false;
 #endif
 }
 
@@ -864,8 +925,10 @@ bool IPlugCLAP::guiSetParent(const clap_window* pWindow) noexcept
   return GUIWindowAttach(pWindow->cocoa);
 #elif defined OS_WIN
   return GUIWindowAttach(pWindow->win32);
+#elif defined OS_LINUX
+  return GUIWindowAttach((void*)(uintptr_t)pWindow->x11);
 #else
-#error Not Implemented!
+  return false;
 #endif
 }
 
@@ -876,11 +939,22 @@ bool IPlugCLAP::implementsGui() const noexcept
 
 bool IPlugCLAP::guiCreate(const char* api, bool isFloating) noexcept
 {
+#if defined OS_LINUX && !defined NO_IGRAPHICS
+  return HasUI() && guiIsApiSupported(api, isFloating) && PrepareGraphics();
+#else
   return HasUI();
+#endif
 }
 
 void IPlugCLAP::guiDestroy() noexcept
 {
+#if defined OS_LINUX && defined WEBVIEW_EDITOR_DELEGATE
+  mWebViewTimer.reset();
+  mWebViewPending = false;
+#endif
+#if defined OS_LINUX && !defined NO_IGRAPHICS
+  UnregisterLinuxHostCallbacks();
+#endif
   CloseWindow();
   mGUIOpen = false;
   mWindow = nullptr;
@@ -888,19 +962,39 @@ void IPlugCLAP::guiDestroy() noexcept
 
 bool IPlugCLAP::guiShow() noexcept
 {
+#if defined OS_LINUX && (defined WEBVIEW_EDITOR_DELEGATE || !defined NO_IGRAPHICS)
+  return HasUI() && (mGUIOpen || (mWindow && GUIWindowAttach(mWindow)));
+#else
   if (HasUI() && !mGUIOpen)
   {
+#ifdef OS_LINUX
+    if (!OpenWindow(mWindow))
+    {
+      fprintf(stderr, "Could not show the CLAP editor\n");
+      CloseWindow();
+      return false;
+    }
+#else
     OpenWindow(mWindow);
+#endif
     return true;
   }
   else
   {
     return false;
   }
+#endif
 }
 
 bool IPlugCLAP::guiHide() noexcept
 {
+#if defined OS_LINUX && defined WEBVIEW_EDITOR_DELEGATE
+  mWebViewTimer.reset();
+  mWebViewPending = false;
+#endif
+#if defined OS_LINUX && !defined NO_IGRAPHICS
+  UnregisterLinuxHostCallbacks();
+#endif
   if (HasUI())
   {
     CloseWindow();
@@ -920,6 +1014,9 @@ bool IPlugCLAP::guiCanResize() const noexcept
 
 bool IPlugCLAP::guiSetScale(double scale) noexcept
 {
+#if defined OS_LINUX && !defined NO_IGRAPHICS
+  return HasUI() && SetHostScreenScale(static_cast<float>(scale));
+#else
   if (HasUI())
   {
     SetScreenScale(static_cast<float>(scale));
@@ -929,6 +1026,7 @@ bool IPlugCLAP::guiSetScale(double scale) noexcept
   {
     return false;
   }
+#endif
 }
 
 bool IPlugCLAP::guiGetSize(uint32_t* pWidth, uint32_t* pHeight) noexcept
@@ -952,9 +1050,44 @@ bool IPlugCLAP::GUIWindowAttach(void* pWindow) noexcept
 {
   if (HasUI())
   {
+#if defined OS_LINUX && !defined NO_IGRAPHICS
+    UnregisterLinuxHostCallbacks();
+#endif
+#ifdef OS_LINUX
+    if (!OpenWindow(pWindow))
+    {
+      fprintf(stderr, "Could not attach the CLAP editor\n");
+      CloseWindow();
+      mGUIOpen = false;
+      return false;
+    }
+#else
     OpenWindow(pWindow);
+#endif
     mWindow = pWindow;
     mGUIOpen = true;
+#if defined OS_LINUX && defined WEBVIEW_EDITOR_DELEGATE
+    mWebViewTimer.reset(Timer::Create([this](Timer&) {
+      if (!mWebViewPending.exchange(true))
+        _host.requestCallback();
+    }, 16));
+    if (!mWebViewTimer)
+    {
+      CloseWindow();
+      mGUIOpen = false;
+      return false;
+    }
+#endif
+#if defined OS_LINUX && !defined NO_IGRAPHICS
+    // Host-driven mode: the host drives rendering via onTimer / onPosixFd.
+    static_cast<IGraphicsLinux*>(GetUI())->SetHostDriven(true);
+    if (!RegisterLinuxHostCallbacks())
+    {
+      CloseWindow();
+      mGUIOpen = false;
+      return false;
+    }
+#endif
     return true;
   }
   else
@@ -962,6 +1095,32 @@ bool IPlugCLAP::GUIWindowAttach(void* pWindow) noexcept
     return false;
   }
 }
+
+#if defined OS_LINUX && !defined NO_IGRAPHICS
+bool IPlugCLAP::guiGetResizeHints(clap_gui_resize_hints_t* pHints) noexcept
+{
+  if (!HasUI() || !GetUI())
+    return false;
+
+  pHints->can_resize_horizontally = true;
+  pHints->can_resize_vertically = true;
+
+  if (GetUI()->GetResizerMode() == EUIResizerMode::Scale)
+  {
+    pHints->preserve_aspect_ratio = true;
+    pHints->aspect_ratio_width = GetEditorWidth();
+    pHints->aspect_ratio_height = GetEditorHeight();
+  }
+  else
+  {
+    pHints->preserve_aspect_ratio = false;
+    pHints->aspect_ratio_width = 0;
+    pHints->aspect_ratio_height = 0;
+  }
+
+  return true;
+}
+#endif
 
 bool IPlugCLAP::guiAdjustSize(uint32_t* pWidth, uint32_t* pHeight) noexcept
 {
@@ -971,7 +1130,13 @@ bool IPlugCLAP::guiAdjustSize(uint32_t* pWidth, uint32_t* pHeight) noexcept
   {
     int w = *pWidth;
     int h = *pHeight;
-    ConstrainEditorResize(w, h);
+#if defined OS_LINUX && !defined NO_IGRAPHICS
+    if (GetUI())
+      static_cast<IGraphicsLinux*>(GetUI())->ConstrainHostResize(w, h);
+    else
+#endif
+      ConstrainEditorResize(w, h);
+
     *pWidth = w;
     *pHeight = h;
     
@@ -1087,3 +1252,117 @@ uint32_t IPlugCLAP::NChannels(ERoute direction, uint32_t bus) const
 {
   return NChannels(direction, bus, mConfigIdx);
 }
+
+#if defined OS_LINUX && !defined NO_IGRAPHICS
+void IPlugCLAP::onTimer(clap_id timerId) noexcept
+{
+  if (mGUIOpen && timerId != CLAP_INVALID_ID && timerId == mLinuxTimerId)
+    if (auto* pGraphics = static_cast<IGraphicsLinux*>(GetUI()))
+    {
+      pGraphics->OnDisplayTimer();
+      CheckLinuxGuiClosed();
+    }
+}
+
+void IPlugCLAP::onPosixFd(int fd, clap_posix_fd_flags_t flags) noexcept
+{
+  if (mGUIOpen && fd == mLinuxFd && (flags & CLAP_POSIX_FD_READ))
+  {
+    if (auto* pGraphics = static_cast<IGraphicsLinux*>(GetUI()))
+      pGraphics->ProcessX11Events();
+    CheckLinuxGuiClosed();
+  }
+}
+
+#endif
+
+#if defined OS_LINUX
+void IPlugCLAP::onMainThread() noexcept
+{
+#if defined WEBVIEW_EDITOR_DELEGATE
+  mWebViewPending = false;
+  if (mGUIOpen)
+    IPlugLinuxWebViewPump();
+#endif
+  if (mLinuxIdlePending.exchange(false))
+    OnTimer();
+#ifndef NO_IGRAPHICS
+  if (mLinuxCallbackPending.exchange(false) && mGUIOpen)
+    if (auto* pGraphics = static_cast<IGraphicsLinux*>(GetUI()))
+    {
+      pGraphics->OnDisplayTimer();
+      CheckLinuxGuiClosed();
+    }
+#endif
+}
+#endif
+
+#if defined OS_LINUX && !defined NO_IGRAPHICS
+void IPlugCLAP::CheckLinuxGuiClosed() noexcept
+{
+  auto* pGraphics = static_cast<IGraphicsLinux*>(GetUI());
+  if (!pGraphics || pGraphics->WindowCloseRequested() || !pGraphics->WindowIsOpen())
+  {
+    UnregisterLinuxHostCallbacks();
+    mGUIOpen = false;
+    CloseWindowIfRequested();
+  }
+}
+
+bool IPlugCLAP::RegisterLinuxHostCallbacks() noexcept
+{
+  auto* pGraphics = static_cast<IGraphicsLinux*>(GetUI());
+  if (!pGraphics || !pGraphics->WindowIsOpen())
+    return false;
+
+  const int fd = pGraphics->GetX11Fd();
+  if (fd >= 0 && _host.canUsePosixFdSupport())
+  {
+    if (_host.posixFdSupportRegister(fd, CLAP_POSIX_FD_READ))
+      mLinuxFd = fd;
+    else
+      fprintf(stderr, "CLAP host rejected the X11 file descriptor; polling on GUI ticks\n");
+  }
+  const uint32_t periodMs = std::max(1u, static_cast<uint32_t>(1000.0 / pGraphics->FPS()));
+  if (_host.canUseTimerSupport())
+  {
+    clap_id timerId = CLAP_INVALID_ID;
+    if (_host.timerSupportRegister(periodMs, &timerId) && timerId != CLAP_INVALID_ID)
+    {
+      mLinuxTimerId = timerId;
+      return true;
+    }
+  }
+
+  fprintf(stderr, "CLAP host timer unavailable; requesting main-thread GUI callbacks instead\n");
+  mLinuxGuiTimer.reset(Timer::Create([this](Timer&) {
+    if (!mLinuxCallbackPending.exchange(true))
+      _host.requestCallback();
+  }, periodMs));
+  if (!mLinuxGuiTimer)
+  {
+    fprintf(stderr, "Could not start the CLAP main-thread callback timer\n");
+    UnregisterLinuxHostCallbacks();
+    return false;
+  }
+  return true;
+}
+
+void IPlugCLAP::UnregisterLinuxHostCallbacks() noexcept
+{
+  mLinuxGuiTimer.reset();
+  mLinuxCallbackPending = false;
+  if (mLinuxTimerId != CLAP_INVALID_ID)
+  {
+    if (!_host.timerSupportUnregister(mLinuxTimerId))
+      fprintf(stderr, "Could not unregister the CLAP GUI timer\n");
+    mLinuxTimerId = CLAP_INVALID_ID;
+  }
+  if (mLinuxFd >= 0)
+  {
+    if (!_host.posixFdSupportUnregister(mLinuxFd))
+      fprintf(stderr, "Could not unregister the CLAP X11 file descriptor\n");
+    mLinuxFd = -1;
+  }
+}
+#endif

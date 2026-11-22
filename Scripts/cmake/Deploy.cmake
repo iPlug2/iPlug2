@@ -9,10 +9,15 @@
 # Plugin deployment configuration for iPlug2
 # Supports symlink and copy deployment to standard system directories
 
+# Capture script directory at include time (CMAKE_CURRENT_LIST_DIR changes inside functions)
+set(_IPLUG_DEPLOY_SCRIPT_DIR "${CMAKE_CURRENT_LIST_DIR}" CACHE INTERNAL "")
+
 #------------------------------------------------------------------------
 # Options
 #------------------------------------------------------------------------
 option(IPLUG_DEPLOY_PLUGINS "Deploy built plugins to system directories" ON)
+
+set(_IPLUG_DEPLOY_CODESIGN_SCRIPT "${CMAKE_CURRENT_LIST_DIR}/deploy_codesign.cmake")
 
 set(IPLUG_DEPLOY_METHOD "COPY" CACHE STRING "Deployment method: SYMLINK or COPY")
 set_property(CACHE IPLUG_DEPLOY_METHOD PROPERTY STRINGS "SYMLINK" "COPY")
@@ -91,6 +96,11 @@ function(iplug_get_default_deploy_path format)
     elseif(format STREQUAL "AU" OR format STREQUAL "AUv2")
       # AU not supported on Linux
       return()
+    elseif(format STREQUAL "AAX")
+      # AAX not supported on Linux
+      return()
+    elseif(format STREQUAL "REAPEREXT")
+      set(default_path "$ENV{HOME}/.config/REAPER/UserPlugins")
     elseif(format STREQUAL "APP")
       # Leave APP in build directory on Linux
       set(default_path "")
@@ -150,13 +160,22 @@ endfunction()
 function(_iplug_copy_plugin target source_path dest_dir plugin_name is_bundle)
   set(dest_path "${dest_dir}/${plugin_name}")
 
+  # Xcode signs the build product after POST_BUILD runs, so the copy would be
+  # unsigned (and unloadable on Apple Silicon). Sign the copy ourselves.
+  set(sign_command "")
+  if(APPLE AND CMAKE_GENERATOR MATCHES "Xcode")
+    set(sign_command COMMAND ${CMAKE_COMMAND} -DDEPLOY_PATH=${dest_path} -P ${_IPLUG_DEPLOY_CODESIGN_SCRIPT})
+  endif()
+
   if(is_bundle)
     add_custom_command(TARGET ${target} POST_BUILD
       COMMAND ${CMAKE_COMMAND} -E echo "[iPlug2] Copying plugin: ${dest_path}"
       COMMAND ${CMAKE_COMMAND} -E make_directory "${dest_dir}"
       COMMAND ${CMAKE_COMMAND} -E rm -rf "${dest_path}"
       COMMAND ${CMAKE_COMMAND} -E copy_directory "${source_path}" "${dest_path}"
+      ${sign_command}
       COMMENT "[iPlug2] Deploying ${plugin_name} (copy)"
+      VERBATIM
     )
   else()
     add_custom_command(TARGET ${target} POST_BUILD
@@ -164,8 +183,21 @@ function(_iplug_copy_plugin target source_path dest_dir plugin_name is_bundle)
       COMMAND ${CMAKE_COMMAND} -E make_directory "${dest_dir}"
       COMMAND ${CMAKE_COMMAND} -E rm -f "${dest_path}"
       COMMAND ${CMAKE_COMMAND} -E copy "${source_path}" "${dest_path}"
+      ${sign_command}
       COMMENT "[iPlug2] Deploying ${plugin_name} (copy)"
+      VERBATIM
     )
+    if(UNIX AND NOT APPLE AND NOT EMSCRIPTEN)
+      set(_res_src "${source_path}.resources")
+      set(_res_dst "${dest_path}.resources")
+      add_custom_command(TARGET ${target} POST_BUILD
+        COMMAND ${CMAKE_COMMAND}
+          "-Dsrc=${_res_src}" "-Ddst=${_res_dst}"
+          -P "${_IPLUG_DEPLOY_SCRIPT_DIR}/CopyIfExists.cmake"
+        COMMENT "[iPlug2] Deploying resources -> ${_res_dst}"
+        VERBATIM
+      )
+    endif()
   endif()
 endfunction()
 
@@ -226,6 +258,8 @@ function(iplug_deploy_target target format project_name)
   elseif(format STREQUAL "REAPEREXT")
     if(APPLE)
       set(plugin_name "${project_name}.dylib")
+    elseif(UNIX AND NOT EMSCRIPTEN)
+      set(plugin_name "${project_name}.so")
     else()
       set(plugin_name "${project_name}.dll")
     endif()
@@ -257,6 +291,24 @@ function(iplug_deploy_target target format project_name)
   else()
     # Default to SYMLINK
     _iplug_create_plugin_link(${target} "${source_path}" "${deploy_path}" "${plugin_name}")
+  endif()
+  if(CMAKE_SYSTEM_NAME STREQUAL "Linux" AND format STREQUAL "CLAP")
+    get_target_property(_has_web_resources ${target} IPLUG_LINUX_WEB_RESOURCES)
+    if(_has_web_resources)
+      set(_web_source "$<TARGET_FILE:${target}>.resources")
+      set(_web_dest "${deploy_path}/${plugin_name}.resources")
+      if(IPLUG_DEPLOY_METHOD STREQUAL "COPY")
+        add_custom_command(TARGET ${target} POST_BUILD
+          COMMAND ${CMAKE_COMMAND} -E rm -rf "${_web_dest}"
+          COMMAND ${CMAKE_COMMAND} -E copy_directory "${_web_source}" "${_web_dest}"
+          VERBATIM)
+      else()
+        add_custom_command(TARGET ${target} POST_BUILD
+          COMMAND ${CMAKE_COMMAND} -E rm -rf "${_web_dest}"
+          COMMAND ${CMAKE_COMMAND} -E create_symlink "${_web_source}" "${_web_dest}"
+          VERBATIM)
+      endif()
+    endif()
   endif()
 endfunction()
 

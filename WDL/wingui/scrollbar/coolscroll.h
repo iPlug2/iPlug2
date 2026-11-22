@@ -79,7 +79,7 @@ BOOL WINAPI CoolSB_SetResizingThumbEx(HWND hwnd, int nBar, BOOL active);
 BOOL WINAPI CoolSB_SetThemeIndex(HWND hwnd, int idx);
 void CoolSB_SetScale(float scale); // sets scale to use for scrollbars (does not refresh, though -- set this at startup/etc)
 void CoolSB_OnColorThemeChange(); // refreshes all
-
+void WINAPI CoolSB_SetThemeIndexOverrideFunc(int (*f)(int themeidx));
 
 
 // TO BE IMPLEMENTED BY APP:

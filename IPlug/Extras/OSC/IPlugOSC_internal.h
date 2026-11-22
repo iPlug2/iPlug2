@@ -92,6 +92,13 @@ public:
   OSCDevice* CreateReceiver(WDL_String& log, int port = 8000);
   OSCDevice* CreateSender(WDL_String& log, const char* ip = "127.0.0.1", int port = 8000);
 
+  /** Process one OSC tick on the owning main thread. Linux callers must invoke
+   * this regularly; other platforms use the existing main-thread timer.
+   * All OSC operations and destruction must run on that same thread.
+   * Callbacks may change devices, but must not destroy the interface.
+   * Recursive calls do not start another tick. */
+  void ProcessOSC();
+
 public:
   virtual void OnOSCMessage(OscMessageRead& msg) {};
   void SetLogFunc(OSCLogFunc logFunc) { mLogFunc = logFunc; }
@@ -107,6 +114,7 @@ private:
   void OnTimer(Timer& timer);
 
   WDL_PtrList<OSCDevice> mDevices;
+  bool mProcessingOSC = false;
 
 protected:
   OSCLogFunc mLogFunc;

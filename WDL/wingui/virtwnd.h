@@ -263,5 +263,6 @@ void WDL_VWnd_regHelperClass(const char *classname, void *icon=NULL, void *icons
 LRESULT WDL_AccessibilityHandleForVWnd(bool isDialog, HWND hwnd, WDL_VWnd *vw, WPARAM wParam, LPARAM lParam);
 
 extern bool wdl_virtwnd_nosetcursorpos; // set to true to prevent SetCursorPos() from being called in sliders/etc (for pen/tablet mode)
+extern int wdl_virtwnd_alphaignore_level; // alpha level where less than or equal to this can be optimized to transparent (default 0)
 
 #endif

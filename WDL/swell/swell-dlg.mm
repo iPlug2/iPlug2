@@ -156,55 +156,46 @@ static void swellRenderOptimizely(int passflags, SWELL_hwndChild *view, HDC hdc,
 static LRESULT SWELL_SendMouseMessage(SWELL_hwndChild *slf, int msg, NSEvent *event);
 static LRESULT SWELL_SendMouseMessageImpl(SWELL_hwndChild *slf, int msg, NSEvent *theEvent)
 {
- 
   NSView *capv=(NSView *)GetCapture();
   if (capv && capv != slf && [capv window] == [slf window] && [capv isKindOfClass:[SWELL_hwndChild class]])
     return SWELL_SendMouseMessage((SWELL_hwndChild*)capv,msg,theEvent);
-  
+
   if (slf->m_hashaddestroy||!slf->m_wndproc) return -1;
-  
-  NSPoint swellProcessMouseEvent(int msg, NSView *view, NSEvent *event);
-  
-  NSPoint pt = swellProcessMouseEvent(msg,slf,theEvent);
-  unsigned short xpos=(int)floor(pt.x + 0.5);
-  unsigned short ypos=(int)floor(pt.y + 0.5);
-  
-  LRESULT htc=HTCLIENT;
-  if (msg != WM_MOUSEWHEEL && msg != WM_MOUSEHWHEEL && !capv) 
-  { 
-    DWORD p=GetMessagePos(); 
-    htc=slf->m_wndproc((HWND)slf,WM_NCHITTEST,0,p); 
-    if (slf->m_hashaddestroy||!slf->m_wndproc) return -1; // if somehow WM_NCHITTEST destroyed us, bail
-    
-    if (htc!=HTCLIENT) 
-    { 
-      if (msg==WM_MOUSEMOVE) return slf->m_wndproc((HWND)slf,WM_NCMOUSEMOVE,htc,p); 
-      if (msg==WM_LBUTTONUP) return slf->m_wndproc((HWND)slf,WM_NCLBUTTONUP,htc,p); 
-      if (msg==WM_LBUTTONDOWN) return slf->m_wndproc((HWND)slf,WM_NCLBUTTONDOWN,htc,p); 
-      if (msg==WM_LBUTTONDBLCLK) return slf->m_wndproc((HWND)slf,WM_NCLBUTTONDBLCLK,htc,p); 
-      if (msg==WM_RBUTTONUP) return slf->m_wndproc((HWND)slf,WM_NCRBUTTONUP,htc,p); 
-      if (msg==WM_RBUTTONDOWN) return slf->m_wndproc((HWND)slf,WM_NCRBUTTONDOWN,htc,p); 
-      if (msg==WM_RBUTTONDBLCLK) return slf->m_wndproc((HWND)slf,WM_NCRBUTTONDBLCLK,htc,p); 
-      if (msg==WM_MBUTTONUP) return slf->m_wndproc((HWND)slf,WM_NCMBUTTONUP,htc,p); 
-      if (msg==WM_MBUTTONDOWN) return slf->m_wndproc((HWND)slf,WM_NCMBUTTONDOWN,htc,p); 
-      if (msg==WM_MBUTTONDBLCLK) return slf->m_wndproc((HWND)slf,WM_NCMBUTTONDBLCLK,htc,p); 
-    } 
-  } 
-  
-  int l=0;
+
   if (msg == WM_MOUSEWHEEL || msg == WM_MOUSEHWHEEL)
   {
+    const LONG p = NSPOINT_TO_LONG([[theEvent window] convertBaseToScreen:[theEvent locationInWindow]]);
     float dw = (msg == WM_MOUSEWHEEL ? [theEvent deltaY] : [theEvent deltaX]);
-    l = MAKELONG(0, (int)(dw*60.0));
-    // put todo: modifiers into low word of l?
-    
-    POINT p;
-    GetCursorPos(&p);
-    return slf->m_wndproc((HWND)slf,msg,l,MAKELONG(p.x&0xffff,p.y));
+    int l = MAKELONG(0, (int)(dw*60.0));
+    return slf->m_wndproc((HWND)slf,msg,l,p);
   }
 
-  LRESULT ret=slf->m_wndproc((HWND)slf,msg,l,MAKELONG(xpos&0xffff,ypos));
-  
+  LRESULT htc=HTCLIENT;
+  if (!capv)
+  {
+    const LONG p = NSPOINT_TO_LONG([[theEvent window] convertBaseToScreen:[theEvent locationInWindow]]);
+    htc=slf->m_wndproc((HWND)slf,WM_NCHITTEST,0,p);
+    if (slf->m_hashaddestroy||!slf->m_wndproc) return -1; // if somehow WM_NCHITTEST destroyed us, bail
+
+    if (htc!=HTCLIENT)
+    {
+      if (msg==WM_MOUSEMOVE) return slf->m_wndproc((HWND)slf,WM_NCMOUSEMOVE,htc,p);
+      if (msg==WM_LBUTTONUP) return slf->m_wndproc((HWND)slf,WM_NCLBUTTONUP,htc,p);
+      if (msg==WM_LBUTTONDOWN) return slf->m_wndproc((HWND)slf,WM_NCLBUTTONDOWN,htc,p);
+      if (msg==WM_LBUTTONDBLCLK) return slf->m_wndproc((HWND)slf,WM_NCLBUTTONDBLCLK,htc,p);
+      if (msg==WM_RBUTTONUP) return slf->m_wndproc((HWND)slf,WM_NCRBUTTONUP,htc,p);
+      if (msg==WM_RBUTTONDOWN) return slf->m_wndproc((HWND)slf,WM_NCRBUTTONDOWN,htc,p);
+      if (msg==WM_RBUTTONDBLCLK) return slf->m_wndproc((HWND)slf,WM_NCRBUTTONDBLCLK,htc,p);
+      if (msg==WM_MBUTTONUP) return slf->m_wndproc((HWND)slf,WM_NCMBUTTONUP,htc,p);
+      if (msg==WM_MBUTTONDOWN) return slf->m_wndproc((HWND)slf,WM_NCMBUTTONDOWN,htc,p);
+      if (msg==WM_MBUTTONDBLCLK) return slf->m_wndproc((HWND)slf,WM_NCMBUTTONDBLCLK,htc,p);
+    }
+  }
+
+  NSPoint swellProcessMouseEvent(int msg, NSView *view, NSEvent *event);
+
+  LRESULT ret=slf->m_wndproc((HWND)slf,msg,0, NSPOINT_TO_LONG(swellProcessMouseEvent(msg,slf,theEvent)));
+
   if (msg==WM_LBUTTONUP || msg==WM_RBUTTONUP || msg==WM_MOUSEMOVE || msg==WM_MBUTTONUP) {
     if (!GetCapture() && (slf->m_hashaddestroy || !slf->m_wndproc || !slf->m_wndproc((HWND)slf,WM_SETCURSOR,(WPARAM)slf,MAKELONG(htc,msg)))) {
       NSCursor *arr= [NSCursor arrowCursor];
@@ -1374,10 +1365,25 @@ static id<MTLDevice> mtl_def_device()
   return m_isopaque;
 }
 
+#define SIZE_IN_LAYOUT_VERSION 0x1300 // macOS 0x1070 (10.7)+ should support this, but doesn't seem to be needed for macOS 12 at least. (confirmed needed on 26)
+#define SIZE_IN_LAYOUT() (SWELL_GetOSXVersion() >= SIZE_IN_LAYOUT_VERSION && [[self window] contentView] == self && ![self isHiddenOrHasHiddenAncestor])
+
+- (void)layout
+{
+  [super layout];
+  if (m_wndproc && !m_hashaddestroy && SIZE_IN_LAYOUT())
+  {
+    m_wndproc((HWND)self,WM_SIZE,0,0);
+  }
+}
+
 - (void)setFrame:(NSRect)frameRect 
 {
   [super setFrame:frameRect];
-  if (m_wndproc&&!m_hashaddestroy) m_wndproc((HWND)self,WM_SIZE,0,0);
+  if (m_wndproc && !m_hashaddestroy && !SIZE_IN_LAYOUT())
+  {
+    m_wndproc((HWND)self,WM_SIZE,0,0);
+  }
   HWND par = GetParent((HWND)self);
   if (par) InvalidateRect(par,NULL,FALSE);
 } 

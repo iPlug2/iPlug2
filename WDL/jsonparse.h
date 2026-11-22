@@ -281,13 +281,13 @@ syntax_error:
       {
         e->m_array = m_spare_arrays.Pop();
         if (e->m_array) e->m_array->Empty();
-        else e->m_array = new WDL_PtrList<wdl_json_element>;
+        else e->m_array = new WDL_PtrList<wdl_json_element>(64);
 
         if (lc == '{')
         {
           e->m_object_names = m_spare_object_names.Pop();
           if (e->m_object_names) e->m_object_names->Empty();
-          else e->m_object_names = new WDL_PtrList<const char>;
+          else e->m_object_names = new WDL_PtrList<const char>(64);
         }
       }
 

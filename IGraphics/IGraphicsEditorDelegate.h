@@ -90,15 +90,30 @@ public:
    * @return The new chunk position (endPos) */
   int UnserializeEditorSize(const IByteChunk& chunk, int startPos);
     
+#ifdef OS_LINUX
+  /** Create the editor model before a host asks for its size, without opening a window. */
+  bool PrepareGraphics();
+  /** Apply and remember an explicit host scale, including before attachment. */
+  bool SetHostScreenScale(float scale);
+  bool HasHostScreenScale() const { return mHostScreenScale > 0.f; }
+
+  /** Complete a pending native close on the owner's main thread, outside graphics dispatch. */
+  bool CloseWindowIfRequested();
+#endif
+
 protected:
   std::function<IGraphics*()> mMakeGraphicsFunc = nullptr;
   std::function<void(IGraphics* pGraphics)> mLayoutFunc = nullptr;
+
 private:
   std::unique_ptr<IGraphics> mGraphics;
   int mLastWidth = 0;
   int mLastHeight = 0;
   float mLastScale = 0.f;
   bool mClosing = false; // used to prevent re-entrancy on closing
+#ifdef OS_LINUX
+  float mHostScreenScale = 0.f;
+#endif
 };
 
 END_IGRAPHICS_NAMESPACE

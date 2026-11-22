@@ -182,7 +182,7 @@ def main():
   auv3['CFBundleName'] = config['BUNDLE_NAME']
   auv3['CFBundleVersion'] = CFBundleVersion
   auv3['CFBundleShortVersionString'] = CFBundleVersion
-  auv3['LSMinimumSystemVersion'] = "10.12.0"
+  auv3['LSMinimumSystemVersion'] = LSMinimumSystemVersion
   auv3['CFBundlePackageType'] = "XPC!"
   auv3['NSExtension'] = dict(
   NSExtensionAttributes = dict(

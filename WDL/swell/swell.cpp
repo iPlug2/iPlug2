@@ -658,6 +658,25 @@ BOOL ResetEvent(HANDLE hand)
   return FALSE;
 }
 
+BOOL MoveFile(const char *srcfilename, const char *destfilename)
+{
+  // match Windows semantics: if destfilename already exists, do not overwrite
+  // ...unless it is the same filename on a case-insensitive filesystem
+
+  struct stat deststat, srcstat;
+  if (!stat(destfilename,&deststat))
+  {
+    if (stat(srcfilename, &srcstat)) return false; // do not allow renaming a file that doesn't exist
+
+    // do not allow overwriting a file
+    // but if they are the same file (e.g. case-insensitive filesystem), then rename
+    if (srcstat.st_dev != deststat.st_dev ||
+        srcstat.st_ino != deststat.st_ino) return false;
+  }
+
+  return !rename(srcfilename, destfilename);
+}
+
 BOOL WinOffsetRect(LPRECT lprc, int dx, int dy)
 {
   if(!lprc) return 0;
@@ -1084,6 +1103,8 @@ const char *g_swell_fontpangram;
 bool swell_gdk_set_fullscreen(HWND, int);
 #endif
 
+int *g_swell_focusrect_color;
+
 void *SWELL_ExtendedAPI(const char *key, void *v)
 {
   if (!strcmp(key,"APPNAME")) g_swell_appname = (const char *)v;
@@ -1194,10 +1215,23 @@ void *SWELL_ExtendedAPI(const char *key, void *v)
     swell_gdk_prevent_screensaver(key[0] != '-', (const char *) v);
   }
 #endif
+#ifdef SWELL_SUPPORT_GTK
+  else if (!strcmp(key,"LOAD_GTK"))
+  {
+    bool SWELL_load_gtk(void);
+    return SWELL_load_gtk() ? (void*)"OK": NULL;
+  }
+  else if (!strcmp(key,"IME_ENABLED"))
+  {
+    extern bool swell_ime_enabled;
+    return &swell_ime_enabled;
+  }
+#endif
   else if (!strcmp(key,"SWELL_DDrop_onDragLeave")) { *(void **)&SWELL_DDrop_onDragLeave = v; return v; }
   else if (!strcmp(key,"SWELL_DDrop_onDragOver")) { *(void **)&SWELL_DDrop_onDragOver = v; return v; }
   else if (!strcmp(key,"SWELL_DDrop_onDragEnter")) { *(void **)&SWELL_DDrop_onDragEnter = v; return v; }
   else if (!strcmp(key,"SWELL_DDrop_getDroppedFileTargetPath")) { *(void **)&SWELL_DDrop_getDroppedFileTargetPath = v; return v; }
+  else if (!strcmp(key,"focusrectcolor")) { g_swell_focusrect_color = (int *)v; return &g_swell_focusrect_color; }
   return NULL;
 }
 

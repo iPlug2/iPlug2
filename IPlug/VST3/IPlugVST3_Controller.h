@@ -50,6 +50,10 @@ public:
 
   // IEditController
   Steinberg::tresult PLUGIN_API initialize(Steinberg::FUnknown* context) override;
+#if defined OS_LINUX
+  Steinberg::tresult PLUGIN_API terminate() override;
+  bool EnsureLinuxIdleTimer(Steinberg::FUnknown* context);
+#endif
   Steinberg::IPlugView* PLUGIN_API createView(Steinberg::FIDString name) override;
   Steinberg::tresult PLUGIN_API setComponentState(Steinberg::IBStream* pState) override; // receives the processor's state
   Steinberg::tresult PLUGIN_API setState(Steinberg::IBStream* pState) override;
@@ -123,6 +127,9 @@ public:
   ViewType* GetView() const { return mView; }
 
 private:
+#if defined OS_LINUX
+  Steinberg::IPtr<IPlugVST3Timer> mLinuxIdleTimer;
+#endif
   ViewType* mView = nullptr;
   bool mPlugIsInstrument;
   bool mDoesMidiIn;
