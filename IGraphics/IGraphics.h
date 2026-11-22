@@ -1224,6 +1224,9 @@ public:
   /** Set a function that is called when key presses are not intercepted by any controls
    * @param keyHandlerFunc A std::function conforming to IKeyHandlerFunc  */
   void SetKeyHandlerFunc(IKeyHandlerFunc func) { mKeyHandlerFunc = func; }
+  
+  /** Get the KeyHandlerFunc if set */
+  IKeyHandlerFunc GetKeyHandlerFunc() { return mKeyHandlerFunc; }
 
   /** A helper to set the IGraphics KeyHandlerFunc in order to make an instrument playable via QWERTY keys
    * @param func A function to do something when a MIDI message is triggered */
