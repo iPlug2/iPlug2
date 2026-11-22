@@ -310,3 +310,46 @@ if(NOT TARGET iPlug2::Extras::IWebViewControl AND NOT CMAKE_SYSTEM_NAME STREQUAL
 
   target_link_libraries(iPlug2::Extras::IWebViewControl INTERFACE iPlug2::IPlug)
 endif()
+
+# ============================================================================
+# Windows bundle folder icon
+# ============================================================================
+# Gives a Windows plug-in bundle folder (.vst3, .aaxplugin) an Explorer icon,
+# as Scripts/create_bundle.bat does for the Visual Studio projects: copies
+# PlugIn.ico and a desktop.ini into the bundle root and sets the attributes
+# Explorer needs to honour them.
+#
+# Uses ${PLUG_RESOURCES_DIR}/<project_name>.ico if it exists, otherwise
+# default_icon. Does nothing if neither exists.
+function(iplug_add_bundle_icon target project_name bundle_dir default_icon)
+  if(NOT WIN32)
+    return()
+  endif()
+
+  set(_icon "${PLUG_RESOURCES_DIR}/${project_name}.ico")
+  if(NOT PLUG_RESOURCES_DIR OR NOT EXISTS "${_icon}")
+    set(_icon "${default_icon}")
+  endif()
+  if(NOT EXISTS "${_icon}")
+    return()
+  endif()
+
+  set(_ini "${CMAKE_CURRENT_BINARY_DIR}/${target}_desktop.ini")
+  file(WRITE "${_ini}" "[.ShellClassInfo]\nIconResource=PlugIn.ico,0\nIconFile=PlugIn.ico\nIconIndex=0\n")
+
+  # attrib needs native paths
+  file(TO_NATIVE_PATH "${bundle_dir}" _native_dir)
+  file(TO_NATIVE_PATH "${bundle_dir}/PlugIn.ico" _native_ico)
+  file(TO_NATIVE_PATH "${bundle_dir}/desktop.ini" _native_ini)
+  add_custom_command(TARGET ${target} POST_BUILD
+    # cmake -E remove clears the read-only attribute set by a previous build
+    COMMAND ${CMAKE_COMMAND} -E remove -f "${bundle_dir}/PlugIn.ico" "${bundle_dir}/desktop.ini"
+    COMMAND ${CMAKE_COMMAND} -E copy "${_icon}" "${bundle_dir}/PlugIn.ico"
+    COMMAND ${CMAKE_COMMAND} -E copy "${_ini}" "${bundle_dir}/desktop.ini"
+    COMMAND attrib +h +r +s "${_native_ico}"
+    COMMAND attrib +h +r +s "${_native_ini}"
+    COMMAND attrib +r "${_native_dir}"
+    COMMENT "Setting bundle folder icon for ${target}"
+    VERBATIM
+  )
+endfunction()

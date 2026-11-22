@@ -21,6 +21,7 @@ iplug_add_plugin(<name>
   [DEFINES <def1> [def2 ...]]
   [UI <IGRAPHICS|WEBVIEW|NONE>]          # Defaults to IGRAPHICS
   [WAM_SITE_ORIGIN <origin>]             # Defaults to "/"
+  [RC_INCLUDE_DIRS <dir1> [dir2 ...]]    # Windows: extra resource compiler include dirs for main.rc
 )
 
 Format names:
@@ -137,7 +138,7 @@ endfunction()
 # ============================================================================
 # Create APP, VST3, CLAP, AAX targets (macOS/Windows only)
 # ============================================================================
-function(_iplug_create_desktop_targets plugin_name formats sources ui_lib resources web_resources base_lib)
+function(_iplug_create_desktop_targets plugin_name formats sources ui_lib resources web_resources base_lib rc_include_dirs)
   # Skip on iOS and Emscripten
   if(IOS OR CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
     return()
@@ -154,9 +155,13 @@ function(_iplug_create_desktop_targets plugin_name formats sources ui_lib resour
     set(_rc_sources "${_rc_file}")
     # Tell RC compiler where to find resources (fonts, images, etc.)
     # The .rc file references files like "Roboto-Regular.ttf" without path
-    set_source_files_properties("${_rc_file}" PROPERTIES
-      COMPILE_FLAGS "/I\"${CMAKE_CURRENT_SOURCE_DIR}/resources/fonts\" /I\"${CMAKE_CURRENT_SOURCE_DIR}/resources/img\" /I\"${CMAKE_CURRENT_SOURCE_DIR}/resources\""
-    )
+    set(_rc_flags "/I\"${CMAKE_CURRENT_SOURCE_DIR}/resources/fonts\" /I\"${CMAKE_CURRENT_SOURCE_DIR}/resources/img\" /I\"${CMAKE_CURRENT_SOURCE_DIR}/resources\"")
+    # Extra include dirs, e.g. resource folders shared between several projects
+    foreach(_dir IN LISTS rc_include_dirs)
+      get_filename_component(_dir "${_dir}" ABSOLUTE BASE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
+      string(APPEND _rc_flags " /I\"${_dir}\"")
+    endforeach()
+    set_source_files_properties("${_rc_file}" PROPERTIES COMPILE_FLAGS "${_rc_flags}")
   endif()
 
   # APP target (uses add_executable)
@@ -480,7 +485,7 @@ macro(iplug_add_plugin plugin_name)
   cmake_parse_arguments(PLUGIN
     ""
     "UI;WAM_SITE_ORIGIN"
-    "SOURCES;RESOURCES;WEB_RESOURCES;FORMATS;EXCLUDE_FORMATS;LINK;DEFINES"
+    "SOURCES;RESOURCES;WEB_RESOURCES;FORMATS;EXCLUDE_FORMATS;LINK;DEFINES;RC_INCLUDE_DIRS"
     ${ARGN}
   )
 
@@ -491,7 +496,7 @@ macro(iplug_add_plugin plugin_name)
   # Check for unparsed/unknown arguments
   if(PLUGIN_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR "iplug_add_plugin(${plugin_name}): Unknown arguments: ${PLUGIN_UNPARSED_ARGUMENTS}\n"
-      "Valid options: SOURCES, RESOURCES, WEB_RESOURCES, FORMATS, EXCLUDE_FORMATS, LINK, DEFINES, UI, WAM_SITE_ORIGIN")
+      "Valid options: SOURCES, RESOURCES, WEB_RESOURCES, FORMATS, EXCLUDE_FORMATS, LINK, DEFINES, RC_INCLUDE_DIRS, UI, WAM_SITE_ORIGIN")
   endif()
 
   # Validate plugin name
@@ -579,7 +584,7 @@ macro(iplug_add_plugin plugin_name)
   )
 
   # Create format targets
-  _iplug_create_desktop_targets(${plugin_name} "${_iplug_formats}" "${PLUGIN_SOURCES}" "${_iplug_ui_lib}" "${PLUGIN_RESOURCES}" "${PLUGIN_WEB_RESOURCES}" "_${plugin_name}-base")
+  _iplug_create_desktop_targets(${plugin_name} "${_iplug_formats}" "${PLUGIN_SOURCES}" "${_iplug_ui_lib}" "${PLUGIN_RESOURCES}" "${PLUGIN_WEB_RESOURCES}" "_${plugin_name}-base" "${PLUGIN_RC_INCLUDE_DIRS}")
   _iplug_create_au_targets(${plugin_name} "${_iplug_formats}" "${PLUGIN_SOURCES}" "${_iplug_ui_lib}" "${PLUGIN_RESOURCES}" "${PLUGIN_WEB_RESOURCES}" "_${plugin_name}-base")
   _iplug_create_auv3_targets(${plugin_name} "${_iplug_formats}" "${PLUGIN_SOURCES}" "${_iplug_ui_lib}" "${PLUGIN_RESOURCES}" "${PLUGIN_WEB_RESOURCES}" "_${plugin_name}-base")
   _iplug_create_ios_targets(${plugin_name} "${_iplug_formats}" "${PLUGIN_SOURCES}" "${_iplug_ui_lib}" "${PLUGIN_RESOURCES}" "${PLUGIN_WEB_RESOURCES}" "_${plugin_name}-base")
