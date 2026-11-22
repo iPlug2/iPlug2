@@ -2,14 +2,18 @@
 
 #include <algorithm>
 #include <atomic>
+#include <chrono>
 #include <cmath>
+#include <cstdint>
 #include <cstring>
 #include <mutex>
 #include <string>
 #include <thread>
+#include <type_traits>
 #include <vector>
 
 #include "IPlugARA.h"
+#include "IPlugARAExample_Analysis.h"
 
 
 /** Results of the (simulated) offline analysis of an audio source: an overall peak/RMS plus a list
@@ -26,10 +30,10 @@ struct IPlugARAExampleAnalysisResult
 /** An ARA audio source that caches all its samples in memory, so that the playback renderer
  * can access them from the realtime audio thread, and runs a background analysis over that cache
  * which produces the results persisted in the ARA document archive.
- * N.B. for the sake of simplicity this example does not synchronize sample cache updates
- * (main thread) with rendering (audio thread) - a real plug-in must add appropriate
- * synchronization. The analysis results are properly guarded, since they are produced on a
- * background thread. */
+ * The sample cache is only modified on the main thread while the document controller has locked
+ * the renderers out of the model graph (see IPlugARAExampleDocumentController::RendererAccess),
+ * and only after the analysis thread that reads it has been stopped. The analysis results are
+ * guarded by a mutex, since they are produced on the background thread. */
 class IPlugARAExampleAudioSource : public ARA::PlugIn::AudioSource
 {
 public:
@@ -100,6 +104,15 @@ public:
     return mAnalysis;
   }
 
+  /** Discard the analysis results, e.g. because the audio source samples changed */
+  void ClearAnalysis()
+  {
+    mHasAnalysis.store(false, std::memory_order_release);
+
+    std::lock_guard<std::mutex> lock(mAnalysisMutex);
+    mAnalysis = IPlugARAExampleAnalysisResult();
+  }
+
   /** Called when restoring from an archive - the archived results stand in for a re-analysis,
    * which is the whole point of persisting them */
   void SetAnalysis(const IPlugARAExampleAnalysisResult& result)
@@ -123,6 +136,15 @@ public:
 private:
   void RunAnalysis()
   {
+    // the ARA Library requires every progress start to be balanced by a completion, including
+    // when the analysis is aborted - otherwise the host may show the progress forever.
+    // N.B. unlike most document controller functions, the progress notifications may be called
+    // from any thread: the ARA Library queues them and sends them from notifyModelUpdates().
+    const auto finish = [this]() {
+      mAnalysing.store(false, std::memory_order_release);
+      getDocumentController()->notifyAudioSourceAnalysisProgressCompleted(this);
+    };
+
     IPlugARAExampleAnalysisResult result;
 
     const auto nChans = static_cast<int>(getChannelCount());
@@ -152,7 +174,7 @@ private:
     {
       if (mAnalysisAbort.load(std::memory_order_relaxed))
       {
-        mAnalysing.store(false, std::memory_order_release);
+        finish();
         return;
       }
 
@@ -184,7 +206,7 @@ private:
 
     result.peak = peak;
     result.rms = (nFrames > 0) ? std::sqrt(sumSq / (static_cast<double>(nFrames) * kFrame)) : 0.;
-    result.notes = DetectNotes(mono, envelope, kHop, kFrame, sampleRate);
+    result.notes = IPlugARAExampleAnalysis::DetectNotes(mono, envelope, kHop, kFrame, sampleRate);
 
     {
       std::lock_guard<std::mutex> lock(mAnalysisMutex);
@@ -193,149 +215,11 @@ private:
 
     mAnalysisProgress.store(1.f, std::memory_order_relaxed);
     mHasAnalysis.store(true, std::memory_order_release);
-    mAnalysing.store(false, std::memory_order_release);
-
-    getDocumentController()->notifyAudioSourceAnalysisProgressCompleted(this);
+    finish();
 
     // the content update itself must go out from the main thread - flag it for the document
     // controller to pick up in willNotifyModelUpdates()
     mAnalysisCompleted.store(true, std::memory_order_release);
-  }
-
-  /** Segment the envelope into notes and estimate a pitch for each by autocorrelation.
-   * Crude by design - it stands in for the real detection a pitch editor would perform. */
-  static std::vector<ARA::ARAContentNote> DetectNotes(const std::vector<float>& mono, const std::vector<float>& envelope, int hop, int frame, double sampleRate)
-  {
-    std::vector<ARA::ARAContentNote> notes;
-
-    if (envelope.empty() || sampleRate <= 0.)
-      return notes;
-
-    const float threshold = std::max(0.005f, *std::max_element(envelope.begin(), envelope.end()) * 0.2f);
-
-    int noteStartFrame = -1;
-
-    const auto emitNote = [&](int startFrame, int endFrame) {
-      const auto startSample = static_cast<size_t>(startFrame) * static_cast<size_t>(hop);
-      const auto endSample = static_cast<size_t>(endFrame) * static_cast<size_t>(hop);
-
-      if (endSample <= startSample || endSample > mono.size())
-        return;
-
-      ARA::ARAContentNote note {};
-      note.startPosition = static_cast<double>(startSample) / sampleRate;
-      note.noteDuration = static_cast<double>(endSample - startSample) / sampleRate;
-      note.signalDuration = note.noteDuration;
-      note.attackDuration = std::min(0.01, note.noteDuration);
-
-      float envPeak = 0.f;
-      for (int f = startFrame; f < endFrame && f < static_cast<int>(envelope.size()); f++)
-        envPeak = std::max(envPeak, envelope[static_cast<size_t>(f)]);
-
-      note.volume = std::min(1.f, envPeak);
-
-      const double freq = EstimatePitch(mono, startSample, static_cast<size_t>(frame), sampleRate);
-
-      if (freq > 0.)
-      {
-        note.frequency = static_cast<float>(freq);
-        note.pitchNumber = static_cast<ARA::ARAPitchNumber>(std::lround(69. + 12. * std::log2(freq / 440.)));
-      }
-      else
-      {
-        note.frequency = ARA::kARAInvalidFrequency;
-        note.pitchNumber = ARA::kARAInvalidPitchNumber;
-      }
-
-      notes.push_back(note);
-    };
-
-    for (int f = 0; f < static_cast<int>(envelope.size()); f++)
-    {
-      const bool active = envelope[static_cast<size_t>(f)] >= threshold;
-
-      if (active && noteStartFrame < 0)
-        noteStartFrame = f;
-      else if (!active && noteStartFrame >= 0)
-      {
-        emitNote(noteStartFrame, f);
-        noteStartFrame = -1;
-      }
-    }
-
-    if (noteStartFrame >= 0)
-      emitNote(noteStartFrame, static_cast<int>(envelope.size()));
-
-    return notes;
-  }
-
-  /** Normalized autocorrelation pitch estimate over one window,
-   * @return frequency in Hz, or 0 if the window has no clear pitch */
-  static double EstimatePitch(const std::vector<float>& mono, size_t start, size_t windowSize, double sampleRate)
-  {
-    constexpr double kMinFreq = 50.;
-    constexpr double kMaxFreq = 2000.;
-    constexpr double kPeakThreshold = 0.85; // fraction of the best score a peak must reach to count
-
-    const auto minLag = static_cast<size_t>(sampleRate / kMaxFreq);
-    const auto maxLag = static_cast<size_t>(sampleRate / kMinFreq);
-
-    if (start + windowSize + maxLag > mono.size() || maxLag <= minLag)
-      return 0.;
-
-    double energy = 0.;
-    for (size_t i = 0; i < windowSize; i++)
-      energy += static_cast<double>(mono[start + i]) * mono[start + i];
-
-    if (energy <= 0.)
-      return 0.;
-
-    // normalized correlation per lag - dividing by the energy of the lagged window as well keeps
-    // the score comparable across lags, which matters for the peak picking below
-    std::vector<double> scores(maxLag - minLag + 1, 0.);
-
-    for (size_t lag = minLag; lag <= maxLag; lag++)
-    {
-      double corr = 0.;
-      double lagEnergy = 0.;
-
-      for (size_t i = 0; i < windowSize; i++)
-      {
-        const double a = mono[start + i];
-        const double b = mono[start + i + lag];
-        corr += a * b;
-        lagEnergy += b * b;
-      }
-
-      const double norm = std::sqrt(energy * lagEnergy);
-      scores[lag - minLag] = (norm > 0.) ? (corr / norm) : 0.;
-    }
-
-    const double maxScore = *std::max_element(scores.begin(), scores.end());
-
-    if (maxScore < 0.5)
-      return 0.;
-
-    // A periodic signal correlates just as well at every multiple of its period, so simply taking
-    // the highest score picks an arbitrary subharmonic (an octave-down error). Take the *first*
-    // local peak that gets close to the best score instead - that is the fundamental period.
-    for (size_t i = 1; i + 1 < scores.size(); i++)
-    {
-      if (scores[i] >= kPeakThreshold * maxScore && scores[i] >= scores[i - 1] && scores[i] >= scores[i + 1])
-      {
-        // parabolic interpolation around the peak for sub-sample period accuracy
-        const double s0 = scores[i - 1];
-        const double s1 = scores[i];
-        const double s2 = scores[i + 1];
-        const double denom = (2. * s1) - s0 - s2;
-        const double offset = (denom != 0.) ? (0.5 * (s0 - s2) / denom) : 0.;
-
-        const double lag = static_cast<double>(minLag + i) + iplug::Clip(offset, -1., 1.);
-        return (lag > 0.) ? (sampleRate / lag) : 0.;
-      }
-    }
-
-    return 0.;
   }
 
   std::vector<float> mSampleCache;
@@ -419,20 +303,13 @@ class IPlugARAExamplePlaybackRenderer : public ARA::PlugIn::PlaybackRenderer
 public:
   using ARA::PlugIn::PlaybackRenderer::PlaybackRenderer;
 
-  void RenderPlaybackRegions(iplug::sample** ppOutputs, int nChans, double sampleRate, ARA::ARASamplePosition samplePosition, int nFrames, bool isPlaying)
-  {
-    for (auto c = 0; c < nChans; c++)
-      std::fill_n(ppOutputs[c], nFrames, 0.);
-
-    if (!isPlaying)
-      return;
-
-    for (auto* pRegion : getPlaybackRegions())
-      AddPlaybackRegion(ppOutputs, nChans, sampleRate, samplePosition, nFrames, pRegion);
-  }
+  /** Render the assigned playback regions, or silence while the host is editing the model.
+   * Defined after IPlugARAExampleDocumentController, which provides the access gate. */
+  void RenderPlaybackRegions(iplug::sample** ppOutputs, int nChans, double sampleRate, ARA::ARASamplePosition samplePosition, int nFrames, bool isPlaying);
 
   /** Mix a single playback region into the output buffers. Shared with the editor renderer,
-   * which uses it to audition a region independently of the host transport. */
+   * which uses it to audition a region independently of the host transport.
+   * The caller must hold renderer access to the model graph. */
   static void AddPlaybackRegion(iplug::sample** ppOutputs, int nChans, double sampleRate, ARA::ARASamplePosition samplePosition, int nFrames, ARA::PlugIn::PlaybackRegion* pRegion)
   {
     auto* pModification = pRegion->getAudioModification<IPlugARAExampleAudioModification>();
@@ -469,6 +346,8 @@ public:
     const bool reverse = pModification->GetReverse();
     const double invRegionDuration = 1. / static_cast<double>(regionDurationInPlaybackSamples);
 
+    // N.B. this picks the nearest source sample without interpolation, so a stretched or
+    // resampled region will alias - a real plug-in would use a proper resampler or stretcher here
     for (auto pos = start; pos < end; pos++)
     {
       // normalized position within the region, then into the modification's sample range
@@ -508,7 +387,9 @@ public:
   void StopPreview() { mPreviewRegion.store(nullptr, std::memory_order_relaxed); }
 
   /** Stop the preview if it is auditioning pRegion - called before the host destroys it, so that
-   * the audio thread doesn't keep reading a dangling pointer */
+   * the audio thread doesn't keep reading a dangling pointer. Regions are only destroyed during a
+   * host editing cycle, when the document controller has locked the renderers out of the model
+   * graph, so RenderPreview() cannot be using pRegion while this runs. */
   void StopPreviewIfRegion(const ARA::PlugIn::PlaybackRegion* pRegion)
   {
     auto* pPreviewRegion = const_cast<ARA::PlugIn::PlaybackRegion*>(pRegion);
@@ -517,30 +398,9 @@ public:
 
   bool IsPreviewing() const { return mPreviewRegion.load(std::memory_order_relaxed) != nullptr; }
 
-  /** Mix the preview signal into the output, on top of whatever is already there */
-  void RenderPreview(iplug::sample** ppOutputs, int nChans, double sampleRate, int nFrames)
-  {
-    auto* pRegion = mPreviewRegion.load(std::memory_order_relaxed);
-
-    if (!pRegion)
-      return;
-
-    // the preview runs on its own timeline, so feed the region renderer positions relative to
-    // the region's own start rather than the host transport position
-    const auto regionStart = pRegion->getStartInPlaybackSamples(sampleRate);
-    const auto regionLength = pRegion->getEndInPlaybackSamples(sampleRate) - regionStart;
-    const auto pos = mPreviewPos.load(std::memory_order_acquire);
-
-    if (pos >= regionLength)
-    {
-      StopPreview();
-      return;
-    }
-
-    IPlugARAExamplePlaybackRenderer::AddPlaybackRegion(ppOutputs, nChans, sampleRate, regionStart + pos, nFrames, pRegion);
-
-    mPreviewPos.store(pos + nFrames, std::memory_order_release);
-  }
+  /** Mix the preview signal into the output, on top of whatever is already there.
+   * Defined after IPlugARAExampleDocumentController, which provides the access gate. */
+  void RenderPreview(iplug::sample** ppOutputs, int nChans, double sampleRate, int nFrames);
 
 private:
   std::atomic<ARA::PlugIn::PlaybackRegion*> mPreviewRegion {nullptr};
@@ -572,6 +432,39 @@ class IPlugARAExampleDocumentController : public iplug::IPlugARADocumentControll
 {
 public:
   using IPlugARADocumentController::IPlugARADocumentController;
+
+  // -- Synchronizing rendering with model edits ------------------------------------------------
+  // The host edits the ARA model graph on the main thread while the renderers read it on the
+  // audio thread. As in Celemony's ARA test plug-in, the renderers are locked out of the model
+  // graph for the duration of each edit: the main thread clears a flag and then waits for any
+  // render call that is still reading to finish. The audio thread never waits - while the flag
+  // is clear it simply skips rendering for that block. Both atomics use sequential consistency,
+  // which is what guarantees that the two threads cannot both proceed.
+
+  /** Scoped renderer access to the model graph, for use on the audio thread */
+  class RendererAccess
+  {
+  public:
+    explicit RendererAccess(IPlugARAExampleDocumentController* pDocController)
+    : mDocController(pDocController)
+    {
+      mDocController->mNumRenderersAccessingModelGraph++;
+      mCanAccess = mDocController->mRenderersCanAccessModelGraph;
+    }
+
+    ~RendererAccess() { mDocController->mNumRenderersAccessingModelGraph--; }
+
+    RendererAccess(const RendererAccess&) = delete;
+    RendererAccess& operator=(const RendererAccess&) = delete;
+
+    /** @return false while the host is editing the model, in which case the caller must not
+     * touch any model object (regions, modifications, audio sources or their sample caches) */
+    bool CanAccess() const { return mCanAccess; }
+
+  private:
+    IPlugARAExampleDocumentController* mDocController;
+    bool mCanAccess = false;
+  };
 
   struct MusicalContextInfo
   {
@@ -714,6 +607,14 @@ protected:
     return new IPlugARAExampleEditorView(this);
   }
 
+  // -- Model edits ------------------------------------------------------------------------------
+  // Every change to the model graph (creating, updating or destroying model objects) happens
+  // between these two calls, so the renderers are kept out of it for that time.
+
+  void willBeginEditing() noexcept override { DisableRendererModelGraphAccess(); }
+
+  void didEndEditing() noexcept override { EnableRendererModelGraphAccess(); }
+
   // -- Model object destruction ----------------------------------------------------------------
 
   void willDestroyPlaybackRegion(ARA::PlugIn::PlaybackRegion* pRegion) noexcept override
@@ -725,31 +626,49 @@ protected:
   }
 
   // -- Host sample access ----------------------------------------------------------------------
+  // The host may toggle sample access outside an editing cycle, so lock the renderers out here
+  // too, since enabling access refills the sample cache they read from.
+
+  void willEnableAudioSourceSamplesAccess(ARA::PlugIn::AudioSource* pAudioSource, bool enable) noexcept override
+  {
+    if (!enable)
+      static_cast<IPlugARAExampleAudioSource*>(pAudioSource)->AbortAnalysis();
+
+    if (!isHostEditingDocument())
+      DisableRendererModelGraphAccess();
+  }
 
   void didEnableAudioSourceSamplesAccess(ARA::PlugIn::AudioSource* pAudioSource, bool enable) noexcept override
   {
     auto* pSource = static_cast<IPlugARAExampleAudioSource*>(pAudioSource);
 
     if (enable)
-    {
       pSource->UpdateSampleCache();
+
+    if (!isHostEditingDocument())
+      EnableRendererModelGraphAccess();
+
+    if (enable)
       pSource->StartAnalysis();
-    }
-    else
-    {
-      pSource->AbortAnalysis();
-    }
   }
 
   // -- Content updates from the host -----------------------------------------------------------
 
+  /** Called during a host editing cycle, so the renderers are already locked out */
   void doUpdateAudioSourceContent(ARA::PlugIn::AudioSource* pAudioSource, const ARA::ARAContentTimeRange* pRange, ARA::ContentUpdateScopes scopeFlags) noexcept override
   {
     if (scopeFlags.affectSamples())
     {
       auto* pSource = static_cast<IPlugARAExampleAudioSource*>(pAudioSource);
 
+      // the existing analysis describes the old samples, so drop it and tell the host
       pSource->AbortAnalysis();
+
+      if (pSource->HasAnalysis())
+      {
+        pSource->ClearAnalysis();
+        notifyAudioSourceContentChanged(pSource, ARA::ContentUpdateScopes::notesAreAffected());
+      }
 
       if (pSource->isSampleAccessEnabled())
       {
@@ -887,23 +806,40 @@ protected:
   // Persist the analysis results of each audio source and the edits of each audio modification,
   // keyed by persistent ID. Because supportsStoringAudioFileChunks is enabled, the same routine
   // also produces the per-source archive that gets embedded into an audio file chunk.
-  // N.B. this simple example writes native-endian values - a real plug-in should use a
-  // properly specified, endian-safe archive format.
+  //
+  // Layout (all values native endian - a real plug-in should use an endian-safe format):
+  //   uint32 version
+  //   uint32 sourceCount, then per source: id, double peak, double rms,
+  //          uint32 noteCount, then per note the ARAContentNote fields one by one
+  //   uint32 modificationCount, then per modification: id, double gain, uint8 reverse
+  // where an id is a uint32 length followed by that many bytes.
+  // The version tag lets a later release of the plug-in read archives written by this one. A
+  // format that older releases cannot read also needs a new ARA_DOC_ARCHIVE_ID, so that hosts
+  // know not to hand those archives to them.
+
+  static constexpr uint32_t kArchiveVersion = 1;
+
+  // the size of one note as written by doStoreObjectsToArchive(), used to bound the note count
+  static constexpr size_t kArchivedNoteSize = sizeof(float) + sizeof(int32_t) + sizeof(float) + (4 * sizeof(double));
 
   bool doStoreObjectsToArchive(ARA::PlugIn::HostArchiveWriter* pWriter, const ARA::PlugIn::StoreObjectsFilter* pFilter) noexcept override
   {
     std::vector<ARA::ARAByte> data;
 
-    auto appendBytes = [&data](const void* pSrc, size_t size) {
-      const auto* p = static_cast<const ARA::ARAByte*>(pSrc);
-      data.insert(data.end(), p, p + size);
+    // only scalars are appended - structs are written field by field, since an archive format
+    // should not depend on their in-memory layout (padding, member order, SDK version)
+    auto append = [&data](auto value) {
+      static_assert(std::is_arithmetic<decltype(value)>::value, "only write scalars");
+      const auto* p = reinterpret_cast<const ARA::ARAByte*>(&value);
+      data.insert(data.end(), p, p + sizeof(value));
     };
 
-    auto appendID = [&appendBytes](const std::string& id) {
-      const uint32_t idLen = static_cast<uint32_t>(id.size());
-      appendBytes(&idLen, sizeof(idLen));
-      appendBytes(id.data(), idLen);
+    auto appendID = [&data, &append](const std::string& id) {
+      append(static_cast<uint32_t>(id.size()));
+      data.insert(data.end(), id.begin(), id.end());
     };
+
+    append(kArchiveVersion);
 
     // audio sources: analysis results
     const auto& sources = pFilter->getAudioSourcesToStore<IPlugARAExampleAudioSource>();
@@ -912,7 +848,7 @@ protected:
     for (const auto* pSource : sources)
       sourceCount += pSource->HasAnalysis() ? 1 : 0;
 
-    appendBytes(&sourceCount, sizeof(sourceCount));
+    append(sourceCount);
 
     for (const auto* pSource : sources)
     {
@@ -922,30 +858,32 @@ protected:
       const auto analysis = pSource->GetAnalysis();
 
       appendID(pSource->getPersistentID());
-      appendBytes(&analysis.peak, sizeof(analysis.peak));
-      appendBytes(&analysis.rms, sizeof(analysis.rms));
-
-      const uint32_t noteCount = static_cast<uint32_t>(analysis.notes.size());
-      appendBytes(&noteCount, sizeof(noteCount));
+      append(analysis.peak);
+      append(analysis.rms);
+      append(static_cast<uint32_t>(analysis.notes.size()));
 
       for (const auto& note : analysis.notes)
-        appendBytes(&note, sizeof(note));
+      {
+        append(static_cast<float>(note.frequency));
+        append(static_cast<int32_t>(note.pitchNumber));
+        append(static_cast<float>(note.volume));
+        append(static_cast<double>(note.startPosition));
+        append(static_cast<double>(note.attackDuration));
+        append(static_cast<double>(note.noteDuration));
+        append(static_cast<double>(note.signalDuration));
+      }
     }
 
     // audio modifications: user edits
     const auto& modifications = pFilter->getAudioModificationsToStore<IPlugARAExampleAudioModification>();
 
-    const uint32_t modCount = static_cast<uint32_t>(modifications.size());
-    appendBytes(&modCount, sizeof(modCount));
+    append(static_cast<uint32_t>(modifications.size()));
 
     for (const auto* pModification : modifications)
     {
-      const double gain = pModification->GetGain();
-      const uint8_t reverse = pModification->GetReverse() ? 1 : 0;
-
       appendID(pModification->getPersistentID());
-      appendBytes(&gain, sizeof(gain));
-      appendBytes(&reverse, sizeof(reverse));
+      append(pModification->GetGain());
+      append(static_cast<uint8_t>(pModification->GetReverse() ? 1 : 0));
     }
 
     return pWriter->writeBytesToArchive(0, data.size(), data.data());
@@ -960,46 +898,66 @@ protected:
       return false;
 
     size_t pos = 0;
-    auto readBytes = [&data, &pos](void* pDst, size_t size) {
-      if (pos + size > data.size())
+
+    // every read is bounds checked against the bytes that are left, so that a truncated or
+    // corrupt archive fails cleanly instead of reading past the end of the buffer
+    auto remaining = [&data, &pos]() { return data.size() - pos; };
+
+    auto read = [&data, &pos, &remaining](auto& value) {
+      static_assert(std::is_arithmetic<std::remove_reference_t<decltype(value)>>::value, "only read scalars");
+      if (sizeof(value) > remaining())
         return false;
-      std::memcpy(pDst, data.data() + pos, size);
-      pos += size;
+      std::memcpy(&value, data.data() + pos, sizeof(value));
+      pos += sizeof(value);
       return true;
     };
 
-    auto readID = [&data, &pos, &readBytes](std::string& id) {
+    auto readID = [&data, &pos, &read, &remaining](std::string& id) {
       uint32_t idLen = 0;
-      if (!readBytes(&idLen, sizeof(idLen)) || (pos + idLen > data.size()))
+      if (!read(idLen) || idLen > remaining())
         return false;
       id.assign(reinterpret_cast<const char*>(data.data() + pos), idLen);
       pos += idLen;
       return true;
     };
 
+    uint32_t version = 0;
+    if (!read(version) || version != kArchiveVersion)
+      return false;
+
     uint32_t sourceCount = 0;
-    if (!readBytes(&sourceCount, sizeof(sourceCount)))
+    if (!read(sourceCount))
       return false;
 
     for (uint32_t i = 0; i < sourceCount; i++)
     {
       std::string id;
-      if (!readID(id))
-        return false;
-
       IPlugARAExampleAnalysisResult analysis;
-      if (!readBytes(&analysis.peak, sizeof(analysis.peak)) || !readBytes(&analysis.rms, sizeof(analysis.rms)))
+      uint32_t noteCount = 0;
+
+      if (!readID(id) || !read(analysis.peak) || !read(analysis.rms) || !read(noteCount))
         return false;
 
-      uint32_t noteCount = 0;
-      if (!readBytes(&noteCount, sizeof(noteCount)))
+      // don't trust the count for the allocation below - it can't exceed what the archive holds
+      if (noteCount > remaining() / kArchivedNoteSize)
         return false;
+
+      analysis.notes.reserve(noteCount);
 
       for (uint32_t n = 0; n < noteCount; n++)
       {
+        float frequency = 0.f;
+        int32_t pitchNumber = 0;
+        float volume = 0.f;
+
         ARA::ARAContentNote note {};
-        if (!readBytes(&note, sizeof(note)))
+        if (!read(frequency) || !read(pitchNumber) || !read(volume) || !read(note.startPosition)
+            || !read(note.attackDuration) || !read(note.noteDuration) || !read(note.signalDuration))
           return false;
+
+        note.frequency = frequency;
+        note.pitchNumber = pitchNumber;
+        note.volume = volume;
         analysis.notes.push_back(note);
       }
 
@@ -1009,18 +967,16 @@ protected:
     }
 
     uint32_t modCount = 0;
-    if (!readBytes(&modCount, sizeof(modCount)))
-      return true; // archives written before modification state was added end here
+    if (!read(modCount))
+      return false;
 
     for (uint32_t i = 0; i < modCount; i++)
     {
       std::string id;
-      if (!readID(id))
-        return false;
-
       double gain = 1.;
       uint8_t reverse = 0;
-      if (!readBytes(&gain, sizeof(gain)) || !readBytes(&reverse, sizeof(reverse)))
+
+      if (!readID(id) || !read(gain) || !read(reverse))
         return false;
 
       if (auto* pModification = pFilter->getAudioModificationToRestoreStateWithID<IPlugARAExampleAudioModification>(id.c_str()))
@@ -1034,6 +990,69 @@ protected:
   }
 
 private:
+  void DisableRendererModelGraphAccess() noexcept
+  {
+    mRenderersCanAccessModelGraph = false;
+
+    // a renderer holds access for at most one render call, so this wait is short
+    while (mNumRenderersAccessingModelGraph > 0)
+      std::this_thread::yield();
+  }
+
+  void EnableRendererModelGraphAccess() noexcept { mRenderersCanAccessModelGraph = true; }
+
   MusicalContextInfo mMusicalContextInfo;
   bool mMusicalContextInfoDirty = true;
+
+  std::atomic<bool> mRenderersCanAccessModelGraph {true};
+  std::atomic<int> mNumRenderersAccessingModelGraph {0};
 };
+
+// -- Renderer methods that need the document controller's access gate ---------------------------
+
+inline void IPlugARAExamplePlaybackRenderer::RenderPlaybackRegions(iplug::sample** ppOutputs, int nChans, double sampleRate, ARA::ARASamplePosition samplePosition, int nFrames, bool isPlaying)
+{
+  for (auto c = 0; c < nChans; c++)
+    std::fill_n(ppOutputs[c], nFrames, 0.);
+
+  if (!isPlaying)
+    return;
+
+  IPlugARAExampleDocumentController::RendererAccess access(getDocumentController<IPlugARAExampleDocumentController>());
+
+  // the host is editing the model - output silence for this block rather than wait for it
+  if (!access.CanAccess())
+    return;
+
+  for (auto* pRegion : getPlaybackRegions())
+    AddPlaybackRegion(ppOutputs, nChans, sampleRate, samplePosition, nFrames, pRegion);
+}
+
+inline void IPlugARAExampleEditorRenderer::RenderPreview(iplug::sample** ppOutputs, int nChans, double sampleRate, int nFrames)
+{
+  IPlugARAExampleDocumentController::RendererAccess access(getDocumentController<IPlugARAExampleDocumentController>());
+
+  if (!access.CanAccess())
+    return;
+
+  auto* pRegion = mPreviewRegion.load(std::memory_order_relaxed);
+
+  if (!pRegion)
+    return;
+
+  // the preview runs on its own timeline, so feed the region renderer positions relative to
+  // the region's own start rather than the host transport position
+  const auto regionStart = pRegion->getStartInPlaybackSamples(sampleRate);
+  const auto regionLength = pRegion->getEndInPlaybackSamples(sampleRate) - regionStart;
+  const auto pos = mPreviewPos.load(std::memory_order_acquire);
+
+  if (pos >= regionLength)
+  {
+    StopPreview();
+    return;
+  }
+
+  IPlugARAExamplePlaybackRenderer::AddPlaybackRegion(ppOutputs, nChans, sampleRate, regionStart + pos, nFrames, pRegion);
+
+  mPreviewPos.store(pos + nFrames, std::memory_order_release);
+}

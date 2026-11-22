@@ -15,11 +15,13 @@
 # 1. ARA_SDK_DIR cache variable / Dependencies/IPlug/ARA_SDK - a directory containing
 #    ARA_API and ARA_Library subdirectories (e.g. a clone of Celemony/ARA_SDK with submodules)
 # 2. Otherwise the minimal subset (ARA_API + ARA_Library, no examples) is fetched via
-#    FetchContent, pinned to the ARA SDK release tag below.
+#    FetchContent, pinned to the ARA SDK release tag below. Set IPLUG2_ARA_FETCH_SDK=OFF to
+#    skip the download (e.g. for offline builds) - ARA targets are then unavailable.
 
 include(${CMAKE_CURRENT_LIST_DIR}/IPlug.cmake)
 
 set(IPLUG2_ARA_SDK_GIT_TAG "releases/2.3.0" CACHE STRING "Git tag used when fetching the ARA SDK")
+option(IPLUG2_ARA_FETCH_SDK "Fetch the ARA SDK via FetchContent if no local copy is found" ON)
 
 if(NOT TARGET iPlug2::ARA)
   set(ARA_SDK_DIR "${IPLUG_DEPS_DIR}/ARA_SDK" CACHE PATH "Path to a directory containing ARA_API and ARA_Library")
@@ -34,6 +36,9 @@ if(NOT TARGET iPlug2::ARA)
   elseif(EXISTS "${ARA_SDK_DIR}/ARA_API" AND EXISTS "${ARA_SDK_DIR}/ARA_Library")
     message(STATUS "Using ARA SDK at ${ARA_SDK_DIR}")
     set(_ara_include_dir "${ARA_SDK_DIR}")
+  elseif(NOT IPLUG2_ARA_FETCH_SDK)
+    message(STATUS "ARA SDK not found at ${ARA_SDK_DIR} and IPLUG2_ARA_FETCH_SDK is OFF. ARA targets will not be available.")
+    set(_ara_supported FALSE)
   elseif(CMAKE_VERSION VERSION_LESS 3.19)
     message(STATUS "Fetching the ARA SDK requires CMake 3.19+. ARA targets will not be available.")
     set(_ara_supported FALSE)

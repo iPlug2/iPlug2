@@ -284,6 +284,7 @@ const ARA::ARAPlugInExtensionInstance* PLUGIN_API IPlugVST3::bindToDocumentContr
   // Deprecated since ARA 2.0 and only used by ARA 1 hosts. The ARA Library's factory does not
   // advertise ARA 1 support (ARA_SUPPORT_VERSION_1 is not defined), so a conforming host always
   // binds via bindToDocumentControllerWithRoles().
+  DBGMSG("IPlugVST3: ignoring ARA 1 bindToDocumentController() - the host must bind via IPlugInEntryPoint2\n");
   return nullptr;
 }
 

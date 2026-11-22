@@ -68,10 +68,18 @@ void IPlugARAExample::ProcessBlock(sample** inputs, sample** outputs, int nFrame
   if (auto* pEditorRenderer = GetARAEditorRenderer<IPlugARAExampleEditorRenderer>())
     pEditorRenderer->RenderPreview(outputs, nChans, GetSampleRate(), nFrames);
 
-  for (int c = 0; c < nChans; c++)
+  for (int s = 0; s < nFrames; s++)
   {
-    for (int s = 0; s < nFrames; s++)
-      outputs[c][s] *= gain;
+    const sample smoothedGain = mGainSmoother.Process(gain);
+
+    for (int c = 0; c < nChans; c++)
+      outputs[c][s] *= smoothedGain;
   }
+}
+
+void IPlugARAExample::OnReset()
+{
+  mGainSmoother.SetSmoothTime(20., GetSampleRate());
+  mGainSmoother.SetValue(GetParam(kGain)->Value() / 100.);
 }
 #endif

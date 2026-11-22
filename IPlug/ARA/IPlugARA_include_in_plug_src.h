@@ -38,7 +38,10 @@ DEF_CLASS_IID(ARA::IPlugInEntryPoint2)
 #endif
 
 /** Comma separated list of ARA::ARAContentType values that the plug-in can analyze and then
- * export to the host, e.g. ARA::kARAContentTypeNotes. Hosts use this both to decide which
+ * export to the host, without enclosing braces, e.g.
+ * #define ARA_ANALYZEABLE_CONTENT_TYPES ARA::kARAContentTypeNotes, ARA::kARAContentTypeKeySignatures
+ * The list is used to initialize an array, so if defined it must not be empty - leave the macro
+ * undefined if the plug-in does not analyze any content. Hosts use this both to decide which
  * content to request and to show the plug-in's capabilities in their UI. */
 #ifdef ARA_ANALYZEABLE_CONTENT_TYPES
   #define ARA_HAS_ANALYZEABLE_CONTENT_TYPES 1

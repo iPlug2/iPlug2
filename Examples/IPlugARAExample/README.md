@@ -94,10 +94,16 @@ editor renderer, right-click to toggle the modification's reverse edit.
 It also uses the `"Fx|OnlyARA"` VST3 subcategory, which marks a plug-in that requires ARA to
 operate. Plug-ins that also work without ARA should use `"Fx|ARA"` instead.
 
-N.B. For clarity this example does not synchronize ARA model edits (main thread) with rendering
-(audio thread) - a real plug-in must do so. Its archive format is also simplified (native endian),
-and the note detection is deliberately crude, standing in for the real analysis a pitch editor
-would perform.
+**Synchronizing rendering with model edits.** The host edits the ARA model on the main thread
+while the renderers read it on the audio thread. Following Celemony's ARA test plug-in, the
+document controller locks the renderers out of the model for the duration of each host editing
+cycle (and while sample access is toggled). The audio thread never blocks - while locked out it
+outputs silence for that block. See `IPlugARAExampleDocumentController::RendererAccess`.
+
+N.B. The archive format is simplified (native endian, but versioned and bounds checked), and the
+note detection in `IPlugARAExample_Analysis.h` is deliberately crude, standing in for the real
+analysis a pitch editor would perform. Regions are rendered with nearest-sample lookup, so
+stretched regions alias.
 
 ## Building
 
@@ -109,7 +115,10 @@ cmake --build build --target IPlugARAExample-vst3-ara
 The ARA SDK (`ARA_API` + `ARA_Library`, Apache 2.0 licensed) is fetched automatically via CMake
 FetchContent, pinned to an ARA SDK release tag. To use a local copy instead, clone
 [Celemony/ARA_SDK](https://github.com/Celemony/ARA_SDK) (with submodules) into
-`Dependencies/IPlug/ARA_SDK`, or pass `-DARA_SDK_DIR=/path/to/ARA_SDK`.
+`Dependencies/IPlug/ARA_SDK`, or pass `-DARA_SDK_DIR=/path/to/ARA_SDK`. To configure without
+network access and without ARA targets, pass `-DIPLUG2_ARA_FETCH_SDK=OFF`.
+
+The example builds on macOS, Windows and Linux, and CI builds it on all three.
 
 The VST3 SDK must be present in `Dependencies/IPlug/VST3_SDK` (see
 `Dependencies/IPlug/download-vst3-sdk.sh`).

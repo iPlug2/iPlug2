@@ -4,6 +4,7 @@
 
 #include "IPlug_include_in_plug_hdr.h"
 #include "IPlugARAExample_ARA.h"
+#include "Smoothers.h"
 
 const int kNumPresets = 1;
 
@@ -22,6 +23,7 @@ public:
 
 #if IPLUG_DSP
   void ProcessBlock(sample** inputs, sample** outputs, int nFrames) override;
+  void OnReset() override;
 #endif
 
   /** @return the last transport position seen by the audio thread, in seconds */
@@ -31,6 +33,10 @@ public:
   bool GetTransportWasRunning() const { return mTransportRunning.load(std::memory_order_relaxed); }
 
 private:
+#if IPLUG_DSP
+  LogParamSmooth<sample> mGainSmoother {20., 1.};
+#endif
+
   std::atomic<double> mPlayheadPos {0.};
   std::atomic<bool> mTransportRunning {false};
 };

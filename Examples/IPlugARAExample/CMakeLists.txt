@@ -20,6 +20,7 @@ iplug_add_plugin(${PROJECT_NAME}
     IPlugARAExample.cpp
     IPlugARAExample.h
     IPlugARAExample_ARA.h
+    IPlugARAExample_Analysis.h
     IPlugARAExample_Controls.h
     config.h
   RESOURCES

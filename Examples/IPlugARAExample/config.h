@@ -36,7 +36,7 @@
 
 #define ARA_DOC_CONTROLLER_CLASS IPlugARAExampleDocumentController
 #define ARA_FACTORY_ID "com.AcmeInc.IPlugARAExample.arafactory"
-#define ARA_DOC_ARCHIVE_ID "com.AcmeInc.IPlugARAExample.aradocumentarchive.2"
+#define ARA_DOC_ARCHIVE_ID "com.AcmeInc.IPlugARAExample.aradocumentarchive.3"
 
 // This plug-in stretches playback regions to fit the borders the host gives them, so hosts may
 // let the user drag a region's borders independently of its content
