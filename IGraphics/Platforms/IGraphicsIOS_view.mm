@@ -203,6 +203,52 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 
 @end
 
+#ifdef IGRAPHICS_ACCESSKIT
+IGraphicsAccessibilityIOS::IGraphicsAccessibilityIOS(IGraphics& graphics, UIView* pView)
+: IGraphicsAccessibility(graphics)
+{
+  mAdapter = accesskit_ios_adapter_new((__bridge void*) pView, ActivationHandler, this, ActionHandler, this, DeactivationHandler, this);
+}
+
+IGraphicsAccessibilityIOS::~IGraphicsAccessibilityIOS()
+{
+  accesskit_ios_adapter_free(mAdapter);
+}
+
+void IGraphicsAccessibilityIOS::DeactivationHandler(void* pUserData)
+{
+  // The adapter has dropped its tree, so it needs all of it again if assistive technology is turned back on
+  static_cast<IGraphicsAccessibilityIOS*>(pUserData)->SetInactive();
+}
+
+void IGraphicsAccessibilityIOS::UpdateIfActive(accesskit_tree_update_factory factory, void* pUserData)
+{
+  if (accesskit_ios_queued_events* pEvents = accesskit_ios_adapter_update_if_active(mAdapter, factory, pUserData))
+    accesskit_ios_queued_events_raise(pEvents);
+}
+
+void IGraphicsAccessibilityIOS::ViewDidAppear()
+{
+  if (accesskit_ios_queued_events* pEvents = accesskit_ios_adapter_view_did_appear(mAdapter))
+    accesskit_ios_queued_events_raise(pEvents);
+}
+
+bool IGraphicsAccessibilityIOS::IsAccessibilityElement()
+{
+  return accesskit_ios_adapter_is_accessibility_element(mAdapter);
+}
+
+NSArray* IGraphicsAccessibilityIOS::GetElements()
+{
+  return (__bridge NSArray*) accesskit_ios_adapter_accessibility_elements(mAdapter);
+}
+
+id IGraphicsAccessibilityIOS::HitTest(CGPoint point)
+{
+  return (__bridge id) accesskit_ios_adapter_hit_test(mAdapter, point.x, point.y);
+}
+#endif
+
 @implementation IGRAPHICS_VIEW
 
 - (id) initWithIGraphics: (IGraphicsIOS*) pGraphics
@@ -419,6 +465,32 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   }
 }
 
+#ifdef IGRAPHICS_ACCESSKIT
+- (void) didMoveToWindow
+{
+  [super didMoveToWindow];
+
+  if (self.window && mAccessibility)
+    mAccessibility->ViewDidAppear();
+}
+
+// UIKit asks the view for its accessibility elements, which are made by the AccessKit adapter from the IGraphics controls
+- (BOOL) isAccessibilityElement
+{
+  return mAccessibility ? mAccessibility->IsAccessibilityElement() : NO;
+}
+
+- (NSArray*) accessibilityElements
+{
+  return mAccessibility ? mAccessibility->GetElements() : nil;
+}
+
+- (id) accessibilityHitTest:(CGPoint) point
+{
+  return mAccessibility ? mAccessibility->HitTest(point) : nil;
+}
+#endif
+
 - (void) drawRect:(CGRect)rect
 {
   IRECTList rects;
@@ -467,6 +539,9 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   self.displayLink = nil;
   mTextField = nil;
   mGraphics = nil;
+#ifdef IGRAPHICS_ACCESSKIT
+  mAccessibility = nullptr;
+#endif
   mMenuTableController = nil;
   mMenuNavigationController = nil;
 

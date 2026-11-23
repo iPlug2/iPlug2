@@ -12,7 +12,7 @@ include(${CMAKE_CURRENT_LIST_DIR}/IPlug.cmake)
 
 set(IGRAPHICS_DEPS_DIR ${DEPS_DIR}/IGraphics)
 
-# Optional accessibility support (screen readers etc.) on macOS, Windows and Linux, using AccessKit
+# Optional accessibility support (screen readers etc.) on macOS, iOS, Windows and Linux, using AccessKit
 # Requires the prebuilt libraries, see Dependencies/IGraphics/download-accesskit.sh
 option(IGRAPHICS_ACCESSKIT "Enable IGraphics accessibility support via AccessKit" OFF)
 
@@ -99,7 +99,7 @@ if(NOT TARGET iPlug2::IGraphics)
     )
   endif()
 
-  if(IGRAPHICS_ACCESSKIT AND (WIN32 OR (APPLE AND NOT IOS) OR (UNIX AND NOT APPLE AND NOT EMSCRIPTEN)))
+  if(IGRAPHICS_ACCESSKIT AND (WIN32 OR APPLE OR (UNIX AND NOT EMSCRIPTEN)) AND NOT "${IPLUG2_IOS_PLATFORM}" MATCHES "VISIONOS")
     set(ACCESSKIT_DIR "${DEPS_DIR}/Build/accesskit" CACHE PATH "Location of the prebuilt AccessKit C bindings")
 
     if(WIN32)
@@ -112,6 +112,13 @@ if(NOT TARGET iPlug2::IGraphics)
       endif()
       set(ACCESSKIT_LIB_DIR "${ACCESSKIT_DIR}/lib/windows/${ACCESSKIT_ARCH}/msvc/static")
       set(ACCESSKIT_LIB "${ACCESSKIT_LIB_DIR}/accesskit.lib")
+    elseif(IOS)
+      if(CMAKE_OSX_SYSROOT MATCHES "simulator")
+        set(ACCESSKIT_LIB_DIR "${ACCESSKIT_DIR}/lib/ios-simulator/universal/static")
+      else()
+        set(ACCESSKIT_LIB_DIR "${ACCESSKIT_DIR}/lib/ios/arm64/static")
+      endif()
+      set(ACCESSKIT_LIB "${ACCESSKIT_LIB_DIR}/libaccesskit.a")
     elseif(APPLE)
       set(ACCESSKIT_LIB_DIR "${ACCESSKIT_DIR}/lib/macos/universal/static")
       set(ACCESSKIT_LIB "${ACCESSKIT_LIB_DIR}/libaccesskit.a")

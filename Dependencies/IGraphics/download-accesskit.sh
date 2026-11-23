@@ -2,7 +2,7 @@
 set -eo pipefail
 
 # Downloads the prebuilt AccessKit C bindings used by IGraphics when IGRAPHICS_ACCESSKIT is defined.
-# The release archive contains headers and libraries for all platforms (macOS, Windows and Linux x86_64/x86).
+# The release archive contains headers and libraries for all platforms (macOS, iOS, Windows and Linux x86_64/x86).
 # Result: Dependencies/Build/accesskit/{include,lib}
 #
 # The libraries come from iPlug2's fork of accesskit-c (https://github.com/iPlug2/accesskit-c) rather than
@@ -52,6 +52,16 @@ if [ "$(uname)" == "Darwin" ]; then
       "$MAC_LIB_DIR/x86_64/static/libaccesskit.a" \
       -output "$MAC_LIB_DIR/universal/static/libaccesskit.a"
     echo "Created universal macOS library"
+  fi
+
+  SIM_LIB_DIR="$DEST_DIR/lib/ios-simulator"
+  if [ -f "$SIM_LIB_DIR/arm64/static/libaccesskit.a" ] && [ -f "$SIM_LIB_DIR/x86_64/static/libaccesskit.a" ]; then
+    mkdir -p "$SIM_LIB_DIR/universal/static"
+    lipo -create \
+      "$SIM_LIB_DIR/arm64/static/libaccesskit.a" \
+      "$SIM_LIB_DIR/x86_64/static/libaccesskit.a" \
+      -output "$SIM_LIB_DIR/universal/static/libaccesskit.a"
+    echo "Created universal iOS simulator library"
   fi
 fi
 

@@ -108,6 +108,12 @@ void* IGraphicsIOS::OpenWindow(void* pParent)
   CloseWindow();
   IGRAPHICS_VIEW* view = [[IGRAPHICS_VIEW alloc] initWithIGraphics: this];
   mView = (void*) view;
+
+#ifdef IGRAPHICS_ACCESSKIT
+  auto pAccessibility = std::make_unique<IGraphicsAccessibilityIOS>(*this, view);
+  view->mAccessibility = pAccessibility.get();
+  mAccessibility = std::move(pAccessibility);
+#endif
   
   IGraphics::ScopedGLContext scopedGLContext{this};
   OnViewInitialized((void*) [view layer]);
@@ -138,6 +144,10 @@ void IGraphicsIOS::CloseWindow()
   if (mView)
   { 
     IGRAPHICS_VIEW* pView = (IGRAPHICS_VIEW*) mView;
+#ifdef IGRAPHICS_ACCESSKIT
+    pView->mAccessibility = nullptr;
+    mAccessibility = nullptr;
+#endif
     [pView removeFromSuperview];
     [pView release];
     mView = nullptr;

@@ -1,6 +1,6 @@
 # IGraphics accessibility
 
-IGraphics can expose its controls to assistive technology (VoiceOver on macOS; Narrator, NVDA and JAWS on Windows; Orca and other AT-SPI clients on Linux) using [AccessKit](https://accesskit.dev). It is opt-in, and currently supported on macOS, Windows and Linux.
+IGraphics can expose its controls to assistive technology (VoiceOver on macOS and iOS; Narrator, NVDA and JAWS on Windows; Orca and other AT-SPI clients on Linux) using [AccessKit](https://accesskit.dev). It is opt-in, and currently supported on macOS, iOS, Windows and Linux.
 
 Keyboard navigation is part of the same work, but doesn't depend on AccessKit and can be used on its own.
 
@@ -17,7 +17,7 @@ Keyboard navigation is part of the same work, but doesn't depend on AccessKit an
    | Build system | What to do |
    |---|---|
    | CMake (all platforms, the only option on Linux) | Configure with `-DIGRAPHICS_ACCESSKIT=ON` |
-   | Xcode | In `MyPlugin-mac.xcconfig`, add `IGRAPHICS_ACCESSKIT` to `EXTRA_ALL_DEFS` and `$(ACCESSKIT_LNK_FLAGS)` to `EXTRA_LNK_FLAGS` |
+   | Xcode | In `MyPlugin-mac.xcconfig` and/or `MyPlugin-ios.xcconfig`, add `IGRAPHICS_ACCESSKIT` to `EXTRA_ALL_DEFS` and `$(ACCESSKIT_LNK_FLAGS)` to `EXTRA_LNK_FLAGS` |
    | Visual Studio | In `MyPlugin-win.props`, add `IGRAPHICS_ACCESSKIT` to `EXTRA_ALL_DEFS` (the library is linked automatically) |
 
 No source files need adding to your project. The static library adds several MB to each binary.
@@ -45,6 +45,15 @@ Enabled by default when `IGRAPHICS_ACCESSKIT` is defined, otherwise off. Use `IG
 | Escape | Clear the focus |
 
 Keys that aren't used for navigation still reach the control under the mouse and the function set with `SetKeyHandlerFunc()`, as before. `SetFocusRingColor()` changes the colour of the focus ring.
+
+## iOS
+
+VoiceOver, Switch Control and Speak Screen get the same tree as on macOS, as elements of the IGraphics view.
+
+- Double tap presses a button, toggles a switch or opens a menu, and swiping up or down adjusts a slider. Other touches don't reach the controls while VoiceOver is on, as for any iOS view.
+- The tree is built when the view appears if assistive technology is running, or when it is turned on later, and dropped when it is turned off.
+- VoiceOver's cursor is separate from the IGraphics keyboard focus, so no focus ring is drawn for it.
+- The AccessKit iOS adapter is newer than the others. visionOS is not supported, since there are no AccessKit libraries for it.
 
 ## Linux
 
@@ -75,7 +84,7 @@ To hide a control from assistive technology, call `SetAccessibleRole(EAccessible
 
 ## Limitations
 
-- iOS and Web are not supported yet.
+- visionOS and Web are not supported yet.
 - The contents of `IPopupMenuControl` and `ITextEntryControl` (the menus and text entries drawn by IGraphics) are not exposed. Platform menus and text entries are.
 - Meters are exposed without a value, and `IVKeyboardControl` is not exposed.
 - Whether the Tab and arrow keys reach a plug-in's UI depends on the host.
