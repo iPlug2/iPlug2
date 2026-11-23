@@ -207,8 +207,9 @@ public:
    * @param style The styling of this vector control \see IVStyle
    * @param shape The buttons shape \see IVShape
    * @param direction The direction of the buttons
-   * @param buttonSize The size of the buttons */
-  IVRadioButtonControl(const IRECT& bounds, int paramIdx = kNoParameter, const std::initializer_list<const char*>& options = {}, const char* label = "", const IVStyle& style = DEFAULT_STYLE, EVShape shape = EVShape::Ellipse, EDirection direction = EDirection::Vertical, float buttonSize = 10.f);
+   * @param buttonSize The size of the buttons
+   * @param buttonAreaWidthFactor The width factor of the button area */
+  IVRadioButtonControl(const IRECT& bounds, int paramIdx = kNoParameter, const std::initializer_list<const char*>& options = {}, const char* label = "", const IVStyle& style = DEFAULT_STYLE, EVShape shape = EVShape::Ellipse, EDirection direction = EDirection::Vertical, float buttonSize = 10.f, float buttonAreaWidthFactor = 3.f);
 
   /** Constructs a vector radio button control, with an action function (no parameter)
    * @param bounds The control's bounds
@@ -218,8 +219,9 @@ public:
    * @param style The styling of this vector control \see IVStyle
    * @param shape The buttons shape \see IVShape
    * @param direction The direction of the buttons
-   * @param buttonSize The size of the buttons */
-  IVRadioButtonControl(const IRECT& bounds, IActionFunction aF, const std::initializer_list<const char*>& options, const char* label = "", const IVStyle& style = DEFAULT_STYLE, EVShape shape = EVShape::Ellipse, EDirection direction = EDirection::Vertical, float buttonSize = 10.f);
+   * @param buttonSize The size of the buttons
+   * @param buttonAreaWidthFactor The width factor of the button area */
+  IVRadioButtonControl(const IRECT& bounds, IActionFunction aF, const std::initializer_list<const char*>& options, const char* label = "", const IVStyle& style = DEFAULT_STYLE, EVShape shape = EVShape::Ellipse, EDirection direction = EDirection::Vertical, float buttonSize = 10.f, float buttonAreaWidthFactor = 3.f);
   
   virtual void DrawWidget(IGraphics& g) override;
 protected:
