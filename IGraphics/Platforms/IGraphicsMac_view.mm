@@ -426,7 +426,11 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
     NSOpenGLPFAAlphaSize, 8,
     NSOpenGLPFAColorSize, 24,
     NSOpenGLPFADepthSize, 0,
+  #ifdef IGRAPHICS_NANOVG
+    NSOpenGLPFAStencilSize, 0, // NanoVG draws into its own FBO (with stencil) and blits to the view
+  #else
     NSOpenGLPFAStencilSize, 8,
+  #endif
     NSOpenGLPFAOpenGLProfile, profile,
     (NSOpenGLPixelFormatAttribute) 0
   };
@@ -457,7 +461,11 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
     EGL_BLUE_SIZE, 8,
     EGL_GREEN_SIZE, 8,
     EGL_RED_SIZE, 8,
+  #ifdef IGRAPHICS_NANOVG
+    EGL_DEPTH_SIZE, 0, // NanoVG draws into its own FBO and blits to the surface
+  #else
     EGL_DEPTH_SIZE, 24,
+  #endif
     EGL_NONE};
   EGLint numConfigs = 0;
   EGLConfig configs[1];
