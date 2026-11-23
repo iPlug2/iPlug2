@@ -1,0 +1,13 @@
+{
+  "version": "1.0.0",
+  "include_dirs": [
+    "bindings/cpp/include",
+    "include"
+  ],
+  "exclude_patterns": [
+    "glad\\.c"
+  ],
+  "mapping_files": [
+    ".includes.imp"
+  ]
+}
