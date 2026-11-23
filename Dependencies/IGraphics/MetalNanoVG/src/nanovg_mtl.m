@@ -926,8 +926,10 @@ enum MNVGTarget mnvgTarget() {
 
 - (void)createSamplerForTexture:(MNVGtexture*)tex {
   const int imageFlags = tex->flags;
-  // a texture from a handle may come with its own mipmaps
-  const BOOL hasMipmaps = tex->tex.mipmapLevelCount > 1;
+  // Only sample mip levels when the caller says they're populated. A texture
+  // from a handle may have mip levels allocated but only level 0 filled in.
+  const BOOL hasMipmaps = (imageFlags & NVG_IMAGE_GENERATE_MIPMAPS) &&
+                          tex->tex.mipmapLevelCount > 1;
 
   MTLSamplerDescriptor* samplerDescriptor = [MTLSamplerDescriptor new];
   if (imageFlags & NVG_IMAGE_NEAREST) {
