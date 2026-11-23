@@ -1915,16 +1915,27 @@ public:
         }
         else if (Get(i).Intersects(Get(j)))
         {
-          IRECT intersection = Get(i).Intersect(Get(j));
-            
-          if (Get(i).Mergeable(intersection))
-            Set(i, Shrink(Get(i), intersection));
-          else if (Get(j).Mergeable(intersection))
-            Set(j, Shrink(Get(j), intersection));
-          else if (Get(i).Area() < Get(j).Area())
-            Set(i, Split(Get(i), intersection));
-          else
-            Set(j, Split(Get(j), intersection));
+          // Subtract the intersection from the smaller of the two rects (the other
+          // still covers it), replacing it with up to 4 remainder pieces. The previous
+          // Shrink()/Split() heuristics returned a single piece and could silently
+          // drop parts of the subtracted rect not covered by the other rect,
+          // leaving areas of the UI undrawn.
+          const int idx = Get(i).Area() < Get(j).Area() ? i : j;
+          const IRECT r = Get(idx);
+          const IRECT is = Get(i).Intersect(Get(j));
+
+          IRECT pieces[4];
+          int nPieces = 0;
+
+          if (is.T > r.T) pieces[nPieces++] = IRECT(r.L, r.T, r.R, is.T);
+          if (is.B < r.B) pieces[nPieces++] = IRECT(r.L, is.B, r.R, r.B);
+          if (is.L > r.L) pieces[nPieces++] = IRECT(r.L, is.T, is.L, is.B);
+          if (is.R < r.R) pieces[nPieces++] = IRECT(is.R, is.T, r.R, is.B);
+
+          // nPieces >= 1, otherwise r is contained in the other rect (handled above)
+          Set(idx, pieces[0]);
+          for (int p = 1; p < nPieces; p++)
+            Add(pieces[p]);
         }
       }
     }
@@ -1945,53 +1956,6 @@ public:
   }
   
 private:
-  /** Shrinks a rectangle by removing the intersection area
-   * @param r The original rectangle
-   * @param i The intersection rectangle to remove
-   * @return The remaining portion of the original rectangle */
-  IRECT Shrink(const IRECT &r, const IRECT &i)
-  {
-    if (i.L != r.L)
-      return IRECT(r.L, r.T, i.L, r.B);
-    if (i.T != r.T)
-      return IRECT(r.L, r.T, r.R, i.T);
-    if (i.R != r.R)
-      return IRECT(i.R, r.T, r.R, r.B);
-    return IRECT(r.L, i.B, r.R, r.B);
-  }
-  
-  /** Splits a rectangle around an intersection, adding one part to the list
-   * @param r The rectangle to split
-   * @param i The intersection rectangle
-   * @return The remaining portion after adding the split part to the list */
-  IRECT Split(const IRECT r, const IRECT &i)
-  {
-    if (r.L == i.L)
-    {
-      if (r.T == i.T)
-      {
-        Add(IRECT(i.R, r.T, r.R, i.B));
-        return IRECT(r.L, i.B, r.R, r.B);
-      }
-      else
-      {
-        Add(IRECT(r.L, r.T, r.R, i.T));
-        return IRECT(i.R, i.T, r.R, r.B);
-      }
-    }
-    
-    if (r.T == i.T)
-    {
-      Add(IRECT(r.L, r.T, i.L, i.B));
-      return IRECT(r.L, i.B, r.R, r.B);
-    }
-    else
-    {
-      Add(IRECT(r.L, r.T, r.R, i.T));
-      return IRECT(r.L, i.T, i.L, r.B);
-    }
-  }
-  
   WDL_TypedBuf<IRECT> mRects;
 };
 
