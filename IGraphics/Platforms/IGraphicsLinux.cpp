@@ -62,6 +62,222 @@
 using namespace iplug;
 using namespace igraphics;
 
+#ifdef IGRAPHICS_ACCESSKIT
+#include "IGraphicsAccessibility.h"
+
+BEGIN_IPLUG_NAMESPACE
+BEGIN_IGRAPHICS_NAMESPACE
+
+/** Owns the AccessKit adapter that exposes the controls in an IGraphicsLinux window via AT-SPI.
+ * AccessKit calls the handlers on its own thread, so the tree is never built in the activation handler.
+ * Instead the handler asks for the whole tree to be sent on the next frame, on the UI thread.
+ * That thread can still call the handlers after the adapter has been freed, since freeing it only queues its removal.
+ * So the handlers are given an ID rather than a pointer, which is looked up in a registry of the instances that are alive */
+class IGraphicsAccessibilityLinux : public IGraphicsAccessibility
+{
+public:
+  IGraphicsAccessibilityLinux(IGraphics& graphics, Display* pDisplay, Window wnd)
+  : IGraphicsAccessibility(graphics)
+  , mDisplay(pDisplay)
+  , mWnd(wnd)
+  {
+    Registry& registry = GetRegistry();
+    void* pId = nullptr;
+
+    {
+      std::lock_guard<std::mutex> lock(registry.mutex);
+      mId = registry.nextId++;
+      registry.instances[mId] = this;
+      pId = reinterpret_cast<void*>(mId);
+    }
+
+    mAdapter = accesskit_unix_adapter_new(OnActivate, pId, OnAction, pId, OnDeactivate, pId);
+  }
+
+  ~IGraphicsAccessibilityLinux()
+  {
+    {
+      // Once this lock is released, no handler can be using this object
+      Registry& registry = GetRegistry();
+      std::lock_guard<std::mutex> lock(registry.mutex);
+      registry.instances.erase(mId);
+    }
+
+    accesskit_unix_adapter_free(mAdapter);
+  }
+
+  void SetWindowFocused(bool focused)
+  {
+    accesskit_unix_adapter_update_window_focus_state(mAdapter, focused);
+  }
+
+  /** Tell the adapter where the window is on the screen, which X11 doesn't notify an embedded window about.
+   * Called once per frame, but only does anything a few times a second, and only if assistive technology is in use */
+  void UpdateWindowBounds()
+  {
+    if (!mWantsBounds)
+      return;
+
+    const auto now = std::chrono::steady_clock::now();
+
+    if (!mBoundsRequested.exchange(false) && now - mBoundsTime < std::chrono::milliseconds(250))
+      return;
+
+    mBoundsTime = now;
+
+    // XCB is used so that an error (e.g. a window manager frame that was just destroyed) is returned, instead of reaching the Xlib error handler
+    xcb_connection_t* pConnection = XGetXCBConnection(mDisplay);
+
+    if (!pConnection)
+      return;
+
+    accesskit_rect inner;
+
+    if (!GetScreenRect(pConnection, static_cast<xcb_window_t>(mWnd), inner))
+      return;
+
+    // The outer bounds are those of the top level window, including the window manager's frame if there is one
+    accesskit_rect outer = inner;
+    xcb_window_t topLevel = static_cast<xcb_window_t>(mWnd);
+
+    for (int depth = 0; depth < 64; depth++)
+    {
+      xcb_query_tree_reply_t* pTree = xcb_query_tree_reply(pConnection, xcb_query_tree(pConnection, topLevel), nullptr);
+
+      if (!pTree)
+        return;
+
+      const xcb_window_t parent = pTree->parent;
+      const bool parentIsRoot = !parent || parent == pTree->root;
+      free(pTree);
+
+      if (parentIsRoot)
+        break;
+
+      topLevel = parent;
+    }
+
+    if (topLevel != mWnd && !GetScreenRect(pConnection, topLevel, outer))
+      return;
+
+    if (RectsEqual(inner, mInnerBounds) && RectsEqual(outer, mOuterBounds))
+      return;
+
+    mInnerBounds = inner;
+    mOuterBounds = outer;
+    accesskit_unix_adapter_set_root_window_bounds(mAdapter, outer, inner);
+  }
+
+protected:
+  void UpdateIfActive(accesskit_tree_update_factory factory, void* pUserData) override
+  {
+    accesskit_unix_adapter_update_if_active(mAdapter, factory, pUserData);
+  }
+
+private:
+  struct Registry
+  {
+    std::mutex mutex;
+    std::unordered_map<uintptr_t, IGraphicsAccessibilityLinux*> instances;
+    uintptr_t nextId = 1;
+  };
+
+  static Registry& GetRegistry()
+  {
+    // Never deleted, because AccessKit's thread can outlive static destruction
+    static Registry* sRegistry = new Registry();
+    return *sRegistry;
+  }
+
+  /** @return The instance that a handler was called for, or nullptr if it has been deleted. The registry must be locked */
+  static IGraphicsAccessibilityLinux* GetInstance(void* pUserData)
+  {
+    Registry& registry = GetRegistry();
+    auto itr = registry.instances.find(reinterpret_cast<uintptr_t>(pUserData));
+    return itr != registry.instances.end() ? itr->second : nullptr;
+  }
+
+  static accesskit_tree_update* OnActivate(void* pUserData)
+  {
+    std::lock_guard<std::mutex> lock(GetRegistry().mutex);
+
+    if (auto* pThis = GetInstance(pUserData))
+    {
+      pThis->mWantsBounds = true;
+      pThis->mBoundsRequested = true;
+      pThis->RequestFullUpdate();
+    }
+
+    return nullptr;
+  }
+
+  static void OnDeactivate(void* pUserData)
+  {
+    std::lock_guard<std::mutex> lock(GetRegistry().mutex);
+
+    if (auto* pThis = GetInstance(pUserData))
+    {
+      pThis->mWantsBounds = false;
+      pThis->SetInactive();
+    }
+  }
+
+  static void OnAction(accesskit_action_request* pRequest, void* pUserData)
+  {
+    std::lock_guard<std::mutex> lock(GetRegistry().mutex);
+
+    if (auto* pThis = GetInstance(pUserData))
+      ActionHandler(pRequest, static_cast<IGraphicsAccessibility*>(pThis));
+    else
+      accesskit_action_request_free(pRequest);
+  }
+
+  static bool RectsEqual(const accesskit_rect& a, const accesskit_rect& b)
+  {
+    return a.x0 == b.x0 && a.y0 == b.y0 && a.x1 == b.x1 && a.y1 == b.y1;
+  }
+
+  /** Get the bounds of a window (including its border) in physical pixels, relative to the root window */
+  static bool GetScreenRect(xcb_connection_t* pConnection, xcb_window_t wnd, accesskit_rect& rect)
+  {
+    xcb_get_geometry_reply_t* pGeometry = xcb_get_geometry_reply(pConnection, xcb_get_geometry(pConnection, wnd), nullptr);
+
+    if (!pGeometry)
+      return false;
+
+    const int border = pGeometry->border_width;
+    const int w = pGeometry->width + 2 * border;
+    const int h = pGeometry->height + 2 * border;
+    xcb_translate_coordinates_reply_t* pOrigin = xcb_translate_coordinates_reply(pConnection, xcb_translate_coordinates(pConnection, wnd, pGeometry->root, -border, -border), nullptr);
+    free(pGeometry);
+
+    if (!pOrigin)
+      return false;
+
+    rect.x0 = pOrigin->dst_x;
+    rect.y0 = pOrigin->dst_y;
+    rect.x1 = rect.x0 + w;
+    rect.y1 = rect.y0 + h;
+    free(pOrigin);
+
+    return true;
+  }
+
+  accesskit_unix_adapter* mAdapter = nullptr;
+  uintptr_t mId = 0;
+  Display* mDisplay;
+  Window mWnd;
+  std::atomic<bool> mWantsBounds { false };
+  std::atomic<bool> mBoundsRequested { false };
+  std::chrono::steady_clock::time_point mBoundsTime;
+  accesskit_rect mInnerBounds { 0., 0., 0., 0. };
+  accesskit_rect mOuterBounds { 0., 0., 0., 0. };
+};
+
+END_IGRAPHICS_NAMESPACE
+END_IPLUG_NAMESPACE
+#endif
+
 namespace
 {
 // Match WindowWidth()/WindowHeight() followed by the X11/display-scale conversion.
@@ -1034,6 +1250,11 @@ void* IGraphicsLinux::OpenWindow(void* pParent)
 
   CreateInputContext();
   UpdateTooltips();
+
+#ifdef IGRAPHICS_ACCESSKIT
+  mAccessibility = std::make_unique<IGraphicsAccessibilityLinux>(*this, mDisplay, mPlugWnd);
+#endif
+
   GetDelegate()->OnUIOpen();
 
   // Mark dirty so the first timer tick renders immediately, even if no
@@ -1055,6 +1276,9 @@ void IGraphicsLinux::CloseWindow()
   StopTimer();
   ResetDrag();
   HideTooltip();
+#ifdef IGRAPHICS_ACCESSKIT
+  mAccessibility = nullptr;
+#endif
   if (!mDisplay)
     return;
 
@@ -2640,12 +2864,21 @@ void IGraphicsLinux::DispatchX11Events()
         CreateInputContext();
       if (mInputContext)
         XSetICFocus(mInputContext);
+#ifdef IGRAPHICS_ACCESSKIT
+      // NotifyPointer is ignored because there is no matching FocusOut when the pointer leaves the window
+      if (mAccessibility && ev.xfocus.window == mPlugWnd && ev.xfocus.detail != NotifyPointer && ev.xfocus.detail != NotifyPointerRoot)
+        static_cast<IGraphicsAccessibilityLinux*>(mAccessibility.get())->SetWindowFocused(true);
+#endif
       break;
 
     case FocusOut:
       HideTooltip();
       if (mInputContext)
         XUnsetICFocus(mInputContext);
+#ifdef IGRAPHICS_ACCESSKIT
+      if (mAccessibility && ev.xfocus.window == mPlugWnd && ev.xfocus.detail != NotifyPointer && ev.xfocus.detail != NotifyPointerRoot)
+        static_cast<IGraphicsAccessibilityLinux*>(mAccessibility.get())->SetWindowFocused(false);
+#endif
       break;
 
     case KeyPress:
@@ -2847,6 +3080,11 @@ void IGraphicsLinux::OnDisplayTimer()
     HideTooltip();
   if (mTooltipControl >= 0 && !mTooltipWindow && TooltipsEnabled() && HoverMillis() - mTooltipHoverTime >= 700)
     ShowTooltip(mTooltipX, mTooltipY);
+
+#ifdef IGRAPHICS_ACCESSKIT
+  if (mAccessibility)
+    static_cast<IGraphicsAccessibilityLinux*>(mAccessibility.get())->UpdateWindowBounds();
+#endif
 
   IRECTList rects;
   const bool dirty = IsDirty(rects);

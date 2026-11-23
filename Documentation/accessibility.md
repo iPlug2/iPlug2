@@ -1,6 +1,6 @@
 # IGraphics accessibility
 
-IGraphics can expose its controls to assistive technology (VoiceOver on macOS; Narrator, NVDA and JAWS on Windows) using [AccessKit](https://accesskit.dev). It is opt-in, and currently supported on macOS and Windows.
+IGraphics can expose its controls to assistive technology (VoiceOver on macOS; Narrator, NVDA and JAWS on Windows; Orca and other AT-SPI clients on Linux) using [AccessKit](https://accesskit.dev). It is opt-in, and currently supported on macOS, Windows and Linux.
 
 Keyboard navigation is part of the same work, but doesn't depend on AccessKit and can be used on its own.
 
@@ -16,7 +16,7 @@ Keyboard navigation is part of the same work, but doesn't depend on AccessKit an
 
    | Build system | What to do |
    |---|---|
-   | CMake | Configure with `-DIGRAPHICS_ACCESSKIT=ON` |
+   | CMake (all platforms, the only option on Linux) | Configure with `-DIGRAPHICS_ACCESSKIT=ON` |
    | Xcode | In `MyPlugin-mac.xcconfig`, add `IGRAPHICS_ACCESSKIT` to `EXTRA_ALL_DEFS` and `$(ACCESSKIT_LNK_FLAGS)` to `EXTRA_LNK_FLAGS` |
    | Visual Studio | In `MyPlugin-win.props`, add `IGRAPHICS_ACCESSKIT` to `EXTRA_ALL_DEFS` (the library is linked automatically) |
 
@@ -44,6 +44,18 @@ Enabled by default when `IGRAPHICS_ACCESSKIT` is defined, otherwise off. Use `IG
 
 Keys that aren't used for navigation still reach the control under the mouse and the function set with `SetKeyHandlerFunc()`, as before. `SetFocusRingColor()` changes the colour of the focus ring.
 
+## Linux
+
+The Linux implementation uses AT-SPI over D-Bus, so it needs no extra libraries at build time or run time. If there is no accessibility bus, or no assistive technology is running, it does nothing.
+
+- A plug-in appears to assistive technology as its own application, named after the host's process, rather than as part of the host's window. The UI is a window called after the plug-in.
+- AccessKit runs a thread that lasts for as long as the process does, so binaries are linked with `-z nodelete`: once a plug-in has been loaded, the host can't unload it. AccessKit's symbols are not exported.
+- The position of the window on the screen comes from X11, so it may be wrong under XWayland. It is polled a few times a second while assistive technology is in use, since an embedded window isn't told when its host's window moves.
+- The window is reported as active while it has the X11 keyboard focus, which it takes when it is clicked.
+- The AccessKit release only has x86_64 and x86 libraries for Linux. For other architectures, build [accesskit-c](https://github.com/AccessKit/accesskit-c) and put `libaccesskit.a` in `Dependencies/Build/accesskit/lib/linux/<arch>/static`.
+
+To try it without a screen reader, [Accerciser](https://gitlab.gnome.org/GNOME/accerciser) shows the tree and can perform actions. AccessKit only builds the tree while the `IsEnabled` property of `org.a11y.Status` on the session bus is true, which a screen reader or the desktop's accessibility settings take care of.
+
 ## Custom controls
 
 Controls that inherit from one of the base classes usually need nothing. Otherwise:
@@ -61,7 +73,7 @@ To hide a control from assistive technology, call `SetAccessibleRole(EAccessible
 
 ## Limitations
 
-- Linux, iOS and Web are not supported yet.
+- iOS and Web are not supported yet.
 - The contents of `IPopupMenuControl` and `ITextEntryControl` (the menus and text entries drawn by IGraphics) are not exposed. Platform menus and text entries are.
 - Meters are exposed without a value, and `IVKeyboardControl` is not exposed.
 - Whether the Tab and arrow keys reach a plug-in's UI depends on the host.

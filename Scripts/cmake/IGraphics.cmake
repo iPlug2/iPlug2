@@ -12,7 +12,7 @@ include(${CMAKE_CURRENT_LIST_DIR}/IPlug.cmake)
 
 set(IGRAPHICS_DEPS_DIR ${DEPS_DIR}/IGraphics)
 
-# Optional accessibility support (screen readers etc.) on macOS and Windows, using AccessKit
+# Optional accessibility support (screen readers etc.) on macOS, Windows and Linux, using AccessKit
 # Requires the prebuilt libraries, see Dependencies/IGraphics/download-accesskit.sh
 option(IGRAPHICS_ACCESSKIT "Enable IGraphics accessibility support via AccessKit" OFF)
 
@@ -99,7 +99,7 @@ if(NOT TARGET iPlug2::IGraphics)
     )
   endif()
 
-  if(IGRAPHICS_ACCESSKIT AND (WIN32 OR (APPLE AND NOT IOS)))
+  if(IGRAPHICS_ACCESSKIT AND (WIN32 OR (APPLE AND NOT IOS) OR (UNIX AND NOT APPLE AND NOT EMSCRIPTEN)))
     set(ACCESSKIT_DIR "${DEPS_DIR}/Build/accesskit" CACHE PATH "Location of the prebuilt AccessKit C bindings")
 
     if(WIN32)
@@ -112,8 +112,20 @@ if(NOT TARGET iPlug2::IGraphics)
       endif()
       set(ACCESSKIT_LIB_DIR "${ACCESSKIT_DIR}/lib/windows/${ACCESSKIT_ARCH}/msvc/static")
       set(ACCESSKIT_LIB "${ACCESSKIT_LIB_DIR}/accesskit.lib")
-    else()
+    elseif(APPLE)
       set(ACCESSKIT_LIB_DIR "${ACCESSKIT_DIR}/lib/macos/universal/static")
+      set(ACCESSKIT_LIB "${ACCESSKIT_LIB_DIR}/libaccesskit.a")
+    else()
+      # The AccessKit release only has x86_64 and x86 libraries for Linux. For other architectures,
+      # build accesskit-c from source and put libaccesskit.a in lib/linux/<arch>/static
+      if(CMAKE_SYSTEM_PROCESSOR MATCHES "^(ARM64|arm64|aarch64)$")
+        set(ACCESSKIT_ARCH "arm64")
+      elseif(CMAKE_SIZEOF_VOID_P EQUAL 4)
+        set(ACCESSKIT_ARCH "x86")
+      else()
+        set(ACCESSKIT_ARCH "x86_64")
+      endif()
+      set(ACCESSKIT_LIB_DIR "${ACCESSKIT_DIR}/lib/linux/${ACCESSKIT_ARCH}/static")
       set(ACCESSKIT_LIB "${ACCESSKIT_LIB_DIR}/libaccesskit.a")
     endif()
 
@@ -128,6 +140,14 @@ if(NOT TARGET iPlug2::IGraphics)
     if(WIN32)
       # IGraphicsWin.cpp links accesskit.lib and the system libraries that it needs with #pragma comment(lib, ...)
       target_link_directories(iPlug2::IGraphics INTERFACE "${ACCESSKIT_LIB_DIR}")
+    elseif(UNIX AND NOT APPLE)
+      target_link_libraries(iPlug2::IGraphics INTERFACE dl pthread m)
+      target_link_options(iPlug2::IGraphics INTERFACE
+        # Don't export AccessKit's symbols, so that plug-ins with different versions of it can't interfere with each other
+        "LINKER:--exclude-libs,libaccesskit.a"
+        # AccessKit's AT-SPI thread runs for as long as the process does, so a plug-in must stay loaded once it has opened a UI
+        "LINKER:-z,nodelete"
+      )
     endif()
 
     message(STATUS "IGraphics: accessibility enabled (AccessKit)")

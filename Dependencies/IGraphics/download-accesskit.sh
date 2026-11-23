@@ -3,7 +3,7 @@ set -eo pipefail
 
 # Downloads the prebuilt AccessKit C bindings (https://github.com/AccessKit/accesskit-c)
 # used by IGraphics when IGRAPHICS_ACCESSKIT is defined.
-# The release archive contains headers and libraries for all platforms.
+# The release archive contains headers and libraries for all platforms (macOS, Windows and Linux x86_64/x86).
 # Result: Dependencies/Build/accesskit/{include,lib}
 
 ACCESSKIT_VERSION=0.23.2

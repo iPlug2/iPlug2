@@ -293,8 +293,7 @@ accesskit_tree_update* IGraphicsAccessibility::ActivationHandler(void* pUserData
 accesskit_tree_update* IGraphicsAccessibility::UpdateFactory(void* pUserData)
 {
   auto* pThis = static_cast<IGraphicsAccessibility*>(pUserData);
-  const bool full = !pThis->mActive;
-  pThis->mActive = true;
+  const bool full = !pThis->mActive.exchange(true);
   return pThis->MakeUpdate(full);
 }
 
@@ -368,9 +367,22 @@ void IGraphicsAccessibility::ProcessActions()
   }
 }
 
+void IGraphicsAccessibility::RequestFullUpdate()
+{
+  mActive = false;
+  mUpdateRequested = true;
+}
+
+void IGraphicsAccessibility::SetInactive()
+{
+  mActive = false;
+}
+
 void IGraphicsAccessibility::OnFrame(bool controlsDirty)
 {
-  if (controlsDirty)
+  const bool updateRequested = mUpdateRequested.exchange(false);
+
+  if (controlsDirty || updateRequested)
     UpdateIfActive(UpdateFactory, this);
 }
 

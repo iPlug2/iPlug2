@@ -18,6 +18,7 @@
 
 #ifdef IGRAPHICS_ACCESSKIT
 
+#include <atomic>
 #include <mutex>
 #include <vector>
 #include <unordered_map>
@@ -65,6 +66,13 @@ protected:
   /** @return The scale factor between IGraphics coordinates and the coordinates that the platform adapter expects, which by default is physical pixels */
   virtual double GetRootScale() const;
 
+  /** Ask for the whole tree to be sent to the platform adapter on the next frame, even if no controls are dirty.
+   * For platform adapters that call their activation handler on a thread other than the UI thread, where the tree can't be built in the handler. Can be called on any thread */
+  void RequestFullUpdate();
+
+  /** Call when assistive technology stops using the tree. Can be called on any thread */
+  void SetInactive();
+
   IGraphics& mGraphics;
 
 private:
@@ -98,7 +106,8 @@ private:
   std::vector<Node> mNodes; // The nodes that were last sent to the adapter
   std::unordered_map<IControl*, uint32_t> mControlIds;
   uint32_t mNextControlId = 1;
-  bool mActive = false;
+  std::atomic<bool> mActive { false };
+  std::atomic<bool> mUpdateRequested { false };
 
   std::mutex mActionMutex;
   std::vector<Action> mActions;
