@@ -462,10 +462,15 @@ endif()
 
 # FlexBox layout support (requires Yoga)
 # Use OBJECT library to avoid duplicate symbols when multiple targets link to FlexBox.
-# IGraphicsFlexBox.cpp uses a unity build pattern (#includes Yoga sources), so we
-# compile it in the object library and define IPLUG2_YOGA_COMPILED_SEPARATELY to skip
-# those includes.
+# IGraphicsFlexBox.cpp uses a unity build pattern (#includes Yoga sources), so the
+# object library is the only place Yoga gets compiled.
+# Yoga 3.x requires C++20 to compile. Its public API (yoga/Yoga.h) is plain C, so
+# only this object library needs C++20; consumers can stay on IPLUG2_CXX_STANDARD.
 set(YOGA_DIR ${IGRAPHICS_DEPS_DIR}/yoga)
+set(YOGA_CXX_STANDARD 20)
+if(IPLUG2_CXX_STANDARD GREATER 20)
+  set(YOGA_CXX_STANDARD ${IPLUG2_CXX_STANDARD})
+endif()
 
 if(NOT TARGET iPlug2_Extras_FlexBox_obj)
   add_library(iPlug2_Extras_FlexBox_obj OBJECT
@@ -488,7 +493,7 @@ if(NOT TARGET iPlug2_Extras_FlexBox_obj)
 
   set_target_properties(iPlug2_Extras_FlexBox_obj PROPERTIES
     POSITION_INDEPENDENT_CODE ON
-    CXX_STANDARD ${IPLUG2_CXX_STANDARD}
+    CXX_STANDARD ${YOGA_CXX_STANDARD}
     CXX_STANDARD_REQUIRED ON
   )
 

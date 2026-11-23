@@ -12,7 +12,8 @@ WEB_SRC += $(IGRAPHICS_EXTRAS_PATH)/IGraphicsFlexBox.cpp
 
 # WAM_CFLAGS +=
 
-WEB_CFLAGS += -DIGRAPHICS_NANOVG -DIGRAPHICS_GLES2
+# IGraphicsFlexBox.cpp includes the yoga sources, which need C++20
+WEB_CFLAGS += -DIGRAPHICS_NANOVG -DIGRAPHICS_GLES2 -std=c++20
 
 WAM_LDFLAGS += -O3 -s EXPORT_NAME="'ModuleFactory'" -s ASSERTIONS=0
 
