@@ -363,6 +363,7 @@ iplug_add_plugin(<name>
   [DEFINES <def1> [def2 ...]]
   [UI <IGRAPHICS|WEBVIEW|NONE>]
   [WAM_SITE_ORIGIN <origin>]
+  [RC_INCLUDE_DIRS <dir1> [dir2 ...]]
 )
 ```
 
@@ -379,6 +380,7 @@ iplug_add_plugin(<name>
 | `DEFINES` | Additional compile definitions | None |
 | `UI` | UI framework: `IGRAPHICS`, `WEBVIEW`, or `NONE` | `IGRAPHICS` |
 | `WAM_SITE_ORIGIN` | WAM site origin for CORS | `"/"` |
+| `RC_INCLUDE_DIRS` | Windows only: extra include directories for the resource compiler when compiling `resources/main.rc` (e.g. a fonts folder shared between projects). Relative paths are resolved against the project directory | None |
 
 ### Format Names
 
@@ -694,29 +696,32 @@ emrun --no_emrun_detect index.html
 - VST3 editors need the host to provide a Linux `IRunLoop`; CLAP editors use the host's timer and
   POSIX fd extensions when available, and fall back to `on_main_thread` callbacks
 - Native Wayland is not supported; editors run through XWayland
-- `Tests/Linux` contains a headless regression suite, see `Tests/Linux/README.md`
-- NanoVG/GL3 remains the default. For Skia/GL3, run
+- NanoVG/GL3 remains the default. For Skia/GL3 or Skia/CPU, run
   `Dependencies/IGraphics/build-skia-linux.sh` to build the pinned Skia
   `chrome/m130` revision. This installs headers and matching static libraries
   below `Dependencies/Build/linux` (or set `IPLUG_SKIA_LINUX_DIR` to an
   alternative installation directory for both the script and CMake).
   Required archives: `libskia.a`, `libsvg.a`, `libskparagraph.a`,
   `libskshaper.a`, `libskunicode_core.a`, `libskunicode_icu.a`.
-  Build with `-DIGRAPHICS_BACKEND=SKIA -DIGRAPHICS_RENDERER=GL3`.
+  Use Release Skia archives, as produced by the script, for all plugin build
+  types; CMake keeps the Skia header configuration consistent with those archives.
+  Build with `-DIGRAPHICS_BACKEND=SKIA` and either
+  `-DIGRAPHICS_RENDERER=GL3` or `-DIGRAPHICS_RENDERER=CPU`.
   For example, on a Linux machine with Ninja, Python 3, Git and development
   headers for Fontconfig, Expat and FreeType installed:
 
   ```bash
   Dependencies/IGraphics/build-skia-linux.sh
-  cmake -S Tests/Linux -B build/linux-skia -G Ninja \
-    -DIGRAPHICS_BACKEND=SKIA -DIGRAPHICS_RENDERER=GL3
-  cmake --build build/linux-skia
-  ctest --test-dir build/linux-skia --output-on-failure
+  cmake -S Examples/IPlugEffect -B build/linux-skia-cpu -G Ninja \
+    -DIGRAPHICS_BACKEND=SKIA -DIGRAPHICS_RENDERER=CPU
+  cmake --build build/linux-skia-cpu --target IPlugEffect-app
   ```
 
-  Skia/CPU presentation is not implemented on Linux. Skia/GL3 passes the
-  Linux Xvfb regression suite with a software OpenGL renderer; real DAW and
-  hardware GPU testing is still required.
+  Skia/CPU presents rasterized frames to an X11 TrueColor window using
+  `XPutImage`, without creating a GLX context. It supports display scaling,
+  editor resizing and the window's native RGB channel masks. The current Linux
+  CMake configuration still requires the OpenGL development libraries at build
+  time, even when selecting CPU rendering.
 - `UI WEBVIEW` on Linux uses WebKitGTK 4.1 and an X11 `GtkPlug` editor.
   Install `libwebkit2gtk-4.1-dev` before configuring a WebView plugin;
   it is not required for other Linux plugins. `WEB_RESOURCES` are staged in

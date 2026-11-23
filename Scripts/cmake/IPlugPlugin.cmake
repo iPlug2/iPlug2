@@ -21,12 +21,14 @@ iplug_add_plugin(<name>
   [DEFINES <def1> [def2 ...]]
   [UI <IGRAPHICS|WEBVIEW|NONE>]          # Defaults to IGRAPHICS
   [WAM_SITE_ORIGIN <origin>]             # Defaults to "/"
+  [RC_INCLUDE_DIRS <dir1> [dir2 ...]]    # Windows: extra resource compiler include dirs for main.rc
 )
 
 Format names:
   APP        - Standalone application (no embedded AUv3 by default)
   VST2       - VST2 plugin (if SDK available) - DEPRECATED
   VST3       - VST3 plugin
+  VST3_ARA   - ARA-enabled VST3 plugin (ARA SDK fetched on demand) - use instead of VST3, not alongside it
   CLAP       - CLAP plugin (if SDK available)
   AAX        - AAX plugin (if SDK available)
   AU         - AUv2 (macOS only)
@@ -135,27 +137,54 @@ function(_iplug_add_resources target resources)
 endfunction()
 
 # ============================================================================
+# _iplug_add_windows_rc (internal)
+# On Windows, compile the project's resources/main.rc (if present) into a target.
+# The .rc file references files like "Roboto-Regular.ttf" without a path, so the
+# RC compiler is told where to find fonts, images etc.
+# ============================================================================
+function(_iplug_add_windows_rc target)
+  set(_rc_file "${CMAKE_CURRENT_SOURCE_DIR}/resources/main.rc")
+  if(NOT WIN32 OR NOT EXISTS "${_rc_file}")
+    return()
+  endif()
+  target_sources(${target} PRIVATE "${_rc_file}")
+  set_source_files_properties("${_rc_file}" PROPERTIES
+    COMPILE_FLAGS "/I\"${CMAKE_CURRENT_SOURCE_DIR}/resources/fonts\" /I\"${CMAKE_CURRENT_SOURCE_DIR}/resources/img\" /I\"${CMAKE_CURRENT_SOURCE_DIR}/resources\""
+  )
+endfunction()
+
+# ============================================================================
 # Create APP, VST3, CLAP, AAX targets (macOS/Windows only)
 # ============================================================================
-function(_iplug_create_desktop_targets plugin_name formats sources ui_lib resources web_resources base_lib)
+function(_iplug_create_desktop_targets plugin_name formats sources ui_lib resources web_resources base_lib rc_include_dirs)
   # Skip on iOS and Emscripten
   if(IOS OR CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
     return()
   endif()
 
-  # APP target (uses add_executable, needs .rc on Windows)
+  # On Windows, resources/main.rc is what embeds resources in a binary: fonts,
+  # images and VS_VERSION_INFO. Plugins need it as much as the app does --
+  # IGraphicsWin looks fonts up in the module that asks for them, so a
+  # .vst3/.clap built without the .rc ships without its fonts.
+  # The RESOURCES mechanism (_iplug_add_resources) only covers macOS bundles.
+  set(_rc_sources "")
+  set(_rc_file "${CMAKE_CURRENT_SOURCE_DIR}/resources/main.rc")
+  if(WIN32 AND EXISTS "${_rc_file}")
+    set(_rc_sources "${_rc_file}")
+    # Tell RC compiler where to find resources (fonts, images, etc.)
+    # The .rc file references files like "Roboto-Regular.ttf" without path
+    set(_rc_flags "/I\"${CMAKE_CURRENT_SOURCE_DIR}/resources/fonts\" /I\"${CMAKE_CURRENT_SOURCE_DIR}/resources/img\" /I\"${CMAKE_CURRENT_SOURCE_DIR}/resources\"")
+    # Extra include dirs, e.g. resource folders shared between several projects
+    foreach(_dir IN LISTS rc_include_dirs)
+      get_filename_component(_dir "${_dir}" ABSOLUTE BASE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
+      string(APPEND _rc_flags " /I\"${_dir}\"")
+    endforeach()
+    set_source_files_properties("${_rc_file}" PROPERTIES COMPILE_FLAGS "${_rc_flags}")
+  endif()
+
+  # APP target (uses add_executable)
   if("APP" IN_LIST formats)
-    set(_app_sources ${sources})
-    set(_rc_file "${CMAKE_CURRENT_SOURCE_DIR}/resources/main.rc")
-    if(WIN32 AND EXISTS "${_rc_file}")
-      list(APPEND _app_sources "${_rc_file}")
-      # Tell RC compiler where to find resources (fonts, images, etc.)
-      # The .rc file references files like "Roboto-Regular.ttf" without path
-      set_source_files_properties("${_rc_file}" PROPERTIES
-        COMPILE_FLAGS "/I\"${CMAKE_CURRENT_SOURCE_DIR}/resources/fonts\" /I\"${CMAKE_CURRENT_SOURCE_DIR}/resources/img\" /I\"${CMAKE_CURRENT_SOURCE_DIR}/resources\""
-      )
-    endif()
-    add_executable(${plugin_name}-app ${_app_sources})
+    add_executable(${plugin_name}-app ${sources} ${_rc_sources})
     iplug_add_target(${plugin_name}-app PUBLIC
       LINK iPlug2::APP ${ui_lib} ${base_lib}
     )
@@ -167,7 +196,7 @@ function(_iplug_create_desktop_targets plugin_name formats sources ui_lib resour
 
   # VST2 (conditional on SDK availability - deprecated)
   if("VST2" IN_LIST formats AND IPLUG2_VST2_SUPPORTED)
-    add_library(${plugin_name}-vst2 MODULE ${sources})
+    add_library(${plugin_name}-vst2 MODULE ${sources} ${_rc_sources})
     iplug_add_target(${plugin_name}-vst2 PUBLIC
       LINK iPlug2::VST2 ${ui_lib} ${base_lib}
     )
@@ -177,9 +206,9 @@ function(_iplug_create_desktop_targets plugin_name formats sources ui_lib resour
     iplug_deploy_target(${plugin_name}-vst2 VST2 ${plugin_name})
   endif()
 
-  # VST3 (conditional on SDK availability)
+  # VST3 (always available)
   if("VST3" IN_LIST formats AND IPLUG2_VST3_SUPPORTED)
-    add_library(${plugin_name}-vst3 MODULE ${sources})
+    add_library(${plugin_name}-vst3 MODULE ${sources} ${_rc_sources})
     iplug_add_target(${plugin_name}-vst3 PUBLIC
       LINK iPlug2::VST3 ${ui_lib} ${base_lib}
     )
@@ -189,9 +218,26 @@ function(_iplug_create_desktop_targets plugin_name formats sources ui_lib resour
     iplug_deploy_target(${plugin_name}-vst3 VST3 ${plugin_name})
   endif()
 
+  # ARA-enabled VST3 (fetches the ARA SDK on demand)
+  if("VST3_ARA" IN_LIST formats)
+    include(${IPLUG2_CMAKE_DIR}/ARA.cmake)
+    add_library(${plugin_name}-vst3-ara MODULE ${sources})
+    # On Windows, loose resource files cannot be loaded from inside the .vst3 bundle,
+    # so compile resources/main.rc (fonts, images) into the module instead
+    _iplug_add_windows_rc(${plugin_name}-vst3-ara)
+    iplug_add_target(${plugin_name}-vst3-ara PUBLIC
+      LINK iPlug2::VST3 iPlug2::ARA ${ui_lib} ${base_lib}
+    )
+    iplug_configure_target(${plugin_name}-vst3-ara VST3ARA ${plugin_name} DEFER_DEPLOYMENT)
+    _iplug_add_resources(${plugin_name}-vst3-ara "${resources}")
+    _iplug_add_web_resources(${plugin_name}-vst3-ara "${web_resources}")
+    # An ARA target produces a regular .vst3 bundle, so deploy it as VST3
+    iplug_deploy_target(${plugin_name}-vst3-ara VST3 ${plugin_name})
+  endif()
+
   # CLAP (conditional on SDK availability)
   if("CLAP" IN_LIST formats AND IPLUG2_CLAP_SUPPORTED)
-    add_library(${plugin_name}-clap MODULE ${sources})
+    add_library(${plugin_name}-clap MODULE ${sources} ${_rc_sources})
     iplug_add_target(${plugin_name}-clap PUBLIC
       LINK iPlug2::CLAP ${ui_lib} ${base_lib}
     )
@@ -203,7 +249,7 @@ function(_iplug_create_desktop_targets plugin_name formats sources ui_lib resour
 
   # AAX (conditional on SDK availability)
   if("AAX" IN_LIST formats AND IPLUG2_AAX_SUPPORTED)
-    add_library(${plugin_name}-aax MODULE ${sources})
+    add_library(${plugin_name}-aax MODULE ${sources} ${_rc_sources})
     iplug_add_target(${plugin_name}-aax PUBLIC
       LINK iPlug2::AAX ${ui_lib} ${base_lib}
     )
@@ -474,7 +520,7 @@ macro(iplug_add_plugin plugin_name)
   cmake_parse_arguments(PLUGIN
     ""
     "UI;WAM_SITE_ORIGIN"
-    "SOURCES;RESOURCES;WEB_RESOURCES;FORMATS;EXCLUDE_FORMATS;LINK;DEFINES"
+    "SOURCES;RESOURCES;WEB_RESOURCES;FORMATS;EXCLUDE_FORMATS;LINK;DEFINES;RC_INCLUDE_DIRS"
     ${ARGN}
   )
 
@@ -485,7 +531,7 @@ macro(iplug_add_plugin plugin_name)
   # Check for unparsed/unknown arguments
   if(PLUGIN_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR "iplug_add_plugin(${plugin_name}): Unknown arguments: ${PLUGIN_UNPARSED_ARGUMENTS}\n"
-      "Valid options: SOURCES, RESOURCES, WEB_RESOURCES, FORMATS, EXCLUDE_FORMATS, LINK, DEFINES, UI, WAM_SITE_ORIGIN")
+      "Valid options: SOURCES, RESOURCES, WEB_RESOURCES, FORMATS, EXCLUDE_FORMATS, LINK, DEFINES, RC_INCLUDE_DIRS, UI, WAM_SITE_ORIGIN")
   endif()
 
   # Validate plugin name
@@ -510,7 +556,7 @@ macro(iplug_add_plugin plugin_name)
   endif()
 
   # Validate FORMATS
-  set(_iplug_valid_formats APP VST2 VST3 CLAP AAX AU AUV3 WAM WASM_DSP WASM_UI)
+  set(_iplug_valid_formats APP VST2 VST3 VST3_ARA CLAP AAX AU AUV3 WAM WASM_DSP WASM_UI)
   set(_iplug_valid_format_groups ALL ALL_PLUGINS ALL_DESKTOP MINIMAL_PLUGINS DESKTOP WEB WASM)
   if(PLUGIN_FORMATS)
     foreach(_fmt ${PLUGIN_FORMATS})
@@ -546,6 +592,13 @@ macro(iplug_add_plugin plugin_name)
     list(REMOVE_ITEM _iplug_formats ${PLUGIN_EXCLUDE_FORMATS})
   endif()
 
+  # VST3 and VST3_ARA both produce ${plugin_name}.vst3 and would overwrite each other
+  if("VST3" IN_LIST _iplug_formats AND "VST3_ARA" IN_LIST _iplug_formats)
+    message(FATAL_ERROR "iplug_add_plugin(${plugin_name}): VST3 and VST3_ARA cannot be combined - "
+      "both produce ${plugin_name}.vst3. Use VST3_ARA on its own (it is also a regular VST3 plug-in), "
+      "or add VST3 to EXCLUDE_FORMATS when using a format group.")
+  endif()
+
   # Determine UI library and include necessary modules
   if(CMAKE_SYSTEM_NAME STREQUAL "Linux" AND "iPlug2::Extras::IWebViewControl" IN_LIST PLUGIN_LINK)
     message(FATAL_ERROR "iplug_add_plugin(${plugin_name}): IWebViewControl is not implemented on Linux. Remove the WebView control and its LINK dependency.")
@@ -573,7 +626,7 @@ macro(iplug_add_plugin plugin_name)
   )
 
   # Create format targets
-  _iplug_create_desktop_targets(${plugin_name} "${_iplug_formats}" "${PLUGIN_SOURCES}" "${_iplug_ui_lib}" "${PLUGIN_RESOURCES}" "${PLUGIN_WEB_RESOURCES}" "_${plugin_name}-base")
+  _iplug_create_desktop_targets(${plugin_name} "${_iplug_formats}" "${PLUGIN_SOURCES}" "${_iplug_ui_lib}" "${PLUGIN_RESOURCES}" "${PLUGIN_WEB_RESOURCES}" "_${plugin_name}-base" "${PLUGIN_RC_INCLUDE_DIRS}")
   _iplug_create_au_targets(${plugin_name} "${_iplug_formats}" "${PLUGIN_SOURCES}" "${_iplug_ui_lib}" "${PLUGIN_RESOURCES}" "${PLUGIN_WEB_RESOURCES}" "_${plugin_name}-base")
   _iplug_create_auv3_targets(${plugin_name} "${_iplug_formats}" "${PLUGIN_SOURCES}" "${_iplug_ui_lib}" "${PLUGIN_RESOURCES}" "${PLUGIN_WEB_RESOURCES}" "_${plugin_name}-base")
   _iplug_create_ios_targets(${plugin_name} "${_iplug_formats}" "${PLUGIN_SOURCES}" "${_iplug_ui_lib}" "${PLUGIN_RESOURCES}" "${PLUGIN_WEB_RESOURCES}" "_${plugin_name}-base")
