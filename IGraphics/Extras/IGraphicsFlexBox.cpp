@@ -94,15 +94,28 @@ IRECT IFlexBox::GetItemBounds(int nodeIndex) const
 };
 
 // TODO: eventually build Yoga as a static library,
-// for now include Yoga .cpp files here
-#include "YGLayout.cpp"
-#include "YGEnums.cpp"
-#include "YGNodePrint.cpp"
-#include "YGValue.cpp"
-#include "YGConfig.cpp"
-#include "YGNode.cpp"
-#include "YGStyle.cpp"
-#include "Yoga.cpp"
-#include "Utils.cpp"
-#include "log.cpp"
-#include "event/event.cpp"
+// for now include Yoga .cpp files here (requires C++20)
+#include <yoga/YGConfig.cpp>
+#include <yoga/YGEnums.cpp>
+#include <yoga/YGNode.cpp>
+#include <yoga/YGNodeLayout.cpp>
+#include <yoga/YGNodeStyle.cpp>
+#include <yoga/YGPixelGrid.cpp>
+#include <yoga/YGValue.cpp>
+#include <yoga/algorithm/AbsoluteLayout.cpp>
+#include <yoga/algorithm/Baseline.cpp>
+#include <yoga/algorithm/Cache.cpp>
+#include <yoga/algorithm/CalculateLayout.cpp>
+#include <yoga/algorithm/FlexLine.cpp>
+#include <yoga/algorithm/PixelGrid.cpp>
+#include <yoga/config/Config.cpp>
+#include <yoga/debug/AssertFatal.cpp>
+#include <yoga/debug/Log.cpp>
+#include <yoga/node/LayoutResults.cpp>
+#include <yoga/node/Node.cpp>
+
+// event.cpp declares a file-local "Node" that clashes with yoga::Node in a unity build.
+// All Yoga headers have been included by this point, so the rename only affects event.cpp
+#define Node YGEventSubscriberNode
+#include <yoga/event/event.cpp>
+#undef Node
