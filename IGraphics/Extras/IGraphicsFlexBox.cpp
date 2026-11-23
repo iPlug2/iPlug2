@@ -95,6 +95,12 @@ IRECT IFlexBox::GetItemBounds(int nodeIndex) const
 
 // TODO: eventually build Yoga as a static library,
 // for now include Yoga .cpp files here (requires C++20)
+
+// On Apple platforms MacTypes.h declares a global "Style" typedef, which makes the
+// unqualified yoga::Style in YGNodeStyle.cpp (after "using namespace facebook::yoga") ambiguous.
+// Only Yoga's public C headers have been included so far, so renaming here is consistent
+// across all of Yoga's internal headers and sources
+#define Style YGInternalStyle
 #include <yoga/YGConfig.cpp>
 #include <yoga/YGEnums.cpp>
 #include <yoga/YGNode.cpp>
@@ -119,3 +125,4 @@ IRECT IFlexBox::GetItemBounds(int nodeIndex) const
 #define Node YGEventSubscriberNode
 #include <yoga/event/event.cpp>
 #undef Node
+#undef Style
