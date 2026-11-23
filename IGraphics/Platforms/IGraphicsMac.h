@@ -42,6 +42,7 @@ public:
   ECursor SetMouseCursor(ECursor cursorType) override;
   
   void GetMouseLocation(float& x, float&y) const override;
+  bool GetMouseScreenLocation(float& x, float& y) const override;
 
   void DoCursorLock(float x, float y, float& prevX, float& prevY);
     

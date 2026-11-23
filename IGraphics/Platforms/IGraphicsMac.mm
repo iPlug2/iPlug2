@@ -289,6 +289,14 @@ void IGraphicsMac::GetMouseLocation(float& x, float&y) const
   ScreenToPoint(x, y);
 }
 
+bool IGraphicsMac::GetMouseScreenLocation(float& x, float& y) const
+{
+  const NSPoint mouse = [NSEvent mouseLocation];
+  x = mouse.x;
+  y = -mouse.y; // Screen coordinates increase upwards.
+  return true;
+}
+
 EMsgBoxResult IGraphicsMac::ShowMessageBox(const char* str, const char* title, EMsgBoxType type, IMsgBoxCompletionHandlerFunc completionHandler)
 {
   ReleaseMouseCapture();
