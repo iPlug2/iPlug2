@@ -1,12 +1,18 @@
 #!/usr/bin/env bash
 set -eo pipefail
 
-# Downloads the prebuilt AccessKit C bindings (https://github.com/AccessKit/accesskit-c)
-# used by IGraphics when IGRAPHICS_ACCESSKIT is defined.
+# Downloads the prebuilt AccessKit C bindings used by IGraphics when IGRAPHICS_ACCESSKIT is defined.
 # The release archive contains headers and libraries for all platforms (macOS, Windows and Linux x86_64/x86).
 # Result: Dependencies/Build/accesskit/{include,lib}
+#
+# The libraries come from iPlug2's fork of accesskit-c (https://github.com/iPlug2/accesskit-c) rather than
+# from upstream (https://github.com/AccessKit/accesskit-c). Objective-C class names are global to a process,
+# and upstream registers its classes with fixed names (AccessKitNode etc.), so the second plug-in that links
+# AccessKit to be loaded by a host fails to register them and aborts the host. The fork adds a random suffix
+# to the class names. The version is the upstream version that the fork is based on, plus the fork's revision.
 
-ACCESSKIT_VERSION=0.23.2
+ACCESSKIT_VERSION=0.23.2-iplug2.1
+ACCESSKIT_REPO=iPlug2/accesskit-c
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BUILD_DIR="$SCRIPT_DIR/../Build"
@@ -20,7 +26,7 @@ mkdir -p "$TMP_DIR"
 
 echo "Downloading AccessKit $ACCESSKIT_VERSION..."
 curl -fsSL -o "$TMP_DIR/$ZIP_FILE" \
-  "https://github.com/AccessKit/accesskit-c/releases/download/$ACCESSKIT_VERSION/$ZIP_FILE"
+  "https://github.com/$ACCESSKIT_REPO/releases/download/$ACCESSKIT_VERSION/$ZIP_FILE"
 
 unzip -q -o "$TMP_DIR/$ZIP_FILE" -d "$TMP_DIR"
 

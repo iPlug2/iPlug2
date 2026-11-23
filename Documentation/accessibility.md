@@ -22,6 +22,8 @@ Keyboard navigation is part of the same work, but doesn't depend on AccessKit an
 
 No source files need adding to your project. The static library adds several MB to each binary.
 
+The libraries are built from [iPlug2's fork of accesskit-c](https://github.com/iPlug2/accesskit-c), not from the upstream release. Upstream registers its Objective-C classes with fixed names (`AccessKitNode` etc.), and class names are global to a process, so on macOS the second plug-in that links AccessKit to be loaded by a host aborts the host. The fork gives each copy of AccessKit its own class names (`AccessKitNode_<random>`). If you build AccessKit yourself, build the tag that `download-accesskit.sh` names (the fork's `main` branch is unmodified upstream).
+
 ## What you get
 
 - The base controls report a role, label and value: knobs and sliders are sliders, `ISwitchControlBase` is a checkbox or a pop-up button, `IButtonControlBase` is a button, tab/radio switches are radio groups, text controls are labels, and multi-sliders, range sliders and XY pads are groups of sliders.
@@ -52,7 +54,7 @@ The Linux implementation uses AT-SPI over D-Bus, so it needs no extra libraries 
 - AccessKit runs a thread that lasts for as long as the process does, so binaries are linked with `-z nodelete`: once a plug-in has been loaded, the host can't unload it. AccessKit's symbols are not exported.
 - The position of the window on the screen comes from X11, so it may be wrong under XWayland. It is polled a few times a second while assistive technology is in use, since an embedded window isn't told when its host's window moves.
 - The window is reported as active while it has the X11 keyboard focus, which it takes when it is clicked.
-- The AccessKit release only has x86_64 and x86 libraries for Linux. For other architectures, build [accesskit-c](https://github.com/AccessKit/accesskit-c) and put `libaccesskit.a` in `Dependencies/Build/accesskit/lib/linux/<arch>/static`.
+- The AccessKit release only has x86_64 and x86 libraries for Linux. For other architectures, build that tag of [accesskit-c](https://github.com/iPlug2/accesskit-c) and put `libaccesskit.a` in `Dependencies/Build/accesskit/lib/linux/<arch>/static`.
 
 To try it without a screen reader, [Accerciser](https://gitlab.gnome.org/GNOME/accerciser) shows the tree and can perform actions. AccessKit only builds the tree while the `IsEnabled` property of `org.a11y.Status` on the session bus is true, which a screen reader or the desktop's accessibility settings take care of.
 
