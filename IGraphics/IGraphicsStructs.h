@@ -2617,6 +2617,7 @@ struct IAccessibleNode
   double max = 1.;
   double step = 0.01;
   int toggled = -1; // -1: not toggleable, 0: off, 1: on
+  int expanded = -1; // -1: not expandable, 0: collapsed, 1: expanded. For e.g. a button that shows/hides a section
   bool selected = false; // For RadioButton/Tab
   bool disabled = false;
   bool focusable = false; // Can take keyboard focus
@@ -2643,7 +2644,7 @@ struct IAccessibleNode
   {
     return role == rhs.role && bounds == rhs.bounds && hasNumericValue == rhs.hasNumericValue
       && value == rhs.value && min == rhs.min && max == rhs.max && step == rhs.step
-      && toggled == rhs.toggled && selected == rhs.selected && disabled == rhs.disabled && focusable == rhs.focusable
+      && toggled == rhs.toggled && expanded == rhs.expanded && selected == rhs.selected && disabled == rhs.disabled && focusable == rhs.focusable
       && !strcmp(label.Get(), rhs.label.Get()) && !strcmp(valueText.Get(), rhs.valueText.Get())
       && !strcmp(description.Get(), rhs.description.Get());
   }

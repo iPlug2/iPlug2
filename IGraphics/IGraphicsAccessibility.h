@@ -82,6 +82,7 @@ private:
     IAccessibleNode info;
     std::vector<accesskit_node_id> children;
     double scale = 0.; // Only used for the root node
+    bool modal = false; // The first node of the modal control \see IGraphics::SetModalControl()
   };
 
   struct Action

@@ -82,6 +82,29 @@ For controls with several parts, override `IControl::GetAccessibleNodes()` (the 
 
 To hide a control from assistive technology, call `SetAccessibleRole(EAccessibleRole::None)`.
 
+A node that shows or hides something, such as a button that opens a section, can set `IAccessibleNode::expanded` (`-1` if it doesn't expand, otherwise `0` or `1`).
+
+## Dialogs and overlays
+
+`IGraphics::SetModalControl()` makes a control, such as a dialog or an overlay, modal. Until you call `SetModalControl(nullptr)`, only it and its children can take the keyboard focus, receive key presses or be reached by assistive technology, which is told that it is modal. Mouse input isn't affected. Give a control in it the focus when it is shown, and give the focus back when it is dismissed:
+
+```cpp
+void MyDialog::Show()
+{
+  Hide(false);
+  mFocusBeforeShow = GetUI()->GetKeyboardFocus();
+  GetUI()->SetModalControl(this);
+  GetUI()->SetKeyboardFocus(mpOKButton, 0, false);
+}
+
+void MyDialog::Dismiss()
+{
+  Hide(true);
+  GetUI()->SetModalControl(nullptr);
+  GetUI()->SetKeyboardFocus(mFocusBeforeShow, 0, false); // if it still exists
+}
+```
+
 ## Limitations
 
 - visionOS and Web are not supported yet.

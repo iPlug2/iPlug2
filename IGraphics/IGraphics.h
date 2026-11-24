@@ -1248,6 +1248,18 @@ public:
    * @return The control that has the keyboard focus, or nullptr */
   IControl* GetKeyboardFocus(int* pNodeIdx = nullptr);
 
+  /** Make a control modal, e.g. a dialog or an overlay. While a control is modal, only it and its children (see IControl::GetParent()) can take the keyboard focus, receive key presses and be reached by assistive technology, which is told that the control is modal.
+   * If the keyboard focus is elsewhere it is cleared. Mouse input is not affected.
+   * The modal control is cleared automatically if it is removed. N.B. hiding the control does not clear it, so call SetModalControl(nullptr) when it is dismissed
+   * @param pControl The control that should be modal, or nullptr for no modal control */
+  void SetModalControl(IControl* pControl);
+
+  /** @return The modal control, or nullptr if there isn't one \see SetModalControl() */
+  IControl* GetModalControl();
+
+  /** @return \c true if there is no modal control, or if the control is the modal control or one of its children */
+  bool ControlIsInModalScope(IControl* pControl);
+
   /** Set the color of the focus ring that is drawn around the control that has the keyboard focus */
   void SetFocusRingColor(const IColor& color) { mFocusRingColor = color; SetAllControlsDirty(); }
 
@@ -1902,6 +1914,7 @@ private:
   bool mEnableMultiTouch = false;
   IControl* mKeyboardFocus = nullptr; // N.B. use GetKeyboardFocus(), which checks that the control still exists
   int mKeyboardFocusNodeIdx = 0;
+  IControl* mModalControl = nullptr; // N.B. use GetModalControl(), which checks that the control still exists
   bool mFocusRingVisible = false;
 #ifdef IGRAPHICS_ACCESSKIT
   bool mKeyboardNavEnabled = true;

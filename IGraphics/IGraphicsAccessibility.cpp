@@ -95,6 +95,7 @@ void IGraphicsAccessibility::BuildSnapshot(std::vector<Node>& nodes, accesskit_n
 
   int focusNodeIdx = 0;
   IControl* pFocus = mGraphics.GetKeyboardFocus(&focusNodeIdx);
+  IControl* pModal = mGraphics.GetModalControl();
 
   nodes.emplace_back();
   nodes[0].id = kRootId;
@@ -112,7 +113,8 @@ void IGraphicsAccessibility::BuildSnapshot(std::vector<Node>& nodes, accesskit_n
   {
     IControl* pControl = mGraphics.GetControl(i);
 
-    if (pControl->IsHidden())
+    // While a control is modal, only it and its children are exposed
+    if (pControl->IsHidden() || !mGraphics.ControlIsInModalScope(pControl))
       continue;
 
     controlNodeList.clear();
@@ -151,6 +153,7 @@ void IGraphicsAccessibility::BuildSnapshot(std::vector<Node>& nodes, accesskit_n
       Node& node = nodes.back();
       node.id = firstId | static_cast<accesskit_node_id>(n);
       node.info = controlNodeList[n];
+      node.modal = n == 0 && pControl == pModal;
 
       if (n > 0)
         nodes[firstNode].children.push_back(node.id);
@@ -206,6 +209,12 @@ accesskit_node* IGraphicsAccessibility::MakeNode(const Node& node) const
 
   if (info.toggled >= 0)
     accesskit_node_set_toggled(pNode, info.toggled ? ACCESSKIT_TOGGLED_TRUE : ACCESSKIT_TOGGLED_FALSE);
+
+  if (info.expanded >= 0)
+    accesskit_node_set_expanded(pNode, info.expanded > 0);
+
+  if (node.modal)
+    accesskit_node_set_modal(pNode);
 
   if (info.role == EAccessibleRole::RadioButton)
     accesskit_node_set_toggled(pNode, info.selected ? ACCESSKIT_TOGGLED_TRUE : ACCESSKIT_TOGGLED_FALSE);
@@ -273,7 +282,7 @@ accesskit_tree_update* IGraphicsAccessibility::MakeUpdate(bool full)
       auto itr = prevNodes.find(node.id);
 
       // Nodes that were removed don't need to be listed, since they are no longer amongst the children of any node
-      if (itr == prevNodes.end() || itr->second->info != node.info || itr->second->children != node.children || itr->second->scale != node.scale)
+      if (itr == prevNodes.end() || itr->second->info != node.info || itr->second->children != node.children || itr->second->scale != node.scale || itr->second->modal != node.modal)
         accesskit_tree_update_push_node(pUpdate, node.id, MakeNode(node));
     }
   }
@@ -340,7 +349,7 @@ void IGraphicsAccessibility::ProcessActions()
     int nodeIdx = 0;
     IControl* pControl = GetControlForNode(action.target, nodeIdx);
 
-    if (!pControl || pControl->IsHidden() || pControl->IsDisabled())
+    if (!pControl || pControl->IsHidden() || pControl->IsDisabled() || !mGraphics.ControlIsInModalScope(pControl))
       continue;
 
     switch (action.action)

@@ -151,6 +151,9 @@ void IGraphics::RemoveControlWithTag(int ctrlTag)
   if (GetControlWithTag(ctrlTag) == mKeyboardFocus)
     mKeyboardFocus = nullptr;
 
+  if (GetControlWithTag(ctrlTag) == mModalControl)
+    mModalControl = nullptr;
+
   mControls.DeletePtr(GetControlWithTag(ctrlTag), true);
   mCtrlTags.erase(ctrlTag);
   SetAllControlsDirty();
@@ -177,6 +180,9 @@ void IGraphics::RemoveControls(int fromIdx)
 
     if(pControl == mKeyboardFocus)
       mKeyboardFocus = nullptr;
+
+    if(pControl == mModalControl)
+      mModalControl = nullptr;
     
     if(pControl->GetTag() > kNoTag)
       mCtrlTags.erase(pControl->GetTag());
@@ -208,6 +214,9 @@ void IGraphics::RemoveControl(IControl* pControl)
 
   if(pControl == mKeyboardFocus)
     mKeyboardFocus = nullptr;
+
+  if(pControl == mModalControl)
+    mModalControl = nullptr;
   
   if(pControl->GetTag() > kNoTag)
     mCtrlTags.erase(pControl->GetTag());
@@ -222,6 +231,7 @@ void IGraphics::RemoveAllControls()
   ReleaseMouseCapture();
   ClearMouseOver();
   mKeyboardFocus = nullptr;
+  mModalControl = nullptr;
 
   mPopupControl = nullptr;
   mTextEntryControl = nullptr;
@@ -1051,7 +1061,7 @@ void IGraphics::OnMouseDown(const std::vector<IMouseInfo>& points)
     
     if (pCapturedControl)
     {
-      if (mKeyboardNavEnabled && singlePoint)
+      if (mKeyboardNavEnabled && singlePoint && ControlIsInModalScope(pCapturedControl))
       {
         // Clicking a control (or a child of a control) that can take the keyboard focus gives it the focus, without showing the focus ring
         IAccessibleNodeList nodes;
@@ -1325,7 +1335,7 @@ bool IGraphics::OnKeyDown(float x, float y, const IKeyPress& key)
   {
     IControl* pControl = GetMouseControl(x, y, false);
   
-    if (pControl && pControl != GetControl(0))
+    if (pControl && pControl != GetControl(0) && ControlIsInModalScope(pControl))
       handled = pControl->OnKeyDown(x, y, key);
   }
 
@@ -1373,6 +1383,45 @@ void IGraphics::SetKeyboardFocus(IControl* pControl, int nodeIdx, bool showFocus
     pControl->SetDirty(false);
 }
 
+void IGraphics::SetModalControl(IControl* pControl)
+{
+  if (pControl == GetModalControl())
+    return;
+
+  mModalControl = pControl;
+
+  // The focus can't stay on a control that can no longer be reached
+  if (!ControlIsInModalScope(GetKeyboardFocus()))
+    SetKeyboardFocus(nullptr);
+
+  // Makes sure that the accessibility tree is updated
+  SetAllControlsDirty();
+}
+
+IControl* IGraphics::GetModalControl()
+{
+  if (mModalControl && mControls.Find(mModalControl) < 0)
+    mModalControl = nullptr;
+
+  return mModalControl;
+}
+
+bool IGraphics::ControlIsInModalScope(IControl* pControl)
+{
+  IControl* pModal = GetModalControl();
+
+  if (!pModal)
+    return true;
+
+  for (; pControl; pControl = pControl->GetParent())
+  {
+    if (pControl == pModal)
+      return true;
+  }
+
+  return false;
+}
+
 bool IGraphics::MoveKeyboardFocus(bool forwards)
 {
   struct FocusTarget { IControl* pControl; int nodeIdx; };
@@ -1387,7 +1436,7 @@ bool IGraphics::MoveKeyboardFocus(bool forwards)
   {
     IControl* pControl = GetControl(c);
 
-    if (pControl->IsHidden() || pControl->IsDisabled())
+    if (pControl->IsHidden() || pControl->IsDisabled() || !ControlIsInModalScope(pControl))
       continue;
 
     nodes.clear();
