@@ -94,6 +94,7 @@ public:
   bool EditorResizeFromUI(int viewWidth, int viewHeight, bool needsPlatformResize) override
   {
     mNumResizeRequests++;
+    mLastResizeNeededPlatformResize = needsPlatformResize;
     SetEditorSize(viewWidth, viewHeight);
     return true;
   }
@@ -101,12 +102,57 @@ public:
   void OnUIOpen() override { mNumUIOpens++; IGEditorDelegate::OnUIOpen(); }
   void OnUIClose() override { mNumUICloses++; IGEditorDelegate::OnUIClose(); }
 
+  void LayoutUI(IGraphics* pGraphics) override
+  {
+    mNumLayouts++;
+    IGEditorDelegate::LayoutUI(pGraphics);
+  }
+
+  void OnParamChangeUI(int paramIdx, EParamSource source) override { mParamChangesUI.push_back(paramIdx); }
+
+  /** Replace the layout function (takes effect the next time the UI is opened or laid out) */
+  void SetLayoutFunc(LayoutFunc layoutFunc) { mLayoutFunc = layoutFunc; }
+
+  /** Replace the function that creates the graphics, e.g. to open at a different size */
+  void SetMakeGraphicsFunc(std::function<IGraphics*()> func) { mMakeGraphicsFunc = func; }
+
+  /** @return the number of recorded parameter events of the given type for a parameter (or for all, if paramIdx < 0) */
+  int CountParamEvents(ParamEvent::EType type, int paramIdx = -1) const
+  {
+    int n = 0;
+    for (auto& event : mParamEvents)
+      n += (event.mType == type && (paramIdx < 0 || event.mIdx == paramIdx));
+    return n;
+  }
+
+  /** @return the last value sent from the UI for the parameter, or -1 if none was */
+  double LastParamValue(int paramIdx) const
+  {
+    for (auto itr = mParamEvents.rbegin(); itr != mParamEvents.rend(); ++itr)
+    {
+      if (itr->mType == ParamEvent::EType::Value && itr->mIdx == paramIdx)
+        return itr->mNormalizedValue;
+    }
+    return -1.;
+  }
+
+  void ClearRecorded()
+  {
+    mParamEvents.clear();
+    mMessages.clear();
+    mMidiFromUI.clear();
+    mParamChangesUI.clear();
+  }
+
   std::vector<ParamEvent> mParamEvents;
   std::vector<Message> mMessages;
   std::vector<IMidiMsg> mMidiFromUI;
+  std::vector<int> mParamChangesUI; // the parameters OnParamChangeUI() was called for
   int mNumResizeRequests = 0;
+  bool mLastResizeNeededPlatformResize = false;
   int mNumUIOpens = 0;
   int mNumUICloses = 0;
+  int mNumLayouts = 0;
 };
 
 END_IGRAPHICS_NAMESPACE
