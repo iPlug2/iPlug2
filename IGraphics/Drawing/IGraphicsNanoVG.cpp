@@ -319,6 +319,16 @@ IBitmap IGraphicsNanoVG::LoadBitmap(const char* name, int nStates, bool framesAr
   return IBitmap(pAPIBitmap, nStates, framesAreHorizontal, name);
 }
 
+void IGraphicsNanoVG::ReleaseBitmap(const IBitmap& bitmap)
+{
+  if (!bitmap.IsValid())
+    return;
+
+  ScopedGLContext scopedGLCtx {this};
+  StaticStorage<APIBitmap>::Accessor storage(mBitmapCache);
+  storage.Remove(bitmap.GetAPIBitmap());
+}
+
 APIBitmap* IGraphicsNanoVG::LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location, const char* ext)
 {
   int idx = 0;

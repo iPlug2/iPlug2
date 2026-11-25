@@ -126,7 +126,8 @@ public:
   void* GetDrawContext() override { return (void*) mVG; }
     
   IBitmap LoadBitmap(const char* name, int nStates, bool framesAreHorizontal, int targetScale) override;
-  void ReleaseBitmap(const IBitmap& bitmap) override { }; // NO-OP
+  /** Removes a bitmap loaded with LoadBitmap from this context's cache and deletes its texture. Every IBitmap that refers to it becomes invalid */
+  void ReleaseBitmap(const IBitmap& bitmap) override;
   void RetainBitmap(const IBitmap& bitmap, const char * cacheName) override { }; // NO-OP
   bool BitmapExtSupported(const char* ext) override;
 
