@@ -1,0 +1,127 @@
+name: Tests
+
+# Builds and runs the automated unit/integration tests in Tests/Automated.
+# They need no plug-in SDKs, graphics libraries or display, so this is fast and
+# runs on every platform. See Tests/Automated/README.md
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'IPlug/**'
+      - 'IGraphics/**'
+      - 'WDL/**'
+      - 'Tests/Automated/**'
+      - 'iPlug2.cmake'
+      - 'Scripts/cmake/IPlug.cmake'
+      - '.github/workflows/tests.yml'
+  pull_request:
+    branches: [master]
+    paths:
+      - 'IPlug/**'
+      - 'IGraphics/**'
+      - 'WDL/**'
+      - 'Tests/Automated/**'
+      - 'iPlug2.cmake'
+      - 'Scripts/cmake/IPlug.cmake'
+      - '.github/workflows/tests.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ============================================================================
+  # Native: Linux, macOS, Windows
+  # ============================================================================
+  native:
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { name: 'Linux x64 (GCC, Debug)',     os: ubuntu-24.04,     build_type: Debug }
+          - { name: 'Linux x64 (GCC, Release)',   os: ubuntu-24.04,     build_type: Release }
+          - { name: 'Linux x64 (Clang, Debug)',   os: ubuntu-24.04,     build_type: Debug, cc: clang, cxx: clang++ }
+          - { name: 'Linux x64 (Ubuntu 22.04)',   os: ubuntu-22.04,     build_type: Debug }
+          - { name: 'Linux ARM64 (GCC, Debug)',   os: ubuntu-24.04-arm, build_type: Debug }
+          - { name: 'macOS ARM64 (Debug)',        os: macos-15,         build_type: Debug }
+          - { name: 'macOS ARM64 (Release)',      os: macos-15,         build_type: Release }
+          - { name: 'macOS x64 (Debug)',          os: macos-15-intel,   build_type: Debug }
+          - { name: 'Windows x64 (MSVC, Debug)',  os: windows-2022,     build_type: Debug }
+          - { name: 'Windows x64 (MSVC, Release)', os: windows-2022,    build_type: Release }
+          - { name: 'Windows ARM64 (MSVC, Debug)', os: windows-11-arm,  build_type: Debug }
+    env:
+      CC: ${{ matrix.cc }}
+      CXX: ${{ matrix.cxx }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure
+        run: cmake -S Tests/Automated -B build/tests -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+
+      - name: Build
+        run: cmake --build build/tests --config ${{ matrix.build_type }} --parallel
+
+      - name: Test
+        run: ctest --test-dir build/tests -C ${{ matrix.build_type }} --output-on-failure --output-junit junit.xml
+
+      - name: Upload test results
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ matrix.os }}-${{ matrix.build_type }}-${{ matrix.cc || 'default' }}
+          path: build/tests/junit.xml
+          if-no-files-found: ignore
+
+  # ============================================================================
+  # Linux with AddressSanitizer + UndefinedBehaviorSanitizer
+  # ============================================================================
+  sanitizers:
+    name: Linux x64 (ASan + UBSan)
+    runs-on: ubuntu-24.04
+    env:
+      SAN_FLAGS: -fsanitize=address,undefined -fno-sanitize-recover=undefined -fno-omit-frame-pointer
+      UBSAN_OPTIONS: print_stacktrace=1
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure
+        run: >
+          cmake -S Tests/Automated -B build/tests -DCMAKE_BUILD_TYPE=Debug
+          -DCMAKE_C_FLAGS="$SAN_FLAGS" -DCMAKE_CXX_FLAGS="$SAN_FLAGS"
+          -DCMAKE_EXE_LINKER_FLAGS="$SAN_FLAGS"
+
+      - name: Build
+        run: cmake --build build/tests --parallel
+
+      - name: Test
+        run: ctest --test-dir build/tests --output-on-failure
+
+  # ============================================================================
+  # Web: Emscripten/WebAssembly, run under node
+  # ============================================================================
+  web:
+    name: Web (Emscripten, node)
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Emscripten
+        uses: mymindstorm/setup-emsdk@v14
+        with:
+          version: '3.1.51'
+
+      - name: Configure
+        run: emcmake cmake -S Tests/Automated -B build/tests -DCMAKE_BUILD_TYPE=Debug
+
+      - name: Build
+        run: cmake --build build/tests --parallel
+
+      - name: Test
+        run: ctest --test-dir build/tests --output-on-failure

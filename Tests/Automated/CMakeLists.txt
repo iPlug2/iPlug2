@@ -72,9 +72,9 @@ function(iplug_add_automated_test target)
   endif()
 
   if(EMSCRIPTEN)
-    # Run under node, with exceptions enabled as Catch2 relies on them
+    # Run under node, with exceptions enabled as Catch2 relies on them (IPlug uses embind)
     target_compile_options(${target} PRIVATE -fexceptions)
-    target_link_options(${target} PRIVATE -fexceptions -sALLOW_MEMORY_GROWTH=1 -sEXIT_RUNTIME=1 -sNODERAWFS=1)
+    target_link_options(${target} PRIVATE -fexceptions --bind -sALLOW_MEMORY_GROWTH=1 -sEXIT_RUNTIME=1 -sNODERAWFS=1)
   endif()
 
   foreach(kind unit integration)
