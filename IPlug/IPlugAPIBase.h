@@ -225,6 +225,7 @@ private:
   friend class IPlugWAM;
   friend class IPlugWEB;
   friend class IPlugWasmDSP;
+  friend class IPlugTestAPI; // Tests/Automated headless test harness
 
 private:
   WDL_String mParamDisplayStr;
