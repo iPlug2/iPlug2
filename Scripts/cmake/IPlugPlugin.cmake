@@ -625,6 +625,12 @@ macro(iplug_add_plugin plugin_name)
     DEFINE ${PLUGIN_DEFINES}
   )
 
+  # UI NONE has no editor delegate library; select IEditorDelegate instead of
+  # IGraphicsEditorDelegate (see IPlugDelegate_select.h)
+  if(NOT _iplug_ui_lib)
+    target_compile_definitions(_${plugin_name}-base INTERFACE NO_IGRAPHICS)
+  endif()
+
   # Create format targets
   _iplug_create_desktop_targets(${plugin_name} "${_iplug_formats}" "${PLUGIN_SOURCES}" "${_iplug_ui_lib}" "${PLUGIN_RESOURCES}" "${PLUGIN_WEB_RESOURCES}" "_${plugin_name}-base" "${PLUGIN_RC_INCLUDE_DIRS}")
   _iplug_create_au_targets(${plugin_name} "${_iplug_formats}" "${PLUGIN_SOURCES}" "${_iplug_ui_lib}" "${PLUGIN_RESOURCES}" "${PLUGIN_WEB_RESOURCES}" "_${plugin_name}-base")
