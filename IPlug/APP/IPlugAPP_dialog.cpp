@@ -41,9 +41,14 @@ using namespace igraphics;
 #endif
 
 #define IDT_SCREENSHOT_TIMER 1001
+
+// Guards WM_SIZE before the plugin window is open and the dialog has been sized to it. Until then the dialog's
+// client area is the size of its resource template, not the editor's, and passing that to OnParentWindowResize()
+// would make a plug-in that scales its UI to fit the window (PLUG_HOST_RESIZE) shrink it
+static bool sPlugWindowOpen = false;
+
 #ifdef OS_LINUX
 #define IDT_OPENWINDOW_TIMER 1002
-static bool sPlugWindowOpen = false; // guards WM_SIZE before plugin window is ready
 
 // SWELL does not position the modal dialogs it creates, and window managers
 // that do not place transient windows themselves leave them at the screen
@@ -646,6 +651,7 @@ WDL_DLGRET IPlugAPPHost::MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
       }
 
       ClientResize(hwndDlg, pPlug->GetEditorWidth(), pPlug->GetEditorHeight());
+      sPlugWindowOpen = true;
 
       ShowWindow(hwndDlg, SW_SHOW);
 #endif
@@ -713,9 +719,7 @@ WDL_DLGRET IPlugAPPHost::MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
     case WM_DESTROY:
       pAppHost->CloseWindow();
       gHWND = NULL;
-#ifdef OS_LINUX
       sPlugWindowOpen = false;
-#endif
       IPlugAPPHost::sInstance = nullptr;
       
       #ifdef OS_WIN
@@ -983,13 +987,11 @@ WDL_DLGRET IPlugAPPHost::MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
       case SIZE_RESTORED:
       case SIZE_MAXIMIZED:
       {
-#ifdef OS_LINUX
-        // Ignore WM_SIZE events that fire before the plugin window opens.
-        // ShowWindow + ClientResize generate spurious resize events (including
-        // the dialog template size) that would recreate the FBO multiple times.
+        // Ignore WM_SIZE events that fire before the plugin window opens and the dialog is sized to it: they have
+        // the dialog template's size. e.g. a plug-in that changes the window's frame in OnUIOpen() (SWP_FRAMECHANGED)
+        // gets one, and on Linux ShowWindow + ClientResize generate them, which would recreate the FBO multiple times
         if (!sPlugWindowOpen)
           return 0;
-#endif
         if (pPlug->GetHostResizeEnabled())
         {
           RECT r;
