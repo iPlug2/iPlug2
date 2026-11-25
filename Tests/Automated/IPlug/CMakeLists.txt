@@ -16,6 +16,14 @@ file(GLOB IPLUG_TEST_SRC CONFIGURE_DEPENDS
 
 add_executable(IPlugTests ${IPLUG_TEST_SRC})
 
+# ISpectrumSender (ISender.h) needs WDL's FFT, which is not part of the IPlug core library
+target_sources(IPlugTests PRIVATE ${IPLUG2_DIR}/WDL/fft.c)
+
+# ... and on Apple platforms ISender.h uses vDSP
+if(APPLE)
+  target_link_libraries(IPlugTests PRIVATE "-framework Accelerate")
+endif()
+
 target_include_directories(IPlugTests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/Harness)
 target_compile_definitions(IPlugTests PRIVATE NO_IGRAPHICS IPLUG_AUTOMATED_TESTS)
 target_link_libraries(IPlugTests PRIVATE
