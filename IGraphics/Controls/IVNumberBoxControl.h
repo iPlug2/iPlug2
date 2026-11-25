@@ -43,6 +43,51 @@ public:
     assert(defaultValue >= minValue && defaultValue <= maxValue);
     
     AttachIControl(this, label);
+    mAccessibleRole = EAccessibleRole::Slider;
+  }
+
+  void GetAccessibleNodes(IAccessibleNodeList& nodes) override
+  {
+    if (mAccessibleRole == EAccessibleRole::None)
+      return;
+
+    nodes.emplace_back();
+    IAccessibleNode& node = nodes.back();
+    InitAccessibleNode(node, mAccessibleRole);
+    node.hasNumericValue = true;
+    node.min = mMinValue;
+    node.max = mMaxValue;
+    node.value = mRealValue;
+    node.step = mLargeIncrement;
+
+    if (mTextReadout)
+      node.valueText.Set(mTextReadout->GetStr());
+  }
+
+  bool OnAccessibleAction(EAccessibleAction action, int nodeIdx = 0, double value = 1.) override
+  {
+    if (IsDisabled())
+      return false;
+
+    const int nSteps = std::max(1, static_cast<int>(std::round(value)));
+
+    switch (action)
+    {
+      case EAccessibleAction::Increment: mRealValue += nSteps * mLargeIncrement; break;
+      case EAccessibleAction::Decrement: mRealValue -= nSteps * mLargeIncrement; break;
+      case EAccessibleAction::SetValue: mRealValue = value; break;
+      default: return false;
+    }
+
+    if (GetParam())
+      GetDelegate()->BeginInformHostOfParamChangeFromUI(GetParamIdx());
+
+    OnValueChanged();
+
+    if (GetParam())
+      GetDelegate()->EndInformHostOfParamChangeFromUI(GetParamIdx());
+
+    return true;
   }
    
   void OnInit() override
@@ -102,11 +147,14 @@ public:
     AddChildControl(mTextReadout = new IVLabelControl(sections.ReduceFromLeft(sections.W() * (mButtons ? 0.75f : 1.f)), "0", mStyle.WithDrawFrame(true)));
     
     mTextReadout->SetStrFmt(32, mFmtStr.Get(), mRealValue);
+    mTextReadout->SetAccessibleRole(EAccessibleRole::None); // the number box itself is exposed as a slider
 
     if (mButtons)
     {
       AddChildControl(mIncButton = new IVButtonControl(sections.FracRectVertical(0.5f, true).GetPadded(-2.f, 0.f, 0.f, -1.f), SplashClickActionFunc, "+", mStyle))->SetAnimationEndActionFunction(mIncrementFunc);
       AddChildControl(mDecButton = new IVButtonControl(sections.FracRectVertical(0.5f, false).GetPadded(-2.f, -1.f, 0.f, 0.f), SplashClickActionFunc, "-", mStyle))->SetAnimationEndActionFunction(mDecrementFunc);
+      mIncButton->SetAccessibleRole(EAccessibleRole::None);
+      mDecButton->SetAccessibleRole(EAccessibleRole::None);
     }
   }
   

@@ -77,6 +77,7 @@ class ITextEntryControl;
 class ICornerResizerControl;
 class IFPSDisplayControl;
 class IBubbleControl;
+class IGraphicsAccessibility;
 
 /**  The lowest level base class of an IGraphics context */
 class IGraphics
@@ -1228,6 +1229,40 @@ public:
   /** Get the KeyHandlerFunc if set */
   IKeyHandlerFunc GetKeyHandlerFunc() { return mKeyHandlerFunc; }
 
+  /** Enable/disable keyboard navigation. When enabled, the tab key moves the keyboard focus between controls, and the arrow, page up/down, home/end, space and return keys operate the control that has the focus.
+   * Keyboard navigation is enabled by default if IGRAPHICS_ACCESSKIT is defined, otherwise it is disabled by default.
+   * @param enable Set \c true to enable keyboard navigation */
+  void EnableKeyboardNavigation(bool enable = true);
+
+  /** @return \c true if keyboard navigation is enabled */
+  bool KeyboardNavigationEnabled() const { return mKeyboardNavEnabled; }
+
+  /** Give a control the keyboard focus
+   * @param pControl The control that should have the keyboard focus, or nullptr to clear the focus
+   * @param nodeIdx For controls that have multiple accessible nodes, the index of the node that should have the focus \see IControl::GetAccessibleNodes()
+   * @param showFocusRing Set \c true to draw a focus ring around the control */
+  void SetKeyboardFocus(IControl* pControl, int nodeIdx = 0, bool showFocusRing = true);
+
+  /** Get the control that has the keyboard focus
+   * @param pNodeIdx Optional pointer to an int, to receive the index of the accessible node that has the focus
+   * @return The control that has the keyboard focus, or nullptr */
+  IControl* GetKeyboardFocus(int* pNodeIdx = nullptr);
+
+  /** Make a control modal, e.g. a dialog or an overlay. While a control is modal, only it and its children (see IControl::GetParent()) can take the keyboard focus, receive key presses and be reached by assistive technology, which is told that the control is modal.
+   * If the keyboard focus is elsewhere it is cleared. Mouse input is not affected.
+   * The modal control is cleared automatically if it is removed. N.B. hiding the control does not clear it, so call SetModalControl(nullptr) when it is dismissed
+   * @param pControl The control that should be modal, or nullptr for no modal control */
+  void SetModalControl(IControl* pControl);
+
+  /** @return The modal control, or nullptr if there isn't one \see SetModalControl() */
+  IControl* GetModalControl();
+
+  /** @return \c true if there is no modal control, or if the control is the modal control or one of its children */
+  bool ControlIsInModalScope(IControl* pControl);
+
+  /** Set the color of the focus ring that is drawn around the control that has the keyboard focus */
+  void SetFocusRingColor(const IColor& color) { mFocusRingColor = color; SetAllControlsDirty(); }
+
   /** A helper to set the IGraphics KeyHandlerFunc in order to make an instrument playable via QWERTY keys
    * @param func A function to do something when a MIDI message is triggered */
   void SetQwertyMidiKeyHandlerFunc(std::function<void(const IMidiMsg& msg)> func = nullptr);
@@ -1877,6 +1912,16 @@ private:
   bool mResizingInProcess = false;
   bool mLayoutOnResize = false;
   bool mEnableMultiTouch = false;
+  IControl* mKeyboardFocus = nullptr; // N.B. use GetKeyboardFocus(), which checks that the control still exists
+  int mKeyboardFocusNodeIdx = 0;
+  IControl* mModalControl = nullptr; // N.B. use GetModalControl(), which checks that the control still exists
+  bool mFocusRingVisible = false;
+#ifdef IGRAPHICS_ACCESSKIT
+  bool mKeyboardNavEnabled = true;
+#else
+  bool mKeyboardNavEnabled = false;
+#endif
+  IColor mFocusRingColor = IColor(255, 0, 122, 255);
   // Native Linux host windows resize the layout unless a mode is explicitly
   // selected with AttachCornerResizer(), including for docked REAPER editors.
 #ifdef OS_LINUX
@@ -1890,7 +1935,20 @@ private:
   IUIAppearanceChangedFunc mAppearanceChangedFunc = nullptr;
   ILiveEditEventFunc mLiveEditEventFunc = nullptr;
   
+  /** Handle a key press for keyboard navigation @return \c true if the key press was handled */
+  bool OnKeyboardNavigation(const IKeyPress& key);
+
+  /** Move the keyboard focus to the next or previous focusable control @return \c true if the focus was moved */
+  bool MoveKeyboardFocus(bool forwards);
+
+  /** Draw the keyboard focus ring, if it intersects with the bounds */
+  void DrawFocusRing(const IRECT& bounds);
+
 protected:
+#ifdef IGRAPHICS_ACCESSKIT
+  /** Created by the platform class when the window is opened, if the platform is supported */
+  std::unique_ptr<IGraphicsAccessibility> mAccessibility;
+#endif
   IGEditorDelegate* mDelegate;
   bool mCursorHidden = false;
   bool mCursorLock = false;

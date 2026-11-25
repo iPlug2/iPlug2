@@ -222,6 +222,180 @@ void IControl::SetDirty(bool triggerAction, int valIdx)
   }
 }
 
+void IControl::InitAccessibleNode(IAccessibleNode& node, EAccessibleRole role, int valIdx)
+{
+  node.role = role;
+  node.bounds = mRECT;
+  node.disabled = mDisabled;
+  node.focusable = node.IsInteractive() && !mDisabled && !mIgnoreMouse;
+
+  const IParam* pParam = GetParam(valIdx);
+  const IVectorBase* pVectorBase = As<IVectorBase>();
+  bool tooltipIsLabel = false;
+
+  if (mAccessibleLabel.GetLength())
+    node.label.Set(mAccessibleLabel.Get());
+  else if (pVectorBase && CStringHasContents(pVectorBase->GetLabelStr()))
+    node.label.Set(pVectorBase->GetLabelStr());
+  else if (pParam)
+    node.label.Set(pParam->GetName());
+  else if (role == EAccessibleRole::Button && pVectorBase && CStringHasContents(pVectorBase->GetValueStr()))
+    node.label.Set(pVectorBase->GetValueStr());
+  else if (mTooltip.GetLength())
+  {
+    node.label.Set(mTooltip.Get());
+    tooltipIsLabel = true;
+  }
+
+  if (!tooltipIsLabel && mTooltip.GetLength() && strcmp(mTooltip.Get(), node.label.Get()))
+    node.description.Set(mTooltip.Get());
+
+  const double normalizedValue = GetValue(valIdx);
+
+  auto setValueText = [&]() {
+    if (pParam)
+    {
+      pParam->GetDisplay(normalizedValue, true, node.valueText);
+
+      if (CStringHasContents(pParam->GetLabel()))
+      {
+        node.valueText.Append(" ");
+        node.valueText.Append(pParam->GetLabel());
+      }
+    }
+  };
+
+  switch (role)
+  {
+    case EAccessibleRole::Slider:
+    {
+      node.hasNumericValue = true;
+
+      if (pParam)
+      {
+        node.min = pParam->GetMin();
+        node.max = pParam->GetMax();
+        node.value = pParam->FromNormalized(normalizedValue);
+        node.step = pParam->GetStepped() ? pParam->GetStep() : pParam->GetRange() / 100.;
+        setValueText();
+      }
+      else
+      {
+        node.value = normalizedValue;
+        node.valueText.SetFormatted(32, "%i%%", static_cast<int>(std::round(normalizedValue * 100.)));
+      }
+      break;
+    }
+    case EAccessibleRole::Toggle:
+      node.toggled = normalizedValue > 0.5 ? 1 : 0;
+      break;
+    case EAccessibleRole::ComboBox:
+      setValueText();
+      break;
+    default:
+      break;
+  }
+}
+
+void IControl::GetAccessibleNodes(IAccessibleNodeList& nodes)
+{
+  if (mAccessibleRole == EAccessibleRole::None)
+    return;
+
+  nodes.emplace_back();
+  InitAccessibleNode(nodes.back(), mAccessibleRole);
+}
+
+void IControl::StepValueFromUserInput(int valIdx, int nSteps)
+{
+  const IParam* pParam = GetParam(valIdx);
+  double value = GetValue(valIdx);
+
+  if (pParam && pParam->GetStepped())
+    value = pParam->ToNormalized(pParam->FromNormalized(value) + nSteps * pParam->GetStep());
+  else
+    value = Clip(value + nSteps * 0.01, 0., 1.);
+
+  const int paramIdx = GetParamIdx(valIdx);
+
+  if (paramIdx > kNoParameter)
+    GetDelegate()->BeginInformHostOfParamChangeFromUI(paramIdx);
+
+  SetValueFromUserInput(value, valIdx);
+
+  if (paramIdx > kNoParameter)
+    GetDelegate()->EndInformHostOfParamChangeFromUI(paramIdx);
+}
+
+void IControl::SetNonNormalizedValueFromUserInput(int valIdx, double value)
+{
+  const IParam* pParam = GetParam(valIdx);
+  const int paramIdx = GetParamIdx(valIdx);
+
+  if (paramIdx > kNoParameter)
+    GetDelegate()->BeginInformHostOfParamChangeFromUI(paramIdx);
+
+  SetValueFromUserInput(pParam ? pParam->ToNormalized(value) : Clip(value, 0., 1.), valIdx);
+
+  if (paramIdx > kNoParameter)
+    GetDelegate()->EndInformHostOfParamChangeFromUI(paramIdx);
+}
+
+bool IControl::OnAccessibleAction(EAccessibleAction action, int nodeIdx, double value)
+{
+  if (mDisabled)
+    return false;
+
+  // By default a control with multiple nodes has a parent node, followed by one node per value
+  const int valIdx = std::max(0, nodeIdx - 1);
+
+  if (valIdx >= NVals())
+    return false;
+
+  const int nSteps = std::max(1, static_cast<int>(std::round(value)));
+
+  switch (action)
+  {
+    case EAccessibleAction::Increment:
+      StepValueFromUserInput(valIdx, nSteps);
+      return true;
+    case EAccessibleAction::Decrement:
+      StepValueFromUserInput(valIdx, -nSteps);
+      return true;
+    case EAccessibleAction::SetValue:
+      SetNonNormalizedValueFromUserInput(valIdx, value);
+      return true;
+    case EAccessibleAction::Click:
+    {
+      if (mAccessibleRole == EAccessibleRole::Slider)
+        return false;
+
+      const float x = mRECT.MW();
+      const float y = mRECT.MH();
+      const int nVals = NVals();
+
+      for (int v = 0; v < nVals; v++)
+      {
+        if (GetParamIdx(v) > kNoParameter)
+          GetDelegate()->BeginInformHostOfParamChangeFromUI(GetParamIdx(v));
+      }
+
+      OnMouseDown(x, y, IMouseMod(true));
+      OnMouseUp(x, y, IMouseMod());
+
+      for (int v = 0; v < nVals; v++)
+      {
+        if (GetParamIdx(v) > kNoParameter)
+          GetDelegate()->EndInformHostOfParamChangeFromUI(GetParamIdx(v));
+      }
+
+      return true;
+    }
+    default:
+      return false;
+  }
+}
+
 void IControl::Animate()
 {
   if (GetAnimationFunction())
@@ -445,6 +619,20 @@ ITextControl::ITextControl(const IRECT& bounds, const char* str, const IText& te
 {
   mIgnoreMouse = true;
   mText = text;
+  mAccessibleRole = EAccessibleRole::Label;
+}
+
+void ITextControl::GetAccessibleNodes(IAccessibleNodeList& nodes)
+{
+  if (mAccessibleRole == EAccessibleRole::None || (!mStr.GetLength() && !mAccessibleLabel.GetLength()))
+    return;
+
+  nodes.emplace_back();
+  IAccessibleNode& node = nodes.back();
+  InitAccessibleNode(node, mAccessibleRole);
+
+  if (!mAccessibleLabel.GetLength())
+    node.label.Set(mStr.Get());
 }
 
 void ITextControl::OnInit()
@@ -715,6 +903,7 @@ IButtonControlBase::IButtonControlBase(const IRECT& bounds, IActionFunction aF)
 : IControl(bounds, kNoParameter, aF)
 {
   mDblAsSingleClick = true;
+  mAccessibleRole = EAccessibleRole::Button;
 }
 
 void IButtonControlBase::OnMouseDown(float x, float y, const IMouseMod& mod)
@@ -736,6 +925,7 @@ ISwitchControlBase::ISwitchControlBase(const IRECT& bounds, int paramIdx, IActio
   mDisabledState.Resize(numStates);
   SetAllStatesDisabled(false);
   mDblAsSingleClick = true;
+  mAccessibleRole = numStates == 2 ? EAccessibleRole::Toggle : EAccessibleRole::ComboBox;
 }
 
 void ISwitchControlBase::SetAllStatesDisabled(bool disabled)
@@ -768,6 +958,31 @@ void ISwitchControlBase::OnInit()
     mNumStates = (int) GetParam()->GetRange() + 1;
  
   assert(mNumStates > 1);
+
+  if (mAccessibleRole == EAccessibleRole::Toggle || mAccessibleRole == EAccessibleRole::ComboBox)
+    mAccessibleRole = mNumStates == 2 ? EAccessibleRole::Toggle : EAccessibleRole::ComboBox;
+}
+
+void ISwitchControlBase::GetAccessibleNodes(IAccessibleNodeList& nodes)
+{
+  IControl::GetAccessibleNodes(nodes);
+
+  // A switch that isn't linked to a parameter has no display text, so report the index of the state
+  if (nodes.size() == 1 && nodes[0].role == EAccessibleRole::ComboBox && !GetParam())
+    nodes[0].valueText.SetFormatted(32, "%i", GetSelectedIdx() + 1);
+}
+
+bool ISwitchControlBase::OnAccessibleAction(EAccessibleAction action, int nodeIdx, double value)
+{
+  if (nodeIdx == 0 && !mDisabled && (action == EAccessibleAction::Increment || action == EAccessibleAction::Decrement))
+  {
+    const int nSteps = std::max(1, static_cast<int>(std::round(value)));
+    const int idx = Clip(GetSelectedIdx() + (action == EAccessibleAction::Increment ? nSteps : -nSteps), 0, mNumStates - 1);
+    SetNonNormalizedValueFromUserInput(0, GetParam() ? GetParam()->GetMin() + idx : idx / static_cast<double>(mNumStates - 1));
+    return true;
+  }
+
+  return IControl::OnAccessibleAction(action, nodeIdx, value);
 }
 
 void ISwitchControlBase::OnMouseDown(float x, float y, const IMouseMod& mod)
@@ -886,6 +1101,7 @@ ISliderControlBase::ISliderControlBase(const IRECT& bounds, int paramIdx, EDirec
 , mHandleSize(handleSize)
 , mGearing(gearing)
 {
+  mAccessibleRole = EAccessibleRole::Slider;
 }
 
  ISliderControlBase::ISliderControlBase(const IRECT& bounds, IActionFunction aF, EDirection dir, double gearing, float handleSize)
@@ -894,6 +1110,7 @@ ISliderControlBase::ISliderControlBase(const IRECT& bounds, int paramIdx, EDirec
 , mHandleSize(handleSize)
 , mGearing(gearing)
 {
+  mAccessibleRole = EAccessibleRole::Slider;
 }
 
 void ISliderControlBase::OnResize()
