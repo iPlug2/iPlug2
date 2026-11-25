@@ -99,6 +99,8 @@ public:
   void OnDisplayTimer();
   /** Called by CLAP host posix-fd callback to drain pending X11 events. */
   void ProcessX11Events();
+  bool SetX11FloatingVisible(bool visible);
+  void SetX11FloatingHints(const char* title, Window transientParent);
   /** A native close is completed by the owner after X11 dispatch returns. */
   bool WindowCloseRequested() const { return mCloseRequested; }
   void RequestWindowClose() { mCloseRequested = true; }

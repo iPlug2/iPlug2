@@ -177,6 +177,10 @@ private:
 
   // clap_plugin_gui_cocoa/win32
   bool guiIsApiSupported(const char* api, bool isFloating) noexcept override;
+#if defined OS_LINUX && !defined NO_IGRAPHICS
+  bool guiSetTransient(const clap_window* pWindow) noexcept override;
+  void guiSuggestTitle(const char* title) noexcept override;
+#endif
   bool guiSetParent(const clap_window* pWindow) noexcept override;
   
   // Helper to attach GUI Windows
@@ -238,6 +242,14 @@ private:
   
   void* mWindow = nullptr;
   bool mGUIOpen = false;
+#if defined OS_LINUX && !defined NO_IGRAPHICS
+  bool mX11Floating = false;
+  bool mX11FloatingHidden = false;
+  bool mX11FloatingClosed = false;
+  uintptr_t mX11TransientParent = 0;
+  WDL_String mX11Title;
+  void ApplyX11FloatingHints() noexcept;
+#endif
 };
 
 IPlugCLAP* MakePlug(const InstanceInfo& info);

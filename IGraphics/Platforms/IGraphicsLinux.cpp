@@ -1045,6 +1045,36 @@ void* IGraphicsLinux::OpenWindow(void* pParent)
   return (void*)(uintptr_t)mPlugWnd;
 }
 
+bool IGraphicsLinux::SetX11FloatingVisible(bool visible)
+{
+  if (!mDisplay || !mPlugWnd || mCloseRequested || mParentWnd != DefaultRootWindow(mDisplay))
+    return false;
+
+  if (visible)
+  {
+    XMapWindow(mDisplay, mPlugWnd);
+    mNeedsRedraw = true;
+  }
+  else
+  {
+    HideTooltip();
+    XUnmapWindow(mDisplay, mPlugWnd);
+  }
+  XFlush(mDisplay);
+  return true;
+}
+
+void IGraphicsLinux::SetX11FloatingHints(const char* title, Window transientParent)
+{
+  if (!mDisplay || !mPlugWnd || mParentWnd != DefaultRootWindow(mDisplay))
+    return;
+
+  XStoreName(mDisplay, mPlugWnd, title);
+  if (transientParent)
+    XSetTransientForHint(mDisplay, mPlugWnd, transientParent);
+  XFlush(mDisplay);
+}
+
 void IGraphicsLinux::CloseWindow()
 {
   if (IsInPlatformCallback())
