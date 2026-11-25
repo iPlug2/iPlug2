@@ -136,7 +136,10 @@ static void TestReparentAndClose()
   Check(editor.mDelegate.mNotifications == 0, "The old parent still reports resizes");
   [pParent setFrameSize:NSMakeSize(800, 600)];
   Check(editor.mDelegate.mNotifications == 1, "The new parent did not report its resize");
+  [editor.mView retain]; // AU hosts can keep their view after the editor closes.
   editor.mDelegate.CloseWindow();
+  [editor.mView setFrameSize:NSMakeSize(950, 750)];
+  [editor.mView release];
   [pParent setFrameSize:NSMakeSize(900, 700)];
   Check(editor.mDelegate.mNotifications == 1, "Closed editor still receives resize callbacks");
   [pParent removeFromSuperview];
