@@ -132,6 +132,11 @@ using namespace igraphics;
   IRECTList mDirtyRects;
   IColorPickerHandlerFunc mColorPickerFunc;
 
+#if defined AU_API
+  NSSize mHostParentSize;
+  bool mNotifyingHostResize;
+#endif
+
 #if defined IGRAPHICS_GLES2 || defined IGRAPHICS_GLES3
   EGLDisplay mEGLDisplay;
   EGLSurface mEGLSurface;
@@ -145,6 +150,10 @@ using namespace igraphics;
 - (BOOL) isOpaque;
 - (BOOL) acceptsFirstResponder;
 - (BOOL) acceptsFirstMouse: (NSEvent*) pEvent;
+#if defined AU_API
+- (void) viewWillMoveToSuperview: (NSView*) pNewSuperview;
+- (void) hostFrameDidChange: (NSNotification*) pNotification;
+#endif
 - (void) viewDidMoveToWindow;
 - (void) viewDidChangeBackingProperties: (NSNotification*) pNotification;
 - (void) drawRect: (NSRect) bounds;
