@@ -993,6 +993,10 @@ void* IGraphicsLinux::OpenWindow(void* pParent)
     hints.min_height = WindowHeight();
     XSetWMNormalHints(mDisplay, mPlugWnd, &hints);
   }
+#if !defined APP_API
+  else
+    ObserveHostParent(mParentWnd, false);
+#endif
 
   XMapWindow(mDisplay, mPlugWnd);
   XFlush(mDisplay);
@@ -1104,6 +1108,8 @@ void IGraphicsLinux::CloseWindow()
 
   XCloseDisplay(mDisplay);
   mDisplay = nullptr;
+  mResizeParentWnd = 0;
+  mHostParentWidth = mHostParentHeight = 0;
 }
 
 void IGraphicsLinux::ResetDrag()
@@ -2438,6 +2444,67 @@ void IGraphicsLinux::ProcessX11Events()
   DispatchX11Events();
 }
 
+void IGraphicsLinux::ObserveHostParent(Window parent, bool notify)
+{
+  if (parent == mResizeParentWnd)
+    return;
+
+  auto* pConnection = XGetXCBConnection(mDisplay);
+  if (!pConnection)
+    return;
+
+  // This display belongs to the editor. Its only selection on a host window
+  // is our StructureNotify subscription. Checked requests also handle a host
+  // destroying the old container before we process the reparent event.
+  const auto select = [pConnection](Window window, uint32_t mask) {
+    auto* pError = xcb_request_check(pConnection, xcb_change_window_attributes_checked(
+      pConnection, static_cast<xcb_window_t>(window), XCB_CW_EVENT_MASK, &mask));
+    const bool ok = !pError;
+    free(pError);
+    return ok;
+  };
+  if (mResizeParentWnd)
+    select(mResizeParentWnd, XCB_EVENT_MASK_NO_EVENT);
+  mResizeParentWnd = 0;
+  mHostParentWidth = mHostParentHeight = 0;
+
+  if (!parent || parent == DefaultRootWindow(mDisplay) || !GetDelegate()->GetHostResizeEnabled() ||
+      !select(parent, XCB_EVENT_MASK_STRUCTURE_NOTIFY))
+    return;
+
+  mResizeParentWnd = parent;
+  xcb_generic_error_t* pError = nullptr;
+  auto* pGeometry = xcb_get_geometry_reply(pConnection,
+    xcb_get_geometry(pConnection, static_cast<xcb_drawable_t>(parent)), &pError);
+  if (pGeometry && !pError)
+  {
+    if (notify)
+      NotifyHostParentResize(pGeometry->width, pGeometry->height);
+    else
+    {
+      mHostParentWidth = pGeometry->width;
+      mHostParentHeight = pGeometry->height;
+    }
+  }
+  free(pGeometry);
+  free(pError);
+}
+
+void IGraphicsLinux::NotifyHostParentResize(int width, int height)
+{
+  if (width == mHostParentWidth && height == mHostParentHeight)
+    return;
+
+  mHostParentWidth = width;
+  mHostParentHeight = height;
+  // UI requests update IGraphics before the host acknowledges them. Skip that
+  // echo without dropping a size change on just one axis.
+  if (width > 0 && height > 0 && GetDelegate()->GetHostResizeEnabled() &&
+      (width != static_cast<int>(WindowWidth() * GetScreenScale()) ||
+       height != static_cast<int>(WindowHeight() * GetScreenScale())))
+    GetDelegate()->OnParentWindowResize(width, height);
+}
+
 void IGraphicsLinux::DispatchX11Events()
 {
   if (!mDisplay || !mPlugWnd || mCloseRequested)
@@ -2468,6 +2535,11 @@ void IGraphicsLinux::DispatchX11Events()
 
     case ConfigureNotify: {
       XConfigureEvent& ce = ev.xconfigure;
+      if (ce.window == mResizeParentWnd)
+      {
+        NotifyHostParentResize(ce.width, ce.height);
+        break;
+      }
       if (ce.window != mPlugWnd)
         break;
 
@@ -2508,6 +2580,13 @@ void IGraphicsLinux::DispatchX11Events()
         PlatformResize(false);
       break;
     }
+
+#if !defined APP_API
+    case ReparentNotify:
+      if (ev.xreparent.window == mPlugWnd)
+        ObserveHostParent(ev.xreparent.parent, true);
+      break;
+#endif
 
     case ButtonPress:
     case ButtonRelease: {
