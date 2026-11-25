@@ -100,6 +100,11 @@ private:
     int mNHostChannels;
     int mNPlugChannels;
     int mPlugChannelStartIdx;
+    AudioChannelLayoutTag mLayoutTag; // 0 = not set by host, derive from channel count
+    int mNRenderBuffers; // output buffer count channel connections were last set up for (render thread only)
+
+    /** @return The channel count negotiated by the host, or the plug-in's channel count if the host hasn't set one yet */
+    int NChannels() const { return mNHostChannels >= 0 ? mNHostChannels : mNPlugChannels; }
   };
   
   struct BufferList
@@ -135,12 +140,14 @@ private:
   void AssessInputConnections();
 
   UInt32 GetTagForNumChannels(int numChannels);
+  int GetChannelLayoutTagList(AudioUnitScope scope, AudioUnitElement element, WDL_TypedBuf<AudioChannelLayoutTag>& tags);
+  OSStatus GetCurrentChannelLayoutTag(AudioUnitScope scope, AudioUnitElement element, AudioChannelLayoutTag& tag);
   UInt32 GetChannelLayoutTags(AudioUnitScope scope, AudioUnitElement element, AudioChannelLayoutTag* pTags);
   
 #pragma mark - Component Manager Methods
   OSStatus GetPropertyInfo(AudioUnitPropertyID propID, AudioUnitScope scope, AudioUnitElement element, UInt32* pDataSize, Boolean* pWriteable);
   OSStatus GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, AudioUnitElement element, UInt32* pDataSize, Boolean* pWriteable, void* pData);
-  OSStatus SetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, AudioUnitElement element, UInt32* pDataSize, const void* pData);
+  OSStatus SetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, AudioUnitElement element, UInt32 dataSize, const void* pData);
   
   OSStatus GetProc(AudioUnitElement element, UInt32* pDataSize, void* pData);
   virtual OSStatus GetState(CFPropertyListRef* ppPropList);
@@ -157,7 +164,7 @@ private:
   static OSStatus AUMethodUninitialize(void* pSelf);
   static OSStatus AUMethodGetPropertyInfo(void* pSelf, AudioUnitPropertyID prop, AudioUnitScope scope, AudioUnitElement elem, UInt32* pOutDataSize, Boolean* pOutWritable);
   static OSStatus AUMethodGetProperty(void* pSelf, AudioUnitPropertyID inID, AudioUnitScope inScope, AudioUnitElement inElement, void* pOutData, UInt32* pIODataSize);
-  static OSStatus AUMethodSetProperty(void* pSelf, AudioUnitPropertyID inID, AudioUnitScope inScope, AudioUnitElement inElement, const void* pInData, UInt32* pInDataSize);
+  static OSStatus AUMethodSetProperty(void* pSelf, AudioUnitPropertyID inID, AudioUnitScope inScope, AudioUnitElement inElement, const void* pInData, UInt32 inDataSize);
   static OSStatus AUMethodAddPropertyListener(void* pSelf, AudioUnitPropertyID prop, AudioUnitPropertyListenerProc proc, void* pUserData);
   static OSStatus AUMethodRemovePropertyListener(void* pSelf, AudioUnitPropertyID prop, AudioUnitPropertyListenerProc proc);
   static OSStatus AUMethodRemovePropertyListenerWithUserData(void* pSelf, AudioUnitPropertyID prop, AudioUnitPropertyListenerProc proc, void* pUserData);
@@ -176,7 +183,7 @@ private:
   static OSStatus DoUninitialize(IPlugAU* pPlug);
   static OSStatus DoGetPropertyInfo(IPlugAU* pPlug, AudioUnitPropertyID prop, AudioUnitScope scope, AudioUnitElement elem, UInt32 *pOutDataSize, Boolean* pOutWritable);
   static OSStatus DoGetProperty(IPlugAU* pPlug, AudioUnitPropertyID inID, AudioUnitScope inScope, AudioUnitElement inElement, void *pOutData, UInt32* pIODataSize);
-  static OSStatus DoSetProperty(IPlugAU* pPlug, AudioUnitPropertyID inID, AudioUnitScope inScope, AudioUnitElement inElement, const void* pInData, UInt32* pInDataSize);
+  static OSStatus DoSetProperty(IPlugAU* pPlug, AudioUnitPropertyID inID, AudioUnitScope inScope, AudioUnitElement inElement, const void* pInData, UInt32 inDataSize);
   static OSStatus DoAddPropertyListener(IPlugAU* pPlug, AudioUnitPropertyID prop, AudioUnitPropertyListenerProc proc, void* pUserData);
   static OSStatus DoRemovePropertyListener(IPlugAU* pPlug, AudioUnitPropertyID prop, AudioUnitPropertyListenerProc proc);
   static OSStatus DoRemovePropertyListenerWithUserData(IPlugAU* pPlug, AudioUnitPropertyID prop, AudioUnitPropertyListenerProc proc, void* pUserData);

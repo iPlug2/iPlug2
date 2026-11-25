@@ -248,9 +248,9 @@ OSStatus IPlugAU::IPlugAUEntry(ComponentParameters *params, void* pPlug)
       AudioUnitScope scope = GET_COMP_PARAM(AudioUnitScope, 3, 5);
       AudioUnitElement element = GET_COMP_PARAM(AudioUnitElement, 2, 5);
       const void* pData = GET_COMP_PARAM(const void*, 1, 5);
-      UInt32* pDataSize = GET_COMP_PARAM(UInt32*, 0, 5);
+      UInt32 dataSize = GET_COMP_PARAM(UInt32, 0, 5);
       
-      return _this->DoSetProperty(_this, propID, scope, element, pData, pDataSize);
+      return _this->DoSetProperty(_this, propID, scope, element, pData, dataSize);
     }
     case kAudioUnitAddPropertyListenerSelect:
     {
@@ -389,6 +389,42 @@ OSStatus IPlugAU::IPlugAUEntry(ComponentParameters *params, void* pPlug)
   }
 }
 #endif //AU_NO_COMPONENT_ENTRY
+
+int IPlugAU::GetChannelLayoutTagList(AudioUnitScope scope, AudioUnitElement element, WDL_TypedBuf<AudioChannelLayoutTag>& tags)
+{
+  const int nTags = GetBus(scope, element) ? static_cast<int>(GetChannelLayoutTags(scope, element, nullptr)) : 0;
+  tags.Resize(nTags);
+  if (nTags)
+    GetChannelLayoutTags(scope, element, tags.Get());
+  return nTags;
+}
+
+OSStatus IPlugAU::GetCurrentChannelLayoutTag(AudioUnitScope scope, AudioUnitElement element, AudioChannelLayoutTag& tag)
+{
+  WDL_TypedBuf<AudioChannelLayoutTag> tags;
+  if (!GetChannelLayoutTagList(scope, element, tags))
+    return kAudioUnitErr_InvalidProperty;
+
+  BusChannels* pBus = GetBus(scope, element);
+  const int nChans = pBus->NChannels();
+
+  if (pBus->mLayoutTag && AudioChannelLayoutTag_GetNumberOfChannels(pBus->mLayoutTag) == nChans)
+  {
+    tag = pBus->mLayoutTag;
+    return noErr;
+  }
+
+  for (int i = 0; i < tags.GetSize(); i++)
+  {
+    if (AudioChannelLayoutTag_GetNumberOfChannels(tags.Get()[i]) == nChans)
+    {
+      tag = tags.Get()[i];
+      return noErr;
+    }
+  }
+
+  return kAudioUnitErr_InvalidPropertyValue; // as AUBase: layouts are published, but none matches the current format
+}
 
 #pragma mark - GetChannelLayoutTags
 
@@ -664,11 +700,7 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
       *pWriteable = true;
       if (pData)
       {
-        int nChannels = pBus->mNHostChannels;  // Report how many channels the host has connected.
-        if (nChannels < 0)    // Unless the host hasn't connected any yet, in which case report the default.
-        {
-          nChannels = pBus->mNPlugChannels;
-        }
+        const int nChannels = pBus->NChannels(); // channels the host has connected, or the default if it hasn't yet
         STREAM_DESC* pASBD = (STREAM_DESC*) pData;
         MakeDefaultASBD(pASBD, GetSampleRate(), nChannels, false);
       }
@@ -777,9 +809,21 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
     {
       return kAudioUnitErr_InvalidProperty;
     }
-    case kAudioUnitProperty_AudioChannelLayout:
+    case kAudioUnitProperty_AudioChannelLayout:          // 19,
     {
-      return kAudioUnitErr_InvalidPropertyValue;
+      AudioChannelLayoutTag tag = 0;
+      const OSStatus err = GetCurrentChannelLayoutTag(scope, element, tag);
+      if (err != noErr)
+        return err;
+      *pDataSize = offsetof(AudioChannelLayout, mChannelDescriptions);
+      *pWriteable = true;
+      if (pData)
+      {
+        AudioChannelLayout* pLayout = (AudioChannelLayout*) pData;
+        memset(pLayout, 0, *pDataSize);
+        pLayout->mChannelLayoutTag = tag;
+      }
+      return noErr;
     }
     case kAudioUnitProperty_TailTime:                    // 20,   // listenable
     {
@@ -1110,7 +1154,7 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
 }
 
 OSStatus IPlugAU::SetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, AudioUnitElement element,
-                                     UInt32* pDataSize, const void* pData)
+                                     UInt32 dataSize, const void* pData)
 {
   Trace(TRACELOC, "(%d:%s):(%d:%s):%d", propID, AUPropertyStr(propID), scope, AUScopeStr(scope), element);
 
@@ -1142,7 +1186,7 @@ OSStatus IPlugAU::SetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
                                 kAudioUnitScope_Output, pAUC->sourceOutputNumber, &srcASBD, &size) == noErr);
         negotiatedOK &= // Try to set our own format to match.
           (SetProperty(kAudioUnitProperty_StreamFormat, kAudioUnitScope_Input,
-                       pAUC->destInputNumber, &size, &srcASBD) == noErr);
+                       pAUC->destInputNumber, size, &srcASBD) == noErr);
         if (negotiatedOK)     // Connection terms successfully negotiated.
         {
           pInBusConn->mUpstreamUnit = pAUC->sourceAudioUnit;
@@ -1216,6 +1260,7 @@ OSStatus IPlugAU::SetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
       {
         pBus->mNHostChannels = prevNHostChannels;
       }
+      pBus->mLayoutTag = 0; // channel count may have changed, layout reverts to the default for the new count
       AssessInputConnections();
       return (connectionOK ? noErr : (int) kAudioUnitErr_InvalidProperty); // casting to int avoids gcc error
     }
@@ -1232,7 +1277,23 @@ OSStatus IPlugAU::SetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
     NO_OP(kAudioUnitProperty_SetExternalBuffer);         // 15,
     NO_OP(kAudioUnitProperty_ParameterValueStrings);     // 16,
     NO_OP(kAudioUnitProperty_GetUIComponentList);        // 18,
-    NO_OP(kAudioUnitProperty_AudioChannelLayout);        // 19, //TODO?: Set kAudioUnitProperty_AudioChannelLayout
+    case kAudioUnitProperty_AudioChannelLayout:          // 19,
+    {
+      // As AUBase: the layout must be one we publish and must match the bus's current stream format channel count
+      WDL_TypedBuf<AudioChannelLayoutTag> tags;
+      if (!GetChannelLayoutTagList(scope, element, tags))
+        return kAudioUnitErr_InvalidProperty;
+      if (!pData || dataSize < offsetof(AudioChannelLayout, mChannelDescriptions))
+        return kAudioUnitErr_InvalidPropertyValue;
+
+      BusChannels* pBus = GetBus(scope, element);
+      const AudioChannelLayoutTag tag = ((const AudioChannelLayout*) pData)->mChannelLayoutTag;
+      if (AudioChannelLayoutTag_GetNumberOfChannels(tag) != pBus->NChannels() || tags.Find(tag) < 0)
+        return kAudioUnitErr_InvalidPropertyValue;
+
+      pBus->mLayoutTag = tag;
+      return noErr;
+    }
     NO_OP(kAudioUnitProperty_TailTime);                  // 20,
     case kAudioUnitProperty_BypassEffect:                // 21,
     {
@@ -1728,16 +1789,17 @@ OSStatus IPlugAU::RenderProc(void* pPlug, AudioUnitRenderActionFlags* pFlags, co
   
     BusChannels* pOutBus = _this->mOutBuses.Get(outputBusIdx);
 
-    // if this bus is not connected OR the number of buffers that the host has given are not equal to the number the bus expects
-    if (!(pOutBus->mConnected) || pOutBus->mNHostChannels != pOutBufList->mNumberBuffers)
+    // if this bus is not connected OR the host has given a different number of buffers than last time
+    if (!(pOutBus->mConnected) || pOutBus->mNRenderBuffers != static_cast<int>(pOutBufList->mNumberBuffers))
     {
       const int startChannelIdx = pOutBus->mPlugChannelStartIdx;
-      const int nConnected = std::max(pOutBus->mNHostChannels, static_cast<int>(pOutBufList->mNumberBuffers));
+      const int nConnected = static_cast<int>(pOutBufList->mNumberBuffers); // only channels that have a buffer are connected
       const int nUnconnected = std::max(pOutBus->mNPlugChannels - nConnected, 0);
       
       assert(nConnected > -1);
       _this->SetChannelConnections(ERoute::kOutput, startChannelIdx, nConnected, true);
       _this->SetChannelConnections(ERoute::kOutput, startChannelIdx + nConnected, nUnconnected, false); // This will disconnect the right hand channel on a single stereo bus
+      pOutBus->mNRenderBuffers = nConnected;
       pOutBus->mConnected = true;
     }
 
@@ -1837,6 +1899,7 @@ void IPlugAU::ClearConnections()
     BusChannels* pInBus = mInBuses.Get(i);
     pInBus->mConnected = false;
     pInBus->mNHostChannels = -1;
+    pInBus->mLayoutTag = 0;
     InputBusConnection* pInBusConn = mInBusConnections.Get(i);
     memset(pInBusConn, 0, sizeof(InputBusConnection));
   }
@@ -1846,6 +1909,7 @@ void IPlugAU::ClearConnections()
     BusChannels* pOutBus = mOutBuses.Get(i);
     pOutBus->mConnected = false;
     pOutBus->mNHostChannels = -1;
+    pOutBus->mLayoutTag = 0;
   }
 }
 
@@ -2187,7 +2251,7 @@ OSStatus IPlugAU::AUMethodGetProperty(void* pSelf, AudioUnitPropertyID inID, Aud
 }
 
 //static
-OSStatus IPlugAU::AUMethodSetProperty(void* pSelf, AudioUnitPropertyID inID, AudioUnitScope inScope, AudioUnitElement inElement, const void* inData, UInt32* inDataSize)
+OSStatus IPlugAU::AUMethodSetProperty(void* pSelf, AudioUnitPropertyID inID, AudioUnitScope inScope, AudioUnitElement inElement, const void* inData, UInt32 inDataSize)
 {
   return DoSetProperty(GetPlug(pSelf), inID, inScope, inElement, inData, inDataSize);
 }
@@ -2342,7 +2406,7 @@ OSStatus IPlugAU::DoGetProperty(IPlugAU* _this, AudioUnitPropertyID inID, AudioU
 }
 
 //static
-OSStatus IPlugAU::DoSetProperty(IPlugAU* _this, AudioUnitPropertyID inID, AudioUnitScope inScope, AudioUnitElement inElement, const void* inData, UInt32* inDataSize)
+OSStatus IPlugAU::DoSetProperty(IPlugAU* _this, AudioUnitPropertyID inID, AudioUnitScope inScope, AudioUnitElement inElement, const void* inData, UInt32 inDataSize)
 {
   return _this->SetProperty(inID, inScope, inElement, inDataSize, inData);
 }
