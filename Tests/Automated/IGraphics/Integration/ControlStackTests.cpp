@@ -858,11 +858,8 @@ TEST_CASE("IContainerBase: nested containers", "[integration][controlstack][cont
   REQUIRE(pLeaf->Count("down") == 1);
 }
 
-// BUG: IContainerBase::~IContainerBase() (IGraphics/IControl.h:702) forgets its children without removing them from
-// the IGraphics or clearing their parent pointer. After IGraphics::RemoveControl(pContainer) the children are still in
-// the control stack with a dangling mParent, which IGraphics::IsDirty() and IGraphics::DrawControl() dereference on the
-// next frame (heap use-after-free).
-TEST_CASE("IContainerBase: removing a container does not leave children pointing at it", "[.][bug]")
+// The children are removed with their container, so nothing is left with a parent pointer to a deleted control
+TEST_CASE("IContainerBase: removing a container does not leave children pointing at it", "[integration][controlstack][container][remove]")
 {
   ContainerFixture f;
   ProbeControl* pChild = f.mChild1;

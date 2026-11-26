@@ -200,6 +200,19 @@ void IGraphics::RemoveControl(int idx)
 
 void IGraphics::RemoveControl(IControl* pControl)
 {
+  for (int c = 0; c < NControls();)
+  {
+    IControl* pChild = GetControl(c);
+
+    if (pChild->GetParent() == pControl)
+    {
+      pChild->GetParent()->RemoveChildControl(pChild);
+      c = 0;
+    }
+    else
+      c++;
+  }
+
   if(ControlIsCaptured(pControl))
     ReleaseMouseCapture();
   
