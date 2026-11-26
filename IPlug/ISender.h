@@ -559,6 +559,7 @@ public:
   {
     mWindowType = windowType;
     CalculateWindow();
+    CalculateScalingFactors();
   }
   
   void SetOutputType(EOutputType outputType)
@@ -683,14 +684,11 @@ private:
 
   void CalculateScalingFactors()
   {
-    const float M = static_cast<float>(mFFTSize - 1);
-
     auto scaling = 0.0f;
 
     for (auto i = 0; i < mFFTSize; i++)
     {
-      auto v = 0.5f * (1.0f - std::cos(2.0f * PI * i / M));
-      scaling += v;
+      scaling += mWindow[i];
     }
 
     mScalingFactor = scaling * scaling;

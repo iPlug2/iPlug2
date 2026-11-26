@@ -1483,11 +1483,8 @@ TEST_CASE("ISpectrumSender: magnitude spectrum of a sinusoid", "[unit][sender][s
   }
 }
 
-// BUG (suspected): ISender.h:684-697. CalculateScalingFactors() always normalises by the sum of a Hann
-// window, whatever window type is selected (and it is not called from SetWindowType()). Magnitudes are
-// therefore only calibrated for the Hann window: the same sinusoid reads about 6 dB higher with a
-// rectangular window and several dB out with the others.
-TEST_CASE("ISpectrumSender: magnitudes are calibrated for every window type", "[.][bug]")
+// A full scale sinusoid at a bin centre reads its RMS level whichever window is used
+TEST_CASE("ISpectrumSender: magnitudes are calibrated for every window type", "[unit][sender][spectrum]")
 {
   using EWindowType = TSpectrumSender::EWindowType;
   auto type = GENERATE(EWindowType::Hann, EWindowType::BlackmanHarris, EWindowType::Hamming, EWindowType::Flattop, EWindowType::Rectangular);
