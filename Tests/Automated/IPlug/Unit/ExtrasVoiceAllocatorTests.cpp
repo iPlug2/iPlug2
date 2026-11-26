@@ -1138,3 +1138,43 @@ TEST_CASE("VoiceAllocator: poly mode note on only uses voices in the note's zone
   REQUIRE(zone0.mTriggers == 0);
   REQUIRE(zone1.Key() == 62);
 }
+
+TEST_CASE("VoiceAllocator: poly mode note on for all zones uses the voices of every zone", "[unit][extras][synth][voiceallocator]")
+{
+  Rig rig(0);
+  auto& zone0 = rig.AddVoice(0);
+  auto& zone1 = rig.AddVoice(1);
+
+  rig.NoteOn(60, 1.f, 0, 0, kAllZones);
+  rig.NoteOn(62, 1.f, 0, 0, kAllZones);
+  REQUIRE(zone0.GetBusy());
+  REQUIRE(zone1.GetBusy());
+  REQUIRE(zone0.Key() == 60);
+  REQUIRE(zone1.Key() == 62);
+
+  // and steals the oldest voice, whichever zone it is in
+  rig.NoteOn(64, 1.f, 0, 0, kAllZones);
+  REQUIRE(zone0.Key() == 64);
+  REQUIRE(zone1.Key() == 62);
+}
+
+TEST_CASE("VoiceAllocator: poly mode note on for a zone with no voices plays nothing", "[unit][extras][synth][voiceallocator]")
+{
+  Rig rig(3);
+
+  rig.NoteOn(60);
+  rig.NoteOff(60);
+  REQUIRE(rig.Voice(0).mTriggers == 1);
+
+  rig.NoteOn(61, 1.f, 0, 0, 1);
+  REQUIRE(rig.NumBusy() == 0);
+
+  for (int v = 0; v < 3; v++)
+    REQUIRE(rig.Voice(v).mTriggers == (v == 0 ? 1 : 0));
+
+  // and it leaves the voice rotation where it was: the next note goes to the second voice, not back to the first
+  rig.NoteOn(62);
+  REQUIRE(rig.Voice(0).mTriggers == 1);
+  REQUIRE(rig.Voice(1).GetBusy());
+  REQUIRE(rig.Voice(1).Key() == 62);
+}

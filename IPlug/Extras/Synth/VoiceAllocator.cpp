@@ -431,7 +431,8 @@ void VoiceAllocator::NoteOn(VoiceInputEvent e, int64_t sampleTime)
       {
         i = FindVoiceIndexToSteal(sampleTime, e.mAddress.mZone);
       }
-      if(mRotateVoices)
+      // i is -1 if the note's zone has no voices: nothing plays, and the rotation carries on from where it was
+      if(mRotateVoices && i >= 0)
       {
         mVoiceRotateIndex = i + 1;
       }

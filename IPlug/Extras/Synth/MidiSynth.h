@@ -134,7 +134,8 @@ public:
     return mVoiceAllocator.GetNVoices();
   }
 
-  /** adds a SynthVoice to this MidiSynth, taking ownership of the object. */
+  /** adds a SynthVoice to this MidiSynth, taking ownership of the object.
+   * A note is only played by the voices in its zone, so with MPE a note in the upper zone needs voices added to zone 1 (the lower zone, and non-MPE notes, use zone 0). */
   void AddVoice(SynthVoice* pVoice, uint8_t zone)
   {
     mVoiceAllocator.AddVoice(pVoice, zone);
