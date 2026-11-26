@@ -118,6 +118,7 @@ public:
       blockSize = 1;
     }
     
+    const int numDownBufSamples = numBufSamples * mNOutChannels;
     numBufSamples *= mNInChannels;
     
     mUp2x.Resize(2 * numBufSamples);
@@ -125,10 +126,10 @@ public:
     mUp8x.Resize(8 * numBufSamples);
     mUp16x.Resize(16 * numBufSamples);
     
-    mDown2x.Resize(2 * numBufSamples);
-    mDown4x.Resize(4 * numBufSamples);
-    mDown8x.Resize(8 * numBufSamples);
-    mDown16x.Resize(16 * numBufSamples);
+    mDown2x.Resize(2 * numDownBufSamples);
+    mDown4x.Resize(4 * numDownBufSamples);
+    mDown8x.Resize(8 * numDownBufSamples);
+    mDown16x.Resize(16 * numDownBufSamples);
     
     mUp16BufferPtrs.Empty();
     mUp8BufferPtrs.Empty();
@@ -226,6 +227,8 @@ public:
       for (auto i = 0; i < mRate; i++) {
         for (auto c = 0; c < nInChans; c++) {
           mNextInputPtrs.Set(c, mInPtrLoopSrc->Get(c) + (i * nFrames));
+        }
+        for (auto c = 0; c < nOutChans; c++) {
           mNextOutputPtrs.Set(c, mOutPtrLoopSrc->Get(c) + (i * nFrames));
         }
         func(mNextInputPtrs.GetList(), mNextOutputPtrs.GetList(), nFrames);

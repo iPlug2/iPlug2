@@ -571,16 +571,8 @@ TEST_CASE("OverSampler: single precision", "[unit][extras][oversampler]")
   REQUIRE(fit.maxResidual < 2e-3);
 }
 
-// BUG: IPlug/Extras/Oversampler.h does not work when there are more output channels than input
-// channels, e.g. a mono-in/stereo-out effect or an instrument (constructor arguments nInChannels = 1,
-// nOutChannels = 2), although it takes the two counts separately:
-//  - Reset() (lines 128-131) sizes the mDown* buffers with mNInChannels rather than mNOutChannels,
-//    so the per-channel pointers for the extra output channels point past the end of the buffer
-//    (heap buffer overflow when the process function writes to them and the downsamplers read them)
-//  - ProcessBlock() (lines 226-229) only sets mNextOutputPtrs for c < nInChans, so the process
-//    function is handed stale (initially null) pointers for the remaining output channels
-// NOTE: this test crashes rather than fails with the current implementation.
-TEST_CASE("OverSampler: more output channels than input channels", "[.][bug]")
+// e.g. a mono-in/stereo-out effect
+TEST_CASE("OverSampler: more output channels than input channels", "[unit][extras][oversampler]")
 {
   const EFactor factor = GENERATE(k2x, k4x);
   constexpr int nFrames = 2048;
