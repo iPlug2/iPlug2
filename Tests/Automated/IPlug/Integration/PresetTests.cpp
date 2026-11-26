@@ -610,11 +610,8 @@ TEST_CASE("Presets: a truncated bank fails", "[integration][presets][robustness]
   }
 }
 
-// BUG: IPluginBase::UnserializePresets() (IPlug/IPlugPluginBase.cpp) copies each preset name it reads from the chunk into
-// IPreset::mName, a char[MAX_PRESET_NAME_LEN], with strcpy(). A name longer than that in the incoming data (a corrupt
-// or malicious bank) overflows the buffer. The same unchecked strcpy() is used by MakePreset(), MakePresetFromChunk(),
-// MakeDefaultPreset() and ModifyCurrentPreset() for names given by the plug-in. Run this under AddressSanitizer.
-TEST_CASE("Presets: an over-long preset name in a bank does not overflow the name buffer", "[.][bug]")
+// The name is truncated to fit IPreset::mName; the overflow itself is caught by running this under AddressSanitizer
+TEST_CASE("Presets: an over-long preset name in a bank does not overflow the name buffer", "[integration][presets]")
 {
   const std::string longName(static_cast<size_t>(MAX_PRESET_NAME_LEN) * 4, 'x');
 
