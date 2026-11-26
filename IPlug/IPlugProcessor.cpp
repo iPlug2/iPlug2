@@ -152,16 +152,19 @@ void IPlugProcessor::GetBusName(ERoute direction, int busIdx, int nBuses, WDL_St
 int IPlugProcessor::MaxNBuses(ERoute direction, int* pConfigIdxWithTheMostBuses) const
 {
   int maxNBuses = 0;
+  int maxNChans = 0;
   int configWithMostBuses = 0;
 
   for (auto configIdx = 0; configIdx < NIOConfigs(); configIdx++)
   {
     IOConfig* pIConfig = mIOConfigs.Get(configIdx);
     int nBuses = pIConfig->NBuses(direction);
+    int nChans = pIConfig->GetTotalNChannels(direction);
     
-    if(nBuses >= maxNBuses)
+    if(nBuses > maxNBuses || (nBuses == maxNBuses && nChans >= maxNChans))
     {
       maxNBuses = nBuses;
+      maxNChans = nChans;
       configWithMostBuses = configIdx;
     }
   }
