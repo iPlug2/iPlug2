@@ -390,7 +390,7 @@ public:
           
           for (auto c = chanOffset; c < (chanOffset + nChans); c++)
           {
-            counterActive &= mPeakHoldCounters[c] > 0;
+            counterActive |= mPeakHoldCounters[c] > 0;
             std::get<0>(d.vals[c]) = 0.0f;
             std::get<1>(d.vals[c]) = 0.0f;
           }

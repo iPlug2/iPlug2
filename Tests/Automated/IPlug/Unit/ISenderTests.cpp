@@ -1072,12 +1072,8 @@ TEST_CASE("IPeakAvgSender: stops sending once everything has died away", "[unit]
   REQUIRE(dlg.Last().data.vals[0].second == Approx(0.5f));
 }
 
-// BUG: ISender.h:387-401. When the smoothed average has fallen below the threshold, the code intends to keep
-// pushing data while a peak hold is still active ("This makes sure that the data is still pushed if peakholds
-// are still active"), but counterActive is initialised to false and then combined with "&=", so it can never
-// become true and that branch is dead: updates stop as soon as the average decays, leaving the held peak
-// stuck on screen without the sender ever reporting that it has been released.
-TEST_CASE("IPeakAvgSender: keeps sending while a peak hold is active", "[.][bug]")
+// Once the average has fallen below the threshold, updates continue until the peak holds have run out
+TEST_CASE("IPeakAvgSender: keeps sending while a peak hold is active", "[unit][sender][peakavg]")
 {
   // immediate decay, 2 second peak hold (400 windows)
   IPeakAvgSender<2> sender {-90., true, 5.f, 1.f, 1.f, 2000.f};
