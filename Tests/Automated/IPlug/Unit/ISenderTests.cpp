@@ -853,12 +853,8 @@ TEST_CASE("IPeakAvgSender: sends peak and average levels", "[unit][sender][peaka
   }
 }
 
-// BUG: ISender.h:298. IPeakAvgSender::ProcessBlock() indexes its analysis window with the sample index
-// within the current host block ("s % mWindowSize") instead of a position that carries on across calls.
-// Whenever the host's block size is not a whole number of windows the window is filled wrongly: with blocks
-// shorter than the window (e.g. 64 samples against the default 240 sample window) only the first blockSize
-// entries are ever written and the rest stay at zero, so the average reads several dB low.
-TEST_CASE("IPeakAvgSender: the host's block size does not change the result", "[.][bug]")
+// Block sizes that are not a whole number of windows, including ones shorter than the window
+TEST_CASE("IPeakAvgSender: the host's block size does not change the result", "[unit][sender][peakavg]")
 {
   const int blockSize = GENERATE(1, 16, 64, 100, 333);
   CAPTURE(blockSize);
