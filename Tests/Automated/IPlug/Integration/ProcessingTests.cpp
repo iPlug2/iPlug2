@@ -598,11 +598,7 @@ TEST_CASE("Processing: latency can be changed at runtime", "[integration][proces
   }
 }
 
-// BUG: With non-zero latency, IPlugProcessor::PassThroughBuffers() (IPlug/IPlugProcessor.cpp) hands the bypassed
-// signal to NChanDelayLine::ProcessBlock() (IPlug/Extras/NChanDelay.h), which only writes the outputs that have a
-// matching input. Outputs beyond the input count are left untouched, i.e. the host gets whatever was in its buffer,
-// whereas the zero latency path (IPlugProcessor::ProcessBlock()) silences them.
-TEST_CASE("Processing: bypass with latency silences outputs which have no matching input", "[.][bug]")
+TEST_CASE("Processing: bypass with latency silences outputs which have no matching input", "[integration][processing]")
 {
   const int nFrames = 32;
   GainPlug plug {InstanceInfo{}, GainPlug::MakeConfig("1-2", 4)};

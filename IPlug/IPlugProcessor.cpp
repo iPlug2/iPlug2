@@ -497,7 +497,15 @@ void IPlugProcessor::AttachBuffers(ERoute direction, int idx, int n, PLUG_SAMPLE
 void IPlugProcessor::PassThroughBuffers(PLUG_SAMPLE_DST type, int nFrames)
 {
   if (mLatency && mLatencyDelay)
+  {
     mLatencyDelay->ProcessBlock(mScratchData[ERoute::kInput].Get(), mScratchData[ERoute::kOutput].Get(), nFrames);
+
+    // zero the outs which have no matching input
+    for (int i = MaxNChannels(ERoute::kInput); i < MaxNChannels(ERoute::kOutput); ++i)
+    {
+      memset(mScratchData[ERoute::kOutput].Get()[i], 0, nFrames * sizeof(PLUG_SAMPLE_DST));
+    }
+  }
   else
     IPlugProcessor::ProcessBlock(mScratchData[ERoute::kInput].Get(), mScratchData[ERoute::kOutput].Get(), nFrames);
 }
