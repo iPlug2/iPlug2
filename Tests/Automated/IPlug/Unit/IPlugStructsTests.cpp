@@ -416,12 +416,8 @@ TEST_CASE("IByteChunk: PutStr and GetStr", "[unit][structs][chunk]")
   }
 }
 
-// BUG: IPlugStructs.h:94-105 (IByteGetter::GetStr). The doc comment says -1 is returned "if the copy would
-// have copied more data than in the src buffer", but when the length prefix is readable and the characters
-// run past the end of the buffer the string is (correctly) not copied yet the would-be end position, which
-// is beyond the end of the data, is returned instead of -1. Callers cannot detect the truncated string.
-// Affects IByteChunk::GetStr, IByteStream::GetStr and IByteChunkReader::GetStr.
-TEST_CASE("IByteChunk: GetStr reports a truncated string with -1", "[.][bug]")
+// Covers IByteChunk::GetStr and IByteStream::GetStr, which share IByteGetter::GetStr
+TEST_CASE("IByteChunk: GetStr reports a truncated string with -1", "[unit][structs][chunk]")
 {
   IByteChunk chunk;
   chunk.PutStr("abcdefgh");
