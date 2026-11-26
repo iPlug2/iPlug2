@@ -211,7 +211,7 @@ public:
     
     for (int i = 0; i < toDelete.GetSize(); i++)
     {
-      mMenuItems.DeletePtr(toDelete.Get(i));
+      mMenuItems.DeletePtr(toDelete.Get(i), true);
     }
   }
 
