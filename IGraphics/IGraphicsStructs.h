@@ -18,6 +18,7 @@
 
 #include <functional>
 #include <chrono>
+#include <cmath>
 #include <numeric>
 
 #include "IPlugUtilities.h"
@@ -1830,8 +1831,8 @@ public:
   /** Fill an IRECTList with divisons of an input IRECT
    * @param input The input rectangle
    * @param rects The output IRECTList
-   * @param rowFractions Initializer list of fractions for the grid rows (should sum to 1.0)
-   * @param colFractions Initializer list of fractions for the grid columns (should sum to 1.0)
+   * @param rowFractions Initializer list of fractions for the grid rows (must sum to 1.0, within a tolerance of 0.0001 to allow for rounding error)
+   * @param colFractions Initializer list of fractions for the grid columns (must sum to 1.0, within the same tolerance)
    * @param layoutDir By default the cell idx increases horizontally (by row). If set to EDirection::Vertical, cell idx increases vertically (by column).
    * @return \c true if the row and column fractions summed to 1.0, and grid creation was successful */
   static bool GetFracGrid(const IRECT& input, IRECTList& rects, const std::initializer_list<float>& rowFractions, const std::initializer_list<float>& colFractions, EDirection layoutDir = EDirection::Horizontal)

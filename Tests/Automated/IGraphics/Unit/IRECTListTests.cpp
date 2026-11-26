@@ -370,6 +370,18 @@ TEST_CASE("IRECTList: GetFracGrid accepts fractions that sum to one within round
   CHECK(list.Size() == 10);
 }
 
+TEST_CASE("IRECTList: GetFracGrid fails if the fractions sum to just outside the rounding tolerance", "[unit][irectlist]")
+{
+  const IRECT bounds {0.f, 0.f, 100.f, 40.f};
+  IRECTList list;
+
+  REQUIRE_FALSE(IRECTList::GetFracGrid(bounds, list, {0.5f, 0.501f}, {1.f}));
+  REQUIRE_FALSE(IRECTList::GetFracGrid(bounds, list, {0.5f, 0.499f}, {1.f}));
+  REQUIRE_FALSE(IRECTList::GetFracGrid(bounds, list, {1.f}, {0.5f, 0.501f}));
+  REQUIRE_FALSE(IRECTList::GetFracGrid(bounds, list, {1.f}, {0.5f, 0.499f}, EDirection::Vertical));
+  REQUIRE(list.Size() == 0);
+}
+
 TEST_CASE("IRECTList: Optimize leaves separate rects alone", "[unit][irectlist]")
 {
   IRECTList list;
