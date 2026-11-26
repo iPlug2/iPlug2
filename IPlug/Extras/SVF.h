@@ -231,7 +231,7 @@ private:
       case kHighPassShelf:
       {
         const double A = std::pow(10., mState.gain/40.);
-        const double g = w / std::sqrt(A);
+        const double g = w * std::sqrt(A);
         const double k = 1. / mState.Q;
         m_a1 = 1./(1. + g * (g + k));
         m_a2 = g * m_a1;
