@@ -798,12 +798,8 @@ TEST_CASE("RealtimeResampler: single precision", "[unit][extras][resampler]")
   REQUIRE(extrastest::MaxAbsDiff(outL.data(), outR.data(), nFrames) == 0.);
 }
 
-// BUG: IPlug/Extras/RealtimeResampler.h:76-119 Reset() in Lanczos mode always computes a latency from
-// the warm-up of the two resamplers, even when the inner and outer sample rates are equal - in which
-// case ProcessBlock() (line 130) bypasses the resamplers altogether and there is no delay at all. A
-// plug-in that reports GetLatency() to the host is then compensated for 31 samples of latency that
-// it does not have.
-TEST_CASE("RealtimeResampler: no latency is reported when the rates are equal", "[.][bug]")
+// ProcessBlock() bypasses the resamplers when the inner and outer sample rates are equal
+TEST_CASE("RealtimeResampler: no latency is reported when the rates are equal", "[unit][extras][resampler]")
 {
   const double sr = GENERATE(44100., 48000.);
 

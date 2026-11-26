@@ -94,7 +94,7 @@ public:
 
     ClearBuffers();
   
-    if (mResamplingMode == ESRCMode::kLancsoz)
+    if (mResamplingMode == ESRCMode::kLancsoz && mInnerSampleRate != mOuterSampleRate)
     {
       const T outerRate = static_cast<T>(mOuterSampleRate);
       const T innerRate = static_cast<T>(mInnerSampleRate);
