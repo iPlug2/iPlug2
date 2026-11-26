@@ -105,9 +105,7 @@ TEST_CASE("Editor: closing calls OnUIClose and destroys the graphics", "[integra
   REQUIRE(f.mDlg.mNumUICloses == 1);
 }
 
-// BUG: IGEditorDelegate::CloseWindow() (IGraphicsEditorDelegate.cpp) only checks for an open editor on Linux. On the
-// other platforms it calls IEditorDelegate::CloseWindow(), and so OnUIClose(), even when no editor is open.
-TEST_CASE("Editor: closing a closed editor does nothing", "[.][bug]")
+TEST_CASE("Editor: closing a closed editor does nothing", "[integration][lifecycle]")
 {
   Fixture f;
   f.mDlg.OpenUI();
