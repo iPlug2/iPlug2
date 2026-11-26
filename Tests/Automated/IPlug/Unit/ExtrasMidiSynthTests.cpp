@@ -1106,15 +1106,8 @@ TEST_CASE("MidiSynth: SetPitchBendRange is remembered across MPE mode", "[unit][
   REQUIRE(pVoice->Bend() == Approx(-7. / 12.).margin(1e-6));
 }
 
-// BUG: IPlug/Extras/Synth/MidiSynth.cpp:422 ProcessBlock() stops taking messages for an internal block with
-// "if (msg.mOffset > startIndex + blockSize) break;", which should be ">=": a message timed exactly
-// on the first sample of the NEXT internal block (offset 32, 64, ... with the default block size of
-// 32, or offset == nFrames) is handled in the current one with a sample offset equal to the block
-// size. The voice is triggered a block early and is handed a gate ramp whose transition lies outside
-// the block (transitionStart == nFrames), contradicting ControlRamp's documented layout: a voice that
-// reads the ramp's end value starts up to a block early, and one that uses ControlRamp::Write()
-// writes one sample past the end of the block.
-TEST_CASE("MidiSynth: a message on an internal block boundary belongs to the block it starts", "[.][bug]")
+// a message timed on the first sample of an internal block is handled in that block, not at the end of the previous one
+TEST_CASE("MidiSynth: a message on an internal block boundary belongs to the block it starts", "[unit][extras][synth][midisynth]")
 {
   const int offset = GENERATE(kSynthBlockSize, 2 * kSynthBlockSize, 3 * kSynthBlockSize);
   constexpr int nFrames = 128;
@@ -1125,11 +1118,10 @@ TEST_CASE("MidiSynth: a message on an internal block boundary belongs to the blo
 
   CAPTURE(offset);
 
-  // the audio (from a voice that evaluates the ramp carefully) is right...
   REQUIRE(AllEqual(out, 0, offset, 0.));
   REQUIRE(AllEqual(out, offset, nFrames, 1.));
 
-  // ...but the voice should first have been run for the block the note is in, with a ramp inside that block
+  // the voice is first run for the block the note is in, with a ramp inside that block
   REQUIRE(rig.Voice(0).mStartIdxOfFirstProcessAfterTrigger == offset);
   REQUIRE_FALSE(rig.Voice(0).mSawTransitionOutsideBlock);
 }
