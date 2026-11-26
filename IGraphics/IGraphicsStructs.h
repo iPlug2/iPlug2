@@ -328,7 +328,7 @@ struct IColor
 
     if (fMin == fMax) { s = 0.f; h = 0.f; l /= 100.f; return; }
     else if (l < 50.f) { s = 100.f * fDiff / fSum; }
-    else { s = 100.f * fDiff / (2.f - fDiff); }
+    else { s = 100.f * fDiff / (2.f - fSum); }
 
     if (fMax == fR) { h = 60.f * (fG - fB) / fDiff; }
     if (fMax == fG) { h = 60.f * (fB - fR) / fDiff + 120.f; }

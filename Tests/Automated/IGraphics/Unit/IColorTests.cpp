@@ -488,10 +488,7 @@ TEST_CASE("IColor: GetHSLA outputs are normalized", "[unit][icolor]")
   REQUIRE(allNormalized);
 }
 
-// BUG: IGraphicsStructs.h:331 IColor::GetHSLA() calculates the saturation of colors with a lightness of 0.5 or
-// more as diff / (2 - diff) where it should be diff / (2 - max - min). The two only agree when min is zero, so
-// the saturation is wrong (too low) for all light colors, e.g. pink (255, 128, 128) should be fully saturated.
-TEST_CASE("IColor: GetHSLA saturation of light colors", "[.][bug]")
+TEST_CASE("IColor: GetHSLA saturation of light colors", "[unit][icolor]")
 {
   SECTION("pink is a fully saturated light red")
   {
