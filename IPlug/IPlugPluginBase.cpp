@@ -349,7 +349,7 @@ void IPluginBase::MakePresetFromNamedParams(const char* name, int nParamsNamed, 
     {
       if (*pV == PARAM_UNINIT)        // Any that weren't explicitly set, use the defaults.
       {
-        *pV = GetParam(i)->Value();
+        *pV = GetParam(i)->GetDefault();
       }
       pPreset->mChunk.Put(pV);
     }
