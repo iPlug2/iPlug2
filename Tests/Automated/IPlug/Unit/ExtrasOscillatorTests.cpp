@@ -188,10 +188,8 @@ TEST_CASE("SinOscillator: phase is in cycles", "[unit][extras][oscillator]")
   }
 }
 
-// BUG (minor): IPlug/Extras/Oscillator.h:22 IOscillator's constructor stores startPhase in mStartPhase
-// but leaves mPhase at 0, so the start phase passed to the constructor has no effect until Reset()
-// has been called. A newly constructed oscillator should start at its start phase.
-TEST_CASE("SinOscillator: constructor start phase applies from the first sample", "[.][bug]")
+// i.e. without Reset() having to be called first
+TEST_CASE("SinOscillator: constructor start phase applies from the first sample", "[unit][extras][oscillator]")
 {
   SinOscillator<double> osc(0.25);
   REQUIRE(osc.Process(1.) == Approx(1.).margin(1e-3));
