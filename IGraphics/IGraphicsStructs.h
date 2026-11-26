@@ -408,7 +408,7 @@ struct IColor
   }
   
   /** Create an IColor from a color code in a CString. Can be used to convert a hex code into an IColor object.
-   * @param hexStr CString representation of the color code (no alpha). Use with hex numbers, e.g. "#ff38a2". WARNING: This does very little error checking
+   * @param hexStr CString representation of the color code, with or without alpha. Use with hex numbers, e.g. "#ff38a2" or "#ff38a2ff". WARNING: This does very little error checking
    * @return IColor A new IColor based on the color code provided */
   static IColor FromColorCodeStr(const char* hexStr)
   {
@@ -416,9 +416,14 @@ struct IColor
     
     if ((str.GetLength() == 7 || str.GetLength() == 9) && str.Get()[0] == '#')
     {
+      const bool hasAlpha = str.GetLength() == 9;
       str.DeleteSub(0, 1);
+      const unsigned long colorCode = std::stoul(str.Get(), nullptr, 16);
 
-      return FromColorCode(static_cast<int>(std::stoul(str.Get(), nullptr, 16)));
+      if (hasAlpha)
+        return FromColorCode(static_cast<int>(colorCode >> 8), static_cast<int>(colorCode & 0xFF));
+
+      return FromColorCode(static_cast<int>(colorCode));
     }
     else
     {
