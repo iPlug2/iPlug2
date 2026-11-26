@@ -893,10 +893,8 @@ TEST_CASE("Params: parameters can be added dynamically", "[integration][params]"
   }
 }
 
-// BUG: IEditorDelegate::RemoveParam() (IPlug/IPlugEditorDelegate.h) calls WDL_PtrList::Delete(idx), which removes the
-// pointer from the list without deleting the IParam that AddParam()/the constructor allocated, so the parameter is
-// leaked. The assertions below pass; the bug shows up as a leak report when this is run under LeakSanitizer.
-TEST_CASE("Params: removing a parameter shifts the following ones down and frees it", "[.][bug]")
+// The freeing is checked by running this under LeakSanitizer
+TEST_CASE("Params: removing a parameter shifts the following ones down and frees it", "[integration][params]")
 {
   GainPlug plug;
 
