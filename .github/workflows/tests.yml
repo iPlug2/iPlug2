@@ -84,7 +84,8 @@ jobs:
     name: Linux x64 (ASan + UBSan)
     runs-on: ubuntu-24.04
     env:
-      SAN_FLAGS: -fsanitize=address,undefined -fno-sanitize-recover=undefined -fno-omit-frame-pointer
+      # nonnull-attribute is off because WDL calls memcpy(nullptr, nullptr, 0) when copying empty buffers
+      SAN_FLAGS: -fsanitize=address,undefined -fno-sanitize=nonnull-attribute -fno-sanitize-recover=undefined -fno-omit-frame-pointer
       UBSAN_OPTIONS: print_stacktrace=1
     steps:
       - name: Checkout
