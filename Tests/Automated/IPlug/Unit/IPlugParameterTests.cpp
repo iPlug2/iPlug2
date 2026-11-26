@@ -1599,10 +1599,7 @@ TEST_CASE("IParam: Init from another parameter", "[unit][param]")
   }
 }
 
-// BUG: IPlugParameter.cpp:227. The insertion position is calculated as (str.Get() - pos) rather than
-// (pos - str.Get()), so it is negative unless the search string is at the very start of the name. The
-// search string is then not removed and the replacement is inserted at the start of the name.
-TEST_CASE("IParam: Init replaces a search string in the middle or at the end of the name", "[.][bug]")
+TEST_CASE("IParam: Init replaces a search string in the middle or at the end of the name", "[unit][param]")
 {
   IParam src;
   src.InitDouble("Osc 1 Gain", 0., 0., 1., 0.1);
