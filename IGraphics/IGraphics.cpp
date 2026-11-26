@@ -299,7 +299,8 @@ void IGraphics::SetControlValueAfterPopupMenu(IPopupMenu* pMenu)
   else
     mInPopupMenu->OnPopupMenuSelection(!pMenu || pMenu->GetChosenItemIdx() == -1 ? nullptr : pMenu, mPopupMenuValIdx);
   
-  int nVals = mInPopupMenu->NVals();
+  // a context menu is opened without the mouse down that begins a parameter change
+  int nVals = mIsContextMenu ? 0 : mInPopupMenu->NVals();
 
   for (int v = 0; v < nVals; v++)
   {

@@ -768,11 +768,7 @@ TEST_CASE("Right click: a control without a parameter gets the mouse down with t
   REQUIRE(f.mUI->mNumPopupMenus == 0);
 }
 
-// BUG: for a right-click context menu IGraphics::OnMouseDown() (IGraphics/IGraphics.cpp:1129) returns before calling
-// BeginInformHostOfParamChangeFromUI(), but IGraphics::SetControlValueAfterPopupMenu() (IGraphics/IGraphics.cpp:292)
-// then calls EndInformHostOfParamChangeFromUI() for each of the control's parameters, so the host gets an "end
-// gesture" that was never begun.
-TEST_CASE("Right click: the context menu does not send the host an unbalanced end-of-gesture", "[.][bug]")
+TEST_CASE("Right click: the context menu does not send the host an unbalanced end-of-gesture", "[integration][mouse][contextmenu][params]")
 {
   Fixture f;
   auto* pProbe = f.mUI->AttachControl(new ProbeControl(IRECT(300, 200, 380, 280), kGain))->As<ProbeControl>();
