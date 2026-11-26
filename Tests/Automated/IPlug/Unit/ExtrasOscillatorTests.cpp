@@ -442,11 +442,7 @@ TEST_CASE("FastSinOscillator: large blocks at high frequencies", "[.][bug]")
   REQUIRE(lateFit.maxResidual < kFastSinTolerance);
 }
 
-// BUG: IPlug/Extras/Oscillator.h:160 FastSinOscillator::Lookup() scales the phase with
-// "phaseRadians / (PI * 2.) * tableSizeM1" (511) where the table holds one cycle in tableSize (512)
-// entries, so the period of the lookup is 2pi * 512/511 rather than 2pi and the error against a
-// true sinusoid grows with the phase (about 0.012 by the end of the first cycle).
-TEST_CASE("FastSinOscillator: Lookup has a period of 2pi", "[.][bug]")
+TEST_CASE("FastSinOscillator: Lookup has a period of 2pi", "[unit][extras][oscillator]")
 {
   for (int i = 0; i < 64; i++)
   {
