@@ -1134,12 +1134,8 @@ TEST_CASE("MidiSynth: a message on an internal block boundary belongs to the blo
   REQUIRE_FALSE(rig.Voice(0).mSawTransitionOutsideBlock);
 }
 
-// BUG: IPlug/Extras/Synth/MidiSynth.cpp:200-212 in MidiMessageToEventMPE() the kProgramChange case has no
-// break on the member channel path (the comment above it says such messages are ignored): it sets
-// kNullAction and then falls through into the kNoteOn case. A program change has no velocity, so
-// that turns it into a note off - with the key set to "all keys", since NoteNumber() is -1 - and
-// every note sounding on that member channel is released.
-TEST_CASE("MidiSynth: MPE program change on a member channel is ignored", "[.][bug]")
+// in particular it must not release the notes sounding on that channel
+TEST_CASE("MidiSynth: MPE program change on a member channel is ignored", "[unit][extras][synth][midisynth]")
 {
   Rig rig(2);
   rig.mSynth.InitBasicMPE();
@@ -1147,12 +1143,13 @@ TEST_CASE("MidiSynth: MPE program change on a member channel is ignored", "[.][b
   rig.NoteOn(60, 127, 0, 1);
   rig.Render(64);
   REQUIRE(rig.NumBusy() == 1);
+  const int releases = rig.Voice(0).mReleases + rig.Voice(1).mReleases;
 
   rig.ProgramChange(5, 1);
   const auto out = rig.Render(64);
 
   REQUIRE(rig.NumBusy() == 1);
-  REQUIRE(rig.Voice(0).mReleases + rig.Voice(1).mReleases == 0);
+  REQUIRE(rig.Voice(0).mReleases + rig.Voice(1).mReleases == releases);
   REQUIRE(AllEqual(out, 0, 64, 1.));
   REQUIRE(rig.Voice(0).mPrograms.empty());
 }

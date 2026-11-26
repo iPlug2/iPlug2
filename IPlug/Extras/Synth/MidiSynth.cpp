@@ -208,6 +208,7 @@ VoiceInputEvent MidiSynth::MidiMessageToEventMPE(const IMidiMsg& msg)
       else
       {
         event.mAction = kNullAction;
+        break;
       }
     }
     case IMidiMsg::kNoteOn:
