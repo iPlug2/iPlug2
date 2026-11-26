@@ -1118,13 +1118,8 @@ TEST_CASE("SynthVoice: the default implementations do nothing", "[unit][extras][
     REQUIRE(v == 0.25);
 }
 
-// BUG: IPlug/Extras/Synth/VoiceAllocator.cpp:423-438 in poly mode NoteOn() picks a voice with
-// FindFreeVoiceIndex()/FindVoiceIndexToSteal() (lines 293-323), neither of which looks at the voice's
-// zone, although AddVoice() documents zones as the way "to make multitimbral synths" and NoteOff()
-// (line 524) does match on the zone. A note on for one zone can therefore start (or steal) a voice
-// belonging to another zone - and the note off for it, which is addressed by zone, then never
-// reaches that voice, leaving a stuck note. MidiSynth sends zone 1 for the MPE upper zone.
-TEST_CASE("VoiceAllocator: poly mode note on only uses voices in the note's zone", "[.][bug]")
+// a note on must not start or steal a voice of another zone, which its note off would never reach
+TEST_CASE("VoiceAllocator: poly mode note on only uses voices in the note's zone", "[unit][extras][synth][voiceallocator]")
 {
   Rig rig(0);
   auto& zone0 = rig.AddVoice(0);

@@ -160,8 +160,8 @@ private:
 
   void CalcGlideTimesInSamples();
   void ClearVoiceInputs(SynthVoice* pVoice);
-  int FindFreeVoiceIndex(int startIndex) const;
-  int FindVoiceIndexToSteal(int64_t sampleTime) const;
+  int FindFreeVoiceIndex(int startIndex, uint8_t zone) const;
+  int FindVoiceIndexToSteal(int64_t sampleTime, uint8_t zone) const;
 
   void NoteOn(VoiceInputEvent e, int64_t sampleTime);
   void NoteOff(VoiceInputEvent e, int64_t sampleTime);
