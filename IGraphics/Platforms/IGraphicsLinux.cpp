@@ -817,6 +817,15 @@ static GTK3* LoadGTK3()
   if (auto disableSetLocale = reinterpret_cast<void (*)()>(dlsym(gtk.handle, "gtk_disable_setlocale")))
     disableSetLocale();
 
+  // In a SWELL host such as REAPER, gtk_init_check() would replace the GDK event handler that
+  // SWELL routes the host's windows through, leaving them without input or repaints. Let SWELL
+  // initialise GTK instead: it keeps its handler and passes events on to GTK.
+  using fn_swell_get_func = void* (*)(const char*);
+  using fn_swell_extended_api = void* (*)(const char*, void*);
+  if (auto getFunc = reinterpret_cast<fn_swell_get_func>(dlsym(RTLD_DEFAULT, "SWELLAPI_GetFunc")))
+    if (auto extendedAPI = reinterpret_cast<fn_swell_extended_api>(getFunc("SWELL_ExtendedAPI")))
+      extendedAPI("LOAD_GTK", nullptr);
+
   if (!gtk.init_check(nullptr, nullptr))
   {
     dlclose(gtk.handle);
