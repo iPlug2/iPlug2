@@ -148,7 +148,8 @@ public:
   {
     int n = mBytes.GetSize();
     mBytes.Resize(n + nBytesToCopy);
-    memcpy(mBytes.Get() + n, pSrc, nBytesToCopy);
+    if (nBytesToCopy > 0)
+      memcpy(mBytes.Get() + n, pSrc, nBytesToCopy);
     return mBytes.GetSize();
   }
   
@@ -256,7 +257,7 @@ public:
    * @return \c true if the chunks are equal */
   inline bool IsEqual(IByteChunk& otherChunk) const
   {
-    return (otherChunk.Size() == Size() && !memcmp(otherChunk.mBytes.Get(), mBytes.Get(), Size()));
+    return (otherChunk.Size() == Size() && (Size() == 0 || !memcmp(otherChunk.mBytes.Get(), mBytes.Get(), Size())));
   }
   
 private:

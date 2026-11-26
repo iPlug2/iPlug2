@@ -464,12 +464,8 @@ TEST_CASE("IByteChunk: PutChunk", "[unit][structs][chunk]")
   REQUIRE(empty.IsEqual(b));
 }
 
-// BUG: IPlugStructs.h:151 and IPlugStructs.h:259. A chunk that has never held data has a null data pointer,
-// which PutBytes() (via PutChunk() of an empty chunk) and IsEqual() (comparing two empty chunks) pass to
-// memcpy()/memcmp() with a size of zero. That is undefined behaviour before C23/C++26 and is reported by
-// UBSan ("null pointer passed as argument ... declared to never be null"), although the results are as
-// expected on the platforms tested. Kept out of the normal run so that sanitizer builds stay clean.
-TEST_CASE("IByteChunk: empty chunks can be appended and compared", "[.][bug]")
+// A chunk that has never held data has a null data pointer
+TEST_CASE("IByteChunk: empty chunks can be appended and compared", "[unit][structs][chunk]")
 {
   IByteChunk a, b, empty;
   REQUIRE(a.IsEqual(b));
