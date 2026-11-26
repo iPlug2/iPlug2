@@ -429,16 +429,9 @@ TEST_CASE("LFO: tempo division scalars get slower as the note values get longer"
     REQUIRE(Lfo::GetQNScalar(static_cast<Lfo::ETempoDivison>(i)) > 0.);
 }
 
-// BUG: IPlug/Extras/LFO.h:80-85 the dotted and eighth-triplet entries of the GetQNScalar() table do
-// not correspond to the note lengths they are named after. A dotted note is 1.5x as long as the
-// straight note, so its rate is 2/3 of it (the table has 3/4), and an eighth note triplet is 2/3 as
-// long as an eighth note, so its rate is 3 per quarter note (the table has 9/4, although the
-// sixteenth note triplet is right at 6):
-//   k16thD: 3 (should be 8/3)   k8thT: 2.25 (should be 3)
-//   k8thD: 1.5 (should be 4/3)  k4thD: 0.75 (should be 2/3)
-// So e.g. a "1/8T" LFO takes 4/9 of a beat rather than 1/3 and drifts against the host tempo.
-TEST_CASE("LFO: tempo division scalars for dotted and triplet note values", "[.][bug]")
+TEST_CASE("LFO: tempo division scalars for dotted and triplet note values", "[unit][extras][lfo]")
 {
+  // a dotted note is 1.5x as long as the straight note and a triplet note 2/3 as long
   REQUIRE(Lfo::GetQNScalar(Lfo::k16thD) == Approx(4. / 1.5));
   REQUIRE(Lfo::GetQNScalar(Lfo::k8thT) == Approx(2. * 1.5));
   REQUIRE(Lfo::GetQNScalar(Lfo::k8thD) == Approx(2. / 1.5));
