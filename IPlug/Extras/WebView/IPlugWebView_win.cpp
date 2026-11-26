@@ -160,7 +160,20 @@ void* IWebViewImpl::OpenWebView(void* pParent, float,float,float,float,float)
 
             // this script adds a function IPlugSendMsg that is used to communicate from the WebView to the C++ side
             mCoreWebView->AddScriptToExecuteOnDocumentCreated(
-              L"function IPlugSendMsg(m) {window.chrome.webview.postMessage(m)};",
+              L"function IPlugSendMsg(m) {window.chrome.webview.postMessage(m)}; \
+                 function IPlugKeysForwardToHost(el) { \
+                   if (!el) return true; \
+                   if (el.isContentEditable) return false; \
+                   if (el.tagName === 'TEXTAREA') return false; \
+                   if (el.tagName === 'INPUT') { \
+                     switch ((el.type || 'text').toLowerCase()) { \
+                       case 'button': case 'checkbox': case 'radio': case 'submit': \
+                       case 'reset': case 'file': case 'image': case 'range': case 'color': return true; \
+                     } \
+                     return false; \
+                   } \
+                   return true; \
+                 }",
               Callback<ICoreWebView2AddScriptToExecuteOnDocumentCreatedCompletedHandler>([this](HRESULT error,
                                                                                                 PCWSTR id) -> HRESULT {
                 return S_OK;
@@ -168,12 +181,12 @@ void* IWebViewImpl::OpenWebView(void* pParent, float,float,float,float,float)
 
             // this script receives global key down events and forwards them to the C++ side
             mCoreWebView->AddScriptToExecuteOnDocumentCreated(
-              L"document.addEventListener('keydown', function(e) { if(document.activeElement.type != \"text\") { IPlugSendMsg({'msg': 'SKPFUI', 'keyCode': e.keyCode, 'utf8': e.key, 'S': e.shiftKey, 'C': e.ctrlKey, 'A': e.altKey, 'isUp': false}); }});",
+              L"document.addEventListener('keydown', function(e) { if(IPlugKeysForwardToHost(document.activeElement)) { IPlugSendMsg({'msg': 'SKPFUI', 'keyCode': e.keyCode, 'utf8': e.key, 'S': e.shiftKey, 'C': e.ctrlKey, 'A': e.altKey, 'isUp': false}); }});",
               Callback<ICoreWebView2AddScriptToExecuteOnDocumentCreatedCompletedHandler>([this](HRESULT error, PCWSTR id) -> HRESULT { return S_OK; }).Get());
 
             // this script receives global key up events and forwards them to the C++ side
             mCoreWebView->AddScriptToExecuteOnDocumentCreated(
-              L"document.addEventListener('keyup', function(e) { if(document.activeElement.type != \"text\") { IPlugSendMsg({'msg': 'SKPFUI', 'keyCode': e.keyCode, 'utf8': e.key, 'S': e.shiftKey, 'C': e.ctrlKey, 'A': e.altKey, 'isUp': true}); }});",
+              L"document.addEventListener('keyup', function(e) { if(IPlugKeysForwardToHost(document.activeElement)) { IPlugSendMsg({'msg': 'SKPFUI', 'keyCode': e.keyCode, 'utf8': e.key, 'S': e.shiftKey, 'C': e.ctrlKey, 'A': e.altKey, 'isUp': true}); }});",
               Callback<ICoreWebView2AddScriptToExecuteOnDocumentCreatedCompletedHandler>([this](HRESULT error, PCWSTR id) -> HRESULT { return S_OK; }).Get());
 
             mCoreWebView->add_WebMessageReceived(
