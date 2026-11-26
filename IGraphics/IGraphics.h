@@ -1510,7 +1510,7 @@ public:
   /** Remove a control at a particular index, (frees memory). */
   void RemoveControl(int idx);
   
-  /** Remove a control at using ptr, (frees memory). */
+  /** Remove a control at using ptr, (frees memory). If the control is an IContainerBase, its child controls are removed with it. */
   void RemoveControl(IControl* pControl);
   
   /** Removes all regular IControls from the control list, as well as special controls (frees memory). */

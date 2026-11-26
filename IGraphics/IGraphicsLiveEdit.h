@@ -246,7 +246,10 @@ public:
         for (int i = 0; i < mSelectedControls.GetSize(); i++)
         {
           IControl* pControl = mSelectedControls.Get(i);
-          GetUI()->RemoveControl(pControl);
+
+          // A selected child was already removed with its selected container, and a control can be selected twice
+          if (GetUI()->GetControlIdx(pControl) > -1)
+            GetUI()->RemoveControl(pControl);
         }
         
         mSelectedControls.Empty();
