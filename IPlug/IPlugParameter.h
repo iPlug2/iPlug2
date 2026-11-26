@@ -224,11 +224,11 @@ public:
    * @param group The parameter's group */
   void InitFrequency(const char* name, double defaultVal = 1000., double minVal = 0.1, double maxVal = 10000., double step = 0.1, int flags = 0, const char* group = "");
   
-  /** Initialize the parameter as pitch
+  /** Initialize the parameter as pitch. The parameter is an enum with one entry per MIDI note in the range, so its value is the offset from \c minVal
    * @param name The parameter's name
-   * @param defaultVal The default value of the parameter
-   * @param minVal The minimum value of the parameter
-   * @param maxVal The maximum value of the parameter
+   * @param defaultVal The default pitch, as a MIDI note number
+   * @param minVal The lowest pitch, as a MIDI note number
+   * @param maxVal The highest pitch, as a MIDI note number
    * @param flags The parameter's flags \see IParam::EFlags
    * @param group The parameter's group */
   void InitPitch(const char* name, int defaultVal = 60, int minVal = 0, int maxVal = 128, int flags = 0, const char* group = "", bool middleCisC4 = false);

@@ -1021,10 +1021,8 @@ TEST_CASE("IParam: InitPitch", "[unit][param]")
   }
 }
 
-// BUG (suspected): IPlugParameter.cpp:188-197. InitPitch() offsets the display texts by minVal (so the
-// parameter is a zero based index into [minVal, maxVal]) but passes defaultVal on untouched, so with a
-// non-zero minVal the default is not the requested pitch and is usually clamped to the top of the range.
-TEST_CASE("IParam: InitPitch honours the default pitch when the range does not start at zero", "[.][bug]")
+// The parameter's value is a zero based index into [minVal, maxVal]
+TEST_CASE("IParam: InitPitch honours the default pitch when the range does not start at zero", "[unit][param]")
 {
   IParam p;
   p.InitPitch("Pitch", 60, 48, 72);

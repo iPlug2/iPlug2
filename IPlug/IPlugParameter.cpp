@@ -187,7 +187,7 @@ void IParam::InitMilliseconds(const char *name, double defaultVal, double minVal
 
 void IParam::InitPitch(const char *name, int defaultVal, int minVal, int maxVal, int flags, const char *group, bool middleCisC)
 {
-  InitEnum(name, defaultVal, (maxVal - minVal) + 1, "", flags, group);
+  InitEnum(name, defaultVal - minVal, (maxVal - minVal) + 1, "", flags, group);
   WDL_String displayText;
   for (auto i = minVal; i <= maxVal; i++)
   {
