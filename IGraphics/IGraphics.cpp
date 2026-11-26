@@ -1085,6 +1085,7 @@ void IGraphics::OnMouseDown(const std::vector<IMouseInfo>& points)
 #if defined AAX_API || !defined IGRAPHICS_NO_CONTEXT_MENU
       int valIdx = pCapturedControl->GetValIdxForPos(x, y);
       int paramIdx = pCapturedControl->GetParamIdx((valIdx > kNoValIdx) ? valIdx : 0);
+      bool rightClickMenu = pCapturedControl->GetRightClickContextMenu();
 #endif
         
 #ifdef AAX_API
@@ -1126,7 +1127,7 @@ void IGraphics::OnMouseDown(const std::vector<IMouseInfo>& points)
 #endif
 
 #ifndef IGRAPHICS_NO_CONTEXT_MENU
-      if (mod.R && paramIdx > kNoParameter)
+      if (rightClickMenu && mod.R && paramIdx > kNoParameter)
       {
         ReleaseMouseCapture();
         PopupHostContextMenuForParam(pCapturedControl, paramIdx, x, y);
