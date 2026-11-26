@@ -201,6 +201,9 @@ VoiceInputEvent MidiSynth::MidiMessageToEventMPE(const IMidiMsg& msg)
     {
       if(IsMasterChannel(event.mAddress.mChannel))
       {
+        // MasterZoneFor() only knows member channels: channel 15 is the upper zone's master if there is an upper zone
+        event.mAddress.mZone = (mMPEUpperZoneChannels && event.mAddress.mChannel == kMPEUpperZoneMasterChannel) ? 1 : 0;
+        event.mAddress.mFlags = kVoicesAll;
         event.mAction = kProgramChangeAction;
         event.mControllerNumber = msg.Program();
         break;

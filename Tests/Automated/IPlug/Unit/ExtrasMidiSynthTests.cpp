@@ -1157,11 +1157,8 @@ TEST_CASE("MidiSynth: MPE program change on a member channel is ignored", "[.][b
   REQUIRE(rig.Voice(0).mPrograms.empty());
 }
 
-// BUG: IPlug/Extras/Synth/MidiSynth.cpp:196-205 says "A program change sent to a master channel affects all
-// voices within the zone", but the event keeps the master channel as its address (line 135), and
-// VoiceAllocator only delivers it to voices whose channel matches. Voices playing notes are on member
-// channels, so they never get it (only voices that have not played yet, whose channel is still 0).
-TEST_CASE("MidiSynth: MPE program change on the master channel reaches the whole zone", "[.][bug]")
+// voices playing notes are on member channels, and get the master channel's program change too
+TEST_CASE("MidiSynth: MPE program change on the master channel reaches the whole zone", "[unit][extras][synth][midisynth]")
 {
   Rig rig(3);
   rig.mSynth.InitBasicMPE();
@@ -1177,6 +1174,28 @@ TEST_CASE("MidiSynth: MPE program change on the master channel reaches the whole
     REQUIRE(voice->mPrograms == std::vector<int>{5});
 
   REQUIRE(rig.NumBusy() == 2);
+}
+
+TEST_CASE("MidiSynth: MPE program change on the upper zone's master channel only reaches the upper zone", "[unit][extras][synth][midisynth]")
+{
+  Rig rig(1);
+  GateVoice upperVoice;
+  rig.mSynth.AddVoice(&upperVoice, 1);
+
+  // lower zone with 7 member channels, upper zone with 7 member channels
+  rig.RPN(6, 7, 0);
+  rig.RPN(6, 7, 15);
+  rig.Render(64);
+
+  rig.ProgramChange(5, 15);
+  rig.Render(64);
+  REQUIRE(rig.Voice(0).mPrograms.empty());
+  REQUIRE(upperVoice.mPrograms == std::vector<int>{5});
+
+  rig.ProgramChange(6, 0);
+  rig.Render(64);
+  REQUIRE(rig.Voice(0).mPrograms == std::vector<int>{6});
+  REQUIRE(upperVoice.mPrograms == std::vector<int>{5});
 }
 
 // BUG: IPlug/Extras/Synth/MidiSynth.h:184-185 UpperZoneStart()/UpperZoneEnd() return 15 - mMPEUpperZoneChannels
