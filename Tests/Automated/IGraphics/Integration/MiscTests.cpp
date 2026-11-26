@@ -268,6 +268,8 @@ TEST_CASE("Bitmaps: RetainBitmap keeps a bitmap in the cache under a name", "[in
   REQUIRE(reloaded.W() == 8);
 }
 
+// Rescaling looks for a resource at the new scale, which on the Web means the page's preloaded images
+#ifndef OS_WEB
 TEST_CASE("Bitmaps: a bitmap is scaled for the screen when no resource exists at that scale", "[integration][misc][bitmap][scale]")
 {
   Fixture f;
@@ -296,6 +298,7 @@ TEST_CASE("Bitmaps: a bitmap is scaled for the screen when no resource exists at
   REQUIRE(f.mUI->GetScreenScale() == Approx(2.f));
   REQUIRE(f.mUI->GetDrawScale() == Approx(1.f));
 }
+#endif
 
 TEST_CASE("Tooltips: a control keeps the tooltip it is given", "[integration][misc][tooltips]")
 {

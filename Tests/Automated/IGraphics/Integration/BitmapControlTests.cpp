@@ -536,6 +536,8 @@ TEST_CASE("IBMeterControl: shows the frame for the level sent from the processor
 
 #pragma mark - Screen scale
 
+// Rescaling looks for a resource at the new scale, which on the Web means the page's preloaded images
+#ifndef OS_WEB
 TEST_CASE("Bitmap controls: keep their size and frame when the screen scale changes", "[integration][controls][bitmap][resize]")
 {
   Fixture f;
@@ -551,3 +553,4 @@ TEST_CASE("Bitmap controls: keep their size and frame when the screen scale chan
   REQUIRE(ops[0].mBounds == IRECT(100, 100, 140, 140));
   REQUIRE(ops[0].mSrcY == 3 * kFrameSize);
 }
+#endif
