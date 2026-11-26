@@ -563,21 +563,17 @@ TEST_CASE("State: CompareState() compares incoming parameter values with the cur
   }
 }
 
-// BUG: IPlugAPIBase::CompareState() (IPlug/IPlugAPIBase.cpp) documents startPos as "the position to start in the
-// incoming data in bytes", but computes `(const double*) pIncomingState + startPos`, i.e. it advances by startPos
-// doubles (8 * startPos bytes). With a non-zero startPos it compares against the wrong data and reads out of bounds.
-TEST_CASE("State: CompareState() takes its start position in bytes", "[.][bug]")
+TEST_CASE("State: CompareState() takes its start position in bytes", "[integration][state]")
 {
   GainPlug plug;
   plug.GetParam(GainPlug::kGain)->Set(33.);
 
-  // A one double header, the state, and enough padding that the misplaced read stays inside the chunk
+  // A one double header, then the state
   IByteChunk chunk;
   const double header = 12345.;
   chunk.Put(&header);
   const int startPos = chunk.Size();
   REQUIRE(plug.SerializeState(chunk));
-  chunk.Resize(chunk.Size() + startPos * kDoubleSize);
 
   CHECK(plug.CompareState(chunk.GetData(), startPos));
 }
