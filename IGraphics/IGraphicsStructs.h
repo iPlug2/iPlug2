@@ -1840,10 +1840,13 @@ public:
     float y = 0.;
     float x = 0.;
 
-    if(std::accumulate(rowFractions.begin(), rowFractions.end(), 0.f) != 1.)
+    // the fractions are summed in single precision, so allow for rounding error
+    const float tolerance = 1e-4f;
+
+    if(std::abs(std::accumulate(rowFractions.begin(), rowFractions.end(), 0.f) - 1.f) > tolerance)
       return false;
     
-    if(std::accumulate(colFractions.begin(), colFractions.end(), 0.f) != 1.)
+    if(std::abs(std::accumulate(colFractions.begin(), colFractions.end(), 0.f) - 1.f) > tolerance)
       return false;
 
     if (layoutDir == EDirection::Horizontal)

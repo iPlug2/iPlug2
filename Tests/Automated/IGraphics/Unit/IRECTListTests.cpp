@@ -360,10 +360,8 @@ TEST_CASE("IRECTList: GetFracGrid fails if the fractions don't sum to one", "[un
   REQUIRE(list.Size() == 0);
 }
 
-// BUG: IGraphicsStructs.h:1843/1846 IRECTList::GetFracGrid() compares the float sum of the fractions with 1.0
-// exactly. Fractions that sum to one on paper but not in single precision, such as ten columns of 0.1f (which
-// accumulate to 1.0000001f), are rejected and no grid is made.
-TEST_CASE("IRECTList: GetFracGrid accepts fractions that sum to one within rounding error", "[.][bug]")
+// ten columns of 0.1f accumulate to 1.0000001f
+TEST_CASE("IRECTList: GetFracGrid accepts fractions that sum to one within rounding error", "[unit][irectlist]")
 {
   const IRECT bounds {0.f, 0.f, 100.f, 40.f};
   IRECTList list;
