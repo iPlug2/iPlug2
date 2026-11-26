@@ -102,7 +102,7 @@ public:
       if(mSamplesRemaining == mGlideSamples)
       {
         // start glide
-        if(mSamplesRemaining > blockSize)
+        if(mStartOffset + mSamplesRemaining > blockSize)
         {
           // start with ramp to block end
           int glideStartSamples = blockSize - mStartOffset;
@@ -110,6 +110,7 @@ public:
           mpOutput.transitionStart = mStartOffset;
           mpOutput.transitionEnd = blockSize;
           mSamplesRemaining -= glideStartSamples;
+          mStartOffset = 0;
         }
         else
         {
