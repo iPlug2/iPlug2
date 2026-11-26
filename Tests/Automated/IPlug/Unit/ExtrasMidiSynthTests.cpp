@@ -1198,6 +1198,52 @@ TEST_CASE("MidiSynth: MPE program change on the upper zone's master channel only
   REQUIRE(upperVoice.mPrograms == std::vector<int>{5});
 }
 
+// with one zone taking all 16 channels the other zone's master channel is a member channel, and program
+// changes on member channels are ignored
+TEST_CASE("MidiSynth: MPE program change on channel 15 is not broadcast when the lower zone has all the channels", "[unit][extras][synth][midisynth]")
+{
+  Rig rig(3);
+  rig.mSynth.InitBasicMPE();
+
+  rig.NoteOn(60, 127, 0, 1);
+  rig.NoteOn(64, 127, 0, 15);
+  rig.Render(64);
+  REQUIRE(rig.NumBusy() == 2);
+
+  rig.ProgramChange(5, 15);
+  rig.Render(64);
+
+  for (int v = 0; v < 3; v++)
+    REQUIRE(rig.Voice(v).mPrograms.empty());
+
+  // channel 0 is still the lower zone's master
+  rig.ProgramChange(6, 0);
+  rig.Render(64);
+
+  for (int v = 0; v < 3; v++)
+    REQUIRE(rig.Voice(v).mPrograms == std::vector<int>{6});
+}
+
+TEST_CASE("MidiSynth: MPE program change on channel 0 is not broadcast when the upper zone has all the channels", "[unit][extras][synth][midisynth]")
+{
+  Rig rig(1);
+  GateVoice upperVoice;
+  rig.mSynth.AddVoice(&upperVoice, 1);
+
+  rig.RPN(6, 15, 15);
+  rig.Render(64);
+
+  rig.ProgramChange(5, 0);
+  rig.Render(64);
+  REQUIRE(rig.Voice(0).mPrograms.empty());
+  REQUIRE(upperVoice.mPrograms.empty());
+
+  rig.ProgramChange(6, 15);
+  rig.Render(64);
+  REQUIRE(rig.Voice(0).mPrograms.empty());
+  REQUIRE(upperVoice.mPrograms == std::vector<int>{6});
+}
+
 // BUG: IPlug/Extras/Synth/MidiSynth.h:184-185 UpperZoneStart()/UpperZoneEnd() return 15 - mMPEUpperZoneChannels
 // and 15, i.e. a range that includes the upper zone's master channel (15) and the channel below the
 // zone, where the lower zone equivalents return just the member channels. SetMPEZones()

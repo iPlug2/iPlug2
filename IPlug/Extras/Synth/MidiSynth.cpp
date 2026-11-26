@@ -199,10 +199,14 @@ VoiceInputEvent MidiSynth::MidiMessageToEventMPE(const IMidiMsg& msg)
     // affects all voices within the zone. Program changes sent to member channels are ignored.
     case IMidiMsg::kProgramChange:
     {
-      if(IsMasterChannel(event.mAddress.mChannel))
+      // IsMasterChannel() and MasterZoneFor() don't know which zones exist: channels 0 and 15 are only master
+      // channels if their zone is active, otherwise they can be member channels of the other zone
+      const bool isLowerZoneMaster = mMPELowerZoneChannels && event.mAddress.mChannel == kMPELowerZoneMasterChannel;
+      const bool isUpperZoneMaster = mMPEUpperZoneChannels && event.mAddress.mChannel == kMPEUpperZoneMasterChannel;
+
+      if(isLowerZoneMaster || isUpperZoneMaster)
       {
-        // MasterZoneFor() only knows member channels: channel 15 is the upper zone's master if there is an upper zone
-        event.mAddress.mZone = (mMPEUpperZoneChannels && event.mAddress.mChannel == kMPEUpperZoneMasterChannel) ? 1 : 0;
+        event.mAddress.mZone = isUpperZoneMaster ? 1 : 0;
         event.mAddress.mFlags = kVoicesAll;
         event.mAction = kProgramChangeAction;
         event.mControllerNumber = msg.Program();
