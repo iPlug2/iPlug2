@@ -2514,7 +2514,8 @@ struct IVStyle
    * @param frameThickness The thickness of the controls frame elements
    * @param shadowOffset The distance of the shadow from the foreground
    * @param widgetFrac The fraction of the widget area (control area - label/value if shown) that the widget occupies
-   * @param angle The rotation angle in degrees of e.g. the handle/pointer on an IVSlider */
+   * @param angle The rotation angle in degrees of e.g. the handle/pointer on an IVSlider
+   * @param labelOrientation The side of the control on which the label is placed */
   IVStyle(bool showLabel = DEFAULT_SHOW_LABEL,
           bool showValue = DEFAULT_SHOW_VALUE,
           const IVColorSpec& colors = {DEFAULT_BGCOLOR, DEFAULT_FGCOLOR, DEFAULT_PRCOLOR, DEFAULT_FRCOLOR, DEFAULT_HLCOLOR, DEFAULT_SHCOLOR, DEFAULT_X1COLOR, DEFAULT_X2COLOR, DEFAULT_X3COLOR},
@@ -2544,6 +2545,7 @@ struct IVStyle
   , colorSpec(colors)
   , labelText(labelText)
   , valueText(valueText)
+  , labelOrientation(labelOrientation)
   {
   }
   

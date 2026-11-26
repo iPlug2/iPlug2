@@ -310,9 +310,7 @@ TEST_CASE("IVStyle: construction with values", "[unit][ivstyle]")
   }
 }
 
-// BUG: IGraphicsStructs.h:2532-2546 the IVStyle constructor takes a labelOrientation argument but its member
-// initializer list never uses it, so the argument is ignored and labelOrientation is always the default (North).
-TEST_CASE("IVStyle: construction with a label orientation", "[.][bug]")
+TEST_CASE("IVStyle: construction with a label orientation", "[unit][ivstyle]")
 {
   const IVStyle style {DEFAULT_SHOW_LABEL, DEFAULT_SHOW_VALUE, DEFAULT_COLOR_SPEC, DEFAULT_LABEL_TEXT, DEFAULT_VALUE_TEXT,
                        DEFAULT_HIDE_CURSOR, DEFAULT_DRAW_FRAME, DEFAULT_DRAW_SHADOWS, DEFAULT_EMBOSS,
