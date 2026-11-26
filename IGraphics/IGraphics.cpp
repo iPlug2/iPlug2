@@ -148,15 +148,10 @@ void IGraphics::SetScaleConstraints(float lo, float hi)
 
 void IGraphics::RemoveControlWithTag(int ctrlTag)
 {
-  if (GetControlWithTag(ctrlTag) == mKeyboardFocus)
-    mKeyboardFocus = nullptr;
+  IControl* pControl = GetControlWithTag(ctrlTag);
 
-  if (GetControlWithTag(ctrlTag) == mModalControl)
-    mModalControl = nullptr;
-
-  mControls.DeletePtr(GetControlWithTag(ctrlTag), true);
-  mCtrlTags.erase(ctrlTag);
-  SetAllControlsDirty();
+  if (pControl)
+    RemoveControl(pControl);
 }
 
 void IGraphics::RemoveControls(int fromIdx)
