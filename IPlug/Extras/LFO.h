@@ -164,7 +164,7 @@ public:
   
   void SetQNScalarFromDivision(int division)
   {
-    mQNScalar = GetQNScalar(static_cast<ETempoDivison>(Clip(division, 0, (int) kNumDivisions)));
+    mQNScalar = GetQNScalar(static_cast<ETempoDivison>(Clip(division, 0, kNumDivisions - 1)));
   }
   
   void SetRateMode(bool sync)
