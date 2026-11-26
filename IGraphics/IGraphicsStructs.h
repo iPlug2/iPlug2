@@ -119,10 +119,10 @@ public:
   int H() const { return mH; }
 
   /** @return Width of a single frame in pixels */
-  int FW() const { return (mFramesAreHorizontal ? mW / mN : mW); }
+  int FW() const { return (mFramesAreHorizontal && mN > 0 ? mW / mN : mW); }
   
   /** @return Height of a single frame in pixels */
-  int FH() const { return (mFramesAreHorizontal ? mH : mH / mN); }
+  int FH() const { return (mFramesAreHorizontal || mN <= 0 ? mH : mH / mN); }
   
   /** @return number of frames */
   int N() const { return mN; }
