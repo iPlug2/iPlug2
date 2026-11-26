@@ -1080,16 +1080,58 @@ TEST_CASE("IPeakAvgSender: keeps sending while a peak hold is active", "[unit][s
   RecordingDelegate<TPeakAvgData> dlg;
   Signal loud {2, kPeakWindow * 2, 0.5};
   Signal silence {2, kPeakWindow * 10};
+  loud.Fill(1, 0.25);
 
   sender.ProcessBlock(loud.Get(), loud.NFrames(), kTag);
   sender.ProcessBlock(silence.Get(), silence.NFrames(), kTag);
   sender.TransmitData(dlg);
   dlg.Clear();
 
-  // 50 ms into a 2 s hold
+  // 50 ms into a 2 s hold: every window still sends the held peaks, with the average cleared
   sender.ProcessBlock(silence.Get(), silence.NFrames(), kTag);
   sender.TransmitData(dlg);
-  REQUIRE(dlg.NMsgs() > 0);
+  REQUIRE(dlg.NMsgs() == 10);
+
+  for (int i = 0; i < dlg.NMsgs(); i++)
+  {
+    REQUIRE(dlg[i].data.vals[0].first == Approx(0.5f));
+    REQUIRE(dlg[i].data.vals[1].first == Approx(0.25f));
+    REQUIRE(dlg[i].data.vals[0].second == 0.f);
+    REQUIRE(dlg[i].data.vals[1].second == 0.f);
+  }
+
+  // the rest of the hold, and well beyond it
+  dlg.Clear();
+
+  for (int block = 0; block < 45; block++)
+  {
+    sender.ProcessBlock(silence.Get(), silence.NFrames(), kTag);
+    sender.TransmitData(dlg);
+  }
+
+  // the peaks were held for the hold time (400 windows, of which about 20 had gone by)...
+  REQUIRE(dlg.NMsgs() > 370);
+  REQUIRE(dlg.NMsgs() < 390);
+
+  for (int i = 0; i < dlg.NMsgs() - 1; i++)
+  {
+    REQUIRE(dlg[i].data.vals[0].first == Approx(0.5f));
+    REQUIRE(dlg[i].data.vals[1].first == Approx(0.25f));
+    REQUIRE(dlg[i].data.vals[0].second == 0.f);
+    REQUIRE(dlg[i].data.vals[1].second == 0.f);
+  }
+
+  // ...and then one last message cleared them
+  REQUIRE(dlg.Last().data.vals[0].first == 0.f);
+  REQUIRE(dlg.Last().data.vals[1].first == 0.f);
+  REQUIRE(dlg.Last().data.vals[0].second == 0.f);
+  REQUIRE(dlg.Last().data.vals[1].second == 0.f);
+
+  // after which nothing more is sent
+  dlg.Clear();
+  sender.ProcessBlock(silence.Get(), silence.NFrames(), kTag);
+  sender.TransmitData(dlg);
+  REQUIRE(dlg.NMsgs() == 0);
 }
 
 TEST_CASE("IPeakAvgSender: channel count and offset", "[unit][sender][peakavg]")
