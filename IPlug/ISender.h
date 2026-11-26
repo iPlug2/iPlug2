@@ -127,6 +127,7 @@ public:
   IPeakSender(double minThresholdDb = -90., float windowSizeMs = 5.0f)
   : ISender<MAXNC, QUEUE_SIZE, float>()
   , mThreshold(static_cast<float>(DBToAmp(minThresholdDb)))
+  , mWindowSizeMs(windowSizeMs)
   {
     Reset(DEFAULT_SAMPLE_RATE);
   }
