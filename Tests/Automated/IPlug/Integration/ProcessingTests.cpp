@@ -614,6 +614,35 @@ TEST_CASE("Processing: bypass with latency silences outputs which have no matchi
     CHECK(out[1][static_cast<size_t>(s)] == 0.);
 }
 
+// An unconnected channel uses the plug-in's own scratch buffer, which SetBlockSize() reallocates: the channel has to
+// follow it, or everything that writes that output (here the bypass above) writes to freed memory. That is only
+// visible to a sanitizer build
+TEST_CASE("Processing: an unconnected output stays valid when the block size grows", "[integration][processing]")
+{
+  const int nFrames = 8192; // more than DEFAULT_BLOCK_SIZE, which the buffers start out with
+  GainPlug plug {InstanceInfo{}, GainPlug::MakeConfig("1-2", 4)};
+  plug.HostSetChannels(1, 1);
+  plug.HostActivate(48000., nFrames);
+
+  AudioBuffers<double> in {1, nFrames, 0.5}, out {1, nFrames, 99.};
+
+  SECTION("bypassed, with latency")
+  {
+    plug.HostSetBypassed(true);
+    plug.HostProcess(in.Get(), out.Get(), nFrames);
+    CHECK(out[0][0] == 0.);
+    CHECK(out[0][static_cast<size_t>(nFrames - 1)] == 0.5);
+  }
+
+  SECTION("processing")
+  {
+    plug.HostProcess(in.Get(), out.Get(), nFrames);
+    CHECK(out[0][static_cast<size_t>(nFrames - 1)] != 99.);
+  }
+
+  CHECK_FALSE(plug.IsChannelConnected(ERoute::kOutput, 1));
+}
+
 TEST_CASE("Processing: tail size", "[integration][processing]")
 {
   GainPlug plug;

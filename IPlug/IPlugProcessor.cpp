@@ -599,6 +599,10 @@ void IPlugProcessor::SetBlockSize(int blockSize)
       IChannelData<>* pInChannel = mChannelData[ERoute::kInput].Get(i);
       pInChannel->mScratchBuf.Resize(blockSize);
       memset(pInChannel->mScratchBuf.Get(), 0, blockSize * sizeof(PLUG_SAMPLE_DST));
+
+      // an unconnected channel uses the scratch buffer, which may have moved
+      if (!pInChannel->mConnected)
+        *(pInChannel->mData) = pInChannel->mScratchBuf.Get();
     }
 
     for (i = 0; i < nOut; ++i)
@@ -606,6 +610,10 @@ void IPlugProcessor::SetBlockSize(int blockSize)
       IChannelData<>* pOutChannel = mChannelData[ERoute::kOutput].Get(i);
       pOutChannel->mScratchBuf.Resize(blockSize);
       memset(pOutChannel->mScratchBuf.Get(), 0, blockSize * sizeof(PLUG_SAMPLE_DST));
+
+      // an unconnected channel uses the scratch buffer, which may have moved
+      if (!pOutChannel->mConnected)
+        *(pOutChannel->mData) = pOutChannel->mScratchBuf.Get();
     }
 
     mBlockSize = blockSize;
