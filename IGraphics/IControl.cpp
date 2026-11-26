@@ -458,7 +458,7 @@ void IControl::OnPopupMenuSelection(IPopupMenu* pSelectedMenu, int valIdx)
 {
   if (pSelectedMenu && valIdx > kNoValIdx && GetParamIdx(valIdx) > kNoParameter && !mDisablePrompt)
   {
-    SetValueFromUserInput(GetParam()->ToNormalized( (double) pSelectedMenu->GetChosenItemIdx()), valIdx);
+    SetValueFromUserInput(GetParam(valIdx)->ToNormalized( (double) pSelectedMenu->GetChosenItemIdx()), valIdx);
   }
 }
 

@@ -810,10 +810,7 @@ TEST_CASE("SetControlValueAfterPopupMenu: is ignored when no pop-up menu is in p
   REQUIRE(f.mDlg.mParamEvents.empty());
 }
 
-// BUG: IControl::OnPopupMenuSelection() (IGraphics/IControl.cpp:461) converts the chosen item index with GetParam(),
-// i.e. the parameter linked to value index 0, instead of GetParam(valIdx). For a multi-parameter control whose enum
-// parameter is not at value index 0 the chosen item is normalized with the wrong parameter's range.
-TEST_CASE("PromptUserInput: a pop-up menu for a value other than the first uses that value's parameter", "[.][bug]")
+TEST_CASE("PromptUserInput: a pop-up menu for a value other than the first uses that value's parameter", "[integration][params][prompt][popupmenu]")
 {
   Fixture f;
   auto* pProbe = f.mUI->AttachControl(new ProbeControl(IRECT(80, 240, 180, 280), {kGain, kMode}))->As<ProbeControl>();
