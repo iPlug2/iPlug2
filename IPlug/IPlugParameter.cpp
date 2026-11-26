@@ -152,12 +152,12 @@ void IParam::InitDouble(const char* name, double defaultVal, double minVal, doub
   mMin = minVal;
   mMax = std::max(maxVal, minVal + step);
   mStep = step;
-  mDefault = defaultVal;
   mUnit = unit;
   mFlags = flags;
   mDisplayFunction = displayFunc;
+  mDefault = Constrain(defaultVal);
 
-  Set(defaultVal);
+  SetToDefault();
   
   for (mDisplayPrecision = 0;
        mDisplayPrecision < MAX_PARAM_DISPLAY_PRECISION && step != floor(step);

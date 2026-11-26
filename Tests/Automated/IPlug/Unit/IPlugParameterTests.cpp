@@ -205,10 +205,7 @@ TEST_CASE("IParam: InitDouble clamps values to the range", "[unit][param]")
   }
 }
 
-// BUG: IPlugParameter.cpp:151-160. The comment in InitDouble() says "apply stepping and constraints to the
-// default value (and store the result)" but mDefault is stored unconstrained, so GetDefault() can report a
-// value outside [min, max] and SetToDefault() puts the parameter out of range.
-TEST_CASE("IParam: an out of range default is constrained", "[.][bug]")
+TEST_CASE("IParam: an out of range default is constrained", "[unit][param]")
 {
   IParam p;
   p.InitDouble("P", 50., 0., 10., 0.1);
