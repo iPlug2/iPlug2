@@ -1,6 +1,6 @@
 // this is used for macOS Developer ID / Appstore code-signing
 CERTIFICATE_ID = Oliver Larkin
-DEVELOPMENT_TEAM = 686EDA2T8T // log in to developer.apple.com and see the end of the URL e.g. https://developer.apple.com/account/#/overview/686EDA2T8T
+DEVELOPMENT_TEAM = 28929UGP5Q // log in to developer.apple.com and see the end of the URL e.g. https://developer.apple.com/account/#/overview/28929UGP5Q
 
 // Which compiler to use
 COMPILER = com.apple.compilers.llvm.clang.1_0
@@ -81,8 +81,12 @@ SKIA_INC_PATHS = $(SKIA_PATH)
 
 YOGA_INC_PATHS = $(YOGA_PATH) $(YOGA_PATH)/yoga
 
+// AccessKit is downloaded with Dependencies/IGraphics/download-accesskit.sh
+ACCESSKIT_PATH = $(DEPS_PATH)/Build/accesskit
+ACCESSKIT_INC_PATH = $(ACCESSKIT_PATH)/include
+
 // you can optionally include this build setting, by adding it to EXTRA_INC_PATHS in MyProject.xcconfig in order to get all varieties of IGraphics suppor
-IGRAPHICS_INC_PATHS = $(IGRAPHICS_PATH) $(CONTROLS_PATH) $(PLATFORMS_PATH) $(DRAWING_PATH) $(NSVG_PATH) $(NVG_PATH) $(NVGMTL_PATH) $(SKIA_INC_PATHS) $(FT_PATH) $(STB_PATH) $(YOGA_INC_PATHS)
+IGRAPHICS_INC_PATHS = $(IGRAPHICS_PATH) $(CONTROLS_PATH) $(PLATFORMS_PATH) $(DRAWING_PATH) $(NSVG_PATH) $(NVG_PATH) $(NVGMTL_PATH) $(SKIA_INC_PATHS) $(FT_PATH) $(STB_PATH) $(YOGA_INC_PATHS) $(ACCESSKIT_INC_PATH)
 
 LIB_SKIA = $(BUILT_LIBS_LIB_PATH)/libskia.a
 LIB_SKOTTIE = $(BUILT_LIBS_LIB_PATH)/libskottie.a
@@ -94,6 +98,12 @@ LIB_SVG = $(BUILT_LIBS_LIB_PATH)/libsvg.a
 
 SKIA_LNK_FLAGS = $(LIB_SKIA) $(LIB_SKOTTIE) $(LIB_SKSG) $(LIB_SKSHAPER) $(LIB_SKPARAGRAPH) $(LIB_SKUNICODE) $(LIB_SVG)
 IGRAPHICS_LNK_FLAGS = $(SKIA_LNK_FLAGS)
+
+// for accessibility support, add IGRAPHICS_ACCESSKIT to EXTRA_ALL_DEFS and $(ACCESSKIT_LNK_FLAGS) to EXTRA_LNK_FLAGS in your plug-in's xcconfig
+LIB_ACCESSKIT_iphoneos = $(ACCESSKIT_PATH)/lib/ios/arm64/static/libaccesskit.a
+LIB_ACCESSKIT_iphonesimulator = $(ACCESSKIT_PATH)/lib/ios-simulator/universal/static/libaccesskit.a
+LIB_ACCESSKIT = $(LIB_ACCESSKIT_$(PLATFORM_NAME))
+ACCESSKIT_LNK_FLAGS = $(LIB_ACCESSKIT)
 
 AUv3_FRAMEWORKS = -framework AudioToolbox -framework AVFoundation -framework CoreAudioKit -framework QuartzCore -framework UIKit -framework CoreText -framework CoreGraphics -framework UniformTypeIdentifiers -framework Accelerate
 

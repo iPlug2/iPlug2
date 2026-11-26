@@ -2538,6 +2538,87 @@ struct IVStyle
 
 const IVStyle DEFAULT_STYLE = IVStyle();
 
+/** The semantic role of a control (or part of a control), reported to assistive technology such as screen readers */
+enum class EAccessibleRole
+{
+  None, // Not exposed to assistive technology
+  Group,
+  Label,
+  Button,
+  Toggle,
+  Slider,
+  ComboBox,
+  RadioGroup,
+  RadioButton,
+  TabList,
+  Tab,
+  Meter,
+  Image,
+  TextInput
+};
+
+/** An action that can be performed on a control via assistive technology or keyboard navigation */
+enum class EAccessibleAction
+{
+  Click,
+  Increment,
+  Decrement,
+  SetValue,
+  Focus
+};
+
+/** Used to describe a control (or a part of a control) to assistive technology. @see IControl::GetAccessibleNodes() */
+struct IAccessibleNode
+{
+  EAccessibleRole role = EAccessibleRole::None;
+  WDL_String label; // The name of the node, e.g. "Gain"
+  WDL_String valueText; // The value as it should be read out, e.g. "-6 dB"
+  WDL_String description; // Optional extra information, e.g. a tooltip
+  IRECT bounds; // In the same coordinate space as IControl::GetRECT()
+  bool hasNumericValue = false;
+  double value = 0.; // Only valid if hasNumericValue, in the same units as min/max/step
+  double min = 0.;
+  double max = 1.;
+  double step = 0.01;
+  int toggled = -1; // -1: not toggleable, 0: off, 1: on
+  int expanded = -1; // -1: not expandable, 0: collapsed, 1: expanded. For e.g. a button that shows/hides a section
+  bool selected = false; // For RadioButton/Tab
+  bool disabled = false;
+  bool focusable = false; // Can take keyboard focus
+
+  /** @return \c true if the role is one that the user can interact with */
+  bool IsInteractive() const
+  {
+    switch (role)
+    {
+      case EAccessibleRole::Button:
+      case EAccessibleRole::Toggle:
+      case EAccessibleRole::Slider:
+      case EAccessibleRole::ComboBox:
+      case EAccessibleRole::RadioButton:
+      case EAccessibleRole::Tab:
+      case EAccessibleRole::TextInput:
+        return true;
+      default:
+        return false;
+    }
+  }
+
+  bool operator==(const IAccessibleNode& rhs) const
+  {
+    return role == rhs.role && bounds == rhs.bounds && hasNumericValue == rhs.hasNumericValue
+      && value == rhs.value && min == rhs.min && max == rhs.max && step == rhs.step
+      && toggled == rhs.toggled && expanded == rhs.expanded && selected == rhs.selected && disabled == rhs.disabled && focusable == rhs.focusable
+      && !strcmp(label.Get(), rhs.label.Get()) && !strcmp(valueText.Get(), rhs.valueText.Get())
+      && !strcmp(description.Get(), rhs.description.Get());
+  }
+
+  bool operator!=(const IAccessibleNode& rhs) const { return !(*this == rhs); }
+};
+
+/** A list of IAccessibleNode. The first node describes the control itself, any following nodes are its children */
+using IAccessibleNodeList = std::vector<IAccessibleNode>;
+
 END_IGRAPHICS_NAMESPACE
 END_IPLUG_NAMESPACE
 

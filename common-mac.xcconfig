@@ -1,6 +1,6 @@
 // this is used for macOS Developer ID / Appstore code-signing
 CERTIFICATE_ID = Oliver Larkin
-DEVELOPMENT_TEAM = 686EDA2T8T // log in to developer.apple.com and see the end of the URL e.g. https://developer.apple.com/account/#/overview/686EDA2T8T
+DEVELOPMENT_TEAM = 28929UGP5Q // log in to developer.apple.com and see the end of the URL e.g. https://developer.apple.com/account/#/overview/28929UGP5Q
 
 // Which compiler to use
 //COMPILER = com.intel.compilers.icc.12_1_0
@@ -98,13 +98,16 @@ STB_PATH = $(DEPS_PATH)/IGraphics/STB
 FT_PATH = $(BUILT_LIBS_INC_PATH)/freetype2
 SKIA_PATH = $(DEPS_PATH)/Build/src/skia
 YOGA_PATH = $(DEPS_PATH)/IGraphics/yoga
+// AccessKit is downloaded with Dependencies/IGraphics/download-accesskit.sh
+ACCESSKIT_PATH = $(DEPS_PATH)/Build/accesskit
+ACCESSKIT_INC_PATH = $(ACCESSKIT_PATH)/include
 
 SKIA_INC_PATHS = $(SKIA_PATH)
 
 YOGA_INC_PATHS = $(YOGA_PATH) $(YOGA_PATH)/yoga
 
 // you can optionally include this build setting, by adding it to EXTRA_INC_PATHS in MyProject.xcconfig in order to get all varieties of IGraphics support
-IGRAPHICS_INC_PATHS = $(IGRAPHICS_PATH) $(IGRAPHICS_PATH)/Controls $(IGRAPHICS_PATH)/Platforms $(IGRAPHICS_PATH)/Drawing $(IGRAPHICS_PATH)/Extras $(NSVG_PATH) $(NVG_PATH) $(NVGMTL_PATH) $(BUILT_LIBS_INC_PATH) $(FT_PATH) $(STB_PATH) $(SKIA_INC_PATHS) $(YOGA_INC_PATHS)
+IGRAPHICS_INC_PATHS = $(IGRAPHICS_PATH) $(IGRAPHICS_PATH)/Controls $(IGRAPHICS_PATH)/Platforms $(IGRAPHICS_PATH)/Drawing $(IGRAPHICS_PATH)/Extras $(NSVG_PATH) $(NVG_PATH) $(NVGMTL_PATH) $(BUILT_LIBS_INC_PATH) $(FT_PATH) $(STB_PATH) $(SKIA_INC_PATHS) $(YOGA_INC_PATHS) $(ACCESSKIT_INC_PATH)
 
 // *****  LINKER/LIBRARY INCLUDE PATHS AND LINKER FLAGS
 
@@ -120,6 +123,7 @@ LIB_SKPARAGRAPH = $(BUILT_LIBS_LIB_PATH)/libskparagraph.a
 LIB_SKUNICODE = $(BUILT_LIBS_LIB_PATH)/libskunicode_core.a $(BUILT_LIBS_LIB_PATH)/libskunicode_icu.a
 LIB_SVG = $(BUILT_LIBS_LIB_PATH)/libsvg.a
 //LIB_YOGA = $(BUILT_LIBS_LIB_PATH)/libyoga.a
+LIB_ACCESSKIT = $(ACCESSKIT_PATH)/lib/macos/universal/static/libaccesskit.a
 
 
 //YOGA_LNK_FLAGS = $(LIB_YOGA)
@@ -128,6 +132,9 @@ LIB_SVG = $(BUILT_LIBS_LIB_PATH)/libsvg.a
 SKIA_LNK_FLAGS = $(LIB_SKIA) $(LIB_SKOTTIE) $(LIB_SKSG) $(LIB_SKSHAPER) $(LIB_SKPARAGRAPH) $(LIB_SKUNICODE) $(LIB_SVG)
 FREETYPE_LNK_FLAGS = $(LIB_FT) //$(LIB_PNG) $(LIB_Z)
 IGRAPHICS_LNK_FLAGS = $(SKIA_LNK_FLAGS) $(FREETYPE_LNK_FLAGS)
+
+// for accessibility support, add IGRAPHICS_ACCESSKIT to EXTRA_ALL_DEFS and $(ACCESSKIT_LNK_FLAGS) to EXTRA_LNK_FLAGS in your plug-in's xcconfig
+ACCESSKIT_LNK_FLAGS = $(LIB_ACCESSKIT)
 
 ALL_FRAMEWORKS = -framework Cocoa -framework Carbon -framework CoreFoundation -framework CoreData -framework Foundation -framework CoreServices -framework QuartzCore 
 APP_FRAMEWORKS = -framework AppKit -framework CoreMIDI -framework CoreAudio

@@ -25,7 +25,13 @@
     <STATIC_LIBS_PATH>$(DEPS_PATH)\Build\win\$(Platform)\$(Configuration)</STATIC_LIBS_PATH>
     <ICUDAT_PATH>$(DEPS_PATH)\Build\win\bin\icudtl.dat</ICUDAT_PATH>
     <YOGA_INC_PATHS>$(IGRAPHICS_DEPS_PATH)\yoga;$(IGRAPHICS_DEPS_PATH)\yoga\yoga</YOGA_INC_PATHS>
-    <IGRAPHICS_INC_PATHS>$(IGRAPHICS_PATH);$(IGRAPHICS_PATH)\Controls;$(IGRAPHICS_PATH)\Drawing;$(IGRAPHICS_PATH)\Platforms;$(IGRAPHICS_PATH)\Extras;$(NANOSVG_PATH);$(NANOVG_PATH);$(PNG_PATH);$(ZLIB_PATH);$(FREETYPE_PATH);$(STB_PATH);$(SKIA_INC_PATHS);$(YOGA_INC_PATHS)</IGRAPHICS_INC_PATHS>
+    <ACCESSKIT_PATH>$(DEPS_PATH)\Build\accesskit</ACCESSKIT_PATH>
+    <ACCESSKIT_INC_PATH>$(ACCESSKIT_PATH)\include</ACCESSKIT_INC_PATH>
+    <ACCESSKIT_ARCH Condition="'$(Platform)'=='x64'">x86_64</ACCESSKIT_ARCH>
+    <ACCESSKIT_ARCH Condition="'$(Platform)'=='Win32'">x86</ACCESSKIT_ARCH>
+    <ACCESSKIT_ARCH Condition="'$(Platform)'=='ARM64' Or '$(Platform)'=='ARM64EC'">arm64</ACCESSKIT_ARCH>
+    <ACCESSKIT_LIB_PATH>$(ACCESSKIT_PATH)\lib\windows\$(ACCESSKIT_ARCH)\msvc\static</ACCESSKIT_LIB_PATH>
+    <IGRAPHICS_INC_PATHS>$(IGRAPHICS_PATH);$(IGRAPHICS_PATH)\Controls;$(IGRAPHICS_PATH)\Drawing;$(IGRAPHICS_PATH)\Platforms;$(IGRAPHICS_PATH)\Extras;$(NANOSVG_PATH);$(NANOVG_PATH);$(PNG_PATH);$(ZLIB_PATH);$(FREETYPE_PATH);$(STB_PATH);$(SKIA_INC_PATHS);$(YOGA_INC_PATHS);$(ACCESSKIT_INC_PATH)</IGRAPHICS_INC_PATHS>
     <CLAP_SDK Condition="'$(CLAP_SDK)'==''">$(IPLUG_DEPS_PATH)\CLAP_SDK\include</CLAP_SDK>
     <CLAP_HELPERS Condition="'$(CLAP_HELPERS)'==''">$(IPLUG_DEPS_PATH)\CLAP_HELPERS\include\clap\helpers</CLAP_HELPERS>
     <VST2_SDK Condition="'$(VST2_SDK)'==''">$(IPLUG_DEPS_PATH)\VST2_SDK</VST2_SDK>
@@ -90,7 +96,7 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(STATIC_LIBS_PATH);$(AAX_SDK)\Libs\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(STATIC_LIBS_PATH);$(ACCESSKIT_LIB_PATH);$(AAX_SDK)\Libs\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <ImportLibrary>$(IntDir)$(TargetName).lib</ImportLibrary>
     </Link>
     <Lib>

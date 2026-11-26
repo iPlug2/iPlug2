@@ -10,7 +10,7 @@
 		4F0D965B23099F5A00BFDED0 /* IPlugProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FFF103420A0E55900D3092F /* IPlugProcessor.cpp */; };
 		4F10E7C020B17EDB00F5B09B /* IGraphicsTest-iOS-MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4F10E7BF20B17EDB00F5B09B /* IGraphicsTest-iOS-MainInterface.storyboard */; };
 		4F1115CF2296DA95000CFCBF /* IGraphicsTest-iOS-MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4F10E7BF20B17EDB00F5B09B /* IGraphicsTest-iOS-MainInterface.storyboard */; };
-		4F1C2D5523D731D20088AE84 /* IGraphicsFlexBox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F1C2D5023D731CA0088AE84 /* IGraphicsFlexBox.cpp */; };
+		4F1C2D5523D731D20088AE84 /* IGraphicsFlexBox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F1C2D5023D731CA0088AE84 /* IGraphicsFlexBox.cpp */; settings = {COMPILER_FLAGS = "-std=c++20"; }; };
 		4F32AE7D231431BD00710734 /* AUv3Framework.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FA61F6E22E899B500A92C58 /* AUv3Framework.framework */; };
 		4F3E0F6A20A0BCD900A9C2BE /* IGraphicsTest-iOS.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4F3E0F6720A0BC5B00A9C2BE /* IGraphicsTest-iOS.storyboard */; };
 		4F3E0F6B20A0BCE300A9C2BE /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4F3E0F6820A0BCAF00A9C2BE /* Images.xcassets */; };
@@ -767,12 +767,12 @@
 				LastUpgradeCheck = 1250;
 				TargetAttributes = {
 					4FA61F6D22E899B500A92C58 = {
-						DevelopmentTeam = 686EDA2T8T;
+						DevelopmentTeam = 28929UGP5Q;
 						ProvisioningStyle = Automatic;
 					};
 					91236D0C1B08F42B00734C5E = {
 						CreatedOnToolsVersion = 7.0;
-						DevelopmentTeam = 686EDA2T8T;
+						DevelopmentTeam = 28929UGP5Q;
 						LastSwiftMigration = 1010;
 						SystemCapabilities = {
 							com.apple.ApplicationGroups.iOS = {
@@ -788,7 +788,7 @@
 					};
 					91236D761B08F59300734C5E = {
 						CreatedOnToolsVersion = 7.0;
-						DevelopmentTeam = 686EDA2T8T;
+						DevelopmentTeam = 28929UGP5Q;
 						LastSwiftMigration = 1010;
 					};
 				};

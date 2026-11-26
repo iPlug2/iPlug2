@@ -516,6 +516,38 @@ public:
   /** Helper function to dynamic cast an IControl to a subclass */
   template <class T>
   T* As() { return dynamic_cast<T*>(this); }
+
+#pragma mark - Accessibility
+
+  /** Describe the control for assistive technology (e.g. screen readers) and keyboard navigation.
+   * The default implementation adds a single node based on the role set with SetAccessibleRole() and the parameter linked to the control (if any).
+   * Override this for custom controls that have a more complex structure: the first node added describes the control itself, and any following nodes are treated as its children.
+   * If no nodes are added, or the role of the first node is EAccessibleRole::None, the control is not exposed.
+   * @param nodes The list to add nodes to */
+  virtual void GetAccessibleNodes(IAccessibleNodeList& nodes);
+
+  /** Perform an action requested by assistive technology or keyboard navigation
+   * @param action The action to perform
+   * @param nodeIdx The index of the node that the action should be performed on, in the list supplied by GetAccessibleNodes()
+   * @param value For EAccessibleAction::SetValue the new value, in the units of IAccessibleNode::value. For EAccessibleAction::Increment / EAccessibleAction::Decrement the number of steps
+   * @return \c true if the action was handled */
+  virtual bool OnAccessibleAction(EAccessibleAction action, int nodeIdx = 0, double value = 1.);
+
+  /** Set the role that the control reports to assistive technology. Most of the base controls set a suitable role, so this is usually only needed for custom controls
+   * @param role The role
+   * @return Ptr to this control, for chaining */
+  IControl* SetAccessibleRole(EAccessibleRole role) { mAccessibleRole = role; return this; }
+
+  /** @return The role that the control reports to assistive technology */
+  EAccessibleRole GetAccessibleRole() const { return mAccessibleRole; }
+
+  /** Set the label that the control reports to assistive technology. If this isn't set, the label is taken from the IVControl label, the tooltip or the name of the parameter linked to the control
+   * @param str CString label
+   * @return Ptr to this control, for chaining */
+  IControl* SetAccessibleLabel(const char* str) { mAccessibleLabel.Set(str); return this; }
+
+  /** @return The label set with SetAccessibleLabel() */
+  const char* GetAccessibleLabel() const { return mAccessibleLabel.Get(); }
     
 #if defined VST3_API || defined VST3C_API
   Steinberg::tresult PLUGIN_API executeMenuItem (Steinberg::int32 tag) override { OnContextSelection(tag); return Steinberg::kResultOk; }
@@ -567,6 +599,25 @@ protected:
 
   IColor mPTHighlightColor = COLOR_RED;
   bool mPTisHighlighted = false;
+
+  WDL_String mAccessibleLabel;
+  EAccessibleRole mAccessibleRole = EAccessibleRole::None;
+
+  /** Helper for GetAccessibleNodes(). Fills in a node for one of the control's values, based on the parameter linked to that value (if any)
+   * @param node The node to fill in
+   * @param role The role of the node
+   * @param valIdx The index of the value */
+  void InitAccessibleNode(IAccessibleNode& node, EAccessibleRole role, int valIdx = 0);
+
+  /** Helper for OnAccessibleAction(). Moves one of the control's values up or down, respecting the stepping of the parameter linked to that value (if any)
+   * @param valIdx The index of the value
+   * @param nSteps The number of steps to move by, can be negative */
+  void StepValueFromUserInput(int valIdx, int nSteps);
+
+  /** Helper for OnAccessibleAction(). Sets one of the control's values from a non-normalized value
+   * @param valIdx The index of the value
+   * @param value The new value, in the units of IAccessibleNode::value */
+  void SetNonNormalizedValueFromUserInput(int valIdx, double value);
   
   void SetNVals(int nVals)
   {
@@ -810,6 +861,7 @@ public:
   
   void SetLabelStr(const char* label) { mLabelStr.Set(label); mControl->SetDirty(false); OnStyleChanged(); }
   const char* GetLabelStr() const { return mLabelStr.Get(); }
+  const char* GetValueStr() const { return mValueStr.Get(); }
   void SetValueStr(const char* value) { mValueStr.Set(value); mControl->SetDirty(false); OnStyleChanged(); }
   void SetWidgetFrac(float frac) { mStyle.widgetFrac = Clip(frac, 0.f, 1.f);  mControl->OnResize(); mControl->SetDirty(false); OnStyleChanged(); }
   void SetAngle(float angle) { mStyle.angle = Clip(angle, 0.f, 360.f);  mControl->SetDirty(false); OnStyleChanged(); }
@@ -1376,7 +1428,9 @@ public:
   : IControl(bounds, paramIdx)
   , mDirection(direction)
   , mGearing(gearing)
-  {}
+  {
+    mAccessibleRole = EAccessibleRole::Slider;
+  }
 
   void OnMouseDown(float x, float y, const IMouseMod& mod) override;
   void OnMouseUp(float x, float y, const IMouseMod& mod) override;
@@ -1648,6 +1702,40 @@ public:
     return mTrackNames.GetSize() > 0;
   }
   
+  void GetAccessibleNodes(IAccessibleNodeList& nodes) override
+  {
+    if (mAccessibleRole == EAccessibleRole::None)
+      return;
+
+    const int nVals = NVals();
+
+    // Meters etc. are exposed as a single node, since their values change continuously
+    if (nVals == 1 || mAccessibleRole != EAccessibleRole::Slider)
+    {
+      nodes.emplace_back();
+      InitAccessibleNode(nodes.back(), mAccessibleRole);
+      return;
+    }
+
+    nodes.emplace_back();
+    InitAccessibleNode(nodes.back(), EAccessibleRole::Group);
+
+    for (int ch = 0; ch < nVals; ch++)
+    {
+      nodes.emplace_back();
+      IAccessibleNode& node = nodes.back();
+      InitAccessibleNode(node, EAccessibleRole::Slider, ch);
+      node.bounds = mTrackBounds.Get()[ch];
+
+      if (CStringHasContents(GetTrackName(ch)))
+        node.label.Set(GetTrackName(ch));
+      else if (GetParam(ch))
+        node.label.Set(GetParam(ch)->GetName());
+      else
+        node.label.SetFormatted(64, "%s %i", nodes[0].label.Get(), ch + 1);
+    }
+  }
+
   const char* GetTrackName(int chIdx) const
   {
     WDL_String* pStr = mTrackNames.Get(chIdx);
@@ -1884,6 +1972,8 @@ public:
   void OnInit() override;
   void OnMouseDown(float x, float y, const IMouseMod& mod) override;
   void OnMouseUp(float x, float y, const IMouseMod& mod) override;
+  void GetAccessibleNodes(IAccessibleNodeList& nodes) override;
+  bool OnAccessibleAction(EAccessibleAction action, int nodeIdx = 0, double value = 1.) override;
   
   int GetSelectedIdx() const { return int(0.5 + GetValue() * (double) (mNumStates - 1)); }
   
@@ -2160,6 +2250,7 @@ public:
 
   void Draw(IGraphics& g) override;
   void OnInit() override;
+  void GetAccessibleNodes(IAccessibleNodeList& nodes) override;
 
   /** Set the text to display. NOTE: does not set the control dirty.
    @param str CString with the text to display */

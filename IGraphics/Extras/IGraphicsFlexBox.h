@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include "Yoga.h"
+#include <yoga/Yoga.h>
 #include "IGraphicsStructs.h"
 
 BEGIN_IPLUG_NAMESPACE

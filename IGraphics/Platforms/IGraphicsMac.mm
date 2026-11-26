@@ -96,6 +96,12 @@ void* IGraphicsMac::OpenWindow(void* pParent)
   CloseWindow();
   IGRAPHICS_VIEW* pView = [[IGRAPHICS_VIEW alloc] initWithIGraphics: this];
   mView = (void*) pView;
+
+#ifdef IGRAPHICS_ACCESSKIT
+  auto pAccessibility = std::make_unique<IGraphicsAccessibilityMac>(*this, pView);
+  pView->mAccessibility = pAccessibility.get();
+  mAccessibility = std::move(pAccessibility);
+#endif
     
   ActivateGLContext();
   OnViewInitialized([pView layer]);
@@ -148,6 +154,10 @@ void IGraphicsMac::CloseWindow()
 
     [pView removeAllToolTips];
     [pView killTimer];
+#ifdef IGRAPHICS_ACCESSKIT
+    pView->mAccessibility = nullptr;
+    mAccessibility = nullptr;
+#endif
     [pView removeFromSuperview];
     [pView release];
       

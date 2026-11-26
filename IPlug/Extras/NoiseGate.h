@@ -118,7 +118,8 @@ private:
   double mHoldTime = 0.01f;
   double mReleaseTime = 0.01f;
   double mMinRate = mAttackTime;
-  T mHistory1, mHistory2 = 0.0f;
+  T mHistory1 = T(0);
+  T mHistory2 = T(0);
   bool mPrevGate = false;
   int mHoldCounter = 0;
 };

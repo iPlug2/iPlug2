@@ -116,7 +116,7 @@ static int MacKeyEventToVK(NSEvent* pEvent, int& flag)
       else
       {
         if (code >= 'a' && code <= 'z') code += 'A'-'a';
-        if (code == 25 && (flag & FSHIFT)) code = kVK_TAB;
+        if (code == 25 && (flag & kFSHIFT)) code = kVK_TAB;
         if (isalnum(code) || code==' ' || code == '\r' || code == '\n' || code ==27 || code == kVK_TAB) flag |= kFVIRTKEY;
       }
     }
@@ -379,6 +379,51 @@ static int MacKeyEventToVK(NSEvent* pEvent, int& flag)
 
 extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 
+#ifdef IGRAPHICS_ACCESSKIT
+IGraphicsAccessibilityMac::IGraphicsAccessibilityMac(IGraphics& graphics, NSView* pView)
+: IGraphicsAccessibility(graphics)
+{
+  mAdapter = accesskit_macos_adapter_new((void*) pView, false, ActionHandler, this);
+}
+
+IGraphicsAccessibilityMac::~IGraphicsAccessibilityMac()
+{
+  accesskit_macos_adapter_free(mAdapter);
+}
+
+void IGraphicsAccessibilityMac::UpdateIfActive(accesskit_tree_update_factory factory, void* pUserData)
+{
+  if (accesskit_macos_queued_events* pEvents = accesskit_macos_adapter_update_if_active(mAdapter, factory, pUserData))
+    accesskit_macos_queued_events_raise(pEvents);
+}
+
+void IGraphicsAccessibilityMac::SetViewFocused(bool focused)
+{
+  if (focused == mViewFocused)
+    return;
+
+  mViewFocused = focused;
+
+  if (accesskit_macos_queued_events* pEvents = accesskit_macos_adapter_update_view_focus_state(mAdapter, focused))
+    accesskit_macos_queued_events_raise(pEvents);
+}
+
+NSArray* IGraphicsAccessibilityMac::GetChildren()
+{
+  return (NSArray*) accesskit_macos_adapter_view_children(mAdapter, ActivationHandler, this);
+}
+
+id IGraphicsAccessibilityMac::GetFocus()
+{
+  return (id) accesskit_macos_adapter_focus(mAdapter, ActivationHandler, this);
+}
+
+id IGraphicsAccessibilityMac::HitTest(NSPoint point)
+{
+  return (id) accesskit_macos_adapter_hit_test(mAdapter, point.x, point.y, ActivationHandler, this);
+}
+#endif
+
 @implementation IGRAPHICS_VIEW
 
 - (CALayer *)makeBackingLayer
@@ -625,6 +670,88 @@ static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
   return YES;
 }
 
+#ifdef IGRAPHICS_ACCESSKIT
+- (void) updateAccessibilityFocus
+{
+  if (mAccessibility)
+  {
+    NSWindow* pWindow = [self window];
+    mAccessibility->SetViewFocused(pWindow && [pWindow isKeyWindow] && [pWindow firstResponder] == self);
+  }
+}
+
+- (BOOL) becomeFirstResponder
+{
+  BOOL result = [super becomeFirstResponder];
+
+  // The window's first responder hasn't been updated yet
+  dispatch_async(dispatch_get_main_queue(), ^{ [self updateAccessibilityFocus]; });
+
+  return result;
+}
+
+- (BOOL) resignFirstResponder
+{
+  BOOL result = [super resignFirstResponder];
+  dispatch_async(dispatch_get_main_queue(), ^{ [self updateAccessibilityFocus]; });
+  return result;
+}
+
+- (void) windowKeyStateChanged: (NSNotification*) pNotification
+{
+  [self updateAccessibilityFocus];
+}
+
+- (NSArray*) accessibilityChildren
+{
+  NSArray* pChildren = [super accessibilityChildren];
+
+  if (mAccessibility)
+  {
+    NSArray* pControlChildren = mAccessibility->GetChildren();
+
+    // Any subviews (e.g. a text entry) come after the controls
+    if (pControlChildren)
+      pChildren = pChildren ? [pControlChildren arrayByAddingObjectsFromArray: pChildren] : pControlChildren;
+  }
+
+  return pChildren;
+}
+
+- (id) accessibilityFocusedUIElement
+{
+  if (mAccessibility && [[self window] firstResponder] == self)
+  {
+    id pElement = mAccessibility->GetFocus();
+
+    if (pElement)
+      return pElement;
+  }
+
+  return [super accessibilityFocusedUIElement];
+}
+
+- (id) accessibilityHitTest: (NSPoint) point
+{
+  // Subviews take priority, since they are on top of the controls
+  for (NSView* pSubview in [self subviews])
+  {
+    if (![pSubview isHidden] && NSPointInRect([self convertPoint: [[self window] convertPointFromScreen: point] fromView: nil], [pSubview frame]))
+      return [super accessibilityHitTest: point];
+  }
+
+  if (mAccessibility)
+  {
+    id pElement = mAccessibility->HitTest(point);
+
+    if (pElement)
+      return pElement;
+  }
+
+  return [super accessibilityHitTest: point];
+}
+#endif
+
 - (BOOL) acceptsFirstMouse: (NSEvent*) pEvent
 {
   return YES;
@@ -633,6 +760,19 @@ static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
 - (void) viewDidMoveToWindow
 {
   NSWindow* pWindow = [self window];
+
+#ifdef IGRAPHICS_ACCESSKIT
+  [[NSNotificationCenter defaultCenter] removeObserver:self name:NSWindowDidBecomeKeyNotification object:nil];
+  [[NSNotificationCenter defaultCenter] removeObserver:self name:NSWindowDidResignKeyNotification object:nil];
+
+  if (pWindow)
+  {
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(windowKeyStateChanged:) name:NSWindowDidBecomeKeyNotification object:pWindow];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(windowKeyStateChanged:) name:NSWindowDidResignKeyNotification object:pWindow];
+  }
+
+  dispatch_async(dispatch_get_main_queue(), ^{ [self updateAccessibilityFocus]; });
+#endif
   
   if (pWindow)
   {

@@ -305,6 +305,7 @@ IVTabSwitchControl::IVTabSwitchControl(const IRECT& bounds, int paramIdx, const 
   mText.mAlign = mStyle.valueText.mAlign = EAlign::Center;
   mText.mVAlign = mStyle.valueText.mVAlign = EVAlign::Middle;
   mShape = shape;
+  mAccessibleRole = EAccessibleRole::RadioGroup;
 
   for (auto& option : options)
   {
@@ -322,6 +323,7 @@ IVTabSwitchControl::IVTabSwitchControl(const IRECT& bounds, IActionFunction aF, 
   mText.mAlign = mStyle.valueText.mAlign = EAlign::Center;
   mText.mVAlign = mStyle.valueText.mVAlign = EVAlign::Middle;
   mShape = shape;
+  mAccessibleRole = EAccessibleRole::RadioGroup;
 
   for (auto& option : options)
   {
@@ -460,6 +462,51 @@ void IVTabSwitchControl::OnResize()
   SetDirty(false);
 }
 
+void IVTabSwitchControl::GetAccessibleNodes(IAccessibleNodeList& nodes)
+{
+  if (mAccessibleRole == EAccessibleRole::None)
+    return;
+
+  const int selectedIdx = GetSelectedIdx();
+  const bool tabs = mAccessibleRole == EAccessibleRole::TabList;
+
+  nodes.emplace_back();
+  InitAccessibleNode(nodes.back(), mAccessibleRole);
+  nodes[0].focusable = !mDisabled; // the group takes the keyboard focus, and the arrow keys change the selection
+
+  if (WDL_String* pStr = mTabLabels.Get(selectedIdx))
+    nodes[0].valueText.Set(pStr->Get());
+
+  for (int i = 0; i < mNumStates && i < mButtons.GetSize(); i++)
+  {
+    nodes.emplace_back();
+    IAccessibleNode& node = nodes.back();
+    node.role = tabs ? EAccessibleRole::Tab : EAccessibleRole::RadioButton;
+    node.bounds = mButtons.Get()[i];
+    node.selected = i == selectedIdx;
+    node.disabled = mDisabled || GetStateDisabled(i);
+
+    if (WDL_String* pStr = mTabLabels.Get(i))
+      node.label.Set(pStr->Get());
+  }
+}
+
+bool IVTabSwitchControl::OnAccessibleAction(EAccessibleAction action, int nodeIdx, double value)
+{
+  if (action == EAccessibleAction::Click)
+  {
+    const int stateIdx = nodeIdx - 1;
+
+    if (mDisabled || stateIdx < 0 || stateIdx >= mNumStates || GetStateDisabled(stateIdx))
+      return false;
+
+    SetNonNormalizedValueFromUserInput(0, GetParam() ? GetParam()->GetMin() + stateIdx : stateIdx / static_cast<double>(mNumStates - 1));
+    return true;
+  }
+
+  return ISwitchControlBase::OnAccessibleAction(action, 0, value);
+}
+
 const char* IVTabSwitchControl::GetSelectedLabelStr() const
 {
   return mTabLabels.Get(GetSelectedIdx())->Get();
@@ -525,9 +572,14 @@ IVMenuButtonControl::IVMenuButtonControl(const IRECT& bounds, int paramIdx, cons
   
   mText = style.valueText;
   mDisablePrompt = false;
+  mAccessibleRole = EAccessibleRole::ComboBox;
+
+  if (CStringHasContents(label))
+    mAccessibleLabel.Set(label);
   
   SetAttachFunc([&, label, style, shape](IContainerBase* pContainer, const IRECT& bounds) {
     AddChildControl(mButtonControl = new IVButtonControl(bounds, SplashClickActionFunc, label, style.WithValueText(style.valueText.WithVAlign(EVAlign::Middle)), false, true, shape), kNoTag, GetGroup());
+    mButtonControl->SetAccessibleRole(EAccessibleRole::None); // the container is exposed as a combo box instead
     
     WDL_String str;
     GetParam()->GetDisplayWithLabel(str);
@@ -541,6 +593,20 @@ IVMenuButtonControl::IVMenuButtonControl(const IRECT& bounds, int paramIdx, cons
   SetResizeFunc([&](IContainerBase* pContainer, const IRECT& bounds) {
     mButtonControl->SetTargetAndDrawRECTs(bounds);
   });
+}
+
+bool IVMenuButtonControl::OnAccessibleAction(EAccessibleAction action, int nodeIdx, double value)
+{
+  if (action == EAccessibleAction::Click)
+  {
+    if (mDisabled || !mButtonControl)
+      return false;
+
+    PromptUserInput(mButtonControl->GetWidgetBounds());
+    return true;
+  }
+
+  return IContainerBase::OnAccessibleAction(action, nodeIdx, value);
 }
 
 void IVMenuButtonControl::SetStyle(const IVStyle& style)
@@ -931,6 +997,7 @@ IVRangeSliderControl::IVRangeSliderControl(const IRECT& bounds, const std::initi
 , mHandleSize(handleSize)
 {
   mTrackSize = trackSize;
+  mAccessibleRole = EAccessibleRole::Slider;
 }
 
 void IVRangeSliderControl::Draw(IGraphics& g)
@@ -1062,6 +1129,31 @@ IVXYPadControl::IVXYPadControl(const IRECT& bounds, const std::initializer_list<
 {
   mShape = EVShape::Ellipse;
   AttachIControl(this, label);
+  mAccessibleRole = EAccessibleRole::Group;
+}
+
+void IVXYPadControl::GetAccessibleNodes(IAccessibleNodeList& nodes)
+{
+  if (mAccessibleRole == EAccessibleRole::None)
+    return;
+
+  nodes.emplace_back();
+  InitAccessibleNode(nodes.back(), mAccessibleRole);
+
+  const int nVals = std::min(NVals(), 2);
+
+  for (int v = 0; v < nVals; v++)
+  {
+    nodes.emplace_back();
+    IAccessibleNode& node = nodes.back();
+    InitAccessibleNode(node, EAccessibleRole::Slider, v);
+    node.bounds = mWidgetBounds;
+
+    if (GetParam(v))
+      node.label.Set(GetParam(v)->GetName());
+    else
+      node.label.SetFormatted(64, "%s %s", nodes[0].label.Get(), v == 0 ? "X" : "Y");
+  }
 }
 
 void IVXYPadControl::Draw(IGraphics& g)
@@ -1221,6 +1313,7 @@ IVGroupControl::IVGroupControl(const IRECT& bounds, const char* label, float lab
 , mLabelOffset(labelOffset)
 {
   AttachIControl(this, label);
+  mAccessibleRole = EAccessibleRole::Group;
   mIgnoreMouse = true;
 }
 
@@ -1234,6 +1327,7 @@ IVGroupControl::IVGroupControl(const char* label, const char* groupName, float p
 , mPadB(padB)
 {
   AttachIControl(this, label);
+  mAccessibleRole = EAccessibleRole::Group;
   mIgnoreMouse = true;
 }
 

@@ -12,6 +12,10 @@ include(${CMAKE_CURRENT_LIST_DIR}/IPlug.cmake)
 
 set(IGRAPHICS_DEPS_DIR ${DEPS_DIR}/IGraphics)
 
+# Optional accessibility support (screen readers etc.) on macOS, iOS, Windows and Linux, using AccessKit
+# Requires the prebuilt libraries, see Dependencies/IGraphics/download-accesskit.sh
+option(IGRAPHICS_ACCESSKIT "Enable IGraphics accessibility support via AccessKit" OFF)
+
 if(NOT TARGET iPlug2::IGraphics)
   add_library(iPlug2::IGraphics INTERFACE IMPORTED)
 
@@ -93,6 +97,67 @@ if(NOT TARGET iPlug2::IGraphics)
       dl
       pthread
     )
+  endif()
+
+  if(IGRAPHICS_ACCESSKIT AND (WIN32 OR APPLE OR (UNIX AND NOT EMSCRIPTEN)) AND NOT "${IPLUG2_IOS_PLATFORM}" MATCHES "VISIONOS")
+    set(ACCESSKIT_DIR "${DEPS_DIR}/Build/accesskit" CACHE PATH "Location of the prebuilt AccessKit C bindings")
+
+    if(WIN32)
+      if(CMAKE_GENERATOR_PLATFORM MATCHES "^(ARM64|arm64)$" OR (NOT CMAKE_GENERATOR_PLATFORM AND CMAKE_SYSTEM_PROCESSOR MATCHES "^(ARM64|arm64|aarch64)$"))
+        set(ACCESSKIT_ARCH "arm64")
+      elseif(CMAKE_SIZEOF_VOID_P EQUAL 4)
+        set(ACCESSKIT_ARCH "x86")
+      else()
+        set(ACCESSKIT_ARCH "x86_64")
+      endif()
+      set(ACCESSKIT_LIB_DIR "${ACCESSKIT_DIR}/lib/windows/${ACCESSKIT_ARCH}/msvc/static")
+      set(ACCESSKIT_LIB "${ACCESSKIT_LIB_DIR}/accesskit.lib")
+    elseif(IOS)
+      if(CMAKE_OSX_SYSROOT MATCHES "simulator")
+        set(ACCESSKIT_LIB_DIR "${ACCESSKIT_DIR}/lib/ios-simulator/universal/static")
+      else()
+        set(ACCESSKIT_LIB_DIR "${ACCESSKIT_DIR}/lib/ios/arm64/static")
+      endif()
+      set(ACCESSKIT_LIB "${ACCESSKIT_LIB_DIR}/libaccesskit.a")
+    elseif(APPLE)
+      set(ACCESSKIT_LIB_DIR "${ACCESSKIT_DIR}/lib/macos/universal/static")
+      set(ACCESSKIT_LIB "${ACCESSKIT_LIB_DIR}/libaccesskit.a")
+    else()
+      # The AccessKit release only has x86_64 and x86 libraries for Linux. For other architectures,
+      # build accesskit-c from source and put libaccesskit.a in lib/linux/<arch>/static
+      if(CMAKE_SYSTEM_PROCESSOR MATCHES "^(ARM64|arm64|aarch64)$")
+        set(ACCESSKIT_ARCH "arm64")
+      elseif(CMAKE_SIZEOF_VOID_P EQUAL 4)
+        set(ACCESSKIT_ARCH "x86")
+      else()
+        set(ACCESSKIT_ARCH "x86_64")
+      endif()
+      set(ACCESSKIT_LIB_DIR "${ACCESSKIT_DIR}/lib/linux/${ACCESSKIT_ARCH}/static")
+      set(ACCESSKIT_LIB "${ACCESSKIT_LIB_DIR}/libaccesskit.a")
+    endif()
+
+    if(NOT EXISTS "${ACCESSKIT_LIB}")
+      message(FATAL_ERROR "IGRAPHICS_ACCESSKIT is ON but ${ACCESSKIT_LIB} was not found. Run Dependencies/IGraphics/download-accesskit.sh")
+    endif()
+
+    target_compile_definitions(iPlug2::IGraphics INTERFACE IGRAPHICS_ACCESSKIT)
+    target_include_directories(iPlug2::IGraphics INTERFACE "${ACCESSKIT_DIR}/include")
+    target_link_libraries(iPlug2::IGraphics INTERFACE "${ACCESSKIT_LIB}")
+
+    if(WIN32)
+      # IGraphicsWin.cpp links accesskit.lib and the system libraries that it needs with #pragma comment(lib, ...)
+      target_link_directories(iPlug2::IGraphics INTERFACE "${ACCESSKIT_LIB_DIR}")
+    elseif(UNIX AND NOT APPLE)
+      target_link_libraries(iPlug2::IGraphics INTERFACE dl pthread m)
+      target_link_options(iPlug2::IGraphics INTERFACE
+        # Don't export AccessKit's symbols, so that plug-ins with different versions of it can't interfere with each other
+        "LINKER:--exclude-libs,libaccesskit.a"
+        # AccessKit's AT-SPI thread runs for as long as the process does, so a plug-in must stay loaded once it has opened a UI
+        "LINKER:-z,nodelete"
+      )
+    endif()
+
+    message(STATUS "IGraphics: accessibility enabled (AccessKit)")
   endif()
 
   target_link_libraries(iPlug2::IGraphics INTERFACE iPlug2::IPlug)
@@ -462,10 +527,15 @@ endif()
 
 # FlexBox layout support (requires Yoga)
 # Use OBJECT library to avoid duplicate symbols when multiple targets link to FlexBox.
-# IGraphicsFlexBox.cpp uses a unity build pattern (#includes Yoga sources), so we
-# compile it in the object library and define IPLUG2_YOGA_COMPILED_SEPARATELY to skip
-# those includes.
+# IGraphicsFlexBox.cpp uses a unity build pattern (#includes Yoga sources), so the
+# object library is the only place Yoga gets compiled.
+# Yoga 3.x requires C++20 to compile. Its public API (yoga/Yoga.h) is plain C, so
+# only this object library needs C++20; consumers can stay on IPLUG2_CXX_STANDARD.
 set(YOGA_DIR ${IGRAPHICS_DEPS_DIR}/yoga)
+set(YOGA_CXX_STANDARD 20)
+if(IPLUG2_CXX_STANDARD GREATER 20)
+  set(YOGA_CXX_STANDARD ${IPLUG2_CXX_STANDARD})
+endif()
 
 if(NOT TARGET iPlug2_Extras_FlexBox_obj)
   add_library(iPlug2_Extras_FlexBox_obj OBJECT
@@ -488,7 +558,7 @@ if(NOT TARGET iPlug2_Extras_FlexBox_obj)
 
   set_target_properties(iPlug2_Extras_FlexBox_obj PROPERTIES
     POSITION_INDEPENDENT_CODE ON
-    CXX_STANDARD ${IPLUG2_CXX_STANDARD}
+    CXX_STANDARD ${YOGA_CXX_STANDARD}
     CXX_STANDARD_REQUIRED ON
   )
 

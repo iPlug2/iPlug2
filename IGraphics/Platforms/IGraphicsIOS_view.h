@@ -45,6 +45,38 @@ inline IColor FromUIColor(const UIColor* c)
 END_IGRAPHICS_NAMESPACE
 END_IPLUG_NAMESPACE
 
+#ifdef IGRAPHICS_ACCESSKIT
+#include "IGraphicsAccessibility.h"
+
+BEGIN_IPLUG_NAMESPACE
+BEGIN_IGRAPHICS_NAMESPACE
+
+/** Owns the AccessKit adapter that exposes the controls in an IGRAPHICS_VIEW via UIAccessibility */
+class IGraphicsAccessibilityIOS : public IGraphicsAccessibility
+{
+public:
+  IGraphicsAccessibilityIOS(IGraphics& graphics, UIView* pView);
+  ~IGraphicsAccessibilityIOS();
+
+  /** Call when the view is added to a window, so that the tree is built straight away if assistive technology is running */
+  void ViewDidAppear();
+  bool IsAccessibilityElement();
+  NSArray* GetElements();
+  id HitTest(CGPoint point);
+
+protected:
+  void UpdateIfActive(accesskit_tree_update_factory factory, void* pUserData) override;
+
+private:
+  static void DeactivationHandler(void* pUserData);
+
+  accesskit_ios_adapter* mAdapter = nullptr;
+};
+
+END_IGRAPHICS_NAMESPACE
+END_IPLUG_NAMESPACE
+#endif
+
 using namespace iplug;
 using namespace igraphics;
 
@@ -79,6 +111,9 @@ UIColorPickerViewControllerDelegate
   IColorPickerHandlerFunc mColorPickerHandlerFunc;
   IFileDialogCompletionHandlerFunc mFileDialogFunc;
   float mPrevX, mPrevY;
+#ifdef IGRAPHICS_ACCESSKIT
+  IGraphicsAccessibilityIOS* mAccessibility; // Owned by mGraphics
+#endif
 
 #ifdef IGRAPHICS_GL
   EGLDisplay mEGLDisplay;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -7,16 +7,14 @@
 
 #pragma once
 
+#include <yoga/Yoga.h>
+
+#include <array>
+#include <cstdint>
 #include <functional>
 #include <vector>
-#include <array>
-#include <yoga/YGEnums.h>
 
-struct YGConfig;
-struct YGNode;
-
-namespace facebook {
-namespace yoga {
+namespace facebook::yoga {
 
 enum struct LayoutType : int {
   kLayout = 0,
@@ -40,7 +38,7 @@ enum struct LayoutPassReason : int {
 struct LayoutData {
   int layouts;
   int measures;
-  int maxMeasureCache;
+  uint32_t maxMeasureCache;
   int cachedLayouts;
   int cachedMeasures;
   int measureCallbacks;
@@ -48,9 +46,9 @@ struct LayoutData {
       measureCallbackReasonsCount;
 };
 
-const char* LayoutPassReasonToString(const LayoutPassReason value);
+const char* LayoutPassReasonToString(LayoutPassReason value);
 
-struct YOGA_EXPORT Event {
+struct YG_EXPORT Event {
   enum Type {
     NodeAllocation,
     NodeDeallocation,
@@ -63,7 +61,7 @@ struct YOGA_EXPORT Event {
     NodeBaselineEnd,
   };
   class Data;
-  using Subscriber = void(const YGNode&, Type, Data);
+  using Subscriber = void(YGNodeConstRef, Type, Data);
   using Subscribers = std::vector<std::function<Subscriber>>;
 
   template <Type E>
@@ -72,14 +70,14 @@ struct YOGA_EXPORT Event {
   class Data {
     const void* data_;
 
-  public:
+   public:
     template <Type E>
-    Data(const TypedData<E>& data) : data_{&data} {}
+    explicit Data(const TypedData<E>& data) : data_{&data} {}
 
     template <Type E>
     const TypedData<E>& get() const {
       return *static_cast<const TypedData<E>*>(data_);
-    };
+    }
   };
 
   static void reset();
@@ -87,45 +85,34 @@ struct YOGA_EXPORT Event {
   static void subscribe(std::function<Subscriber>&& subscriber);
 
   template <Type E>
-  static void publish(const YGNode& node, const TypedData<E>& eventData = {}) {
-#ifdef YG_ENABLE_EVENTS
+  static void publish(YGNodeConstRef node, const TypedData<E>& eventData = {}) {
     publish(node, E, Data{eventData});
-#endif
   }
 
-  template <Type E>
-  static void publish(const YGNode* node, const TypedData<E>& eventData = {}) {
-    publish<E>(*node, eventData);
-  }
-
-private:
-  static void publish(const YGNode&, Type, const Data&);
+ private:
+  static void publish(
+      YGNodeConstRef /*node*/,
+      Type /*eventType*/,
+      const Data& /*eventData*/);
 };
 
 template <>
 struct Event::TypedData<Event::NodeAllocation> {
-  YGConfig* config;
+  YGConfigConstRef config;
 };
 
 template <>
 struct Event::TypedData<Event::NodeDeallocation> {
-  YGConfig* config;
-};
-
-template <>
-struct Event::TypedData<Event::LayoutPassStart> {
-  void* layoutContext;
+  YGConfigConstRef config;
 };
 
 template <>
 struct Event::TypedData<Event::LayoutPassEnd> {
-  void* layoutContext;
   LayoutData* layoutData;
 };
 
 template <>
 struct Event::TypedData<Event::MeasureCallbackEnd> {
-  void* layoutContext;
   float width;
   YGMeasureMode widthMeasureMode;
   float height;
@@ -138,8 +125,6 @@ struct Event::TypedData<Event::MeasureCallbackEnd> {
 template <>
 struct Event::TypedData<Event::NodeLayout> {
   LayoutType layoutType;
-  void* layoutContext;
 };
 
-} // namespace yoga
-} // namespace facebook
+} // namespace facebook::yoga
