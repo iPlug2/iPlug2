@@ -412,13 +412,8 @@ TEST_CASE("FastSinOscillator: Lookup is bounded for any phase", "[unit][extras][
   REQUIRE(bounded);
 }
 
-// BUG: IPlug/Extras/Oscillator.h:179-189 FastSinOscillator::ProcessBlock() never wraps its local
-// "phase" inside the loop (line 189 just keeps adding the increment), but the bit trick used to
-// split it into a table index and a fraction only works while UNITBIT32 + phase stays below 2^21,
-// i.e. for the first 1024 cycles. A single call that spans more cycles than that produces garbage
-// from that point in the block onwards, e.g. 12kHz at 44.1kHz with a block size of 4096 or more.
-// (Pure Data's phasor~, which this is based on, wraps the phase on every sample.)
-TEST_CASE("FastSinOscillator: large blocks at high frequencies", "[.][bug]")
+// A single call that spans more than 1024 cycles, the range of the table lookup's phase accumulator
+TEST_CASE("FastSinOscillator: large blocks at high frequencies", "[unit][extras][oscillator]")
 {
   const double sr = 44100.;
   const double freq = 12000.;
@@ -431,12 +426,12 @@ TEST_CASE("FastSinOscillator: large blocks at high frequencies", "[.][bug]")
   std::vector<double> out(nFrames);
   osc.ProcessBlock(out.data(), nFrames);
 
-  // the first 1024 cycles (about 3763 samples) are fine...
+  // the first 1024 cycles (about 3763 samples)...
   const auto earlyFit = extrastest::FitSinusoid(out.data(), 2048, RadiansPerSample(freq, sr));
   REQUIRE(earlyFit.amplitude == Approx(1.).margin(kFastSinTolerance));
   REQUIRE(earlyFit.maxResidual < kFastSinTolerance);
 
-  // ...and the rest of the block should be too
+  // ...and the rest of the block
   const auto lateFit = extrastest::FitSinusoid(out.data() + nFrames - 2048, 2048, RadiansPerSample(freq, sr));
   REQUIRE(lateFit.amplitude == Approx(1.).margin(kFastSinTolerance));
   REQUIRE(lateFit.maxResidual < kFastSinTolerance);

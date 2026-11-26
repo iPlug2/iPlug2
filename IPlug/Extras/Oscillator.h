@@ -186,10 +186,11 @@ public:
     for (auto s = 0; s < nFrames; s++)
     {
       tf.d = phase;
-      phase += phaseIncr;
-      const T* addr = mLUT + (tf.i[HIOFFSET] & tableSizeM1); // Obtain the integer portion
+      const int index = tf.i[HIOFFSET] & tableSizeM1; // Obtain the integer portion
+      const T* addr = mLUT + index;
       tf.i[HIOFFSET] = normhipart; // Force the double to wrap.
       const double frac = tf.d - UNITBIT32;
+      phase = tf.d + index + phaseIncr; // Advance from the wrapped phase, so that it stays in range however long the block is
       const T f1 = addr[0];
       const T f2 = addr[1];
       mLastOutput = pOutput[s] = T(f1 + frac * (f2 - f1));
