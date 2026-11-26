@@ -154,13 +154,7 @@ TEST_CASE("ControlRamp: Write only touches the requested part of the buffer", "[
   REQUIRE(buffer[startIdx + nFrames - 1] == Approx(1.f).margin(1e-5));
 }
 
-// SUSPECTED BUG (minor): IPlug/Extras/Synth/ControlRamp.h:54-72 ControlRamp::Write() writes "val" for the
-// third piece of the ramp, relying on the transition loop having accumulated it up to endValue. For
-// a ramp whose transition is empty (transitionStart == transitionEnd, e.g. after Clear() and then
-// setting the values directly) the third piece is therefore written as startValue, where the
-// documented piecewise function says [transitionEnd, endValue] to [blockSize, endValue]. The same
-// case also divides by zero when calculating the increment (line 57).
-TEST_CASE("ControlRamp: Write with an empty transition steps to the end value", "[.][bug]")
+TEST_CASE("ControlRamp: Write with an empty transition steps to the end value", "[unit][extras][synth][controlramp]")
 {
   ControlRamp ramp = MakeRamp(0., 1., 4, 4);
 
