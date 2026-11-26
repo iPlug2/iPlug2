@@ -432,7 +432,7 @@ bool IPluginBase::RestorePreset(int idx)
     }
     else
     {
-      restoredOK = (UnserializeState(pPreset->mChunk, 0) > 0);
+      restoredOK = (UnserializeState(pPreset->mChunk, 0) >= 0);
     }
     
     if (restoredOK)
