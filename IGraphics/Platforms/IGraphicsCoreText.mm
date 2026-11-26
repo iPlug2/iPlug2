@@ -72,8 +72,10 @@ PlatformFontPtr CoreTextHelpers::LoadPlatformFont(const char* fontID, const char
   CFLocal<CTFontDescriptorRef> descriptor(CTFontDescriptorCreateWithAttributes(dictionary.Get()));
   CFLocal<CFSetRef> keysAsSet(CFSetCreate(NULL, (const void**)&keys, 2, &kCFTypeSetCallBacks));
   CFLocal<CFArrayRef> matched(CTFontDescriptorCreateMatchingFontDescriptors(descriptor.Get(), keysAsSet.Get()));
+  // CTFontDescriptorCreateMatchingFontDescriptors returns NULL when no font matches
+  const CFIndex matchCount = matched.Get() ? CFArrayGetCount(matched.Get()) : 0;
   
-  for (int i = 0; i < CFArrayGetCount(matched.Get()); i++)
+  for (int i = 0; i < matchCount; i++)
   {
     // Loop until we get a font which provides data
     
