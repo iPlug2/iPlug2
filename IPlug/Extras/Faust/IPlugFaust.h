@@ -26,10 +26,12 @@
   #endif
 #endif
 
+#include <atomic>
 #include <functional>
 #include <memory>
 #include <mutex>
 #include <string>
+#include <thread>
 #include <vector>
 
 #include "faust/dsp/dsp.h"
@@ -211,7 +213,8 @@ public:
 
 protected:
   /** Takes ownership of a newly created DSP, wraps it for polyphony if required, (re)builds the parameters and UI description and swaps it in.
-   * This locks out the audio thread while swapping, so it is safe to call while processing.
+   * Everything is prepared first. The swap itself only exchanges pointers, while the audio thread outputs silence (at most one block),
+   * so it is safe to call while processing. Call it on the main thread.
    * @param pMonoDSP The new DSP instance */
   void SetDSP(::dsp* pMonoDSP);
 
@@ -239,15 +242,82 @@ private:
     double min = 0.;
     double max = 1.;
     int ctrlTag = kNoTag;
+    bool hidden = false; // [hidden:1] or in a hidden group: IGraphicsFaustUI creates no control, so no values are sent
     double lastSentValue = -1.;
+  };
+
+  /** Lets the audio thread (and other threads that touch the DSP) use the DSP without locking, while the main thread replaces it.
+   * Users never block: TryEnter() fails while the DSP is being replaced and the caller skips its work.
+   * The replacing thread waits until current users have finished (at most one audio block), and keeps new ones out until it is done. */
+  class DSPGuard
+  {
+  public:
+    bool TryEnter()
+    {
+      mNUsers.fetch_add(1, std::memory_order_seq_cst);
+
+      if (mReplacing.load(std::memory_order_seq_cst))
+      {
+        mNUsers.fetch_sub(1, std::memory_order_release);
+        return false;
+      }
+
+      return true;
+    }
+
+    void Exit() { mNUsers.fetch_sub(1, std::memory_order_release); }
+
+    void BeginReplace()
+    {
+      mReplaceMutex.lock(); // only serializes replacing threads, the audio thread never takes it
+      mReplacing.store(true, std::memory_order_seq_cst);
+
+      while (mNUsers.load(std::memory_order_seq_cst) > 0)
+        std::this_thread::yield();
+    }
+
+    void EndReplace()
+    {
+      mReplacing.store(false, std::memory_order_release);
+      mReplaceMutex.unlock();
+    }
+
+  private:
+    std::atomic<int> mNUsers {0};
+    std::atomic<bool> mReplacing {false};
+    std::mutex mReplaceMutex;
+  };
+
+  /** RAII user of the DSP, check IsEntered() */
+  class ScopedDSPUser
+  {
+  public:
+    ScopedDSPUser(DSPGuard& guard) : mGuard(guard), mEntered(guard.TryEnter()) {}
+    ~ScopedDSPUser() { if (mEntered) mGuard.Exit(); }
+    bool IsEntered() const { return mEntered; }
+  private:
+    DSPGuard& mGuard;
+    bool mEntered;
+  };
+
+  /** RAII replacement of the DSP */
+  class ScopedDSPReplace
+  {
+  public:
+    ScopedDSPReplace(DSPGuard& guard) : mGuard(guard) { mGuard.BeginReplace(); }
+    ~ScopedDSPReplace() { mGuard.EndReplace(); }
+  private:
+    DSPGuard& mGuard;
   };
 
   void BuildDescription(::dsp* pDSP);
   void OpenGroup(FaustUIItem::EType type, const char* label);
   FaustUIItem& AddItem(FaustUIItem::EType type, const char* label, FAUSTFLOAT* zone);
+  void AddBargraph(FaustUIItem::EType type, const char* label, FAUSTFLOAT* zone, FAUSTFLOAT min, FAUSTFLOAT max);
   void AddParam(FaustUIItem& item, IParam::EParamType type);
   void RelinkParams();
   void WriteZone(int faustParamIdx, double value);
+  void WriteZoneUnguarded(int faustParamIdx, double value);
   void OnUITimer(Timer& timer);
 
   int mNVoices;
@@ -258,21 +328,27 @@ private:
   bool mHasSoundfile = false; // soundfiles are not supported
   double mSampleRate = 0.;
 
-  // Members accessed on the audio thread are protected by mDSPMutex, which the audio thread only try-locks
-  std::mutex mDSPMutex;
+  // Members used on the audio thread are only replaced while mDSPGuard keeps it out
+  DSPGuard mDSPGuard;
   std::unique_ptr<iplug2_midi_handler> mMidiHandler;
   std::unique_ptr<MidiUI> mMidiUI;
   std::unique_ptr<::dsp> mDSP;
   std::vector<Param> mParams;
   std::vector<Bargraph> mBargraphs;
-
   FaustUIItem mUIRoot;
-  std::vector<FaustUIItem*> mGroupStack; // used while building mUIRoot
   std::string mJSON;
 
+  // The description of a new DSP is built into these (by the Faust UI interface methods), then swapped in
+  std::vector<Param> mNewParams;
+  std::vector<Bargraph> mNewBargraphs;
+  FaustUIItem mNewUIRoot;
+  bool mNewHasSoundfile = false;
+  std::vector<FaustUIItem*> mGroupStack;
+
   IPlugAPIBase* mPlug = nullptr;
-  int mPlugParamStartIdx = -1; // < 0 means not linked
-  int mPlugParamEndIdx = -1;
+  // Set on the main thread, read by OnParamChange() on any thread
+  std::atomic<int> mPlugParamStartIdx {-1}; // < 0 means not linked
+  std::atomic<int> mPlugParamEndIdx {-1};
   bool mParamsChanged = false; // set when linked parameters were re-initialized
 
   std::unique_ptr<Timer> mUITimer;

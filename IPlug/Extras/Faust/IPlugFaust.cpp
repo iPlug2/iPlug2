@@ -65,12 +65,14 @@ void IPlugFaust::ReleaseDSP()
   std::unique_ptr<::dsp> pDSP;
   std::unique_ptr<iplug2_midi_handler> pMidiHandler;
 
+  std::vector<Param> params;
+
   {
-    std::lock_guard<std::mutex> lock(mDSPMutex);
+    ScopedDSPReplace replace(mDSPGuard);
     std::swap(mMidiUI, pMidiUI);
     std::swap(mDSP, pDSP);
     std::swap(mMidiHandler, pMidiHandler);
-    mParams.clear();
+    std::swap(mParams, params);
     mBargraphs.clear();
   }
 
@@ -91,7 +93,7 @@ void IPlugFaust::SetSampleRate(double sampleRate)
   mSampleRate = sampleRate;
 
   {
-    std::lock_guard<std::mutex> lock(mDSPMutex);
+    ScopedDSPReplace replace(mDSPGuard);
 
     if (mDSP)
       mDSP->init(static_cast<int>(sampleRate)); // NOTE: this resets the zones to their default values
@@ -102,20 +104,21 @@ void IPlugFaust::SetSampleRate(double sampleRate)
 
 void IPlugFaust::ProcessMidiMsg(const IMidiMsg& msg)
 {
-  std::unique_lock<std::mutex> lock(mDSPMutex, std::try_to_lock);
+  // Messages are only dropped while the DSP is being replaced. The new DSP has no sounding voices, so a dropped note-off can't leave a stuck note
+  ScopedDSPUser user(mDSPGuard);
 
-  if (lock.owns_lock() && mMidiHandler)
+  if (user.IsEntered() && mMidiHandler)
     mMidiHandler->decodeMessage(msg);
 }
 
 void IPlugFaust::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
 {
-  // The DSP may be swapped on the main thread (recompilation). In that case we output silence for this block
-  std::unique_lock<std::mutex> lock(mDSPMutex, std::try_to_lock);
+  // If the DSP is being replaced on the main thread (recompilation), output silence for this block. This never blocks
+  ScopedDSPUser user(mDSPGuard);
 
   int nOutputsProcessed = 0;
 
-  if (lock.owns_lock() && mDSP && !mChannelCountError && !mHasSoundfile)
+  if (user.IsEntered() && mDSP && !mChannelCountError && !mHasSoundfile)
   {
     mDSP->compute(nFrames, inputs, outputs);
     nOutputsProcessed = mDSP->getNumOutputs();
@@ -138,11 +141,12 @@ int IPlugFaust::CreateIPlugParameters(IPlugAPIBase* pPlug, int startIdx, int end
 
   mPlug = pPlug;
 
-  if (NParams() == 0)
-    return -1;
-
+  // The mapping is recorded even if there are no parameters yet, so that a recompiled DSP that has some can be linked
   mPlugParamStartIdx = startIdx;
   mPlugParamEndIdx = (endIdx < 0 || endIdx > NParams()) ? NParams() : endIdx;
+
+  if (NParams() == 0)
+    return -1;
 
   for (int p = 0; p < mPlugParamEndIdx; p++)
   {
@@ -186,31 +190,31 @@ bool IPlugFaust::OnParamChange(int plugParamIdx)
 
 void IPlugFaust::SetParameterValueNormalised(int faustParamIdx, double normalizedValue)
 {
+  // mParams is replaced with the DSP, so it is only used while the DSP can't be replaced
+  ScopedDSPUser user(mDSPGuard);
+
+  if (!user.IsEntered())
+    return;
+
   if (faustParamIdx < 0 || faustParamIdx >= NParams())
   {
     DBGMSG("IPlugFaust-%s: no parameter %i\n", mName.Get(), faustParamIdx);
     return;
   }
 
-  WriteZone(faustParamIdx, mParams[faustParamIdx].param->FromNormalized(normalizedValue));
+  WriteZoneUnguarded(faustParamIdx, mParams[faustParamIdx].param->FromNormalized(normalizedValue));
 }
 
 void IPlugFaust::SetParameterValue(int faustParamIdx, double value)
 {
-  if (faustParamIdx < 0 || faustParamIdx >= NParams())
-  {
-    DBGMSG("IPlugFaust-%s: no parameter %i\n", mName.Get(), faustParamIdx);
-    return;
-  }
-
   WriteZone(faustParamIdx, value);
 }
 
 void IPlugFaust::SetParameterValue(const char* labelOrPath, double value)
 {
-  std::unique_lock<std::mutex> lock(mDSPMutex, std::try_to_lock);
+  ScopedDSPUser user(mDSPGuard);
 
-  if (!lock.owns_lock())
+  if (!user.IsEntered())
     return;
 
   for (auto& p : mParams)
@@ -227,14 +231,20 @@ void IPlugFaust::SetParameterValue(const char* labelOrPath, double value)
 
 void IPlugFaust::SyncFaustParams()
 {
+  ScopedDSPUser user(mDSPGuard);
+
+  // If the DSP is being replaced, the thread replacing it syncs the parameters afterwards
+  if (!user.IsEntered())
+    return;
+
   for (int p = 0; p < NParams(); p++)
   {
     const int plugParamIdx = GetPlugParamIdx(p);
 
     if (plugParamIdx > kNoParameter)
-      WriteZone(p, mPlug->GetParam(plugParamIdx)->Value());
+      WriteZoneUnguarded(p, mPlug->GetParam(plugParamIdx)->Value());
     else
-      WriteZone(p, mParams[p].param->Value());
+      WriteZoneUnguarded(p, mParams[p].param->Value());
   }
 }
 
@@ -259,10 +269,16 @@ int IPlugFaust::GetPlugParamIdx(int faustParamIdx) const
 
 void IPlugFaust::WriteZone(int faustParamIdx, double value)
 {
-  std::unique_lock<std::mutex> lock(mDSPMutex, std::try_to_lock);
+  ScopedDSPUser user(mDSPGuard);
 
-  // If the lock is held, the DSP is being swapped and SyncFaustParams() will be called afterwards
-  if (!lock.owns_lock() || faustParamIdx >= NParams())
+  // If the DSP is being replaced, SyncFaustParams() applies the parameter values to the new DSP afterwards
+  if (user.IsEntered())
+    WriteZoneUnguarded(faustParamIdx, value);
+}
+
+void IPlugFaust::WriteZoneUnguarded(int faustParamIdx, double value)
+{
+  if (faustParamIdx < 0 || faustParamIdx >= NParams())
     return;
 
   Param& p = mParams[faustParamIdx];
@@ -276,25 +292,61 @@ void IPlugFaust::WriteZone(int faustParamIdx, double value)
   *p.zone = static_cast<FAUSTFLOAT>(value);
 }
 
+namespace
+{
+  // Whether two parameters have the same definition (ignoring their values), so that re-initializing one from the other would change nothing
+  bool SameDefinition(const IParam& a, const IParam& b)
+  {
+    if (a.Type() != b.Type() || strcmp(a.GetName(), b.GetName()) != 0 || strcmp(a.GetLabel(), b.GetLabel()) != 0 ||
+        strcmp(a.GetGroup(), b.GetGroup()) != 0 || a.GetMin() != b.GetMin() || a.GetMax() != b.GetMax() ||
+        a.GetStep() != b.GetStep() || a.GetDefault() != b.GetDefault() || a.GetFlags() != b.GetFlags() ||
+        a.GetShapeID() != b.GetShapeID() || a.GetShapeValue() != b.GetShapeValue() || a.NDisplayTexts() != b.NDisplayTexts())
+      return false;
+
+    for (int i = 0; i < a.NDisplayTexts(); i++)
+    {
+      double valueA, valueB;
+      const char* textA = a.GetDisplayTextAtIdx(i, &valueA);
+      const char* textB = b.GetDisplayTextAtIdx(i, &valueB);
+
+      if (valueA != valueB || strcmp(textA, textB) != 0)
+        return false;
+    }
+
+    return true;
+  }
+}
+
 void IPlugFaust::RelinkParams()
 {
   if (!mPlug || mPlugParamStartIdx < 0)
     return;
 
-  // NOTE: IParam::Init() keeps the type of a parameter that was already initialized, so a parameter that changes from e.g. a slider to a checkbox stays a double
+  const int prevEndIdx = mPlugParamEndIdx;
   mPlugParamEndIdx = std::min(NParams(), mPlug->NParams() - mPlugParamStartIdx);
 
   if (mPlugParamEndIdx < NParams())
     DBGMSG("IPlugFaust-%s: the plug-in doesn't have enough parameters for the Faust DSP (needs %i)\n", mName.Get(), mPlugParamStartIdx + NParams());
 
+  bool changed = mPlugParamEndIdx != prevEndIdx;
+
+  // Only parameters whose definition changed are re-initialized. Re-initializing a parameter isn't thread safe (the host may be using it
+  // on the audio thread), so this keeps the risk to recompilations that actually change the parameters
   for (int p = 0; p < mPlugParamEndIdx; p++)
   {
     IParam* pPlugParam = mPlug->GetParam(mPlugParamStartIdx + p);
-    pPlugParam->Init(*mParams[p].param);
-    pPlugParam->Set(mParams[p].param->Value());
+    const IParam& faustParam = *mParams[p].param;
+
+    if (!SameDefinition(*pPlugParam, faustParam))
+    {
+      pPlugParam->Init(faustParam);
+      pPlugParam->Set(faustParam.Value());
+      changed = true;
+    }
   }
 
-  mParamsChanged = true;
+  if (changed)
+    mParamsChanged = true;
 }
 
 void IPlugFaust::InformHostIfParamsChanged()
@@ -339,39 +391,48 @@ void IPlugFaust::SetDSP(::dsp* pMonoDSP)
   pDSP->buildUserInterface(&jsonUI);
   pDSP->metadata(&jsonUI);
 
-  // Keep values of parameters with the same path, when the DSP is recompiled
-  std::map<std::string, double> prevValues;
+  // Build the new parameters and UI description (into mNew...), before taking the audio thread out
+  BuildDescription(pDSP.get());
 
-  for (int p = 0; p < NParams(); p++)
+  // Keep the values of parameters with the same path, when the DSP is recompiled
+  for (auto& newParam : mNewParams)
   {
-    const int plugParamIdx = GetPlugParamIdx(p);
-    prevValues[mParams[p].path] = plugParamIdx > kNoParameter ? mPlug->GetParam(plugParamIdx)->Value() : mParams[p].param->Value();
+    for (int p = 0; p < NParams(); p++)
+    {
+      if (mParams[p].path == newParam.path)
+      {
+        const int plugParamIdx = GetPlugParamIdx(p);
+        newParam.param->Set(plugParamIdx > kNoParameter ? mPlug->GetParam(plugParamIdx)->Value() : mParams[p].param->Value());
+        break;
+      }
+    }
   }
 
+  const bool channelCountError = (mMaxNInputs > -1 && pDSP->getNumInputs() > mMaxNInputs) ||
+                                 (mMaxNOutputs > -1 && pDSP->getNumOutputs() > mMaxNOutputs);
+
   const bool hadDSP = mDSP != nullptr;
+  std::string json = jsonUI.JSON();
 
   {
-    std::lock_guard<std::mutex> lock(mDSPMutex);
+    // Only pointers and containers are swapped while the audio thread is kept out.
+    // The previous objects are destroyed afterwards, when they go out of scope
+    ScopedDSPReplace replace(mDSPGuard);
 
-    // The previous objects are destroyed when they go out of scope, after the lock has been released
     std::swap(mMidiUI, pMidiUI);
     std::swap(mDSP, pDSP);
     std::swap(mMidiHandler, pMidiHandler);
-
-    BuildDescription(mDSP.get());
-    mJSON = jsonUI.JSON();
-
-    mChannelCountError = (mMaxNInputs > -1 && mDSP->getNumInputs() > mMaxNInputs) ||
-                         (mMaxNOutputs > -1 && mDSP->getNumOutputs() > mMaxNOutputs);
-
-    for (auto& p : mParams)
-    {
-      auto it = prevValues.find(p.path);
-
-      if (it != prevValues.end())
-        p.param->Set(it->second);
-    }
+    std::swap(mParams, mNewParams);
+    std::swap(mBargraphs, mNewBargraphs);
+    std::swap(mUIRoot, mNewUIRoot);
+    std::swap(mJSON, json);
+    mChannelCountError = channelCountError;
+    mHasSoundfile = mNewHasSoundfile;
   }
+
+  mNewParams.clear();
+  mNewBargraphs.clear();
+  mNewUIRoot = FaustUIItem();
 
   if (mChannelCountError)
   {
@@ -395,25 +456,26 @@ void IPlugFaust::SetDSP(::dsp* pMonoDSP)
 
 void IPlugFaust::BuildDescription(::dsp* pDSP)
 {
-  mParams.clear();
-  mBargraphs.clear();
-  mHasSoundfile = false;
+  // Only uses mNew... members, so the audio thread can keep using the current ones
+  mNewParams.clear();
+  mNewBargraphs.clear();
+  mNewHasSoundfile = false;
   clearMetadata();
 
-  mUIRoot = FaustUIItem();
-  mUIRoot.type = FaustUIItem::EType::VBox;
+  mNewUIRoot = FaustUIItem();
+  mNewUIRoot.type = FaustUIItem::EType::VBox;
   mGroupStack.clear();
-  mGroupStack.push_back(&mUIRoot);
+  mGroupStack.push_back(&mNewUIRoot);
 
   pDSP->buildUserInterface(this);
 
   mGroupStack.clear();
 
   // Faust DSPs normally have a single top-level group. If so, make that the root
-  if (mUIRoot.children.size() == 1 && mUIRoot.children[0].IsGroup())
+  if (mNewUIRoot.children.size() == 1 && mNewUIRoot.children[0].IsGroup())
   {
-    FaustUIItem root = std::move(mUIRoot.children[0]);
-    mUIRoot = std::move(root);
+    FaustUIItem root = std::move(mNewUIRoot.children[0]);
+    mNewUIRoot = std::move(root);
   }
 }
 
@@ -436,6 +498,9 @@ void IPlugFaust::OnUITimer(Timer& timer)
   // Zones are written on the audio thread, here we just read the latest value, like Faust's own GUIs
   for (auto& b : mBargraphs)
   {
+    if (b.hidden)
+      continue;
+
     const double range = b.max - b.min;
     const double normalized = range != 0. ? Clip((static_cast<double>(*b.zone) - b.min) / range, 0., 1.) : 0.;
 
@@ -593,8 +658,8 @@ void IPlugFaust::AddParam(FaustUIItem& item, IParam::EParamType type)
     }
   }
 
-  item.paramIdx = static_cast<int>(mParams.size());
-  mParams.push_back(std::move(p));
+  item.paramIdx = static_cast<int>(mNewParams.size());
+  mNewParams.push_back(std::move(p));
 }
 
 void IPlugFaust::addButton(const char* label, FAUSTFLOAT* zone)
@@ -630,27 +695,42 @@ void IPlugFaust::addNumEntry(const char* label, FAUSTFLOAT* zone, FAUSTFLOAT ini
   AddParam(item, (item.menu || item.radio) ? IParam::kTypeEnum : IParam::kTypeDouble);
 }
 
+void IPlugFaust::AddBargraph(FaustUIItem::EType type, const char* label, FAUSTFLOAT* zone, FAUSTFLOAT min, FAUSTFLOAT max)
+{
+  FaustUIItem& item = AddItem(type, label, zone);
+  item.min = min; item.max = max;
+  item.ctrlTag = mCtrlTagStart + static_cast<int>(mNewBargraphs.size());
+
+  // A hidden bargraph, or one in a hidden group, gets no control in IGraphicsFaustUI, so no values are sent to its tag
+  bool hidden = item.hidden;
+
+  for (const FaustUIItem* pGroup : mGroupStack)
+    hidden = hidden || pGroup->hidden;
+
+  Bargraph b;
+  b.zone = zone;
+  b.min = item.min;
+  b.max = item.max;
+  b.ctrlTag = item.ctrlTag;
+  b.hidden = hidden;
+  mNewBargraphs.push_back(b);
+}
+
 void IPlugFaust::addHorizontalBargraph(const char* label, FAUSTFLOAT* zone, FAUSTFLOAT min, FAUSTFLOAT max)
 {
-  FaustUIItem& item = AddItem(FaustUIItem::EType::HBargraph, label, zone);
-  item.min = min; item.max = max;
-  item.ctrlTag = mCtrlTagStart + static_cast<int>(mBargraphs.size());
-  mBargraphs.push_back({zone, item.min, item.max, item.ctrlTag});
+  AddBargraph(FaustUIItem::EType::HBargraph, label, zone, min, max);
 }
 
 void IPlugFaust::addVerticalBargraph(const char* label, FAUSTFLOAT* zone, FAUSTFLOAT min, FAUSTFLOAT max)
 {
-  FaustUIItem& item = AddItem(FaustUIItem::EType::VBargraph, label, zone);
-  item.min = min; item.max = max;
-  item.ctrlTag = mCtrlTagStart + static_cast<int>(mBargraphs.size());
-  mBargraphs.push_back({zone, item.min, item.max, item.ctrlTag});
+  AddBargraph(FaustUIItem::EType::VBargraph, label, zone, min, max);
 }
 
 void IPlugFaust::addSoundfile(const char* label, const char* filename, Soundfile** sfZone)
 {
   // The soundfile zone would need to be filled with a Soundfile, otherwise compute() crashes
   DBGMSG("IPlugFaust-%s: soundfiles are not supported (%s), the DSP will output silence\n", mName.Get(), label);
-  mHasSoundfile = true;
+  mNewHasSoundfile = true;
 }
 
 void IPlugFaust::declare(FAUSTFLOAT* zone, const char* key, const char* value)
