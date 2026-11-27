@@ -16,12 +16,17 @@ function(iplug_configure_auv3iosappex target project_name)
 
   # Appex is an app bundle (executable) with .appex extension
   # Uses NSExtensionMain entry point from Foundation
+  # The bundle is ${project_name}AppExtension.appex, matching OUTPUT_NAME, CFBundleExecutable in the project's
+  # -iOS-AUv3-Info.plist and the iOS Xcode projects. It must not be renamed after the build: Xcode's later build
+  # steps (e.g. dsymutil) expect it where it was built, and the bundle name has to match CFBundleExecutable.
   # For Ninja: Use separate output dir to avoid collision with APP target
   if(XCODE)
     set(APPEX_OUTPUT_DIR "${CMAKE_BINARY_DIR}/out")
   else()
     set(APPEX_OUTPUT_DIR "${CMAKE_BINARY_DIR}/out/appex-build")
   endif()
+
+  set(APPEX_BUNDLE_ID "com.AcmeInc.${project_name}.AUv3")
 
   set_target_properties(${target} PROPERTIES
     MACOSX_BUNDLE TRUE
@@ -32,7 +37,7 @@ function(iplug_configure_auv3iosappex target project_name)
     XCODE_ATTRIBUTE_WRAPPER_EXTENSION "appex"
     XCODE_PRODUCT_TYPE "com.apple.product-type.app-extension"
     XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED "NO"
-    XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "com.AcmeInc.${project_name}.AUv3"
+    XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "${APPEX_BUNDLE_ID}"
     XCODE_ATTRIBUTE_SKIP_INSTALL "YES"
     XCODE_ATTRIBUTE_APPLICATION_EXTENSION_API_ONLY "YES"
   )
@@ -63,45 +68,45 @@ function(iplug_configure_auv3iosappex target project_name)
     )
   endif()
 
-  # Post-build: Create PkgInfo and rename bundle.
+  # Post-build: Create PkgInfo (and for Ninja, move the bundle to out/).
   # PkgInfo via staged source + `cmake -E copy` (see APP.cmake for rationale).
   set(AUV3_IOS_APPEX_PKGINFO_SRC "${CMAKE_CURRENT_BINARY_DIR}/PkgInfo_${target}")
   file(WRITE "${AUV3_IOS_APPEX_PKGINFO_SRC}" "XPC!????")
+  set(APPEX_BUNDLE_NAME "${project_name}AppExtension.appex")
 
   if(XCODE)
-    # For Xcode: XCODE_ATTRIBUTE_WRAPPER_EXTENSION creates .appex bundle directly
-    # Bundle is created as ${project_name}AppExtension.appex, we rename to ${project_name}AUv3.appex
-    set(APPEX_BUNDLE "${CMAKE_BINARY_DIR}/out/$<CONFIG>/${project_name}AppExtension.appex")
-    set(APPEX_FINAL "${CMAKE_BINARY_DIR}/out/$<CONFIG>/${project_name}AUv3.appex")
+    # For Xcode: XCODE_ATTRIBUTE_WRAPPER_EXTENSION creates ${APPEX_BUNDLE_NAME} directly, and Xcode processes
+    # its Info.plist (expanding $(PRODUCT_BUNDLE_IDENTIFIER) etc.), so it must not be replaced by the source plist
     add_custom_command(TARGET ${target} POST_BUILD
-      # Create PkgInfo
-      COMMAND ${CMAKE_COMMAND} -E copy "${AUV3_IOS_APPEX_PKGINFO_SRC}" "${APPEX_BUNDLE}/PkgInfo"
-      # Rename bundle to final name with AUv3 suffix
-      COMMAND ${CMAKE_COMMAND} -E rm -rf "${APPEX_FINAL}"
-      COMMAND ${CMAKE_COMMAND} -E rename
-        "${APPEX_BUNDLE}"
-        "${APPEX_FINAL}"
-      # Copy Info.plist from source (Xcode may regenerate original bundle after rename)
-      COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        "${PLUG_RESOURCES_DIR}/${project_name}-iOS-AUv3-Info.plist"
-        "${APPEX_FINAL}/Info.plist"
-      COMMENT "Building ${project_name}AUv3.appex (iOS)"
+      COMMAND ${CMAKE_COMMAND} -E copy "${AUV3_IOS_APPEX_PKGINFO_SRC}" "${CMAKE_BINARY_DIR}/out/$<CONFIG>/${APPEX_BUNDLE_NAME}/PkgInfo"
+      COMMENT "Building ${APPEX_BUNDLE_NAME} (iOS)"
     )
   else()
-    # For Ninja/other generators: Convert .app to .appex and move to final location
+    # For Ninja/other generators: nothing expands Xcode build settings in the Info.plist, so substitute the bundle ID
+    # (the example plists use no other build settings). Reconfigure when the plist changes, and only write the result
+    # when it changed, so that the post-build step isn't retriggered by every configure
+    set(APPEX_PLIST_SRC "${PLUG_RESOURCES_DIR}/${project_name}-iOS-AUv3-Info.plist")
+    set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${APPEX_PLIST_SRC}")
+    file(READ "${APPEX_PLIST_SRC}" APPEX_PLIST)
+    string(REPLACE "$(PRODUCT_BUNDLE_IDENTIFIER)" "${APPEX_BUNDLE_ID}" APPEX_PLIST "${APPEX_PLIST}")
+    set(APPEX_PLIST_FILE "${CMAKE_CURRENT_BINARY_DIR}/${project_name}-iOS-AUv3-Info.plist")
+    set(APPEX_PLIST_EXISTING "")
+    if(EXISTS "${APPEX_PLIST_FILE}")
+      file(READ "${APPEX_PLIST_FILE}" APPEX_PLIST_EXISTING)
+    endif()
+    if(NOT APPEX_PLIST_EXISTING STREQUAL APPEX_PLIST)
+      file(WRITE "${APPEX_PLIST_FILE}" "${APPEX_PLIST}")
+    endif()
+
+    # Convert the .app to .appex and move it to its final location
     add_custom_command(TARGET ${target} POST_BUILD
-      # Create PkgInfo
       COMMAND ${CMAKE_COMMAND} -E copy "${AUV3_IOS_APPEX_PKGINFO_SRC}" "$<TARGET_BUNDLE_DIR:${target}>/PkgInfo"
-      # Copy Info.plist
-      COMMAND ${CMAKE_COMMAND} -E copy
-        "${PLUG_RESOURCES_DIR}/${project_name}-iOS-AUv3-Info.plist"
-        "$<TARGET_BUNDLE_DIR:${target}>/Info.plist"
-      # Move and rename .app bundle to .appex in final location
-      COMMAND ${CMAKE_COMMAND} -E rm -rf "${CMAKE_BINARY_DIR}/out/${project_name}AUv3.appex"
+      COMMAND ${CMAKE_COMMAND} -E copy "${APPEX_PLIST_FILE}" "$<TARGET_BUNDLE_DIR:${target}>/Info.plist"
+      COMMAND ${CMAKE_COMMAND} -E rm -rf "${CMAKE_BINARY_DIR}/out/${APPEX_BUNDLE_NAME}"
       COMMAND ${CMAKE_COMMAND} -E rename
         "$<TARGET_BUNDLE_DIR:${target}>"
-        "${CMAKE_BINARY_DIR}/out/${project_name}AUv3.appex"
-      COMMENT "Building ${project_name}AUv3.appex (iOS)"
+        "${CMAKE_BINARY_DIR}/out/${APPEX_BUNDLE_NAME}"
+      COMMENT "Building ${APPEX_BUNDLE_NAME} (iOS)"
     )
   endif()
 endfunction()
