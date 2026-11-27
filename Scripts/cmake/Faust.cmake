@@ -10,13 +10,17 @@
 #
 # Faust is not bundled with iPlug2. libfaust (for the interpreter) and the Faust headers are found in this order:
 #   1. FAUST_DIR - an install prefix, containing bin/faust, include/faust, lib/(lib)faust and share/faust
-#   2. on Apple platforms and Windows (MSVC), a prebuilt static libfaust in FAUST_PREBUILT_DIR (default:
+#   2. on Apple platforms, Windows (MSVC) and Linux, a prebuilt static libfaust in FAUST_PREBUILT_DIR (default:
 #      Dependencies/Build/faust), installed with Dependencies/download-faust.sh from https://github.com/iPlug2/faust-builder.
 #      It has the matching Faust libraries, so it can be shipped. On Apple platforms it is an xcframework with slices for
 #      macOS, iOS and visionOS. On Windows there are libraries for x64, ARM64 and ARM64EC, with the static runtime
-#      (libfaust.lib, and libfaustd.lib for Debug), and the faust executable
-#   3. a Faust installation: the prefix of the faust executable on the PATH (e.g. `brew install faust`, or the
-#      installers from https://github.com/grame-cncm/faust/releases), or standard locations
+#      (libfaust.lib, and libfaustd.lib for Debug), and the faust executable. On Linux there is a libfaust.a for
+#      x86_64 and aarch64, and the faust executable
+#   3. a Faust installation: the prefix of the faust executable on the PATH (e.g. `brew install faust`, a Linux
+#      distribution's package, or the installers from https://github.com/grame-cncm/faust/releases), or standard
+#      locations. On Linux that libfaust is usually a shared library (libfaust.so)
+# Faust 2.85.5 (IPLUG2_FAUST_MIN_VERSION) or later is required: older headers (e.g. the Faust packages of Ubuntu 24.04 and
+# earlier) are not used.
 # The faust executable (for COMPILED mode) is searched for in FAUST_DIR (or the prebuilt package), on the PATH and in
 # standard locations.
 #
@@ -49,6 +53,9 @@
 
 include(${CMAKE_CURRENT_LIST_DIR}/IPlug.cmake)
 
+# IPlugFaust uses MetaDataUI and MidiMeta APIs that older Faust headers don't have
+set(IPLUG2_FAUST_MIN_VERSION 2.85.5)
+
 if(NOT DEFINED IPLUG2_FAUST_SUPPORTED)
   set(FAUST_DIR "" CACHE PATH "Faust install prefix (containing bin/faust, include/faust, lib and share/faust)")
   set(FAUST_PREBUILT_DIR "${DEPS_DIR}/Build/faust" CACHE PATH "Prebuilt libfaust from Dependencies/download-faust.sh")
@@ -57,7 +64,7 @@ if(NOT DEFINED IPLUG2_FAUST_SUPPORTED)
   if(FAUST_DIR)
     list(APPEND _faust_hints "${FAUST_DIR}")
   elseif(EXISTS "${FAUST_PREBUILT_DIR}/bin")
-    # The Windows prebuilt package has a faust executable, matching its headers and libraries
+    # The Windows and Linux prebuilt packages have a faust executable, matching their headers and libraries
     list(APPEND _faust_hints "${FAUST_PREBUILT_DIR}")
   endif()
 
@@ -113,6 +120,14 @@ if(NOT DEFINED IPLUG2_FAUST_SUPPORTED)
     elseif(EXISTS "${FAUST_PREBUILT_DIR}/lib")
       message(STATUS "Faust: ${FAUST_PREBUILT_DIR} has no libfaust for ${CMAKE_CXX_COMPILER_ARCHITECTURE_ID} (${_faust_win_lib_dir})")
     endif()
+  elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT FAUST_DIR AND EXISTS "${FAUST_PREBUILT_DIR}/include/faust")
+    # lib/<arch>/libfaust.a, for x86_64 and aarch64
+    set(_faust_linux_lib "${FAUST_PREBUILT_DIR}/lib/${CMAKE_SYSTEM_PROCESSOR}/libfaust.a")
+    if(EXISTS "${_faust_linux_lib}")
+      set(_faust_prebuilt_lib "${_faust_linux_lib}")
+    elseif(EXISTS "${FAUST_PREBUILT_DIR}/lib")
+      message(STATUS "Faust: ${FAUST_PREBUILT_DIR} has no libfaust for ${CMAKE_SYSTEM_PROCESSOR} (${_faust_linux_lib})")
+    endif()
   endif()
 
   if(_faust_prebuilt_lib)
@@ -144,7 +159,7 @@ if(NOT DEFINED IPLUG2_FAUST_SUPPORTED)
       HINTS ${_faust_hints} PATHS ${_faust_paths} PATH_SUFFIXES include
     )
     find_library(FAUST_LIBRARY NAMES faust libfaust
-      HINTS ${_faust_hints} PATHS ${_faust_paths} PATH_SUFFIXES lib
+      HINTS ${_faust_hints} PATHS ${_faust_paths} PATH_SUFFIXES lib lib64
     )
     if(WIN32)
       find_file(FAUST_DLL faust.dll
@@ -172,7 +187,23 @@ if(NOT DEFINED IPLUG2_FAUST_SUPPORTED)
   set(_faust_interpreter FALSE)
   set(_faust_compiler FALSE)
 
-  if(IPLUG2_FAUST_INCLUDE_DIR AND EXISTS "${IPLUG2_FAUST_INCLUDE_DIR}/faust/midi/iplug2-midi.h")
+  # The version of the headers (old versions have no export.h)
+  set(_faust_header_version "")
+  set(_faust_too_old FALSE)
+  if(IPLUG2_FAUST_INCLUDE_DIR AND EXISTS "${IPLUG2_FAUST_INCLUDE_DIR}/faust/dsp/dsp.h")
+    if(EXISTS "${IPLUG2_FAUST_INCLUDE_DIR}/faust/export.h")
+      file(STRINGS "${IPLUG2_FAUST_INCLUDE_DIR}/faust/export.h" _faust_header_version REGEX "define FAUSTVERSION")
+      string(REGEX MATCH "[0-9]+\\.[0-9]+\\.[0-9]+" _faust_header_version "${_faust_header_version}")
+    endif()
+    if(NOT _faust_header_version OR _faust_header_version VERSION_LESS IPLUG2_FAUST_MIN_VERSION)
+      set(_faust_too_old TRUE)
+      if(NOT _faust_header_version)
+        set(_faust_header_version "an unknown, old version")
+      endif()
+    endif()
+  endif()
+
+  if(NOT _faust_too_old AND IPLUG2_FAUST_INCLUDE_DIR AND EXISTS "${IPLUG2_FAUST_INCLUDE_DIR}/faust/midi/iplug2-midi.h")
     if(IPLUG2_FAUST_LIBRARY AND EXISTS "${IPLUG2_FAUST_INCLUDE_DIR}/faust/dsp/interpreter-dsp.h"
        AND NOT CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
       set(_faust_interpreter TRUE)
@@ -198,8 +229,6 @@ if(NOT DEFINED IPLUG2_FAUST_SUPPORTED)
   # The faust executable generates the C++ for COMPILED mode, which is built against IPLUG2_FAUST_INCLUDE_DIR, and they may come from
   # different installations (e.g. a prebuilt libfaust and Homebrew's faust). Different versions usually work, but warn
   if(_faust_compiler)
-    file(STRINGS "${IPLUG2_FAUST_INCLUDE_DIR}/faust/export.h" _faust_header_version REGEX "define FAUSTVERSION")
-    string(REGEX MATCH "[0-9]+\\.[0-9]+\\.[0-9]+" _faust_header_version "${_faust_header_version}")
     execute_process(COMMAND "${FAUST_EXECUTABLE}" --version OUTPUT_VARIABLE _faust_exe_version ERROR_QUIET)
     string(REGEX MATCH "[0-9]+\\.[0-9]+\\.[0-9]+" _faust_exe_version "${_faust_exe_version}")
     if(_faust_header_version AND _faust_exe_version AND NOT _faust_header_version VERSION_EQUAL _faust_exe_version)
@@ -218,9 +247,16 @@ if(NOT DEFINED IPLUG2_FAUST_SUPPORTED)
       set(_faust_source "headers in ${IPLUG2_FAUST_INCLUDE_DIR}")
     endif()
     message(STATUS "Faust: ${_faust_source} (interpreter: ${_faust_interpreter}, compiler: ${_faust_compiler}, libraries: ${IPLUG2_FAUST_SHARE_DIR})")
+  elseif(_faust_too_old)
+    set(IPLUG2_FAUST_SUPPORTED FALSE)
+    message(STATUS "Faust: the headers in ${IPLUG2_FAUST_INCLUDE_DIR} are ${_faust_header_version}, but ${IPLUG2_FAUST_MIN_VERSION} or later is required (install a newer Faust and set FAUST_DIR). Faust targets will not be available.")
   else()
     set(IPLUG2_FAUST_SUPPORTED FALSE)
-    message(STATUS "Faust not found (run Dependencies/download-faust.sh, install Faust or set FAUST_DIR). Faust targets will not be available.")
+    if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+      message(STATUS "Faust not found (run Dependencies/download-faust.sh, install Faust ${IPLUG2_FAUST_MIN_VERSION} or later, or set FAUST_DIR). Faust targets will not be available.")
+    else()
+      message(STATUS "Faust not found (run Dependencies/download-faust.sh, install Faust or set FAUST_DIR). Faust targets will not be available.")
+    endif()
   endif()
 endif()
 
@@ -279,6 +315,11 @@ if(IPLUG2_FAUST_SUPPORTED AND NOT TARGET iPlug2::Faust)
         "$<IF:$<CONFIG:Debug>,${_faust_win_lib_dir}/libfaustd.lib,${IPLUG2_FAUST_LIBRARY}>"
         Ws2_32
       )
+    elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux" AND IPLUG2_FAUST_LIBRARY MATCHES "\\.a$")
+      # A static libfaust: don't export its symbols from the plug-in, where they could clash with another plug-in's
+      get_filename_component(_faust_lib_name "${IPLUG2_FAUST_LIBRARY}" NAME)
+      target_link_libraries(iPlug2::FaustInterpreter INTERFACE iPlug2::Faust "${IPLUG2_FAUST_LIBRARY}" ${CMAKE_DL_LIBS})
+      target_link_options(iPlug2::FaustInterpreter INTERFACE "LINKER:--exclude-libs,${_faust_lib_name}")
     else()
       target_link_libraries(iPlug2::FaustInterpreter INTERFACE iPlug2::Faust "${IPLUG2_FAUST_LIBRARY}")
     endif()

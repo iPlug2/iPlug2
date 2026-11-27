@@ -6,39 +6,44 @@
 #   Build/faust/share/faust           Faust standard libraries (stdfaust.lib etc.), matching the libfaust version
 # Apple (macOS, iOS, visionOS):
 #   Build/faust/LibFaust.xcframework  static libfaust (interpreter backend)
+# Linux:
+#   Build/faust/lib/<arch>/libfaust.a                    static libfaust (interpreter backend) for x86_64 and aarch64
+#   Build/faust/bin/faust                                the faust compiler, for the architecture the script runs on
 # Windows (MSVC, static runtime):
 #   Build/faust/lib/<arch>/libfaust.lib, libfaustd.lib   static libfaust for x64, ARM64 and ARM64EC (libfaustd.lib: /MTd, for Debug)
 #   Build/faust/bin/faust.exe                            the faust compiler (x64), to generate C++ for release builds
 #
 # Usage:
-#   ./download-faust.sh [--platform apple|windows]                    download the pinned release (FAUST_BUILDER_VERSION below), verifying its checksums
-#   ./download-faust.sh [--platform apple|windows] v2.96.0            download another release (not verified, there are no pinned checksums for it)
-#   ./download-faust.sh [--platform apple|windows] --local <dir>      copy from a local faust-builder build folder (e.g. ~/faust-builder/build)
+#   ./download-faust.sh [--platform apple|windows|linux]                    download the pinned release (FAUST_BUILDER_VERSION below), verifying its checksums
+#   ./download-faust.sh [--platform apple|windows|linux] v2.96.0            download another release (not verified, there are no pinned checksums for it)
+#   ./download-faust.sh [--platform apple|windows|linux] --local <dir>      copy from a local faust-builder build folder (e.g. ~/faust-builder/build)
 #
-# The platform defaults to the one the script runs on (windows in Git Bash/MSYS2, otherwise apple).
+# The platform defaults to the one the script runs on (windows in Git Bash/MSYS2, linux, otherwise apple).
 # On Apple platforms the faust executable is not included, install Faust for that (e.g. brew install faust).
 
 set -eo pipefail
 
-FAUST_BUILDER_VERSION="v2.95.3.1"
+FAUST_BUILDER_VERSION="v2.95.3.2"
 
 # SHA256 of the pinned release's assets (they match the digests GitHub shows for the release)
-SHA256_XCFRAMEWORK="bc186c5f6fa8208eb50181c3338c007bd09bc720241ee63320aee8eff8353129"
-SHA256_WINDOWS="af62eb89026f4add73be203d459d2cf45c58e8fed168e232e56e24b871cc9c12"
-SHA256_HEADERS="50138124b4df606c3183fa12557a47802a7aeb8f25b1974f44bd469d0db0fde2"
-SHA256_LIBRARIES="207be78ed7d25510e76f66848df7e09769fa82eef206a16452ee49502b5fc551"
+SHA256_XCFRAMEWORK="d0edfee5f0ba53be52c4ee0e70178040908a8dae5f482f7145e689290a075a6c"
+SHA256_WINDOWS="420c5fb4fdc8bed0bce8bd43d159ad96449020337b019382223c43694149e6c2"
+SHA256_LINUX="df2a42daacc297191d0932525c2dacbf8c99cbeecac1e9caa50424c0b1e49302"
+SHA256_HEADERS="23da97f50e154cb69ff8df275b70e4b3d80c55a20eccb8ba206a688980c265b8"
+SHA256_LIBRARIES="154bc7f21f5a7b3114d403a561e884ce73fa0d6cb5a5796bacb87b7ac305488c"
 
 cd "$(dirname "$0")"
 DEST="$PWD/Build/faust"
 REPO_URL="https://github.com/iPlug2/faust-builder/releases"
 
 usage() {
-  echo "usage: $0 [--platform apple|windows] [version | --local <faust-builder build dir>]"
+  echo "usage: $0 [--platform apple|windows|linux] [version | --local <faust-builder build dir>]"
   exit 1
 }
 
 case "$(uname -s)" in
   MINGW*|MSYS*|CYGWIN*) PLATFORM="windows" ;;
+  Linux*) PLATFORM="linux" ;;
   *) PLATFORM="apple" ;;
 esac
 
@@ -46,13 +51,26 @@ if [ "$1" == "--platform" ]; then
   PLATFORM="$2"
   shift 2 || usage
 fi
-[ "$PLATFORM" == "apple" ] || [ "$PLATFORM" == "windows" ] || usage
+[ "$PLATFORM" == "apple" ] || [ "$PLATFORM" == "windows" ] || [ "$PLATFORM" == "linux" ] || usage
 
 # Everything is assembled in a temporary folder, which replaces Build/faust only when it is complete
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
 STAGE="$TMP/faust"
 mkdir -p "$STAGE/include" "$STAGE/share"
+
+# Copies <dir>/lib (libfaust.a for each architecture) and the faust executable for this machine's architecture
+install_linux() { # dir
+  local arch
+  arch="$(uname -m)"
+  cp -R "$1/lib" "$STAGE/"
+  if [ -f "$1/bin/$arch/faust" ]; then
+    mkdir -p "$STAGE/bin"
+    cp "$1/bin/$arch/faust" "$STAGE/bin/faust"
+  else
+    echo "warning: no faust executable for $arch in $1/bin"
+  fi
+}
 
 sha256() {
   if command -v sha256sum > /dev/null; then
@@ -84,6 +102,12 @@ if [ "$1" == "--local" ]; then
     if [ -d "$SRC/windows/bin" ]; then
       cp -R "$SRC/windows/bin" "$STAGE/"
     fi
+  elif [ "$PLATFORM" == "linux" ]; then
+    if [ ! -d "$SRC/linux/lib" ] || [ ! -d "$SRC/headers/faust" ]; then
+      echo "error: $SRC doesn't look like a faust-builder Linux build folder (expected linux/lib and headers/faust)"
+      exit 1
+    fi
+    install_linux "$SRC/linux"
   else
     if [ ! -d "$SRC/LibFaust.xcframework" ] || [ ! -d "$SRC/headers/faust" ]; then
       echo "error: $SRC doesn't look like a faust-builder build folder (expected LibFaust.xcframework and headers/faust)"
@@ -107,6 +131,9 @@ else
   if [ "$PLATFORM" == "windows" ]; then
     LIB_ASSET="libfaust-windows.tar.gz"
     SHA256_LIB="$SHA256_WINDOWS"
+  elif [ "$PLATFORM" == "linux" ]; then
+    LIB_ASSET="libfaust-linux.tar.gz"
+    SHA256_LIB="$SHA256_LINUX"
   else
     LIB_ASSET="LibFaust.xcframework.zip"
     SHA256_LIB="$SHA256_XCFRAMEWORK"
@@ -143,6 +170,10 @@ else
     tar -xzf "$TMP/$LIB_ASSET" -C "$TMP"
     cp -R "$TMP/windows/lib" "$STAGE/"
     cp -R "$TMP/windows/bin" "$STAGE/"
+  elif [ "$PLATFORM" == "linux" ]; then
+    # Extracts to linux/lib/<arch> and linux/bin/<arch>
+    tar -xzf "$TMP/$LIB_ASSET" -C "$TMP"
+    install_linux "$TMP/linux"
   else
     unzip -q "$TMP/$LIB_ASSET" -d "$STAGE"
   fi

@@ -21,11 +21,12 @@ The Faust integration (`IPlug/Extras/Faust`, `Scripts/cmake/Faust.cmake`) uses a
 
 - Apple: an xcframework with slices for macOS, iOS and visionOS
 - Windows (MSVC): libraries for x64, ARM64 and ARM64EC with the static runtime (`libfaust.lib`, and `libfaustd.lib` for Debug builds), and `faust.exe`
+- Linux: `libfaust.a` for x86_64 and aarch64, and the `faust` executable
 
 ```
 ./download-faust.sh                           # the pinned release, or pass a version e.g. v2.95.3
 ./download-faust.sh --local <dir>             # copy from a local faust-builder build folder
-./download-faust.sh --platform windows ...    # the platform defaults to the one the script runs on (use Git Bash on Windows)
+./download-faust.sh --platform windows ...    # apple, windows or linux. Defaults to the one the script runs on (use Git Bash on Windows)
 ```
 
 This installs to `Build/faust`. On Apple platforms the `faust` executable, used to generate C++ for compiled (release) builds, is not included: install Faust for that (e.g. `brew install faust`).
