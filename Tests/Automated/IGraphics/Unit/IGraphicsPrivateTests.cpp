@@ -187,7 +187,7 @@ Bytes MakeFont(const FontSpec& spec, size_t fileOffset = 0)
   return font;
 }
 
-uint32_t Size(const Bytes& bytes)
+uint32_t NumBytes(const Bytes& bytes)
 {
   return static_cast<uint32_t>(bytes.size());
 }
@@ -273,7 +273,7 @@ TEST_CASE("IFontInfo: data that isn't a font is invalid", "[unit][ifontinfo]")
   SECTION("zeros")
   {
     const Bytes data(64, 0);
-    REQUIRE_FALSE(IFontInfo(data.data(), Size(data), 0).IsValid());
+    REQUIRE_FALSE(IFontInfo(data.data(), NumBytes(data), 0).IsValid());
   }
 
   SECTION("text")
@@ -285,21 +285,21 @@ TEST_CASE("IFontInfo: data that isn't a font is invalid", "[unit][ifontinfo]")
   SECTION("a PNG header")
   {
     const Bytes data = {0x89, 'P', 'N', 'G', 0x0D, 0x0A, 0x1A, 0x0A, 0, 0, 0, 0x0D, 'I', 'H', 'D', 'R', 0, 0, 0, 0, 0, 0, 0, 0};
-    REQUIRE_FALSE(IFontInfo(data.data(), Size(data), 0).IsValid());
+    REQUIRE_FALSE(IFontInfo(data.data(), NumBytes(data), 0).IsValid());
   }
 
   SECTION("a font header with no tables")
   {
     Bytes data(12, 0);
     PutU32(data, 0, 0x00010000);
-    REQUIRE_FALSE(IFontInfo(data.data(), Size(data), 0).IsValid());
+    REQUIRE_FALSE(IFontInfo(data.data(), NumBytes(data), 0).IsValid());
   }
 
   SECTION("invalid whatever face is asked for")
   {
     const Bytes data(64, 0xAA);
-    REQUIRE_FALSE(IFontInfo(data.data(), Size(data), 0).IsValid());
-    REQUIRE_FALSE(IFontInfo(data.data(), Size(data), 1).IsValid());
+    REQUIRE_FALSE(IFontInfo(data.data(), NumBytes(data), 0).IsValid());
+    REQUIRE_FALSE(IFontInfo(data.data(), NumBytes(data), 1).IsValid());
   }
 }
 
@@ -310,28 +310,28 @@ TEST_CASE("IFontInfo: a font needs head, hhea and name tables", "[unit][ifontinf
   SECTION("all present")
   {
     const Bytes font = MakeFont(spec);
-    REQUIRE(IFontInfo(font.data(), Size(font), 0).IsValid());
+    REQUIRE(IFontInfo(font.data(), NumBytes(font), 0).IsValid());
   }
 
   SECTION("no head")
   {
     spec.hasHead = false;
     const Bytes font = MakeFont(spec);
-    REQUIRE_FALSE(IFontInfo(font.data(), Size(font), 0).IsValid());
+    REQUIRE_FALSE(IFontInfo(font.data(), NumBytes(font), 0).IsValid());
   }
 
   SECTION("no hhea")
   {
     spec.hasHhea = false;
     const Bytes font = MakeFont(spec);
-    REQUIRE_FALSE(IFontInfo(font.data(), Size(font), 0).IsValid());
+    REQUIRE_FALSE(IFontInfo(font.data(), NumBytes(font), 0).IsValid());
   }
 
   SECTION("no name")
   {
     spec.hasName = false;
     const Bytes font = MakeFont(spec);
-    REQUIRE_FALSE(IFontInfo(font.data(), Size(font), 0).IsValid());
+    REQUIRE_FALSE(IFontInfo(font.data(), NumBytes(font), 0).IsValid());
   }
 }
 
@@ -345,7 +345,7 @@ TEST_CASE("IFontInfo: reads the names and metrics of a TrueType font", "[unit][i
   spec.names = {WindowsName(kFamilyNameID, "Synthetic Sans"), WindowsName(kStyleNameID, "Bold Italic")};
 
   const Bytes font = MakeFont(spec);
-  IFontInfo info {font.data(), Size(font), 0};
+  IFontInfo info {font.data(), NumBytes(font), 0};
 
   REQUIRE(info.IsValid());
   REQUIRE(std::string(info.GetFamily().Get()) == "Synthetic Sans");
@@ -366,7 +366,7 @@ TEST_CASE("IFontInfo: reads an OpenType (CFF) font", "[unit][ifontinfo]")
   spec.openTypeCFF = true;
 
   const Bytes font = MakeFont(spec);
-  IFontInfo info {font.data(), Size(font), 0};
+  IFontInfo info {font.data(), NumBytes(font), 0};
 
   REQUIRE(info.IsValid());
   REQUIRE(std::string(info.GetFamily().Get()) == "Test Family");
@@ -377,9 +377,9 @@ TEST_CASE("IFontInfo: reads an OpenType (CFF) font", "[unit][ifontinfo]")
 TEST_CASE("IFontInfo: a single font only has face 0", "[unit][ifontinfo]")
 {
   const Bytes font = MakeFont(FontSpec());
-  REQUIRE(IFontInfo(font.data(), Size(font), 0).IsValid());
-  REQUIRE_FALSE(IFontInfo(font.data(), Size(font), 1).IsValid());
-  REQUIRE_FALSE(IFontInfo(font.data(), Size(font), 7).IsValid());
+  REQUIRE(IFontInfo(font.data(), NumBytes(font), 0).IsValid());
+  REQUIRE_FALSE(IFontInfo(font.data(), NumBytes(font), 1).IsValid());
+  REQUIRE_FALSE(IFontInfo(font.data(), NumBytes(font), 7).IsValid());
 }
 
 TEST_CASE("IFontInfo: style flags come from the head table", "[unit][ifontinfo]")
@@ -404,7 +404,7 @@ TEST_CASE("IFontInfo: style flags come from the head table", "[unit][ifontinfo]"
   SECTION("none set")
   {
     const Bytes font = MakeFont(FontSpec());
-    IFontInfo info {font.data(), Size(font), 0};
+    IFontInfo info {font.data(), NumBytes(font), 0};
 
     for (const Flag& flag : flags)
     {
@@ -420,7 +420,7 @@ TEST_CASE("IFontInfo: style flags come from the head table", "[unit][ifontinfo]"
       FontSpec spec;
       spec.macStyle = 1 << set.bit;
       const Bytes font = MakeFont(spec);
-      IFontInfo info {font.data(), Size(font), 0};
+      IFontInfo info {font.data(), NumBytes(font), 0};
       REQUIRE(info.IsValid());
 
       for (const Flag& flag : flags)
@@ -436,7 +436,7 @@ TEST_CASE("IFontInfo: style flags come from the head table", "[unit][ifontinfo]"
     FontSpec spec;
     spec.macStyle = 3;
     const Bytes font = MakeFont(spec);
-    IFontInfo info {font.data(), Size(font), 0};
+    IFontInfo info {font.data(), NumBytes(font), 0};
     REQUIRE(info.IsBold());
     REQUIRE(info.IsItalic());
     REQUIRE_FALSE(info.IsUnderline());
@@ -453,7 +453,7 @@ TEST_CASE("IFontInfo: metrics are signed where they should be", "[unit][ifontinf
   spec.lineGap = -10;
 
   const Bytes font = MakeFont(spec);
-  IFontInfo info {font.data(), Size(font), 0};
+  IFontInfo info {font.data(), NumBytes(font), 0};
 
   REQUIRE(info.IsValid());
   REQUIRE(info.GetUnitsPerEM() == 65535);
@@ -470,7 +470,7 @@ TEST_CASE("IFontInfo: names", "[unit][ifontinfo]")
   {
     spec.names = {MacName(kFamilyNameID, "Mac Family"), MacName(kStyleNameID, "Oblique")};
     const Bytes font = MakeFont(spec);
-    IFontInfo info {font.data(), Size(font), 0};
+    IFontInfo info {font.data(), NumBytes(font), 0};
     REQUIRE(info.IsValid());
     REQUIRE(std::string(info.GetFamily().Get()) == "Mac Family");
     REQUIRE(std::string(info.GetStyle().Get()) == "Oblique");
@@ -481,7 +481,7 @@ TEST_CASE("IFontInfo: names", "[unit][ifontinfo]")
     spec.names = {MacName(kFamilyNameID, "Mac Family"), MacName(kStyleNameID, "Mac Style"),
                   WindowsName(kFamilyNameID, "Windows Family"), WindowsName(kStyleNameID, "Windows Style")};
     const Bytes font = MakeFont(spec);
-    IFontInfo info {font.data(), Size(font), 0};
+    IFontInfo info {font.data(), NumBytes(font), 0};
     REQUIRE(std::string(info.GetFamily().Get()) == "Windows Family");
     REQUIRE(std::string(info.GetStyle().Get()) == "Windows Style");
   }
@@ -490,7 +490,7 @@ TEST_CASE("IFontInfo: names", "[unit][ifontinfo]")
   {
     spec.names = {WindowsName(kFamilyNameID, "Windows Family"), MacName(kStyleNameID, "Mac Style")};
     const Bytes font = MakeFont(spec);
-    IFontInfo info {font.data(), Size(font), 0};
+    IFontInfo info {font.data(), NumBytes(font), 0};
     REQUIRE(std::string(info.GetFamily().Get()) == "Windows Family");
     REQUIRE(std::string(info.GetStyle().Get()) == "Mac Style");
   }
@@ -501,7 +501,7 @@ TEST_CASE("IFontInfo: names", "[unit][ifontinfo]")
     spec.names = {WindowsName(0, "Copyright"), WindowsName(kFamilyNameID, "Family"), WindowsName(kStyleNameID, "Style"),
                   WindowsName(3, "Unique"), WindowsName(4, "Family Style"), WindowsName(6, "Family-Style")};
     const Bytes font = MakeFont(spec);
-    IFontInfo info {font.data(), Size(font), 0};
+    IFontInfo info {font.data(), NumBytes(font), 0};
     REQUIRE(std::string(info.GetFamily().Get()) == "Family");
     REQUIRE(std::string(info.GetStyle().Get()) == "Style");
   }
@@ -512,7 +512,7 @@ TEST_CASE("IFontInfo: names", "[unit][ifontinfo]")
     spec.names = {{3, 1, 0x407, kFamilyNameID, WindowsText("Familie")}, {3, 1, 0x407, kStyleNameID, WindowsText("Fett")},
                   WindowsName(kFamilyNameID, "Family"), WindowsName(kStyleNameID, "Bold")};
     const Bytes font = MakeFont(spec);
-    IFontInfo info {font.data(), Size(font), 0};
+    IFontInfo info {font.data(), NumBytes(font), 0};
     REQUIRE(std::string(info.GetFamily().Get()) == "Family");
     REQUIRE(std::string(info.GetStyle().Get()) == "Bold");
   }
@@ -521,7 +521,7 @@ TEST_CASE("IFontInfo: names", "[unit][ifontinfo]")
   {
     spec.names = {WindowsName(4, "Full Name Only")};
     const Bytes font = MakeFont(spec);
-    IFontInfo info {font.data(), Size(font), 0};
+    IFontInfo info {font.data(), NumBytes(font), 0};
     REQUIRE(info.IsValid());
     REQUIRE(info.GetFamily().GetLength() == 0);
     REQUIRE(info.GetStyle().GetLength() == 0);
@@ -531,7 +531,7 @@ TEST_CASE("IFontInfo: names", "[unit][ifontinfo]")
   {
     spec.names = {};
     const Bytes font = MakeFont(spec);
-    IFontInfo info {font.data(), Size(font), 0};
+    IFontInfo info {font.data(), NumBytes(font), 0};
     REQUIRE(info.IsValid());
     REQUIRE(info.GetFamily().GetLength() == 0);
   }
@@ -546,7 +546,7 @@ TEST_CASE("IFontInfo: Windows names are converted from UTF-16 to UTF-8", "[unit]
                 {3, 1, 0x409, kStyleNameID, WindowsText(std::vector<uint32_t> {0x20AC, 0x1F600, '!'})}};
 
   const Bytes font = MakeFont(spec);
-  IFontInfo info {font.data(), Size(font), 0};
+  IFontInfo info {font.data(), NumBytes(font), 0};
 
   REQUIRE(info.IsValid());
   REQUIRE(std::string(info.GetFamily().Get()) == "Caf\xC3\xA9");
@@ -563,7 +563,7 @@ TEST_CASE("IFontInfo: truncated data is invalid", "[.][bug]")
     Bytes data(6, 0);
     PutU32(data, 0, 0x00010000);
     PutU16(data, 4, 5);
-    CHECK_FALSE(IFontInfo(data.data(), Size(data), 0).IsValid());
+    CHECK_FALSE(IFontInfo(data.data(), NumBytes(data), 0).IsValid());
   }
 
   SECTION("a font cut off part way through its tables")
@@ -571,13 +571,13 @@ TEST_CASE("IFontInfo: truncated data is invalid", "[.][bug]")
     Bytes font = MakeFont(FontSpec());
     font.resize(12 + 16 * 3 + 10);
     font.shrink_to_fit();
-    CHECK_FALSE(IFontInfo(font.data(), Size(font), 0).IsValid());
+    CHECK_FALSE(IFontInfo(font.data(), NumBytes(font), 0).IsValid());
   }
 
   SECTION("fewer than 4 bytes")
   {
     const Bytes data = {0, 1};
-    CHECK_FALSE(IFontInfo(data.data(), Size(data), 0).IsValid());
+    CHECK_FALSE(IFontInfo(data.data(), NumBytes(data), 0).IsValid());
   }
 }
 
@@ -608,21 +608,21 @@ TEST_CASE("IFontInfo: reads the faces of a TrueType collection", "[unit][ifontin
   const Bytes boldFont = MakeFont(bold, collection.size());
   collection.insert(collection.end(), boldFont.begin(), boldFont.end());
 
-  IFontInfo face0 {collection.data(), Size(collection), 0};
+  IFontInfo face0 {collection.data(), NumBytes(collection), 0};
   CHECK(face0.IsValid());
   CHECK(std::string(face0.GetFamily().Get()) == "Collection");
   CHECK(std::string(face0.GetStyle().Get()) == "Regular");
   CHECK(face0.GetUnitsPerEM() == 1000);
   CHECK_FALSE(face0.IsBold());
 
-  IFontInfo face1 {collection.data(), Size(collection), 1};
+  IFontInfo face1 {collection.data(), NumBytes(collection), 1};
   CHECK(face1.IsValid());
   CHECK(std::string(face1.GetStyle().Get()) == "Bold");
   CHECK(face1.GetUnitsPerEM() == 2048);
   CHECK(face1.IsBold());
 
   // there are only two faces
-  CHECK_FALSE(IFontInfo(collection.data(), Size(collection), 2).IsValid());
+  CHECK_FALSE(IFontInfo(collection.data(), NumBytes(collection), 2).IsValid());
 }
 
 TEST_CASE("IFontInfo: a face index beyond the end of a collection is invalid", "[unit][ifontinfo]")
@@ -634,12 +634,12 @@ TEST_CASE("IFontInfo: a face index beyond the end of a collection is invalid", "
   PutU32(collection, 8, 1);
   PutU32(collection, 12, 16);
 
-  REQUIRE_FALSE(IFontInfo(collection.data(), Size(collection), 1).IsValid());
-  REQUIRE_FALSE(IFontInfo(collection.data(), Size(collection), 5).IsValid());
+  REQUIRE_FALSE(IFontInfo(collection.data(), NumBytes(collection), 1).IsValid());
+  REQUIRE_FALSE(IFontInfo(collection.data(), NumBytes(collection), 5).IsValid());
 
   // an unknown collection version
   PutU32(collection, 4, 0x00030000);
-  REQUIRE_FALSE(IFontInfo(collection.data(), Size(collection), 0).IsValid());
+  REQUIRE_FALSE(IFontInfo(collection.data(), NumBytes(collection), 0).IsValid());
 }
 
 // MARK: - IFontData
