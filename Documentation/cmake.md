@@ -641,7 +641,7 @@ auval -v aumu <subtype> <manufacturer>  # Validate instrument
 
 ### iOS
 
-- Minimum deployment target: iOS 14 (configurable)
+- Minimum deployment target: iOS 15 (configurable)
 - Device builds require code signing
 - AUv3 is embedded in the standalone app
 
