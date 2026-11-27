@@ -10,6 +10,10 @@
 
 // Unit tests for LanczosResampler and RealtimeResampler (IPlug/Extras/LanczosResampler.h, RealtimeResampler.h)
 
+// RealtimeResampler.h does not compile with GCC before 13 ("declaration of 'using LanczosResampler = ...' changes
+// meaning of 'LanczosResampler'"), so these tests are left out there
+#if !defined(__GNUC__) || defined(__clang__) || __GNUC__ >= 13
+
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/catch_approx.hpp>
 #include <catch2/generators/catch_generators.hpp>
@@ -837,3 +841,5 @@ TEST_CASE("RealtimeResampler: linear interpolation of a one sample block", "[.][
   REQUIRE(outL[0] == Approx(0.5));
   REQUIRE(outR[0] == Approx(-0.5));
 }
+
+#endif // GCC >= 13
