@@ -12,8 +12,10 @@ on:
       - 'IGraphics/**'
       - 'WDL/**'
       - 'Tests/Automated/**'
+      - 'CMakeLists.txt'
+      - 'Tests/CMakeLists.txt'
       - 'iPlug2.cmake'
-      - 'Scripts/cmake/IPlug.cmake'
+      - 'Scripts/cmake/**'
       - '.github/workflows/tests.yml'
   pull_request:
     branches: [master]
@@ -22,10 +24,15 @@ on:
       - 'IGraphics/**'
       - 'WDL/**'
       - 'Tests/Automated/**'
+      - 'CMakeLists.txt'
+      - 'Tests/CMakeLists.txt'
       - 'iPlug2.cmake'
-      - 'Scripts/cmake/IPlug.cmake'
+      - 'Scripts/cmake/**'
       - '.github/workflows/tests.yml'
   workflow_dispatch:
+
+permissions:
+  contents: read
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
