@@ -31,6 +31,8 @@ public:
     ClearBuffer();
   }
 
+  int GetDelayTime() const { return static_cast<int>(mDTSamples); }
+
   void ClearBuffer()
   {
     if (mBuffer.GetSize())
