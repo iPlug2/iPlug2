@@ -213,7 +213,11 @@ void IParam::InitAngleDegrees(const char *name, double defaultVal, double minVal
 
 void IParam::Init(const IParam& p, const char* searchStr, const char* replaceStr, const char* newGroup)
 {
-  // This copies a complete definition, so it replaces the type and display texts of a parameter that was already initialised
+  if (&p == this)
+    return;
+
+  // This copies a complete definition, so it replaces the type and display texts of a parameter that was already initialised.
+  // Re-initialising a parameter isn't thread safe: other threads (audio, UI, host) must not be using it at the same time.
   mType = p.Type();
   mDisplayTexts.Resize(0);
 
@@ -242,8 +246,8 @@ void IParam::Init(const IParam& p, const char* searchStr, const char* replaceStr
   for (auto i=0; i<p.NDisplayTexts(); i++)
   {
     double val;
-    const char* str = p.GetDisplayTextAtIdx(i, &val);
-    SetDisplayText(val, str);
+    const char* text = p.GetDisplayTextAtIdx(i, &val);
+    SetDisplayText(val, text);
   }
 }
 

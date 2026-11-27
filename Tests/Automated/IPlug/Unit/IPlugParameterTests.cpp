@@ -1626,6 +1626,11 @@ TEST_CASE("IParam: Init over an already initialised parameter replaces its type 
     dst.Init(menu);
     dst.Init(toggle);
     REQUIRE(dst.Type() == IParam::kTypeBool);
+    REQUIRE(dst.GetStepped());
+    REQUIRE(dst.GetMin() == 0.);
+    REQUIRE(dst.GetMax() == 1.);
+    REQUIRE(dst.GetDefault() == 1.);
+    REQUIRE(dst.Bool());
     REQUIRE(dst.NDisplayTexts() == 2);
     REQUIRE(Display(dst) == "on");
     REQUIRE(DisplayFor(dst, 0.) == "off");
@@ -1639,6 +1644,16 @@ TEST_CASE("IParam: Init over an already initialised parameter replaces its type 
     REQUIRE(dst.Type() == IParam::kTypeDouble);
     REQUIRE(dst.NDisplayTexts() == 0);
     REQUIRE(Display(dst) == Display(level));
+  }
+
+  SECTION("initialising a parameter from itself leaves it unchanged")
+  {
+    IParam dst;
+    dst.Init(menu);
+    dst.Init(dst);
+    REQUIRE(dst.Type() == IParam::kTypeEnum);
+    REQUIRE(dst.NDisplayTexts() == 3);
+    REQUIRE(Display(dst) == "B");
   }
 
   SECTION("re-initialising with the same definition doesn't duplicate display texts")
