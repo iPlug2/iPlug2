@@ -629,10 +629,8 @@ TEST_CASE("Presets: an over-long preset name in a bank does not overflow the nam
   CHECK(std::string(dest.GetPresetName(0)).size() < static_cast<size_t>(MAX_PRESET_NAME_LEN));
 }
 
-// BUG: IPluginBase::RestorePreset(int) (IPlug/IPlugPluginBase.cpp) treats `UnserializeState(...) > 0` as success. A plug-in
-// with no parameters and no custom state has an empty state, for which a successful UnserializeState() returns 0, so
-// restoring an initialised preset reports failure (and the current preset index is not updated).
-TEST_CASE("Presets: restoring a preset of a plug-in with an empty state succeeds", "[.][bug]")
+// A plug-in with no parameters and no custom state has an empty state, which unserializes to position 0
+TEST_CASE("Presets: restoring a preset of a plug-in with an empty state succeeds", "[integration][presets]")
 {
   RecordingPlug plug {InstanceInfo{}, []() {
     TestConfig config;
