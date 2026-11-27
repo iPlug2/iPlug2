@@ -83,10 +83,20 @@ function(iplug_configure_auv3iosappex target project_name)
     )
   else()
     # For Ninja/other generators: nothing expands Xcode build settings in the Info.plist, so substitute the bundle ID
-    file(READ "${PLUG_RESOURCES_DIR}/${project_name}-iOS-AUv3-Info.plist" APPEX_PLIST)
+    # (the example plists use no other build settings). Reconfigure when the plist changes, and only write the result
+    # when it changed, so that the post-build step isn't retriggered by every configure
+    set(APPEX_PLIST_SRC "${PLUG_RESOURCES_DIR}/${project_name}-iOS-AUv3-Info.plist")
+    set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${APPEX_PLIST_SRC}")
+    file(READ "${APPEX_PLIST_SRC}" APPEX_PLIST)
     string(REPLACE "$(PRODUCT_BUNDLE_IDENTIFIER)" "${APPEX_BUNDLE_ID}" APPEX_PLIST "${APPEX_PLIST}")
     set(APPEX_PLIST_FILE "${CMAKE_CURRENT_BINARY_DIR}/${project_name}-iOS-AUv3-Info.plist")
-    file(WRITE "${APPEX_PLIST_FILE}" "${APPEX_PLIST}")
+    set(APPEX_PLIST_EXISTING "")
+    if(EXISTS "${APPEX_PLIST_FILE}")
+      file(READ "${APPEX_PLIST_FILE}" APPEX_PLIST_EXISTING)
+    endif()
+    if(NOT APPEX_PLIST_EXISTING STREQUAL APPEX_PLIST)
+      file(WRITE "${APPEX_PLIST_FILE}" "${APPEX_PLIST}")
+    endif()
 
     # Convert the .app to .appex and move it to its final location
     add_custom_command(TARGET ${target} POST_BUILD

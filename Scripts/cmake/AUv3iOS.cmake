@@ -103,9 +103,10 @@ function(iplug_embed_auv3ios_in_app app_target project_name)
       COMMAND cp -R
         "${CMAKE_BINARY_DIR}/out/$<CONFIG>/${project_name}AU.framework"
         "$<TARGET_BUNDLE_DIR:${app_target}>/Frameworks/"
-      # Copy appex to App/PlugIns/
+      # Copy appex to App/PlugIns/ (removing the <project>AUv3.appex that older versions of these scripts embedded)
       COMMAND ${CMAKE_COMMAND} -E make_directory
         "$<TARGET_BUNDLE_DIR:${app_target}>/PlugIns"
+      COMMAND ${CMAKE_COMMAND} -E rm -rf "$<TARGET_BUNDLE_DIR:${app_target}>/PlugIns/${project_name}AUv3.appex"
       COMMAND ${CMAKE_COMMAND} -E copy_directory
         "${CMAKE_BINARY_DIR}/out/$<CONFIG>/${project_name}AppExtension.appex"
         "$<TARGET_BUNDLE_DIR:${app_target}>/PlugIns/${project_name}AppExtension.appex"
@@ -119,9 +120,10 @@ function(iplug_embed_auv3ios_in_app app_target project_name)
       COMMAND cp -R
         "${CMAKE_BINARY_DIR}/out/${project_name}AU.framework"
         "$<TARGET_BUNDLE_DIR:${app_target}>/Frameworks/"
-      # Copy appex to App/PlugIns/
+      # Copy appex to App/PlugIns/ (removing the <project>AUv3.appex that older versions of these scripts embedded)
       COMMAND ${CMAKE_COMMAND} -E make_directory
         "$<TARGET_BUNDLE_DIR:${app_target}>/PlugIns"
+      COMMAND ${CMAKE_COMMAND} -E rm -rf "$<TARGET_BUNDLE_DIR:${app_target}>/PlugIns/${project_name}AUv3.appex"
       COMMAND ${CMAKE_COMMAND} -E copy_directory
         "${CMAKE_BINARY_DIR}/out/${project_name}AppExtension.appex"
         "$<TARGET_BUNDLE_DIR:${app_target}>/PlugIns/${project_name}AppExtension.appex"
