@@ -206,6 +206,14 @@ void IPlugCLAP::deactivate() noexcept
 {
   OnActivate(false);
 
+  if (mParamsRescanAllPending)
+  {
+    mParamsRescanAllPending = false;
+
+    if (GetClapHost().canUseParams())
+      GetClapHost().paramsRescan(CLAP_PARAM_RESCAN_ALL);
+  }
+
   // TODO - should we clear mTailUpdate here or elsewhere?
 }
 
@@ -492,6 +500,25 @@ bool IPlugCLAP::stateLoad(const clap_istream* pStream) noexcept
   }
   
   return restoredOK;
+}
+
+void IPlugCLAP::InformHostOfParameterDetailsChange()
+{
+  if (!GetClapHost().canUseParams())
+    return;
+
+  if (isActive())
+  {
+    // Names, groups, display texts and values can be rescanned while active. Ranges, defaults and flags
+    // (CLAP_PARAM_RESCAN_ALL) can only be rescanned when deactivated, so ask the host to restart the plug-in
+    GetClapHost().paramsRescan(CLAP_PARAM_RESCAN_VALUES | CLAP_PARAM_RESCAN_TEXT | CLAP_PARAM_RESCAN_INFO);
+    mParamsRescanAllPending = true;
+    GetClapHost().requestRestart();
+  }
+  else
+  {
+    GetClapHost().paramsRescan(CLAP_PARAM_RESCAN_ALL);
+  }
 }
 
 // clap_plugin_params

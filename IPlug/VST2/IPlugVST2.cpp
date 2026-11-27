@@ -196,6 +196,12 @@ void IPlugVST2::InformHostOfPresetChange()
   mHostCallback(&mAEffect, audioMasterUpdateDisplay, 0, 0, 0, 0.0f);
 }
 
+void IPlugVST2::InformHostOfParameterDetailsChange()
+{
+  // VST2 hosts re-query parameter names/labels/displays when told to update their display
+  mHostCallback(&mAEffect, audioMasterUpdateDisplay, 0, 0, 0, 0.0f);
+}
+
 bool IPlugVST2::EditorResize(int viewWidth, int viewHeight)
 {
   bool resized = false;

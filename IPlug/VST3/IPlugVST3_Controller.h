@@ -114,6 +114,7 @@ public:
   void InformHostOfParamChange(int idx, double normalizedValue) override  { performEdit(idx, normalizedValue); }
   void EndInformHostOfParamChange(int idx) override  { endEdit(idx); }
   void InformHostOfPresetChange() override  { /* TODO: */}
+  void InformHostOfParameterDetailsChange() override { IPlugVST3ControllerBase::UpdateParameterDetails(this, componentHandler); }
   bool EditorResize(int viewWidth, int viewHeight) override;
   void DirtyParametersFromUI() override;
   
