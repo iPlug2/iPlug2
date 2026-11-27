@@ -11,5 +11,11 @@ find_package(iPlug2 REQUIRED)
 # Add examples
 add_subdirectory(Examples)
 
+# Automated unit/integration tests (Tests/Automated), run with ctest
+option(IPLUG2_BUILD_AUTOMATED_TESTS "Build the automated unit and integration tests" OFF)
+if(IPLUG2_BUILD_AUTOMATED_TESTS)
+  enable_testing()
+endif()
+
 # Add tests
 add_subdirectory(Tests)
