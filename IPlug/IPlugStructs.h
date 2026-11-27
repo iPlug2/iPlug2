@@ -91,17 +91,13 @@ struct IByteGetter
   {
     int len;
     int strStartPos = GetBytes(pSrc, srcSize, &len, sizeof(len), startPos);
-    if (strStartPos >= 0)
+    if (strStartPos >= 0 && len >= 0 && len <= srcSize - strStartPos)
     {
-      int strEndPos = strStartPos + len;
-      if (strEndPos <= srcSize)
-      {
-        if (len > 0)
-          str.Set((char*) (pSrc + strStartPos), len);
-        else
-          str.Set("");
-      }
-      return strEndPos;
+      if (len > 0)
+        str.Set((char*) (pSrc + strStartPos), len);
+      else
+        str.Set("");
+      return strStartPos + len;
     }
     return -1;
   }

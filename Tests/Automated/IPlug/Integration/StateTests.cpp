@@ -513,13 +513,7 @@ TEST_CASE("State: garbage chunks do not crash or leave parameters out of range",
   }
 }
 
-// BUG: IByteGetter::GetStr() (IPlug/IPlugStructs.h) is documented to return -1 "if the copy would have copied more
-// data than in the src buffer". When the string's length prefix can be read but the string itself runs past the end of
-// the data, it leaves the output string untouched and returns the would-be end position (which is beyond the end of the
-// chunk) rather than -1, so a caller checking for a negative position takes a truncated string for a success.
-// (The same function also computes `strStartPos + len` with a length read from the chunk, which is a signed integer
-// overflow for a corrupt, very large length.)
-TEST_CASE("State: reading a string from a truncated chunk fails", "[.][bug]")
+TEST_CASE("State: reading a string from a truncated chunk fails", "[integration][state]")
 {
   IByteChunk chunk;
   chunk.PutStr("hello world");
