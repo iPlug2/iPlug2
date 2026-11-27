@@ -19,7 +19,8 @@ class IOscillator
 {
 public:
   IOscillator(double startPhase = 0., double startFreq = 1.)
-  : mStartPhase(startPhase)
+  : mPhase(startPhase)
+  , mStartPhase(startPhase)
   {
     SetFreqCPS(startFreq);
   }
