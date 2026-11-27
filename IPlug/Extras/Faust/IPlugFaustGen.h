@@ -79,6 +79,12 @@ public:
   /** Add a path that is searched for imported .lib/.dsp files */
   void AddLibraryPath(const char* path);
 
+  /** Use the .dsp file and Faust libraries that iplug_add_faust(... BUNDLE) copies into the bundle's resources (FAUST_BUNDLED is defined).
+   * The bundled libraries are searched first. The bundled .dsp file is used if the original one doesn't exist, i.e. on another computer,
+   * so that during development the original file is still used and can be edited. Call this before Init().
+   * @param resourcesPath The bundle's resources folder, from BundleResourcePath() */
+  void SetBundleResourcePath(const char* resourcesPath);
+
   /** Add a compiler option such as "-vec" (see faust --help) */
   void AddCompileOption(const char* option);
 

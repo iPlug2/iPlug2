@@ -50,6 +50,12 @@ namespace
 #endif
   }
 
+  std::string ToUTF8(const std::filesystem::path& path)
+  {
+    const auto str = path.u8string(); // std::u8string in C++20
+    return std::string(str.begin(), str.end());
+  }
+
   void LoadFaustLibrary()
   {
 #if defined OS_WIN && defined FAUST_DLL_PATH
@@ -71,7 +77,7 @@ FaustGen::FaustGen(const char* name, const char* inputDSPFile, int nVoices, cons
   if (CStringHasContents(inputDSPFile))
   {
     mDSPFile = inputDSPFile;
-    AddLibraryPath(ToPath(mDSPFile).parent_path().u8string().c_str());
+    AddLibraryPath(ToUTF8(ToPath(mDSPFile).parent_path()).c_str());
   }
 
   if (sizeof(FAUSTFLOAT) == sizeof(double))
@@ -122,7 +128,7 @@ void FaustGen::Init()
 bool FaustGen::LoadFile(const char* path)
 {
   mDSPFile = path;
-  AddLibraryPath(ToPath(mDSPFile).parent_path().u8string().c_str());
+  AddLibraryPath(ToUTF8(ToPath(mDSPFile).parent_path()).c_str());
 
   std::string sourceCode;
 
@@ -160,6 +166,33 @@ void FaustGen::AddLibraryPath(const char* path)
 {
   if (CStringHasContents(path) && std::find(mLibraryPaths.begin(), mLibraryPaths.end(), path) == mLibraryPaths.end())
     mLibraryPaths.push_back(path);
+}
+
+void FaustGen::SetBundleResourcePath(const char* resourcesPath)
+{
+  std::error_code ec;
+  const auto faustDir = ToPath(resourcesPath) / "faust";
+
+  if (!CStringHasContents(resourcesPath) || !std::filesystem::is_directory(faustDir, ec))
+  {
+    DBGMSG("FaustGen-%s: no bundled Faust files in %s\n", mName.Get(), resourcesPath);
+    return;
+  }
+
+  const std::string faustDirStr = ToUTF8(faustDir);
+  mLibraryPaths.erase(std::remove(mLibraryPaths.begin(), mLibraryPaths.end(), faustDirStr), mLibraryPaths.end());
+  mLibraryPaths.insert(mLibraryPaths.begin(), faustDirStr);
+
+  if (mDSPFile.size() && !std::filesystem::exists(ToPath(mDSPFile), ec))
+  {
+    const auto bundledFile = faustDir / ToPath(mDSPFile).filename();
+
+    if (std::filesystem::exists(bundledFile, ec))
+    {
+      DBGMSG("FaustGen-%s: using bundled %s\n", mName.Get(), ToUTF8(bundledFile).c_str());
+      mDSPFile = ToUTF8(bundledFile);
+    }
+  }
 }
 
 void FaustGen::AddCompileOption(const char* option)
