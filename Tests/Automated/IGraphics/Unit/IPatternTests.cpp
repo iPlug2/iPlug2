@@ -27,15 +27,15 @@ namespace
 {
 const double kMargin = 1e-5;
 
-struct Point
+struct TestPoint
 {
   double x, y;
 };
 
 /** Maps a point in drawing coordinates in to the pattern's unit space */
-Point ToPatternSpace(const IPattern& pattern, double x, double y)
+TestPoint ToPatternSpace(const IPattern& pattern, double x, double y)
 {
-  Point p {0., 0.};
+  TestPoint p {0., 0.};
   pattern.mTransform.TransformPoint(p.x, p.y, x, y);
   return p;
 }
@@ -54,7 +54,7 @@ double LinearPosition(const IPattern& pattern, double x, double y)
 /** For a radial gradient the position along the gradient is the distance from the origin after transformation */
 double RadialPosition(const IPattern& pattern, double x, double y)
 {
-  const Point p = ToPatternSpace(pattern, x, y);
+  const TestPoint p = ToPatternSpace(pattern, x, y);
   return std::sqrt(p.x * p.x + p.y * p.y);
 }
 } // namespace
@@ -206,12 +206,12 @@ TEST_CASE("IPattern: CreateLinearGradient from two points", "[unit][ipattern]")
     REQUIRE(pattern.GetStop(2).mOffset == 1.f);
   }
 
-  struct Line
+  struct GradientLine
   {
     float x1, y1, x2, y2;
   };
 
-  const Line lines[] = {
+  const GradientLine lines[] = {
     {0.f, 0.f, 100.f, 0.f},     // left to right
     {0.f, 0.f, 0.f, 100.f},     // top to bottom
     {100.f, 0.f, 0.f, 0.f},     // right to left
@@ -222,7 +222,7 @@ TEST_CASE("IPattern: CreateLinearGradient from two points", "[unit][ipattern]")
 
   SECTION("the start maps to position 0 and the end to position 1")
   {
-    for (const Line& line : lines)
+    for (const GradientLine& line : lines)
     {
       INFO("(" << line.x1 << ", " << line.y1 << ") -> (" << line.x2 << ", " << line.y2 << ")");
       const IPattern pattern = IPattern::CreateLinearGradient(line.x1, line.y1, line.x2, line.y2);
@@ -239,7 +239,7 @@ TEST_CASE("IPattern: CreateLinearGradient from two points", "[unit][ipattern]")
 
   SECTION("moving perpendicular to the line doesn't change the position")
   {
-    for (const Line& line : lines)
+    for (const GradientLine& line : lines)
     {
       INFO("(" << line.x1 << ", " << line.y1 << ") -> (" << line.x2 << ", " << line.y2 << ")");
       const IPattern pattern = IPattern::CreateLinearGradient(line.x1, line.y1, line.x2, line.y2);
@@ -354,12 +354,12 @@ TEST_CASE("IPattern: CreateSweepGradient", "[unit][ipattern]")
   SECTION("the centre maps to the origin")
   {
     const IPattern pattern = IPattern::CreateSweepGradient(60.f, 45.f);
-    const Point centre = ToPatternSpace(pattern, 60., 45.);
+    const TestPoint centre = ToPatternSpace(pattern, 60., 45.);
     CHECK(centre.x == Approx(0.).margin(kMargin));
     CHECK(centre.y == Approx(0.).margin(kMargin));
 
     // distances from the centre are not scaled
-    const Point p = ToPatternSpace(pattern, 63., 49.);
+    const TestPoint p = ToPatternSpace(pattern, 63., 49.);
     CHECK(std::sqrt(p.x * p.x + p.y * p.y) == Approx(5.).margin(kMargin));
   }
 
