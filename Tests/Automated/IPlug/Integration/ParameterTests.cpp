@@ -708,10 +708,7 @@ TEST_CASE("Params: CloneParamRange() copies parameter definitions and values", "
   }
 }
 
-// BUG: IParam::Init(const IParam&, searchStr, replaceStr, newGroup) (IPlug/IPlugParameter.cpp) computes the position
-// of the search string as `str.Get() - pos` instead of `pos - str.Get()`, i.e. negated. The substitution therefore
-// only works when the search string is at the very start of the name.
-TEST_CASE("Params: CloneParamRange() substitutes a search string in the middle of the name", "[.][bug]")
+TEST_CASE("Params: CloneParamRange() substitutes a search string in the middle of the name", "[integration][params]")
 {
   ParamsPlug plug {false};
 
