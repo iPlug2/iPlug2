@@ -606,11 +606,7 @@ TEST_CASE("LFO: single precision", "[unit][extras][lfo]")
   REQUIRE(std::abs(extrastest::CountRisingZeroCrossings(out.data(), 48000) - 10) <= 1);
 }
 
-// BUG: IPlug/Extras/LFO.h:167 SetQNScalarFromDivision() clamps with Clip(division, 0, (int) kNumDivisions)
-// rather than kNumDivisions - 1, so an out of range division reads one element past the end of the
-// 15 entry table in GetQNScalar() (an out of bounds read; reported by AddressSanitizer). It should
-// clamp to the last division, k8.
-TEST_CASE("LFO: SetQNScalarFromDivision clamps out of range divisions", "[.][bug]")
+TEST_CASE("LFO: SetQNScalarFromDivision clamps out of range divisions", "[unit][extras][lfo]")
 {
   constexpr int nFrames = 4096;
   const int outOfRange = GENERATE(static_cast<int>(Lfo::kNumDivisions), 1000);
