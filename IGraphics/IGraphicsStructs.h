@@ -17,6 +17,7 @@
  */
 
 #include <functional>
+#include <vector>
 #include <chrono>
 #include <numeric>
 
@@ -46,6 +47,7 @@ using IAnimationFunction = std::function<void(IControl*)>;
 using IControlFunction = std::function<void(IControl*)>;
 using ILambdaDrawFunction = std::function<void(ILambdaControl*, IGraphics&, IRECT&)>;
 using IKeyHandlerFunc = std::function<bool(const IKeyPress& key, bool isUp)>;
+using IDropHandlerFunc = std::function<bool(const std::vector<const char*>& paths, float x, float y)>;
 using IMsgBoxCompletionHandlerFunc = std::function<void(EMsgBoxResult result)>;
 using IFileDialogCompletionHandlerFunc = std::function<void(const WDL_String& fileName, const WDL_String& path)>;
 using IColorPickerHandlerFunc = std::function<void(const IColor& result)>;
