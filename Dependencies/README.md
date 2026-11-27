@@ -17,11 +17,15 @@ You can add the argument "ios" to get the ios package.
 
 ## Faust
 
-The Faust integration (`IPlug/Extras/Faust`, `Scripts/cmake/Faust.cmake`) uses an installed Faust, or on Apple platforms a prebuilt static libfaust (interpreter + C++ backends, with slices for macOS, iOS and visionOS) and the matching Faust libraries from [faust-builder](https://github.com/iPlug2/faust-builder), which can be shipped in plug-ins and apps:
+The Faust integration (`IPlug/Extras/Faust`, `Scripts/cmake/Faust.cmake`) uses an installed Faust, or a prebuilt static libfaust (interpreter backend) and the matching Faust libraries from [faust-builder](https://github.com/iPlug2/faust-builder), which can be shipped in plug-ins and apps:
+
+- Apple: an xcframework with slices for macOS, iOS and visionOS
+- Windows (MSVC): libraries for x64, ARM64 and ARM64EC with the static runtime (`libfaust.lib`, and `libfaustd.lib` for Debug builds), and `faust.exe`
 
 ```
-./download-faust.sh                 # latest release, or pass a version e.g. v2.95.3
-./download-faust.sh --local <dir>   # copy from a local faust-builder build folder
+./download-faust.sh                           # the pinned release, or pass a version e.g. v2.95.3
+./download-faust.sh --local <dir>             # copy from a local faust-builder build folder
+./download-faust.sh --platform windows ...    # the platform defaults to the one the script runs on (use Git Bash on Windows)
 ```
 
-This installs to `Build/faust`. The `faust` executable, used to generate C++ for compiled (release) builds, is not included: install Faust for that.
+This installs to `Build/faust`. On Apple platforms the `faust` executable, used to generate C++ for compiled (release) builds, is not included: install Faust for that (e.g. `brew install faust`).

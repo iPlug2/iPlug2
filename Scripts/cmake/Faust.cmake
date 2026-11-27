@@ -10,12 +10,15 @@
 #
 # Faust is not bundled with iPlug2. libfaust (for the interpreter) and the Faust headers are found in this order:
 #   1. FAUST_DIR - an install prefix, containing bin/faust, include/faust, lib/(lib)faust and share/faust
-#   2. on Apple platforms, a prebuilt static libfaust in FAUST_PREBUILT_DIR (default: Dependencies/Build/faust),
-#      installed with Dependencies/download-faust.sh from https://github.com/iPlug2/faust-builder.
-#      It has slices for macOS, iOS and visionOS, and the matching Faust libraries, so it can be shipped
+#   2. on Apple platforms and Windows (MSVC), a prebuilt static libfaust in FAUST_PREBUILT_DIR (default:
+#      Dependencies/Build/faust), installed with Dependencies/download-faust.sh from https://github.com/iPlug2/faust-builder.
+#      It has the matching Faust libraries, so it can be shipped. On Apple platforms it is an xcframework with slices for
+#      macOS, iOS and visionOS. On Windows there are libraries for x64, ARM64 and ARM64EC, with the static runtime
+#      (libfaust.lib, and libfaustd.lib for Debug), and the faust executable
 #   3. a Faust installation: the prefix of the faust executable on the PATH (e.g. `brew install faust`, or the
 #      installers from https://github.com/grame-cncm/faust/releases), or standard locations
-# The faust executable (for COMPILED mode) is searched for in FAUST_DIR, on the PATH and in standard locations.
+# The faust executable (for COMPILED mode) is searched for in FAUST_DIR (or the prebuilt package), on the PATH and in
+# standard locations.
 #
 # Two ways of running Faust DSP code are supported:
 #   INTERPRETER - FaustGen compiles the .dsp file at runtime with the libfaust interpreter backend, and
@@ -53,6 +56,9 @@ if(NOT DEFINED IPLUG2_FAUST_SUPPORTED)
   set(_faust_hints "")
   if(FAUST_DIR)
     list(APPEND _faust_hints "${FAUST_DIR}")
+  elseif(EXISTS "${FAUST_PREBUILT_DIR}/bin")
+    # The Windows prebuilt package has a faust executable, matching its headers and libraries
+    list(APPEND _faust_hints "${FAUST_PREBUILT_DIR}")
   endif()
 
   find_program(FAUST_EXECUTABLE faust
@@ -97,6 +103,15 @@ if(NOT DEFINED IPLUG2_FAUST_SUPPORTED)
     if(NOT EXISTS "${_faust_prebuilt_lib}")
       message(STATUS "Faust: ${_faust_xcframework} has no slice for this platform (${_faust_prebuilt_lib})")
       set(_faust_prebuilt_lib "")
+    endif()
+  elseif(MSVC AND NOT FAUST_DIR AND EXISTS "${FAUST_PREBUILT_DIR}/include/faust")
+    # lib/<arch>/libfaust.lib, with the static runtime (/MT), and libfaustd.lib for Debug (/MTd).
+    # The architecture is MSVC's: x64, ARM64 or ARM64EC
+    set(_faust_win_lib_dir "${FAUST_PREBUILT_DIR}/lib/${CMAKE_CXX_COMPILER_ARCHITECTURE_ID}")
+    if(EXISTS "${_faust_win_lib_dir}/libfaust.lib" AND EXISTS "${_faust_win_lib_dir}/libfaustd.lib")
+      set(_faust_prebuilt_lib "${_faust_win_lib_dir}/libfaust.lib")
+    elseif(EXISTS "${FAUST_PREBUILT_DIR}/lib")
+      message(STATUS "Faust: ${FAUST_PREBUILT_DIR} has no libfaust for ${CMAKE_CXX_COMPILER_ARCHITECTURE_ID} (${_faust_win_lib_dir})")
     endif()
   endif()
 
@@ -217,7 +232,12 @@ if(IPLUG2_FAUST_SUPPORTED AND NOT TARGET iPlug2::Faust)
   set(_faust_inc_dir "${CMAKE_BINARY_DIR}/iplug2-faust/include")
   file(REMOVE_RECURSE "${_faust_inc_dir}")
   file(MAKE_DIRECTORY "${_faust_inc_dir}")
-  file(CREATE_LINK "${IPLUG2_FAUST_INCLUDE_DIR}/faust" "${_faust_inc_dir}/faust" SYMBOLIC COPY_ON_ERROR)
+  # Symbolic links need a privilege on Windows, so the folder is copied when the link fails (COPY_ON_ERROR doesn't copy
+  # a directory's content before CMake 4.3)
+  file(CREATE_LINK "${IPLUG2_FAUST_INCLUDE_DIR}/faust" "${_faust_inc_dir}/faust" SYMBOLIC RESULT _faust_link_result)
+  if(NOT _faust_link_result EQUAL 0)
+    file(COPY "${IPLUG2_FAUST_INCLUDE_DIR}/faust" DESTINATION "${_faust_inc_dir}")
+  endif()
 
   add_library(iPlug2::Faust INTERFACE IMPORTED)
   target_sources(iPlug2::Faust INTERFACE
@@ -234,6 +254,7 @@ if(IPLUG2_FAUST_SUPPORTED AND NOT TARGET iPlug2::Faust)
     # libfaust and its settings. IPlugFaustGen.cpp is added separately by iplug_add_faust(), because sources
     # can't vary by configuration with the Xcode generator (it compiles to nothing when FAUST_COMPILED is defined)
     add_library(iPlug2::FaustInterpreter INTERFACE IMPORTED)
+    get_filename_component(_faust_win_lib_dir "${IPLUG2_FAUST_LIBRARY}" DIRECTORY)
 
     if(IPLUG2_FAUST_LIBRARY MATCHES "\\.xcframework$")
       # Link the xcframework slice for the SDK Xcode builds for: each slice is linked as libiplug2faust.a in a folder named
@@ -252,6 +273,12 @@ if(IPLUG2_FAUST_SUPPORTED AND NOT TARGET iPlug2::Faust)
       endforeach()
       target_link_options(iPlug2::FaustInterpreter INTERFACE "-L${_faust_slices_dir}/$(PLATFORM_NAME)" "-liplug2faust")
       target_link_libraries(iPlug2::FaustInterpreter INTERFACE iPlug2::Faust)
+    elseif(MSVC AND IPLUG2_FAUST_LIBRARY MATCHES "/libfaust\\.lib$" AND EXISTS "${_faust_win_lib_dir}/libfaustd.lib")
+      # The prebuilt libfaust. Debug builds use the /MTd runtime, which can't link the /MT libfaust.lib
+      target_link_libraries(iPlug2::FaustInterpreter INTERFACE iPlug2::Faust
+        "$<IF:$<CONFIG:Debug>,${_faust_win_lib_dir}/libfaustd.lib,${IPLUG2_FAUST_LIBRARY}>"
+        Ws2_32
+      )
     else()
       target_link_libraries(iPlug2::FaustInterpreter INTERFACE iPlug2::Faust "${IPLUG2_FAUST_LIBRARY}")
     endif()

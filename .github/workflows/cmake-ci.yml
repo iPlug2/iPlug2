@@ -331,6 +331,19 @@ jobs:
             echo "${AAX_SDK_B64_1}${AAX_SDK_B64_2}${AAX_SDK_B64_3}${AAX_SDK_B64_4}${AAX_SDK_B64_5}${AAX_SDK_B64_6}${AAX_SDK_B64_7}" | base64 -d | tar -xJ -C Dependencies/IPlug/
           fi
 
+      # With libfaust and faust.exe, the IPlugFaustDSP example is built too (interpreter for Debug, compiled for Release)
+      - name: Cache libfaust
+        id: cache-faust
+        uses: actions/cache@v4
+        with:
+          path: Dependencies/Build/faust
+          key: faust-${{ runner.os }}-${{ hashFiles('Dependencies/download-faust.sh') }}
+
+      - name: Download libfaust
+        if: steps.cache-faust.outputs.cache-hit != 'true'
+        shell: bash
+        run: ./Dependencies/download-faust.sh
+
       - name: Configure CMake
         run: cmake --preset windows-vs2022 -DIPLUG2_DISABLE_DEPRECATION_WARNINGS=ON -DIPLUG_DEPLOY_PLUGINS=OFF
 
@@ -724,6 +737,18 @@ jobs:
           if [ -n "$AAX_SDK_B64_1" ]; then
             echo "${AAX_SDK_B64_1}${AAX_SDK_B64_2}${AAX_SDK_B64_3}${AAX_SDK_B64_4}${AAX_SDK_B64_5}${AAX_SDK_B64_6}${AAX_SDK_B64_7}" | base64 -d | tar -xJ -C Dependencies/IPlug/
           fi
+
+      - name: Cache libfaust
+        id: cache-faust
+        uses: actions/cache@v4
+        with:
+          path: Dependencies/Build/faust
+          key: faust-${{ runner.os }}-${{ hashFiles('Dependencies/download-faust.sh') }}
+
+      - name: Download libfaust
+        if: steps.cache-faust.outputs.cache-hit != 'true'
+        shell: bash
+        run: ./Dependencies/download-faust.sh
 
       - name: Configure CMake
         run: cmake --preset windows-vs2022-arm64ec -DIPLUG2_DISABLE_DEPRECATION_WARNINGS=ON -DIPLUG_DEPLOY_PLUGINS=OFF
