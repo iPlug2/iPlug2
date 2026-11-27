@@ -507,10 +507,12 @@ void IPlugCLAP::InformHostOfParameterDetailsChange()
   if (!GetClapHost().canUseParams())
     return;
 
+  // NOTE: like all clap_host_params calls, this must be made on the main thread
   if (isActive())
   {
     // Names, groups, display texts and values can be rescanned while active. Ranges, defaults and flags
-    // (CLAP_PARAM_RESCAN_ALL) can only be rescanned when deactivated, so ask the host to restart the plug-in
+    // (CLAP_PARAM_RESCAN_ALL) can only be rescanned when deactivated, so ask the host to restart the plug-in.
+    // If the host doesn't restart it, the full rescan happens the next time it is deactivated
     GetClapHost().paramsRescan(CLAP_PARAM_RESCAN_VALUES | CLAP_PARAM_RESCAN_TEXT | CLAP_PARAM_RESCAN_INFO);
     mParamsRescanAllPending = true;
     GetClapHost().requestRestart();

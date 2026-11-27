@@ -180,6 +180,18 @@ if(NOT DEFINED IPLUG2_FAUST_SUPPORTED)
     endif()
   endif()
 
+  # The faust executable generates the C++ for COMPILED mode, which is built against IPLUG2_FAUST_INCLUDE_DIR, and they may come from
+  # different installations (e.g. a prebuilt libfaust and Homebrew's faust). Different versions usually work, but warn
+  if(_faust_compiler)
+    file(STRINGS "${IPLUG2_FAUST_INCLUDE_DIR}/faust/export.h" _faust_header_version REGEX "define FAUSTVERSION")
+    string(REGEX MATCH "[0-9]+\\.[0-9]+\\.[0-9]+" _faust_header_version "${_faust_header_version}")
+    execute_process(COMMAND "${FAUST_EXECUTABLE}" --version OUTPUT_VARIABLE _faust_exe_version ERROR_QUIET)
+    string(REGEX MATCH "[0-9]+\\.[0-9]+\\.[0-9]+" _faust_exe_version "${_faust_exe_version}")
+    if(_faust_header_version AND _faust_exe_version AND NOT _faust_header_version VERSION_EQUAL _faust_exe_version)
+      message(STATUS "Faust: note: ${FAUST_EXECUTABLE} is version ${_faust_exe_version}, the headers in ${IPLUG2_FAUST_INCLUDE_DIR} are ${_faust_header_version}")
+    endif()
+  endif()
+
   set(IPLUG2_FAUST_INTERPRETER_SUPPORTED ${_faust_interpreter})
   set(IPLUG2_FAUST_COMPILER_SUPPORTED ${_faust_compiler})
 
