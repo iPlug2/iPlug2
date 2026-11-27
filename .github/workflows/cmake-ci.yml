@@ -237,6 +237,18 @@ jobs:
             echo "${AAX_SDK_B64_1}${AAX_SDK_B64_2}${AAX_SDK_B64_3}${AAX_SDK_B64_4}${AAX_SDK_B64_5}${AAX_SDK_B64_6}${AAX_SDK_B64_7}" | base64 -d | tar -xJ -C Dependencies/IPlug/
           fi
 
+      # With libfaust, the IPlugFaustDSP example is built too (using the interpreter, since the faust executable isn't installed)
+      - name: Cache libfaust
+        id: cache-faust
+        uses: actions/cache@v4
+        with:
+          path: Dependencies/Build/faust
+          key: faust-${{ runner.os }}-${{ hashFiles('Dependencies/download-faust.sh') }}
+
+      - name: Download libfaust
+        if: steps.cache-faust.outputs.cache-hit != 'true'
+        run: ./Dependencies/download-faust.sh
+
       - name: Configure CMake
         run: cmake --preset macos-xcode -DIPLUG2_DISABLE_DEPRECATION_WARNINGS=ON -DIPLUG_DEPLOY_PLUGINS=OFF
 
