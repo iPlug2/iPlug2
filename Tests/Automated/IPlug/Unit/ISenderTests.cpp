@@ -1072,28 +1072,66 @@ TEST_CASE("IPeakAvgSender: stops sending once everything has died away", "[unit]
   REQUIRE(dlg.Last().data.vals[0].second == Approx(0.5f));
 }
 
-// BUG: ISender.h:387-401. When the smoothed average has fallen below the threshold, the code intends to keep
-// pushing data while a peak hold is still active ("This makes sure that the data is still pushed if peakholds
-// are still active"), but counterActive is initialised to false and then combined with "&=", so it can never
-// become true and that branch is dead: updates stop as soon as the average decays, leaving the held peak
-// stuck on screen without the sender ever reporting that it has been released.
-TEST_CASE("IPeakAvgSender: keeps sending while a peak hold is active", "[.][bug]")
+// Once the average has fallen below the threshold, updates continue until the peak holds have run out
+TEST_CASE("IPeakAvgSender: keeps sending while a peak hold is active", "[unit][sender][peakavg]")
 {
   // immediate decay, 2 second peak hold (400 windows)
   IPeakAvgSender<2> sender {-90., true, 5.f, 1.f, 1.f, 2000.f};
   RecordingDelegate<TPeakAvgData> dlg;
   Signal loud {2, kPeakWindow * 2, 0.5};
   Signal silence {2, kPeakWindow * 10};
+  loud.Fill(1, 0.25);
 
   sender.ProcessBlock(loud.Get(), loud.NFrames(), kTag);
   sender.ProcessBlock(silence.Get(), silence.NFrames(), kTag);
   sender.TransmitData(dlg);
   dlg.Clear();
 
-  // 50 ms into a 2 s hold
+  // 50 ms into a 2 s hold: every window still sends the held peaks, with the average cleared
   sender.ProcessBlock(silence.Get(), silence.NFrames(), kTag);
   sender.TransmitData(dlg);
-  REQUIRE(dlg.NMsgs() > 0);
+  REQUIRE(dlg.NMsgs() == 10);
+
+  for (int i = 0; i < dlg.NMsgs(); i++)
+  {
+    REQUIRE(dlg[i].data.vals[0].first == Approx(0.5f));
+    REQUIRE(dlg[i].data.vals[1].first == Approx(0.25f));
+    REQUIRE(dlg[i].data.vals[0].second == 0.f);
+    REQUIRE(dlg[i].data.vals[1].second == 0.f);
+  }
+
+  // the rest of the hold, and well beyond it
+  dlg.Clear();
+
+  for (int block = 0; block < 45; block++)
+  {
+    sender.ProcessBlock(silence.Get(), silence.NFrames(), kTag);
+    sender.TransmitData(dlg);
+  }
+
+  // the peaks were held for the hold time (400 windows, of which about 20 had gone by)...
+  REQUIRE(dlg.NMsgs() > 370);
+  REQUIRE(dlg.NMsgs() < 390);
+
+  for (int i = 0; i < dlg.NMsgs() - 1; i++)
+  {
+    REQUIRE(dlg[i].data.vals[0].first == Approx(0.5f));
+    REQUIRE(dlg[i].data.vals[1].first == Approx(0.25f));
+    REQUIRE(dlg[i].data.vals[0].second == 0.f);
+    REQUIRE(dlg[i].data.vals[1].second == 0.f);
+  }
+
+  // ...and then one last message cleared them
+  REQUIRE(dlg.Last().data.vals[0].first == 0.f);
+  REQUIRE(dlg.Last().data.vals[1].first == 0.f);
+  REQUIRE(dlg.Last().data.vals[0].second == 0.f);
+  REQUIRE(dlg.Last().data.vals[1].second == 0.f);
+
+  // after which nothing more is sent
+  dlg.Clear();
+  sender.ProcessBlock(silence.Get(), silence.NFrames(), kTag);
+  sender.TransmitData(dlg);
+  REQUIRE(dlg.NMsgs() == 0);
 }
 
 TEST_CASE("IPeakAvgSender: channel count and offset", "[unit][sender][peakavg]")

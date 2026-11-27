@@ -307,6 +307,7 @@ public:
         ISenderData<MAXNC, std::pair<float, float>> d {ctrlTag, nChans, chanOffset};
         
         auto avgSum = 0.0f;
+        bool peakHeld = false;
         
         for (auto c = chanOffset; c < (chanOffset + nChans); c++)
         {
@@ -370,6 +371,7 @@ public:
           }
           
           std::get<0>(d.vals[c]) = mHeldPeaks[c];
+          peakHeld |= mHeldPeaks[c] > 0.0f;
           
           // set avg value
           auto smoothedAvg = mEnvFollowers[c].Process(avgVal, mAttackTimeSamples, mDecayTimeSamples);
@@ -385,23 +387,22 @@ public:
         else
         {
           // This makes sure that the data is still pushed if
-          // peakholds are still active
-          bool counterActive = false;
-          
+          // peakholds are still active: the held peaks are sent, with
+          // the average cleared, and once the holds have run out one
+          // more push clears the peaks
           for (auto c = chanOffset; c < (chanOffset + nChans); c++)
           {
-            counterActive &= mPeakHoldCounters[c] > 0;
-            std::get<0>(d.vals[c]) = 0.0f;
             std::get<1>(d.vals[c]) = 0.0f;
           }
           
-          if (counterActive)
+          if (peakHeld || mPeakWasHeld)
           {
             ISender<MAXNC, QUEUE_SIZE, std::pair<float, float>>::PushData(d);
           }
         }
         
         mPreviousSum = avgSum;
+        mPeakWasHeld = peakHeld;
       }
       
       mCount++;
@@ -412,6 +413,7 @@ private:
   float mThreshold = 0.01f;
   bool mRMSMode = false;
   float mPreviousSum = 1.0f;
+  bool mPeakWasHeld = false;
   int mWindowSize = 32;
   int mPeakHoldTime = 1 << 16;
   int mCount = 0;
