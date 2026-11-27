@@ -412,7 +412,7 @@
 				TargetAttributes = {
 					4FBA83AB20ECAF0B00423B90 = {
 						CreatedOnToolsVersion = 9.4.1;
-						DevelopmentTeam = 686EDA2T8T;
+						DevelopmentTeam = 28929UGP5Q;
 						ProvisioningStyle = Automatic;
 					};
 				};
