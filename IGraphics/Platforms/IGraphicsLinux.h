@@ -153,6 +153,8 @@ private:
 #endif
 
   void CalculateHostResize(int width, int height, int& designWidth, int& designHeight, float& scale);
+  void ObserveHostParent(Window parent, bool notify);
+  void NotifyHostParentResize(int width, int height);
   struct DispatchScope
   {
     explicit DispatchScope(std::atomic<int>& depth)
@@ -199,6 +201,8 @@ private:
   XIC mInputContext = nullptr;
   Window mPlugWnd = 0;
   Window mParentWnd = 0;
+  Window mResizeParentWnd = 0;
+  int mHostParentWidth = 0, mHostParentHeight = 0;
   Atom mWMDeleteMessage = 0;
   Atom mXdndAware = 0, mXdndEnter = 0, mXdndPosition = 0, mXdndStatus = 0;
   Atom mXdndLeave = 0, mXdndDrop = 0, mXdndFinished = 0, mXdndSelection = 0;
