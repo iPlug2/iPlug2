@@ -5,17 +5,24 @@ A stereo filter/drive effect implemented in [Faust](https://faust.grame.fr), wit
 - In **Debug** builds the DSP is compiled at runtime with the libfaust **interpreter** backend. Edit and save `IPlugFaustDSP.dsp` while the plug-in is running and it is recompiled: the parameters and the UI are rebuilt. If there is a compile error, the previous DSP keeps running and the error is shown at the bottom of the UI.
 - In **Release** builds the faust compiler generates C++ from `IPlugFaustDSP.dsp` at build time, using the `IPlug/Extras/Faust/IPlugFaust_arch.cpp` architecture file. There are no runtime dependencies on libfaust.
 
+- With `-DIPLUGFAUSTDSP_SHIP_INTERPRETER=ON`, all builds use the interpreter, and the .dsp file and the Faust libraries are copied into the bundle (`iplug_add_faust(... BUNDLE)`), so the DSP is compiled when the plug-in loads, also on other computers and on iOS/visionOS. The original .dsp file is used if it exists, so it can still be edited during development.
+
 This example is CMake only.
 
 ## Requirements
 
-Faust is not bundled with iPlug2. Install it, e.g. `brew install faust` on macOS, or with the installers from the [Faust releases](https://github.com/grame-cncm/faust/releases). If CMake doesn't find it, set `FAUST_DIR` to the installation prefix (the folder that contains `bin/faust`, `include/faust`, `lib` and `share/faust`). The example is skipped if Faust is not found.
+Faust is not bundled with iPlug2. The interpreter needs libfaust, its headers and the Faust libraries, the compiled code (Release) needs the `faust` executable. The example is skipped if Faust is not found.
 
-The interpreter (Debug) needs libfaust and its headers, the compiled code (Release) needs the `faust` executable.
+- On Apple platforms, run `Dependencies/download-faust.sh` to get a static libfaust (macOS, iOS, visionOS) with the matching Faust libraries, built by [faust-builder](https://github.com/iPlug2/faust-builder). This is required for the interpreter on iOS/visionOS, and for shipping it.
+- Install Faust for the `faust` executable (and libfaust on Windows/Linux), e.g. `brew install faust` on macOS, or with the installers from the [Faust releases](https://github.com/grame-cncm/faust/releases). If CMake doesn't find it, set `FAUST_DIR` to the installation prefix (the folder that contains `bin/faust`, `include/faust`, `lib` and `share/faust`).
 
 ```bash
 cmake -G Ninja -B build-faust -S Examples/IPlugFaustDSP -DCMAKE_BUILD_TYPE=Debug
 cmake --build build-faust --target IPlugFaustDSP-app
+
+# iOS simulator, shipping the interpreter
+cmake -G Xcode -B build-faust-ios -S Examples/IPlugFaustDSP -DCMAKE_SYSTEM_NAME=iOS -DIPLUG2_IOS_DEPLOYMENT_TARGET=15 -DIPLUGFAUSTDSP_SHIP_INTERPRETER=ON
+cmake --build build-faust-ios --config Debug --target IPlugFaustDSP-ios-app -- -sdk iphonesimulator
 ```
 
 ## How it works

@@ -10,6 +10,14 @@ IPlugFaustDSP::IPlugFaustDSP(const InstanceInfo& info)
 : iplug::Plugin(info, MakeConfig(kNumParams, 0))
 {
   mFaust.SetMaxChannelCount(MaxNChannels(ERoute::kInput), MaxNChannels(ERoute::kOutput));
+
+#if defined FAUST_BUNDLED && !defined FAUST_COMPILED
+  // Use the .dsp file and the Faust libraries copied into the bundle, when the original .dsp file doesn't exist
+  WDL_String resourcePath;
+  BundleResourcePath(resourcePath, GetBundleID());
+  mFaust.SetBundleResourcePath(resourcePath.Get());
+#endif
+
   mFaust.Init();
   mFaust.CreateIPlugParameters(this);
   InitUnusedParams();
@@ -45,7 +53,10 @@ IPlugFaustDSP::IPlugFaustDSP(const InstanceInfo& info)
         *pNewLine = '\0';
     }
     else
-      status.Set("Faust DSP: interpreter - edit IPlugFaustDSP.dsp to recompile");
+    {
+      WDL_String dspFile(mFaust.GetDSPFile());
+      status.SetFormatted(1024, "Faust DSP: interpreter - edit %s to recompile", dspFile.get_filepart());
+    }
 #endif
     pGraphics->AttachControl(new ITextControl(bounds.GetFromBottom(20.f), status.Get(), DEFAULT_TEXT.WithAlign(EAlign::Near)), kCtrlTagStatus);
   };
