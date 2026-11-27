@@ -14,3 +14,14 @@ oli@mbp ~/Dev/iPlug2/Dependencies$ ./download-prebuilt-libs.sh
 
 You can add the argument "ios" to get the ios package.
 
+
+## Faust
+
+The Faust integration (`IPlug/Extras/Faust`, `Scripts/cmake/Faust.cmake`) uses an installed Faust, or on Apple platforms a prebuilt static libfaust (interpreter + C++ backends, with slices for macOS, iOS and visionOS) and the matching Faust libraries from [faust-builder](https://github.com/iPlug2/faust-builder), which can be shipped in plug-ins and apps:
+
+```
+./download-faust.sh                 # latest release, or pass a version e.g. v2.95.3
+./download-faust.sh --local <dir>   # copy from a local faust-builder build folder
+```
+
+This installs to `Build/faust`. The `faust` executable, used to generate C++ for compiled (release) builds, is not included: install Faust for that.
