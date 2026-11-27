@@ -133,7 +133,7 @@ class FastSinOscillator : public IOscillator<T>
 
 public:
   FastSinOscillator(double startPhase = 0., double startFreq = 1.)
-  : IOscillator<T>(startPhase * tableSizeM1, startFreq)
+  : IOscillator<T>(startPhase, startFreq)
   {
   }
 
@@ -176,7 +176,7 @@ public:
 
   void ProcessBlock(T* pOutput, int nFrames)
   {
-    double phase = IOscillator<T>::mPhase + (double) UNITBIT32;
+    double phase = IOscillator<T>::mPhase * tableSize + (double) UNITBIT32;
     const double phaseIncr = IOscillator<T>::mPhaseIncr * tableSize;
 
     union tabfudge tf;
@@ -200,7 +200,7 @@ public:
     const int normhipart2 = tf.i[HIOFFSET];
     tf.d = phase + (UNITBIT32 * tableSize - UNITBIT32); // Remove the offset we introduced at the start of UNITBIT32.
     tf.i[HIOFFSET] = normhipart2;
-    IOscillator<T>::mPhase = tf.d - UNITBIT32 * tableSize;
+    IOscillator<T>::mPhase = (tf.d - UNITBIT32 * tableSize) / tableSize;
   }
 
   T mLastOutput = 0.;

@@ -457,12 +457,8 @@ TEST_CASE("FastSinOscillator: Lookup has a period of 2pi", "[.][bug]")
   }
 }
 
-// BUG: IPlug/Extras/Oscillator.h FastSinOscillator keeps IOscillator::mPhase in table index units
-// (0 to 512) rather than the documented "float phase (goes between 0. and 1.)" (line 50), so the
-// inherited SetPhase() means something different to SinOscillator's: SetPhase(0.5) moves it half a
-// table entry rather than half a cycle. The constructor works around this by scaling the start phase
-// (by tableSizeM1, line 136 - which should be tableSize) but SetPhase() does not.
-TEST_CASE("FastSinOscillator: SetPhase is in cycles", "[.][bug]")
+// as it is for SinOscillator
+TEST_CASE("FastSinOscillator: SetPhase is in cycles", "[unit][extras][oscillator]")
 {
   FastSinOscillator<double> reference, halfCycle;
   reference.SetFreqCPS(441.);
