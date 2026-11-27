@@ -217,6 +217,16 @@ function(iplug_configure_target target target_type project_name)
     # Apply the ObjC prefix header (works for both Xcode and non-Xcode generators)
     iplug_apply_objc_prefix_header(${target})
 
+    # IGraphicsNanoVG_src.m requires ARC. It is compiled in this target when the
+    # target links iPlug2::IGraphics::NanoVG::Metal, so that its Objective-C
+    # classes get this target's prefix (see IGraphics.cmake).
+    if(DEFINED IGRAPHICS_NANOVG_METAL_SRC)
+      set_source_files_properties(${IGRAPHICS_NANOVG_METAL_SRC}
+        TARGET_DIRECTORY ${target}
+        PROPERTIES COMPILE_OPTIONS "-fobjc-arc"
+      )
+    endif()
+
     # Configure WebView sources if present (requires ARC)
     # This handles targets that link to iPlug2::Extras::IWebViewControl
     if(DEFINED IPLUG2_WEBVIEW_MAC_SOURCE)
