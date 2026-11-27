@@ -1229,6 +1229,10 @@ public:
   /** Get the KeyHandlerFunc if set */
   IKeyHandlerFunc GetKeyHandlerFunc() { return mKeyHandlerFunc; }
 
+  /** Set a function that is offered files dropped anywhere on the UI, before the control under the drop point
+   * @param func A std::function conforming to IDropHandlerFunc. Return true if it handled the drop, so the control doesn't get it */
+  void SetDropHandlerFunc(IDropHandlerFunc func) { mDropHandlerFunc = func; }
+
   /** Enable/disable keyboard navigation. When enabled, the tab key moves the keyboard focus between controls, and the arrow, page up/down, home/end, space and return keys operate the control that has the focus.
    * Keyboard navigation is enabled by default if IGRAPHICS_ACCESSKIT is defined, otherwise it is disabled by default.
    * @param enable Set \c true to enable keyboard navigation */
@@ -1931,6 +1935,7 @@ private:
 #endif
   double mPrevTimestamp = 0.;
   IKeyHandlerFunc mKeyHandlerFunc = nullptr;
+  IDropHandlerFunc mDropHandlerFunc = nullptr;
   IDisplayTickFunc mDisplayTickFunc = nullptr;
   IUIAppearanceChangedFunc mAppearanceChangedFunc = nullptr;
   ILiveEditEventFunc mLiveEditEventFunc = nullptr;
