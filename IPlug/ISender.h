@@ -270,6 +270,7 @@ public:
   {
     mWindowSizeMs = static_cast<float>(timeMs);
     mWindowSize = static_cast<int>(timeMs * 0.001 * sampleRate);
+    mCount = 0;
 
     for (auto i=0; i<MAXNC; i++)
     {
@@ -295,11 +296,9 @@ public:
   {
     for (auto s = 0; s < nFrames; s++)
     {
-      int windowPos = s % mWindowSize;
-      
       for (auto c = chanOffset; c < (chanOffset + nChans); c++)
       {
-        mBuffers[c][windowPos] = static_cast<float>(inputs[c][s]);
+        mBuffers[c][mCount] = static_cast<float>(inputs[c][s]);
       }
       
       if (mCount == 0)
