@@ -49,8 +49,8 @@ else
   trap 'rm -rf "$TMP"' EXIT
 
   echo "Downloading libfaust ($VERSION) from $REPO_URL"
-  curl -fL --progress-bar -o "$TMP/LibFaust.xcframework.zip" "$BASE_URL/LibFaust.xcframework.zip"
-  curl -fL --progress-bar -o "$TMP/libfaust-headers.tar.gz" "$BASE_URL/libfaust-headers.tar.gz"
+  curl -fsSL -o "$TMP/LibFaust.xcframework.zip" "$BASE_URL/LibFaust.xcframework.zip"
+  curl -fsSL -o "$TMP/libfaust-headers.tar.gz" "$BASE_URL/libfaust-headers.tar.gz"
 
   rm -rf "$DEST"
   mkdir -p "$DEST/include" "$DEST/share"
