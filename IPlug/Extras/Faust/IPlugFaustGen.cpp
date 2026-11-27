@@ -116,8 +116,7 @@ void FaustGen::Init()
     CompileDefault();
   }
 
-  if (mOnCompileFunc)
-    mOnCompileFunc(success);
+  OnCompiled(success);
 }
 
 bool FaustGen::LoadFile(const char* path)
@@ -135,8 +134,7 @@ bool FaustGen::LoadFile(const char* path)
 
   const bool success = Compile(sourceCode);
 
-  if (mOnCompileFunc)
-    mOnCompileFunc(success);
+  OnCompiled(success);
 
   return success;
 }
@@ -145,10 +143,17 @@ bool FaustGen::SetSourceCode(const char* sourceCode)
 {
   const bool success = Compile(sourceCode);
 
+  OnCompiled(success);
+
+  return success;
+}
+
+void FaustGen::OnCompiled(bool success)
+{
   if (mOnCompileFunc)
     mOnCompileFunc(success);
 
-  return success;
+  InformHostIfParamsChanged();
 }
 
 void FaustGen::AddLibraryPath(const char* path)
@@ -300,8 +305,7 @@ void FaustGen::OnTimer(Timer& timer)
 
   const bool success = Compile(sourceCode); // if this fails, the previous DSP keeps running
 
-  if (mOnCompileFunc)
-    mOnCompileFunc(success);
+  OnCompiled(success);
 }
 
 #endif // #ifndef FAUST_COMPILED

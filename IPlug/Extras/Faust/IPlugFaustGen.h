@@ -86,7 +86,9 @@ public:
   void SetAutoRecompile(bool enable);
 
   /** Set a function that is called on the main thread after a (re)compilation. When it is called after a successful recompilation,
-   * the parameters have already been updated, but the plug-in's UI should be rebuilt e.g. with IGraphicsFaustUI */
+   * the parameters have already been updated, but the plug-in's UI should be rebuilt e.g. with IGraphicsFaustUI.
+   * After it returns, the host is told to re-read the parameter details (IPluginBase::InformHostOfParameterDetailsChange()),
+   * so any other changes the plug-in makes to its parameters in this function are included */
   void SetOnCompileFunc(std::function<void(bool success)> func) { mOnCompileFunc = func; }
 
   /** @return The error message of the last failed compilation, or an empty string */
@@ -100,6 +102,7 @@ private:
   void CompileDefault();
   bool ReadFile(std::string& contents);
   void OnTimer(Timer& timer);
+  void OnCompiled(bool success);
 
   std::string mDSPFile;
   std::string mSourceCode;

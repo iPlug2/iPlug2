@@ -218,6 +218,10 @@ protected:
   /** Destroys the DSP. Subclasses that own something the DSP depends on (e.g. the factory that created it) must call this in their destructor */
   void ReleaseDSP();
 
+  /** If SetDSP() re-initialized the linked plug-in parameters (i.e. the DSP was replaced), tell the host to re-read the parameter details.
+   * Call this on the main thread, after the plug-in has finished updating its parameters */
+  void InformHostIfParamsChanged();
+
   WDL_String mName;
 
 private:
@@ -269,6 +273,7 @@ private:
   IPlugAPIBase* mPlug = nullptr;
   int mPlugParamStartIdx = -1; // < 0 means not linked
   int mPlugParamEndIdx = -1;
+  bool mParamsChanged = false; // set when linked parameters were re-initialized
 
   std::unique_ptr<Timer> mUITimer;
 };

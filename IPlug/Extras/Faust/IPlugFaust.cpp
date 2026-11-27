@@ -293,6 +293,17 @@ void IPlugFaust::RelinkParams()
     pPlugParam->Init(*mParams[p].param);
     pPlugParam->Set(mParams[p].param->Value());
   }
+
+  mParamsChanged = true;
+}
+
+void IPlugFaust::InformHostIfParamsChanged()
+{
+  if (mParamsChanged && mPlug)
+  {
+    mParamsChanged = false;
+    mPlug->InformHostOfParameterDetailsChange();
+  }
 }
 
 #pragma mark - DSP
