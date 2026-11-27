@@ -1601,12 +1601,18 @@ bool IGraphics::OnKeyUp(float x, float y, const IKeyPress& key)
 
 void IGraphics::OnDrop(const char* str, float x, float y)
 {
+  if (mDropHandlerFunc && mDropHandlerFunc({str}, x, y))
+    return;
+
   IControl* pControl = GetMouseControl(x, y, false);
   if (pControl) pControl->OnDrop(str);
 }
 
 void IGraphics::OnDropMultiple(const std::vector<const char*>& paths, float x, float y)
 {
+  if (mDropHandlerFunc && mDropHandlerFunc(paths, x, y))
+    return;
+
   IControl* pControl = GetMouseControl(x, y, false);
   if (pControl) pControl->OnDropMultiple(paths);
 }
