@@ -306,36 +306,16 @@ if(NOT TARGET iPlug2::IGraphics::NanoVG::GL3)
 endif()
 
 # NanoVG with Metal backend (macOS and iOS)
-# We use an OBJECT library so we can set -fobjc-arc only on the Metal source file
-if(NOT TARGET iPlug2_IGraphics_NanoVG_Metal_obj)
-  if(APPLE OR IOS)
-    add_library(iPlug2_IGraphics_NanoVG_Metal_obj OBJECT
-      ${IGRAPHICS_DIR}/Drawing/IGraphicsNanoVG_src.m
-    )
-
-    target_include_directories(iPlug2_IGraphics_NanoVG_Metal_obj PRIVATE
-      ${IGRAPHICS_DEPS_DIR}/NanoVG/src
-      ${IGRAPHICS_DEPS_DIR}/NanoSVG/src
-      ${IGRAPHICS_DEPS_DIR}/MetalNanoVG/src
-      ${IGRAPHICS_DIR}
-      ${IGRAPHICS_DIR}/Controls
-      ${IGRAPHICS_DIR}/Platforms
-      ${IGRAPHICS_DIR}/Drawing
-    )
-
-    target_compile_definitions(iPlug2_IGraphics_NanoVG_Metal_obj PRIVATE
-      IGRAPHICS_NANOVG
-      IGRAPHICS_METAL
-    )
-
-    # This source file requires ARC
-    target_compile_options(iPlug2_IGraphics_NanoVG_Metal_obj PRIVATE -fobjc-arc)
-
-    set_target_properties(iPlug2_IGraphics_NanoVG_Metal_obj PROPERTIES
-      POSITION_INDEPENDENT_CODE ON
-    )
-  endif()
-endif()
+# IGraphicsNanoVG_src.m (which includes nanovg_mtl.m) is compiled in each
+# consuming target, not in a shared OBJECT library: nanovg_mtl.m defines
+# Objective-C classes (MNVGcontext, MNVGbuffers, MNVGtexture) that
+# IPlugOBJCPrefix.pch renames using the target's OBJC_PREFIX and format API.
+# A shared object library is built without them, so every plug-in would export
+# the same class names, and the Objective-C runtime would pick one of them when
+# two such plug-ins are loaded in the same process.
+# The file requires ARC; iplug_configure_target() sets -fobjc-arc on it for
+# each target.
+set(IGRAPHICS_NANOVG_METAL_SRC ${IGRAPHICS_DIR}/Drawing/IGraphicsNanoVG_src.m)
 
 if(NOT TARGET iPlug2::IGraphics::NanoVG::Metal)
   if(APPLE OR IOS)
@@ -352,9 +332,9 @@ if(NOT TARGET iPlug2::IGraphics::NanoVG::Metal)
       IGRAPHICS_METAL
     )
 
-    # Link object files using generator expression
+    # Compiled in the consuming target (see IGRAPHICS_NANOVG_METAL_SRC above)
     target_sources(iPlug2::IGraphics::NanoVG::Metal INTERFACE
-      $<TARGET_OBJECTS:iPlug2_IGraphics_NanoVG_Metal_obj>
+      ${IGRAPHICS_NANOVG_METAL_SRC}
     )
 
     target_link_libraries(iPlug2::IGraphics::NanoVG::Metal INTERFACE
