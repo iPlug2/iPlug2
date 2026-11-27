@@ -34,4 +34,6 @@ cmake --build build-faust-ios --config Debug --target IPlugFaustDSP-ios-app -- -
 - `IGraphicsFaustUI` creates IGraphics controls for the Faust UI: boxes become panels or tabs, sliders become sliders or knobs (`[style:knob]`), menus/radio buttons (`[style:menu{...}]`, `[style:radio{...}]`) become menu/radio buttons and bargraphs become meters, LEDs (`[style:led]`) or value displays (`[style:numerical]`). The control creation and sizing functions can be replaced.
 - MIDI is routed to the DSP with `IPlugFaust::ProcessMidiMsg()`. Polyphony is enabled with `declare options "[midi:on][nvoices:8]";` in the .dsp file.
 
+Security: when the interpreter is shipped, the plug-in compiles whatever is in the .dsp file it loads, and whatever that imports from the library paths. Only load DSP code from locations users can't write to by accident (e.g. the bundle), unless loading user code is the point.
+
 Limitations: soundfiles are not supported (a DSP that uses them outputs silence), and the interpreter is much slower than compiled code.

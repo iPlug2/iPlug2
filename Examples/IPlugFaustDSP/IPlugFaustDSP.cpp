@@ -86,7 +86,10 @@ void IPlugFaustDSP::InitUnusedParams()
   {
     WDL_String name;
     name.SetFormatted(32, "Unused %i", i - mFaust.NParams() + 1);
-    GetParam(i)->InitDouble(name.Get(), 0., 0., 1., 0.01);
+
+    // Re-initializing a parameter isn't thread safe (the host may be using it), so only do it if it changes
+    if (strcmp(GetParam(i)->GetName(), name.Get()) != 0)
+      GetParam(i)->InitDouble(name.Get(), 0., 0., 1., 0.01);
   }
 }
 
