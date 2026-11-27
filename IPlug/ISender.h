@@ -100,12 +100,15 @@ public:
     {
       ISenderData<MAXNC, T> d;
       mQueue.Pop(d);
+      PrepareDataForUI(d);
       
       for (auto tag : ctrlTags)
       {
         d.ctrlTag = tag;
         dlg.SendControlMsgFromDelegate(tag, kUpdateMessage, sizeof(ISenderData<MAXNC, T>), (void*) &d);
       }
+      
+      mLastData = d;
     }
   }
 

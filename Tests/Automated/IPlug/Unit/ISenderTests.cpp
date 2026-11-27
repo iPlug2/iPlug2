@@ -380,11 +380,7 @@ TEST_CASE("ISender: PrepareDataForUI can transform data before it is sent", "[un
   REQUIRE(sender.GetLastData().vals[0] == 6.f);
 }
 
-// BUG (suspected): ISender.h:97-110. TransmitDataToControlsWithTags() is documented as a variation of
-// TransmitData() for sending the same data to several controls, but unlike TransmitData() it never calls
-// PrepareDataForUI() and does not update the data returned by GetLastData(). An ISpectrumSender used this
-// way sends raw sample buffers instead of spectra.
-TEST_CASE("ISender: TransmitDataToControlsWithTags prepares data like TransmitData", "[.][bug]")
+TEST_CASE("ISender: TransmitDataToControlsWithTags prepares data like TransmitData", "[unit][sender]")
 {
   DoublingSender sender;
   RecordingDelegate<TPeakData> dlg;
