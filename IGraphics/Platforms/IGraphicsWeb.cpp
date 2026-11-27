@@ -986,7 +986,33 @@ void IGraphicsWeb::RegisterCanvasEvents()
         Module._iGraphicsWheelCallback(pGraphics, e.offsetX, e.offsetY, e.deltaY, e.shiftKey, e.ctrlKey, e.altKey);
         e.preventDefault();
       }, { passive: false });
-      // TODO: Touch events for Shadow DOM
+
+      // Touch events. preventDefault() stops the browser scrolling/zooming and
+      // suppresses the compatibility mouse events it would otherwise synthesize
+      // (iOS only sends those after touchend, so drags would never work).
+      var touchPrev = {};
+      var sendTouches = function(type, e) {
+        var rect = canvas.getBoundingClientRect();
+        var touches = e.changedTouches;
+        for (var i = 0; i < touches.length; i++) {
+          var t = touches[i];
+          var x = t.clientX - rect.left;
+          var y = t.clientY - rect.top;
+          var prev = touchPrev[t.identifier];
+          var dx = prev ? x - prev.x : 0;
+          var dy = prev ? y - prev.y : 0;
+          if (type === 0 || type === 2)
+            touchPrev[t.identifier] = ({ x: x, y: y });
+          else
+            delete touchPrev[t.identifier];
+          Module._iGraphicsTouchCallback(pGraphics, type, t.identifier, x, y, dx, dy, e.shiftKey, e.ctrlKey, e.altKey);
+        }
+        if (e.cancelable) e.preventDefault();
+      };
+      canvas.addEventListener('touchstart', function(e) { sendTouches(0, e); }, { passive: false });
+      canvas.addEventListener('touchend', function(e) { sendTouches(1, e); }, { passive: false });
+      canvas.addEventListener('touchmove', function(e) { sendTouches(2, e); }, { passive: false });
+      canvas.addEventListener('touchcancel', function(e) { sendTouches(3, e); }, { passive: false });
     }, this);
   }
   else
@@ -1637,6 +1663,43 @@ void iGraphicsWheelCallback(void* pGraphics, double x, double y, double deltaY, 
   float scale = pG->GetDrawScale();
   IMouseMod mod(false, false, static_cast<bool>(shift), static_cast<bool>(ctrl), static_cast<bool>(alt));
   pG->OnMouseWheel(x / scale, y / scale, mod, deltaY);
+}
+
+EMSCRIPTEN_KEEPALIVE
+void iGraphicsTouchCallback(void* pGraphics, int eventType, double touchID, double x, double y, double dx, double dy, int shift, int ctrl, int alt)
+{
+  IGraphicsWeb* pG = static_cast<IGraphicsWeb*>(pGraphics);
+  float scale = pG->GetDrawScale();
+
+  IMouseInfo info;
+  info.x = x / scale;
+  info.y = y / scale;
+  info.dX = dx / scale;
+  info.dY = dy / scale;
+  // Touch identifiers can exceed int32 on iOS, so they arrive as double
+  info.ms = {true, false, static_cast<bool>(shift), static_cast<bool>(ctrl), static_cast<bool>(alt),
+             static_cast<ITouchID>(static_cast<uint64_t>(touchID))};
+  std::vector<IMouseInfo> list{info};
+
+  switch (eventType)
+  {
+    case 0: // touchstart
+      pG->OnMouseDown(list);
+      break;
+    case 1: // touchend
+      pG->OnMouseUp(list);
+      break;
+    case 2: // touchmove
+      if (!pG->IsInPlatformTextEntry())
+        pG->OnMouseDrag(list);
+      break;
+    case 3: // touchcancel
+      pG->OnTouchCancelled(list);
+      break;
+  }
+
+  pG->mPrevX = info.x;
+  pG->mPrevY = info.y;
 }
 
 #if !defined(NDEBUG) || defined(IPLUG_LIVE_EDIT)
