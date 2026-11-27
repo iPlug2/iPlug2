@@ -213,7 +213,9 @@ void IParam::InitAngleDegrees(const char *name, double defaultVal, double minVal
 
 void IParam::Init(const IParam& p, const char* searchStr, const char* replaceStr, const char* newGroup)
 {
-  if (mType == kTypeNone) mType = p.Type();
+  // This copies a complete definition, so it replaces the type and display texts of a parameter that was already initialised
+  mType = p.Type();
+  mDisplayTexts.Resize(0);
 
   WDL_String str(p.mName);
   WDL_String group(p.mParamGroup);
