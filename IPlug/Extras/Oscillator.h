@@ -157,7 +157,7 @@ public:
 
   static inline T Lookup(double phaseRadians)
   {
-    double tPhase = phaseRadians / (PI * 2.) * tableSizeM1;
+    double tPhase = phaseRadians / (PI * 2.) * tableSize;
 
     tPhase += (double) UNITBIT32;
 
