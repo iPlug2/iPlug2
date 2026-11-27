@@ -27,14 +27,14 @@ const double kMargin = 1e-9;
 // Translate/Scale/Rotate/Skew take floats, so results involving them are only accurate to float precision
 const double kFloatMargin = 1e-5;
 
-struct Point
+struct TestPoint
 {
   double x, y;
 };
 
-Point Apply(const IMatrix& m, double x, double y)
+TestPoint Apply(const IMatrix& m, double x, double y)
 {
-  Point p {0., 0.};
+  TestPoint p {0., 0.};
   m.TransformPoint(p.x, p.y, x, y);
   return p;
 }
@@ -74,7 +74,7 @@ TEST_CASE("IMatrix: default construction is the identity", "[unit][imatrix]")
   {
     for (double y : {-7., 0., 2.25, 50.})
     {
-      const Point p = Apply(m, x, y);
+      const TestPoint p = Apply(m, x, y);
       REQUIRE(p.x == x);
       REQUIRE(p.y == y);
     }
@@ -115,17 +115,17 @@ TEST_CASE("IMatrix: TransformPoint", "[unit][imatrix]")
 
   SECTION("the origin maps to the translation")
   {
-    const Point p = Apply(m, 0., 0.);
+    const TestPoint p = Apply(m, 0., 0.);
     REQUIRE(p.x == 5.);
     REQUIRE(p.y == 6.);
   }
 
   SECTION("the unit vectors map to the columns")
   {
-    const Point px = Apply(m, 1., 0.);
+    const TestPoint px = Apply(m, 1., 0.);
     REQUIRE(px.x == 1. + 5.);
     REQUIRE(px.y == 2. + 6.);
-    const Point py = Apply(m, 0., 1.);
+    const TestPoint py = Apply(m, 0., 1.);
     REQUIRE(py.x == 3. + 5.);
     REQUIRE(py.y == 4. + 6.);
   }
@@ -138,7 +138,7 @@ TEST_CASE("IMatrix: Translate", "[unit][imatrix]")
   REQUIRE(&result == &m);
   CheckMatrix(m, 1., 0., 0., 1., 10., -20.);
 
-  const Point p = Apply(m, 1., 2.);
+  const TestPoint p = Apply(m, 1., 2.);
   REQUIRE(p.x == Approx(11.));
   REQUIRE(p.y == Approx(-18.));
 
@@ -154,7 +154,7 @@ TEST_CASE("IMatrix: Scale", "[unit][imatrix]")
   REQUIRE(&result == &m);
   CheckMatrix(m, 2., 0., 0., 3., 0., 0.);
 
-  const Point p = Apply(m, 10., 10.);
+  const TestPoint p = Apply(m, 10., 10.);
   REQUIRE(p.x == Approx(20.));
   REQUIRE(p.y == Approx(30.));
 
@@ -163,7 +163,7 @@ TEST_CASE("IMatrix: Scale", "[unit][imatrix]")
   CheckMatrix(m, 1., 0., 0., 6., 0., 0.);
 
   // a negative scale flips
-  const Point flipped = Apply(IMatrix().Scale(-1.f, 1.f), 3., 4.);
+  const TestPoint flipped = Apply(IMatrix().Scale(-1.f, 1.f), 3., 4.);
   REQUIRE(flipped.x == Approx(-3.));
   REQUIRE(flipped.y == Approx(4.));
 }
@@ -178,7 +178,7 @@ TEST_CASE("IMatrix: Rotate is clockwise in degrees, with y pointing down", "[uni
     CheckMatrix(m, 0., 1., -1., 0., 0., 0., kFloatMargin);
 
     // the x axis rotates on to the y axis (i.e. right -> down)
-    Point p = Apply(m, 1., 0.);
+    TestPoint p = Apply(m, 1., 0.);
     CHECK(p.x == Approx(0.).margin(kFloatMargin));
     CHECK(p.y == Approx(1.).margin(kFloatMargin));
 
@@ -190,14 +190,14 @@ TEST_CASE("IMatrix: Rotate is clockwise in degrees, with y pointing down", "[uni
 
   SECTION("180 degrees")
   {
-    const Point p = Apply(IMatrix().Rotate(180.f), 3., 4.);
+    const TestPoint p = Apply(IMatrix().Rotate(180.f), 3., 4.);
     CHECK(p.x == Approx(-3.).margin(kFloatMargin));
     CHECK(p.y == Approx(-4.).margin(kFloatMargin));
   }
 
   SECTION("45 degrees")
   {
-    const Point p = Apply(IMatrix().Rotate(45.f), 1., 0.);
+    const TestPoint p = Apply(IMatrix().Rotate(45.f), 1., 0.);
     CHECK(p.x == Approx(std::sqrt(0.5)).margin(kFloatMargin));
     CHECK(p.y == Approx(std::sqrt(0.5)).margin(kFloatMargin));
   }
@@ -210,7 +210,7 @@ TEST_CASE("IMatrix: Rotate is clockwise in degrees, with y pointing down", "[uni
 
   SECTION("negative angles rotate the other way")
   {
-    const Point p = Apply(IMatrix().Rotate(-90.f), 1., 0.);
+    const TestPoint p = Apply(IMatrix().Rotate(-90.f), 1., 0.);
     CHECK(p.x == Approx(0.).margin(kFloatMargin));
     CHECK(p.y == Approx(-1.).margin(kFloatMargin));
   }
@@ -225,7 +225,7 @@ TEST_CASE("IMatrix: Rotate is clockwise in degrees, with y pointing down", "[uni
   {
     for (float angle : {10.f, 77.f, 135.f, 200.f, 359.f})
     {
-      const Point p = Apply(IMatrix().Rotate(angle), 3., 4.);
+      const TestPoint p = Apply(IMatrix().Rotate(angle), 3., 4.);
       INFO("angle " << angle);
       CHECK(std::sqrt(p.x * p.x + p.y * p.y) == Approx(5.).margin(kFloatMargin));
     }
@@ -241,7 +241,7 @@ TEST_CASE("IMatrix: Skew", "[unit][imatrix]")
     REQUIRE(&result == &m);
     CheckMatrix(m, 1., 0., 1., 1., 0., 0., kFloatMargin);
 
-    const Point p = Apply(m, 10., 5.);
+    const TestPoint p = Apply(m, 10., 5.);
     CHECK(p.x == Approx(15.).margin(1e-4));
     CHECK(p.y == Approx(5.).margin(1e-4));
   }
@@ -252,7 +252,7 @@ TEST_CASE("IMatrix: Skew", "[unit][imatrix]")
     m.Skew(0.f, 45.f);
     CheckMatrix(m, 1., 1., 0., 1., 0., 0., kFloatMargin);
 
-    const Point p = Apply(m, 10., 5.);
+    const TestPoint p = Apply(m, 10., 5.);
     CHECK(p.x == Approx(10.).margin(1e-4));
     CHECK(p.y == Approx(15.).margin(1e-4));
   }
@@ -264,7 +264,7 @@ TEST_CASE("IMatrix: Skew", "[unit][imatrix]")
 
   SECTION("points on the axis are not moved")
   {
-    const Point p = Apply(IMatrix().Skew(30.f, 0.f), 7., 0.);
+    const TestPoint p = Apply(IMatrix().Skew(30.f, 0.f), 7., 0.);
     CHECK(p.x == Approx(7.));
     CHECK(p.y == Approx(0.).margin(kMargin));
   }
@@ -276,14 +276,14 @@ TEST_CASE("IMatrix: transforms are applied to points in the reverse of the order
 
   SECTION("translate then scale")
   {
-    const Point p = Apply(IMatrix().Translate(10.f, 20.f).Scale(2.f, 2.f), 1., 1.);
+    const TestPoint p = Apply(IMatrix().Translate(10.f, 20.f).Scale(2.f, 2.f), 1., 1.);
     CHECK(p.x == Approx(12.));
     CHECK(p.y == Approx(22.));
   }
 
   SECTION("scale then translate")
   {
-    const Point p = Apply(IMatrix().Scale(2.f, 2.f).Translate(10.f, 20.f), 1., 1.);
+    const TestPoint p = Apply(IMatrix().Scale(2.f, 2.f).Translate(10.f, 20.f), 1., 1.);
     CHECK(p.x == Approx(22.));
     CHECK(p.y == Approx(42.));
   }
@@ -293,7 +293,7 @@ TEST_CASE("IMatrix: transforms are applied to points in the reverse of the order
     // translate to the pivot, rotate, translate back
     const IMatrix m = IMatrix().Translate(50.f, 50.f).Rotate(90.f).Translate(-50.f, -50.f);
 
-    Point p = Apply(m, 50., 50.);
+    TestPoint p = Apply(m, 50., 50.);
     CHECK(p.x == Approx(50.).margin(1e-4));
     CHECK(p.y == Approx(50.).margin(1e-4));
 
@@ -304,8 +304,8 @@ TEST_CASE("IMatrix: transforms are applied to points in the reverse of the order
 
   SECTION("the order matters")
   {
-    const Point a = Apply(IMatrix().Rotate(90.f).Translate(10.f, 0.f), 0., 0.);
-    const Point b = Apply(IMatrix().Translate(10.f, 0.f).Rotate(90.f), 0., 0.);
+    const TestPoint a = Apply(IMatrix().Rotate(90.f).Translate(10.f, 0.f), 0., 0.);
+    const TestPoint b = Apply(IMatrix().Translate(10.f, 0.f).Rotate(90.f), 0., 0.);
     CHECK(a.x == Approx(0.).margin(1e-4));
     CHECK(a.y == Approx(10.).margin(1e-4));
     CHECK(b.x == Approx(10.).margin(1e-4));
@@ -334,9 +334,9 @@ TEST_CASE("IMatrix: Transform with another matrix", "[unit][imatrix]")
     {
       for (double y : {-7., 0., 2.25, 50.})
       {
-        const Point viaB = Apply(b, x, y);
-        const Point expected = Apply(a, viaB.x, viaB.y);
-        const Point actual = Apply(combined, x, y);
+        const TestPoint viaB = Apply(b, x, y);
+        const TestPoint expected = Apply(a, viaB.x, viaB.y);
+        const TestPoint actual = Apply(combined, x, y);
         INFO("x " << x << " y " << y);
         CHECK(actual.x == Approx(expected.x).margin(kMargin));
         CHECK(actual.y == Approx(expected.y).margin(kMargin));
@@ -378,8 +378,8 @@ TEST_CASE("IMatrix: Transform with another matrix", "[unit][imatrix]")
     IMatrix ba = b;
     ba.Transform(a);
 
-    const Point p = Apply(ab, 1., 1.);
-    const Point q = Apply(ba, 1., 1.);
+    const TestPoint p = Apply(ab, 1., 1.);
+    const TestPoint q = Apply(ba, 1., 1.);
     CHECK((p.x != q.x || p.y != q.y));
   }
 }
@@ -395,7 +395,7 @@ TEST_CASE("IMatrix: Transform mapping one rectangle to another", "[unit][imatrix
 
   SECTION("corners and centre map across")
   {
-    Point p = Apply(m, before.L, before.T);
+    TestPoint p = Apply(m, before.L, before.T);
     CHECK(p.x == Approx(after.L).margin(kMargin));
     CHECK(p.y == Approx(after.T).margin(kMargin));
 
@@ -514,8 +514,8 @@ TEST_CASE("IMatrix: Invert", "[unit][imatrix]")
     {
       for (double y : {-7., 0., 2.25, 50.})
       {
-        const Point transformed = Apply(m, x, y);
-        const Point back = Apply(inverse, transformed.x, transformed.y);
+        const TestPoint transformed = Apply(m, x, y);
+        const TestPoint back = Apply(inverse, transformed.x, transformed.y);
         INFO("x " << x << " y " << y);
         CHECK(back.x == Approx(x).margin(1e-9));
         CHECK(back.y == Approx(y).margin(1e-9));
