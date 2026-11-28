@@ -419,10 +419,8 @@ TEST_CASE("Removing a control that is captured or under the mouse leaves no dang
   }
 }
 
-// BUG: IGraphics::RemoveControlWithTag() (IGraphics/IGraphics.cpp:149) deletes the control without releasing the mouse
-// capture or clearing mMouseOver/mInTextEntry/mInPopupMenu, as RemoveControl() and RemoveControls() do. The next mouse
-// event is then delivered to the deleted control (heap use-after-free, reported by ASan).
-TEST_CASE("RemoveControlWithTag: a captured or moused-over control is released before it is deleted", "[.][bug]")
+// Later mouse and text entry events must not reach the deleted control
+TEST_CASE("RemoveControlWithTag: a captured or moused-over control is released before it is deleted", "[integration][controlstack][remove][tags][mouse]")
 {
   Fixture f;
   f.mUI->EnableMouseOver(true);
