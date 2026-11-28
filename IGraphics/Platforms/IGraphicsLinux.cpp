@@ -817,6 +817,12 @@ static GTK3* LoadGTK3()
   if (auto disableSetLocale = reinterpret_cast<void (*)()>(dlsym(gtk.handle, "gtk_disable_setlocale")))
     disableSetLocale();
 
+  // IGraphics windows are X11 windows (XWayland on a Wayland session). GTK must use
+  // the same X display, or its menus can't be anchored to them and its dialogs
+  // and menus don't get focus/grabs. No effect if a host already initialised GTK.
+  if (auto setAllowedBackends = reinterpret_cast<void (*)(const char*)>(dlsym(gtk.handle, "gdk_set_allowed_backends")))
+    setAllowedBackends("x11");
+
   if (!gtk.init_check(nullptr, nullptr))
   {
     dlclose(gtk.handle);
@@ -2167,6 +2173,62 @@ static void* BuildGtkMenu(GTK3* pGTK, IPopupMenu& menu, GtkMenuState* pState)
   return gtkMenu;
 }
 
+// GTK3's GdkEventButton (stable ABI), used to fill in a synthetic trigger event
+struct GdkEventButtonABI
+{
+  int type;
+  void* window;
+  int8_t send_event;
+  uint32_t time;
+  double x, y;
+  double* axes;
+  unsigned int state;
+  unsigned int button;
+  void* device;
+  double x_root, y_root;
+};
+
+// A GTK menu opened without the button press that triggered it treats the
+// release of that click as a click outside the menu, and closes at once.
+// Rebuild the press from the X event so GTK knows to ignore its release.
+void* IGraphicsLinux::CreateGdkButtonPressEvent(void* gtkHandle, void* gdkDisplay, void* gdkWindow, int gdkScale)
+{
+  static constexpr int kGDK_BUTTON_PRESS = 4;
+  auto event_new = reinterpret_cast<void* (*)(int)>(dlsym(gtkHandle, "gdk_event_new"));
+  auto event_set_device = reinterpret_cast<void (*)(void*, void*)>(dlsym(gtkHandle, "gdk_event_set_device"));
+  auto get_default_seat = reinterpret_cast<void* (*)(void*)>(dlsym(gtkHandle, "gdk_display_get_default_seat"));
+  auto seat_get_pointer = reinterpret_cast<void* (*)(void*)>(dlsym(gtkHandle, "gdk_seat_get_pointer"));
+  auto object_ref = reinterpret_cast<void* (*)(void*)>(dlsym(gtkHandle, "g_object_ref"));
+  if (!mLastPressTime || !event_new || !event_set_device || !get_default_seat || !seat_get_pointer || !object_ref || !dlsym(gtkHandle, "gdk_event_free"))
+    return nullptr;
+
+  void* pSeat = get_default_seat(gdkDisplay);
+  void* pPointer = pSeat ? seat_get_pointer(pSeat) : nullptr;
+  if (!pPointer)
+    return nullptr;
+
+  auto* pEvent = static_cast<GdkEventButtonABI*>(event_new(kGDK_BUTTON_PRESS));
+  pEvent->window = object_ref(gdkWindow); // gdk_event_free() unrefs it
+  pEvent->send_event = 0;
+  pEvent->time = static_cast<uint32_t>(mLastPressTime);
+  pEvent->x = static_cast<double>(mLastPressX) / gdkScale;
+  pEvent->y = static_cast<double>(mLastPressY) / gdkScale;
+  pEvent->button = mLastPressButton;
+  pEvent->x_root = static_cast<double>(mLastPressRootX) / gdkScale;
+  pEvent->y_root = static_cast<double>(mLastPressRootY) / gdkScale;
+  event_set_device(pEvent, pPointer);
+  return pEvent;
+}
+
+void IGraphicsLinux::ReleaseX11PointerGrab()
+{
+  if (mDisplay)
+  {
+    XUngrabPointer(mDisplay, 0L /* CurrentTime */);
+    XFlush(mDisplay);
+  }
+}
+
 IPopupMenu* IGraphicsLinux::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT bounds, bool& isAsync)
 {
   isAsync = false;
@@ -2174,6 +2236,11 @@ IPopupMenu* IGraphicsLinux::CreatePlatformPopupMenu(IPopupMenu& menu, const IREC
   GTK3* pGTK = LoadGTK3();
   if (!pGTK || !pGTK->menu_new || !pGTK->menu_item_new_with_label || !pGTK->menu_shell_append || !pGTK->main || !pGTK->main_quit)
     return nullptr;
+
+  // Menus open on mouse down, while the press's implicit pointer grab belongs to our
+  // X connection. GTK uses its own connection, so its menu grab would fail and the
+  // menu would close as soon as it opened. Hand the pointer over first.
+  ReleaseX11PointerGrab();
 
   GtkMenuState state;
   void* gtkMenu = BuildGtkMenu(pGTK, menu, &state);
@@ -2226,8 +2293,11 @@ IPopupMenu* IGraphicsLinux::CreatePlatformPopupMenu(IPopupMenu& menu, const IREC
         rect.width = static_cast<int>(bounds.W() * s);
         rect.height = 1;
 
-        pGTK->menu_popup_at_rect(gtkMenu, gdkWindow, &rect, kGDK_GRAVITY_NORTH_WEST, kGDK_GRAVITY_NORTH_WEST, nullptr);
+        void* triggerEvent = CreateGdkButtonPressEvent(pGTK->handle, gdkDisplay, gdkWindow, window_scale ? std::max(1, window_scale(gdkWindow)) : 1);
+        pGTK->menu_popup_at_rect(gtkMenu, gdkWindow, &rect, kGDK_GRAVITY_NORTH_WEST, kGDK_GRAVITY_NORTH_WEST, triggerEvent);
         popped = true;
+        if (triggerEvent)
+          reinterpret_cast<void (*)(void*)>(dlsym(pGTK->handle, "gdk_event_free"))(triggerEvent);
 
         if (pGTK->g_object_unref)
           pGTK->g_object_unref(gdkWindow);
@@ -2275,6 +2345,11 @@ void IGraphicsLinux::CreatePlatformTextEntry(int paramIdx, const IText& text, co
     return;
   }
 
+  // As for popup menus: free the pointer from the click that opened this, and end
+  // the click in IGraphics too, since its button release will go to the dialog.
+  ReleaseX11PointerGrab();
+  ReleaseMouseCapture();
+
   void* dialog = pGTK->dialog_new_with_buttons("Edit Value", nullptr, kGTK_DIALOG_MODAL, "_Cancel", kGTK_RESPONSE_CANCEL, "_OK", kGTK_RESPONSE_OK, nullptr);
 
   void* entry = pGTK->entry_new();
@@ -2296,6 +2371,22 @@ void IGraphicsLinux::CreatePlatformTextEntry(int paramIdx, const IText& text, co
 
   void* contentArea = pGTK->dialog_get_content_area(dialog);
   pGTK->box_pack_start(contentArea, entry, 1, 1, 0);
+
+  // Open the dialog just below the control being edited. This must happen before it
+  // is shown: GtkPresentDialog's position hint only applies when a window first maps.
+  auto window_move = reinterpret_cast<void (*)(void*, int, int)>(dlsym(pGTK->handle, "gtk_window_move"));
+  auto widget_scale = reinterpret_cast<int (*)(void*)>(dlsym(pGTK->handle, "gtk_widget_get_scale_factor"));
+  if (window_move && mDisplay && mPlugWnd)
+  {
+    const float scale = GetTotalScale();
+    int rootX = 0, rootY = 0;
+    Window child;
+    if (XTranslateCoordinates(mDisplay, mPlugWnd, DefaultRootWindow(mDisplay), static_cast<int>(bounds.L * scale), static_cast<int>(bounds.B * scale), &rootX, &rootY, &child))
+    {
+      const int gdkScale = widget_scale ? std::max(1, widget_scale(dialog)) : 1;
+      window_move(dialog, rootX / gdkScale, rootY / gdkScale);
+    }
+  }
 
   if (pGTK->widget_show_all)
     pGTK->widget_show_all(dialog);
@@ -2778,6 +2869,12 @@ void IGraphicsLinux::DispatchX11Events()
 
       if (ev.type == ButtonPress)
       {
+        mLastPressTime = be.time;
+        mLastPressButton = be.button;
+        mLastPressX = be.x;
+        mLastPressY = be.y;
+        mLastPressRootX = be.x_root;
+        mLastPressRootY = be.y_root;
         // A child of the host's window does not gain focus automatically.
         // Only an explicit click transfers focus; mapping/hovering never does.
         XSetInputFocus(mDisplay, mPlugWnd, RevertToParent, be.time);

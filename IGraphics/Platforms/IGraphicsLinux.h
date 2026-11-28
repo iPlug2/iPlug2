@@ -189,6 +189,8 @@ private:
   };
   std::vector<GLContextState> mGLContextStack;
 
+  void* CreateGdkButtonPressEvent(void* gtkHandle, void* gdkDisplay, void* gdkWindow, int gdkScale); // caller frees with gdk_event_free
+  void ReleaseX11PointerGrab(); // hand the pointer to GTK menus/dialogs opened from a click
   XVisualInfo* CreateGLContext(); // returns the visual used; caller must XFree() it
   void DestroyGLContext();
   void* mGLContext = nullptr; // GLXContext
@@ -221,6 +223,10 @@ private:
   std::atomic<bool> mCloseRequested{false};
   std::atomic<int> mDispatchDepth{0};
   unsigned long mLastLeftClickTime = 0; // X11 server timestamp of last left-button press
+  // Last button press, used as the trigger event for GTK popup menus
+  unsigned long mLastPressTime = 0;
+  unsigned int mLastPressButton = 0;
+  int mLastPressX = 0, mLastPressY = 0, mLastPressRootX = 0, mLastPressRootY = 0;
   float mLastLeftClickX = 0.f;
   float mLastLeftClickY = 0.f;
 
