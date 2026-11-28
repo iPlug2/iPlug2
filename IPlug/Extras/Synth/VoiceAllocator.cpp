@@ -290,14 +290,14 @@ void VoiceAllocator::CalcGlideTimesInSamples()
   mControlGlideSamples = static_cast<int>(mControlGlideTime * mSampleRate);
 }
 
-int VoiceAllocator::FindFreeVoiceIndex(int startIndex) const
+int VoiceAllocator::FindFreeVoiceIndex(int startIndex, uint8_t zone) const
 {
   size_t voices = mVoicePtrs.size();
   for(int i=0; i<voices; ++i)
   {
     int j = (startIndex + i)%voices;
     SynthVoice* pv = mVoicePtrs[j];
-    if(!pv->GetBusy())
+    if(!pv->GetBusy() && (zone == kAllZones || pv->mZone == zone))
     {
       return j;
     }
@@ -305,15 +305,19 @@ int VoiceAllocator::FindFreeVoiceIndex(int startIndex) const
   return -1;
 }
 
-int VoiceAllocator::FindVoiceIndexToSteal(int64_t sampleTime) const
+int VoiceAllocator::FindVoiceIndexToSteal(int64_t sampleTime, uint8_t zone) const
 {
   size_t voices = mVoicePtrs.size();
   int64_t earliestTime = sampleTime;
-  int longestPlayingVoiceIdx = 0;
+  int longestPlayingVoiceIdx = -1;
   for(int i=0; i<voices; ++i)
   {
     SynthVoice* pv = mVoicePtrs[i];
-    if(pv->mLastTriggeredTime < earliestTime)
+    if(zone != kAllZones && pv->mZone != zone)
+    {
+      continue;
+    }
+    if(longestPlayingVoiceIdx < 0 || pv->mLastTriggeredTime < earliestTime)
     {
       earliestTime = pv->mLastTriggeredTime;
       longestPlayingVoiceIdx = i;
@@ -422,12 +426,13 @@ void VoiceAllocator::NoteOn(VoiceInputEvent e, int64_t sampleTime)
     }
     case kPolyModePoly:
     {
-      int i = FindFreeVoiceIndex(mVoiceRotateIndex);
+      int i = FindFreeVoiceIndex(mVoiceRotateIndex, e.mAddress.mZone);
       if(i < 0)
       {
-        i = FindVoiceIndexToSteal(sampleTime);
+        i = FindVoiceIndexToSteal(sampleTime, e.mAddress.mZone);
       }
-      if(mRotateVoices)
+      // i is -1 if the note's zone has no voices: nothing plays, and the rotation carries on from where it was
+      if(mRotateVoices && i >= 0)
       {
         mVoiceRotateIndex = i + 1;
       }
