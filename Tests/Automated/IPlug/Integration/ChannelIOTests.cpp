@@ -632,9 +632,7 @@ TEST_CASE("ChannelIO: LimitToStereoIO() disconnects inputs beyond the first two"
   }
 }
 
-// BUG: IPlugProcessor::LimitToStereoIO() (IPlug/IPlugProcessor.cpp) disconnects the inputs beyond the first two, but
-// passes `true` when it does the same for the outputs, so outputs 3+ are (re)connected instead of disconnected.
-TEST_CASE("ChannelIO: LimitToStereoIO() disconnects outputs beyond the first two", "[.][bug]")
+TEST_CASE("ChannelIO: LimitToStereoIO() disconnects outputs beyond the first two", "[integration][channelio]")
 {
   IOPlug plug {"4-4"};
   plug.LimitToStereoIO();

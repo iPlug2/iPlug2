@@ -263,7 +263,7 @@ void IPlugProcessor::LimitToStereoIO()
     SetChannelConnections(ERoute::kInput, 2, MaxNChannels(ERoute::kInput) - 2, false);
 
   if (MaxNChannels(ERoute::kOutput) > 2)
-    SetChannelConnections(ERoute::kOutput, 2, MaxNChannels(ERoute::kOutput) - 2, true);
+    SetChannelConnections(ERoute::kOutput, 2, MaxNChannels(ERoute::kOutput) - 2, false);
 }
 
 void IPlugProcessor::SetChannelLabel(ERoute direction, int idx, const char* formatStr, bool zeroBased)
