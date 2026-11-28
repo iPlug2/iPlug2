@@ -73,7 +73,7 @@ bool IPlugAPIBase::CompareState(const uint8_t* pIncomingState, int startPos) con
 {
   bool isEqual = true;
   
-  const double* data = (const double*) pIncomingState + startPos;
+  const double* data = (const double*) (pIncomingState + startPos);
   
   // dirty hack here because protools treats param values as 32 bit int and in IPlug they are 64bit float
   // if we memcmp() the incoming state with the current they may have tiny differences due to the quantization
