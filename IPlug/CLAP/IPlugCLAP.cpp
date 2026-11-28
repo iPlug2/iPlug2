@@ -114,6 +114,13 @@ bool IPlugCLAP::EditorResize(int viewWidth, int viewHeight)
 {
   if (HasUI())
   {
+#if defined OS_LINUX && !defined NO_IGRAPHICS
+    if (mX11Floating)
+    {
+      SetEditorSize(viewWidth, viewHeight);
+      return true;
+    }
+#endif
     if ((viewWidth != GetEditorWidth() || viewHeight != GetEditorHeight()) && GetClapHost().canUseGui())
     {
       GetClapHost().guiRequestResize(viewWidth, viewHeight);
@@ -913,14 +920,51 @@ bool IPlugCLAP::guiIsApiSupported(const char* api, bool isFloating) noexcept
 #elif defined OS_WIN
   return !isFloating && !strcmp(api, CLAP_WINDOW_API_WIN32);
 #elif defined OS_LINUX
-  return !isFloating && !strcmp(api, CLAP_WINDOW_API_X11);
+#if !defined NO_IGRAPHICS
+  return api && !strcmp(api, CLAP_WINDOW_API_X11);
+#else
+  return api && !isFloating && !strcmp(api, CLAP_WINDOW_API_X11);
+#endif
 #else
   return false;
 #endif
 }
 
+#if defined OS_LINUX && !defined NO_IGRAPHICS
+void IPlugCLAP::ApplyX11FloatingHints() noexcept
+{
+  if (mGUIOpen)
+    static_cast<IGraphicsLinux*>(GetUI())->SetX11FloatingHints(mX11Title.Get(), mX11TransientParent);
+}
+
+bool IPlugCLAP::guiSetTransient(const clap_window* pWindow) noexcept
+{
+  if (!mX11Floating || !pWindow || !pWindow->api || strcmp(pWindow->api, CLAP_WINDOW_API_X11) || !pWindow->x11)
+    return false;
+
+  mX11TransientParent = pWindow->x11;
+  ApplyX11FloatingHints();
+  return true;
+}
+
+void IPlugCLAP::guiSuggestTitle(const char* title) noexcept
+{
+  if (mX11Floating)
+  {
+    mX11Title.Set(title && *title ? title : GetPluginName());
+    ApplyX11FloatingHints();
+  }
+}
+#endif
+
 bool IPlugCLAP::guiSetParent(const clap_window* pWindow) noexcept
 {
+  if (!pWindow)
+    return false;
+#if defined OS_LINUX && !defined NO_IGRAPHICS
+  if (mX11Floating)
+    return false;
+#endif
 #if defined OS_MAC
   return GUIWindowAttach(pWindow->cocoa);
 #elif defined OS_WIN
@@ -940,7 +984,14 @@ bool IPlugCLAP::implementsGui() const noexcept
 bool IPlugCLAP::guiCreate(const char* api, bool isFloating) noexcept
 {
 #if defined OS_LINUX && !defined NO_IGRAPHICS
-  return HasUI() && guiIsApiSupported(api, isFloating) && PrepareGraphics();
+  if (isFloating && (!api || !*api))
+    api = CLAP_WINDOW_API_X11;
+  if (mX11Floating || !HasUI() || !guiIsApiSupported(api, isFloating) || !PrepareGraphics())
+    return false;
+
+  mX11Floating = isFloating;
+  mX11Title.Set(GetPluginName());
+  return true;
 #else
   return HasUI();
 #endif
@@ -958,10 +1009,33 @@ void IPlugCLAP::guiDestroy() noexcept
   CloseWindow();
   mGUIOpen = false;
   mWindow = nullptr;
+#if defined OS_LINUX && !defined NO_IGRAPHICS
+  mX11Floating = false;
+  mX11FloatingHidden = false;
+  mX11FloatingClosed = false;
+  mX11TransientParent = 0;
+#endif
 }
 
 bool IPlugCLAP::guiShow() noexcept
 {
+#if defined OS_LINUX && !defined NO_IGRAPHICS
+  if (mX11Floating)
+  {
+    if (mX11FloatingClosed)
+      return false;
+    if (!mGUIOpen && !GUIWindowAttach(nullptr))
+      return false;
+    if (mX11FloatingHidden)
+    {
+      if (!static_cast<IGraphicsLinux*>(GetUI())->SetX11FloatingVisible(true))
+        return false;
+      mX11FloatingHidden = false;
+    }
+    ApplyX11FloatingHints();
+    return true;
+  }
+#endif
 #if defined OS_LINUX && (defined WEBVIEW_EDITOR_DELEGATE || !defined NO_IGRAPHICS)
   return HasUI() && (mGUIOpen || (mWindow && GUIWindowAttach(mWindow)));
 #else
@@ -988,6 +1062,17 @@ bool IPlugCLAP::guiShow() noexcept
 
 bool IPlugCLAP::guiHide() noexcept
 {
+#if defined OS_LINUX && !defined NO_IGRAPHICS
+  if (mX11Floating)
+  {
+    if (mX11FloatingClosed)
+      return false;
+    if (!mGUIOpen || mX11FloatingHidden)
+      return true;
+    mX11FloatingHidden = static_cast<IGraphicsLinux*>(GetUI())->SetX11FloatingVisible(false);
+    return mX11FloatingHidden;
+  }
+#endif
 #if defined OS_LINUX && defined WEBVIEW_EDITOR_DELEGATE
   mWebViewTimer.reset();
   mWebViewPending = false;
@@ -1259,7 +1344,10 @@ void IPlugCLAP::onTimer(clap_id timerId) noexcept
   if (mGUIOpen && timerId != CLAP_INVALID_ID && timerId == mLinuxTimerId)
     if (auto* pGraphics = static_cast<IGraphicsLinux*>(GetUI()))
     {
-      pGraphics->OnDisplayTimer();
+      if (mX11FloatingHidden)
+        pGraphics->ProcessX11Events();
+      else
+        pGraphics->OnDisplayTimer();
       CheckLinuxGuiClosed();
     }
 }
@@ -1290,7 +1378,10 @@ void IPlugCLAP::onMainThread() noexcept
   if (mLinuxCallbackPending.exchange(false) && mGUIOpen)
     if (auto* pGraphics = static_cast<IGraphicsLinux*>(GetUI()))
     {
-      pGraphics->OnDisplayTimer();
+      if (mX11FloatingHidden)
+        pGraphics->ProcessX11Events();
+      else
+        pGraphics->OnDisplayTimer();
       CheckLinuxGuiClosed();
     }
 #endif
@@ -1305,7 +1396,15 @@ void IPlugCLAP::CheckLinuxGuiClosed() noexcept
   {
     UnregisterLinuxHostCallbacks();
     mGUIOpen = false;
-    CloseWindowIfRequested();
+    if (mX11Floating)
+    {
+      CloseWindow();
+      mX11FloatingClosed = true;
+      if (GetClapHost().canUseGui())
+        GetClapHost().guiClosed(true);
+    }
+    else
+      CloseWindowIfRequested();
   }
 }
 
