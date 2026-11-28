@@ -194,7 +194,7 @@ private:
         {
           const T x0 = inputs[chan][readPosInt];
           const T x1 = ((readPosInt + 1) < inputLength) ? inputs[chan][readPosInt + 1] 
-                                                       : inputs[chan][readPosInt - 1];
+                                                       : inputs[chan][std::max(readPosInt - 1, 0)];
           outputs[chan][writePos] = (T(1) - y) * x0 + y * x1;
         }
       }
