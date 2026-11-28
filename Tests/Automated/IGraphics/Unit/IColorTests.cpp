@@ -775,11 +775,7 @@ TEST_CASE("IColor: color code string round trip without alpha", "[unit][icolor]"
   REQUIRE(allMatch);
 }
 
-// BUG: IGraphicsStructs.h:417-421 IColor::FromColorCodeStr() accepts the 9 character "#rrggbbaa" form that
-// ToColorCodeStr() produces by default, but passes all 8 hex digits to FromColorCode(), which only looks at the
-// low 24 bits. The result is R = gg, G = bb, B = aa and A = 255, rather than the color that was written out.
-// (std::stoul() -> int also overflows for codes of 0x80000000 and above.)
-TEST_CASE("IColor: color code string round trip with alpha", "[.][bug]")
+TEST_CASE("IColor: color code string round trip with alpha", "[unit][icolor]")
 {
   CHECK(SameColor(IColor::FromColorCodeStr("#55a6ff88"), IColor(0x88, 0x55, 0xa6, 0xff)));
   CHECK(SameColor(IColor::FromColorCodeStr("#ff0000ff"), COLOR_RED));
