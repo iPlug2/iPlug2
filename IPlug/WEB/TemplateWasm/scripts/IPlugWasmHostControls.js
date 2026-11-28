@@ -549,7 +549,22 @@
       };
     }
 
+    // Safari (iOS 17+) exposes navigator.audioSession. Its default "ambient"
+    // type is muted by the iPhone ring/silent switch, so the plugin would run
+    // (meters moving) but be inaudible. "playback" plays regardless of the
+    // switch; "play-and-record" is needed while the mic is in use.
+    setAudioSessionType(type) {
+      const session = navigator.audioSession;
+      if (!session || session.type === type) return;
+      try {
+        session.type = type;
+      } catch (err) {
+        console.warn('Could not set audio session type:', err);
+      }
+    }
+
     async getController(caps) {
+      this.setAudioSessionType(this.audioInputStream ? 'play-and-record' : 'playback');
       if (this.controller) return this.controller;
       if (!this.options.createController) {
         throw new Error('IPlugWasmHostControls requires createController()');
@@ -785,6 +800,7 @@
       if (this.audioInputStream) {
         this.audioInputStream.getTracks().forEach((track) => track.stop());
         this.audioInputStream = null;
+        if (this.audioStarted) this.setAudioSessionType('playback');
       }
     }
 
@@ -830,6 +846,7 @@
         return;
       }
       try {
+        this.setAudioSessionType('play-and-record');
         this.audioInputStream = await navigator.mediaDevices.getUserMedia({
           audio: this.buildAudioInputConstraints()
         });
