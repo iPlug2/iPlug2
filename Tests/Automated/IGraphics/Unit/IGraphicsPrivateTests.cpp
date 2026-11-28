@@ -553,10 +553,8 @@ TEST_CASE("IFontInfo: Windows names are converted from UTF-16 to UTF-8", "[unit]
   REQUIRE(std::string(info.GetStyle().Get()) == "\xE2\x82\xAC\xF0\x9F\x98\x80!");
 }
 
-// BUG: IGraphicsPrivate.h:167 IFontInfo ignores its dataSize argument: none of the reads are bounds checked, so
-// data that is truncated (or that just starts with a font version tag) is read past its end rather than being
-// reported as invalid. Run under AddressSanitizer this test reports a heap-buffer-overflow.
-TEST_CASE("IFontInfo: truncated data is invalid", "[.][bug]")
+// reads are checked against the size of the data
+TEST_CASE("IFontInfo: truncated data is invalid", "[unit][ifontinfo]")
 {
   SECTION("a header that claims more tables than there is data for")
   {
