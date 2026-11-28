@@ -1599,6 +1599,72 @@ TEST_CASE("IParam: Init from another parameter", "[unit][param]")
   }
 }
 
+TEST_CASE("IParam: Init over an already initialised parameter replaces its type and display texts", "[unit][param]")
+{
+  IParam menu;
+  menu.InitEnum("Mode", 1, {"A", "B", "C"});
+
+  IParam toggle;
+  toggle.InitBool("Switch", true, "", 0, "", "off", "on");
+
+  IParam level;
+  level.InitDouble("Level", 0.5, 0., 1., 0.01);
+
+  SECTION("a double becomes an enum")
+  {
+    IParam dst;
+    dst.InitDouble("Placeholder", 0., 0., 1., 0.01);
+    dst.Init(menu);
+    REQUIRE(dst.Type() == IParam::kTypeEnum);
+    REQUIRE(dst.NDisplayTexts() == 3);
+    REQUIRE(Display(dst) == "B");
+  }
+
+  SECTION("an enum becomes a bool, without the enum's display texts")
+  {
+    IParam dst;
+    dst.Init(menu);
+    dst.Init(toggle);
+    REQUIRE(dst.Type() == IParam::kTypeBool);
+    REQUIRE(dst.GetStepped());
+    REQUIRE(dst.GetMin() == 0.);
+    REQUIRE(dst.GetMax() == 1.);
+    REQUIRE(dst.GetDefault() == 1.);
+    REQUIRE(dst.Bool());
+    REQUIRE(dst.NDisplayTexts() == 2);
+    REQUIRE(Display(dst) == "on");
+    REQUIRE(DisplayFor(dst, 0.) == "off");
+  }
+
+  SECTION("an enum becomes a double, without display texts")
+  {
+    IParam dst;
+    dst.Init(menu);
+    dst.Init(level);
+    REQUIRE(dst.Type() == IParam::kTypeDouble);
+    REQUIRE(dst.NDisplayTexts() == 0);
+    REQUIRE(Display(dst) == Display(level));
+  }
+
+  SECTION("initialising a parameter from itself leaves it unchanged")
+  {
+    IParam dst;
+    dst.Init(menu);
+    dst.Init(dst);
+    REQUIRE(dst.Type() == IParam::kTypeEnum);
+    REQUIRE(dst.NDisplayTexts() == 3);
+    REQUIRE(Display(dst) == "B");
+  }
+
+  SECTION("re-initialising with the same definition doesn't duplicate display texts")
+  {
+    IParam dst;
+    dst.Init(menu);
+    dst.Init(menu);
+    REQUIRE(dst.NDisplayTexts() == 3);
+  }
+}
+
 // BUG: IPlugParameter.cpp:227. The insertion position is calculated as (str.Get() - pos) rather than
 // (pos - str.Get()), so it is negative unless the search string is at the very start of the name. The
 // search string is then not removed and the replacement is inserted at the start of the name.
