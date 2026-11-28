@@ -54,7 +54,7 @@ struct ControlRamp
   void Write(float* buffer, int startIdx, int nFrames)
   {
     float val = static_cast<float>(startValue);
-    float dv = static_cast<float>((endValue - startValue)/(transitionEnd - transitionStart));
+    float dv = (transitionEnd > transitionStart) ? static_cast<float>((endValue - startValue)/(transitionEnd - transitionStart)) : 0.f;
 
     for(int i=startIdx; i<startIdx + transitionStart; ++i)
     {
@@ -65,6 +65,7 @@ struct ControlRamp
       val += dv;
       buffer[i] = val;
     }
+    val = static_cast<float>(endValue);
     for(int i=startIdx + transitionEnd; i<startIdx + nFrames; ++i)
     {
       buffer[i] = val;
