@@ -77,12 +77,12 @@ public:
       32.   / 4., // k32nd,       // 1 thirty second of a beat
       24.   / 4., // k16thT,      // 1 sixteenth note triplet
       16.   / 4., // k16th,       // 1 sixteenth note
-      12.   / 4., // k16thD,      // 1 dotted sixteenth note
-      9.    / 4., // k8thT,       // 1 eighth note triplet
+      32./3. / 4., // k16thD,     // 1 dotted sixteenth note
+      12.   / 4., // k8thT,       // 1 eighth note triplet
       8.    / 4., // k8th,        // 1 eighth note
-      6     / 4., // k8thD,       // 1 dotted eighth note
+      16./3. / 4., // k8thD,      // 1 dotted eighth note
       4.    / 4., // k4th,        // 1 quater note a.k.a 1 beat @ 4/4
-      3.    / 4., // k4thD,       // 1 dotted beat @ 4/4
+      8./3. / 4., // k4thD,       // 1 dotted beat @ 4/4
       2.    / 4., // k2th,        // 2 beats @ 4/4
       1.    / 4., // k1,          // 1 bar @ 4/4
       0.5   / 4., // k2,          // 2 bars @ 4/4
