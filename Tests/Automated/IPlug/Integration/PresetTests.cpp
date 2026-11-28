@@ -290,10 +290,7 @@ TEST_CASE("Presets: MakePresetFromNamedParams() sets the named parameters only",
   CHECK(plug.HasValues(1., 4, false, 0));
 }
 
-// BUG: IPluginBase::MakePresetFromNamedParams() (IPlug/IPlugPluginBase.cpp) is documented as "Parameters that are not set
-// will be defaulted", but fills them in with GetParam(i)->Value(), the *current* value, rather than the default. The
-// two only coincide when it is called before any parameter has been changed (i.e. from the constructor).
-TEST_CASE("Presets: MakePresetFromNamedParams() uses defaults for unnamed parameters even after values changed", "[.][bug]")
+TEST_CASE("Presets: MakePresetFromNamedParams() uses defaults for unnamed parameters even after values changed", "[integration][presets]")
 {
   PresetPlug plug;
   plug.SetValues(10., 8, true, 1);
