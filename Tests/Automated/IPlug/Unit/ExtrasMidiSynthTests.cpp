@@ -1179,14 +1179,7 @@ TEST_CASE("MidiSynth: MPE program change on the master channel reaches the whole
   REQUIRE(rig.NumBusy() == 2);
 }
 
-// BUG: IPlug/Extras/Synth/MidiSynth.h:184-185 UpperZoneStart()/UpperZoneEnd() return 15 - mMPEUpperZoneChannels
-// and 15, i.e. a range that includes the upper zone's master channel (15) and the channel below the
-// zone, where the lower zone equivalents return just the member channels. SetMPEZones()
-// (MidiSynth.cpp:303-304) sets the master channel's pitch bend range to 2 semitones and then the
-// member channels' to 48 using that range, which overwrites the master channel's with 48 (and sets a
-// channel outside the zone). Master channel pitch bend in the upper zone is therefore 24 times too
-// large: +/-4 octaves rather than the +/-2 semitones of the MPE specification and of the lower zone.
-TEST_CASE("MidiSynth: MPE upper zone master pitch bend has a range of 2 semitones", "[.][bug]")
+TEST_CASE("MidiSynth: MPE upper zone master pitch bend has a range of 2 semitones", "[unit][extras][synth][midisynth]")
 {
   // the upper zone is zone 1 for the voice allocator
   Rig rig(2, VoiceAllocator::kPolyModePoly, 1);

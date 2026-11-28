@@ -181,8 +181,8 @@ private:
   // handy functions for writing loops on lower and upper Zone member channels
   int LowerZoneStart() const { return 1; }
   int LowerZoneEnd() const { return mMPELowerZoneChannels - 1; }
-  int UpperZoneStart() const {  return 15 - mMPEUpperZoneChannels; }
-  int UpperZoneEnd() const { return 15; }
+  int UpperZoneStart() const { return 16 - mMPEUpperZoneChannels; }
+  int UpperZoneEnd() const { return 14; }
 
   void SetMPEZones(int channel, int nChans);
   void SetChannelPitchBendRange(int channel, int range);
