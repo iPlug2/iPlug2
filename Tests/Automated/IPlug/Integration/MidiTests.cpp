@@ -728,12 +728,8 @@ TEST_CASE("Instrument: block sizes which are not a multiple of the synth's inter
   }
 }
 
-// BUG: ControlRamp::Write() (IPlug/Extras/Synth/ControlRamp.h) ignores nFrames while writing the first two segments of
-// the ramp: it writes up to startIdx + transitionEnd regardless. MidiSynth leaves transitionStart/transitionEnd at the
-// values of the last transition (up to its internal block size) and calls its voices with shorter blocks whenever the
-// host block size is not a multiple of that, so a voice which follows the documented pattern of writing a ramp into a
-// buffer of the host's block size gets a buffer overrun.
-TEST_CASE("Instrument: ControlRamp::Write() does not write more than the frames asked for", "[.][bug]")
+// MidiSynth calls its voices with blocks shorter than the ramp's transition when the host block size is not a multiple of its own
+TEST_CASE("Instrument: ControlRamp::Write() does not write more than the frames asked for", "[integration][midi][instrument]")
 {
   ControlRamp ramp;
   ramp.startValue = 1.;

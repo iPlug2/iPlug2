@@ -56,11 +56,11 @@ struct ControlRamp
     float val = static_cast<float>(startValue);
     float dv = (transitionEnd > transitionStart) ? static_cast<float>((endValue - startValue)/(transitionEnd - transitionStart)) : 0.f;
 
-    for(int i=startIdx; i<startIdx + transitionStart; ++i)
+    for(int i=startIdx; i<startIdx + transitionStart && i<startIdx + nFrames; ++i)
     {
       buffer[i] = val;
     }
-    for(int i=startIdx + transitionStart; i<startIdx + transitionEnd; ++i)
+    for(int i=startIdx + transitionStart; i<startIdx + transitionEnd && i<startIdx + nFrames; ++i)
     {
       val += dv;
       buffer[i] = val;
