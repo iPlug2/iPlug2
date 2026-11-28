@@ -587,21 +587,16 @@ TEST_CASE("RealtimeResampler: GetLatency reports the delay of the Lanczos round 
   REQUIRE(delay.fitError < 0.01);
 
   // the true delay is not in general a whole number of samples at the outer rate, so the reported
-  // latency cannot always be exact (but see the hidden test below)
-  REQUIRE(std::fabs(delay.measured - delay.reported) <= 1.5);
+  // latency is the nearest whole number of samples
+  REQUIRE(std::fabs(delay.measured - delay.reported) <= 0.51);
 
   // and nothing much comes out before then (the filters do ring slightly ahead of the signal)
   REQUIRE(delay.peakBeforeSignal < 0.02);
 }
 
-// SUSPECTED BUG: IPlug/Extras/RealtimeResampler.h:112-114 the latency is the number of input samples
-// used to warm up the resamplers plus a "magic number" of 2. When the inner rate is lower than the
-// outer rate that is one sample short: e.g. at 96kHz outer / 48kHz inner the round trip delay is
-// exactly 45 samples but 44 is reported (and 88.2kHz / 44.1kHz likewise), so a host compensating for
-// the reported latency leaves the plug-in one sample late.
-TEST_CASE("RealtimeResampler: GetLatency is exact when the round trip delay is a whole number of samples", "[.][bug]")
+TEST_CASE("RealtimeResampler: GetLatency is exact when the round trip delay is a whole number of samples", "[unit][extras][resampler]")
 {
-  const auto rates = GENERATE(Rates{96000., 48000.}, Rates{88200., 44100.});
+  const auto rates = GENERATE(Rates{96000., 48000.}, Rates{88200., 44100.}, Rates{192000., 48000.});
 
   const auto delay = MeasureRoundTripDelay(rates.in, rates.out, 256);
 

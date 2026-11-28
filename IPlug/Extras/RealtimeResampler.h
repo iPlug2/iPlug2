@@ -109,9 +109,9 @@ public:
       assert(populated >= outSamplesRequired && "Didn't get enough samples required for warm up!");
       mOutResampler->PushBlock(mOutputPtrs.GetList(), populated, NCHANS);
       
-      // magic number that we seem to need to align when compensating for latency
-      constexpr auto addedLatency = 2;
-      mLatency = static_cast<int>(inSamplesRequired + addedLatency);
+      // Each resampler also delays the signal by one sample at its input rate, which for the second one is mInRatio samples at the outer rate
+      const auto addedLatency = 1.0 + mInRatio;
+      mLatency = static_cast<int>(std::round(static_cast<double>(inSamplesRequired) + addedLatency));
     }
     else
     {
