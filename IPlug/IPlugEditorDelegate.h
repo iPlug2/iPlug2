@@ -92,6 +92,9 @@ public:
   /** If you are not using IGraphics you can if you need to free resources etc when the window closes. Call base implementation. */
   virtual void CloseWindow() { OnUIClose(); }
 
+  /** @return true if the editor accepts resizing by its host window */
+  virtual bool GetHostResizeEnabled() const { return false; }
+
   /** Called by app wrappers when the OS window scaling buttons/resizers are used */
   virtual void OnParentWindowResize(int width, int height) { /* NO-OP*/ }
   
