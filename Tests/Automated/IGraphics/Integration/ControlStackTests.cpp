@@ -856,11 +856,8 @@ TEST_CASE("IContainerBase: nested containers", "[integration][controlstack][cont
   REQUIRE(pLeaf->Count("down") == 1);
 }
 
-// BUG: IContainerBase::~IContainerBase() (IGraphics/IControl.h:702) forgets its children without removing them from
-// the IGraphics or clearing their parent pointer. After IGraphics::RemoveControl(pContainer) the children are still in
-// the control stack with a dangling mParent, which IGraphics::IsDirty() and IGraphics::DrawControl() dereference on the
-// next frame (heap use-after-free).
-TEST_CASE("IContainerBase: removing a container does not leave children pointing at it", "[.][bug]")
+// The children are removed with their container, so nothing is left with a parent pointer to a deleted control
+TEST_CASE("IContainerBase: removing a container does not leave children pointing at it", "[integration][controlstack][container][remove]")
 {
   ContainerFixture f;
   ProbeControl* pChild = f.mChild1;
@@ -875,3 +872,114 @@ TEST_CASE("IContainerBase: removing a container does not leave children pointing
 
   f.mUI->RenderFrame();
 }
+
+TEST_CASE("IContainerBase: removing a container removes nested containers and their children", "[integration][controlstack][container][remove]")
+{
+  Fixture f;
+  ProbeControl* pLeaf = nullptr;
+  IContainerBase* pInner = nullptr;
+
+  f.mUI->AttachPanelBackground(COLOR_GRAY);
+  auto* pOuter = new IContainerBase(IRECT(0, 0, 200, 200),
+    [&](IContainerBase* pContainer, const IRECT& bounds) {
+      pInner = new IContainerBase(bounds.GetPadded(-50.f),
+        [&](IContainerBase* pInnerContainer, const IRECT& innerBounds) {
+          pLeaf = pInnerContainer->AddChildControl(new ProbeControl(innerBounds), kTagChild1)->As<ProbeControl>();
+        }, nullptr);
+      pContainer->AddChildControl(pInner);
+      pContainer->AddChildControl(new ProbeControl(bounds.GetFromTop(20.f)), kTagChild2);
+    }, nullptr);
+  f.mUI->AttachControl(pOuter, kTagContainer);
+  auto* pOther = f.mUI->AttachControl(new ProbeControl(IRECT(300, 0, 400, 100)), kTagA);
+
+  // background, outer, inner, leaf, second child of outer, other
+  REQUIRE(f.mUI->NControls() == 6);
+
+  f.mUI->RemoveControl(pOuter);
+
+  REQUIRE(f.mUI->NControls() == 2);
+  REQUIRE(f.mUI->GetControl(1) == pOther);
+  REQUIRE(f.mUI->GetControlIdx(pOuter) == -1);
+  REQUIRE(f.mUI->GetControlIdx(pInner) == -1);
+  REQUIRE(f.mUI->GetControlIdx(pLeaf) == -1);
+  REQUIRE(f.mUI->GetControlWithTag(kTagContainer) == nullptr);
+  REQUIRE(f.mUI->GetControlWithTag(kTagChild1) == nullptr);
+  REQUIRE(f.mUI->GetControlWithTag(kTagChild2) == nullptr);
+  REQUIRE(f.mUI->GetControlWithTag(kTagA) == pOther);
+
+  f.mUI->RenderUntilClean();
+  f.mUI->Click(100, 100);
+}
+
+TEST_CASE("IContainerBase: removing a container whose child has the mouse", "[integration][controlstack][container][remove][mouse]")
+{
+  ContainerFixture f;
+
+  SECTION("captured")
+  {
+    f.mUI->MouseDown(150, 150);
+    REQUIRE(f.mUI->ControlIsCaptured(f.mChild1));
+
+    f.mUI->RemoveControl(f.mContainer);
+
+    REQUIRE_FALSE(f.mUI->ControlIsCaptured());
+    REQUIRE(f.mUI->NControls() == 1);
+    f.mUI->MouseDragTo(160, 160);
+    f.mUI->MouseUp(160, 160);
+  }
+
+  SECTION("under the mouse")
+  {
+    f.mUI->EnableMouseOver(true);
+    REQUIRE(f.mUI->MouseMove(150, 150));
+    REQUIRE(f.mChild1->Count("over") == 1);
+
+    f.mUI->RemoveControl(f.mContainer);
+
+    REQUIRE(f.mUI->NControls() == 1);
+    f.mUI->MouseMove(160, 160);
+    f.mUI->OnMouseOut();
+  }
+
+  f.mUI->RenderUntilClean();
+}
+
+// IGraphics::RemoveControl() finds the children by their parent pointer, not through the container's own list, which
+// still holds a child that was removed directly
+TEST_CASE("IContainerBase: a container can be removed after one of its children was removed directly", "[integration][controlstack][container][remove]")
+{
+  ContainerFixture f;
+
+  f.mUI->RemoveControl(f.mChild1);
+  REQUIRE(f.mUI->NControls() == 3);
+
+  f.mUI->RemoveControl(f.mContainer);
+  REQUIRE(f.mUI->NControls() == 1);
+  f.mUI->RenderUntilClean();
+}
+
+#if !defined(NDEBUG) || defined(IPLUG_LIVE_EDIT)
+// The selection holds the container and its children, which are removed with it (#1549)
+TEST_CASE("Live edit: deleting a selection of a container and its children", "[integration][controlstack][container][remove][liveedit]")
+{
+  ContainerFixture f;
+  auto* pOther = f.mUI->AttachControl(new ProbeControl(IRECT(310, 100, 340, 200)));
+
+  f.mUI->EnableLiveEdit(true);
+  REQUIRE(f.mUI->LiveEditEnabled());
+
+  // A marquee around the container, both children and the other control, starting on the background
+  f.mUI->Drag(50, 50, 350, 250);
+  REQUIRE(f.mUI->KeyDown(kVK_DELETE));
+
+  REQUIRE(f.mUI->NControls() == 1);
+  REQUIRE(f.mUI->GetControlIdx(f.mContainer) == -1);
+  REQUIRE(f.mUI->GetControlIdx(pOther) == -1);
+  REQUIRE(f.mUI->GetControlWithTag(kTagChild1) == nullptr);
+
+  // Nothing is selected any more
+  REQUIRE_FALSE(f.mUI->KeyDown(kVK_DELETE));
+  f.mUI->RenderFrame();
+  f.mUI->EnableLiveEdit(false);
+}
+#endif
