@@ -912,11 +912,7 @@ TEST_CASE("PathClipRegion: clips to the given rectangle within the current draw 
   REQUIRE(f.mUI->mClipRect == drawArea);
 }
 
-// BUG: IGraphics::PathEllipse(float x, float y, float r1, float r2, float angle) (IGraphics/IGraphics.cpp:3010) calls
-// PathTransformSave() and then returns early for a zero radius without the matching PathTransformRestore(). The
-// transform stack is left one deeper, so the caller's next PathTransformRestore() pops that stray state and the
-// caller's own transform stays in force for whatever is drawn afterwards.
-TEST_CASE("Path transforms: drawing an ellipse with a zero radius leaves the transform stack balanced", "[.][bug]")
+TEST_CASE("Path transforms: drawing an ellipse with a zero radius leaves the transform stack balanced", "[integration][drawing][transform]")
 {
   Fixture f;
   const IRECT r = IRECT(0, 0, 10, 10);

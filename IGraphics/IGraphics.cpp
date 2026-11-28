@@ -3012,10 +3012,10 @@ void IGraphics::PathRoundRect(const IRECT& bounds, float cr)
 
 void IGraphics::PathEllipse(float x, float y, float r1, float r2, float angle)
 {
-  PathTransformSave();
-  
   if (r1 <= 0.0 || r2 <= 0.0)
     return;
+  
+  PathTransformSave();
   
   PathTransformTranslate(x, y);
   PathTransformRotate(angle);
