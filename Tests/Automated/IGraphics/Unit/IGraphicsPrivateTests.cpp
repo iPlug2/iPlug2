@@ -579,11 +579,8 @@ TEST_CASE("IFontInfo: truncated data is invalid", "[unit][ifontinfo]")
   }
 }
 
-// BUG: IGraphicsPrivate.h:333 for a font collection ('ttcf') IFontInfo::FindFace() advances mData to the face's
-// offset table, and the table offsets found there are then applied relative to that new position. In a TrueType
-// collection the table offsets are relative to the start of the file, so every table of a face is looked for in
-// the wrong place (the face's offset within the file too far along) and the names/metrics read are wrong.
-TEST_CASE("IFontInfo: reads the faces of a TrueType collection", "[.][bug]")
+// the table offsets of a face in a collection are relative to the start of the file
+TEST_CASE("IFontInfo: reads the faces of a TrueType collection", "[unit][ifontinfo]")
 {
   FontSpec regular;
   regular.names = {WindowsName(kFamilyNameID, "Collection"), WindowsName(kStyleNameID, "Regular")};
@@ -608,9 +605,6 @@ TEST_CASE("IFontInfo: reads the faces of a TrueType collection", "[.][bug]")
   PutU32(collection, 16, static_cast<uint32_t>(collection.size()));
   const Bytes boldFont = MakeFont(bold, collection.size());
   collection.insert(collection.end(), boldFont.begin(), boldFont.end());
-
-  // padding so that the misplaced reads described above stay inside the buffer
-  collection.resize(collection.size() + 4096, 0);
 
   IFontInfo face0 {collection.data(), NumBytes(collection), 0};
   CHECK(face0.IsValid());

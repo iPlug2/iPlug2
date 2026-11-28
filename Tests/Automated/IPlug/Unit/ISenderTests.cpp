@@ -523,9 +523,7 @@ TEST_CASE("IPeakSender: sends one packet per window while there is signal", "[un
   }
 }
 
-// BUG: ISender.h:127-132. The windowSizeMs constructor argument of IPeakSender is never used: mWindowSizeMs
-// keeps its default of 5 ms, so the window can only be changed afterwards with SetWindowSizeMs().
-TEST_CASE("IPeakSender: the constructor's window size is used", "[.][bug]")
+TEST_CASE("IPeakSender: the constructor's window size is used", "[unit][sender][peak]")
 {
   IPeakSender<2> sender {-90., 10.f};
   RecordingDelegate<TPeakData> dlg;

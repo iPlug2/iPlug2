@@ -228,11 +228,11 @@ private:
   
   uint32_t LocateTable(const char *tag)
   {
-    uint16_t numTables = GetUInt16(4);
+    uint16_t numTables = GetUInt16(mFaceLocation + 4);
     
     for (uint16_t i = 0; i < numTables; ++i)
     {
-      uint32_t tableLocation = 12 + (16 * i);
+      uint32_t tableLocation = mFaceLocation + 12 + (16 * i);
       if (MatchTag(tableLocation, tag))
       {
         uint32_t location = GetUInt32(tableLocation + 8);
@@ -344,8 +344,7 @@ private:
           uint32_t faceLocation = GetUInt32(12 + faceIdx * 4);
           if (InBounds(faceLocation, 0))
           {
-            mData += faceLocation;
-            mDataSize -= faceLocation;
+            mFaceLocation = faceLocation;
             return;
           }
         }
@@ -384,6 +383,7 @@ private:
   const unsigned char* mData;
   uint32_t mDataSize;
   
+  uint32_t mFaceLocation = 0; // the face's table directory: table locations are relative to the start of the data
   uint32_t mHeadLocation = 0;
   uint32_t mNameLocation = 0;
   uint32_t mHheaLocation = 0;

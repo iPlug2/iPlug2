@@ -54,7 +54,7 @@ public:
   };
 
   using BlockProcessFunc = std::function<void(T**, T**, int, int)>;
-  using LanczosResampler = LanczosResampler<T, NCHANS, A>;
+  using LanczosResampler = iplug::LanczosResampler<T, NCHANS, A>;
 
   /** Constructor
    * @param innerSampleRate The sample rate that the provided DSP block will process at

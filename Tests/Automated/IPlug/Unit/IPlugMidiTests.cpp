@@ -584,10 +584,8 @@ TEST_CASE("ISysEx: SysExStr formats bytes as hex", "[unit][midi][sysex]")
   }
 }
 
-// BUG: ISysEx::SysExStr() (IPlugMidi.h) passes the whole of maxLen to snprintf() for every byte, although the write
-// position has moved on. With a buffer whose size the compiler knows (as here, and in ISysEx::LogMsg()) a build with
-// _FORTIFY_SOURCE, e.g. the default Release build on Ubuntu, aborts as soon as the second byte is formatted.
-TEST_CASE("ISysEx: SysExStr formats into a buffer on the stack", "[.][bug]")
+// A buffer whose size the compiler knows: a build with _FORTIFY_SOURCE checks the size given to snprintf()
+TEST_CASE("ISysEx: SysExStr formats into a buffer on the stack", "[unit][midi][sysex]")
 {
   const uint8_t data[3] = {0xF0, 0x42, 0xF7};
   ISysEx msg {0, data, 3};

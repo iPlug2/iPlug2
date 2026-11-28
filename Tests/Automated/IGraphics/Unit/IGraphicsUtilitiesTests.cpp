@@ -198,9 +198,8 @@ TEST_CASE("IGraphicsUtilities: RadialPoints with equal radii gives the same poin
   }
 }
 
-// BUG: IGraphicsUtilities.h:65 RadialPoints() divides by (nPoints - 1), so asking for a single point is a
-// 0 / 0 division and the point comes back as NaN rather than a point on the line (e.g. at rMin).
-TEST_CASE("IGraphicsUtilities: RadialPoints with a single point", "[.][bug]")
+// a single point has no spacing to divide by: it is a point on the line rather than NaN
+TEST_CASE("IGraphicsUtilities: RadialPoints with a single point", "[unit][igraphicsutilities]")
 {
   float data[1][2] = {{-1.f, -1.f}};
   RadialPoints(90.f, 100.f, 100.f, 10.f, 20.f, 1, data);
