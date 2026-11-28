@@ -1124,6 +1124,8 @@ static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
   if (mTextFieldView) [self endUserInput ];
   IMouseInfo info = [self getMouseLeft:pEvent];
   float d = [pEvent deltaY];
+  if (d == 0.f && info.ms.S)   // macOS turns Shift + a mouse wheel into a horizontal scroll: keep it (as Windows does)
+    d = [pEvent deltaX];
   if (mGraphics)
     mGraphics->OnMouseWheel(info.x, info.y, info.ms, d);
 }
