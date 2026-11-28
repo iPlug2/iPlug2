@@ -70,7 +70,7 @@ public:
   /** Remove an IParam at a particular index
    * Note: This is only used in special circumstances, since most plug-in formats don't support dynamic parameters
    * @param idx The index of the parameter to remove */
-  void RemoveParam(int idx) { return mParams.Delete(idx); }
+  void RemoveParam(int idx) { return mParams.Delete(idx, true); }
   
   /** Get a pointer to one of the delegate's IParam objects
    * @param paramIdx The index of the parameter object to be got
