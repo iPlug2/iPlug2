@@ -84,7 +84,8 @@ void IGEditorDelegate::CloseWindow()
     if (mGraphics->WindowIsOpen())
       IEditorDelegate::CloseWindow();
 #else
-    IEditorDelegate::CloseWindow();
+    if (mGraphics)
+      IEditorDelegate::CloseWindow();
 #endif
   
     if (mGraphics)
