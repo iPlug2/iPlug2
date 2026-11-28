@@ -13,3 +13,7 @@ set(CMAKE_FOLDER "Tests")
 add_subdirectory(IGraphicsTest)
 add_subdirectory(IGraphicsStressTest)
 add_subdirectory(MetaParamTest)
+
+if(IPLUG2_BUILD_AUTOMATED_TESTS)
+  add_subdirectory(Automated)
+endif()
