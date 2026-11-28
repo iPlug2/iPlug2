@@ -360,16 +360,26 @@ TEST_CASE("IRECTList: GetFracGrid fails if the fractions don't sum to one", "[un
   REQUIRE(list.Size() == 0);
 }
 
-// BUG: IGraphicsStructs.h:1843/1846 IRECTList::GetFracGrid() compares the float sum of the fractions with 1.0
-// exactly. Fractions that sum to one on paper but not in single precision, such as ten columns of 0.1f (which
-// accumulate to 1.0000001f), are rejected and no grid is made.
-TEST_CASE("IRECTList: GetFracGrid accepts fractions that sum to one within rounding error", "[.][bug]")
+// ten columns of 0.1f accumulate to 1.0000001f
+TEST_CASE("IRECTList: GetFracGrid accepts fractions that sum to one within rounding error", "[unit][irectlist]")
 {
   const IRECT bounds {0.f, 0.f, 100.f, 40.f};
   IRECTList list;
 
   CHECK(IRECTList::GetFracGrid(bounds, list, {1.f}, {0.1f, 0.1f, 0.1f, 0.1f, 0.1f, 0.1f, 0.1f, 0.1f, 0.1f, 0.1f}));
   CHECK(list.Size() == 10);
+}
+
+TEST_CASE("IRECTList: GetFracGrid fails if the fractions sum to just outside the rounding tolerance", "[unit][irectlist]")
+{
+  const IRECT bounds {0.f, 0.f, 100.f, 40.f};
+  IRECTList list;
+
+  REQUIRE_FALSE(IRECTList::GetFracGrid(bounds, list, {0.5f, 0.501f}, {1.f}));
+  REQUIRE_FALSE(IRECTList::GetFracGrid(bounds, list, {0.5f, 0.499f}, {1.f}));
+  REQUIRE_FALSE(IRECTList::GetFracGrid(bounds, list, {1.f}, {0.5f, 0.501f}));
+  REQUIRE_FALSE(IRECTList::GetFracGrid(bounds, list, {1.f}, {0.5f, 0.499f}, EDirection::Vertical));
+  REQUIRE(list.Size() == 0);
 }
 
 TEST_CASE("IRECTList: Optimize leaves separate rects alone", "[unit][irectlist]")
