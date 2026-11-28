@@ -299,15 +299,18 @@ void IGraphics::SetControlValueAfterPopupMenu(IPopupMenu* pMenu)
   else
     mInPopupMenu->OnPopupMenuSelection(!pMenu || pMenu->GetChosenItemIdx() == -1 ? nullptr : pMenu, mPopupMenuValIdx);
   
-  int nVals = mInPopupMenu->NVals();
-
-  for (int v = 0; v < nVals; v++)
+  if (mPopupMenuEndsParamChange)
   {
-    int paramIdx = mInPopupMenu->GetParamIdx(v);
-    
-    if (paramIdx > kNoParameter)
+    int nVals = mInPopupMenu->NVals();
+
+    for (int v = 0; v < nVals; v++)
     {
-      GetDelegate()->EndInformHostOfParamChangeFromUI(paramIdx);
+      int paramIdx = mInPopupMenu->GetParamIdx(v);
+      
+      if (paramIdx > kNoParameter)
+      {
+        GetDelegate()->EndInformHostOfParamChangeFromUI(paramIdx);
+      }
     }
   }
   
@@ -1140,6 +1143,7 @@ void IGraphics::OnMouseDown(const std::vector<IMouseInfo>& points)
           GetDelegate()->BeginInformHostOfParamChangeFromUI(pCapturedControl->GetParamIdx(v));
       }
 
+      mParamChangeControl = pCapturedControl;
       pCapturedControl->OnMouseDown(x, y, mod);
     }
   }
@@ -1161,6 +1165,9 @@ void IGraphics::OnMouseUp(const std::vector<IMouseInfo>& points)
       if(itr != mCapturedMap.end())
       {
         IControl* pCapturedControl = itr->second;
+
+        if (pCapturedControl == mParamChangeControl)
+          mParamChangeControl = nullptr; // the parameter change is ended below
       
         pCapturedControl->OnMouseUp(x, y, mod);
       
@@ -1202,6 +1209,10 @@ void IGraphics::OnTouchCancelled(const std::vector<IMouseInfo>& points)
       if(itr != mCapturedMap.end())
       {
         IControl* pCapturedControl = itr->second;
+
+        if (pCapturedControl == mParamChangeControl)
+          mParamChangeControl = nullptr;
+
         pCapturedControl->OnTouchCancelled(x, y, mod);
         mCapturedMap.erase(mod.touchID); // remove from captured list
         
@@ -1625,6 +1636,7 @@ void IGraphics::OnDropMultiple(const std::vector<const char*>& paths, float x, f
 void IGraphics::ReleaseMouseCapture()
 {
   mCapturedMap.clear();
+  mParamChangeControl = nullptr;
   if (mCursorHidden)
     HideMouseCursor(false);
 }
@@ -2286,6 +2298,10 @@ void IGraphics::CreateTextEntry(IControl& control, const IText& text, const IREC
 
 void IGraphics::DoCreatePopupMenu(IControl& control, IPopupMenu& menu, const IRECT& bounds, int valIdx, bool isContext)
 {
+  // Releasing the capture means there is no mouse up to end a parameter change that the mouse down began, so the menu ends it.
+  // A context menu can also be opened where no parameter change was begun, e.g. by a right click
+  mPopupMenuEndsParamChange = !isContext || &control == mParamChangeControl;
+
   ReleaseMouseCapture();
     
   mInPopupMenu = &control;

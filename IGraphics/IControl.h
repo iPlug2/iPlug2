@@ -185,7 +185,8 @@ public:
    * @param valIdx An index that indicates which of the control's values the text completion relates to */
   virtual void OnTextEntryCompletion(const char* str, int valIdx) {}
 
-  /** Implement this to respond to a menu selection from CreateContextMenu(); @see CreateContextMenu() */
+  /** Implement this to respond to a menu selection from CreateContextMenu(); @see CreateContextMenu()
+   * The right click that opens the context menu does not begin a parameter change gesture, so no end of gesture is sent to the host after the selection. */
   virtual void OnContextSelection(int itemSelected) {}
 
   /** Draw the control to the graphics context. 

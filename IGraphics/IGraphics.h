@@ -1899,7 +1899,9 @@ private:
   IControl* mInTextEntry = nullptr;
   IControl* mInPopupMenu = nullptr;
   void* mPlatformContext = nullptr;
+  IControl* mParamChangeControl = nullptr; // The captured control that OnMouseDown() began a parameter change for, which its mouse up will end
   bool mIsContextMenu = false;
+  bool mPopupMenuEndsParamChange = false;
   int mTextEntryValIdx = kNoValIdx;
   int mPopupMenuValIdx = kNoValIdx;
   int mMouseOverIdx = -1;

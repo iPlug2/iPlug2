@@ -768,11 +768,7 @@ TEST_CASE("Right click: a control without a parameter gets the mouse down with t
   REQUIRE(f.mUI->mNumPopupMenus == 0);
 }
 
-// BUG: for a right-click context menu IGraphics::OnMouseDown() (IGraphics/IGraphics.cpp:1129) returns before calling
-// BeginInformHostOfParamChangeFromUI(), but IGraphics::SetControlValueAfterPopupMenu() (IGraphics/IGraphics.cpp:292)
-// then calls EndInformHostOfParamChangeFromUI() for each of the control's parameters, so the host gets an "end
-// gesture" that was never begun.
-TEST_CASE("Right click: the context menu does not send the host an unbalanced end-of-gesture", "[.][bug]")
+TEST_CASE("Right click: the context menu does not send the host an unbalanced end-of-gesture", "[integration][mouse][contextmenu][params]")
 {
   Fixture f;
   auto* pProbe = f.mUI->AttachControl(new ProbeControl(IRECT(300, 200, 380, 280), kGain))->As<ProbeControl>();
@@ -783,6 +779,159 @@ TEST_CASE("Right click: the context menu does not send the host an unbalanced en
 
   REQUIRE(pProbe->mContextSelection == 0);
   REQUIRE(f.mDlg.CountParamEvents(TestEditorDelegate::ParamEvent::EType::End) == f.mDlg.CountParamEvents(TestEditorDelegate::ParamEvent::EType::Begin));
+}
+
+namespace
+{
+/** Opens a menu from its own mouse handlers, as a control can with any mouse button */
+class MenuOnClickControl : public ProbeControl
+{
+public:
+  enum class EMenu { Context, Prompt };
+
+  MenuOnClickControl(const IRECT& bounds, int paramIdx, EMenu menu, bool onMouseUp = false)
+  : ProbeControl(bounds, paramIdx)
+  , mMenu(menu)
+  , mOnMouseUp(onMouseUp)
+  {
+    DisablePrompt(false);
+  }
+
+  void OnMouseDown(float x, float y, const IMouseMod& mod) override
+  {
+    if (!mOnMouseUp)
+      OpenMenu(x, y);
+  }
+
+  void OnMouseUp(float x, float y, const IMouseMod& mod) override
+  {
+    if (mOnMouseUp)
+      OpenMenu(x, y);
+  }
+
+private:
+  void OpenMenu(float x, float y)
+  {
+    if (mMenu == EMenu::Context)
+      GetUI()->PopupHostContextMenuForParam(this, GetParamIdx(), x, y);
+    else
+      PromptUserInput();
+  }
+
+  EMenu mMenu;
+  bool mOnMouseUp;
+};
+
+std::string ParamEventNames(const TestEditorDelegate& dlg)
+{
+  std::string names;
+
+  for (auto& event : dlg.mParamEvents)
+  {
+    using EType = TestEditorDelegate::ParamEvent::EType;
+    names += event.mType == EType::Begin ? "begin " : event.mType == EType::End ? "end " : "value ";
+  }
+
+  return names;
+}
+} // namespace
+
+// IGraphics::OnMouseDown() begins the parameter change before a left click gets to the control. Opening a menu releases
+// the capture, so the mouse up does not end it: the menu has to (#1551)
+TEST_CASE("Context menu: a control that opens it on a left click sends the host a balanced begin and end", "[integration][mouse][contextmenu][params]")
+{
+  Fixture f;
+  using EMenu = MenuOnClickControl::EMenu;
+  const IRECT bounds(300, 200, 380, 280);
+
+  SECTION("from the mouse down")
+  {
+    auto* pControl = f.mUI->AttachControl(new MenuOnClickControl(bounds, kGain, EMenu::Context))->As<MenuOnClickControl>();
+    pControl->mContextMenuItems = {"Learn"};
+
+    SECTION("an item is chosen")
+    {
+      f.mUI->mPopupMenuChoice = 0;
+      f.mUI->MouseDown(340, 240);
+      REQUIRE(pControl->mContextSelection == 0);
+      REQUIRE_FALSE(f.mUI->ControlIsCaptured());
+      REQUIRE(ParamEventNames(f.mDlg) == "begin end ");
+      REQUIRE(f.mDlg.mParamEvents.back().mIdx == kGain);
+    }
+
+    SECTION("the menu is dismissed")
+    {
+      f.mUI->MouseDown(340, 240);
+      REQUIRE(pControl->mNumContextSelections == 1);
+      REQUIRE(pControl->mContextSelection == -1);
+      REQUIRE(ParamEventNames(f.mDlg) == "begin end ");
+    }
+
+    f.mUI->MouseUp(340, 240);
+    REQUIRE(ParamEventNames(f.mDlg) == "begin end ");
+
+    // A right click on the same control afterwards still sends nothing
+    f.mDlg.ClearRecorded();
+    f.mUI->Click(340, 240, IMouseMod(false, true));
+    REQUIRE(pControl->mNumContextSelections == 2);
+    REQUIRE(f.mDlg.mParamEvents.empty());
+  }
+
+  SECTION("from the mouse down, with no menu items")
+  {
+    f.mUI->AttachControl(new MenuOnClickControl(bounds, kGain, EMenu::Context));
+
+    f.mUI->MouseDown(340, 240);
+    REQUIRE(f.mUI->mNumPopupMenus == 0);
+    REQUIRE(ParamEventNames(f.mDlg) == "begin ");
+    f.mUI->MouseUp(340, 240);
+    REQUIRE(ParamEventNames(f.mDlg) == "begin end ");
+  }
+
+  SECTION("from the mouse up, which ends the parameter change itself")
+  {
+    auto* pControl = f.mUI->AttachControl(new MenuOnClickControl(bounds, kGain, EMenu::Context, true))->As<MenuOnClickControl>();
+    pControl->mContextMenuItems = {"Learn"};
+    f.mUI->mPopupMenuChoice = 0;
+
+    f.mUI->Click(340, 240);
+    REQUIRE(pControl->mNumContextSelections == 1);
+    REQUIRE(ParamEventNames(f.mDlg) == "begin end ");
+  }
+}
+
+TEST_CASE("Right click: the context menu sends the host nothing", "[integration][mouse][contextmenu][params]")
+{
+  Fixture f;
+  auto* pProbe = f.mUI->AttachControl(new ProbeControl(IRECT(300, 200, 380, 280), kGain))->As<ProbeControl>();
+  pProbe->mContextMenuItems = {"Learn"};
+  f.mUI->mPopupMenuChoice = 0;
+
+  // A gesture on the control beforehand makes no difference
+  f.mUI->Click(340, 240);
+  REQUIRE(ParamEventNames(f.mDlg) == "begin end ");
+  f.mDlg.ClearRecorded();
+
+  f.mUI->Click(340, 240, IMouseMod(false, true));
+
+  REQUIRE(pProbe->mNumContextSelections == 1);
+  REQUIRE(f.mDlg.mParamEvents.empty());
+}
+
+TEST_CASE("Parameter pop-up menu: opened from a left click, the menu ends the parameter change", "[integration][mouse][popupmenu][params]")
+{
+  TestEditorDelegate dlg {1, 400, 300};
+  dlg.GetParam(0)->InitEnum("Mode", 0, {"One", "Two", "Three"});
+  auto* pUI = dlg.OpenUI();
+  auto* pControl = pUI->AttachControl(new MenuOnClickControl(IRECT(300, 200, 380, 280), 0, MenuOnClickControl::EMenu::Prompt))->As<MenuOnClickControl>();
+  pUI->mPopupMenuChoice = 2;
+
+  pUI->Click(340, 240);
+
+  REQUIRE(pUI->mNumPopupMenus == 1);
+  REQUIRE(pControl->mPopupSelection == 2);
+  REQUIRE(dlg.GetParam(0)->Int() == 2);
+  REQUIRE(ParamEventNames(dlg) == "begin value end ");
 }
 
 #pragma mark - Multi-touch
