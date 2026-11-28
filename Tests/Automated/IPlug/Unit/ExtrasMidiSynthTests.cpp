@@ -1106,15 +1106,8 @@ TEST_CASE("MidiSynth: SetPitchBendRange is remembered across MPE mode", "[unit][
   REQUIRE(pVoice->Bend() == Approx(-7. / 12.).margin(1e-6));
 }
 
-// BUG: IPlug/Extras/Synth/MidiSynth.cpp:422 ProcessBlock() stops taking messages for an internal block with
-// "if (msg.mOffset > startIndex + blockSize) break;", which should be ">=": a message timed exactly
-// on the first sample of the NEXT internal block (offset 32, 64, ... with the default block size of
-// 32, or offset == nFrames) is handled in the current one with a sample offset equal to the block
-// size. The voice is triggered a block early and is handed a gate ramp whose transition lies outside
-// the block (transitionStart == nFrames), contradicting ControlRamp's documented layout: a voice that
-// reads the ramp's end value starts up to a block early, and one that uses ControlRamp::Write()
-// writes one sample past the end of the block.
-TEST_CASE("MidiSynth: a message on an internal block boundary belongs to the block it starts", "[.][bug]")
+// a message timed on the first sample of an internal block is handled in that block, not at the end of the previous one
+TEST_CASE("MidiSynth: a message on an internal block boundary belongs to the block it starts", "[unit][extras][synth][midisynth]")
 {
   const int offset = GENERATE(kSynthBlockSize, 2 * kSynthBlockSize, 3 * kSynthBlockSize);
   constexpr int nFrames = 128;
@@ -1125,21 +1118,16 @@ TEST_CASE("MidiSynth: a message on an internal block boundary belongs to the blo
 
   CAPTURE(offset);
 
-  // the audio (from a voice that evaluates the ramp carefully) is right...
   REQUIRE(AllEqual(out, 0, offset, 0.));
   REQUIRE(AllEqual(out, offset, nFrames, 1.));
 
-  // ...but the voice should first have been run for the block the note is in, with a ramp inside that block
+  // the voice is first run for the block the note is in, with a ramp inside that block
   REQUIRE(rig.Voice(0).mStartIdxOfFirstProcessAfterTrigger == offset);
   REQUIRE_FALSE(rig.Voice(0).mSawTransitionOutsideBlock);
 }
 
-// BUG: IPlug/Extras/Synth/MidiSynth.cpp:200-212 in MidiMessageToEventMPE() the kProgramChange case has no
-// break on the member channel path (the comment above it says such messages are ignored): it sets
-// kNullAction and then falls through into the kNoteOn case. A program change has no velocity, so
-// that turns it into a note off - with the key set to "all keys", since NoteNumber() is -1 - and
-// every note sounding on that member channel is released.
-TEST_CASE("MidiSynth: MPE program change on a member channel is ignored", "[.][bug]")
+// in particular it must not release the notes sounding on that channel
+TEST_CASE("MidiSynth: MPE program change on a member channel is ignored", "[unit][extras][synth][midisynth]")
 {
   Rig rig(2);
   rig.mSynth.InitBasicMPE();
@@ -1147,12 +1135,13 @@ TEST_CASE("MidiSynth: MPE program change on a member channel is ignored", "[.][b
   rig.NoteOn(60, 127, 0, 1);
   rig.Render(64);
   REQUIRE(rig.NumBusy() == 1);
+  const int releases = rig.Voice(0).mReleases + rig.Voice(1).mReleases;
 
   rig.ProgramChange(5, 1);
   const auto out = rig.Render(64);
 
   REQUIRE(rig.NumBusy() == 1);
-  REQUIRE(rig.Voice(0).mReleases + rig.Voice(1).mReleases == 0);
+  REQUIRE(rig.Voice(0).mReleases + rig.Voice(1).mReleases == releases);
   REQUIRE(AllEqual(out, 0, 64, 1.));
   REQUIRE(rig.Voice(0).mPrograms.empty());
 }
@@ -1179,14 +1168,7 @@ TEST_CASE("MidiSynth: MPE program change on the master channel reaches the whole
   REQUIRE(rig.NumBusy() == 2);
 }
 
-// BUG: IPlug/Extras/Synth/MidiSynth.h:184-185 UpperZoneStart()/UpperZoneEnd() return 15 - mMPEUpperZoneChannels
-// and 15, i.e. a range that includes the upper zone's master channel (15) and the channel below the
-// zone, where the lower zone equivalents return just the member channels. SetMPEZones()
-// (MidiSynth.cpp:303-304) sets the master channel's pitch bend range to 2 semitones and then the
-// member channels' to 48 using that range, which overwrites the master channel's with 48 (and sets a
-// channel outside the zone). Master channel pitch bend in the upper zone is therefore 24 times too
-// large: +/-4 octaves rather than the +/-2 semitones of the MPE specification and of the lower zone.
-TEST_CASE("MidiSynth: MPE upper zone master pitch bend has a range of 2 semitones", "[.][bug]")
+TEST_CASE("MidiSynth: MPE upper zone master pitch bend has a range of 2 semitones", "[unit][extras][synth][midisynth]")
 {
   // the upper zone is zone 1 for the voice allocator
   Rig rig(2, VoiceAllocator::kPolyModePoly, 1);

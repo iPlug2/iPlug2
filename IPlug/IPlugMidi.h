@@ -576,7 +576,7 @@ struct ISysEx
     int n = maxLen / 3;
     if (n > size) n = size;
     for (int i = 0; i < n; ++i, ++pData) {
-      snprintf(pStr, maxLen, "%02X", (int)*pData);
+      snprintf(pStr, maxLen - (pStr - str), "%02X", (int)*pData);
       pStr += 2;
       *pStr++ = ' ';
     }

@@ -259,13 +259,7 @@ TEST_CASE("NChanDelayLine: single precision", "[unit][extras][nchandelay]")
   REQUIRE(IsDelayedCopy(in[1], out[1], delaySamples));
 }
 
-// BUG: IPlug/Extras/NChanDelay.h:58 does "mWriteAddress %= mDTSamples", which is an integer
-// division by zero (undefined behaviour, SIGFPE on x86) when the delay time is zero. That is the
-// case after SetDelayTime(0) - which a plug-in reporting zero latency would naturally call - and
-// also when ProcessBlock() is called before SetDelayTime(). The buffer is also zero sized then, so
-// lines 52-53 read and write out of bounds. A zero delay should pass the signal straight through.
-// NOTE: this test crashes rather than fails with the current implementation.
-TEST_CASE("NChanDelayLine: zero delay passes the signal through", "[.][bug]")
+TEST_CASE("NChanDelayLine: zero delay passes the signal through", "[unit][extras][nchandelay]")
 {
   constexpr int nFrames = 256;
 

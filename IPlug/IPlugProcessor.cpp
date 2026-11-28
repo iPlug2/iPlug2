@@ -152,16 +152,19 @@ void IPlugProcessor::GetBusName(ERoute direction, int busIdx, int nBuses, WDL_St
 int IPlugProcessor::MaxNBuses(ERoute direction, int* pConfigIdxWithTheMostBuses) const
 {
   int maxNBuses = 0;
+  int maxNChans = 0;
   int configWithMostBuses = 0;
 
   for (auto configIdx = 0; configIdx < NIOConfigs(); configIdx++)
   {
     IOConfig* pIConfig = mIOConfigs.Get(configIdx);
     int nBuses = pIConfig->NBuses(direction);
+    int nChans = pIConfig->GetTotalNChannels(direction);
     
-    if(nBuses >= maxNBuses)
+    if(nBuses > maxNBuses || (nBuses == maxNBuses && nChans >= maxNChans))
     {
       maxNBuses = nBuses;
+      maxNChans = nChans;
       configWithMostBuses = configIdx;
     }
   }
@@ -497,7 +500,15 @@ void IPlugProcessor::AttachBuffers(ERoute direction, int idx, int n, PLUG_SAMPLE
 void IPlugProcessor::PassThroughBuffers(PLUG_SAMPLE_DST type, int nFrames)
 {
   if (mLatency && mLatencyDelay)
+  {
     mLatencyDelay->ProcessBlock(mScratchData[ERoute::kInput].Get(), mScratchData[ERoute::kOutput].Get(), nFrames);
+
+    // zero the outs which have no matching input
+    for (int i = MaxNChannels(ERoute::kInput); i < MaxNChannels(ERoute::kOutput); ++i)
+    {
+      memset(mScratchData[ERoute::kOutput].Get()[i], 0, nFrames * sizeof(PLUG_SAMPLE_DST));
+    }
+  }
   else
     IPlugProcessor::ProcessBlock(mScratchData[ERoute::kInput].Get(), mScratchData[ERoute::kOutput].Get(), nFrames);
 }
@@ -591,6 +602,10 @@ void IPlugProcessor::SetBlockSize(int blockSize)
       IChannelData<>* pInChannel = mChannelData[ERoute::kInput].Get(i);
       pInChannel->mScratchBuf.Resize(blockSize);
       memset(pInChannel->mScratchBuf.Get(), 0, blockSize * sizeof(PLUG_SAMPLE_DST));
+
+      // an unconnected channel uses the scratch buffer, which may have moved
+      if (!pInChannel->mConnected)
+        *(pInChannel->mData) = pInChannel->mScratchBuf.Get();
     }
 
     for (i = 0; i < nOut; ++i)
@@ -598,6 +613,10 @@ void IPlugProcessor::SetBlockSize(int blockSize)
       IChannelData<>* pOutChannel = mChannelData[ERoute::kOutput].Get(i);
       pOutChannel->mScratchBuf.Resize(blockSize);
       memset(pOutChannel->mScratchBuf.Get(), 0, blockSize * sizeof(PLUG_SAMPLE_DST));
+
+      // an unconnected channel uses the scratch buffer, which may have moved
+      if (!pOutChannel->mConnected)
+        *(pOutChannel->mData) = pOutChannel->mScratchBuf.Get();
     }
 
     mBlockSize = blockSize;

@@ -54,17 +54,18 @@ struct ControlRamp
   void Write(float* buffer, int startIdx, int nFrames)
   {
     float val = static_cast<float>(startValue);
-    float dv = static_cast<float>((endValue - startValue)/(transitionEnd - transitionStart));
+    float dv = (transitionEnd > transitionStart) ? static_cast<float>((endValue - startValue)/(transitionEnd - transitionStart)) : 0.f;
 
-    for(int i=startIdx; i<startIdx + transitionStart; ++i)
+    for(int i=startIdx; i<startIdx + transitionStart && i<startIdx + nFrames; ++i)
     {
       buffer[i] = val;
     }
-    for(int i=startIdx + transitionStart; i<startIdx + transitionEnd; ++i)
+    for(int i=startIdx + transitionStart; i<startIdx + transitionEnd && i<startIdx + nFrames; ++i)
     {
       val += dv;
       buffer[i] = val;
     }
+    val = static_cast<float>(endValue);
     for(int i=startIdx + transitionEnd; i<startIdx + nFrames; ++i)
     {
       buffer[i] = val;
@@ -102,7 +103,7 @@ public:
       if(mSamplesRemaining == mGlideSamples)
       {
         // start glide
-        if(mSamplesRemaining > blockSize)
+        if(mStartOffset + mSamplesRemaining > blockSize)
         {
           // start with ramp to block end
           int glideStartSamples = blockSize - mStartOffset;
@@ -110,6 +111,7 @@ public:
           mpOutput.transitionStart = mStartOffset;
           mpOutput.transitionEnd = blockSize;
           mSamplesRemaining -= glideStartSamples;
+          mStartOffset = 0;
         }
         else
         {

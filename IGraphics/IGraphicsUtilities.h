@@ -59,7 +59,7 @@ static inline void RadialPoints(float angleDegrees, float cx, float cy, float rM
   
   for(auto i = 0; i < nPoints; i++)
   {
-    const float r = rMin+(rMax-rMin) * (float) i / float (nPoints-1);
+    const float r = nPoints > 1 ? rMin+(rMax-rMin) * (float) i / float (nPoints-1) : rMin;
     data[i][0] = (cx + r * cosV);
     data[i][1] = (cy + r * sinV);
   }

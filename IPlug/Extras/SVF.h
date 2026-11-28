@@ -57,11 +57,11 @@ public:
     const double k = 1.0 / Q;
 //    const double A = std::pow(10., gain / 40.);
 
-    static double minLogHz = std::log10(minHz);
-    static double maxLogHz = std::log10(maxHz);
+    const double minLogHz = std::log10(minHz);
+    const double maxLogHz = std::log10(maxHz);
     static const cdouble _1j = std::sqrt(cdouble(-1, 0));
 
-    const double w = std::pow(10., (x * (maxLogHz - minLogHz)) + minHz);
+    const double w = std::pow(10., (x * (maxLogHz - minLogHz)) + minLogHz);
     const cdouble s = _1j * w;
     cdouble result;
 
@@ -78,7 +78,7 @@ public:
       default: return 0.;
     }
 
-    const double magnitude = 20. * std::log10(std::abs(std::real(result)));
+    const double magnitude = 20. * std::log10(std::abs(result));
 
     //DBGMSG("%f\n", magnitude);
 
@@ -231,7 +231,7 @@ private:
       case kHighPassShelf:
       {
         const double A = std::pow(10., mState.gain/40.);
-        const double g = w / std::sqrt(A);
+        const double g = w * std::sqrt(A);
         const double k = 1. / mState.Q;
         m_a1 = 1./(1. + g * (g + k));
         m_a2 = g * m_a1;

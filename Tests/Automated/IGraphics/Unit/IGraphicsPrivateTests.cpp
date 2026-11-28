@@ -553,10 +553,8 @@ TEST_CASE("IFontInfo: Windows names are converted from UTF-16 to UTF-8", "[unit]
   REQUIRE(std::string(info.GetStyle().Get()) == "\xE2\x82\xAC\xF0\x9F\x98\x80!");
 }
 
-// BUG: IGraphicsPrivate.h:167 IFontInfo ignores its dataSize argument: none of the reads are bounds checked, so
-// data that is truncated (or that just starts with a font version tag) is read past its end rather than being
-// reported as invalid. Run under AddressSanitizer this test reports a heap-buffer-overflow.
-TEST_CASE("IFontInfo: truncated data is invalid", "[.][bug]")
+// reads are checked against the size of the data
+TEST_CASE("IFontInfo: truncated data is invalid", "[unit][ifontinfo]")
 {
   SECTION("a header that claims more tables than there is data for")
   {
@@ -581,11 +579,8 @@ TEST_CASE("IFontInfo: truncated data is invalid", "[.][bug]")
   }
 }
 
-// BUG: IGraphicsPrivate.h:333 for a font collection ('ttcf') IFontInfo::FindFace() advances mData to the face's
-// offset table, and the table offsets found there are then applied relative to that new position. In a TrueType
-// collection the table offsets are relative to the start of the file, so every table of a face is looked for in
-// the wrong place (the face's offset within the file too far along) and the names/metrics read are wrong.
-TEST_CASE("IFontInfo: reads the faces of a TrueType collection", "[.][bug]")
+// the table offsets of a face in a collection are relative to the start of the file
+TEST_CASE("IFontInfo: reads the faces of a TrueType collection", "[unit][ifontinfo]")
 {
   FontSpec regular;
   regular.names = {WindowsName(kFamilyNameID, "Collection"), WindowsName(kStyleNameID, "Regular")};
@@ -610,9 +605,6 @@ TEST_CASE("IFontInfo: reads the faces of a TrueType collection", "[.][bug]")
   PutU32(collection, 16, static_cast<uint32_t>(collection.size()));
   const Bytes boldFont = MakeFont(bold, collection.size());
   collection.insert(collection.end(), boldFont.begin(), boldFont.end());
-
-  // padding so that the misplaced reads described above stay inside the buffer
-  collection.resize(collection.size() + 4096, 0);
 
   IFontInfo face0 {collection.data(), NumBytes(collection), 0};
   CHECK(face0.IsValid());

@@ -163,9 +163,6 @@ public:
     if (mHideCursorOnDrag)
       GetUI()->HideMouseCursor(true, true);
 
-    if (GetParam())
-      GetDelegate()->BeginInformHostOfParamChangeFromUI(GetParamIdx());
-    
     mMouseIsDown = true;
   }
   
@@ -173,9 +170,6 @@ public:
   {
     if (mHideCursorOnDrag)
       GetUI()->HideMouseCursor(false);
-    
-    if (GetParam())
-      GetDelegate()->EndInformHostOfParamChangeFromUI(GetParamIdx());
     
     mMouseIsDown = false;
     

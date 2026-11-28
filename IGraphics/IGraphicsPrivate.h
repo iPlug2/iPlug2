@@ -166,6 +166,7 @@ class IFontInfo
 public:
   IFontInfo(const void* data, uint32_t dataSize, uint32_t faceIdx)
   : mData(reinterpret_cast<const unsigned char*>(data))
+  , mDataSize(dataSize)
   {
     if (mData)
       FindFace(faceIdx);
@@ -215,20 +216,28 @@ private:
     
   enum class EStringID { Mac, Windows };
     
+  bool InBounds(uint32_t loc, uint32_t size) const
+  {
+    return loc <= mDataSize && size <= mDataSize - loc;
+  }
+  
   bool MatchTag(uint32_t loc, const char* tag)
   {
-    return mData[loc+0] == tag[0] && mData[loc+1] == tag[1] && mData[loc+2] == tag[2] && mData[loc+3] == tag[3];
+    return InBounds(loc, 4) && mData[loc+0] == tag[0] && mData[loc+1] == tag[1] && mData[loc+2] == tag[2] && mData[loc+3] == tag[3];
   }
   
   uint32_t LocateTable(const char *tag)
   {
-    uint16_t numTables = GetUInt16(4);
+    uint16_t numTables = GetUInt16(mFaceLocation + 4);
     
     for (uint16_t i = 0; i < numTables; ++i)
     {
-      uint32_t tableLocation = 12 + (16 * i);
+      uint32_t tableLocation = mFaceLocation + 12 + (16 * i);
       if (MatchTag(tableLocation, tag))
-        return GetUInt32(tableLocation + 8);
+      {
+        uint32_t location = GetUInt32(tableLocation + 8);
+        return InBounds(location, GetUInt32(tableLocation + 12)) ? location : 0;
+      }
     }
     
     return 0;
@@ -307,7 +316,9 @@ private:
           }
             
           case EStringID::Mac:
-             return WDL_String((const char*)(mData + mNameLocation + stringLocation), length);
+            if (!InBounds(mNameLocation + stringLocation, length))
+              return WDL_String();
+            return WDL_String((const char*)(mData + mNameLocation + stringLocation), length);
         }
       }
     }
@@ -330,8 +341,12 @@ private:
       {
         if (faceIdx < GetSInt32(8))
         {
-          mData += GetUInt32(12 + faceIdx * 4);
-          return;
+          uint32_t faceLocation = GetUInt32(12 + faceIdx * 4);
+          if (InBounds(faceLocation, 0))
+          {
+            mFaceLocation = faceLocation;
+            return;
+          }
         }
       }
     }
@@ -353,20 +368,22 @@ private:
   }
   
 #if defined WDL_LITTLE_ENDIAN
-  uint16_t GetUInt16(uint32_t loc) { return (((uint16_t)mData[loc + 0]) << 8) | (uint16_t)mData[loc + 1]; }
-  int16_t GetSInt16(uint32_t loc) { return (((uint16_t)mData[loc + 0]) << 8) | (uint16_t)mData[loc + 1]; }
+  uint16_t GetUInt16(uint32_t loc) { return InBounds(loc, 2) ? (((uint16_t)mData[loc + 0]) << 8) | (uint16_t)mData[loc + 1] : 0; }
+  int16_t GetSInt16(uint32_t loc) { return GetUInt16(loc); }
   uint32_t GetUInt32(uint32_t loc) { return (((uint32_t)GetUInt16(loc + 0)) << 16) | (uint32_t)GetUInt16(loc + 2); }
   int32_t GetSInt32(uint32_t loc) { return (((uint32_t)GetUInt16(loc + 0)) << 16) | (uint32_t)GetUInt16(loc + 2); }
 #else
-  uint16_t GetUInt16(uint32_t loc) { return (((uint16_t)mData[loc + 1]) << 8) | (uint16_t)mData[loc + 0]; }
-  int16_t GetSInt16(uint32_t loc) { return (((uint16_t)mData[loc + 1]) << 8) | (uint16_t)mData[loc + 0]; }
+  uint16_t GetUInt16(uint32_t loc) { return InBounds(loc, 2) ? (((uint16_t)mData[loc + 1]) << 8) | (uint16_t)mData[loc + 0] : 0; }
+  int16_t GetSInt16(uint32_t loc) { return GetUInt16(loc); }
   uint32_t GetUInt32(uint32_t loc) { return (((uint32_t)GetUInt16(loc + 2)) << 16) | (uint32_t)GetUInt16(loc + 0); }
   int32_t GetSInt32(uint32_t loc) { return (((uint32_t)GetUInt16(loc + 2)) << 16) | (uint32_t)GetUInt16(loc + 0); }
 #endif
   
 private:
   const unsigned char* mData;
+  uint32_t mDataSize;
   
+  uint32_t mFaceLocation = 0; // the face's table directory: table locations are relative to the start of the data
   uint32_t mHeadLocation = 0;
   uint32_t mNameLocation = 0;
   uint32_t mHheaLocation = 0;

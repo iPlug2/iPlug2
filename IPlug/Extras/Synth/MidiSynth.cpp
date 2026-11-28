@@ -208,6 +208,7 @@ VoiceInputEvent MidiSynth::MidiMessageToEventMPE(const IMidiMsg& msg)
       else
       {
         event.mAction = kNullAction;
+        break;
       }
     }
     case IMidiMsg::kNoteOn:
@@ -419,7 +420,7 @@ bool MidiSynth::ProcessBlock(sample** inputs, sample** outputs, int nInputs, int
         IMidiMsg msg = mMidiQueue.Peek();
 
         // we assume the messages are in chronological order. If we find one later than the current block we are done.
-        if (msg.mOffset > startIndex + blockSize) break;
+        if (msg.mOffset >= startIndex + blockSize) break;
 
         if(IsRPNMessage(msg))
         {

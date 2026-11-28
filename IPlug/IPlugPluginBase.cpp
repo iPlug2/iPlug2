@@ -519,7 +519,7 @@ int IPluginBase::UnserializePresets(const IByteChunk& chunk, int startPos)
   {
     IPreset* pPreset = mPresets.Get(i);
     pos = chunk.GetStr(name, pos);
-    strcpy(pPreset->mName, name.Get());
+    snprintf(pPreset->mName, MAX_PRESET_NAME_LEN, "%s", name.Get());
     
     Trace(TRACELOC, "%d %s", i, pPreset->mName);
     

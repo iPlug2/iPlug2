@@ -154,13 +154,7 @@ TEST_CASE("ControlRamp: Write only touches the requested part of the buffer", "[
   REQUIRE(buffer[startIdx + nFrames - 1] == Approx(1.f).margin(1e-5));
 }
 
-// SUSPECTED BUG (minor): IPlug/Extras/Synth/ControlRamp.h:54-72 ControlRamp::Write() writes "val" for the
-// third piece of the ramp, relying on the transition loop having accumulated it up to endValue. For
-// a ramp whose transition is empty (transitionStart == transitionEnd, e.g. after Clear() and then
-// setting the values directly) the third piece is therefore written as startValue, where the
-// documented piecewise function says [transitionEnd, endValue] to [blockSize, endValue]. The same
-// case also divides by zero when calculating the increment (line 57).
-TEST_CASE("ControlRamp: Write with an empty transition steps to the end value", "[.][bug]")
+TEST_CASE("ControlRamp: Write with an empty transition steps to the end value", "[unit][extras][synth][controlramp]")
 {
   ControlRamp ramp = MakeRamp(0., 1., 4, 4);
 
@@ -333,15 +327,8 @@ TEST_CASE("ControlRampProcessor: Create makes one processor per ramp", "[unit][e
   REQUIRE(ramps[3].endValue == 4.);
 }
 
-// BUG: IPlug/Extras/Synth/ControlRamp.h:95-121 ControlRampProcessor::Process() decides whether a glide that
-// is just starting fits in the block by comparing the glide length alone with the block size
-// (line 105), ignoring the start offset. A glide that is no longer than a block but starts late in
-// it (offset + glideSamples > blockSize) is treated as "starts and finishes within block" and gets
-// transitionEnd = offset + glideSamples, beyond the end of the block. ControlRamp::Write() then
-// writes past the nFrames it was asked for (a buffer overflow for a block sized buffer), and a voice
-// that only reads endValue jumps to the target early. In VoiceAllocator this is reached by the note
-// glide (portamento) whenever a note starts late in a block with a short glide time.
-TEST_CASE("ControlRampProcessor: a glide starting late in a block carries over into the next", "[.][bug]")
+// A glide no longer than a block, but which starts too late in it to finish there
+TEST_CASE("ControlRampProcessor: a glide starting late in a block carries over into the next", "[unit][extras][synth][controlramp]")
 {
   constexpr int blockSize = 32;
   ControlRamp ramp;

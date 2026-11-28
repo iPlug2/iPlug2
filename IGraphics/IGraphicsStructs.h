@@ -19,6 +19,7 @@
 #include <functional>
 #include <vector>
 #include <chrono>
+#include <cmath>
 #include <numeric>
 
 #include "IPlugUtilities.h"
@@ -121,10 +122,10 @@ public:
   int H() const { return mH; }
 
   /** @return Width of a single frame in pixels */
-  int FW() const { return (mFramesAreHorizontal ? mW / mN : mW); }
+  int FW() const { return (mFramesAreHorizontal && mN > 0 ? mW / mN : mW); }
   
   /** @return Height of a single frame in pixels */
-  int FH() const { return (mFramesAreHorizontal ? mH : mH / mN); }
+  int FH() const { return (mFramesAreHorizontal || mN <= 0 ? mH : mH / mN); }
   
   /** @return number of frames */
   int N() const { return mN; }
@@ -330,7 +331,7 @@ struct IColor
 
     if (fMin == fMax) { s = 0.f; h = 0.f; l /= 100.f; return; }
     else if (l < 50.f) { s = 100.f * fDiff / fSum; }
-    else { s = 100.f * fDiff / (2.f - fDiff); }
+    else { s = 100.f * fDiff / (2.f - fSum); }
 
     if (fMax == fR) { h = 60.f * (fG - fB) / fDiff; }
     if (fMax == fG) { h = 60.f * (fB - fR) / fDiff + 120.f; }
@@ -410,7 +411,7 @@ struct IColor
   }
   
   /** Create an IColor from a color code in a CString. Can be used to convert a hex code into an IColor object.
-   * @param hexStr CString representation of the color code (no alpha). Use with hex numbers, e.g. "#ff38a2". WARNING: This does very little error checking
+   * @param hexStr CString representation of the color code, with or without alpha. Use with hex numbers, e.g. "#ff38a2" or "#ff38a2ff". WARNING: This does very little error checking
    * @return IColor A new IColor based on the color code provided */
   static IColor FromColorCodeStr(const char* hexStr)
   {
@@ -418,9 +419,14 @@ struct IColor
     
     if ((str.GetLength() == 7 || str.GetLength() == 9) && str.Get()[0] == '#')
     {
+      const bool hasAlpha = str.GetLength() == 9;
       str.DeleteSub(0, 1);
+      const unsigned long colorCode = std::stoul(str.Get(), nullptr, 16);
 
-      return FromColorCode(static_cast<int>(std::stoul(str.Get(), nullptr, 16)));
+      if (hasAlpha)
+        return FromColorCode(static_cast<int>(colorCode >> 8), static_cast<int>(colorCode & 0xFF));
+
+      return FromColorCode(static_cast<int>(colorCode));
     }
     else
     {
@@ -1832,8 +1838,8 @@ public:
   /** Fill an IRECTList with divisons of an input IRECT
    * @param input The input rectangle
    * @param rects The output IRECTList
-   * @param rowFractions Initializer list of fractions for the grid rows (should sum to 1.0)
-   * @param colFractions Initializer list of fractions for the grid columns (should sum to 1.0)
+   * @param rowFractions Initializer list of fractions for the grid rows (must sum to 1.0, within a tolerance of 0.0001 to allow for rounding error)
+   * @param colFractions Initializer list of fractions for the grid columns (must sum to 1.0, within the same tolerance)
    * @param layoutDir By default the cell idx increases horizontally (by row). If set to EDirection::Vertical, cell idx increases vertically (by column).
    * @return \c true if the row and column fractions summed to 1.0, and grid creation was successful */
   static bool GetFracGrid(const IRECT& input, IRECTList& rects, const std::initializer_list<float>& rowFractions, const std::initializer_list<float>& colFractions, EDirection layoutDir = EDirection::Horizontal)
@@ -1842,10 +1848,13 @@ public:
     float y = 0.;
     float x = 0.;
 
-    if(std::accumulate(rowFractions.begin(), rowFractions.end(), 0.f) != 1.)
+    // the fractions are summed in single precision, so allow for rounding error
+    const float tolerance = 1e-4f;
+
+    if(std::abs(std::accumulate(rowFractions.begin(), rowFractions.end(), 0.f) - 1.f) > tolerance)
       return false;
     
-    if(std::accumulate(colFractions.begin(), colFractions.end(), 0.f) != 1.)
+    if(std::abs(std::accumulate(colFractions.begin(), colFractions.end(), 0.f) - 1.f) > tolerance)
       return false;
 
     if (layoutDir == EDirection::Horizontal)
@@ -2480,7 +2489,8 @@ struct IVStyle
    * @param frameThickness The thickness of the controls frame elements
    * @param shadowOffset The distance of the shadow from the foreground
    * @param widgetFrac The fraction of the widget area (control area - label/value if shown) that the widget occupies
-   * @param angle The rotation angle in degrees of e.g. the handle/pointer on an IVSlider */
+   * @param angle The rotation angle in degrees of e.g. the handle/pointer on an IVSlider
+   * @param labelOrientation The side of the control on which the label is placed */
   IVStyle(bool showLabel = DEFAULT_SHOW_LABEL,
           bool showValue = DEFAULT_SHOW_VALUE,
           const IVColorSpec& colors = {DEFAULT_BGCOLOR, DEFAULT_FGCOLOR, DEFAULT_PRCOLOR, DEFAULT_FRCOLOR, DEFAULT_HLCOLOR, DEFAULT_SHCOLOR, DEFAULT_X1COLOR, DEFAULT_X2COLOR, DEFAULT_X3COLOR},
@@ -2510,6 +2520,7 @@ struct IVStyle
   , colorSpec(colors)
   , labelText(labelText)
   , valueText(valueText)
+  , labelOrientation(labelOrientation)
   {
   }
   

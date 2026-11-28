@@ -134,7 +134,8 @@ public:
     return mVoiceAllocator.GetNVoices();
   }
 
-  /** adds a SynthVoice to this MidiSynth, taking ownership of the object. */
+  /** adds a SynthVoice to this MidiSynth, taking ownership of the object.
+   * A note is only played by the voices in its zone, so with MPE a note in the upper zone needs voices added to zone 1 (the lower zone, and non-MPE notes, use zone 0). */
   void AddVoice(SynthVoice* pVoice, uint8_t zone)
   {
     mVoiceAllocator.AddVoice(pVoice, zone);
@@ -181,8 +182,8 @@ private:
   // handy functions for writing loops on lower and upper Zone member channels
   int LowerZoneStart() const { return 1; }
   int LowerZoneEnd() const { return mMPELowerZoneChannels - 1; }
-  int UpperZoneStart() const {  return 15 - mMPEUpperZoneChannels; }
-  int UpperZoneEnd() const { return 15; }
+  int UpperZoneStart() const { return 16 - mMPEUpperZoneChannels; }
+  int UpperZoneEnd() const { return 14; }
 
   void SetMPEZones(int channel, int nChans);
   void SetChannelPitchBendRange(int channel, int range);

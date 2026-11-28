@@ -488,10 +488,7 @@ TEST_CASE("IColor: GetHSLA outputs are normalized", "[unit][icolor]")
   REQUIRE(allNormalized);
 }
 
-// BUG: IGraphicsStructs.h:331 IColor::GetHSLA() calculates the saturation of colors with a lightness of 0.5 or
-// more as diff / (2 - diff) where it should be diff / (2 - max - min). The two only agree when min is zero, so
-// the saturation is wrong (too low) for all light colors, e.g. pink (255, 128, 128) should be fully saturated.
-TEST_CASE("IColor: GetHSLA saturation of light colors", "[.][bug]")
+TEST_CASE("IColor: GetHSLA saturation of light colors", "[unit][icolor]")
 {
   SECTION("pink is a fully saturated light red")
   {
@@ -775,11 +772,7 @@ TEST_CASE("IColor: color code string round trip without alpha", "[unit][icolor]"
   REQUIRE(allMatch);
 }
 
-// BUG: IGraphicsStructs.h:417-421 IColor::FromColorCodeStr() accepts the 9 character "#rrggbbaa" form that
-// ToColorCodeStr() produces by default, but passes all 8 hex digits to FromColorCode(), which only looks at the
-// low 24 bits. The result is R = gg, G = bb, B = aa and A = 255, rather than the color that was written out.
-// (std::stoul() -> int also overflows for codes of 0x80000000 and above.)
-TEST_CASE("IColor: color code string round trip with alpha", "[.][bug]")
+TEST_CASE("IColor: color code string round trip with alpha", "[unit][icolor]")
 {
   CHECK(SameColor(IColor::FromColorCodeStr("#55a6ff88"), IColor(0x88, 0x55, 0xa6, 0xff)));
   CHECK(SameColor(IColor::FromColorCodeStr("#ff0000ff"), COLOR_RED));

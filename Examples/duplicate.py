@@ -202,6 +202,49 @@ def dirwalk(dir, searchproject, replaceproject, searchman, replaceman, oldroot= 
     else:
       yield f, fullpath
 
+def update_uniqueid_in_resources(projectpath, oldid, newid, mfrid=""):
+  """PLUG_UNIQUE_ID also appears in the plists (e.g. the AU subtype and CFBundleSignature), the AAX page table and the
+  auval arguments of the Xcode schemes. The Xcode build regenerates the plists from config.h, but other builds
+  (e.g. CMake) use them as they are, so a duplicate would share the original's IDs. Returns the updated files"""
+  # The manufacturer ID is also a <string> in the plists, so if it is the same as the unique ID it can't be told apart
+  if oldid == mfrid:
+    print("warning: PLUG_UNIQUE_ID is the same as PLUG_MFR_ID, so it was not updated in the plists")
+    return []
+
+  patterns = [
+    (re.compile(r"<string>" + re.escape(oldid) + r"</string>"), "<string>" + newid + "</string>"),
+    (re.compile(r"prodID='" + re.escape(oldid) + r"'"), "prodID='" + newid + "'"),
+    (re.compile(r"\b(au[a-z]{2}) " + re.escape(oldid) + r"\b"), r"\1 " + newid),
+  ]
+
+  updated = []
+
+  for root, dirs, files in os.walk(projectpath):
+    for f in files:
+      if not (f.endswith(".plist") or f.endswith("-Pages.xml") or f.endswith(".xcscheme")):
+        continue
+
+      path = os.path.join(root, f)
+
+      # newline="" keeps each file's line endings
+      try:
+        with open(path, encoding="utf-8", newline="") as fh:
+          text = fh.read()
+      except UnicodeDecodeError:
+        print("warning: skipping " + path + ", it is not UTF-8 text")
+        continue
+
+      newtext = text
+      for pattern, replacement in patterns:
+        newtext = pattern.sub(replacement, newtext)
+
+      if newtext != text:
+        with open(path, "w", encoding="utf-8", newline="") as fh:
+          fh.write(newtext)
+        updated.append(os.path.relpath(path, projectpath))
+
+  return updated
+
 def main():
   global VERSION
   print("\nIPlug Project Duplicator v" + VERSION + " by Oli Larkin ------------------------------\n")
@@ -286,11 +329,15 @@ def main():
   try:
     config = parse_config(outputpath)
 
+    olduniqueid = config["PLUG_UNIQUE_ID"]
     uniqueid = randomFourChar()
 
     # set_uniqueid() re-parses config.h into the same dict, leaving the old ID in it
     set_uniqueid(outputpath, uniqueid)
     config["PLUG_UNIQUE_ID"] = uniqueid
+
+    for f in update_uniqueid_in_resources(outputpath, olduniqueid, uniqueid, config.get("PLUG_MFR_ID", "")):
+      print("Updated PLUG_UNIQUE_ID in " + f)
 
     # the VST3 class ID is derived from PLUG_MFR_ID and PLUG_UNIQUE_ID, so the REAPER project must be updated to match
     if len(config["PLUG_MFR_ID"]) == 4:

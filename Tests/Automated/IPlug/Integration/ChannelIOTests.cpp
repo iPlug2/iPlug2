@@ -644,10 +644,7 @@ TEST_CASE("ChannelIO: LimitToStereoIO() disconnects outputs beyond the first two
   CHECK_FALSE(plug.IsChannelConnected(ERoute::kOutput, 3));
 }
 
-// BUG: IPlugProcessor::MaxNBuses() (IPlug/IPlugProcessor.cpp) is documented to report, when several configs have the
-// same (maximum) number of buses, "the one with the higher channel count". It actually reports the last such config,
-// whatever its channel count.
-TEST_CASE("ChannelIO: MaxNBuses() reports the widest of the configs with the most buses", "[.][bug]")
+TEST_CASE("ChannelIO: MaxNBuses() reports the widest of the configs with the most buses", "[integration][channelio]")
 {
   IOPlug plug {"2-2 1-1"};
 

@@ -10,10 +10,6 @@
 
 // Unit tests for LanczosResampler and RealtimeResampler (IPlug/Extras/LanczosResampler.h, RealtimeResampler.h)
 
-// RealtimeResampler.h does not compile with GCC before 13 ("declaration of 'using LanczosResampler = ...' changes
-// meaning of 'LanczosResampler'"), so these tests are left out there
-#if !defined(__GNUC__) || defined(__clang__) || __GNUC__ >= 13
-
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/catch_approx.hpp>
 #include <catch2/generators/catch_generators.hpp>
@@ -823,14 +819,9 @@ TEST_CASE("RealtimeResampler: no latency is reported when the rates are equal", 
   REQUIRE(resampler.GetLatency() == 0);
 }
 
-// BUG: IPlug/Extras/RealtimeResampler.h:196-197 LinearInterpolate() reads inputs[chan][readPosInt - 1]
-// when there is no next sample to interpolate towards. For a one sample block (which hosts do send,
-// e.g. when splitting blocks for sample accurate automation) readPosInt is 0, so this reads
-// inputs[chan][-1]: one element before the start of the caller's buffer (reported by AddressSanitizer
-// as a buffer underflow). Since the interpolation weight is zero in that case the value read is not
-// used, so a debugger/sanitizer is needed to see it; the expectation here is simply that a one sample
-// block passes through.
-TEST_CASE("RealtimeResampler: linear interpolation of a one sample block", "[.][bug]")
+// Hosts do send one sample blocks, e.g. when splitting blocks for sample accurate automation. Run
+// under AddressSanitizer this also checks that nothing outside the block is read.
+TEST_CASE("RealtimeResampler: linear interpolation of a one sample block", "[unit][extras][resampler]")
 {
   Realtime resampler(48000., Realtime::ESRCMode::kLinearInterpolation);
   resampler.Reset(44100., 64);
@@ -845,5 +836,3 @@ TEST_CASE("RealtimeResampler: linear interpolation of a one sample block", "[.][
   REQUIRE(outL[0] == Approx(0.5));
   REQUIRE(outR[0] == Approx(-0.5));
 }
-
-#endif // GCC >= 13
