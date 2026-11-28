@@ -149,11 +149,8 @@ TEST_CASE("ITextEntryControl: escape cancels the edit", "[integration][controls]
   REQUIRE(f.mUI->CountOpsInside(IGraphicsHeadless::DrawOp::EType::Text, kTextBounds) == 1);
 }
 
-// BUG: ITextEntryControl::Draw() (IGraphics/Controls/ITextEntryControl.cpp:89) does not check mEditing, and the control
-// is not hidden when an edit ends: DismissEdit()/CommitEdit() only give it an empty rectangle. IGraphics::DrawControl()
-// pads that rectangle by 0.75 and pixel-aligns it, so whenever the top left corner of the UI is redrawn the finished
-// text entry draws its stale string (and cursor) into a 1 pixel region at the origin.
-TEST_CASE("ITextEntryControl: draws nothing once the edit has ended", "[.][bug]")
+// The control stays in the control stack with an empty rectangle, which is still drawn when the origin is redrawn
+TEST_CASE("ITextEntryControl: draws nothing once the edit has ended", "[integration][controls][textentry][drawing]")
 {
   Fixture f;
   f.EditText();

@@ -88,6 +88,9 @@ ITextEntryControl::ITextEntryControl()
 
 void ITextEntryControl::Draw(IGraphics& g)
 {
+  if (!mEditing)
+    return;
+
   g.FillRect(mText.mTextEntryBGColor, mRECT);
 
   StbTexteditRow row;
