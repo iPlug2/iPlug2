@@ -1379,10 +1379,7 @@ TEST_CASE("IPopupMenu: RemoveEmptySubmenus leaves a menu without empty submenus 
   REQUIRE(emptyMenu.NItems() == 0);
 }
 
-// BUG: IGraphicsPopupMenu.h:214 IPopupMenu::RemoveEmptySubmenus() removes the items from the list with
-// WDL_PtrList::DeletePtr(p), which only removes the pointer: the Item (and the empty IPopupMenu it owns) is
-// never deleted, so every removed submenu is leaked (as LeakSanitizer also reports when this test is run).
-TEST_CASE("IPopupMenu: RemoveEmptySubmenus removes and frees the items with empty submenus", "[.][bug]")
+TEST_CASE("IPopupMenu: RemoveEmptySubmenus removes and frees the items with empty submenus", "[unit][ipopupmenu]")
 {
   auto tracker = std::make_shared<int>(0);
 
