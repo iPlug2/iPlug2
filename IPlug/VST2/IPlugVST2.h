@@ -42,6 +42,7 @@ public:
   void InformHostOfParamChange(int idx, double normalizedValue) override;
   void EndInformHostOfParamChange(int idx) override;
   void InformHostOfPresetChange() override;
+  void InformHostOfParameterDetailsChange() override;
   void HostSpecificInit() override;
   bool EditorResize(int viewWidth, int viewHeight) override;
 

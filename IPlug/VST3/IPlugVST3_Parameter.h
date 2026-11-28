@@ -25,6 +25,18 @@ public:
   IPlugVST3Parameter(IParam* pParam, Steinberg::Vst::ParamID tag, Steinberg::Vst::UnitID unitID)
   : mIPlugParam(pParam)
   {
+    info.id = tag;
+    info.unitId = unitID;
+    UpdateInfo();
+    valueNormalized = info.defaultNormalizedValue;
+  }
+
+  /** Copies the name, units, step count, flags and default value from the IParam, after it has been re-initialized.
+   * The parameter's unit (group) can't change. */
+  void UpdateInfo()
+  {
+    IParam* pParam = mIPlugParam;
+
     Steinberg::UString(info.title, str16BufferSize(Steinberg::Vst::String128)).assign(pParam->GetName());
     Steinberg::UString(info.units, str16BufferSize(Steinberg::Vst::String128)).assign(pParam->GetLabel());
 
@@ -40,10 +52,8 @@ public:
     if (pParam->GetCanAutomate()) flags |= Steinberg::Vst::ParameterInfo::kCanAutomate;
     if (pParam->Type() == IParam::kTypeEnum) flags |= Steinberg::Vst::ParameterInfo::kIsList;
 
-    info.defaultNormalizedValue = valueNormalized = pParam->ToNormalized(pParam->GetDefault());
+    info.defaultNormalizedValue = pParam->ToNormalized(pParam->GetDefault());
     info.flags = flags;
-    info.id = tag;
-    info.unitId = unitID;
   }
 
   void toString(Steinberg::Vst::ParamValue valueNormalized, Steinberg::Vst::String128 string) const override

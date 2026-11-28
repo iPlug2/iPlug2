@@ -316,8 +316,7 @@ void IPlugVST3::EndInformHostOfParamChange(int idx)
 
 void IPlugVST3::InformHostOfParameterDetailsChange()
 {
-  FUnknownPtr<IComponentHandler> handler(componentHandler);
-  handler->restartComponent(kParamTitlesChanged);
+  IPlugVST3ControllerBase::UpdateParameterDetails(this, componentHandler);
 }
 
 bool IPlugVST3::EditorResize(int viewWidth, int viewHeight)

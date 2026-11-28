@@ -93,6 +93,7 @@ public:
   void BeginInformHostOfParamChange(int idx) override;
   void InformHostOfParamChange(int idx, double normalizedValue) override;
   void EndInformHostOfParamChange(int idx) override;
+  void InformHostOfParameterDetailsChange() override;
   bool EditorResize(int viewWidth, int viewHeight) override;
   
   // IPlugProcessor
@@ -235,6 +236,7 @@ private:
   bool mHostHasTail = false;
   bool mTailUpdate = false;
   bool mLatencyUpdate = false;
+  bool mParamsRescanAllPending = false; // a full parameter rescan has to wait until the plug-in is deactivated
   
   void* mWindow = nullptr;
   bool mGUIOpen = false;

@@ -347,6 +347,23 @@ public:
   
 protected:
   
+  /** Refreshes the VST3 parameter infos and values from the IParams and tells the host to re-read them.
+   * Call on the main thread after re-initializing parameters */
+  void UpdateParameterDetails(IPlugAPIBase* pPlug, Steinberg::Vst::IComponentHandler* pHandler)
+  {
+    for (int i = 0; i < pPlug->NParams(); i++)
+    {
+      if (auto* pParameter = dynamic_cast<IPlugVST3Parameter*>(mParameters.getParameter(i)))
+      {
+        pParameter->UpdateInfo();
+        pParameter->setNormalized(pPlug->GetParam(i)->GetNormalized());
+      }
+    }
+
+    if (pHandler)
+      pHandler->restartComponent(Steinberg::Vst::kParamTitlesChanged | Steinberg::Vst::kParamValuesChanged);
+  }
+
   bool SetVST3ParamNormalized(Steinberg::Vst::ParamID tag, Steinberg::Vst::ParamValue value)
   {
     Steinberg::Vst::Parameter* parameter = mParameters.getParameter(tag);

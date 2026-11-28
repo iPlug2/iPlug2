@@ -24,6 +24,10 @@ add_subdirectory(IPlugVisualizer)
 set(CMAKE_FOLDER "Examples/ARA")
 add_subdirectory(IPlugARAExample)
 
+# Faust examples (skipped if Faust is not installed)
+set(CMAKE_FOLDER "Examples/Faust")
+add_subdirectory(IPlugFaustDSP)
+
 # WebView examples
 set(CMAKE_FOLDER "Examples/WebView")
 if(NOT CMAKE_SYSTEM_NAME STREQUAL "Linux" OR IPLUG_LINUX_WEBVIEW_EXAMPLES)

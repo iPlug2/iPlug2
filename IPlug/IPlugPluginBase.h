@@ -122,7 +122,9 @@ public:
    * @return CString for the unique group name */
   const char* GetParamGroupName(int idx) const { return mParamGroups.Get(idx); }
   
-  /** Implemented by the API class, call this if you update parameter labels and hopefully the host should update it's displays (not applicable to all APIs) */
+  /** Implemented by the API class. Call this on the main thread after re-initializing parameters (names, groups, units, ranges, defaults or display texts),
+   * so that the host re-reads them. Supported by VST3, CLAP (ranges/defaults/flags are rescanned after the host restarts the plug-in), AUv2 and VST2 (display update only).
+   * Not supported by AAX and AUv3. The number of parameters can't change. */
   virtual void InformHostOfParameterDetailsChange() {};
     
 #pragma mark - State Serialization

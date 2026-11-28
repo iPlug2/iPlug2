@@ -1,0 +1,2 @@
+# .dsp files here are Faust source code, not Visual C++ 6 projects
+*.dsp text eol=lf
