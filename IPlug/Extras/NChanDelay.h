@@ -39,6 +39,17 @@ public:
 
   void ProcessBlock(T** inputs, T** outputs, int nFrames)
   {
+    if (mDTSamples == 0)
+    {
+      for (auto c = 0; c < mNInChans && c < mNOutChans; c++)
+      {
+        for (auto s = 0; s < nFrames; ++s)
+          outputs[c][s] = inputs[c][s];
+      }
+
+      return;
+    }
+
     T* buffer = mBuffer.Get();
 
     for (auto s = 0 ; s < nFrames; ++s)
