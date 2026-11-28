@@ -586,18 +586,12 @@ TEST_CASE("SVF: single precision samples", "[unit][extras][svf]")
   REQUIRE(highGain == Approx(ExpectedGainDB(Filter::kLowPass, SnapToWindow(8000., sr), 1000., kButterworthQ, sr)).margin(0.25));
 }
 
-// BUG: IPlug/Extras/SVF.h:52 SVF::PlotResponse() does not return the magnitude response in dB:
-//  - line 64 computes the frequency as pow(10, x * (maxLogHz - minLogHz) + minHz), adding minHz
-//    where it should add minLogHz, so the frequency axis is off by a factor of 10 with the defaults
-//  - line 81 takes std::abs(std::real(result)) rather than std::abs(result), so e.g. a lowpass at its
-//    cutoff, where the response is purely imaginary, comes out as -infinity rather than 20log10(Q)
-//  - minLogHz/maxLogHz are function-local statics, so the minHz/maxHz of the first ever call are
-//    used for every later call
-TEST_CASE("SVF: PlotResponse returns the magnitude response in dB", "[.][bug]")
+TEST_CASE("SVF: PlotResponse returns the magnitude response in dB", "[unit][extras][svf]")
 {
   const double cutoff = 1000.;
-  const double minHz = 1.;
-  const double maxHz = 20000.;
+  // more than one frequency range, as the range applies per call
+  const double minHz = GENERATE(1., 20.);
+  const double maxHz = GENERATE(20000., 16000.);
 
   // x is the normalised position on a log frequency axis from minHz to maxHz
   const auto xForFreq = [=](double freq) { return std::log10(freq / minHz) / std::log10(maxHz / minHz); };
