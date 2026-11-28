@@ -931,11 +931,7 @@ TEST_CASE("IVNumberBoxControl: dragging up increases the value and dragging down
   REQUIRE(f.mDlg.mParamEvents.back().mType == ParamEvent::EType::End);
 }
 
-// BUG: IVNumberBoxControl::OnMouseDown()/OnMouseUp() (IGraphics/Controls/IVNumberBoxControl.h:161 and :172) call
-// BeginInformHostOfParamChangeFromUI()/EndInformHostOfParamChangeFromUI() themselves, but IGraphics::OnMouseDown() and
-// IGraphics::OnMouseUp() already do that for every control linked to a parameter, so each drag on a number box sends
-// the host two begin-gesture and two end-gesture notifications.
-TEST_CASE("IVNumberBoxControl: a drag is a single gesture for the host", "[.][bug]")
+TEST_CASE("IVNumberBoxControl: a drag is a single gesture for the host", "[integration][controls][numberbox][mouse][params]")
 {
   Fixture f;
   auto* pBox = f.Attach(new IVNumberBoxControl(IRECT(100, 50, 200, 80), kSteps, nullptr, "", kPlainStyle));
