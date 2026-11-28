@@ -277,13 +277,8 @@ TEST_CASE("SVF: high shelf applies the gain above the cutoff", "[unit][extras][s
   REQUIRE(MeasureGainDB(filter, SnapToWindow(15000., sr), sr) == Approx(gainDB).margin(0.2));
 }
 
-// BUG: IPlug/Extras/SVF.h:234 (kHighPassShelf in UpdateCoefficients) computes "g = w / std::sqrt(A)",
-// copied from the low shelf. In the Cytomic design this filter is based on, the high shelf uses
-// g = w * sqrt(A). The shelf gains at DC and Nyquist are still correct, but the transition is
-// centred a factor of A away from the cutoff (an octave too low for +12dB, an octave too high for
-// -12dB) rather than at the cutoff, where the gain should be half the shelf gain in dB as it is for
-// the low shelf.
-TEST_CASE("SVF: high shelf transition is centred on the cutoff", "[.][bug]")
+// half the gain (in dB) at the cutoff, as for the low shelf
+TEST_CASE("SVF: high shelf transition is centred on the cutoff", "[unit][extras][svf]")
 {
   const double sr = 48000.;
   const double gainDB = GENERATE(-12., 12.);
