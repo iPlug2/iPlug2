@@ -31,10 +31,8 @@ TEST_CASE("IBitmap: default construction is invalid", "[unit][ibitmap]")
   REQUIRE(std::string(bitmap.GetResourceName().Get()).empty());
 }
 
-// BUG: IGraphicsStructs.h:122/125 IBitmap::FW()/FH() divide by the number of frames, which is zero for a
-// default constructed IBitmap, so asking an invalid bitmap for its frame size (as IRECT(x, y, bitmap) and
-// IRECT::GetCentredInside(bitmap) do) is an integer division by zero.
-TEST_CASE("IBitmap: a default constructed bitmap has a frame size of zero", "[.][bug]")
+// a bitmap with no frames must not divide by its number of frames
+TEST_CASE("IBitmap: a default constructed bitmap has a frame size of zero", "[unit][ibitmap]")
 {
   IBitmap bitmap;
   CHECK(bitmap.FW() == 0);
